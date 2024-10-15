@@ -1,0 +1,2 @@
+ninja: Entering directory `/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/Debug/634z5j4k/x86'
+ninja: no work to do.

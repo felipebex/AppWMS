@@ -1,0 +1,145 @@
+[
+  {
+    "level_": 0,
+    "message_": "Start JSON generation. Platform version: 19 min SDK version: armeabi-v7a",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "rebuilding JSON /Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/RelWithDebInfo/675e1x3l/armeabi-v7a/android_gradle_build.json due to:",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "- no fingerprint file, will remove stale configuration folder",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "removing stale contents from \u0027/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/RelWithDebInfo/675e1x3l/armeabi-v7a\u0027",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "created folder \u0027/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/RelWithDebInfo/675e1x3l/armeabi-v7a\u0027",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "executing cmake /Users/estebanrodriguezmarles/Library/Android/sdk/cmake/3.22.1/bin/cmake \\\n  -H/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android \\\n  -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n  -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n  -DCMAKE_SYSTEM_VERSION\u003d19 \\\n  -DANDROID_PLATFORM\u003dandroid-19 \\\n  -DANDROID_ABI\u003darmeabi-v7a \\\n  -DCMAKE_ANDROID_ARCH_ABI\u003darmeabi-v7a \\\n  -DANDROID_NDK\u003d/Users/estebanrodriguezmarles/Library/Android/sdk/ndk/25.1.8937393 \\\n  -DCMAKE_ANDROID_NDK\u003d/Users/estebanrodriguezmarles/Library/Android/sdk/ndk/25.1.8937393 \\\n  -DCMAKE_TOOLCHAIN_FILE\u003d/Users/estebanrodriguezmarles/Library/Android/sdk/ndk/25.1.8937393/build/cmake/android.toolchain.cmake \\\n  -DCMAKE_MAKE_PROGRAM\u003d/Users/estebanrodriguezmarles/Library/Android/sdk/cmake/3.22.1/bin/ninja \\\n  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/estebanrodriguezmarles/Downloads/appwms/build/rive_common/intermediates/cxx/RelWithDebInfo/675e1x3l/obj/armeabi-v7a \\\n  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/Users/estebanrodriguezmarles/Downloads/appwms/build/rive_common/intermediates/cxx/RelWithDebInfo/675e1x3l/obj/armeabi-v7a \\\n  -DCMAKE_BUILD_TYPE\u003dRelWithDebInfo \\\n  -B/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/RelWithDebInfo/675e1x3l/armeabi-v7a \\\n  -GNinja\n",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "/Users/estebanrodriguezmarles/Library/Android/sdk/cmake/3.22.1/bin/cmake \\\n  -H/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android \\\n  -DCMAKE_SYSTEM_NAME\u003dAndroid \\\n  -DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON \\\n  -DCMAKE_SYSTEM_VERSION\u003d19 \\\n  -DANDROID_PLATFORM\u003dandroid-19 \\\n  -DANDROID_ABI\u003darmeabi-v7a \\\n  -DCMAKE_ANDROID_ARCH_ABI\u003darmeabi-v7a \\\n  -DANDROID_NDK\u003d/Users/estebanrodriguezmarles/Library/Android/sdk/ndk/25.1.8937393 \\\n  -DCMAKE_ANDROID_NDK\u003d/Users/estebanrodriguezmarles/Library/Android/sdk/ndk/25.1.8937393 \\\n  -DCMAKE_TOOLCHAIN_FILE\u003d/Users/estebanrodriguezmarles/Library/Android/sdk/ndk/25.1.8937393/build/cmake/android.toolchain.cmake \\\n  -DCMAKE_MAKE_PROGRAM\u003d/Users/estebanrodriguezmarles/Library/Android/sdk/cmake/3.22.1/bin/ninja \\\n  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003d/Users/estebanrodriguezmarles/Downloads/appwms/build/rive_common/intermediates/cxx/RelWithDebInfo/675e1x3l/obj/armeabi-v7a \\\n  -DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003d/Users/estebanrodriguezmarles/Downloads/appwms/build/rive_common/intermediates/cxx/RelWithDebInfo/675e1x3l/obj/armeabi-v7a \\\n  -DCMAKE_BUILD_TYPE\u003dRelWithDebInfo \\\n  -B/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/RelWithDebInfo/675e1x3l/armeabi-v7a \\\n  -GNinja\n",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "Exiting generation of /Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/RelWithDebInfo/675e1x3l/armeabi-v7a/compile_commands.json.bin normally",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "done executing cmake",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "hard linked /Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/RelWithDebInfo/675e1x3l/armeabi-v7a/compile_commands.json to /Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/.cxx/tools/profile/armeabi-v7a/compile_commands.json",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  },
+  {
+    "level_": 0,
+    "message_": "JSON generation completed without problems",
+    "file_": "/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/rive_common-0.4.11/android/CMakeLists.txt",
+    "tag_": "profile|armeabi-v7a",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 0
+  }
+]
