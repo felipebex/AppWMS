@@ -152,7 +152,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               if (scannedValue1.toLowerCase() ==
                                                   currentProduct?.locationId
                                                       .toLowerCase()) {
-                                                
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
                                                         field: "location",
@@ -171,9 +170,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   FocusScope.of(context)
                                                       .requestFocus(focusNode2);
                                                 });
-
-
-
                                               } else {
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
@@ -450,10 +446,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   );
                                                 }).toList(),
 
-                                                onChanged: !batchBloc
-                                                        .locationIsOk && batchBloc.productIsOk
-                                                    ? null
-                                                    : (String? newValue) {
+                                                onChanged: batchBloc
+                                                            .locationIsOk &&
+                                                        !batchBloc.productIsOk
+                                                    ? (String? newValue) {
                                                         if (newValue ==
                                                             currentProduct
                                                                 ?.productId) {
@@ -485,21 +481,22 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                   field:
                                                                       "product",
                                                                   isOk: false));
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                                  SnackBar(
+                                                            duration:
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        1000),
+                                                            content: const Text(
+                                                                'Producto erroneo'),
+                                                            backgroundColor:
+                                                                Colors.red[200],
+                                                          ));
                                                         }
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                                SnackBar(
-                                                          duration:
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      1000),
-                                                          content: const Text(
-                                                              'Producto erroneo'),
-                                                          backgroundColor:
-                                                              Colors.red[200],
-                                                        ));
-                                                      },
+                                                      }
+                                                    : null,
                                               ),
                                             ),
                                             const SizedBox(height: 10),
