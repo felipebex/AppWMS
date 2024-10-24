@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print
 
+import 'dart:math';
+
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_api_module.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
@@ -15,6 +17,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<ProductsBatch> listOfProductsBatch = [];
   List<ProductsBatch> filteredProducts = [];
   List<ProductsBatch> listOfProductsBatchDB = [];
+
+  //*validaciones de campos
+  bool isLocationOk = true;
+  bool isProductOk = true;
+  bool isLocationDestOk = true;
+  bool isQuantityOk = true;
 
   //*controller para la busqueda
   TextEditingController searchController = TextEditingController();
@@ -81,11 +89,31 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<ChangeCurrentProduct>(_onChangeCurrentProduct);
 
     on<SelectNovedadEvent>(_onSelectNovedadEvent);
+
+    on<ValidateFieldsEvent>(_onValidateFields);
+  }
+
+  void _onValidateFields(ValidateFieldsEvent event, Emitter<BatchState> emit) {
+    switch (event.field) {
+      case 'location':
+        isLocationOk = event.isOk;
+        break;
+      case 'product':
+        isProductOk = event.isOk;
+        break;
+      case 'locationDest':
+        isLocationDestOk = event.isOk;
+        break;
+      case 'quantity':
+        isQuantityOk = event.isOk;
+        break;
+    }
+    emit(ValidateFieldsState(event.isOk));
   }
 
   void _onSelectNovedadEvent(
       SelectNovedadEvent event, Emitter<BatchState> emit) {
-        print('event.novedad: ${event.novedad}');
+    print('event.novedad: ${event.novedad}');
     // selectedNovedad = event.novedad;
     emit(SelectNovedadState(event.novedad));
   }

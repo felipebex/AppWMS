@@ -62,3 +62,9 @@ class SelectNovedadState extends BatchState {
   final String novedad;
   SelectNovedadState(this.novedad);
 }
+
+
+class ValidateFieldsState extends BatchState {
+  final bool isOk;
+  ValidateFieldsState(this.isOk);
+}

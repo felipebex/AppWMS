@@ -77,7 +77,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is ChangeIsOkState ||
             state is CurrentProductChangedState ||
             state is SelectNovedadState ||
-            state is QuantityChangedState) {
+            state is QuantityChangedState ||
+            state is ValidateFieldsState) {
           return Scaffold(
             backgroundColor: Colors.white,
             body: Column(
@@ -130,9 +131,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                 ),
                                 Card(
-                                  color: batchBloc.locationIsOk
-                                      ? Colors.green[100]
-                                      : Colors.grey[300],
+                                  color: batchBloc.isLocationOk
+                                      ? batchBloc.locationIsOk
+                                          ? Colors.green[100]
+                                          : Colors.grey[300]
+                                      : Colors.red[200],
                                   elevation: 5,
                                   child: Container(
                                     width: size.width * 0.85,
@@ -146,24 +149,36 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           if (event.logicalKey ==
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue1.isNotEmpty) {
-                                              print(
-                                                  "ScannedValue1: $scannedValue1");
-                                              //todo? aca es donde validamos la entrada con la ubicacion del producto
                                               if (scannedValue1.toLowerCase() ==
                                                   currentProduct?.locationId
                                                       .toLowerCase()) {
+                                                
+                                                batchBloc.add(
+                                                    ValidateFieldsEvent(
+                                                        field: "location",
+                                                        isOk: true));
+
                                                 batchBloc.add(
                                                     ChangeLocationIsOkEvent(
                                                         true));
+
                                                 batchBloc.oldLocation =
                                                     currentProduct?.locationId;
+
                                                 Future.delayed(
                                                     const Duration(seconds: 1),
                                                     () {
                                                   FocusScope.of(context)
                                                       .requestFocus(focusNode2);
                                                 });
+
+
+
                                               } else {
+                                                batchBloc.add(
+                                                    ValidateFieldsEvent(
+                                                        field: "location",
+                                                        isOk: false));
                                                 setState(() {
                                                   scannedValue1 =
                                                       ""; //limpiamos el valor escaneado
@@ -173,7 +188,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   duration: const Duration(
                                                       milliseconds: 1000),
                                                   content: const Text(
-                                                      'Codigo erroneo'),
+                                                      'Ubicacion erronea'),
                                                   backgroundColor:
                                                       Colors.red[200],
                                                 ));
@@ -233,6 +248,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             currentProduct
                                                                 ?.locationId) {
                                                           batchBloc.add(
+                                                              ValidateFieldsEvent(
+                                                                  field:
+                                                                      "location",
+                                                                  isOk: true));
+                                                          batchBloc.add(
                                                               ChangeLocationIsOkEvent(
                                                                   true));
                                                           batchBloc
@@ -252,8 +272,24 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           // Aquí puedes usar un FocusNode si es necesario
                                                           // FocusScope.of(context).requestFocus(focusNode2);
                                                         } else {
-                                                          print(
-                                                              "Ubicacion incorrecta");
+                                                          batchBloc.add(
+                                                              ValidateFieldsEvent(
+                                                                  field:
+                                                                      "location",
+                                                                  isOk: false));
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                                  SnackBar(
+                                                            duration:
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        1000),
+                                                            content: const Text(
+                                                                'Ubicacion erronea'),
+                                                            backgroundColor:
+                                                                Colors.red[200],
+                                                          ));
                                                         }
                                                       },
                                               ),
@@ -302,9 +338,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                 ),
                                 Card(
-                                  color: batchBloc.productIsOk
-                                      ? Colors.green[100]
-                                      : Colors.grey[300],
+                                  color: batchBloc.isProductOk
+                                      ? batchBloc.productIsOk
+                                          ? Colors.green[100]
+                                          : Colors.grey[300]
+                                      : Colors.red[200],
                                   elevation: 5,
                                   child: Container(
                                     width: size.width * 0.85,
@@ -321,6 +359,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               if (scannedValue2.toLowerCase() ==
                                                   batchBloc.product.barcode
                                                       ?.toLowerCase()) {
+                                                batchBloc.add(
+                                                    ValidateFieldsEvent(
+                                                        field: "product",
+                                                        isOk: true));
+
                                                 quantity = quantity + 1;
                                                 batchBloc.add(
                                                     ChangeProductIsOkEvent(
@@ -334,23 +377,27 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       .requestFocus(focusNode3);
                                                 });
                                               } else {
+                                                batchBloc.add(
+                                                    ValidateFieldsEvent(
+                                                        field: "product",
+                                                        isOk: false));
                                                 setState(() {
                                                   scannedValue2 =
                                                       ""; //limpiamos el valor escaneado
                                                 });
+
                                                 //mostramos alerta de error
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(SnackBar(
                                                   duration: const Duration(
                                                       milliseconds: 1000),
                                                   content: const Text(
-                                                      'Codigo erroneo'),
+                                                      'Producto erroneo'),
                                                   backgroundColor:
                                                       Colors.red[200],
                                                 ));
                                               }
                                             }
-
                                             return KeyEventResult.handled;
                                           } else {
                                             setState(() {
@@ -404,12 +451,17 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 }).toList(),
 
                                                 onChanged: !batchBloc
-                                                        .locationIsOk
+                                                        .locationIsOk && batchBloc.productIsOk
                                                     ? null
                                                     : (String? newValue) {
                                                         if (newValue ==
                                                             currentProduct
                                                                 ?.productId) {
+                                                          batchBloc.add(
+                                                              ValidateFieldsEvent(
+                                                                  field:
+                                                                      "product",
+                                                                  isOk: true));
                                                           quantity =
                                                               quantity + 1;
                                                           batchBloc.add(
@@ -427,7 +479,26 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 .requestFocus(
                                                                     focusNode3);
                                                           });
-                                                        } else {}
+                                                        } else {
+                                                          batchBloc.add(
+                                                              ValidateFieldsEvent(
+                                                                  field:
+                                                                      "product",
+                                                                  isOk: false));
+                                                        }
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                SnackBar(
+                                                          duration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      1000),
+                                                          content: const Text(
+                                                              'Producto erroneo'),
+                                                          backgroundColor:
+                                                              Colors.red[200],
+                                                        ));
                                                       },
                                               ),
                                             ),
@@ -498,8 +569,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5),
                         child: Card(
-                          color:
-                              batchBloc.quantityIsOk ? white : Colors.grey[300],
+                          color: batchBloc.isQuantityOk
+                              ? batchBloc.quantityIsOk
+                                  ? white
+                                  : Colors.grey[300]
+                              : Colors.red[200],
                           elevation: 5,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -547,6 +621,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                         batchBloc
                                                             .product.barcode
                                                             ?.toLowerCase()) {
+                                                      batchBloc.add(
+                                                          ValidateFieldsEvent(
+                                                              field: "quantity",
+                                                              isOk: true));
+
                                                       setState(() {
                                                         quantity = quantity + 1;
                                                         scannedValue3 =
@@ -565,20 +644,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                         scannedValue3 =
                                                             ""; //limpiamos el valor escaneado
                                                       });
-                                                      //mostramos alerta de error
-                                                      ScaffoldMessenger.of(
-                                                              context)
-                                                          .showSnackBar(
-                                                              SnackBar(
-                                                        duration:
-                                                            const Duration(
-                                                                milliseconds:
-                                                                    1000),
-                                                        content: const Text(
-                                                            'Codigo erroneo'),
-                                                        backgroundColor:
-                                                            Colors.red[200],
-                                                      ));
                                                     }
                                                   }
 
@@ -641,6 +706,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 if (value.isNotEmpty) {
                                   if (int.parse(value) >
                                       currentProduct?.quantity) {
+                                    batchBloc.add(ValidateFieldsEvent(
+                                        field: "quantity", isOk: false));
                                     cantidadController.clear();
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
@@ -822,6 +889,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       quantity = 0;
     });
     cantidadController.clear();
+
+    batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
 
     ///cambiamos al siguiente producto
     context
