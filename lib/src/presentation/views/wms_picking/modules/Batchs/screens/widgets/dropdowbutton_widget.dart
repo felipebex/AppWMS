@@ -10,7 +10,8 @@ class DialogAdvetenciaCantidadScreen extends StatefulWidget {
   DialogAdvetenciaCantidadScreen({
     Key? key,
     required this.cantidad,
-    required this.currentProduct, required this.onAccepted,
+    required this.currentProduct,
+    required this.onAccepted,
   }) : super(key: key);
 
   final int cantidad; // Variable para almacenar la cantidad
@@ -161,13 +162,8 @@ class _DialogAdvetenciaCantidadScreenState
                 if (selectedNovedad != null) {
                   context.read<BatchBloc>().add(ChangeCurrentProduct(
                       currentProduct: widget.currentProduct));
-                  widget.onAccepted(); // Llama al callback
                   Navigator.pop(context); // Cierra el diálogo
-                } else {
-                  // Muestra un mensaje si no se ha seleccionado ninguna novedad
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Seleccione una novedad.')),
-                  );
+                  widget.onAccepted(); // Llama al callback
                 }
               },
               style: ElevatedButton.styleFrom(

@@ -16,6 +16,9 @@ migrate_working_dir/
 *.iml
 *.ipr
 *.iws
+*.dill
+*.bin
+
 .idea/
 
 assets/images/
