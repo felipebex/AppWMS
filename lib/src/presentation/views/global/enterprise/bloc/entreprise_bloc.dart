@@ -122,8 +122,11 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
 
         final session = await EntrepriceApiModule.searchEnterprice(
             entrepriceController.text, );
+
+        print('session: $session');
+        
         if (session.isNotEmpty) {
-          
+           Preferences.setUrlWebsite = entrepriceController.text;
            PrefUtils.setEnterprise(entrepriceController.text); // Guardar la URL en las preferencias
 
           recentUrls.add(entrepriceController.text); // Agregar la URL a la lista de recientes

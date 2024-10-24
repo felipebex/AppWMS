@@ -16,6 +16,7 @@ class BatchDetailScreen extends StatelessWidget {
     return BlocBuilder<BatchBloc, BatchState>(
       builder: (context, state) {
         return Scaffold(
+            backgroundColor: Colors.white,
             appBar: AppBarGlobal(
                 tittle: 'Picking Detail', actions: const SizedBox()),
             body: SizedBox(
@@ -30,44 +31,105 @@ class BatchDetailScreen extends StatelessWidget {
                     child: Card(
                       color: Colors.white,
                       elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          controller:
-                              context.read<BatchBloc>().searchController,
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.search, color: grey),
-                            suffixIcon: IconButton(
-                                onPressed: () {
-                                  context
-                                      .read<BatchBloc>()
-                                      .add(ClearSearchProudctsBatchEvent());
-                                },
-                                icon: const Icon(Icons.close, color: grey)),
-                            disabledBorder: const OutlineInputBorder(),
-                            hintText: "Buscar productos",
-                            hintStyle: const TextStyle(color: Colors.grey),
-                            border: InputBorder.none,
-                          ),
-                          onChanged: (value) {
-                            context
-                                .read<BatchBloc>()
-                                .add(SearchProductsBatchEvent(value));
-                          },
+                      child: TextFormField(
+                        textAlignVertical: TextAlignVertical.center,
+                        controller: context.read<BatchBloc>().searchController,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search, color: grey),
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                context
+                                    .read<BatchBloc>()
+                                    .add(ClearSearchProudctsBatchEvent());
+                                FocusScope.of(context).unfocus();
+                              },
+                              icon: const Icon(Icons.close, color: grey)),
+                          disabledBorder: const OutlineInputBorder(),
+                          hintText: "Buscar productos",
+                          hintStyle:
+                              const TextStyle(color: Colors.grey, fontSize: 14),
+                          border: InputBorder.none,
                         ),
+                        onChanged: (value) {
+                          context
+                              .read<BatchBloc>()
+                              .add(SearchProductsBatchEvent(value));
+                        },
                       ),
                     ),
                   ),
+
+                  SizedBox(
+                    width: size.width,
+                    height: 50,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Card(
+                          color: Colors.white,
+                          elevation: 2,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: Center(
+                              child: Text(
+                                  "Items: ${context.read<BatchBloc>().batchWithProducts.products?.length ?? 0}",
+                                  style: const TextStyle(
+                                      fontSize: 15, color: black)),
+                            ),
+                          ),
+                        ),
+                        Card(
+                          color: Colors.white,
+                          elevation: 2,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.green[100],
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: const Center(
+                              child: Text("Separados: 0",
+                                  style: TextStyle(fontSize: 15, color: black)),
+                            ),
+                          ),
+                        ),
+                        Card(
+                          color: Colors.white,
+                          elevation: 2,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: primaryColorApp.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: const Center(
+                              child: Text("Avance: 100.0%",
+                                  style: TextStyle(fontSize: 15, color: black)),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+
                   // *Lista de productos
                   Expanded(
                     // height: size.height * 0.75,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: context
-                              .read<BatchBloc>()
-                              .batchWithProducts
-                              .products!
-                              .isNotEmpty
+                                  .read<BatchBloc>()
+                                  .batchWithProducts
+                                  .products
+                                  ?.isNotEmpty ??
+                              false
                           ? ListView.builder(
                               shrinkWrap: true,
                               physics: const ScrollPhysics(),
@@ -87,9 +149,12 @@ class BatchDetailScreen extends StatelessWidget {
                                   child: GestureDetector(
                                     onTap: () {},
                                     child: Card(
-                                        color: Colors.white,
                                         elevation: 4,
-                                        child: Padding(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.lightGreen[100]),
                                           padding: const EdgeInsets.all(8.0),
                                           child: Column(
                                             children: [
@@ -115,82 +180,6 @@ class BatchDetailScreen extends StatelessWidget {
                                                         horizontal: 8),
                                                 child: Row(
                                                   children: [
-                                                    //icono de transferir
-                                                    const Icon(
-                                                      Icons
-                                                          .transfer_within_a_station,
-                                                      color: primaryColorApp,
-                                                      size: 20,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    const Text("Transferir a: ",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: grey)),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                        productsBatch
-                                                                ?.pickingId ??
-                                                            '',
-                                                        style: const TextStyle(
-                                                            fontSize: 16,
-                                                            color:
-                                                                primaryColorApp)),
-                                                  ],
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.confirmation_number,
-                                                      color: primaryColorApp,
-                                                      size: 20,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    const Text(
-                                                        "Numero de serie/lote: ",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: grey)),
-                                                    productsBatch?.lotId ==
-                                                            false
-                                                        ? const Text(
-                                                            "No tiene",
-                                                            style: TextStyle(
-                                                                fontSize: 16,
-                                                                color:
-                                                                    primaryColorApp),
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                          )
-                                                        : Text(
-                                                            productsBatch?.lotId
-                                                                    ?.toString() ??
-                                                                '',
-                                                            style: const TextStyle(
-                                                                fontSize: 16,
-                                                                color:
-                                                                    primaryColorApp),
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                          ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  children: [
                                                     const Icon(
                                                       Icons.location_on,
                                                       color: primaryColorApp,
@@ -200,7 +189,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     const Text("Desde:",
                                                         style: TextStyle(
                                                             fontSize: 16,
-                                                            color: grey)),
+                                                            color: black)),
                                                     Text(
                                                         productsBatch
                                                                 ?.locationId
@@ -228,20 +217,24 @@ class BatchDetailScreen extends StatelessWidget {
                                                     const Text("A:",
                                                         style: TextStyle(
                                                             fontSize: 16,
-                                                            color: grey)),
+                                                            color: black)),
                                                     const SizedBox(width: 5),
-                                                    Text(
-                                                        productsBatch
-                                                                ?.locationDestId
-                                                                .toString() ??
-                                                            '',
-                                                        style: const TextStyle(
-                                                            fontSize: 16,
-                                                            color:
-                                                                primaryColorApp)),
+                                                    SizedBox(
+                                                      width: size.width * 0.7,
+                                                      child: Text(
+                                                          productsBatch
+                                                                  ?.locationDestId
+                                                                  .toString() ??
+                                                              '',
+                                                          style: const TextStyle(
+                                                              fontSize: 16,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
+                                              const SizedBox(height: 5),
                                               Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -254,10 +247,10 @@ class BatchDetailScreen extends StatelessWidget {
                                                       size: 20,
                                                     ),
                                                     const SizedBox(width: 5),
-                                                    const Text("Cantidad:",
+                                                    const Text("Unidades:",
                                                         style: TextStyle(
                                                             fontSize: 16,
-                                                            color: grey)),
+                                                            color: black)),
                                                     const SizedBox(width: 5),
                                                     Text(
                                                         productsBatch?.quantity
@@ -267,28 +260,20 @@ class BatchDetailScreen extends StatelessWidget {
                                                             fontSize: 16,
                                                             color:
                                                                 primaryColorApp)),
-                                                  ],
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  children: [
+                                                    const Spacer(),
                                                     const Icon(
-                                                      Icons.add,
+                                                      Icons.check,
                                                       color: primaryColorApp,
                                                       size: 20,
                                                     ),
                                                     const SizedBox(width: 5),
-                                                    const Text("is SELECTED:",
+                                                    const Text("Separadas:",
                                                         style: TextStyle(
                                                             fontSize: 16,
-                                                            color: grey)),
+                                                            color: black)),
                                                     const SizedBox(width: 5),
                                                     Text(
-                                                        productsBatch?.isSelected
+                                                        productsBatch?.quantity
                                                                 .toString() ??
                                                             "",
                                                         style: const TextStyle(

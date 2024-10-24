@@ -11,10 +11,11 @@ class Preferences {
   }
 
   static String get urlWebsite {
-    return _prefs.getString('urlWebsite') ?? _urlWebsite;
+   final response=  _prefs.getString('urlWebsite') ?? _urlWebsite;
+    return response;
   }
 
-  static set urlWebsite(String urlWebsite) {
+  static set setUrlWebsite(String urlWebsite) {
     _urlWebsite = urlWebsite;
     _prefs.setString('urlWebsite', urlWebsite);
   }
@@ -27,4 +28,12 @@ class Preferences {
     _nameDatabase = nameDatabase;
     _prefs.setString('nameDatabase', nameDatabase);
   }
+
+
+  //eliminar los datos guardaod s de urlwebsite
+  static void removeUrlWebsite() {
+    _prefs.remove('urlWebsite');
+  }
+
+
 }

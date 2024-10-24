@@ -29,3 +29,5 @@ final class LoadBatchsSuccesState extends PickingState {
 
   LoadBatchsSuccesState({required this.listOfBatchs});
 }
+
+

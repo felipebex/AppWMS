@@ -1,11 +1,11 @@
 import 'dart:developer' show log;
 import 'dart:io';
 
-import 'package:wms_app/src/api/api.dart';
 import 'package:wms_app/src/config/config.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:wms_app/src/services/preferences.dart';
 
 typedef OnError = void Function(String error, Map<String, dynamic> data);
 typedef OnResponse<T> = void Function(T response);
@@ -53,9 +53,11 @@ class DioFactory {
   Dio? _dio;
 
   DioFactory._instance() {
+
+
     _dio = Dio(
       BaseOptions(
-        baseUrl: ApiEnvironment.Dev.endpoint,
+        baseUrl: Preferences.urlWebsite,
         headers: {
           HttpHeaders.userAgentHeader: _deviceName,
           HttpHeaders.authorizationHeader: _authorization,

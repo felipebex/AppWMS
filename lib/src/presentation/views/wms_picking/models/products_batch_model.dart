@@ -1,58 +1,121 @@
+// ignore_for_file: equal_keys_in_map
+
 class ProductsBatch {
+  final int? idProduct;
+  final dynamic batchId;
   final dynamic productId;
   final dynamic pickingId;
   final dynamic lotId;
   final dynamic locationId;
   final dynamic locationDestId;
   late dynamic quantity;
-  late dynamic isSelected; // Nuevo campo
+  final int? quantitySeparate;
+  final String? isSelected;
+  final String? isSeparate;
+  final DateTime? timeSeparate;
+  final DateTime? timeSeparateStart;
+  final String? observation;
+
+  //variables para el picking
+  late bool? isLocationIsOk;  //variable para si la ubicacion es leida correctamente
+  late bool? productIsOk; //variable para si el producto es leido correctamente
+  late bool? locationDestIsOk; // variable para si la ubicacion destino esta leido 
+  
+
+
 
   ProductsBatch({
+    this.idProduct,
+    this.batchId,
     this.productId,
     this.pickingId,
     this.lotId,
     this.locationId,
     this.locationDestId,
     this.quantity,
-    this.isSelected = 'false', // Asegúrate de manejarlo aquí
+    this.quantitySeparate,
+    this.isSelected,
+    this.isSeparate,
+    this.timeSeparate,
+    this.timeSeparateStart,
+    this.observation,
+    this.isLocationIsOk,
+    this.productIsOk,
+    this.locationDestIsOk,
   });
+
+
+
+
 
   factory ProductsBatch.fromJson(Map<String, dynamic> json) {
     return ProductsBatch(
+      idProduct: json['id_product'],
+      batchId: json['batch_id'],
       productId: json['product_id'],
       pickingId: json['picking_id'],
       lotId: json['lot_id'] is List ? json['lot_id'][1] : null,
       locationId: json['location_id'],
       locationDestId: json['location_dest_id'],
       quantity: json['quantity'],
-      isSelected: json['isSelected']?.toString() ?? "false",
+
+      quantitySeparate: json['quantity_separate'],
+      isSelected: json['is_selected'],
+      isSeparate: json['is_separate'],
+      timeSeparate: json['time_separate'],
+      timeSeparateStart: json['time_separate_start'],
+      observation: json['observation'],
+      isLocationIsOk: json['is_location_is_ok'],
+      productIsOk: json['product_is_ok'],
+      locationDestIsOk: json['location_dest_is_ok'],
+      
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'id_product': idProduct,
+      'batch_id': batchId,
       'product_id': productId,
       'picking_id': pickingId,
       'lot_id': lotId,
       'location_id': locationId,
       'location_dest_id': locationDestId,
       'quantity': quantity,
-      'isSelected': isSelected, // Asegúrate de manejarlo aquí
+
+      'quantity_separate': quantitySeparate,
+      'is_selected': isSelected,
+      'is_separate': isSeparate,
+      'time_separate': timeSeparate,
+      'time_separate_start': timeSeparateStart,
+      'observation': observation,
+      'is_location_is_ok': isLocationIsOk,
+      'product_is_ok': productIsOk,
+      'location_dest_is_ok': locationDestIsOk,
+
     };
   }
 
   factory ProductsBatch.fromMap(Map<String, dynamic> map) {
     return ProductsBatch(
+      idProduct: map['id_product'],
+      batchId: map['batch_id'],
       productId: map['product_id'],
       pickingId: map['picking_id'],
       lotId: map['lot_id'] is String ? map['lot_id'] : null,
       locationId: map['location_id'],
       locationDestId: map['location_dest_id'],
       quantity: map['quantity'],
-      isSelected: map['isSelected']?.toString() ??
-          "false", // Asegúrate de manejarlo aquí
+
+      quantitySeparate: map['quantity_separate'],
+      isSelected: map['is_selected'],
+      isSeparate: map['is_separate'],
+      timeSeparate: map['time_separate'],
+      timeSeparateStart: map['time_separate_start'],
+      observation: map['observation'],
+      isLocationIsOk: map['is_location_is_ok'],
+      productIsOk: map['product_is_ok'],
+      locationDestIsOk: map['location_dest_is_ok'],
     );
   }
-
-  bool get isSelectedBool => isSelected == "true";
 }

@@ -1,19 +1,38 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 showLoading() {
   Get.dialog(
-    const Center(
-      child: SizedBox(
-        height: 50.0,
-        width: 50.0,
-        child: FittedBox(child: CircularProgressIndicator()),
+    Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 100,
+              width: 200,
+              child: Image.asset(
+                "assets/images/icon.png",
+
+                fit: BoxFit.cover,
+              ),
+            ),
+            const Text(
+              "Cargando datos...",
+              style: TextStyle(
+                  fontSize: 20.0, color: black),
+            ),
+            
+          ],
+        ),
       ),
     ),
-    barrierDismissible: false,
+    // barrierDismissible: true,
   );
 }
 

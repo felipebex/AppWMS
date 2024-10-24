@@ -12,6 +12,7 @@ class PrefUtils {
     await preferences.setString(PrefKeys.token, token);
   }
 
+
   static Future<String> getToken() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.getString(PrefKeys.token) ?? "";

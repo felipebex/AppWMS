@@ -60,6 +60,10 @@ class _DetailClientSaleState extends State<DetailClientSale> {
                                   Navigator.pushNamed(context, 'auth');
                                 },
                                 text: element,
+                                textStyle: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
                                 elevation: 0,
                                 sliderRotate: false,
                                 borderRadius: 20,

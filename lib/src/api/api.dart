@@ -1,15 +1,18 @@
-// ignore_for_file: avoid_print, invalid_return_type_for_catch_error, constant_identifier_names
+// ignore_for_file: avoid_print, invalid_return_type_for_catch_error, constant_identifier_names, unnecessary_type_check
 
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/api/api_end_points.dart';
 import 'package:wms_app/src/api/dio_factory.dart';
-import 'package:wms_app/src/presentation/widgets/log.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 
 enum ApiEnvironment { UAT, Dev, Prod }
 
@@ -17,11 +20,11 @@ extension APIEnvi on ApiEnvironment {
   String get endpoint {
     switch (this) {
       case ApiEnvironment.UAT:
-        return "http://34.30.1.186:8069";
+        return Preferences.urlWebsite;
       case ApiEnvironment.Dev:
-        return "http://34.30.1.186:8069";
+        return Preferences.urlWebsite;
       case ApiEnvironment.Prod:
-        return "http://34.30.1.186:8069";
+        return Preferences.urlWebsite;
     }
   }
 }
@@ -84,11 +87,11 @@ class Api {
     required String path,
     required Map params,
   }) async {
-    print("Request: $path");
-    print("Params: $params");
-    print("Method: ${method.value}");
-
     try {
+      if (DioFactory.dio == null) {
+        throw Exception('Dio no está inicializado.');
+      }
+
       String? token = await PrefUtils.getToken();
       if (token.isNotEmpty) {
         DioFactory.dio!.options.headers['Cookie'] =
@@ -102,26 +105,9 @@ class Api {
             path != ApiEndPoints.getDb10) showLoading();
       });
 
-      print("Request: $path");
-
       Response response;
-      switch (method) {
-        case HttpMethod.post:
-          response = await DioFactory.dio!.post(path, data: params);
-          break;
-        case HttpMethod.delete:
-          response = await DioFactory.dio!.delete(path, data: params);
-          break;
-        case HttpMethod.get:
-          response = await DioFactory.dio!.get(path);
-          break;
-        case HttpMethod.patch:
-          response = await DioFactory.dio!.patch(path, data: params);
-          break;
-        case HttpMethod.put:
-          response = await DioFactory.dio!.put(path, data: params);
-          break;
-      }
+
+      response = await DioFactory.dio!.post(path, data: params);
 
       hideLoading();
 
@@ -130,7 +116,12 @@ class Api {
         if (path == ApiEndPoints.authenticate) {
           _updateCookies(response.headers);
         }
-
+        print("--------------------");
+        print("Request: $path");
+        print("Params: $params");
+        print("Method: ${method.value}");
+        print("status: ${response.statusCode}");
+        print("--------------------");
         return response.data["result"];
       } else {
         // throw Exception(response.data["error"]["message"]);
@@ -141,42 +132,38 @@ class Api {
     }
   }
 
-  // static _updateCookies(Headers headers) async {
-  //   Log("Inside Update Cookie");
-
-  //   // Obtén todos los valores del encabezado "set-cookie"
-  //   List<String>? rawCookies = headers['set-cookie'];
-
-  //   if (rawCookies != null && rawCookies.isNotEmpty) {
-  //     for (var rawCookie in rawCookies) {
-  //       Log(rawCookie);
-  //       DioFactory.initialiseHeaders(rawCookie);
-  //       // Guarda cada cookie si es necesario
-  //       PrefUtils.setToken(rawCookie);
-  //     }
-  //   }
-  // }
-
   static _updateCookies(Headers headers) async {
-  List<String>? rawCookies = headers['set-cookie'];
-  if (rawCookies != null && rawCookies.isNotEmpty) {
-    for (var rawCookie in rawCookies) {
-      // Guarda la cookie
-      await PrefUtils.setToken(rawCookie);
+    List<String>? rawCookies = headers['set-cookie'];
+    if (rawCookies != null && rawCookies.isNotEmpty) {
+      for (var rawCookie in rawCookies) {
+        // Guarda la cookie
+        await PrefUtils.setToken(rawCookie);
 
-      // Extrae y guarda la fecha de expiración
-      RegExp expiringRegExp = RegExp(r'Expires=([^;]+)');
-      Match? match = expiringRegExp.firstMatch(rawCookie);
-      if (match != null) {
-        String expiresString = match.group(1)!;
+        // Extrae y guarda la fecha de expiración
+        RegExp expiringRegExp = RegExp(r'Expires=([^;]+)');
+        Match? match = expiringRegExp.firstMatch(rawCookie);
+        if (match != null) {
+          String expiresString = match.group(1)!;
 
-        // Parsear la fecha utilizando DateFormat
-        DateTime expires = DateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").parse(expiresString);
-        await PrefUtils.setExpirationDate(expires); // Asegúrate de tener este método
+          // Parsear la fecha utilizando DateFormat para pandapan
+          DateTime expires =
+              DateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").parse(expiresString);
+
+          // try {
+          //   // Convertir GMT a UTC si es necesario
+          //   DateTime expires = DateFormat("EEE, dd-MMM-yyyy HH:mm:ss z")
+          //       .parse(expiresString, true)
+          //       .toLocal();
+
+            await PrefUtils.setExpirationDate(
+                expires); // Asegúrate de tener este método
+          // } catch (e) {
+          //   print("Error al analizar la fecha: $e");
+          // }
+        }
       }
     }
   }
-}
 
   static Map getContext() {
     return {"lang": "es_CO", "tz": "America/Bogota", "uid": const Uuid().v1()};
@@ -202,7 +189,6 @@ class Api {
         path: ApiEndPoints.getCallKWEndPoint(model, method),
         params: createPayload(params),
       );
-      print(response);
       return response;
     } catch (error) {
       print("Error en callKW: $error");
@@ -236,35 +222,101 @@ class Api {
     };
   }
 
-  /// Método dedicado para la petición de `searchEnterprice`
+  // /// Método dedicado para la petición de `searchEnterprice`
+  // static Future<List> searchEnterprice(
+  //     String enterprice, String baseUrl) async {
+  //   print("searchEnterprice $enterprice");
+  //   String company = enterprice;
+  //   print(company);
+
+  //   Map<String, dynamic> queryParameters = {
+  //     'url_rpc': company,
+  //   };
+
+  //   try {
+  //     // Construimos la URL como antes, pero usando Dio
+  //     final String url = Uri.http(baseUrl, 'api/database').toString();
+
+  //     // Realiza la solicitud a la ruta específica para la búsqueda de empresas
+  //     final response = await DioFactory.dio!.post(
+  //       url, // Usamos la URL dinámica aquí
+  //       data: queryParameters, // Envía los parámetros
+  //       options: Options(headers: {
+  //         "Content-Type": "application/json",
+  //       }), // Añadir headers si es necesario
+  //     );
+
+  //     // Manejo de respuesta
+  //     if (response.statusCode == 200) {
+  //       Preferences.urlWebsite = company;
+  //       List listDB = [];
+  //       Map<String, dynamic> result = response.data;
+
+  //       result.forEach((key, value) {
+  //         for (var element in value) {
+  //           listDB.add(element);
+  //         }
+  //       });
+
+  //       print(listDB);
+  //       return listDB.isNotEmpty ? listDB : [];
+  //     } else {
+  //       print("Error en la solicitud: ${response.statusCode}");
+  //       return [];
+  //     }
+  //   } catch (e) {
+  //     print("Error al obtener las bases de datos: $e");
+  //     return [];
+  //   }
+  // }
   static Future<List> searchEnterprice(
       String enterprice, String baseUrl) async {
     print("searchEnterprice $enterprice");
     String company = enterprice;
     print(company);
 
+    if (baseUrl.isEmpty) {
+      throw Exception('baseUrl no puede ser null o vacío.');
+    }
+
     Map<String, dynamic> queryParameters = {
       'url_rpc': company,
     };
 
+    final timeout = Future.delayed(const Duration(seconds: 10), () {
+      throw TimeoutException('La búsqueda ha tardado más de 10 segundos.');
+    });
+
     try {
-      // Construimos la URL como antes, pero usando Dio
       final String url = Uri.http(baseUrl, 'api/database').toString();
 
-      // Realiza la solicitud a la ruta específica para la búsqueda de empresas
-      final response = await DioFactory.dio!.post(
-        url, // Usamos la URL dinámica aquí
-        data: queryParameters, // Envía los parámetros
-        options: Options(headers: {
+      print("--------------------");
+      print("url: $url");
+      print("data: $queryParameters");
+      print("baseUrl: $baseUrl");
+      print("enterprice: $enterprice");
+      print("--------------------");
+
+      // Realiza la solicitud POST usando el paquete http
+      final responseFuture = http.post(
+        Uri.parse(url),
+        headers: {
           "Content-Type": "application/json",
-        }), // Añadir headers si es necesario
+        },
+        body: jsonEncode(queryParameters),
       );
 
-      // Manejo de respuesta
-      if (response.statusCode == 200) {
-        Preferences.urlWebsite = company;
+      final response = await Future.any([responseFuture, timeout]);
+
+      if (response is http.Response && response.statusCode == 200) {
+        PrefUtils.getEnterprise().then((value) {
+          if (value != company) {
+            PrefUtils.setEnterprise(company);
+          }
+        });
+
         List listDB = [];
-        Map<String, dynamic> result = response.data;
+        Map<String, dynamic> result = jsonDecode(response.body);
 
         result.forEach((key, value) {
           for (var element in value) {
@@ -278,8 +330,12 @@ class Api {
         print("Error en la solicitud: ${response.statusCode}");
         return [];
       }
-    } catch (e) {
-      print("Error al obtener las bases de datos: $e");
+    } catch (e, s) {
+      if (e is TimeoutException) {
+        print("Error: ${e.message}");
+      } else {
+        print("Error al obtener las bases de datos: $e\nStackTrace: $s");
+      }
       return [];
     }
   }

@@ -1,6 +1,8 @@
 // ignore_for_file: unrelated_type_equality_checks
 
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -43,14 +45,15 @@ class CheckAuthPage extends StatelessWidget {
                   ),
                 );
 
-              // Si obtuvimos datos
+                // Si obtuvimos datos
               } else if (snapshot.hasData) {
                 if (snapshot.data == false) {
                   Future.microtask(() {
                     Navigator.pushReplacement(
                       context,
                       PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => const SelectEnterpricePage(),
+                        pageBuilder: (_, __, ___) =>
+                            const SelectEnterpricePage(),
                         transitionDuration: const Duration(seconds: 0),
                       ),
                     );

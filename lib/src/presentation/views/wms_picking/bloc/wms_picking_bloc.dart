@@ -7,6 +7,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/product_templa
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 
 part 'wms_picking_event.dart';
 part 'wms_picking_state.dart';
@@ -33,6 +34,105 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     on<ClearSearchBacthEvent>(_onClearSearchEvent);
     //*filtrar por estado los batchs desde SQLite
     on<FilterBatchesBStatusEvent>(_onFilterBatchesBStatusEvent);
+
+    //* filtrar por tipo de operacion
+    on<FilterBatchesByOperationTypeEvent>(_onFilterBatchesByOperationTypeEvent);
+
+    //* filtrar por tipo de batch o wave
+    on<FilterBatchesByTypeEvent>(_onFilterBatchesByTypeEvent);
+  }
+
+  void _onFilterBatchesByTypeEvent(
+      FilterBatchesByTypeEvent event, Emitter<PickingState> emit) {
+    String status = '';
+    if (event.indexMenu == 0) {
+      filteredBatchs = listOfBatchs.where((batch) {
+        return batch.isWave.toString() == event.isWave;
+      }).toList();
+    } else {
+      switch (event.indexMenu) {
+        case 1:
+          status = 'in_progress';
+          break;
+        case 2:
+          status = 'done';
+          break;
+      }
+
+      filteredBatchs = listOfBatchs.where((batch) {
+        // Comprueba si isWave coincide y si el estado también coincide
+        bool matchesIsWave = batch.isWave.toString() == event.isWave;
+        bool matchesStatus = batch.state == status;
+
+        // Retornamos verdadero solo si ambas condiciones son verdaderas
+        return matchesIsWave && matchesStatus;
+      }).toList();
+    }
+
+    emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
+  }
+
+  void _onFilterBatchesByOperationTypeEvent(
+      FilterBatchesByOperationTypeEvent event, Emitter<PickingState> emit) {
+    String status = '';
+    if (event.operationType != 'Todos') {
+      switch (event.indexMenu) {
+        case 0:
+          filteredBatchs = listOfBatchs;
+          break;
+        case 1:
+          status = 'in_progress';
+          break;
+        case 2:
+          status = 'done';
+          break;
+
+        default:
+      }
+      if (status != "") {
+        filteredBatchs = listOfBatchs.where((batch) {
+          // Obtener el pickingTypeId y dividirlo
+          String pickingTypeId = batch.pickingTypeId[1] ?? '';
+          List<String> parts = pickingTypeId.split(':');
+          String operationTypeFromBatch =
+              parts.length > 1 ? parts[1].trim() : '';
+          // Comparamos con el evento
+          bool matchesOperationType =
+              operationTypeFromBatch == event.operationType;
+          // Comparamos el estado
+          bool matchesStatus = batch.state == status;
+          // Retornamos verdadero solo si ambas condiciones son verdaderas
+          return matchesOperationType && matchesStatus;
+        }).toList();
+      } else {
+        filteredBatchs = filteredBatchs.where((batch) {
+          // Supongamos que batch.pickingTypeId es un string
+          String pickingTypeId = batch.pickingTypeId[1] ?? '';
+          List<String> parts = pickingTypeId.split(':');
+          // Obtener la parte después de los dos puntos y quitar espacios
+          String operationTypeFromBatch =
+              parts.length > 1 ? parts[1].trim() : '';
+
+          // Comparamos con el evento
+          return operationTypeFromBatch == event.operationType;
+        }).toList();
+      }
+    } else {
+      switch (event.indexMenu) {
+        case 0:
+          add(FilterBatchesBStatusEvent(''));
+          break;
+        case 1:
+          add(FilterBatchesBStatusEvent('in_progress'));
+          break;
+        case 2:
+          add(FilterBatchesBStatusEvent('done'));
+          status = 'done';
+          break;
+        default:
+      }
+    }
+    emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
   }
 
   void _onFilterBatchesBStatusEvent(
@@ -55,27 +155,81 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
       final response = await PickingApiModule.resBatchs();
       if (response != null && response is List) {
+        print('response batchs: ${response.length}');
+        List<int> idBatchs = [];
         listOfBatchs.clear();
         listOfBatchs.addAll(response);
 
         for (var batch in listOfBatchs) {
           try {
-            await DataBaseSqlite().insertBatch(
-              id: batch.id ?? 0,
-              name: batch.name ?? '',
-              scheduledDate:
-                  batch.scheduledDate ?? 'no scheduled', // Valor predeterminado
-              pickingTypeId: batch.pickingTypeId[1] ??
-                  '', // Asegúrate de que sea una lista
-              state: batch.state,
-              userId: batch.userId is bool ? "" : batch.userId[1] ?? '',
-            );
+            if (batch.id != null && batch.name != null) {
+              await DataBaseSqlite().insertBatch(BatchsModel(
+                id: batch.id!,
+                name: batch.name ?? '',
+                scheduledDate: batch.scheduledDate ?? 'no scheduled',
+                // pickingTypeId: batch.pickingTypeId.isNotEmpty
+                //     ? batch.pickingTypeId[1]
+                //     : '',
+                pickingTypeId: (batch.pickingTypeId is List &&
+                        batch.pickingTypeId.isNotEmpty)
+                    ? batch.pickingTypeId[1]
+                    : '',
+
+                state: batch.state,
+                userId: batch.userId is bool
+                    ? ""
+                    : (batch.userId.isNotEmpty ? batch.userId[1] : ''),
+                isWave: batch.isWave.toString(),
+              ));
+
+              // if (batch.state == 'in_progress') {
+                idBatchs.add(batch.id!);
+              // }
+              
+            }
           } catch (dbError, stackTrace) {
             print('Error inserting batch: $dbError  $stackTrace');
-            // Considera cómo manejar este error (puedes continuar o emitir un estado de error específico)
           }
         }
 
+        if (idBatchs.isNotEmpty) {
+          // Obtén todos los productos de los batches en progreso
+          final responseProductsBatchs =
+              await PickingApiModule.resAllProductsBatchApi(idBatchs);
+
+
+          print('responseProductsBatchs: ${responseProductsBatchs.length}');
+
+          if (responseProductsBatchs.isNotEmpty) {
+            // Crear una lista para almacenar los productos a insertar
+            List<ProductsBatch> productsToInsert = [];
+
+            for (var productsBatch in responseProductsBatchs) {
+              productsToInsert.add(
+                ProductsBatch(
+                  idProduct: productsBatch.idProduct,
+                  batchId: productsBatch.batchId,
+                  productId: productsBatch.productId,
+                  pickingId: productsBatch.pickingId,
+                  lotId: productsBatch.lotId,
+                  locationId: productsBatch.locationId,
+                  locationDestId: productsBatch.locationDestId,
+                  quantity: productsBatch.quantity.toInt(),
+                ),
+              );
+            }
+
+            // Llamar al método de inserción masiva
+            await DataBaseSqlite().insertBatchProducts(productsToInsert);
+          }
+        }
+
+        final responseProductsAll = await PickingApiModule.resProductsApi();
+        print('responseProductsAll: ${responseProductsAll.length}');
+
+        await DataBaseSqlite().insertProducts(responseProductsAll);
+
+        // Carga los batches desde la base de datos
         add(LoadBatchsFromDBEvent());
         emit(LoadBatchsSuccesState(listOfBatchs: listOfBatchs));
       } else {

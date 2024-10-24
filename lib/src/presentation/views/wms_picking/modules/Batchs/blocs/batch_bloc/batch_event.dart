@@ -11,6 +11,7 @@ class LoadAllProductsBatchsEvent extends BatchEvent {
 }
 
 
+
 class ClearSearchProudctsBatchEvent extends BatchEvent {}
 
 
@@ -36,4 +37,54 @@ class FetchBatchWithProductsEvent extends BatchEvent {
   final int batchId;
 
   FetchBatchWithProductsEvent(this.batchId);
+}
+
+
+class GetProductById extends BatchEvent {
+  final int productId;
+
+  GetProductById(this.productId);
+}
+
+
+
+
+//* CAMBIAR VALORES DE VARIABLES
+class ChangeLocationIsOkEvent extends BatchEvent {
+  final bool locationIsOk;
+  ChangeLocationIsOkEvent(this.locationIsOk);
+}
+
+class ChangeLocationDestIsOkEvent extends BatchEvent {
+  final bool locationDestIsOk;
+  ChangeLocationDestIsOkEvent(this.locationDestIsOk);
+}
+
+class ChangeProductIsOkEvent extends BatchEvent {
+  final bool productIsOk;
+  ChangeProductIsOkEvent(this.productIsOk);
+}
+
+
+class ChangeIsOkQuantity extends BatchEvent {
+  final bool isOk;
+  ChangeIsOkQuantity(this.isOk);
+}
+
+
+class ChangeCurrentProduct extends BatchEvent {
+  final ProductsBatch currentProduct;
+  ChangeCurrentProduct({required this.currentProduct});
+}
+
+
+class QuantityChanged extends BatchEvent {
+  final int quantity;
+  QuantityChanged(this.quantity);
+}
+
+
+class SelectNovedadEvent extends BatchEvent {
+  final String novedad;
+  SelectNovedadEvent(this.novedad);
 }

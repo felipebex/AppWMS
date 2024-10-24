@@ -3,6 +3,7 @@
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_api_module.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ part 'batch_state.dart';
 class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<ProductsBatch> listOfProductsBatch = [];
   List<ProductsBatch> filteredProducts = [];
-
   List<ProductsBatch> listOfProductsBatchDB = [];
 
   //*controller para la busqueda
@@ -25,46 +25,150 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   //*producto en posicion actual
   ProductsBatch currentProduct = ProductsBatch();
 
-  BatchBloc() : super(BatchInitial()) {
-    //* Cargar todos los productos de un lote desde Odoo
-    on<LoadAllProductsBatchsEvent>(_onLoadAllProductsBatchsEvent);
-    //* Cargar todos los productos de un lote desde SQLite
-    on<LoadProductsBatchFromDBEvent>(_onLoadProductsBatchFromDBEvent);
+  //*product.product
+  Products product = Products();
 
-    //todo estos no se estan usando
+  //*variables para validar
+  bool locationIsOk = false;
+  bool productIsOk = false;
+  bool locationDestIsOk = false;
+  bool quantityIsOk = false;
+  String oldLocation = '';
+
+  //*lista de novedades de separacion
+  List<String> novedades = [
+    'Producto dañado',
+    'Producto vencido',
+    'Producto en mal estado',
+    'Producto no corresponde',
+    'Producto no solicitado',
+    'Producto no encontrado',
+    'Producto no existe',
+    'Producto no registrado'
+        'Producto sin existencia',
+  ];
+
+  String selectedNovedad = '';
+
+  //*lista de todas las pocisiones de los productos del batchs
+  List<String> positions = [];
+
+  //*indice del producto actual
+  int index = 0;
+
+  //* variable de productos del batch completados por el usuario
+  int completedProducts = 0;
+
+  BatchBloc() : super(BatchInitial()) {
+    //* Cargar todos los productos de un batch desde Odoo
+    on<LoadAllProductsBatchsEvent>(_onLoadAllProductsBatchsEvent);
+
     // //* Buscar un producto en un lote en SQLite
     on<SearchProductsBatchEvent>(_onSearchBacthEvent);
     // //* Limpiar la búsqueda
     on<ClearSearchProudctsBatchEvent>(_onClearSearchEvent);
-
-//* pasar al siguiente producto
-    on<NextProductEvent>(_onNextProductEvent);
-
+    // //* Cargar los productos de un batch desde SQLite
     on<FetchBatchWithProductsEvent>(_onFetchBatchWithProductsEvent);
+    //*metodo para traer el producto de product.product
+    on<GetProductById>(_onGetProductById);
+
+    //*cambiar el estado de las variables
+    on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
+    on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
+    on<ChangeProductIsOkEvent>(_onChangeProductIsOkEvent);
+    on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
+    //*cambiar el producto actual
+    on<ChangeCurrentProduct>(_onChangeCurrentProduct);
+
+    on<SelectNovedadEvent>(_onSelectNovedadEvent);
   }
 
-  void _onNextProductEvent(NextProductEvent event, Emitter<BatchState> emit) {
-    if (batchWithProducts.products!.isNotEmpty) {
-      int currentIndex = batchWithProducts.products!
-          .indexWhere((product) => product.isSelected);
+  void _onSelectNovedadEvent(
+      SelectNovedadEvent event, Emitter<BatchState> emit) {
+        print('event.novedad: ${event.novedad}');
+    // selectedNovedad = event.novedad;
+    emit(SelectNovedadState(event.novedad));
+  }
 
-      // Desmarcar el producto actual
-      if (currentIndex >= 0) {
-        batchWithProducts.products![currentIndex].isSelected = false;
-
-        // Avanzar al siguiente, si existe
-        if (currentIndex < batchWithProducts.products!.length - 1) {
-          batchWithProducts.products![currentIndex + 1].isSelected = true;
-        } else {
-          // Si estamos en el último, puedes volver al primero o manejar como desees
-          batchWithProducts.products![0].isSelected = true;
-        }
-      } else {
-        // Si no hay seleccionado, selecciona el primero
-        batchWithProducts.products![0].isSelected = true;
+  void getPosicions() {
+    positions.clear();
+    for (var i = 0; i < batchWithProducts.products!.length; i++) {
+      if (batchWithProducts.products![i].locationId != false) {
+        positions.add(batchWithProducts.products![i].locationId);
+        print('positions: ${positions[i]}');
       }
-      emit(LoadProductsBatchSuccesState(
-          listOfProductsBatch: batchWithProducts.products!));
+    }
+  }
+
+  void _onChangeCurrentProduct(
+      ChangeCurrentProduct event, Emitter<BatchState> emit) {
+    // Aumentar el índice solo si está dentro de los límites
+    if (batchWithProducts.products != null &&
+        index < batchWithProducts.products!.length - 1) {
+      if (event.currentProduct.locationId != oldLocation) {
+        locationIsOk = false;
+      }
+      productIsOk = false;
+      locationDestIsOk = false;
+      quantityIsOk = false;
+      index++;
+      completedProducts++;
+    } else {}
+
+    // Obtener el producto actual basado en el índice
+    if (batchWithProducts.products != null &&
+        batchWithProducts.products!.isNotEmpty) {
+      currentProduct = batchWithProducts.products![index];
+
+      // Emitir el nuevo estado con el producto actual
+      emit(CurrentProductChangedState(
+          currentProduct: currentProduct, index: index));
+    }
+  }
+
+  void _onChangeQuantityIsOkEvent(
+      ChangeIsOkQuantity event, Emitter<BatchState> emit) {
+    quantityIsOk = event.isOk;
+    emit(ChangeIsOkState(
+      quantityIsOk,
+    ));
+  }
+
+  void _onChangeLocationIsOkEvent(
+      ChangeLocationIsOkEvent event, Emitter<BatchState> emit) {
+    locationIsOk = event.locationIsOk;
+    emit(ChangeIsOkState(
+      locationIsOk,
+    ));
+  }
+
+  void _onChangeLocationDestIsOkEvent(
+      ChangeLocationDestIsOkEvent event, Emitter<BatchState> emit) {
+    locationDestIsOk = event.locationDestIsOk;
+    emit(ChangeIsOkState(
+      locationDestIsOk,
+    ));
+  }
+
+  void _onChangeProductIsOkEvent(
+      ChangeProductIsOkEvent event, Emitter<BatchState> emit) {
+    productIsOk = event.productIsOk;
+    emit(ChangeIsOkState(
+      productIsOk,
+    ));
+  }
+
+  void _onGetProductById(GetProductById event, Emitter<BatchState> emit) async {
+    try {
+      final response = await DataBaseSqlite().getProductById(event.productId);
+      if (response != null) {
+        product = response;
+      } else {
+        print('Error GetProductById: response is null');
+      }
+    } catch (e, s) {
+      print('Error GetProductById: $e, $s');
+      emit(BatchErrorState(e.toString()));
     }
   }
 
@@ -100,36 +204,33 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             }
           }
         }
-        // Guardamos los productos en la base de datos
+
+        print('listOfProductsBatch: ${listOfProductsBatch.length}');
+
+        List<ProductsBatch> productsToInsert = [];
+
         for (var product in listOfProductsBatch) {
-          //dejamos el isSelected en true al primer producto
-          if (listOfProductsBatch.indexOf(product) == 0) {
-            print("posicion 0 ");
-            await DataBaseSqlite().insertBatchProduct(
-              batchId: event.batchId,
-              productId: product.productId?[1],
-              pickingId: product.pickingId[1],
-              lotId: product.lotId,
-              locationId: product.locationId[1],
-              locationDestId: product.locationDestId[1],
-              quantity: product.quantity.toInt(),
-              isSelected: 'true',
-            );
-          } else {
-            await DataBaseSqlite().insertBatchProduct(
-              batchId: event.batchId,
-              productId: product.productId?[1],
-              pickingId: product.pickingId[1],
-              lotId: product.lotId,
-              locationId: product.locationId[1],
-              locationDestId: product.locationDestId[1],
-              quantity: product.quantity.toInt(),
-              isSelected: 'false',
-            );
-          }
+          print("product 🍉: ${product.toMap()}");
+
+          productsToInsert.add(ProductsBatch(
+            idProduct: product.idProduct,
+            batchId: event.batchId,
+            productId: product.productId?[1],
+            pickingId: product.pickingId[1],
+            lotId: product.lotId,
+            locationId:
+                product.locationId.isNotEmpty ? product.locationId[1] : null,
+            locationDestId: product.locationDestId.isNotEmpty
+                ? product.locationDestId[1]
+                : null,
+            quantity: product.quantity.toInt(),
+          ));
         }
 
-        add(LoadProductsBatchFromDBEvent(batchId: event.batchId));
+// Llamar al método de inserción masiva
+        await DataBaseSqlite().insertBatchProducts(productsToInsert);
+
+        add(FetchBatchWithProductsEvent(event.batchId));
         emit(LoadProductsBatchSuccesState(
             listOfProductsBatch: listOfProductsBatch));
       } else {
@@ -141,45 +242,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
-  void _onLoadProductsBatchFromDBEvent(
-      LoadProductsBatchFromDBEvent event, Emitter<BatchState> emit) async {
-    try {
-      emit(ProductsBatchLoadingState());
-
-      // Obtener la lista de productos desde la base de datos
-      final productsFromDB =
-          await DataBaseSqlite().getBatchProducts(event.batchId);
-
-      // // Aquí marcamos el primer producto como seleccionado
-      // for (int i = 0; i < productsFromDB.length; i++) {
-      //   if (i == 0) {
-      //     print("------------------------");
-      //     print("primer producto seleccionado");
-      //     print("event.batchId: ${event.batchId}");
-      //     print("------------------------");
-      //     productsFromDB[0].isSelected = true;
-      //     await DataBaseSqlite().updateBatchProduct(
-      //       batchId: event.batchId,
-      //       productId: productsFromDB[0].productId,
-      //       isSelected: true,
-      //     );
-      //   }
-      // }
-
-      print('productsFromDB: ${productsFromDB[0].toMap()}');
-
-      // filteredProducts.addAll(productsFromDB);
-      // listOfProductsBatchDB.addAll(productsFromDB);
-      add(FetchBatchWithProductsEvent(event.batchId));
-
-      emit(LoadProductsBatchSuccesState(listOfProductsBatch: productsFromDB));
-    } catch (e, s) {
-      print('Error loading products from DB: $e, ==>$s');
-      emit(BatchErrorState(e.toString()));
-    }
-  }
-
-  // //todo no se estan usando
   void _onClearSearchEvent(
       ClearSearchProudctsBatchEvent event, Emitter<BatchState> emit) {
     searchController.clear();
@@ -209,33 +271,35 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onFetchBatchWithProductsEvent(
       FetchBatchWithProductsEvent event, Emitter<BatchState> emit) async {
     batchWithProducts = BatchWithProducts();
+
+    print('FetchBatchWithProductsEvent: ${event.batchId}');
+
     final response = await DataBaseSqlite().getBatchWithProducts(event.batchId);
+    print('BatchWithProducts: ${response?.products?.length}');
 
-    if (batchWithProducts != null) {
-      batchWithProducts = response!;
-      print('Batch: ${batchWithProducts.batch?.name}');
-      print('Productos: ${batchWithProducts.products?.length}');
+    if (response != null) {
+      batchWithProducts = response;
 
-      // Buscar el producto seleccionado
-      // currentProduct = batchWithProducts.products!.firstWhere(
-      //     (product) => product.isSelected,
-      //     orElse: () => ProductsBatch());
+      if (batchWithProducts.products!.isEmpty) {
+        print('No hay productos en el batch');
+        emit(EmptyroductsBatch());
+        return;
+      }
 
-      currentProduct = batchWithProducts.products!.firstWhere(
-        (product) => product.isSelectedBool, // Usa el método para la validación
-        orElse: () => ProductsBatch(productId: '', isSelected: "false"),
-      );
-
-      print("batchWithProducts: ${batchWithProducts.products!.length}");
-      print("batchWithProducts: ${batchWithProducts.products?[0].toMap()}");
-
-      print('currentProduct: ${currentProduct.productId}');
-
+      sortProductsByLocationId(batchWithProducts.products!);
+      getPosicions();
       emit(LoadProductsBatchSuccesStateBD(
           listOfProductsBatch: batchWithProducts.products!));
     } else {
       batchWithProducts = BatchWithProducts();
       print('No se encontró el batch con ID: ${event.batchId}');
     }
+  }
+
+  void sortProductsByLocationId(List<ProductsBatch> products) {
+    products.sort((a, b) {
+      // Comparamos los locationId
+      return a.locationId.compareTo(b.locationId);
+    });
   }
 }

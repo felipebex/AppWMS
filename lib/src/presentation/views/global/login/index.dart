@@ -2,7 +2,6 @@
 
 import 'dart:io';
 
-import 'package:animate_do/animate_do.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/constans/gaps.dart';
@@ -41,23 +40,20 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(
                   height: 80,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(55),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
-                          child: FadeIn(
-                              duration: const Duration(microseconds: 3),
-                              child: const Text(
-                                "Bienvenido a WMS",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 22),
-                              ))),
-                      const SizedBox(
+                          child: Text(
+                        "Bienvenido a WMS",
+                        style: TextStyle(color: Colors.white, fontSize: 22),
+                      )),
+                      SizedBox(
                         height: 10,
                       ),
-                      const Center(
+                      Center(
                         child: Text("Version: 1.0.0",
                             style:
                                 TextStyle(color: Colors.white, fontSize: 10)),
@@ -66,9 +62,9 @@ class LoginPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
                 Expanded(
                   child: Container(
+                    padding: const EdgeInsets.only(top: 15),
                     decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -103,6 +99,7 @@ class _LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
         return Form(
@@ -114,59 +111,70 @@ class _LoginForm extends StatelessWidget {
                 borderRadius: BorderRadius.circular(200),
                 child: Image.asset(
                   'assets/images/icon.png',
-                  width: 300,
-                  height: 200,
+                  width: 200,
+                  height: 100,
+                  fit: BoxFit.cover,
                 ),
               ),
-              FadeIn(
-                  duration: const Duration(microseconds: 3),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(25),
-                        boxShadow: [
-                          BoxShadow(
-                              color: primaryColorApp.withOpacity(0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10))
-                        ]),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: TextFormField(
-                              controller: context.read<LoginBloc>().email,
-                              decoration: const InputDecoration(
-                                  disabledBorder: OutlineInputBorder(),
-                                  hintText: "Correo electronico",
-                                  hintStyle: TextStyle(color: Colors.grey),
-                                  border: InputBorder.none),
-                              onChanged: (value) {
-                                context.read<LoginBloc>().email.text = value;
-                              },
-                              validator: (value) =>
-                                  Validator.email(value, context)),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          child: TextFormField(
-                            controller: context.read<LoginBloc>().password,
-                            autocorrect: false,
-                            decoration: const InputDecoration(
-                                disabledBorder: OutlineInputBorder(),
-                                hintText: "Contraseña",
-                                hintStyle: TextStyle(color: Colors.grey),
-                                border: InputBorder.none),
-                            onChanged: (value) =>
-                                context.read<LoginBloc>().password.text = value,
-                            validator: (value) =>
-                                Validator.password(value, context),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                          color: primaryColorApp.withOpacity(0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10))
+                    ]),
+                child: Column(
+                  children: [
+                    TextFormField(
+                        controller: context.read<LoginBloc>().email,
+                        decoration: const InputDecoration(
+                            disabledBorder: OutlineInputBorder(),
+                            prefixIcon: Icon(
+                              Icons.email,
+                              size: 20,
+                              color: primaryColorApp,
+                            ),
+                            hintText: "Correo electronico",
+                            hintStyle:
+                                TextStyle(color: Colors.grey, fontSize: 14),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(10),
+                            errorStyle:
+                                TextStyle(color: Colors.red, fontSize: 12)),
+                        onChanged: (value) {
+                          context.read<LoginBloc>().email.text = value;
+                        },
+                        validator: (value) => Validator.email(value, context)),
+                    TextFormField(
+                      controller: context.read<LoginBloc>().password,
+                      autocorrect: false,
+                      decoration: const InputDecoration(
+                          disabledBorder: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.all(10),
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            size: 20,
+                            color: primaryColorApp,
                           ),
-                        ),
-                      ],
+                          hintText: "Contraseña",
+                          errorStyle:
+                              TextStyle(color: Colors.red, fontSize: 12),
+                          hintStyle:
+                              TextStyle(color: Colors.grey, fontSize: 14),
+                          border: InputBorder.none),
+                      onChanged: (value) =>
+                          context.read<LoginBloc>().password.text = value,
+                      validator: (value) => Validator.password(value, context),
                     ),
-                  )),
-              gapH40,
+                    const SizedBox(height: 5),
+                  ],
+                ),
+              ),
+              gapH20,
               MaterialButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
@@ -185,31 +193,6 @@ class _LoginForm extends StatelessWidget {
                       if (result.isNotEmpty &&
                           result[0].rawAddress.isNotEmpty) {
                         context.read<LoginBloc>().add(LoginButtonPressed());
-
-                        // final bool response = await authService.loginUser(
-                        //     loginForm.email, loginForm.password);
-
-                        // if (response) {
-                        //   loginForm.isLoading = false;
-                        //   Navigator.pushNamed(context, 'drawer');
-                        // } else {
-                        //   loginForm.isLoading = false;
-
-                        //   final snackBar = SnackBar(
-                        //     content: const Text(
-                        //         "Datos incorrectos, intente nuevamente"),
-                        //     action: SnackBarAction(
-                        //       textColor: primaryColorApp,
-                        //       label: 'Cerrar',
-                        //       onPressed: () {
-                        //         const CloseButton();
-                        //       },
-                        //     ),
-                        //   );
-
-                        //   ScaffoldMessenger.of(context)
-                        //       .showSnackBar(snackBar);
-                        // }
                       }
                     } catch (e, s) {
                       print("Error en login: $e $s");
@@ -218,15 +201,16 @@ class _LoginForm extends StatelessWidget {
                     }
                   },
                   child: Container(
-                    width: 220,
+                    width: size.width * 0.9,
                     height: 50,
                     alignment: Alignment.center,
                     child: BlocBuilder<LoginBloc, LoginState>(
                       builder: (context, state) {
                         if (state is LoginLoading) {
                           return const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
+                            child: Text(
+                              "Cargando...",
+                              style: TextStyle(color: Colors.white),
                             ),
                           );
                         }
@@ -238,14 +222,15 @@ class _LoginForm extends StatelessWidget {
                     ),
                   )),
               const SizedBox(height: 10),
-              MaterialButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  disabledColor: Colors.grey,
-                  elevation: 0,
-                  color: grey,
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    elevation: 0,
+                    minimumSize: Size(size.width * 0.9, 40),
+                  ),
                   onPressed: () {
-                    // context.read<EntrepriseBloc>().add(LoadUrlFromDB());
                     Navigator.pushNamed(context, 'enterprice');
                   },
                   child: Container(

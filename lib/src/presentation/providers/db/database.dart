@@ -1,11 +1,10 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, depend_on_referenced_packages
 
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 import 'package:sqflite/sqflite.dart';
-// ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 
 class DataBaseSqlite {
@@ -22,75 +21,94 @@ class DataBaseSqlite {
   }
 
   Future<Database> initDB() async {
-    final debPath = await getDatabasesPath();
-    final path = join(debPath, 'wmsapp.db');
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'wmsapp.db');
 
-    return await openDatabase(path, version: 2,
-        onCreate: (Database db, int version) async {
-      // *tabla para productos
-      await db.execute('''
-            CREATE TABLE tblproducts(a
-              id INTEGER PRIMARY KEY,
-              name VARCHAR(255),
-              list_price INTEGER, 
-              barcode VARCHAR(255),
-              brand_name VARCHAR(255)
-            )
-        ''');
-
-      // *tabla para batchs
-      await db.execute('''
-              CREATE TABLE tblbatchs(
-                id INTEGER PRIMARY KEY,
-                name VARCHAR(255),
-                scheduled_date VARCHAR(255),
-                picking_type_id VARCHAR(255),
-                state VARCHAR(255),
-                user_id VARCHAR(255)
-              )
-          ''');
-
-      //*tabla de productos de un batch
-      await db.execute('''
-              CREATE TABLE tblbatch_products(
-                id INTEGER PRIMARY KEY,
-                batch_id INTEGER,
-                product_id INTEGER,
-                picking_id TEXT,
-                lot_id TEXT,
-                location_id TEXT,
-                location_dest_id TEXT,
-                quantity INTEGER,
-                isSelected VARCHAR(255),
-                FOREIGN KEY (batch_id) REFERENCES tblbatchs (id),
-                FOREIGN KEY (product_id) REFERENCES tblproducts (id)
-              )
-          ''');
-
-      // *tabla para urls recientes
-      await db.execute('''
-              CREATE TABLE tblurlsrecientes(
-                id INTEGER PRIMARY KEY,
-                url VARCHAR(255),
-                fecha VARCHAR(255),
-                method VARCHAR(255)
-              )
-          ''');
-    }, onUpgrade: (db, oldVersion, newVersion) async {
-      if (oldVersion == 2) {
-        // await db.execute(
-        //     'ALTER TABLE tblurlsrecientes ADD COLUMN method VARCHAR(255)');
-      }
-    });
+    return await openDatabase(path,
+        version: 2, onCreate: _createDB, onUpgrade: _upgradeDB);
   }
 
-  //todo: metodos para  productos
+  Future<void> _createDB(Database db, int version) async {
+    // Crear tablas
+    await db.execute('''
+      CREATE TABLE tblproducts (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(255),
+        barcode VARCHAR(255),
+        tracking TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE tblbatchs (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(255),
+        scheduled_date VARCHAR(255),
+        picking_type_id VARCHAR(255),
+        state VARCHAR(255),
+        user_id VARCHAR(255),
+        is_wave TEXT,
+        is_separate TEXT,  
+        product_separate_qty INTEGER,
+        product_qty INTEGER,
+        time_separate_total VARCHAR(255),
+        time_separate_start VARCHAR(255),
+        is_send_oddo TEXT,
+        is_send_oddo_date VARCHAR(255),
+        observation TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE tblbatch_products (
+        id INTEGER PRIMARY KEY,
+        id_product INTEGER,
+        batch_id INTEGER,
+        product_id INTEGER,
+        picking_id TEXT,
+        lot_id TEXT,
+        location_id TEXT,
+        location_dest_id TEXT,
+        quantity INTEGER,
+        quantity_separate INTEGER,
+        is_selected TEXT,
+        is_separate TEXT,
+        time_separate VARCHAR(255),
+        time_separate_start VARCHAR(255),
+        observation TEXT,
+        is_location_is_ok TEXT,
+        product_is_ok TEXT,
+        location_dest_is_ok TEXT,
+        FOREIGN KEY (batch_id) REFERENCES tblbatchs (id),
+        FOREIGN KEY (product_id) REFERENCES tblproducts (id)
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE tblurlsrecientes (
+        id INTEGER PRIMARY KEY,
+        url VARCHAR(255),
+        fecha VARCHAR(255),
+        method VARCHAR(255)
+      )
+    ''');
+  }
+
+  Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute("ALTER TABLE tblbatchs ADD COLUMN is_wave VARCHAR(255)");
+    }
+  }
+
+  //Todo: Métodos para productos
+  //* Insertar un producto
   Future<void> insertProduct(Products product) async {
     final db = await database;
     await db?.insert('tblproducts', product.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  //* Insertar varios productos
   Future<void> insertProducts(List<Products> products) async {
     final db = await database;
     final batch = db?.batch();
@@ -101,169 +119,125 @@ class DataBaseSqlite {
     await batch?.commit();
   }
 
+  //* Obtener todos los productos
   Future<List<Products>> getAllProducts() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db!.query('tblproducts');
-
-    return List.generate(maps.length, (i) {
-      return Products.fromMap(maps[i]);
-    });
+    return maps.map((map) => Products.fromMap(map)).toList();
   }
 
-  //todo: metodos para batchs
-  Future<void> insertBatch({
-    required int id,
-    required String name,
-    required String scheduledDate,
-    required String pickingTypeId,
-    required String state,
-    required String userId,
-  }) async {
+  //* obtener un producto por id
+  Future<Products?> getProductById(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps =
+        await db!.query('tblproducts', where: 'id = ?', whereArgs: [id]);
+    if (maps.isNotEmpty) {
+      return Products.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  //Todo: Métodos para batches
+  //* Insertar un batch
+  Future<void> insertBatch(BatchsModel batch) async {
     try {
       final db = await database;
-      await db?.insert(
-        'tblbatchs',
-        {
-          'id': id,
-          'name': name,
-          'scheduled_date': scheduledDate,
-          'picking_type_id': pickingTypeId,
-          'state': state,
-          'user_id': userId,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-    } catch (e, s) {
-      print("Error al insertar batch: $e, $s");
+      await db?.insert('tblbatchs', batch.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    } catch (e) {
+      print("Error al insertar batch: $e");
     }
   }
 
+  //* Obtener todos los batchs
   Future<List<BatchsModel>> getAllBatchs() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db!.query('tblbatchs');
-
-    return List.generate(maps.length, (i) {
-      return BatchsModel.fromMap(maps[i]);
-    });
+    return maps.map((map) => BatchsModel.fromMap(map)).toList();
   }
 
-  //todo: metodos para batchs_products
-  //* Método para insertar un producto en un batch
+  //Todo: Métodos para batchs_products
 
-  Future<void> insertBatchProduct({
-    required int batchId,
-    required dynamic productId,
-    required dynamic pickingId,
-    required dynamic lotId,
-    required dynamic locationId,
-    required dynamic locationDestId,
-    required dynamic quantity,
-    required String isSelected,
-  }) async {
+  Future<void> insertBatchProducts(
+      List<ProductsBatch> productsBatchList) async {
     try {
       final db = await database;
 
-      // Verificar si el producto ya existe
-      final List<Map<String, dynamic>> existingProduct = await db?.query(
+      // Inicia la transacción
+      await db!.transaction((txn) async {
+        for (var productBatch in productsBatchList) {
+          // Verificar si el producto ya existe con el batchId
+          final List<Map<String, dynamic>> existingProduct = await txn.query(
             'tblbatch_products',
-            where: 'product_id = ?',
-            whereArgs: [productId],
-          ) ??
-          [];
+            where: 'product_id = ? AND batch_id = ?',
+            whereArgs: [productBatch.productId, productBatch.batchId],
+          );
 
-      if (existingProduct.isNotEmpty) {
-        // Si existe, actualizar el producto
-        await db?.update(
-          'tblbatch_products',
-          {
-            'batch_id': batchId,
-            'picking_id': pickingId,
-            'lot_id': lotId,
-            'location_id': locationId,
-            'location_dest_id': locationDestId,
-            'quantity': quantity,
-            'isSelected': isSelected,
-          },
-          where: 'product_id = ?',
-          whereArgs: [productId],
-        );
-      } else {
-        // Si no existe, insertar el nuevo producto
-        await db?.insert(
-          'tblbatch_products',
-          {
-            'batch_id': batchId,
-            'product_id': productId,
-            'picking_id': pickingId,
-            'lot_id': lotId,
-            'location_id': locationId,
-            'location_dest_id': locationDestId,
-            'quantity': quantity,
-            'isSelected': isSelected,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
-      }
+          if (existingProduct.isNotEmpty) {
+            // Actualizar producto existente
+            await txn.update(
+              'tblbatch_products',
+              productBatch.toMap(),
+              where: 'product_id = ? AND batch_id = ?',
+              whereArgs: [productBatch.productId, productBatch.batchId],
+            );
+          } else {
+            // Insertar nuevo producto
+            await txn.insert(
+              'tblbatch_products',
+              productBatch.toMap(),
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
+        }
+      });
     } catch (e, s) {
-      print('Error insertBatchProduct: $e, $s');
+      print('Error insertBatchProducts: $e => $s');
     }
   }
 
-//* Método para recuperar todos los productos de un batch
-  Future<List<ProductsBatch>> getBatchProducts(int batchId) async {
+  //* Obtener todos los productos de tblbatch_products
+  Future<List<ProductsBatch>> getProducts() async {
     final db = await database;
     final List<Map<String, dynamic>> maps =
         await db!.query('tblbatch_products');
-
-    return List.generate(maps.length, (index) {
-      return ProductsBatch.fromMap(maps[index]);
-    });
+    return maps.map((map) => ProductsBatch.fromMap(map)).toList();
   }
 
-  //* Método para editar un producto de un batch
-  Future<void> updateBatchProduct({
-    required int batchId,
-    required dynamic productId,
-    required dynamic isSelected,
-  }) async {
-    final db = await database;
-    await db?.rawUpdate(
-        " UPDATE tblbatch_products SET isSelected = '$isSelected' WHERE batch_id = '$batchId' AND product_id = '$productId' ");
+  //* Obtener un batch con sus productos
+  Future<BatchWithProducts?> getBatchWithProducts(int batchId) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> batchMaps = await db!.query(
+        'tblbatchs',
+        where: 'id = ?',
+        whereArgs: [batchId],
+      );
+
+
+      print("batchMaps: $batchMaps");
+      if (batchMaps.isEmpty) {
+        return null; // No se encontró el batch
+      }
+      final BatchsModel batch = BatchsModel.fromMap(batchMaps.first);
+      final List<Map<String, dynamic>> productMaps = await db.query(
+        'tblbatch_products',
+        where: 'batch_id = ?',
+        whereArgs: [batchId],
+      );
+      final List<ProductsBatch> products =
+          productMaps.map((map) => ProductsBatch.fromMap(map)).toList();
+      return BatchWithProducts(batch: batch, products: products);
+    } catch (e, s) {
+      print('Error getBatchWithProducts: $e => $s');
+    }
   }
 
-  //metodo para eliminar toda la base de datos
+  //Todo: Eliminar todos los registros
   Future<void> deleteAll() async {
     final db = await database;
     await db?.delete('tblproducts');
     await db?.delete('tblbatchs');
     await db?.delete('tblbatch_products');
-  }
-
-  //todo metodo para obtener un bacth por id y todos sus productos
-  Future<BatchWithProducts?> getBatchWithProducts(int batchId) async {
-    final db = await database;
-
-    final List<Map<String, dynamic>> batchMaps = await db!.query(
-      'tblbatchs',
-      where: 'id = ?',
-      whereArgs: [batchId],
-    );
-
-    if (batchMaps.isEmpty) {
-      return null; // No se encontró el batch
-    }
-
-    final BatchsModel batch = BatchsModel.fromMap(batchMaps.first);
-
-    final List<Map<String, dynamic>> productMaps = await db.query(
-      'tblbatch_products',
-      where: 'batch_id = ?',
-      whereArgs: [batchId],
-    );
-
-    final List<ProductsBatch> products =
-        productMaps.map((map) => ProductsBatch.fromMap(map)).toList();
-
-    return BatchWithProducts(batch: batch, products: products);
   }
 }

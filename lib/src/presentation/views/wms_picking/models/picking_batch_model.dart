@@ -3,16 +3,36 @@ class BatchsModel {
   final String? name;
   final String? scheduledDate; // Cambiado a String?
   final dynamic pickingTypeId; // Esto puede permanecer como dynamic o cambiar a int si estás seguro
-  final String state;
+  final String? state;
   final dynamic userId;
+  final dynamic isWave;
+  final String? isSeparate;
+  final int? productSeparateQty;
+  final int? productQty;
+  final String? timeSeparateTotal;
+  final DateTime? timeSeparateStart;
+
+  final String? isSendOdoo;
+  final String? isSendOdooDate;
+  final String? observation;
+
 
   BatchsModel({
-    required this.id,
-    required this.name,
-    required this.scheduledDate,
-    required this.pickingTypeId,
-    required this.state,
-    required this.userId,
+     this.id,
+     this.name,
+     this.scheduledDate,
+     this.pickingTypeId,
+     this.state,
+     this.userId,
+     this.isWave,
+    this.isSeparate,
+    this.productSeparateQty,
+    this.productQty,
+    this.timeSeparateTotal,
+    this.timeSeparateStart,
+    this.isSendOdoo,
+    this.isSendOdooDate,
+    this.observation,
   });
 
   factory BatchsModel.fromJson(Map<String, dynamic> json) {
@@ -25,6 +45,15 @@ class BatchsModel {
       pickingTypeId: json['picking_type_id'] is List ? json['picking_type_id'][0] : null,
       state: json['state'],
       userId: json['user_id'] is List ? json['user_id'][0] : null,
+      isWave: json['is_wave'],
+      isSeparate: json['is_separate'],
+      productSeparateQty: json['product_separate_qty'],
+      productQty: json['product_qty'],
+      timeSeparateTotal: json['time_separate_total'],
+      timeSeparateStart: json['time_separate_start'],
+      isSendOdoo: json['is_send_oddo'],
+      isSendOdooDate: json['is_send_oddo_date'],
+      observation: json['observation'],
     );
   }
 
@@ -36,6 +65,16 @@ class BatchsModel {
       'picking_type_id': pickingTypeId,
       'state': state,
       'user_id': userId,
+      'is_wave': isWave,
+      'is_separate': isSeparate,
+      'product_separate_qty': productSeparateQty,
+      'product_qty': productQty,
+      'time_separate_total': timeSeparateTotal,
+      'time_separate_start': timeSeparateStart,
+      'is_send_oddo': isSendOdoo,
+      'is_send_oddo_date': isSendOdooDate,
+      'observation': observation,
+
     };
   }
 
@@ -49,6 +88,15 @@ class BatchsModel {
     pickingTypeId: map['picking_type_id'], // Asegúrate de que sea de tipo esperado
     state: map['state'],
     userId: map['user_id'],
+    isWave: map['is_wave'],
+    isSeparate: map['is_separate'],
+    productSeparateQty: map['product_separate_qty'],
+    productQty: map['product_qty'],
+    timeSeparateTotal: map['time_separate_total'],
+    timeSeparateStart: map['time_separate_start'],
+    isSendOdoo: map['is_send_oddo'],
+    isSendOdooDate: map['is_send_oddo_date'],
+    observation: map['observation'],
   );
 }
 }

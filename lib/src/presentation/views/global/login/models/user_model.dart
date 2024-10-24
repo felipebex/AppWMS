@@ -26,7 +26,7 @@ class UserModel {
   int? companyId;
   int? partnerId;
   String? webBaseUrl;
-  bool? showEffect;
+  dynamic? showEffect;
   bool? displaySwitchCompanyMenu;
   int? maxTimeBetweenKeysInMs;
   bool? outOfOfficeMessage;
@@ -42,6 +42,7 @@ class UserModel {
         companyId: json["company_id"],
         partnerId: json["partner_id"],
         webBaseUrl: json["web.base.url"],
+
         showEffect: json["show_effect"],
         displaySwitchCompanyMenu: json["display_switch_company_menu"],
         maxTimeBetweenKeysInMs: json["max_time_between_keys_in_ms"],

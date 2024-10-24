@@ -255,8 +255,6 @@
 //                                   .recentUrls[index]
 //                                   .method)); // Cambiar el método
 
-
-                                  
 //                           context.read<EntrepriseBloc>().entrepriceController.text =
 //                               context
 //                                   .read<EntrepriseBloc>()
@@ -340,7 +338,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/widgets/list_database.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
-import 'package:wms_app/src/utils/constans/gaps.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -381,23 +378,21 @@ class SelectEnterpricePage extends StatelessWidget {
                 const SizedBox(
                   height: 80,
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(55),
+                const Padding(
+                  padding: EdgeInsets.all(55),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
-                          child: FadeIn(
-                              duration: const Duration(microseconds: 3),
-                              child: const Text(
-                                "Bienvenido a WMS",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 22),
-                              ))),
-                      const SizedBox(
+                          child: Text(
+                            "Bienvenido a WMS",
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 22),
+                          )),
+                      SizedBox(
                         height: 10,
                       ),
-                      const Center(
+                      Center(
                         child: Text("Version: 1.0.0",
                             style:
                                 TextStyle(color: Colors.white, fontSize: 10)),
@@ -406,7 +401,6 @@ class SelectEnterpricePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
                 Expanded(
                   child: Container(
                     decoration: const BoxDecoration(
@@ -447,8 +441,9 @@ class _loginForm extends StatelessWidget {
             borderRadius: BorderRadius.circular(200),
             child: Image.asset(
               'assets/images/icon.png',
-              width: 300,
-              height: 200,
+              width: 200,
+              height: 100,
+              fit: BoxFit.cover,
             ),
           ),
           FadeIn(
@@ -457,16 +452,16 @@ class _loginForm extends StatelessWidget {
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(25),
-                    boxShadow:  [
+                    boxShadow: [
                       BoxShadow(
-                          color:primaryColorApp.withOpacity(0.3),
+                          color: primaryColorApp.withOpacity(0.3),
                           blurRadius: 20,
-                          offset: Offset(0, 10))
+                          offset: const Offset(0, 10))
                     ]),
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: TextFormField(
                         autocorrect: false,
                         controller:
@@ -489,7 +484,7 @@ class _loginForm extends StatelessWidget {
                   ],
                 ),
               )),
-          gapH40,
+         const SizedBox(height: 20),
           MaterialButton(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -504,41 +499,12 @@ class _loginForm extends StatelessWidget {
                 try {
                   final result = await InternetAddress.lookup('example.com');
                   if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-
                     context
                         .read<EntrepriseBloc>()
                         .add(EntrepriseButtonPressed());
-
-                    // if (context
-                    //     .read<EntrepriseBloc>()
-                    //     .entrepriceList
-                    //     .isNotEmpty) {
-                    //   showModalBottomSheet(
-                    //       context: context,
-                    //       builder: (c) => DetailClientSale(
-                    //             listDB: context
-                    //                 .read<EntrepriseBloc>()
-                    //                 .entrepriceList,
-                    //           ));
-                    // } else {
-                    //   final snackBar = SnackBar(
-                    //     content: const Text(
-                    //         "No se encontraron resultados para esta empresa"),
-                    //     action: SnackBarAction(
-                    //       textColor: primaryColorApp,
-                    //       label: 'Cerrar',
-                    //       onPressed: () {
-                    //         const CloseButton();
-                    //       },
-                    //     ),
-                    //   );
-
-                    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                    // }
                   }
                 } catch (e) {
-                  Navigator.of(context).pop();
-                  showModalDialog(context, 'Error al procesas la solicitud');
+                  showModalDialog(context, 'Error al procesar la solicitud');
                 }
               },
               child: Container(

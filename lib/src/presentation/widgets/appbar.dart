@@ -13,7 +13,7 @@ class AppBarGlobal extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
 
       centerTitle: true,
-      title: Text(tittle, style: const TextStyle(color: white)),
+      title: Text(tittle, style: const TextStyle(color: white, fontSize: 18)),
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: white),
         onPressed: () {
@@ -29,5 +29,5 @@ class AppBarGlobal extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(70);
+  Size get preferredSize => const Size.fromHeight(55);
 }

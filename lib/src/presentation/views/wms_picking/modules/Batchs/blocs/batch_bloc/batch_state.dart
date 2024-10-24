@@ -27,3 +27,38 @@ final class BatchErrorState extends BatchState {
   final String error;
   BatchErrorState(this.error);
 }
+
+
+final class EmptyroductsBatch extends BatchState {}
+
+
+final class GetProductByIdLoaded extends BatchState {
+  final Products product;
+  GetProductByIdLoaded(this.product);
+}
+
+
+class ChangeIsOkState extends BatchState {
+  final bool isOk;
+  ChangeIsOkState(this.isOk);
+}
+
+
+final class CurrentProductChangedState extends BatchState {
+  final ProductsBatch currentProduct;
+  final int index;
+  CurrentProductChangedState({required this.currentProduct, required this.index});
+}
+
+
+
+final class QuantityChangedState extends BatchState {
+  final int quantity;
+  QuantityChangedState(this.quantity);
+}
+
+
+class SelectNovedadState extends BatchState {
+  final String novedad;
+  SelectNovedadState(this.novedad);
+}

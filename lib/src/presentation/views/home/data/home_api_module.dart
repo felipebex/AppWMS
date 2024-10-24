@@ -33,6 +33,9 @@ class HomeApiModule {
     }
     return 0;
   }
+
+
+
   static Future<int> countBatchInProgress() async {
     try {
       final response = await Api.callKW(
@@ -46,6 +49,7 @@ class HomeApiModule {
           ],
         },
       );
+        print("response: $response");
       if (response != null && response is int) {
         print('countBatchInProgress: $response');
         return response;
@@ -57,6 +61,11 @@ class HomeApiModule {
     }
     return 0;
   }
+
+
+
+
+
   static Future<int> countAllBatch() async {
     try {
       final response = await Api.callKW(
@@ -73,10 +82,10 @@ class HomeApiModule {
         print('countBatchInProgress: $response');
         return response;
       } else {
-        print('Error countBatchInProgress: response is null');
+        print('Error countAllBatch: response is null');
       }
     } catch (e, s) {
-      print('Error countBatchInProgress: $e, $s');
+      print('Error countAllBatch: $e, $s');
     }
     return 0;
   }

@@ -37,13 +37,11 @@ class SearchBatchEvent extends PickingEvent {
   SearchBatchEvent(this.query);
 }
 
-
 //*evento para cargar los batchs de la base de datos
 
 class LoadBatchsFromDBEvent extends PickingEvent {
   LoadBatchsFromDBEvent();
 }
-
 
 //*evento para cargar los productos de un batch
 class LoadAllProductsFromBatchEvent extends PickingEvent {
@@ -57,9 +55,25 @@ class ClearSearchBacthEvent extends PickingEvent {
   ClearSearchBacthEvent();
 }
 
-
 class FilterBatchesBStatusEvent extends PickingEvent {
   final String status;
 
   FilterBatchesBStatusEvent(this.status);
 }
+
+//* evento para filtrar los batchs por tipo de operacion
+class FilterBatchesByOperationTypeEvent extends PickingEvent {
+  final String operationType;
+  final int indexMenu;
+
+  FilterBatchesByOperationTypeEvent(this.operationType, this.indexMenu);
+}
+
+class FilterBatchesByTypeEvent extends PickingEvent {
+  final String isWave;
+  final int indexMenu;
+
+  FilterBatchesByTypeEvent(this.isWave, this.indexMenu);
+}
+
+

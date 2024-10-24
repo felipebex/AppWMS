@@ -1,52 +1,44 @@
-
-class Products{
-
+class Products {
   final int? id;
   final String? name;
-  final dynamic listPrice;
-  final dynamic barcode;
-  final dynamic brandName;
+  final String? barcode;
+  final String? tracking;
 
   Products({
-    required this.id,
-    required this.name,
-    required this.listPrice,
-    required this.barcode,
-    required this.brandName,
-     
+     this.id,
+     this.name,
+     this.barcode,
+    this.tracking,
   });
 
-  factory Products.fromJson(Map<String, dynamic> json){
+  factory Products.fromJson(Map<String, dynamic> json) {
     return Products(
       id: json['id'],
       name: json['name'].toString(),
-      listPrice: json['list_price'],
-      barcode: json['barcode'],
-      brandName: json['brand_name'],
+      barcode:
+          json['barcode'] is bool && !json['barcode'] ? "" : json['barcode'],
+   
+      tracking: json['tracking'] is bool && !json['tracking']
+          ? ""
+          : json['tracking'],
     );
   }
 
-  Map<String, dynamic> toMap(){
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
-      'list_price': listPrice,
       'barcode': barcode,
-      'brand_name': brandName,
+      'tracking': tracking,
     };
   }
 
-
-  factory Products.fromMap(Map<String, dynamic> map){
+  factory Products.fromMap(Map<String, dynamic> map) {
     return Products(
       id: map['id'],
       name: map['name'].toString(),
-      listPrice: map['list_price'],
-      barcode: map['barcode'],
-      brandName: map['brand_name'],
+      barcode: map['barcode'] is bool && !map['barcode'] ? "" : map['barcode'],
+      tracking: map['tracking'] is bool && !map['tracking'] ? "" : map['tracking'],
     );
   }
-
-  
-
 }
