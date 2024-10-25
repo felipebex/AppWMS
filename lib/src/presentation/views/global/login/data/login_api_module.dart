@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:wms_app/src/api/api.dart';
 import 'package:wms_app/src/api/api_end_points.dart';
 import 'package:wms_app/src/services/preferences.dart';
@@ -12,7 +13,7 @@ class LoginApiModule {
   final storage = const FlutterSecureStorage();
 
   //* iniciamos sesion a una base de datos
-  static Future<bool> loginUser(String email, String password) async {
+  static Future<bool> loginUser(String email, String password, BuildContext context) async {
     var params = {
       "db": Preferences.nameDatabase,
       "login": email,
@@ -25,6 +26,8 @@ class LoginApiModule {
         method: HttpMethod.post,
         path: ApiEndPoints.authenticate,
         params: Api.createPayload(params),
+        context: context,
+
       );
       print("params: $params");
       if (response != null) {

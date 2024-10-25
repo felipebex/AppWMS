@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:flutter/material.dart';
 import 'package:wms_app/src/api/api.dart';
 
 class HomeApiModule {
@@ -8,11 +9,12 @@ class HomeApiModule {
 
 
   //*metodo para contar los batch
-  static Future<int> countBatchDone() async {
+  static Future<int> countBatchDone(BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "stock.picking.batch",
         method: "search_count",
+        context: context,
         args: [],
          kwargs: {
           'context': {},
@@ -36,11 +38,12 @@ class HomeApiModule {
 
 
 
-  static Future<int> countBatchInProgress() async {
+  static Future<int> countBatchInProgress(BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "stock.picking.batch",
         method: "search_count",
+        context: context,
         args: [],
          kwargs: {
           'context': {},
@@ -66,11 +69,12 @@ class HomeApiModule {
 
 
 
-  static Future<int> countAllBatch() async {
+  static Future<int> countAllBatch(BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "stock.picking.batch",
         method: "search_count",
+        context: context,
         args: [],
          kwargs: {
           'context': {},

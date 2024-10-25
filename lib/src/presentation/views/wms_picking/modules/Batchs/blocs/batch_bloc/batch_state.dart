@@ -68,3 +68,7 @@ class ValidateFieldsState extends BatchState {
   final bool isOk;
   ValidateFieldsState(this.isOk);
 }
+
+
+class LoadDataInfoState extends BatchState {
+}

@@ -162,9 +162,9 @@ class DataBaseSqlite {
       List<ProductsBatch> productsBatchList) async {
     try {
       final db = await database;
-
       // Inicia la transacción
       await db!.transaction((txn) async {
+
         for (var productBatch in productsBatchList) {
           // Verificar si el producto ya existe con el batchId
           final List<Map<String, dynamic>> existingProduct = await txn.query(
@@ -174,6 +174,7 @@ class DataBaseSqlite {
           );
 
           if (existingProduct.isNotEmpty) {
+            print("actualizando los producto del batch :: ${productBatch.batchId}");
             // Actualizar producto existente
             await txn.update(
               'tblbatch_products',
@@ -182,6 +183,7 @@ class DataBaseSqlite {
               whereArgs: [productBatch.productId, productBatch.batchId],
             );
           } else {
+            print("agregando los producto del batch :: ${productBatch.batchId}");
             // Insertar nuevo producto
             await txn.insert(
               'tblbatch_products',
@@ -195,6 +197,7 @@ class DataBaseSqlite {
       print('Error insertBatchProducts: $e => $s');
     }
   }
+
 
   //* Obtener todos los productos de tblbatch_products
   Future<List<ProductsBatch>> getProducts() async {
@@ -213,7 +216,6 @@ class DataBaseSqlite {
         where: 'id = ?',
         whereArgs: [batchId],
       );
-
 
       print("batchMaps: $batchMaps");
       if (batchMaps.isEmpty) {
@@ -239,5 +241,47 @@ class DataBaseSqlite {
     await db?.delete('tblproducts');
     await db?.delete('tblbatchs');
     await db?.delete('tblbatch_products');
+  }
+
+  //todo? Metodos para realizar el picking de un producto
+
+  //actualziar en el tabla tblbatch_products el campo de is_location_is_ok en "true"
+  Future<ProductsBatch?> updateIsLocationIsOk(
+      int batchId, int productId, String isLocationOk) async {
+    print(
+        "batchId: $batchId, productId: $productId, isLocationOk: $isLocationOk");
+
+    final db = await database;
+    await db?.update(
+      'tblbatch_products',
+      {'is_location_is_ok': isLocationOk},
+      where: 'batch_id = ? AND product_id = ?',
+      whereArgs: [batchId, productId],
+    );
+
+    // Consultar el registro actualizado
+    final updatedRecord = await db?.query(
+      'tblbatch_products',
+      where: 'batch_id = ? AND product_id = ?',
+      whereArgs: [batchId, productId],
+    );
+
+    if (updatedRecord != null && updatedRecord.isNotEmpty) {
+      return ProductsBatch.fromMap(updatedRecord
+          .first); // Asegúrate de que `fromMap` esté implementado en ProductsBatch
+    }
+
+    return null;
+  }
+
+  //actualziar en el tabla tblbatch_products el campo de product_is_ok en "true"
+  Future<void> updateProductIsOk(int batchId, int productId) async {
+    final db = await database;
+    await db?.update(
+      'tblbatch_products',
+      {'product_is_ok': 'true'},
+      where: 'batch_id = ? AND product_id = ?',
+      whereArgs: [batchId, productId],
+    );
   }
 }

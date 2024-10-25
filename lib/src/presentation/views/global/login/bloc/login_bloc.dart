@@ -20,6 +20,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         final session = await LoginApiModule.loginUser(
           email.text,
           password.text,
+          event.context,
         );
         if (session) {
           email.clear();

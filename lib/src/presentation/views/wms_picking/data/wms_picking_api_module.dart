@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/api/api.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -8,11 +9,12 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch
 
 class PickingApiModule {
   //*metodo para obtener todos los producto de un batch
-  static Future<List<ProductsBatch>> resProductsBatchApi(int batchId) async {
+  static Future<List<ProductsBatch>> resProductsBatchApi(int batchId, BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "stock.move.line",
         method: "search_read",
+        context: context,
         args: [],
         kwargs: {
           'context': {},
@@ -45,12 +47,13 @@ class PickingApiModule {
 
   //*metodo para obtener todos los productos de la lista de batchs
   static Future<List<ProductsBatch>> resAllProductsBatchApi(
-      List<int> idBatchs) async {
+      List<int> idBatchs, BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "stock.move.line",
         method: "search_read",
         args: [],
+        context: context,
         kwargs: {
           'context': {},
           'domain': [
@@ -137,7 +140,7 @@ class PickingApiModule {
   // }
 
   /// Método para obtener los batchs con filtro de fecha
-  static Future<List<BatchsModel>> resBatchs() async {
+  static Future<List<BatchsModel>> resBatchs(BuildContext context) async {
     try {
       // Obtener la fecha actual y la fecha de tres días atrás
       DateTime now = DateTime.now();
@@ -151,6 +154,7 @@ class PickingApiModule {
       final response = await Api.callKW(
         model: "stock.picking.batch",
         method: "search_read",
+        context:  context,
         args: [],
         kwargs: {
           'context': {},
@@ -186,11 +190,12 @@ class PickingApiModule {
   }
 
   //metodo para obtener todos los productos
-  static Future<List<Products>> resProductsApi() async {
+  static Future<List<Products>> resProductsApi(BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "product.product",
         method: "search_read",
+        context: context,
         args: [],
         kwargs: {
           'context': {},

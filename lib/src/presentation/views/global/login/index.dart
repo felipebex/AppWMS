@@ -192,7 +192,9 @@ class _LoginForm extends StatelessWidget {
                           await InternetAddress.lookup('example.com');
                       if (result.isNotEmpty &&
                           result[0].rawAddress.isNotEmpty) {
-                        context.read<LoginBloc>().add(LoginButtonPressed());
+                        context
+                            .read<LoginBloc>()
+                            .add(LoginButtonPressed(context));
                       }
                     } catch (e, s) {
                       print("Error en login: $e $s");

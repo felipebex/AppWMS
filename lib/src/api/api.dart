@@ -3,16 +3,20 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/api/api_end_points.dart';
 import 'package:wms_app/src/api/dio_factory.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/utils.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart' as dio;
 
 enum ApiEnvironment { UAT, Dev, Prod }
 
@@ -57,13 +61,13 @@ class Api {
     if (!kReleaseMode) {
       print(e);
     }
-    if (e is DioException) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.sendTimeout ||
-          e.type == DioExceptionType.receiveTimeout ||
-          e.type == DioExceptionType.unknown) {
+    if (e is dio.DioException) {
+      if (e.type == dio.DioExceptionType.connectionTimeout ||
+          e.type == dio.DioExceptionType.sendTimeout ||
+          e.type == dio.DioExceptionType.receiveTimeout ||
+          e.type == dio.DioExceptionType.unknown) {
         onError('Server unreachable', {});
-      } else if (e.type == DioExceptionType.badResponse) {
+      } else if (e.type == dio.DioExceptionType.badResponse) {
         final response = e.response;
         if (response != null) {
           final data = response.data;
@@ -86,6 +90,7 @@ class Api {
     required HttpMethod method,
     required String path,
     required Map params,
+    required BuildContext context,
   }) async {
     try {
       if (DioFactory.dio == null) {
@@ -94,8 +99,7 @@ class Api {
 
       String? token = await PrefUtils.getToken();
       if (token.isNotEmpty) {
-        DioFactory.dio!.options.headers['Cookie'] =
-            token; // Establece las cookies
+        DioFactory.dio!.options.headers['Cookie'] = token;
       }
 
       Future.delayed(const Duration(microseconds: 1), () {
@@ -105,11 +109,19 @@ class Api {
             path != ApiEndPoints.getDb10) showLoading();
       });
 
-      Response response;
-
-      response = await DioFactory.dio!.post(path, data: params);
+      dio.Response response = await DioFactory.dio!.post(path, data: params);
 
       hideLoading();
+
+      print(response.data);
+
+      // Verificar si la sesión ha expirado
+      if (response.data["error"] != null &&
+          response.data["error"]["message"] == "Odoo Session Expired") {
+        await handleSessionExpired(
+            context); // Muestra el diálogo de sesión expirada
+        return null; // Detiene la ejecución y evita devolver un valor
+      }
 
       if (response.data["result"] != null) {
         print(response.data);
@@ -124,15 +136,19 @@ class Api {
         print("--------------------");
         return response.data["result"];
       } else {
-        // throw Exception(response.data["error"]["message"]);
+        // Aquí puedes lanzar una excepción o manejar otros errores
       }
     } catch (error, s) {
       hideLoading();
-      print("Error en request: $error, ===>$s");
+      // Si el error es de sesión expirada en el bloque catch
+      if (error.toString().contains("Session expired")) {
+        await handleSessionExpired(context);
+      }
     }
   }
 
-  static _updateCookies(Headers headers) async {
+  // Función para actualizar las cookies y guardar la fecha de expiración
+  static _updateCookies(dio.Headers headers) async {
     List<String>? rawCookies = headers['set-cookie'];
     if (rawCookies != null && rawCookies.isNotEmpty) {
       for (var rawCookie in rawCookies) {
@@ -145,25 +161,51 @@ class Api {
         if (match != null) {
           String expiresString = match.group(1)!;
 
-          // Parsear la fecha utilizando DateFormat para pandapan
           DateTime expires =
               DateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").parse(expiresString);
 
-          // try {
-          //   // Convertir GMT a UTC si es necesario
-          //   DateTime expires = DateFormat("EEE, dd-MMM-yyyy HH:mm:ss z")
-          //       .parse(expiresString, true)
-          //       .toLocal();
-
-            await PrefUtils.setExpirationDate(
-                expires); // Asegúrate de tener este método
-          // } catch (e) {
-          //   print("Error al analizar la fecha: $e");
-          // }
+          await PrefUtils.setExpirationDate(expires);
         }
       }
     }
   }
+
+  // Función para manejar sesión expirada
+  static Future<void> handleSessionExpired(BuildContext context) async {
+    await Get.dialog(
+      AlertDialog(
+        title: const Center(
+            child: Text("Sesión Expirada",
+                style: TextStyle(color: Colors.red, fontSize: 20))),
+        content: const Text(
+          "Tu sesión ha expirado. Por favor, inicia sesión nuevamente.",
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Get.back(); // Cerrar el diálogo
+              // _logout(context); // Llamar a la función de cierre de sesión
+              Navigator.pop(context);
+            },
+            child: const Text("Aceptar"),
+          ),
+        ],
+      ),
+      barrierDismissible: false, // Impide cerrar el diálogo al tocar fuera
+    );
+  }
+
+  // Función para cerrar sesión
+  static Future<void> _logout(BuildContext context) async {
+    PrefUtils.clearPrefs();
+    Preferences.removeUrlWebsite();
+    await DataBaseSqlite().deleteAll();
+    PrefUtils.setIsLoggedIn(false);
+    Navigator.pushNamedAndRemoveUntil(context, 'enterprice', (route) => false);
+  }
+
+// Función para manejar sesión expirada
 
   static Map getContext() {
     return {"lang": "es_CO", "tz": "America/Bogota", "uid": const Uuid().v1()};
@@ -173,6 +215,7 @@ class Api {
     required String model,
     required String method,
     required List args,
+    required BuildContext context,
     dynamic kwargs,
   }) async {
     var params = {
@@ -188,6 +231,7 @@ class Api {
         method: HttpMethod.post,
         path: ApiEndPoints.getCallKWEndPoint(model, method),
         params: createPayload(params),
+        context: context,
       );
       return response;
     } catch (error) {
@@ -196,12 +240,13 @@ class Api {
     }
   }
 
-  static Future<dynamic> destroy() async {
+  static Future<dynamic> destroy(BuildContext context) async {
     try {
       // Llamada al método `request` usando `await`
       final response = await request(
         method: HttpMethod.post,
         path: ApiEndPoints.destroy,
+        context: context,
         params: createPayload({}),
       );
       // Retorna la respuesta en caso de éxito

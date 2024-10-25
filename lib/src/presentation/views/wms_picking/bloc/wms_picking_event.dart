@@ -11,7 +11,8 @@ class LoadAllProductsEvent extends PickingEvent {
 //*evento para cargar todos los batchs de odoo
 
 class LoadAllBatchsEvent extends PickingEvent {
-  LoadAllBatchsEvent();
+  BuildContext context; 
+  LoadAllBatchsEvent(this.context);
 }
 
 //*evento para buscar un producto

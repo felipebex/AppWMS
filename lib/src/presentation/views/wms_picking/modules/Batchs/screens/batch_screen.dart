@@ -68,6 +68,39 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         double progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
         final batchBloc = context.read<BatchBloc>();
 
+        if (state is EmptyroductsBatch) {
+          return Scaffold(
+            appBar:
+                AppBarGlobal(tittle: 'Detalle de Batch', actions: Container()),
+            backgroundColor: Colors.white,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('assets/images/empty.png',
+                      height: 150), // Ajusta la altura según necesites
+                  const SizedBox(height: 10),
+                  const Text('No se encontraron resultados',
+                      style: TextStyle(fontSize: 18, color: grey)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                          'El Batch  ${context.read<BatchBloc>().batchWithProducts.batch?.name} no tiene productos',
+                          style: const TextStyle(
+                              fontSize: 18, color: primaryColorApp),
+                          textAlign: TextAlign.center),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+          );
+        }
+
         final currentProduct =
             batchBloc.batchWithProducts.products?[batchBloc.index];
 
@@ -78,7 +111,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is CurrentProductChangedState ||
             state is SelectNovedadState ||
             state is QuantityChangedState ||
+            state is LoadDataInfoState ||
             state is ValidateFieldsState) {
+
+
+
+
+              
           return Scaffold(
             backgroundColor: Colors.white,
             body: Column(
@@ -99,7 +138,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             currentProduct: currentProduct ?? ProductsBatch()),
                       ),
                       ProgressIndicatorWidget(
-                        progress: progress ?? 0,
+                        progress: progress,
                         completed: completedTasks,
                         total: totalTasks,
                       ),
@@ -159,7 +198,15 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                                 batchBloc.add(
                                                     ChangeLocationIsOkEvent(
-                                                        true));
+                                                        true,
+                                                        currentProduct
+                                                                ?.idProduct ??
+                                                            0,
+                                                        batchBloc
+                                                                .batchWithProducts
+                                                                .batch
+                                                                ?.id ??
+                                                            0));
 
                                                 batchBloc.oldLocation =
                                                     currentProduct?.locationId;
@@ -250,7 +297,16 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                   isOk: true));
                                                           batchBloc.add(
                                                               ChangeLocationIsOkEvent(
-                                                                  true));
+                                                                  true,
+                                                                  currentProduct
+                                                                          ?.idProduct ??
+                                                                      0,
+                                                                  batchBloc
+                                                                          .batchWithProducts
+                                                                          .batch
+                                                                          ?.id ??
+                                                                      0));
+
                                                           batchBloc
                                                                   .oldLocation =
                                                               currentProduct
@@ -363,9 +419,24 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 quantity = quantity + 1;
                                                 batchBloc.add(
                                                     ChangeProductIsOkEvent(
-                                                        true));
-                                                batchBloc.add(
-                                                    ChangeIsOkQuantity(true));
+                                                        true,
+                                                        currentProduct
+                                                                ?.idProduct ??
+                                                            0,
+                                                        batchBloc
+                                                                .batchWithProducts
+                                                                .batch
+                                                                ?.id ??
+                                                            0));
+
+                                                batchBloc.add(ChangeIsOkQuantity(
+                                                    true,
+                                                    currentProduct?.idProduct ??
+                                                        0,
+                                                    batchBloc.batchWithProducts
+                                                            .batch?.id ??
+                                                        0));
+
                                                 Future.delayed(
                                                     const Duration(
                                                         milliseconds: 100), () {
@@ -462,10 +533,28 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               quantity + 1;
                                                           batchBloc.add(
                                                               ChangeProductIsOkEvent(
-                                                                  true));
+                                                                  true,
+                                                                  currentProduct
+                                                                          ?.idProduct ??
+                                                                      0,
+                                                                  batchBloc
+                                                                          .batchWithProducts
+                                                                          .batch
+                                                                          ?.id ??
+                                                                      0));
+
                                                           batchBloc.add(
                                                               ChangeIsOkQuantity(
-                                                                  true));
+                                                                  true,
+                                                                  currentProduct
+                                                                          ?.idProduct ??
+                                                                      0,
+                                                                  batchBloc
+                                                                          .batchWithProducts
+                                                                          .batch
+                                                                          ?.id ??
+                                                                      0));
+
                                                           Future.delayed(
                                                               const Duration(
                                                                   milliseconds:
@@ -796,39 +885,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                 ),
                 // YourWidget(),
               ],
-            ),
-          );
-        }
-
-        if (state is EmptyroductsBatch) {
-          return Scaffold(
-            appBar:
-                AppBarGlobal(tittle: 'Detalle de Batch', actions: Container()),
-            backgroundColor: Colors.white,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/images/empty.png',
-                      height: 150), // Ajusta la altura según necesites
-                  const SizedBox(height: 10),
-                  const Text('No se encontraron resultados',
-                      style: TextStyle(fontSize: 18, color: grey)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                          'El Batch  ${context.read<BatchBloc>().batchWithProducts.batch?.name} no tiene productos',
-                          style: const TextStyle(
-                              fontSize: 18, color: primaryColorApp),
-                          textAlign: TextAlign.center),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-                ],
-              ),
             ),
           );
         }

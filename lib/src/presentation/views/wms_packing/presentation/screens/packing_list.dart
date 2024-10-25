@@ -155,7 +155,7 @@ class PakingListScreen extends StatelessWidget {
                             context.read<WmsPackingBloc>().index = 0;
                             context.read<WmsPackingBloc>().oldLocation = '';
                             packingBloc
-                                .add(LoadProdcutsPackingEvent(packing.id));
+                                .add(LoadProdcutsPackingEvent(packing.id, context));
 
                             Navigator.pushNamed(context, 'packing-detail',
                                 arguments:packing );

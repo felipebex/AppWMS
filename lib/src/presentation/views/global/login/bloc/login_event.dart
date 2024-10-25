@@ -4,6 +4,7 @@ part of 'login_bloc.dart';
 sealed class LoginEvent {}
 
 class LoginButtonPressed extends LoginEvent {
+  final BuildContext context;
 
-
+  LoginButtonPressed(this.context);
 }

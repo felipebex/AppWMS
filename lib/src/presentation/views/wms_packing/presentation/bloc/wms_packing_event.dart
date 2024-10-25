@@ -5,15 +5,19 @@ sealed class WmsPackingEvent {}
 
 class LoadAllPackingEvent extends WmsPackingEvent {
   final int batchId;
+  final BuildContext context;
   LoadAllPackingEvent(
     this.batchId,
+    this.context,
   );
 }
 
 class LoadProdcutsPackingEvent extends WmsPackingEvent {
   final int packingId;
+  final BuildContext context;
   LoadProdcutsPackingEvent(
     this.packingId,
+    this.context,
   );
 }
 

@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, unnecessary_import, unrelated_type_equality_checks
+// ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, unnecessary_import, unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_api_module.dart';
@@ -153,7 +153,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     try {
       emit(BatchsPickingLoadingState());
 
-      final response = await PickingApiModule.resBatchs();
+      final response = await PickingApiModule.resBatchs(event.context);
       if (response != null && response is List) {
         print('response batchs: ${response.length}');
         List<int> idBatchs = [];
@@ -161,31 +161,25 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         listOfBatchs.addAll(response);
 
         for (var batch in listOfBatchs) {
+          print(
+              'batch: ${batch.id} - ${batch.name} - ${batch.scheduledDate} - ${batch.pickingTypeId} - ${batch.state} - ${batch.userId} - ${batch.isWave}');
           try {
             if (batch.id != null && batch.name != null) {
               await DataBaseSqlite().insertBatch(BatchsModel(
                 id: batch.id!,
                 name: batch.name ?? '',
                 scheduledDate: batch.scheduledDate ?? 'no scheduled',
-                // pickingTypeId: batch.pickingTypeId.isNotEmpty
-                //     ? batch.pickingTypeId[1]
-                //     : '',
                 pickingTypeId: (batch.pickingTypeId is List &&
                         batch.pickingTypeId.isNotEmpty)
                     ? batch.pickingTypeId[1]
                     : '',
-
                 state: batch.state,
                 userId: batch.userId is bool
                     ? ""
                     : (batch.userId.isNotEmpty ? batch.userId[1] : ''),
                 isWave: batch.isWave.toString(),
               ));
-
-              // if (batch.state == 'in_progress') {
-                idBatchs.add(batch.id!);
-              // }
-              
+              idBatchs.add(batch.id!);
             }
           } catch (dbError, stackTrace) {
             print('Error inserting batch: $dbError  $stackTrace');
@@ -195,18 +189,27 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         if (idBatchs.isNotEmpty) {
           // Obtén todos los productos de los batches en progreso
           final responseProductsBatchs =
-              await PickingApiModule.resAllProductsBatchApi(idBatchs);
-
+              await PickingApiModule.resAllProductsBatchApi(
+                  idBatchs, event.context);
 
           print('responseProductsBatchs: ${responseProductsBatchs.length}');
 
           if (responseProductsBatchs.isNotEmpty) {
-            // Crear una lista para almacenar los productos a insertar
-            List<ProductsBatch> productsToInsert = [];
+            // Crear un mapa para almacenar los productos únicos y sumar cantidades
+            Map<String, ProductsBatch> uniqueProductsMap = {};
 
             for (var productsBatch in responseProductsBatchs) {
-              productsToInsert.add(
-                ProductsBatch(
+              // Crear una clave única usando idProduct y batchId
+              String key =
+                  '${productsBatch.idProduct}-${productsBatch.batchId}';
+
+              if (uniqueProductsMap.containsKey(key)) {
+                // Si ya existe en el mapa, sumar la cantidad al producto existente
+                uniqueProductsMap[key]!.quantity +=
+                    productsBatch.quantity.toInt();
+              } else {
+                // Si no existe, agregarlo al mapa
+                uniqueProductsMap[key] = ProductsBatch(
                   idProduct: productsBatch.idProduct,
                   batchId: productsBatch.batchId,
                   productId: productsBatch.productId,
@@ -215,16 +218,21 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
                   locationId: productsBatch.locationId,
                   locationDestId: productsBatch.locationDestId,
                   quantity: productsBatch.quantity.toInt(),
-                ),
-              );
+                );
+              }
             }
 
-            // Llamar al método de inserción masiva
+            // Convertir el mapa en una lista de productos únicos con cantidades sumadas
+            List<ProductsBatch> productsToInsert =
+                uniqueProductsMap.values.toList();
+
+            // Enviar la lista agrupada a insertBatchProducts
             await DataBaseSqlite().insertBatchProducts(productsToInsert);
           }
         }
 
-        final responseProductsAll = await PickingApiModule.resProductsApi();
+        final responseProductsAll =
+            await PickingApiModule.resProductsApi(event.context);
         print('responseProductsAll: ${responseProductsAll.length}');
 
         await DataBaseSqlite().insertProducts(responseProductsAll);

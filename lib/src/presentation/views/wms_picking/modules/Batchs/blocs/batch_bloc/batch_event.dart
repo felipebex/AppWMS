@@ -5,7 +5,8 @@ sealed class BatchEvent {}
 
 class LoadAllProductsBatchsEvent extends BatchEvent {
   int batchId;
-  LoadAllProductsBatchsEvent({required this.batchId});
+  final BuildContext context;
+  LoadAllProductsBatchsEvent({required this.batchId, required this.context});
 }
 
 class ClearSearchProudctsBatchEvent extends BatchEvent {}
@@ -39,22 +40,31 @@ class GetProductById extends BatchEvent {
 //* CAMBIAR VALORES DE VARIABLES
 class ChangeLocationIsOkEvent extends BatchEvent {
   final bool locationIsOk;
-  ChangeLocationIsOkEvent(this.locationIsOk);
+  final int productId;
+  final int batchId;
+  ChangeLocationIsOkEvent(this.locationIsOk, this.productId, this.batchId);
 }
 
 class ChangeLocationDestIsOkEvent extends BatchEvent {
   final bool locationDestIsOk;
-  ChangeLocationDestIsOkEvent(this.locationDestIsOk);
+  final int productId;
+  final int batchId;
+  ChangeLocationDestIsOkEvent(
+      this.locationDestIsOk, this.productId, this.batchId);
 }
 
 class ChangeProductIsOkEvent extends BatchEvent {
   final bool productIsOk;
-  ChangeProductIsOkEvent(this.productIsOk);
+  final int productId;
+  final int batchId;
+  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.batchId);
 }
 
 class ChangeIsOkQuantity extends BatchEvent {
   final bool isOk;
-  ChangeIsOkQuantity(this.isOk);
+  final int productId;
+  final int batchId;
+  ChangeIsOkQuantity(this.isOk, this.productId, this.batchId);
 }
 
 class ChangeCurrentProduct extends BatchEvent {
@@ -76,4 +86,8 @@ class ValidateFieldsEvent extends BatchEvent {
   final String field;
   final bool isOk;
   ValidateFieldsEvent({required this.field, required this.isOk});
+}
+
+
+class LoadDataInfoEvent extends BatchEvent {
 }

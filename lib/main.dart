@@ -72,7 +72,9 @@ class MyApp extends StatelessWidget {
           create: (_) => BatchBloc(),
         ),
         BlocProvider(
-          create: (_) => HomeBloc(),
+          create: (context) => HomeBloc(
+            context,
+          ),
         ),
         BlocProvider(
           create: (_) => CronometroBloc(),

@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
       child: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {
           if (state is HomeLoadedState) {
-            context.read<WMSPickingBloc>().add(LoadAllBatchsEvent());
+            context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context));
           }
         },
         builder: (context, state) {

@@ -140,7 +140,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadAllPackingEvent event, Emitter<WmsPackingState> emit) async {
     emit(WmsPackingLoading());
     try {
-      final response = await PackingSApiModule.restAllPacking(event.batchId);
+      final response = await PackingSApiModule.restAllPacking(event.batchId, event.context);
       if (response != null && response is List) {
         print('response packing : ${response.length}');
         listPacking.clear();
@@ -158,7 +158,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     emit(WmsPackingLoadingProducts());
     try {
       final response =
-          await PackingSApiModule.resProductsPacking(event.packingId);
+          await PackingSApiModule.resProductsPacking(event.packingId, event.context);
       if (response != null && response is List) {
         print('response products packing : ${response.length}');
         listProductPacking.clear();

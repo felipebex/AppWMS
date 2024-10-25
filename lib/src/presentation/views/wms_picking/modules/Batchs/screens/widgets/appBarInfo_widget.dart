@@ -24,15 +24,9 @@ class AppBarInfo extends StatelessWidget {
           children: [
             IconButton(
               onPressed: () {
-                context.read<BatchBloc>().add(ChangeLocationIsOkEvent(false));
-                context.read<BatchBloc>().add(ChangeProductIsOkEvent(false));
                 context.read<BatchBloc>().index = 0;
                 context.read<BatchBloc>().oldLocation = '';
 
-                context
-                    .read<BatchBloc>()
-                    .add(ChangeLocationDestIsOkEvent(false));
-                context.read<BatchBloc>().add(ChangeIsOkQuantity(false));
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),

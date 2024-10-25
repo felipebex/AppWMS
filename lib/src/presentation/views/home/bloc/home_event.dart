@@ -5,5 +5,8 @@ sealed class HomeEvent {}
 
 
 class HomeLoadEvent extends HomeEvent {
-  HomeLoadEvent();
+  final BuildContext context;
+  HomeLoadEvent(
+    this.context,
+  );
 }

@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:flutter/material.dart';
 import 'package:wms_app/src/api/api.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/product_packing_model.dart';
@@ -7,11 +8,13 @@ import 'package:wms_app/src/presentation/views/wms_packing/domain/product_packin
 import '../../wms_picking/models/picking_batch_model.dart';
 
 class PackingSApiModule {
-  static Future<List<Packing>> restAllPacking(int batchId) async {
+  static Future<List<Packing>> restAllPacking(
+      int batchId, BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "stock.picking",
         method: "search_read",
+        context: context,
         args: [],
         kwargs: {
           'context': {},
@@ -51,11 +54,12 @@ class PackingSApiModule {
   }
 
 //*metodo para obtener los batchs
-  static Future<List<BatchsModel>> resBatchs() async {
+  static Future<List<BatchsModel>> resBatchs(BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "stock.picking.batch",
         method: "search_read",
+        context: context,
         args: [],
         kwargs: {
           'context': {},
@@ -90,11 +94,13 @@ class PackingSApiModule {
   }
 
   //*metodo para obtener todos los productos de un packing
-  static Future<List<ProductPacking>> resProductsPacking(int pickingId) async {
+  static Future<List<ProductPacking>> resProductsPacking(
+      int pickingId, BuildContext context) async {
     try {
       final response = await Api.callKW(
         model: "stock.move.line",
         method: "search_read",
+        context: context,
         args: [],
         kwargs: {
           'context': {},

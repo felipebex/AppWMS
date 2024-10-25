@@ -43,6 +43,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   bool quantityIsOk = false;
   String oldLocation = '';
 
+  DataBaseSqlite db = DataBaseSqlite();
+
   //*lista de novedades de separacion
   List<String> novedades = [
     'Producto dañado',
@@ -91,6 +93,17 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<SelectNovedadEvent>(_onSelectNovedadEvent);
 
     on<ValidateFieldsEvent>(_onValidateFields);
+
+    on<LoadDataInfoEvent>(_onLoadDataInfoEvent);
+  }
+
+  void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
+    print("currentProduct: ${currentProduct.toMap()}");
+    locationIsOk = currentProduct.isLocationIsOk ?? false;
+    productIsOk = currentProduct.productIsOk ?? false;
+    locationDestIsOk = currentProduct.locationDestIsOk ?? false;
+    quantityIsOk = currentProduct.quantity ?? false;
+    emit(LoadDataInfoState());
   }
 
   void _onValidateFields(ValidateFieldsEvent event, Emitter<BatchState> emit) {
@@ -113,8 +126,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void _onSelectNovedadEvent(
       SelectNovedadEvent event, Emitter<BatchState> emit) {
-    print('event.novedad: ${event.novedad}');
-    // selectedNovedad = event.novedad;
+    selectedNovedad = event.novedad;
     emit(SelectNovedadState(event.novedad));
   }
 
@@ -163,7 +175,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onChangeLocationIsOkEvent(
-      ChangeLocationIsOkEvent event, Emitter<BatchState> emit) {
+      ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async{
+    if (event.locationIsOk) {
+      final  productEdit = await  db.updateIsLocationIsOk(event.productId, event.batchId, 'true');
+      print("productEdit: ${productEdit?.toMap()}");
+    } else {
+      db.updateIsLocationIsOk(event.productId, event.batchId, 'false');
+    }
+
     locationIsOk = event.locationIsOk;
     emit(ChangeIsOkState(
       locationIsOk,
@@ -188,6 +207,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void _onGetProductById(GetProductById event, Emitter<BatchState> emit) async {
     try {
+      
       final response = await DataBaseSqlite().getProductById(event.productId);
       if (response != null) {
         product = response;
@@ -205,7 +225,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     try {
       emit(ProductsBatchLoadingState());
       final response =
-          await PickingApiModule.resProductsBatchApi(event.batchId);
+          await PickingApiModule.resProductsBatchApi(event.batchId, event.context);
       if (response != null && response is List) {
         listOfProductsBatch.clear();
         listOfProductsBatch.addAll(response);

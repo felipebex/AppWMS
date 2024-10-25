@@ -1,6 +1,5 @@
 // ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use
 
-
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
@@ -452,9 +451,14 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       //         );
                                       //       });
                                       // } else {
+
                                       context.read<BatchBloc>().add(
                                           FetchBatchWithProductsEvent(
                                               batch.id ?? 0));
+
+                                      context
+                                          .read<BatchBloc>()
+                                          .add(LoadDataInfoEvent());
 
                                       //todo navegamos a la vista de separacion de productos del batch
                                       Navigator.pushNamed(

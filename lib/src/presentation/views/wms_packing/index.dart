@@ -156,7 +156,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             batch.id ?? 0));
 
                                     context.read<WmsPackingBloc>().add(
-                                        LoadAllPackingEvent(batch.id ?? 0));
+                                        LoadAllPackingEvent(batch.id ?? 0, context));
                                     Navigator.pushNamed(context, 'packing-list',
                                         arguments: batch);
                                   },
