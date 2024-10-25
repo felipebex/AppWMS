@@ -11,10 +11,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class AppBarInfo extends StatelessWidget {
   const AppBarInfo({
     super.key,
-    required this.currentProduct,
+    required this.currentProduct, required this.bathId,
   });
 
   final ProductsBatch currentProduct;
+  final int bathId;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +47,9 @@ class AppBarInfo extends StatelessWidget {
               onSelected: (String value) {
                 // Manejar la selección de opciones aquí
                 if (value == '1') {
+                  
+                  context.read<BatchBloc>().add(FetchBatchWithProductsEvent(bathId));
+
                   Navigator.pushNamed(
                     context,
                     'batch-detail',

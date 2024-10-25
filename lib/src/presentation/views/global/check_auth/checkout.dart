@@ -1,8 +1,6 @@
 // ignore_for_file: unrelated_type_equality_checks
 
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:flutter/material.dart';
 

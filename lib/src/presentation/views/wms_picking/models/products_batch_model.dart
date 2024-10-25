@@ -12,14 +12,14 @@ class ProductsBatch {
   final int? quantitySeparate;
   final String? isSelected;
   final String? isSeparate;
-  final DateTime? timeSeparate;
-  final DateTime? timeSeparateStart;
+  final String? timeSeparate;
+  final String? timeSeparateStart;
   final String? observation;
 
   //variables para el picking
-  late bool? isLocationIsOk;  //variable para si la ubicacion es leida correctamente
-  late bool? productIsOk; //variable para si el producto es leido correctamente
-  late bool? locationDestIsOk; // variable para si la ubicacion destino esta leido 
+  late dynamic? isLocationIsOk;  //variable para si la ubicacion es leida correctamente
+  late dynamic? productIsOk; //variable para si el producto es leido correctamente
+  late dynamic? locationDestIsOk; // variable para si la ubicacion destino esta leido 
   
 
 

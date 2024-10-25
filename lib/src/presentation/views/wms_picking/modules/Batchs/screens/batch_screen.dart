@@ -1,8 +1,9 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print, unused_element
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print, unused_element, sort_child_properties_last
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/appBarInfo_widget.dart';
@@ -39,8 +40,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     super.didChangeDependencies();
     if (!context.read<BatchBloc>().locationIsOk) {
       FocusScope.of(context).requestFocus(focusNode1);
-    } else {
+    }
+    if (!context.read<BatchBloc>().productIsOk) {
       FocusScope.of(context).requestFocus(focusNode2);
+    }
+    if (!context.read<BatchBloc>().quantityIsOk) {
+      FocusScope.of(context).requestFocus(focusNode3);
     }
   }
 
@@ -101,10 +106,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           );
         }
 
-        final currentProduct =
-            batchBloc.batchWithProducts.products?[batchBloc.index];
-
-        batchBloc.add(GetProductById(currentProduct?.idProduct ?? 0));
+        // final currentProduct =
+        //     batchBloc.batchWithProducts.products?[batchBloc.index];
 
         if (state is LoadProductsBatchSuccesStateBD ||
             state is ChangeIsOkState ||
@@ -113,11 +116,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is QuantityChangedState ||
             state is LoadDataInfoState ||
             state is ValidateFieldsState) {
+          final currentProduct = batchBloc.currentProduct;
+          batchBloc.add(GetProductById(currentProduct.idProduct ?? 0));
 
-
-
-
-              
           return Scaffold(
             backgroundColor: Colors.white,
             body: Column(
@@ -135,7 +136,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                           context.read<BatchBloc>().completedProducts = 0;
                         },
                         child: AppBarInfo(
-                            currentProduct: currentProduct ?? ProductsBatch()),
+                            currentProduct: currentProduct,
+                            bathId: batchBloc.batchWithProducts.batch?.id ?? 0),
                       ),
                       ProgressIndicatorWidget(
                         progress: progress,
@@ -722,8 +724,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           currentProduct
                                                               ?.quantity) {
                                                         _nextProduct(
-                                                            currentProduct!,
-                                                            batchBloc);
+                                                          currentProduct!,
+                                                          batchBloc,
+                                                        );
                                                       }
                                                     } else {
                                                       setState(() {
@@ -936,7 +939,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     );
   }
 
-  void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) {
+  void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) async {
+    DataBaseSqlite db = DataBaseSqlite();
+    await db.separateProduct(batchBloc.batchWithProducts.batch?.id ?? 0,
+        currentProduct.idProduct ?? 0);
     //reinciiamos la cantidad contada de cada producto
     setState(() {
       quantity = 0;

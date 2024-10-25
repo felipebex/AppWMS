@@ -456,10 +456,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           FetchBatchWithProductsEvent(
                                               batch.id ?? 0));
 
-                                      context
-                                          .read<BatchBloc>()
-                                          .add(LoadDataInfoEvent());
-
                                       //todo navegamos a la vista de separacion de productos del batch
                                       Navigator.pushNamed(
                                         context,

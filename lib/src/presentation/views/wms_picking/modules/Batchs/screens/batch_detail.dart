@@ -1,5 +1,6 @@
 // ignore_for_file: unrelated_type_equality_checks
 
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:flutter/material.dart';
@@ -25,39 +26,39 @@ class BatchDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   //*widget de busqueda
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: Card(
-                      color: Colors.white,
-                      elevation: 2,
-                      child: TextFormField(
-                        textAlignVertical: TextAlignVertical.center,
-                        controller: context.read<BatchBloc>().searchController,
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.search, color: grey),
-                          suffixIcon: IconButton(
-                              onPressed: () {
-                                context
-                                    .read<BatchBloc>()
-                                    .add(ClearSearchProudctsBatchEvent());
-                                FocusScope.of(context).unfocus();
-                              },
-                              icon: const Icon(Icons.close, color: grey)),
-                          disabledBorder: const OutlineInputBorder(),
-                          hintText: "Buscar productos",
-                          hintStyle:
-                              const TextStyle(color: Colors.grey, fontSize: 14),
-                          border: InputBorder.none,
-                        ),
-                        onChanged: (value) {
-                          context
-                              .read<BatchBloc>()
-                              .add(SearchProductsBatchEvent(value));
-                        },
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding:
+                  //       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  //   child: Card(
+                  //     color: Colors.white,
+                  //     elevation: 2,
+                  //     child: TextFormField(
+                  //       textAlignVertical: TextAlignVertical.center,
+                  //       controller: context.read<BatchBloc>().searchController,
+                  //       decoration: InputDecoration(
+                  //         prefixIcon: const Icon(Icons.search, color: grey),
+                  //         suffixIcon: IconButton(
+                  //             onPressed: () {
+                  //               context
+                  //                   .read<BatchBloc>()
+                  //                   .add(ClearSearchProudctsBatchEvent());
+                  //               FocusScope.of(context).unfocus();
+                  //             },
+                  //             icon: const Icon(Icons.close, color: grey)),
+                  //         disabledBorder: const OutlineInputBorder(),
+                  //         hintText: "Buscar productos",
+                  //         hintStyle:
+                  //             const TextStyle(color: Colors.grey, fontSize: 14),
+                  //         border: InputBorder.none,
+                  //       ),
+                  //       onChanged: (value) {
+                  //         context
+                  //             .read<BatchBloc>()
+                  //             .add(SearchProductsBatchEvent(value));
+                  //       },
+                  //     ),
+                  //   ),
+                  // ),
 
                   SizedBox(
                     width: size.width,
@@ -147,14 +148,34 @@ class BatchDetailScreen extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 5),
                                   child: GestureDetector(
-                                    onTap: () {},
+                                    onTap: () async {
+                                      DataBaseSqlite db = DataBaseSqlite();
+
+                                      await db.getProductBacth(
+                                          context
+                                                  .read<BatchBloc>()
+                                                  .batchWithProducts
+                                                  .batch
+                                                  ?.id ??
+                                              0,
+                                          productsBatch?.idProduct ?? 0);
+                                    },
                                     child: Card(
                                         elevation: 4,
                                         child: Container(
                                           decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              color: Colors.lightGreen[100]),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            // color: Colors.lightGreen[100]),
+                                            color: productsBatch?.isSelected ==
+                                                    '1'
+                                                ? primaryColorApp
+                                                    .withOpacity(0.3)
+                                                : productsBatch?.isSeparate ==
+                                                        '1'
+                                                    ? Colors.green[100]
+                                                    : Colors.white,
+                                          ),
                                           padding: const EdgeInsets.all(8.0),
                                           child: Column(
                                             children: [

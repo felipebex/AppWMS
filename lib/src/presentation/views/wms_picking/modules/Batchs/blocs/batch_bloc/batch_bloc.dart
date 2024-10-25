@@ -98,11 +98,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
-    print("currentProduct: ${currentProduct.toMap()}");
-    locationIsOk = currentProduct.isLocationIsOk ?? false;
-    productIsOk = currentProduct.productIsOk ?? false;
-    locationDestIsOk = currentProduct.locationDestIsOk ?? false;
-    quantityIsOk = currentProduct.quantity ?? false;
+    locationIsOk = currentProduct.isLocationIsOk == '1' ? true : false;
+    productIsOk = currentProduct.productIsOk == '1' ? true : false;
+    locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
     emit(LoadDataInfoState());
   }
 
@@ -141,10 +139,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onChangeCurrentProduct(
-      ChangeCurrentProduct event, Emitter<BatchState> emit) {
+      ChangeCurrentProduct event, Emitter<BatchState> emit) async {
     // Aumentar el índice solo si está dentro de los límites
     if (batchWithProducts.products != null &&
         index < batchWithProducts.products!.length - 1) {
+      await db.deselectProduct(batchWithProducts.batch?.id ?? 0,
+          event.currentProduct.idProduct ?? 0);
+
       if (event.currentProduct.locationId != oldLocation) {
         locationIsOk = false;
       }
@@ -153,12 +154,17 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       quantityIsOk = false;
       index++;
       completedProducts++;
-    } else {}
+    } else {
+      ///si ya se completaron todos los productos
+    }
 
     // Obtener el producto actual basado en el índice
     if (batchWithProducts.products != null &&
         batchWithProducts.products!.isNotEmpty) {
       currentProduct = batchWithProducts.products![index];
+
+      await db.selectProduct(
+          batchWithProducts.batch?.id ?? 0, currentProduct.idProduct ?? 0);
 
       // Emitir el nuevo estado con el producto actual
       emit(CurrentProductChangedState(
@@ -175,12 +181,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onChangeLocationIsOkEvent(
-      ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async{
+      ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.locationIsOk) {
-      final  productEdit = await  db.updateIsLocationIsOk(event.productId, event.batchId, 'true');
-      print("productEdit: ${productEdit?.toMap()}");
-    } else {
-      db.updateIsLocationIsOk(event.productId, event.batchId, 'false');
+      await db.updateIsLocationIsOk(event.batchId, event.productId);
+      await db.startStopwatch(
+          event.batchId, event.productId, DateTime.now().toString());
+      await db.selectProduct(event.batchId, event.productId);
     }
 
     locationIsOk = event.locationIsOk;
@@ -198,7 +204,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onChangeProductIsOkEvent(
-      ChangeProductIsOkEvent event, Emitter<BatchState> emit) {
+      ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
+    if (event.productIsOk) {
+      await db.updateIsProductIsOk(event.batchId, event.productId);
+    }
     productIsOk = event.productIsOk;
     emit(ChangeIsOkState(
       productIsOk,
@@ -207,7 +216,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void _onGetProductById(GetProductById event, Emitter<BatchState> emit) async {
     try {
-      
       final response = await DataBaseSqlite().getProductById(event.productId);
       if (response != null) {
         product = response;
@@ -224,8 +232,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       LoadAllProductsBatchsEvent event, Emitter<BatchState> emit) async {
     try {
       emit(ProductsBatchLoadingState());
-      final response =
-          await PickingApiModule.resProductsBatchApi(event.batchId, event.context);
+      final response = await PickingApiModule.resProductsBatchApi(
+          event.batchId, event.context);
       if (response != null && response is List) {
         listOfProductsBatch.clear();
         listOfProductsBatch.addAll(response);
@@ -334,6 +342,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         return;
       }
 
+      currentProduct = batchWithProducts.products![index];
+
+      add(LoadDataInfoEvent());
       sortProductsByLocationId(batchWithProducts.products!);
       getPosicions();
       emit(LoadProductsBatchSuccesStateBD(

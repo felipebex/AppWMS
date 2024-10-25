@@ -794,10 +794,10 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2024-10-23T00:15:28.558739Z",
+  "generated": "2024-10-25T20:25:21.448803Z",
   "generator": "pub",
-  "generatorVersion": "3.5.3",
+  "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/estebanrodriguezmarles/development/flutter",
-  "flutterVersion": "3.24.3",
+  "flutterVersion": "3.24.4",
   "pubCache": "file:///Users/estebanrodriguezmarles/.pub-cache"
 }

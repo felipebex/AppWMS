@@ -5,6 +5,7 @@ class BatchsModel {
   final dynamic pickingTypeId; // Esto puede permanecer como dynamic o cambiar a int si estás seguro
   final String? state;
   final dynamic userId;
+  final String? indexList;
   final dynamic isWave;
   final String? isSeparate;
   final int? productSeparateQty;
@@ -24,6 +25,7 @@ class BatchsModel {
      this.pickingTypeId,
      this.state,
      this.userId,
+     this.indexList,
      this.isWave,
     this.isSeparate,
     this.productSeparateQty,
@@ -45,6 +47,7 @@ class BatchsModel {
       pickingTypeId: json['picking_type_id'] is List ? json['picking_type_id'][0] : null,
       state: json['state'],
       userId: json['user_id'] is List ? json['user_id'][0] : null,
+      indexList: json['index_list'],
       isWave: json['is_wave'],
       isSeparate: json['is_separate'],
       productSeparateQty: json['product_separate_qty'],
@@ -66,6 +69,7 @@ class BatchsModel {
       'state': state,
       'user_id': userId,
       'is_wave': isWave,
+      'index_list': indexList,
       'is_separate': isSeparate,
       'product_separate_qty': productSeparateQty,
       'product_qty': productQty,
@@ -88,6 +92,7 @@ class BatchsModel {
     pickingTypeId: map['picking_type_id'], // Asegúrate de que sea de tipo esperado
     state: map['state'],
     userId: map['user_id'],
+    indexList: map['index_list'],
     isWave: map['is_wave'],
     isSeparate: map['is_separate'],
     productSeparateQty: map['product_separate_qty'],

@@ -161,8 +161,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         listOfBatchs.addAll(response);
 
         for (var batch in listOfBatchs) {
-          print(
-              'batch: ${batch.id} - ${batch.name} - ${batch.scheduledDate} - ${batch.pickingTypeId} - ${batch.state} - ${batch.userId} - ${batch.isWave}');
           try {
             if (batch.id != null && batch.name != null) {
               await DataBaseSqlite().insertBatch(BatchsModel(
@@ -226,6 +224,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
             List<ProductsBatch> productsToInsert =
                 uniqueProductsMap.values.toList();
 
+            sortProductsByLocationId(productsToInsert);
+
             // Enviar la lista agrupada a insertBatchProducts
             await DataBaseSqlite().insertBatchProducts(productsToInsert);
           }
@@ -281,5 +281,12 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     }
     emit(LoadBatchsSuccesState(
         listOfBatchs: filteredBatchs)); // Emitir la lista filtrada
+  }
+
+  void sortProductsByLocationId(List<ProductsBatch> products) {
+    products.sort((a, b) {
+      // Comparamos los locationId
+      return a.locationId.compareTo(b.locationId);
+    });
   }
 }
