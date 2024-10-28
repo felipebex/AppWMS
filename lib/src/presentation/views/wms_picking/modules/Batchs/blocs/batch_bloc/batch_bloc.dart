@@ -54,8 +54,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     'Producto no solicitado',
     'Producto no encontrado',
     'Producto no existe',
-    'Producto no registrado'
-        'Producto sin existencia',
+    'Producto no registrado',
+    'Producto sin existencia',
   ];
 
   String selectedNovedad = '';
@@ -98,9 +98,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
-    locationIsOk = currentProduct.isLocationIsOk == '1' ? true : false;
-    productIsOk = currentProduct.productIsOk == '1' ? true : false;
+    locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+    productIsOk = currentProduct.productIsOk == 1 ? true : false;
     locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
+    isQuantityOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+    index = batchWithProducts.batch?.indexList ?? 0;
     emit(LoadDataInfoState());
   }
 
@@ -153,7 +155,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       locationDestIsOk = false;
       quantityIsOk = false;
       index++;
+      await db.updateIndexList(batchWithProducts.batch?.id ?? 0, index);
       completedProducts++;
+      await db.incrementProductSeparateQty(batchWithProducts.batch?.id ?? 0);
     } else {
       ///si ya se completaron todos los productos
     }
@@ -186,6 +190,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await db.updateIsLocationIsOk(event.batchId, event.productId);
       await db.startStopwatch(
           event.batchId, event.productId, DateTime.now().toString());
+      //cuando se lea la ubicacion se selecciona el batch y el producto
+      await db.selectBatch(event.batchId);
       await db.selectProduct(event.batchId, event.productId);
     }
 
@@ -360,5 +366,16 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       // Comparamos los locationId
       return a.locationId.compareTo(b.locationId);
     });
+  }
+
+  String calculateProgress() {
+    final totalItems = batchWithProducts.products?.length ?? 0;
+    final separatedItems = batchWithProducts.batch?.productSeparateQty ?? 0;
+
+    // Evitar división por cero
+    if (totalItems == 0) return "0.0";
+
+    final progress = (separatedItems / totalItems) * 100;
+    return progress.toStringAsFixed(1); // Redondear a un decimal
   }
 }

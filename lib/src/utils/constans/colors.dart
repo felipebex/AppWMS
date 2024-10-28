@@ -20,6 +20,7 @@ const Color mainFontColor = Color.fromARGB(255, 78, 119, 237);
 
 const Color arrowbgColor = Color(0xffe4e9f7);
 const Color primaryColorApp = Color.fromARGB(255, 78, 119, 237);
+const Color primaryColorAppLigth = Color.fromARGB(255, 186, 202, 250);
 
 
 

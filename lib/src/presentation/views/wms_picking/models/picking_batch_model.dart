@@ -2,12 +2,14 @@ class BatchsModel {
   final int? id;
   final String? name;
   final String? scheduledDate; // Cambiado a String?
-  final dynamic pickingTypeId; // Esto puede permanecer como dynamic o cambiar a int si estás seguro
+  final dynamic
+      pickingTypeId; // Esto puede permanecer como dynamic o cambiar a int si estás seguro
   final String? state;
   final dynamic userId;
-  final String? indexList;
+  final int? indexList;
   final dynamic isWave;
-  final String? isSeparate;
+  final dynamic isSeparate;
+  final dynamic isSelected;
   final int? productSeparateQty;
   final int? productQty;
   final String? timeSeparateTotal;
@@ -17,17 +19,17 @@ class BatchsModel {
   final String? isSendOdooDate;
   final String? observation;
 
-
   BatchsModel({
-     this.id,
-     this.name,
-     this.scheduledDate,
-     this.pickingTypeId,
-     this.state,
-     this.userId,
-     this.indexList,
-     this.isWave,
+    this.id,
+    this.name,
+    this.scheduledDate,
+    this.pickingTypeId,
+    this.state,
+    this.userId,
+    this.indexList,
+    this.isWave,
     this.isSeparate,
+    this.isSelected,
     this.productSeparateQty,
     this.productQty,
     this.timeSeparateTotal,
@@ -41,15 +43,17 @@ class BatchsModel {
     return BatchsModel(
       id: json['id'],
       name: json['name'].toString(),
-      scheduledDate: json['scheduled_date'] is String 
-        ? json['scheduled_date'] 
-        : null, // o 'no scheduled'
-      pickingTypeId: json['picking_type_id'] is List ? json['picking_type_id'][0] : null,
+      scheduledDate: json['scheduled_date'] is String
+          ? json['scheduled_date']
+          : null, // o 'no scheduled'
+      pickingTypeId:
+          json['picking_type_id'] is List ? json['picking_type_id'][0] : null,
       state: json['state'],
       userId: json['user_id'] is List ? json['user_id'][0] : null,
       indexList: json['index_list'],
       isWave: json['is_wave'],
       isSeparate: json['is_separate'],
+      isSelected: json['is_selected'],
       productSeparateQty: json['product_separate_qty'],
       productQty: json['product_qty'],
       timeSeparateTotal: json['time_separate_total'],
@@ -71,6 +75,7 @@ class BatchsModel {
       'is_wave': isWave,
       'index_list': indexList,
       'is_separate': isSeparate,
+      'is_selected': isSelected,
       'product_separate_qty': productSeparateQty,
       'product_qty': productQty,
       'time_separate_total': timeSeparateTotal,
@@ -78,30 +83,31 @@ class BatchsModel {
       'is_send_oddo': isSendOdoo,
       'is_send_oddo_date': isSendOdooDate,
       'observation': observation,
-
     };
   }
 
   factory BatchsModel.fromMap(Map<String, dynamic> map) {
-  return BatchsModel(
-    id: map['id'],
-    name: map['name'].toString(),
-    scheduledDate: map['scheduled_date'] is String 
-        ? map['scheduled_date'] 
-        : null, // o algún valor predeterminado como 'no scheduled'
-    pickingTypeId: map['picking_type_id'], // Asegúrate de que sea de tipo esperado
-    state: map['state'],
-    userId: map['user_id'],
-    indexList: map['index_list'],
-    isWave: map['is_wave'],
-    isSeparate: map['is_separate'],
-    productSeparateQty: map['product_separate_qty'],
-    productQty: map['product_qty'],
-    timeSeparateTotal: map['time_separate_total'],
-    timeSeparateStart: map['time_separate_start'],
-    isSendOdoo: map['is_send_oddo'],
-    isSendOdooDate: map['is_send_oddo_date'],
-    observation: map['observation'],
-  );
-}
+    return BatchsModel(
+      id: map['id'],
+      name: map['name'].toString(),
+      scheduledDate: map['scheduled_date'] is String
+          ? map['scheduled_date']
+          : null, // o algún valor predeterminado como 'no scheduled'
+      pickingTypeId:
+          map['picking_type_id'], // Asegúrate de que sea de tipo esperado
+      state: map['state'],
+      userId: map['user_id'],
+      indexList: map['index_list'],
+      isWave: map['is_wave'],
+      isSeparate: map['is_separate'],
+      isSelected: map['is_selected'],
+      productSeparateQty: map['product_separate_qty'],
+      productQty: map['product_qty'],
+      timeSeparateTotal: map['time_separate_total'],
+      timeSeparateStart: map['time_separate_start'],
+      isSendOdoo: map['is_send_oddo'],
+      isSendOdooDate: map['is_send_oddo_date'],
+      observation: map['observation'],
+    );
+  }
 }

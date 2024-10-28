@@ -10,19 +10,21 @@ class ProductsBatch {
   final dynamic locationDestId;
   late dynamic quantity;
   final int? quantitySeparate;
-  final String? isSelected;
-  final String? isSeparate;
+  final dynamic isSelected;
+  final int? isSeparate;
   final String? timeSeparate;
   final String? timeSeparateStart;
   final String? observation;
 
   //variables para el picking
-  late dynamic? isLocationIsOk;  //variable para si la ubicacion es leida correctamente
-  late dynamic? productIsOk; //variable para si el producto es leido correctamente
-  late dynamic? locationDestIsOk; // variable para si la ubicacion destino esta leido 
-  
+  late dynamic
+      isLocationIsOk; //variable para si la ubicacion es leida correctamente
+  late dynamic
+      productIsOk; //variable para si el producto es leido correctamente
+  late dynamic
+      locationDestIsOk; // variable para si la ubicacion destino esta leido
 
-
+  late dynamic isQuantityIsOk; //variable para si la cantidad es leida correctamente
 
   ProductsBatch({
     this.idProduct,
@@ -42,11 +44,8 @@ class ProductsBatch {
     this.isLocationIsOk,
     this.productIsOk,
     this.locationDestIsOk,
+    this.isQuantityIsOk,
   });
-
-
-
-
 
   factory ProductsBatch.fromJson(Map<String, dynamic> json) {
     return ProductsBatch(
@@ -58,7 +57,6 @@ class ProductsBatch {
       locationId: json['location_id'],
       locationDestId: json['location_dest_id'],
       quantity: json['quantity'],
-
       quantitySeparate: json['quantity_separate'],
       isSelected: json['is_selected'],
       isSeparate: json['is_separate'],
@@ -68,7 +66,7 @@ class ProductsBatch {
       isLocationIsOk: json['is_location_is_ok'],
       productIsOk: json['product_is_ok'],
       locationDestIsOk: json['location_dest_is_ok'],
-      
+      isQuantityIsOk: json['is_quantity_is_ok'],
     );
   }
 
@@ -82,7 +80,6 @@ class ProductsBatch {
       'location_id': locationId,
       'location_dest_id': locationDestId,
       'quantity': quantity,
-
       'quantity_separate': quantitySeparate,
       'is_selected': isSelected,
       'is_separate': isSeparate,
@@ -92,7 +89,7 @@ class ProductsBatch {
       'is_location_is_ok': isLocationIsOk,
       'product_is_ok': productIsOk,
       'location_dest_is_ok': locationDestIsOk,
-
+      'is_quantity_is_ok': isQuantityIsOk,
     };
   }
 
@@ -106,7 +103,6 @@ class ProductsBatch {
       locationId: map['location_id'],
       locationDestId: map['location_dest_id'],
       quantity: map['quantity'],
-
       quantitySeparate: map['quantity_separate'],
       isSelected: map['is_selected'],
       isSeparate: map['is_separate'],
@@ -116,6 +112,7 @@ class ProductsBatch {
       isLocationIsOk: map['is_location_is_ok'],
       productIsOk: map['product_is_ok'],
       locationDestIsOk: map['location_dest_is_ok'],
+      isQuantityIsOk: map['is_quantity_is_ok'],
     );
   }
 }

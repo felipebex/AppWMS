@@ -145,9 +145,6 @@ class _LoginForm extends StatelessWidget {
                             contentPadding: EdgeInsets.all(10),
                             errorStyle:
                                 TextStyle(color: Colors.red, fontSize: 12)),
-                        onChanged: (value) {
-                          context.read<LoginBloc>().email.text = value;
-                        },
                         validator: (value) => Validator.email(value, context)),
                     TextFormField(
                       controller: context.read<LoginBloc>().password,
@@ -166,8 +163,6 @@ class _LoginForm extends StatelessWidget {
                           hintStyle:
                               TextStyle(color: Colors.grey, fontSize: 14),
                           border: InputBorder.none),
-                      onChanged: (value) =>
-                          context.read<LoginBloc>().password.text = value,
                       validator: (value) => Validator.password(value, context),
                     ),
                     const SizedBox(height: 5),

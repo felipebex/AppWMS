@@ -1,6 +1,7 @@
 // ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
@@ -462,10 +463,16 @@ class _PickingPageState extends State<WMSPickingPage> {
                                         'batch',
                                       );
 
+                                      DataBaseSqlite db = DataBaseSqlite();
+
+                                      await db.getBacth(batch.id ?? 0);
+
                                       // }
                                     },
                                     child: Card(
-                                      color: Colors.white,
+                                      color: batch.isSelected == 1
+                                          ? primaryColorAppLigth
+                                          : Colors.white,
                                       elevation: 3,
                                       child: ListTile(
                                         trailing: const Icon(

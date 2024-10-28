@@ -94,9 +94,11 @@ class BatchDetailScreen extends StatelessWidget {
                             ),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
-                            child: const Center(
-                              child: Text("Separados: 0",
-                                  style: TextStyle(fontSize: 15, color: black)),
+                            child: Center(
+                              child: Text(
+                                  "Separados: ${context.read<BatchBloc>().batchWithProducts.batch?.productSeparateQty ?? 0}",
+                                  style: const TextStyle(
+                                      fontSize: 15, color: black)),
                             ),
                           ),
                         ),
@@ -110,9 +112,11 @@ class BatchDetailScreen extends StatelessWidget {
                             ),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
-                            child: const Center(
-                              child: Text("Avance: 100.0%",
-                                  style: TextStyle(fontSize: 15, color: black)),
+                            child: Center(
+                              child: Text(
+                                  "Avance: ${context.read<BatchBloc>().calculateProgress()}%",
+                                  style: const TextStyle(
+                                      fontSize: 15, color: black)),
                             ),
                           ),
                         )
@@ -168,11 +172,10 @@ class BatchDetailScreen extends StatelessWidget {
                                                 BorderRadius.circular(10),
                                             // color: Colors.lightGreen[100]),
                                             color: productsBatch?.isSelected ==
-                                                    '1'
+                                                    1
                                                 ? primaryColorApp
                                                     .withOpacity(0.3)
-                                                : productsBatch?.isSeparate ==
-                                                        '1'
+                                                : productsBatch?.isSeparate == 1
                                                     ? Colors.green[100]
                                                     : Colors.white,
                                           ),
