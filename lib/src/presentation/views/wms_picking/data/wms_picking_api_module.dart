@@ -168,6 +168,7 @@ class PickingApiModule {
             'name',
             'scheduled_date',
             'picking_type_id',
+            'location_id',
             'state',
             'user_id',
             'is_wave'

@@ -45,6 +45,7 @@ class DataBaseSqlite {
         name VARCHAR(255),
         scheduled_date VARCHAR(255),
         picking_type_id VARCHAR(255),
+        location_id VARCHAR(255),
         state VARCHAR(255),
         user_id VARCHAR(255),
         is_wave TEXT,
@@ -167,6 +168,7 @@ class DataBaseSqlite {
               "state": batch.state,
               "user_id": batch.userId,
               "is_wave": batch.isWave,
+              'location_id': batch.locationId,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -183,6 +185,7 @@ class DataBaseSqlite {
               "state": batch.state,
               "user_id": batch.userId,
               "is_wave": batch.isWave,
+              'location_id': batch.locationId,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );

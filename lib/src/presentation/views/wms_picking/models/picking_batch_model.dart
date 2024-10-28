@@ -4,6 +4,7 @@ class BatchsModel {
   final String? scheduledDate; // Cambiado a String?
   final dynamic
       pickingTypeId; // Esto puede permanecer como dynamic o cambiar a int si estás seguro
+final dynamic locationId;
   final String? state;
   final dynamic userId;
   final int? indexList;
@@ -25,6 +26,7 @@ class BatchsModel {
     this.name,
     this.scheduledDate,
     this.pickingTypeId,
+    this.locationId,
     this.state,
     this.userId,
     this.indexList,
@@ -49,6 +51,7 @@ class BatchsModel {
           : null, // o 'no scheduled'
       pickingTypeId:
           json['picking_type_id'] is List ? json['picking_type_id'][0] : null,
+      locationId: json['location_id'] is List ? json['location_id'][0] : null,
       state: json['state'],
       userId: json['user_id'] is List ? json['user_id'][0] : null,
       indexList: json['index_list'],
@@ -71,6 +74,7 @@ class BatchsModel {
       'name': name,
       'scheduled_date': scheduledDate ?? false, // Asigna false si es null
       'picking_type_id': pickingTypeId,
+      'location_id': locationId,
       'state': state,
       'user_id': userId,
       'is_wave': isWave,
@@ -96,6 +100,7 @@ class BatchsModel {
           : null, // o algún valor predeterminado como 'no scheduled'
       pickingTypeId:
           map['picking_type_id'], // Asegúrate de que sea de tipo esperado
+      locationId: map['location_id'],
       state: map['state'],
       userId: map['user_id'],
       indexList: map['index_list'],

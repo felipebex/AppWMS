@@ -27,11 +27,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   String scannedValue1 = '';
   String scannedValue2 = '';
   String scannedValue3 = '';
+  String scannedValue4 = '';
 
-  FocusNode focusNode1 = FocusNode();
-  FocusNode focusNode2 = FocusNode();
-  FocusNode focusNode3 = FocusNode();
-  FocusNode focusNode4 = FocusNode();
+  FocusNode focusNode1 = FocusNode(); // ubicacion  de origen
+  FocusNode focusNode2 = FocusNode(); // producto
+  FocusNode focusNode3 = FocusNode(); // cantidad por pda
+  FocusNode focusNode4 = FocusNode(); //cantidad textformfield
+  FocusNode focusNode5 = FocusNode(); //cantidad textformfield
 
   String? selectedLocation;
 
@@ -800,6 +802,270 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 ),
                               ],
                             ),
+
+                            //TODO MUELLE
+                            //solo lo mostramos si es el ultimo producto
+                            if (batchBloc.index ==
+                                batchBloc.batchWithProducts.products!.length -
+                                    1)
+                              Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: BoxDecoration(
+                                        color: batchBloc.productIsOk
+                                            ? green
+                                            : yellow,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                  Card(
+                                    color: batchBloc.isLocationDestOk
+                                        ? batchBloc.locationDestIsOk
+                                            ? Colors.green[100]
+                                            : Colors.grey[300]
+                                        : Colors.red[200],
+                                    elevation: 5,
+                                    child: Container(
+                                      width: size.width * 0.85,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 10),
+                                      child: Focus(
+                                        focusNode: focusNode5,
+                                        onKey: (FocusNode node,
+                                            RawKeyEvent event) {
+                                          if (event is RawKeyDownEvent) {
+                                            if (event.logicalKey ==
+                                                LogicalKeyboardKey.enter) {
+                                              if (scannedValue4.isNotEmpty) {
+                                                if (scannedValue4
+                                                        .toLowerCase() ==
+                                                    batchBloc.batchWithProducts
+                                                        .batch?.locationId
+                                                        ?.toLowerCase()) {
+                                                  //     batchBloc.add(
+                                                  //         ValidateFieldsEvent(
+                                                  //             field: "product",
+                                                  //             isOk: true));
+
+                                                  //     // quantity = quantity + 1;
+
+                                                  //     batchBloc.add(
+                                                  //         ChangeQuantitySeparate(
+                                                  //             1,
+                                                  //             currentProduct
+                                                  //                     .idProduct ??
+                                                  //                 0));
+
+                                                  //     batchBloc.add(
+                                                  //         ChangeProductIsOkEvent(
+                                                  //             true,
+                                                  //             currentProduct
+                                                  //                     .idProduct ??
+                                                  //                 0,
+                                                  //             batchBloc
+                                                  //                     .batchWithProducts
+                                                  //                     .batch
+                                                  //                     ?.id ??
+                                                  //                 0,
+                                                  //             1));
+
+                                                  //     batchBloc.add(ChangeIsOkQuantity(
+                                                  //         true,
+                                                  //         currentProduct.idProduct ??
+                                                  //             0,
+                                                  //         batchBloc.batchWithProducts
+                                                  //                 .batch?.id ??
+                                                  //             0));
+
+                                                  //     Future.delayed(
+                                                  //         const Duration(
+                                                  //             milliseconds: 100), () {
+                                                  //       FocusScope.of(context)
+                                                  //           .requestFocus(focusNode3);
+                                                  //     });
+                                                  //   } else {
+                                                  //     batchBloc.add(
+                                                  //         ValidateFieldsEvent(
+                                                  //             field: "product",
+                                                  //             isOk: false));
+                                                  //     setState(() {
+                                                  //       scannedValue2 =
+                                                  //           ""; //limpiamos el valor escaneado
+                                                  //     });
+
+                                                  //     //mostramos alerta de error
+                                                  //     ScaffoldMessenger.of(context)
+                                                  //         .showSnackBar(SnackBar(
+                                                  //       duration: const Duration(
+                                                  //           milliseconds: 1000),
+                                                  //       content: const Text(
+                                                  //           'Producto erroneo'),
+                                                  //       backgroundColor:
+                                                  //           Colors.red[200],
+                                                  //     ));
+                                                }
+                                              }
+                                              return KeyEventResult.handled;
+                                            } else {
+                                              // setState(() {
+                                              //   scannedValue2 +=
+                                              //       event.data.keyLabel;
+                                              // });
+                                              return KeyEventResult.handled;
+                                            }
+                                          }
+                                          return KeyEventResult.ignored;
+                                        },
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Center(
+                                                child: DropdownButton<String>(
+                                                  underline: Container(
+                                                    height: 0,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  focusColor: Colors.white,
+                                                  isExpanded: true,
+                                                  hint: const Text(
+                                                    'Muelle',
+                                                    style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: primaryColorApp),
+                                                  ),
+                                                  icon: Image.asset(
+                                                    "assets/icons/packing.png",
+                                                    color: primaryColorApp,
+                                                    width: 24,
+                                                  ),
+                                                  value: selectedLocation,
+                                                  // items: batchBloc.positions
+                                                  items: batchBloc
+                                                      .batchWithProducts
+                                                      .products
+                                                      ?.map((ProductsBatch
+                                                          product) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: product.productId
+                                                          .toString(),
+                                                      child: Text(product
+                                                          .productId
+                                                          .toString()),
+                                                    );
+                                                  }).toList(),
+
+                                                  onChanged: batchBloc
+                                                              .locationIsOk &&
+                                                          !batchBloc.productIsOk
+                                                      ? (String? newValue) {
+                                                          if (newValue ==
+                                                              currentProduct
+                                                                  ?.productId) {
+                                                            batchBloc.add(
+                                                                ValidateFieldsEvent(
+                                                                    field:
+                                                                        "product",
+                                                                    isOk:
+                                                                        true));
+                                                            // quantity =
+                                                            //     quantity + 1;
+
+                                                            batchBloc.add(
+                                                                ChangeQuantitySeparate(
+                                                                    1,
+                                                                    currentProduct
+                                                                            .idProduct ??
+                                                                        0));
+
+                                                            batchBloc.add(ChangeProductIsOkEvent(
+                                                                true,
+                                                                currentProduct
+                                                                        ?.idProduct ??
+                                                                    0,
+                                                                batchBloc
+                                                                        .batchWithProducts
+                                                                        .batch
+                                                                        ?.id ??
+                                                                    0,
+                                                                1));
+
+                                                            batchBloc.add(ChangeIsOkQuantity(
+                                                                true,
+                                                                currentProduct
+                                                                        ?.idProduct ??
+                                                                    0,
+                                                                batchBloc
+                                                                        .batchWithProducts
+                                                                        .batch
+                                                                        ?.id ??
+                                                                    0));
+
+                                                            Future.delayed(
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        100),
+                                                                () {
+                                                              FocusScope.of(
+                                                                      context)
+                                                                  .requestFocus(
+                                                                      focusNode3);
+                                                            });
+                                                          } else {
+                                                            batchBloc.add(
+                                                                ValidateFieldsEvent(
+                                                                    field:
+                                                                        "product",
+                                                                    isOk:
+                                                                        false));
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                                    SnackBar(
+                                                              duration:
+                                                                  const Duration(
+                                                                      milliseconds:
+                                                                          1000),
+                                                              content: const Text(
+                                                                  'Producto erroneo'),
+                                                              backgroundColor:
+                                                                  Colors
+                                                                      .red[200],
+                                                            ));
+                                                          }
+                                                        }
+                                                      : null,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  batchBloc.batchWithProducts.batch?.locationId
+                                                          .toString() ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                      fontSize: 16,
+                                                      color: black),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                       ),

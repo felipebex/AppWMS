@@ -171,6 +171,11 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
                         batch.pickingTypeId.isNotEmpty)
                     ? batch.pickingTypeId[1]
                     : '',
+
+                locationId: (batch.locationId is List &&
+                        batch.locationId.isNotEmpty)
+                    ? batch.locationId[1]
+                    : '',
                 state: batch.state,
                 userId: batch.userId is bool
                     ? ""
