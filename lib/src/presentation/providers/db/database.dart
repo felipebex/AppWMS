@@ -285,6 +285,7 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+
   Future<int?> updateIsQuantityIsOk(
     int batchId,
     int productId,
@@ -297,6 +298,19 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
+  Future<int?> updateProductQuantitySeparate(
+    int batchId,
+    int productId,
+    int quantitySeparate,
+  ) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblbatch_products SET quantity_separate = $quantitySeparate WHERE batch_id = $batchId AND id_product = $productId');
+    print("updateIsQuantityIsOk: $resUpdate");
+
+    return resUpdate;
+  }
+
   Future<int?> startStopwatch(int batchId, int productId, String date) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
@@ -304,6 +318,20 @@ class DataBaseSqlite {
     print("startStopwatch: $resUpdate");
     return resUpdate;
   }
+  Future<int?> startStopwatchBatch(int batchId, String date) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE tblbatchs SET time_separate_start = '$date' WHERE id = $batchId ");
+    print("startStopwatchBatch: $resUpdate");
+    return resUpdate;
+  }
+
+
+
+
+
+
+
 
   Future<int?> selectProduct(
     int batchId,
@@ -357,9 +385,6 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
-
-
-
   //sumamos la cantidad de productos separados en la tabla de tblbatch
   Future<int?> incrementProductSeparateQty(int batchId) async {
     final db = await database;
@@ -392,6 +417,49 @@ class DataBaseSqlite {
 
       return null; // No se encontró el batch con el batchId proporcionado
     });
+  }
+
+  //incrementar la cantidad de productos separados en la tabla de tblbatch_products
+  Future<int?> incremenQtytProductSeparate(int batchId, int productId) async {
+    final db = await database;
+    return await db!.transaction((txn) async {
+      // Primero, obtenemos el valor actual de product_separate_qty
+      final result = await txn.query(
+        'tblbatch_products',
+        columns: ['quantity_separate'],
+        where: 'batch_id = $batchId AND id_product = $productId',
+        whereArgs: [batchId, productId],
+      );
+
+      if (result.isNotEmpty) {
+        // Extraemos el valor actual
+        int currentQty = (result.first['quantity_separate'] as int?) ?? 0;
+
+        // Incrementamos la cantidad
+        int newQty = currentQty + 1;
+
+        // Actualizamos la tabla
+        return await txn.update(
+          'tblbatch_products',
+          {'quantity_separate': newQty},
+          where: 'batch_id = $batchId AND id_product = $productId',
+          whereArgs: [batchId, productId],
+        );
+      }
+
+      return null; // No se encontró el batch con el batchId proporcionado
+    });
+  }
+
+  Future<int?> updateQtyProductSeparate(
+      int batchId, int productId, int quantity) async {
+    final db = await database;
+
+    final resUpdate = await db!.rawUpdate(
+      ' UPDATE tblbatch_products SET quantity_separate = $quantity WHERE batch_id = $batchId AND id_product = $productId',
+    );
+    print("updateQtyProductSeparate: $resUpdate");
+    return resUpdate;
   }
 
   //actualozar el index de la lista de productos

@@ -9,7 +9,6 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/appBarInfo_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
@@ -59,7 +58,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   }
 
   TextEditingController cantidadController = TextEditingController();
-  int quantity = 0;
+  // int quantity = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -70,10 +69,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         return false;
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
-        int completedTasks = context.read<BatchBloc>().index;
         int totalTasks =
             context.read<BatchBloc>().batchWithProducts.products?.length ?? 0;
-        double progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
+
+        double progress = totalTasks > 0
+            ? context.read<BatchBloc>().completedProducts / totalTasks
+            : 0.0;
+
         final batchBloc = context.read<BatchBloc>();
 
         if (state is EmptyroductsBatch) {
@@ -118,6 +120,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is SelectNovedadState ||
             state is QuantityChangedState ||
             state is LoadDataInfoState ||
+            state is ChangeQuantitySeparateState ||
             state is ValidateFieldsState) {
           final currentProduct = batchBloc.currentProduct;
           batchBloc.add(GetProductById(currentProduct.idProduct ?? 0));
@@ -138,9 +141,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                           IconButton(
                             onPressed: () {
                               context.read<BatchBloc>().index = 0;
-                              context.read<BatchBloc>().oldLocation = '';
-                              quantity = 0;
                               context.read<BatchBloc>().completedProducts = 0;
+                              context.read<BatchBloc>().oldLocation = '';
                               context
                                   .read<WMSPickingBloc>()
                                   .add(LoadBatchsFromDBEvent());
@@ -279,21 +281,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                           ),
                         ],
                       ),
-
-                      // GestureDetector(
-                      //   onTap: () {
-                      //     quantity = 0;
-                      //     context.read<BatchBloc>().completedProducts = 0;
-                      //     context.read<WMSPickingBloc>().add(LoadBatchsFromDBEvent());
-                      //   },
-                      //   child: AppBarInfo(
-                      //       currentProduct: currentProduct,
-                      //       bathId: batchBloc.batchWithProducts.batch?.id ?? 0),
-                      // ),
-
                       ProgressIndicatorWidget(
                         progress: progress,
-                        completed: completedTasks,
+                        completed: batchBloc.completedProducts,
                         total: totalTasks,
                       ),
                     ],
@@ -570,7 +560,15 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                         field: "product",
                                                         isOk: true));
 
-                                                quantity = quantity + 1;
+                                                // quantity = quantity + 1;
+
+                                                batchBloc.add(
+                                                    ChangeQuantitySeparate(
+                                                        1,
+                                                        currentProduct
+                                                                .idProduct ??
+                                                            0));
+
                                                 batchBloc.add(
                                                     ChangeProductIsOkEvent(
                                                         true,
@@ -581,7 +579,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 .batchWithProducts
                                                                 .batch
                                                                 ?.id ??
-                                                            0));
+                                                            0,
+                                                        1));
 
                                                 batchBloc.add(ChangeIsOkQuantity(
                                                     true,
@@ -683,8 +682,16 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                   field:
                                                                       "product",
                                                                   isOk: true));
-                                                          quantity =
-                                                              quantity + 1;
+                                                          // quantity =
+                                                          //     quantity + 1;
+
+                                                          batchBloc.add(
+                                                              ChangeQuantitySeparate(
+                                                                  1,
+                                                                  currentProduct
+                                                                          .idProduct ??
+                                                                      0));
+
                                                           batchBloc.add(
                                                               ChangeProductIsOkEvent(
                                                                   true,
@@ -695,7 +702,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                           .batchWithProducts
                                                                           .batch
                                                                           ?.id ??
-                                                                      0));
+                                                                      0,
+                                                                  1));
 
                                                           batchBloc.add(
                                                               ChangeIsOkQuantity(
@@ -865,14 +873,21 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           ValidateFieldsEvent(
                                                               field: "quantity",
                                                               isOk: true));
+                                                      batchBloc.add(
+                                                          AddQuantitySeparate(
+                                                              1,
+                                                              currentProduct!
+                                                                      .idProduct ??
+                                                                  0));
 
                                                       setState(() {
-                                                        quantity = quantity + 1;
+                                                        // quantity = quantity + 1;
                                                         scannedValue3 =
                                                             ""; //limpiamos el valor escaneado
                                                       });
                                                       //validamos que la cantidad sea igual a la cantidad del producto
-                                                      if (quantity ==
+                                                      if (batchBloc
+                                                              .quantitySelected ==
                                                           currentProduct
                                                               ?.quantity) {
                                                         _nextProduct(
@@ -899,7 +914,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               }
                                               return KeyEventResult.ignored;
                                             },
-                                            child: Text(quantity.toString(),
+                                            child: Text(
+                                                batchBloc.quantitySelected
+                                                    .toString(),
                                                 style: const TextStyle(
                                                     color: Colors.black,
                                                     fontSize: 18)),
@@ -908,7 +925,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                   IconButton(
                                       onPressed: batchBloc.quantityIsOk &&
-                                              quantity > 0
+                                              batchBloc.quantitySelected > 0
                                           ? () {
                                               setState(() {
                                                 viewQuantity = !viewQuantity;
@@ -934,6 +951,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               FilteringTextInputFormatter
                                   .digitsOnly, // Solo permite dígitos
                             ],
+                            onChanged: (value) {
+                              batchBloc.quantitySelected = int.parse(value);
+                            },
                             controller: cantidadController,
                             keyboardType: TextInputType.number,
                             decoration: InputDecorations.authInputDecoration(
@@ -946,7 +966,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 //validamos que el texto no este vacio
                                 if (value.isNotEmpty) {
                                   if (int.parse(value) >
-                                      currentProduct?.quantity) {
+                                      currentProduct.quantity) {
                                     batchBloc.add(ValidateFieldsEvent(
                                         field: "quantity", isOk: false));
                                     cantidadController.clear();
@@ -959,17 +979,27 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     ));
                                   } else {
                                     if (int.parse(value) ==
-                                        currentProduct?.quantity) {
-                                      _nextProduct(currentProduct!, batchBloc);
+                                        currentProduct.quantity) {
+                                      batchBloc.add(ChangeQuantitySeparate(
+                                          int.parse(value),
+                                          currentProduct.idProduct ?? 0));
+                                      _nextProduct(currentProduct, batchBloc);
                                     } else {
-                                      quantity = int.parse(value);
+                                      // quantity = int.parse(value);
                                       showDialog(
                                           context: context,
                                           builder: (context) {
                                             return DialogAdvetenciaCantidadScreen(
-                                                currentProduct: currentProduct!,
-                                                cantidad: quantity,
+                                                currentProduct: currentProduct,
+                                                cantidad:
+                                                    batchBloc.quantitySelected,
                                                 onAccepted: () {
+                                                  batchBloc.add(
+                                                      ChangeQuantitySeparate(
+                                                          int.parse(value),
+                                                          currentProduct
+                                                                  .idProduct ??
+                                                              0));
                                                   _nextProduct(currentProduct,
                                                       batchBloc);
                                                 });
@@ -987,12 +1017,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
                           child: ElevatedButton(
-                            onPressed: batchBloc.quantityIsOk && quantity >= 0
+                            onPressed: batchBloc.quantityIsOk &&
+                                    batchBloc.quantitySelected >= 0
                                 ? () {
-                                    int cantidad = int.parse(
-                                        cantidadController.text.isEmpty
-                                            ? quantity.toString()
-                                            : cantidadController.text);
+                                    int cantidad = int.parse(cantidadController
+                                            .text.isEmpty
+                                        ? batchBloc.quantitySelected.toString()
+                                        : cantidadController.text);
                                     if (cantidad == currentProduct!.quantity) {
                                       _nextProduct(currentProduct, batchBloc);
                                     } else {
@@ -1092,15 +1123,17 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   }
 
   void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) async {
+    batchBloc.completedProducts = batchBloc.completedProducts + 1;
     DataBaseSqlite db = DataBaseSqlite();
     await db.separateProduct(batchBloc.batchWithProducts.batch?.id ?? 0,
         currentProduct.idProduct ?? 0);
-    //reinciiamos la cantidad contada de cada producto
-    setState(() {
-      quantity = 0;
-    });
-    cantidadController.clear();
+    await db.incrementProductSeparateQty(
+        batchBloc.batchWithProducts.batch?.id ?? 0);
 
+    batchBloc.quantitySelected = 0;
+    cantidadController.clear();
+    viewQuantity = false;
+    setState(() {});
     batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
 
     ///cambiamos al siguiente producto
@@ -1108,7 +1141,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         .read<BatchBloc>()
         .add(ChangeCurrentProduct(currentProduct: currentProduct));
 
-    //mostramos un modal de cargando que dure 2 segudnos y luego redirigimos a la pantalla de resumen
+    //
+    //mostramos un modal de cargando que dure 2 segudnos
     showDialog(
         context: context,
         builder: (context) {

@@ -1,7 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print
 
-import 'dart:math';
-
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_api_module.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
@@ -18,7 +16,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<ProductsBatch> filteredProducts = [];
   List<ProductsBatch> listOfProductsBatchDB = [];
 
-  //*validaciones de campos
+  // //*validaciones de campos del estado de la vista
   bool isLocationOk = true;
   bool isProductOk = true;
   bool isLocationDestOk = true;
@@ -41,6 +39,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   bool productIsOk = false;
   bool locationDestIsOk = false;
   bool quantityIsOk = false;
+
   String oldLocation = '';
 
   DataBaseSqlite db = DataBaseSqlite();
@@ -59,6 +58,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   ];
 
   String selectedNovedad = '';
+
+  int quantitySelected = 0;
 
   //*lista de todas las pocisiones de los productos del batchs
   List<String> positions = [];
@@ -95,14 +96,49 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<ValidateFieldsEvent>(_onValidateFields);
 
     on<LoadDataInfoEvent>(_onLoadDataInfoEvent);
+
+    //*evento para cambiar la cantidad seleccionada
+    on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
+    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+  }
+
+  //*metodo para cambiar la cantidad seleccionada
+  void _onChangeQuantitySelectedEvent(
+      ChangeQuantitySeparate event, Emitter<BatchState> emit) async {
+    if (event.quantity > 0) {
+      quantitySelected = event.quantity;
+      await db.updateQtyProductSeparate(
+          batchWithProducts.batch?.id ?? 0, event.productId, event.quantity);
+    }
+    emit(ChangeQuantitySeparateState(quantitySelected));
+  }
+
+  //*evento para aumentar la cantidad
+
+  void _onAddQuantitySeparateEvent(
+      AddQuantitySeparate event, Emitter<BatchState> emit) async {
+    quantitySelected = quantitySelected + event.quantity;
+
+    if (event.quantity > 0) {
+      quantitySelected = quantitySelected + event.quantity;
+      await db.incremenQtytProductSeparate(
+          batchWithProducts.batch?.id ?? 0, event.productId);
+    }
+    emit(ChangeQuantitySeparateState(quantitySelected));
   }
 
   void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
     locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
     productIsOk = currentProduct.productIsOk == 1 ? true : false;
     locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
-    isQuantityOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+    quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
     index = batchWithProducts.batch?.indexList ?? 0;
+    quantitySelected = currentProduct.quantitySeparate ?? 0;
+    completedProducts = batchWithProducts.batch?.productSeparateQty ?? 0;
+
+    print("batchWithProducts : ${batchWithProducts.batch?.toMap()}");
+    print("Products : ${batchWithProducts.products?.length}");
+
     emit(LoadDataInfoState());
   }
 
@@ -143,28 +179,24 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
     // Aumentar el índice solo si está dentro de los límites
+
+    await db.deselectProduct(
+        batchWithProducts.batch?.id ?? 0, event.currentProduct.idProduct ?? 0);
+    productIsOk = false;
+    locationDestIsOk = false;
+    quantityIsOk = false;
+
+    await db.incrementProductSeparateQty(batchWithProducts.batch?.id ?? 0);
+
     if (batchWithProducts.products != null &&
         index < batchWithProducts.products!.length - 1) {
-      await db.deselectProduct(batchWithProducts.batch?.id ?? 0,
-          event.currentProduct.idProduct ?? 0);
-
+      print("Entramos al if");
+      //guardamos la ultima ubicacion
       if (event.currentProduct.locationId != oldLocation) {
         locationIsOk = false;
       }
-      productIsOk = false;
-      locationDestIsOk = false;
-      quantityIsOk = false;
       index++;
       await db.updateIndexList(batchWithProducts.batch?.id ?? 0, index);
-      completedProducts++;
-      await db.incrementProductSeparateQty(batchWithProducts.batch?.id ?? 0);
-    } else {
-      ///si ya se completaron todos los productos
-    }
-
-    // Obtener el producto actual basado en el índice
-    if (batchWithProducts.products != null &&
-        batchWithProducts.products!.isNotEmpty) {
       currentProduct = batchWithProducts.products![index];
 
       await db.selectProduct(
@@ -173,11 +205,24 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       // Emitir el nuevo estado con el producto actual
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
+    } else {
+      print("Entramos al else");
+
+      await db.updateIndexList(batchWithProducts.batch?.id ?? 0, index);
+      currentProduct = batchWithProducts.products![index];
+
+      print("currentProduct: ${currentProduct.toMap()}");
+
+      emit(CurrentProductChangedState(
+          currentProduct: currentProduct, index: index));
     }
   }
 
   void _onChangeQuantityIsOkEvent(
-      ChangeIsOkQuantity event, Emitter<BatchState> emit) {
+      ChangeIsOkQuantity event, Emitter<BatchState> emit) async {
+    if (event.isOk) {
+      await db.updateIsQuantityIsOk(event.batchId, event.productId);
+    }
     quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
       quantityIsOk,
@@ -188,8 +233,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.locationIsOk) {
       await db.updateIsLocationIsOk(event.batchId, event.productId);
+      //empezamos el tiempo de separacion del batch y del producto
       await db.startStopwatch(
           event.batchId, event.productId, DateTime.now().toString());
+      await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
       //cuando se lea la ubicacion se selecciona el batch y el producto
       await db.selectBatch(event.batchId);
       await db.selectProduct(event.batchId, event.productId);
@@ -213,6 +260,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.productIsOk) {
       await db.updateIsProductIsOk(event.batchId, event.productId);
+      await db.updateProductQuantitySeparate(event.batchId, event.productId, 1);
     }
     productIsOk = event.productIsOk;
     emit(ChangeIsOkState(
@@ -334,10 +382,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       FetchBatchWithProductsEvent event, Emitter<BatchState> emit) async {
     batchWithProducts = BatchWithProducts();
 
-    print('FetchBatchWithProductsEvent: ${event.batchId}');
-
     final response = await DataBaseSqlite().getBatchWithProducts(event.batchId);
-    print('BatchWithProducts: ${response?.products?.length}');
 
     if (response != null) {
       batchWithProducts = response;
@@ -348,11 +393,16 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         return;
       }
 
-      currentProduct = batchWithProducts.products![index];
+      print("index $index");
+      print(
+          "batchWithProducts.products!.length ${batchWithProducts.products!.length}");
 
       add(LoadDataInfoEvent());
+
       sortProductsByLocationId(batchWithProducts.products!);
       getPosicions();
+      currentProduct = batchWithProducts
+          .products![batchWithProducts.batch!.indexList ?? index];
       emit(LoadProductsBatchSuccesStateBD(
           listOfProductsBatch: batchWithProducts.products!));
     } else {

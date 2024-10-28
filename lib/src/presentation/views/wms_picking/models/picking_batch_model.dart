@@ -10,10 +10,11 @@ class BatchsModel {
   final dynamic isWave;
   final dynamic isSeparate;
   final dynamic isSelected;
-  final int? productSeparateQty;
-  final int? productQty;
+
+  final int? productSeparateQty; //cantidad que se lleva separada
+  final int? productQty; //cantidad total del producto separada
   final String? timeSeparateTotal;
-  final DateTime? timeSeparateStart;
+  final String? timeSeparateStart;
 
   final String? isSendOdoo;
   final String? isSendOdooDate;

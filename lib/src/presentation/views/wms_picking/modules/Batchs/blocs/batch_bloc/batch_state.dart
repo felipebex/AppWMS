@@ -72,3 +72,9 @@ class ValidateFieldsState extends BatchState {
 
 class LoadDataInfoState extends BatchState {
 }
+
+
+class ChangeQuantitySeparateState extends BatchState {
+  final int quantity;
+  ChangeQuantitySeparateState(this.quantity);
+}

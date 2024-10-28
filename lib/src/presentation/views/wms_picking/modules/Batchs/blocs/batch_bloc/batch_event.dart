@@ -57,7 +57,8 @@ class ChangeProductIsOkEvent extends BatchEvent {
   final bool productIsOk;
   final int productId;
   final int batchId;
-  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.batchId);
+  final int quantity;
+  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.batchId, this.quantity);
 }
 
 class ChangeIsOkQuantity extends BatchEvent {
@@ -90,4 +91,16 @@ class ValidateFieldsEvent extends BatchEvent {
 
 
 class LoadDataInfoEvent extends BatchEvent {
+}
+
+
+class ChangeQuantitySeparate extends BatchEvent {
+  final int quantity;
+  final int productId;
+  ChangeQuantitySeparate(this.quantity, this.productId);
+}
+class AddQuantitySeparate extends BatchEvent {
+  final int quantity;
+  final int productId;
+  AddQuantitySeparate(this.quantity, this.productId);
 }

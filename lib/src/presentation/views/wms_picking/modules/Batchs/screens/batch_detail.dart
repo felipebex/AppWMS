@@ -170,14 +170,18 @@ class BatchDetailScreen extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(10),
-                                            // color: Colors.lightGreen[100]),
-                                            color: productsBatch?.isSelected ==
-                                                    1
-                                                ? primaryColorApp
-                                                    .withOpacity(0.3)
-                                                : productsBatch?.isSeparate == 1
-                                                    ? Colors.green[100]
-                                                    : Colors.white,
+                                            color: productsBatch?.quantity ==
+                                                    productsBatch
+                                                        ?.quantitySeparate
+                                                ? Colors.green[100]
+                                                : productsBatch?.isSelected == 1
+                                                    ? primaryColorApp
+                                                        .withOpacity(0.3)
+                                                    : productsBatch
+                                                                ?.isSeparate ==
+                                                            1
+                                                        ? Colors.green[100]
+                                                        : Colors.white,
                                           ),
                                           padding: const EdgeInsets.all(8.0),
                                           child: Column(
@@ -259,52 +263,71 @@ class BatchDetailScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               const SizedBox(height: 5),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.add,
-                                                      color: primaryColorApp,
-                                                      size: 20,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    const Text("Unidades:",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: black)),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                        productsBatch?.quantity
-                                                                .toString() ??
-                                                            "",
-                                                        style: const TextStyle(
-                                                            fontSize: 16,
-                                                            color:
-                                                                primaryColorApp)),
-                                                    const Spacer(),
-                                                    const Icon(
-                                                      Icons.check,
-                                                      color: primaryColorApp,
-                                                      size: 20,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    const Text("Separadas:",
-                                                        style: TextStyle(
-                                                            fontSize: 16,
-                                                            color: black)),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                        productsBatch?.quantity
-                                                                .toString() ??
-                                                            "",
-                                                        style: const TextStyle(
-                                                            fontSize: 16,
-                                                            color:
-                                                                primaryColorApp)),
-                                                  ],
+                                              Card(
+                                                color: productsBatch
+                                                            ?.quantity ==
+                                                        productsBatch
+                                                            ?.quantitySeparate
+                                                    ? Colors.green[100]
+                                                    : productsBatch
+                                                                ?.quantitySeparate ==
+                                                            null
+                                                        ? Colors.red[100]
+                                                        : Colors.amber[100],
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 2),
+                                                  child: Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.add,
+                                                        color: primaryColorApp,
+                                                        size: 20,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      const Text("Unidades:",
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              color: black)),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                          productsBatch
+                                                                  ?.quantity
+                                                                  .toString() ??
+                                                              "",
+                                                          style: const TextStyle(
+                                                              fontSize: 16,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                      const Spacer(),
+                                                      const Icon(
+                                                        Icons.check,
+                                                        color: primaryColorApp,
+                                                        size: 20,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      const Text("Separadas:",
+                                                          style: TextStyle(
+                                                              fontSize: 16,
+                                                              color: black)),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                          productsBatch
+                                                                      ?.quantitySeparate ==
+                                                                  null
+                                                              ? "0"
+                                                              : productsBatch
+                                                                      ?.quantitySeparate
+                                                                      .toString() ??
+                                                                  "",
+                                                          style: const TextStyle(
+                                                              fontSize: 16,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ],
