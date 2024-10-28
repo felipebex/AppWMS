@@ -279,53 +279,92 @@ class BatchDetailScreen extends StatelessWidget {
                                                       .symmetric(
                                                       horizontal: 8,
                                                       vertical: 2),
-                                                  child: Row(
+                                                  child: Column(
                                                     children: [
-                                                      const Icon(
-                                                        Icons.add,
-                                                        color: primaryColorApp,
-                                                        size: 20,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      const Text("Unidades:",
-                                                          style: TextStyle(
-                                                              fontSize: 16,
-                                                              color: black)),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                          productsBatch
-                                                                  ?.quantity
-                                                                  .toString() ??
-                                                              "",
-                                                          style: const TextStyle(
-                                                              fontSize: 16,
-                                                              color:
-                                                                  primaryColorApp)),
-                                                      const Spacer(),
-                                                      const Icon(
-                                                        Icons.check,
-                                                        color: primaryColorApp,
-                                                        size: 20,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      const Text("Separadas:",
-                                                          style: TextStyle(
-                                                              fontSize: 16,
-                                                              color: black)),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                          productsBatch
-                                                                      ?.quantitySeparate ==
-                                                                  null
-                                                              ? "0"
-                                                              : productsBatch
-                                                                      ?.quantitySeparate
+                                                      Row(
+                                                        children: [
+                                                          const Icon(
+                                                            Icons.add,
+                                                            color:
+                                                                primaryColorApp,
+                                                            size: 20,
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          const Text(
+                                                              "Unidades:",
+                                                              style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  color:
+                                                                      black)),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Text(
+                                                              productsBatch
+                                                                      ?.quantity
                                                                       .toString() ??
                                                                   "",
-                                                          style: const TextStyle(
-                                                              fontSize: 16,
+                                                              style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  color:
+                                                                      primaryColorApp)),
+                                                          const Spacer(),
+                                                          const Icon(
+                                                            Icons.check,
+                                                            color:
+                                                                primaryColorApp,
+                                                            size: 20,
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          const Text(
+                                                              "Separadas:",
+                                                              style: TextStyle(
+                                                                  fontSize: 16,
+                                                                  color:
+                                                                      black)),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Text(
+                                                              productsBatch
+                                                                          ?.quantitySeparate ==
+                                                                      null
+                                                                  ? "0"
+                                                                  : productsBatch
+                                                                          ?.quantitySeparate
+                                                                          .toString() ??
+                                                                      "",
+                                                              style: const TextStyle(
+                                                                  fontSize: 16,
+                                                                  color:
+                                                                      primaryColorApp)),
+                                                        ],
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Row(
+                                                          children: [
+                                                            const Icon(
+                                                              Icons
+                                                                  .assignment_late,
                                                               color:
-                                                                  primaryColorApp)),
+                                                                  primaryColorApp,
+                                                              size: 20,
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 5),
+                                                            Text(
+                                                                "Novedad: ${productsBatch?.observation ?? ''}",
+                                                                style:
+                                                                    const TextStyle(
+                                                                        fontSize: 16,
+                                                                        color:
+                                                                            black)),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 5),
                                                     ],
                                                   ),
                                                 ),

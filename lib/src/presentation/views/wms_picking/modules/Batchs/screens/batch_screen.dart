@@ -495,8 +495,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               child: Row(
                                                 children: [
                                                   Text(
-                                                    currentProduct
-                                                            ?.locationId ??
+                                                    currentProduct.locationId ??
                                                         '',
                                                     style: const TextStyle(
                                                         fontSize: 16,
@@ -573,7 +572,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     ChangeProductIsOkEvent(
                                                         true,
                                                         currentProduct
-                                                                ?.idProduct ??
+                                                                .idProduct ??
                                                             0,
                                                         batchBloc
                                                                 .batchWithProducts
@@ -584,7 +583,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                                 batchBloc.add(ChangeIsOkQuantity(
                                                     true,
-                                                    currentProduct?.idProduct ??
+                                                    currentProduct.idProduct ??
                                                         0,
                                                     batchBloc.batchWithProducts
                                                             .batch?.id ??
@@ -993,6 +992,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 currentProduct: currentProduct,
                                                 cantidad:
                                                     batchBloc.quantitySelected,
+                                                batchId: batchBloc
+                                                        .batchWithProducts
+                                                        .batch
+                                                        ?.id ??
+                                                    0,
                                                 onAccepted: () {
                                                   batchBloc.add(
                                                       ChangeQuantitySeparate(
@@ -1024,7 +1028,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             .text.isEmpty
                                         ? batchBloc.quantitySelected.toString()
                                         : cantidadController.text);
-                                    if (cantidad == currentProduct!.quantity) {
+                                    if (cantidad == currentProduct.quantity) {
+                                      batchBloc.add(ChangeQuantitySeparate(
+                                          int.parse(cantidadController.text),
+                                          currentProduct.idProduct ?? 0));
                                       _nextProduct(currentProduct, batchBloc);
                                     } else {
                                       if (cantidad < currentProduct.quantity) {
@@ -1035,7 +1042,19 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   currentProduct:
                                                       currentProduct,
                                                   cantidad: cantidad,
-                                                  onAccepted: () {
+                                                  batchId: batchBloc
+                                                          .batchWithProducts
+                                                          .batch
+                                                          ?.id ??
+                                                      0,
+                                                  onAccepted: () async {
+                                                    batchBloc.add(
+                                                        ChangeQuantitySeparate(
+                                                            cantidad,
+                                                            currentProduct
+                                                                    .idProduct ??
+                                                                0));
+
                                                     _nextProduct(currentProduct,
                                                         batchBloc);
                                                   });
@@ -1141,7 +1160,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         .read<BatchBloc>()
         .add(ChangeCurrentProduct(currentProduct: currentProduct));
 
-    //
     //mostramos un modal de cargando que dure 2 segudnos
     showDialog(
         context: context,

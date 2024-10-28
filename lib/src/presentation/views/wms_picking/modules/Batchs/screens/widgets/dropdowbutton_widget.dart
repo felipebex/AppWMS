@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -12,10 +13,12 @@ class DialogAdvetenciaCantidadScreen extends StatefulWidget {
     required this.cantidad,
     required this.currentProduct,
     required this.onAccepted,
+    required this.batchId,
   }) : super(key: key);
 
   final int cantidad; // Variable para almacenar la cantidad
   final ProductsBatch currentProduct;
+  final int batchId; // Variable para almacenar el id del lote
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
 
   // Variable para almacenar el producto actual
@@ -157,11 +160,17 @@ class _DialogAdvetenciaCantidadScreenState
               child: const Text('Cancelar',
                   style: TextStyle(color: primaryColorApp))),
           ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Validamos que tenga una novedad seleccionada
                 if (selectedNovedad != null) {
+                  DataBaseSqlite db = DataBaseSqlite();
                   context.read<BatchBloc>().add(ChangeCurrentProduct(
                       currentProduct: widget.currentProduct));
+                  await db.updateNovedad(
+                      widget.batchId,
+                      widget.currentProduct.idProduct ?? 0,
+                      selectedNovedad ?? '');
+
                   Navigator.pop(context); // Cierra el diálogo
                   widget.onAccepted(); // Llama al callback
                 }

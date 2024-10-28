@@ -186,7 +186,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     locationDestIsOk = false;
     quantityIsOk = false;
 
-    await db.incrementProductSeparateQty(batchWithProducts.batch?.id ?? 0);
+   
 
     if (batchWithProducts.products != null &&
         index < batchWithProducts.products!.length - 1) {
@@ -393,9 +393,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         return;
       }
 
-      print("index $index");
-      print(
-          "batchWithProducts.products!.length ${batchWithProducts.products!.length}");
+    
 
       add(LoadDataInfoEvent());
 

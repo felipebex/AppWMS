@@ -146,18 +146,61 @@ class DataBaseSqlite {
   Future<void> insertBatch(BatchsModel batch) async {
     try {
       final db = await database;
-      await db?.insert(
+
+      await db!.transaction((txn) async {
+        // Verificar si el batch ya existe
+        final List<Map<String, dynamic>> existingBatch = await txn.query(
           'tblbatchs',
-          {
-            "id": batch.id,
-            "name": batch.name,
-            "scheduled_date": batch.scheduledDate,
-            "picking_type_id": batch.pickingTypeId,
-            "state": batch.state,
-            "user_id": batch.userId,
-            "is_wave": batch.isWave,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
+          where: 'id = ?',
+          whereArgs: [batch.id],
+        );
+
+        if (existingBatch.isNotEmpty) {
+          // Actualizar el batch
+          await txn.update(
+            'tblbatchs',
+            {
+              "id": batch.id,
+              "name": batch.name,
+              "scheduled_date": batch.scheduledDate,
+              "picking_type_id": batch.pickingTypeId,
+              "state": batch.state,
+              "user_id": batch.userId,
+              "is_wave": batch.isWave,
+            },
+            where: 'id = ?',
+            whereArgs: [batch.id],
+          );
+        } else {
+          // Insertar nuevo batch
+          await txn.insert(
+            'tblbatchs',
+            {
+              "id": batch.id,
+              "name": batch.name,
+              "scheduled_date": batch.scheduledDate,
+              "picking_type_id": batch.pickingTypeId,
+              "state": batch.state,
+              "user_id": batch.userId,
+              "is_wave": batch.isWave,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+      });
+
+      // await db?.insert(
+      //     'tblbatchs',
+      //     {
+      //       "id": batch.id,
+      //       "name": batch.name,
+      //       "scheduled_date": batch.scheduledDate,
+      //       "picking_type_id": batch.pickingTypeId,
+      //       "state": batch.state,
+      //       "user_id": batch.userId,
+      //       "is_wave": batch.isWave,
+      //     },
+      //     conflictAlgorithm: ConflictAlgorithm.replace);
     } catch (e) {
       print("Error al insertar batch: $e");
     }
@@ -195,17 +238,35 @@ class DataBaseSqlite {
 
           if (existingProduct.isNotEmpty) {
             // se comenta para que no actualice todo el modelo
-            // await txn.update(
-            //   'tblbatch_products',
-            //   productBatch.toMap(),
-            //   where: 'product_id = ? AND batch_id = ?',
-            //   whereArgs: [productBatch.productId, productBatch.batchId],
-            // );
+            await txn.update(
+              'tblbatch_products',
+              {
+                "id_product": productBatch.idProduct,
+                "batch_id": productBatch.batchId,
+                "product_id": productBatch.productId,
+                "picking_id": productBatch.pickingId,
+                "lot_id": productBatch.lotId,
+                "location_id": productBatch.locationId,
+                "location_dest_id": productBatch.locationDestId,
+                "quantity": productBatch.quantity,
+              },
+              where: 'product_id = ? AND batch_id = ?',
+              whereArgs: [productBatch.productId, productBatch.batchId],
+            );
           } else {
             // Insertar nuevo producto
             await txn.insert(
               'tblbatch_products',
-              productBatch.toMap(),
+              {
+                "id_product": productBatch.idProduct,
+                "batch_id": productBatch.batchId,
+                "product_id": productBatch.productId,
+                "picking_id": productBatch.pickingId,
+                "lot_id": productBatch.lotId,
+                "location_id": productBatch.locationId,
+                "location_dest_id": productBatch.locationDestId,
+                "quantity": productBatch.quantity,
+              },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
           }
@@ -318,6 +379,7 @@ class DataBaseSqlite {
     print("startStopwatch: $resUpdate");
     return resUpdate;
   }
+
   Future<int?> startStopwatchBatch(int batchId, String date) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
@@ -325,13 +387,6 @@ class DataBaseSqlite {
     print("startStopwatchBatch: $resUpdate");
     return resUpdate;
   }
-
-
-
-
-
-
-
 
   Future<int?> selectProduct(
     int batchId,
@@ -382,6 +437,18 @@ class DataBaseSqlite {
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatchs SET index_list = $indexList WHERE id = $batchId');
     print("updateIndexList: $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> updateNovedad(
+      int batchId,
+    int productId,
+    String novedad,
+  ) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        " UPDATE tblbatch_products SET observation = '$novedad' WHERE batch_id = $batchId AND id_product = $productId");
+    print("updateNovedad: $resUpdate");
     return resUpdate;
   }
 
