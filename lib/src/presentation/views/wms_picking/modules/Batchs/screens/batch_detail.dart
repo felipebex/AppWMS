@@ -61,7 +61,7 @@ class BatchDetailScreen extends StatelessWidget {
                   //     ),
                   //   ),
                   // ),
-                const SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   SizedBox(
                     width: size.width,
                     height: 130,
@@ -290,25 +290,74 @@ class BatchDetailScreen extends StatelessWidget {
                             )
                           ],
                         ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 2),
+                        Padding(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 20, vertical: 2),
                           child: Card(
                             color: white,
                             elevation: 2,
                             child: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.timer, color: primaryColorApp, size: 20),
-                                  SizedBox(width: 10),
-                                  Text("Tiempo total del picking:  00:00:00",
-                                      style: TextStyle(
-                                          fontSize: 13, color: black)),
-                                ],
-                              ),
-                            ),
+                                padding: EdgeInsets.all(8.0),
+                              
+                                child: FutureBuilder<String>(
+                                  future: context
+                                      .read<BatchBloc>()
+                                      .calcularTiempoTotalPicking(context
+                                              .read<BatchBloc>()
+                                              .batchWithProducts
+                                              .batch
+                                              ?.id ??
+                                          0), // Asegúrate de pasar los IDs correctos
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot<String> snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      // Muestra un indicador de carga mientras esperas el resultado
+                                      return const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(Icons.timer,
+                                              color: primaryColorApp, size: 20),
+                                          SizedBox(width: 10),
+                                          CircularProgressIndicator(), // O cualquier otro widget de carga
+                                        ],
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      // Maneja el error, por ejemplo, mostrando un mensaje
+                                      return Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.timer,
+                                              color: primaryColorApp, size: 20),
+                                          const SizedBox(width: 10),
+                                          Text("Error: ${snapshot.error}",
+                                              style: const TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.red)),
+                                        ],
+                                      );
+                                    } else {
+                                      // Cuando se tiene el resultado
+                                      String tiempoTotal = snapshot.data ??
+                                          "00:00:00"; // Valor por defecto si es nulo
+                                      return Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.timer,
+                                              color: primaryColorApp, size: 20),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                              "Tiempo total del picking: $tiempoTotal",
+                                              style: const TextStyle(
+                                                  fontSize: 13, color: black)),
+                                        ],
+                                      );
+                                    }
+                                  },
+                                )),
                           ),
                         )
                       ],

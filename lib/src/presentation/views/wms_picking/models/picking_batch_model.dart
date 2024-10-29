@@ -14,7 +14,7 @@ final dynamic locationId;
 
   final int? productSeparateQty; //cantidad que se lleva separada
   final int? productQty; //cantidad total del producto separada
-  final String? timeSeparateTotal;
+  final double? timeSeparateTotal;
   final String? timeSeparateStart;
   final String? timeSeparateEnd;
 

@@ -478,4 +478,30 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     final progress = (totalSeparadas / totalCantidades) * 100;
     return progress.toStringAsFixed(1);
   }
+
+  Future<String> calcularTiempoTotalPicking(int batchId) async {
+    final starTime =
+        await db.getFieldTableBtach(batchId, 'time_separate_start');
+    final endTime = await db.getFieldTableBtach(batchId, 'time_separate_end');
+
+    DateTime dateTimeStart = DateTime.parse(starTime);
+    DateTime dateTimeEnd = DateTime.parse(endTime);
+
+    // Calcular la diferencia
+    Duration difference = dateTimeEnd.difference(dateTimeStart);
+
+    // Obtener horas, minutos y segundos
+    int hours = difference.inHours;
+    int minutes = difference.inMinutes.remainder(60);
+    int seconds = difference.inSeconds.remainder(60);
+
+    // Formatear como 00:00:00
+    String formattedTime = '${hours.toString().padLeft(2, '0')}:'
+        '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
+
+    print('Diferencia en formato 00:00:00: $formattedTime');
+
+    return formattedTime;
+  }
 }

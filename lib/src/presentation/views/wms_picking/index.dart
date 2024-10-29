@@ -488,9 +488,13 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           'batch',
                                         );
 
-                                     
+                                        DataBaseSqlite db = DataBaseSqlite();
 
-                                      
+                                        await db.getBacth(batch.id ?? 0);
+
+                                        await db.getFieldTableBtach(batch.id ?? 0, 'time_separate_start');
+                                        await db.getFieldTableBtach(batch.id ?? 0, 'time_separate_end');
+
 
 
 

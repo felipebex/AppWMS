@@ -288,6 +288,9 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
+                                        context
+                                            .read<WMSPickingBloc>()
+                                            .add(LoadBatchsFromDBEvent());
                                         Navigator.pushNamed(
                                             context, 'wms-picking');
                                       },
