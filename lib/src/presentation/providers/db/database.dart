@@ -349,6 +349,17 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+  Future<int?> updateLocationDestIsOk(
+    int batchId,
+    int productId,
+  ) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblbatch_products SET location_dest_is_ok = true WHERE batch_id = $batchId AND id_product = $productId');
+    print("updateLocationDestIsOk: $resUpdate");
+
+    return resUpdate;
+  }
 
   Future<int?> updateIsQuantityIsOk(
     int batchId,

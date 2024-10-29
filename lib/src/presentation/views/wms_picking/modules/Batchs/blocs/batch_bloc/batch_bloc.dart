@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print
+// ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_api_module.dart';
@@ -63,6 +63,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   //*lista de todas las pocisiones de los productos del batchs
   List<String> positions = [];
+
+  //*lista de muelles
+  List<String> muelles = [];
 
   //*indice del producto actual
   int index = 0;
@@ -176,6 +179,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
+  void getMuelles() {
+    muelles.clear();
+    if (batchWithProducts.batch?.locationId != false) {
+      muelles.add(batchWithProducts.batch?.locationId ?? '');
+    }
+  }
+
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
     // Aumentar el índice solo si está dentro de los límites
@@ -185,8 +195,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     productIsOk = false;
     locationDestIsOk = false;
     quantityIsOk = false;
-
-   
 
     if (batchWithProducts.products != null &&
         index < batchWithProducts.products!.length - 1) {
@@ -249,7 +257,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onChangeLocationDestIsOkEvent(
-      ChangeLocationDestIsOkEvent event, Emitter<BatchState> emit) {
+      ChangeLocationDestIsOkEvent event, Emitter<BatchState> emit) async {
+    if (event.locationDestIsOk) {
+      await db.updateLocationDestIsOk(event.batchId, event.productId);
+    }
     locationDestIsOk = event.locationDestIsOk;
     emit(ChangeIsOkState(
       locationDestIsOk,
@@ -393,12 +404,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         return;
       }
 
-    
-
       add(LoadDataInfoEvent());
 
       sortProductsByLocationId(batchWithProducts.products!);
       getPosicions();
+      getMuelles();
       currentProduct = batchWithProducts
           .products![batchWithProducts.batch!.indexList ?? index];
       emit(LoadProductsBatchSuccesStateBD(
@@ -425,5 +435,32 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     final progress = (separatedItems / totalItems) * 100;
     return progress.toStringAsFixed(1); // Redondear a un decimal
+  }
+
+  String calcularUnidadesSeparadas() {
+    // Si no hay productos, devuelve "0.0"
+    if (batchWithProducts.products == null ||
+        batchWithProducts.products!.isEmpty) {
+      return "0.0";
+    }
+
+    int totalSeparadas = 0;
+    int totalCantidades = 0;
+
+    for (var product in batchWithProducts.products!) {
+      totalSeparadas += product.quantitySeparate ?? 0;
+      totalCantidades +=
+          (product.quantity as int?) ?? 0; // Aseguramos que sea int
+    }
+
+    print('totalSeparadas: $totalSeparadas');
+
+    // Evitar división por cero
+    if (totalCantidades == 0) {
+      return "0.0";
+    }
+
+    final progress = (totalSeparadas / totalCantidades) * 100;
+    return progress.toStringAsFixed(1);
   }
 }

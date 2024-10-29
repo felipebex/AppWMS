@@ -1,5 +1,7 @@
 // ignore_for_file: unrelated_type_equality_checks
 
+import 'dart:ui';
+
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
@@ -62,62 +64,219 @@ class BatchDetailScreen extends StatelessWidget {
 
                   SizedBox(
                     width: size.width,
-                    height: 50,
+                    height: 80,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Card(
-                          color: Colors.white,
-                          elevation: 2,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: Center(
-                              child: Text(
-                                  "Items: ${context.read<BatchBloc>().batchWithProducts.products?.length ?? 0}",
-                                  style: const TextStyle(
-                                      fontSize: 15, color: black)),
-                            ),
+                          color: white,
+                          elevation: 3,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                      "Items: ${context.read<BatchBloc>().batchWithProducts.products?.length ?? 0}",
+                                      style: const TextStyle(
+                                          fontSize: 15, color: black)),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                      "Separados: ${context.read<BatchBloc>().batchWithProducts.batch?.productSeparateQty ?? 0}",
+                                      style: const TextStyle(
+                                          fontSize: 15, color: black)),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Card(
-                          color: Colors.white,
+                          color: white,
                           elevation: 2,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.green[100],
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: Center(
-                              child: Text(
-                                  "Separados: ${context.read<BatchBloc>().batchWithProducts.batch?.productSeparateQty ?? 0}",
-                                  style: const TextStyle(
-                                      fontSize: 15, color: black)),
-                            ),
-                          ),
-                        ),
-                        Card(
-                          color: Colors.white,
-                          elevation: 2,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: primaryColorApp.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: Center(
-                              child: Text(
-                                  "Avance: ${context.read<BatchBloc>().calculateProgress()}%",
-                                  style: const TextStyle(
-                                      fontSize: 15, color: black)),
-                            ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: size.width * 0.6,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                child: Center(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Ejecucion: ${context.read<BatchBloc>().calculateProgress()}%",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: getColorForPercentage(
+                                              double.parse(context
+                                                  .read<BatchBloc>()
+                                                  .calculateProgress())), // Convertir a double
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      //icono de ayuda
+                                      GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return BackdropFilter(
+                                                  filter: ImageFilter.blur(
+                                                      sigmaX: 5, sigmaY: 5),
+                                                  child: AlertDialog(
+                                                    actionsAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    title: const Center(
+                                                      child: Text("Información",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  primaryColorApp,
+                                                              fontSize: 20)),
+                                                    ),
+                                                    content: const Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Text(
+                                                            "El porcentaje de ejecución se calcula de la siguiente manera:"),
+                                                        SizedBox(height: 5),
+                                                        Text(
+                                                            "Porcentaje de ejecución = (Unidades separadas / Unidades totales) * 100"),
+                                                        SizedBox(height: 5),
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      ElevatedButton(
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            backgroundColor:
+                                                                grey,
+                                                            shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10)),
+                                                          ),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                          child: const Text(
+                                                              "Cerrar",
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      white))),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                          child: const Icon(Icons.help,
+                                              color: primaryColorApp,
+                                              size: 20)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                width: size.width * 0.6,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                child: Center(
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        "Unidades separadas: ${context.read<BatchBloc>().calcularUnidadesSeparadas()}%",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: getColorForPercentage(
+                                              double.parse(context
+                                                  .read<BatchBloc>()
+                                                  .calcularUnidadesSeparadas())), // Convertir a double
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      //icono de ayuda
+                                      GestureDetector(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return BackdropFilter(
+                                                  filter: ImageFilter.blur(
+                                                      sigmaX: 5, sigmaY: 5),
+                                                  child: AlertDialog(
+                                                    actionsAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    title: const Center(
+                                                      child: Text("Información",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  primaryColorApp,
+                                                              fontSize: 20)),
+                                                    ),
+                                                    content: const Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Text(
+                                                            "El porcentaje de unidades separadas se calcula de la siguiente manera:"),
+                                                        SizedBox(height: 5),
+                                                        Text(
+                                                            "Porcentaje de unidades separadas = (Unidades separadas / Unidades totales) * 100"),
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      ElevatedButton(
+                                                          style: ElevatedButton
+                                                              .styleFrom(
+                                                            backgroundColor:
+                                                                grey,
+                                                            shape: RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10)),
+                                                          ),
+                                                          onPressed: () {
+                                                            Navigator.of(
+                                                                    context)
+                                                                .pop();
+                                                          },
+                                                          child: const Text(
+                                                              "Cerrar",
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      white))),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                          child: const Icon(Icons.help,
+                                              color: primaryColorApp,
+                                              size: 20)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       ],
@@ -356,11 +515,11 @@ class BatchDetailScreen extends StatelessWidget {
                                                                 width: 5),
                                                             Text(
                                                                 "Novedad: ${productsBatch?.observation ?? ''}",
-                                                                style:
-                                                                    const TextStyle(
-                                                                        fontSize: 16,
-                                                                        color:
-                                                                            black)),
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        16,
+                                                                    color:
+                                                                        black)),
                                                           ],
                                                         ),
                                                       ),
@@ -401,5 +560,18 @@ class BatchDetailScreen extends StatelessWidget {
             ));
       },
     );
+  }
+
+  Color getColorForPercentage(double percentage) {
+    if (percentage >= 100) {
+      return Colors.green; // Verde para 100%
+    } else if (percentage < 20) {
+      return Colors.red; // Rojo para menos del 20%
+    } else if (percentage < 50) {
+      return Colors.orange; // Naranja para menos del 50%
+    } else {
+      return const Color.fromARGB(
+          255, 211, 190, 1); // Amarillo para entre 50% y 100%
+    }
   }
 }

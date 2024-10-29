@@ -36,6 +36,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   FocusNode focusNode5 = FocusNode(); //cantidad textformfield
 
   String? selectedLocation;
+  String? selectedMuelle;
 
   bool viewQuantity = false;
 
@@ -50,6 +51,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     }
     if (!context.read<BatchBloc>().quantityIsOk) {
       FocusScope.of(context).requestFocus(focusNode3);
+    }
+    if (!context.read<BatchBloc>().locationDestIsOk) {
+      FocusScope.of(context).requestFocus(focusNode5);
     }
   }
 
@@ -591,12 +595,27 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             .batch?.id ??
                                                         0));
 
-                                                Future.delayed(
-                                                    const Duration(
-                                                        milliseconds: 100), () {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(focusNode3);
-                                                });
+                                                if (batchBloc.index + 1 ==
+                                                    batchBloc.batchWithProducts
+                                                        .products?.length) {
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 100),
+                                                      () {
+                                                    FocusScope.of(context)
+                                                        .requestFocus(
+                                                            focusNode5);
+                                                  });
+                                                } else {
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 100),
+                                                      () {
+                                                    FocusScope.of(context)
+                                                        .requestFocus(
+                                                            focusNode5);
+                                                  });
+                                                }
                                               } else {
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
@@ -677,7 +696,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     ? (String? newValue) {
                                                         if (newValue ==
                                                             currentProduct
-                                                                ?.productId) {
+                                                                .productId) {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
                                                                   field:
@@ -697,7 +716,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               ChangeProductIsOkEvent(
                                                                   true,
                                                                   currentProduct
-                                                                          ?.idProduct ??
+                                                                          .idProduct ??
                                                                       0,
                                                                   batchBloc
                                                                           .batchWithProducts
@@ -710,23 +729,42 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               ChangeIsOkQuantity(
                                                                   true,
                                                                   currentProduct
-                                                                          ?.idProduct ??
+                                                                          .idProduct ??
                                                                       0,
                                                                   batchBloc
                                                                           .batchWithProducts
                                                                           .batch
                                                                           ?.id ??
                                                                       0));
-
-                                                          Future.delayed(
-                                                              const Duration(
-                                                                  milliseconds:
-                                                                      100), () {
-                                                            FocusScope.of(
-                                                                    context)
-                                                                .requestFocus(
-                                                                    focusNode3);
-                                                          });
+                                                          if (batchBloc.index +
+                                                                  1 ==
+                                                              batchBloc
+                                                                  .batchWithProducts
+                                                                  .products
+                                                                  ?.length) {
+                                                            //*si es la ultima posicion pasamos al foco del muelle
+                                                            Future.delayed(
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        100),
+                                                                () {
+                                                              FocusScope.of(
+                                                                      context)
+                                                                  .requestFocus(
+                                                                      focusNode5);
+                                                            });
+                                                          } else {
+                                                            Future.delayed(
+                                                                const Duration(
+                                                                    milliseconds:
+                                                                        100),
+                                                                () {
+                                                              FocusScope.of(
+                                                                      context)
+                                                                  .requestFocus(
+                                                                      focusNode3);
+                                                            });
+                                                          }
                                                         } else {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
@@ -805,9 +843,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                             //TODO MUELLE
                             //solo lo mostramos si es el ultimo producto
-                            if (batchBloc.index ==
-                                batchBloc.batchWithProducts.products!.length -
-                                    1)
+                            if (batchBloc.index + 1 ==
+                                batchBloc.batchWithProducts.products?.length)
                               Row(
                                 children: [
                                   Padding(
@@ -848,75 +885,56 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     batchBloc.batchWithProducts
                                                         .batch?.locationId
                                                         ?.toLowerCase()) {
-                                                  //     batchBloc.add(
-                                                  //         ValidateFieldsEvent(
-                                                  //             field: "product",
-                                                  //             isOk: true));
+                                                  batchBloc.add(
+                                                      ValidateFieldsEvent(
+                                                          field: "locationDest",
+                                                          isOk: true));
 
-                                                  //     // quantity = quantity + 1;
+                                                  batchBloc.add(
+                                                      ChangeLocationDestIsOkEvent(
+                                                    true,
+                                                    currentProduct.idProduct ??
+                                                        0,
+                                                    batchBloc.batchWithProducts
+                                                            .batch?.id ??
+                                                        0,
+                                                  ));
 
-                                                  //     batchBloc.add(
-                                                  //         ChangeQuantitySeparate(
-                                                  //             1,
-                                                  //             currentProduct
-                                                  //                     .idProduct ??
-                                                  //                 0));
-
-                                                  //     batchBloc.add(
-                                                  //         ChangeProductIsOkEvent(
-                                                  //             true,
-                                                  //             currentProduct
-                                                  //                     .idProduct ??
-                                                  //                 0,
-                                                  //             batchBloc
-                                                  //                     .batchWithProducts
-                                                  //                     .batch
-                                                  //                     ?.id ??
-                                                  //                 0,
-                                                  //             1));
-
-                                                  //     batchBloc.add(ChangeIsOkQuantity(
-                                                  //         true,
-                                                  //         currentProduct.idProduct ??
-                                                  //             0,
-                                                  //         batchBloc.batchWithProducts
-                                                  //                 .batch?.id ??
-                                                  //             0));
-
-                                                  //     Future.delayed(
-                                                  //         const Duration(
-                                                  //             milliseconds: 100), () {
-                                                  //       FocusScope.of(context)
-                                                  //           .requestFocus(focusNode3);
-                                                  //     });
-                                                  //   } else {
-                                                  //     batchBloc.add(
-                                                  //         ValidateFieldsEvent(
-                                                  //             field: "product",
-                                                  //             isOk: false));
-                                                  //     setState(() {
-                                                  //       scannedValue2 =
-                                                  //           ""; //limpiamos el valor escaneado
-                                                  //     });
-
-                                                  //     //mostramos alerta de error
-                                                  //     ScaffoldMessenger.of(context)
-                                                  //         .showSnackBar(SnackBar(
-                                                  //       duration: const Duration(
-                                                  //           milliseconds: 1000),
-                                                  //       content: const Text(
-                                                  //           'Producto erroneo'),
-                                                  //       backgroundColor:
-                                                  //           Colors.red[200],
-                                                  //     ));
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 100),
+                                                      () {
+                                                    FocusScope.of(context)
+                                                        .requestFocus(
+                                                            focusNode3);
+                                                  });
+                                                } else {
+                                                  batchBloc.add(
+                                                      ValidateFieldsEvent(
+                                                          field: "locationDest",
+                                                          isOk: false));
+                                                  setState(() {
+                                                    scannedValue4 =
+                                                        ""; //limpiamos el valor escaneado
+                                                  });
+                                                  //mostramos alerta de error
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                    duration: const Duration(
+                                                        milliseconds: 1000),
+                                                    content: const Text(
+                                                        'Muelle erroneo'),
+                                                    backgroundColor:
+                                                        Colors.red[200],
+                                                  ));
                                                 }
                                               }
                                               return KeyEventResult.handled;
                                             } else {
-                                              // setState(() {
-                                              //   scannedValue2 +=
-                                              //       event.data.keyLabel;
-                                              // });
+                                              setState(() {
+                                                scannedValue4 +=
+                                                    event.data.keyLabel;
+                                              });
                                               return KeyEventResult.handled;
                                             }
                                           }
@@ -947,69 +965,44 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     color: primaryColorApp,
                                                     width: 24,
                                                   ),
-                                                  value: selectedLocation,
+                                                  value: selectedMuelle,
                                                   // items: batchBloc.positions
-                                                  items: batchBloc
-                                                      .batchWithProducts
-                                                      .products
-                                                      ?.map((ProductsBatch
-                                                          product) {
+                                                  items: batchBloc.muelles
+                                                      .map((String location) {
                                                     return DropdownMenuItem<
                                                         String>(
-                                                      value: product.productId
-                                                          .toString(),
-                                                      child: Text(product
-                                                          .productId
-                                                          .toString()),
+                                                      value: location,
+                                                      child: Text(location),
                                                     );
                                                   }).toList(),
-
                                                   onChanged: batchBloc
-                                                              .locationIsOk &&
+                                                              .locationDestIsOk &&
                                                           !batchBloc.productIsOk
                                                       ? (String? newValue) {
                                                           if (newValue ==
-                                                              currentProduct
-                                                                  ?.productId) {
+                                                              batchBloc
+                                                                  .batchWithProducts
+                                                                  .batch
+                                                                  ?.locationId) {
                                                             batchBloc.add(
                                                                 ValidateFieldsEvent(
                                                                     field:
-                                                                        "product",
+                                                                        "locationDest",
                                                                     isOk:
                                                                         true));
-                                                            // quantity =
-                                                            //     quantity + 1;
 
                                                             batchBloc.add(
-                                                                ChangeQuantitySeparate(
-                                                                    1,
-                                                                    currentProduct
-                                                                            .idProduct ??
-                                                                        0));
-
-                                                            batchBloc.add(ChangeProductIsOkEvent(
-                                                                true,
-                                                                currentProduct
-                                                                        ?.idProduct ??
-                                                                    0,
-                                                                batchBloc
-                                                                        .batchWithProducts
-                                                                        .batch
-                                                                        ?.id ??
-                                                                    0,
-                                                                1));
-
-                                                            batchBloc.add(ChangeIsOkQuantity(
-                                                                true,
-                                                                currentProduct
-                                                                        ?.idProduct ??
-                                                                    0,
-                                                                batchBloc
-                                                                        .batchWithProducts
-                                                                        .batch
-                                                                        ?.id ??
-                                                                    0));
-
+                                                                ChangeLocationDestIsOkEvent(
+                                                              true,
+                                                              currentProduct
+                                                                      .idProduct ??
+                                                                  0,
+                                                              batchBloc
+                                                                      .batchWithProducts
+                                                                      .batch
+                                                                      ?.id ??
+                                                                  0,
+                                                            ));
                                                             Future.delayed(
                                                                 const Duration(
                                                                     milliseconds:
@@ -1024,7 +1017,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             batchBloc.add(
                                                                 ValidateFieldsEvent(
                                                                     field:
-                                                                        "product",
+                                                                        "locationDest",
                                                                     isOk:
                                                                         false));
                                                             ScaffoldMessenger
@@ -1036,7 +1029,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                       milliseconds:
                                                                           1000),
                                                               content: const Text(
-                                                                  'Producto erroneo'),
+                                                                  'Muelle erroneo'),
                                                               backgroundColor:
                                                                   Colors
                                                                       .red[200],
@@ -1050,7 +1043,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               Align(
                                                 alignment: Alignment.centerLeft,
                                                 child: Text(
-                                                  batchBloc.batchWithProducts.batch?.locationId
+                                                  batchBloc.batchWithProducts
+                                                          .batch?.locationId
                                                           .toString() ??
                                                       '',
                                                   style: const TextStyle(
