@@ -78,3 +78,8 @@ class ChangeQuantitySeparateState extends BatchState {
   final int quantity;
   ChangeQuantitySeparateState(this.quantity);
 }
+
+class PickingOkState extends BatchState {
+  // final bool isOk;
+  // PickingOkState(this.isOk);
+}

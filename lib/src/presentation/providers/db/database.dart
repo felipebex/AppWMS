@@ -49,7 +49,7 @@ class DataBaseSqlite {
         state VARCHAR(255),
         user_id VARCHAR(255),
         is_wave TEXT,
-        is_separate TEXT, 
+        is_separate INTEGER, 
         is_selected INTEGER, 
         product_separate_qty INTEGER,
         product_qty INTEGER,
@@ -368,6 +368,27 @@ class DataBaseSqlite {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatch_products SET is_quantity_is_ok = true WHERE batch_id = $batchId AND id_product = $productId');
+    print("updateIsQuantityIsOk: $resUpdate");
+
+    return resUpdate;
+  }
+  Future<int?> isPickingBatch(
+    int batchId,
+  ) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblbatchs SET is_separate = true WHERE id = $batchId ');
+    print("isPickingBatch: $resUpdate");
+
+    return resUpdate;
+  }
+  Future<int?> updateIsQuantityIsFalse(
+    int batchId,
+    int productId,
+  ) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblbatch_products SET is_quantity_is_ok = false WHERE batch_id = $batchId AND id_product = $productId');
     print("updateIsQuantityIsOk: $resUpdate");
 
     return resUpdate;

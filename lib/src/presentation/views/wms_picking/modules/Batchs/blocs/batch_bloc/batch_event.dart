@@ -104,3 +104,9 @@ class AddQuantitySeparate extends BatchEvent {
   final int productId;
   AddQuantitySeparate(this.quantity, this.productId);
 }
+
+
+class PickingOkEvent extends BatchEvent {
+  final int batchId;
+  PickingOkEvent(this.batchId);
+}

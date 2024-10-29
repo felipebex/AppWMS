@@ -9,7 +9,7 @@ final dynamic locationId;
   final dynamic userId;
   final int? indexList;
   final dynamic isWave;
-  final dynamic isSeparate;
+  final int? isSeparate;
   final dynamic isSelected;
 
   final int? productSeparateQty; //cantidad que se lleva separada

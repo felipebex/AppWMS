@@ -103,6 +103,16 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     //*evento para cambiar la cantidad seleccionada
     on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
     on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+    //*evento para finalizar la separacion
+    on<PickingOkEvent>(_onPickingOkEvent);
+
+  }
+
+  ///* evento para finalizar la separacion
+  void _onPickingOkEvent(PickingOkEvent event, Emitter<BatchState> emit) async {
+    await db.isPickingBatch(event.batchId);
+    //enviamos el pciking a odoo
+    emit(PickingOkState());
   }
 
   //*metodo para cambiar la cantidad seleccionada
@@ -188,39 +198,33 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
-    // Aumentar el índice solo si está dentro de los límites
-
+    //desseleccionamos el producto actual
     await db.deselectProduct(
         batchWithProducts.batch?.id ?? 0, event.currentProduct.idProduct ?? 0);
-    productIsOk = false;
-    locationDestIsOk = false;
-    quantityIsOk = false;
-
-    if (batchWithProducts.products != null &&
-        index < batchWithProducts.products!.length - 1) {
-      print("Entramos al if");
-      //guardamos la ultima ubicacion
-      if (event.currentProduct.locationId != oldLocation) {
-        locationIsOk = false;
-      }
-      index++;
+    //validamos si es el ultimo producto
+    if (batchWithProducts.products?.length == index + 1) {
+      print('ultimo producto');
+      //actualizamos el index de la lista de productos
       await db.updateIndexList(batchWithProducts.batch?.id ?? 0, index);
-      currentProduct = batchWithProducts.products![index];
-
-      await db.selectProduct(
-          batchWithProducts.batch?.id ?? 0, currentProduct.idProduct ?? 0);
-
-      // Emitir el nuevo estado con el producto actual
+      //emitimos el estado de productos completados
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
     } else {
-      print("Entramos al else");
-
+      //validamos la ultima ubicacion
+      if (event.currentProduct.locationId != oldLocation) {
+        locationIsOk = false;
+      }
+      productIsOk = false;
+      quantityIsOk = false;
+      index++;
+      //actualizamos el index de la lista de productos
       await db.updateIndexList(batchWithProducts.batch?.id ?? 0, index);
+      //actualizamos el producto actual
       currentProduct = batchWithProducts.products![index];
-
-      print("currentProduct: ${currentProduct.toMap()}");
-
+      //seleccionamos el producto actual
+      await db.selectProduct(
+          batchWithProducts.batch?.id ?? 0, currentProduct.idProduct ?? 0);
+      // Emitir el nuevo estado con el producto actual
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
     }
@@ -248,12 +252,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       //cuando se lea la ubicacion se selecciona el batch y el producto
       await db.selectBatch(event.batchId);
       await db.selectProduct(event.batchId, event.productId);
+      locationIsOk = event.locationIsOk;
+      emit(ChangeIsOkState(
+        locationIsOk,
+      ));
     }
-
-    locationIsOk = event.locationIsOk;
-    emit(ChangeIsOkState(
-      locationIsOk,
-    ));
   }
 
   void _onChangeLocationDestIsOkEvent(

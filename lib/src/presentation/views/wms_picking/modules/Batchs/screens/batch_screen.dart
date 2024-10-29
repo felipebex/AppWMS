@@ -127,6 +127,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is QuantityChangedState ||
             state is LoadDataInfoState ||
             state is ChangeQuantitySeparateState ||
+            state is PickingOkState ||
             state is ValidateFieldsState) {
           final currentProduct = batchBloc.currentProduct;
           batchBloc.add(GetProductById(currentProduct.idProduct ?? 0));
@@ -149,10 +150,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               context.read<BatchBloc>().index = 0;
                               context.read<BatchBloc>().completedProducts = 0;
                               context.read<BatchBloc>().oldLocation = '';
-                              context
-                                  .read<WMSPickingBloc>()
-                                  .add(LoadBatchsFromDBEvent());
-
+                             
                               Navigator.pop(context);
                             },
                             icon: const Icon(Icons.arrow_back,
@@ -339,7 +337,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue1.isNotEmpty) {
                                               if (scannedValue1.toLowerCase() ==
-                                                  currentProduct?.locationId
+                                                  currentProduct.locationId
                                                       .toLowerCase()) {
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
@@ -350,7 +348,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     ChangeLocationIsOkEvent(
                                                         true,
                                                         currentProduct
-                                                                ?.idProduct ??
+                                                                .idProduct ??
                                                             0,
                                                         batchBloc
                                                                 .batchWithProducts
@@ -359,7 +357,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             0));
 
                                                 batchBloc.oldLocation =
-                                                    currentProduct?.locationId;
+                                                    currentProduct.locationId;
 
                                                 Future.delayed(
                                                     const Duration(seconds: 1),
@@ -439,7 +437,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     : (String? newValue) {
                                                         if (newValue ==
                                                             currentProduct
-                                                                ?.locationId) {
+                                                                .locationId) {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
                                                                   field:
@@ -449,7 +447,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               ChangeLocationIsOkEvent(
                                                                   true,
                                                                   currentProduct
-                                                                          ?.idProduct ??
+                                                                          .idProduct ??
                                                                       0,
                                                                   batchBloc
                                                                           .batchWithProducts
@@ -460,7 +458,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           batchBloc
                                                                   .oldLocation =
                                                               currentProduct
-                                                                  ?.locationId;
+                                                                  .locationId;
                                                           Future.delayed(
                                                               const Duration(
                                                                   seconds: 1),
@@ -565,8 +563,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                         field: "product",
                                                         isOk: true));
 
-                                                // quantity = quantity + 1;
-
                                                 batchBloc.add(
                                                     ChangeQuantitySeparate(
                                                         1,
@@ -595,27 +591,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             .batch?.id ??
                                                         0));
 
-                                                if (batchBloc.index + 1 ==
-                                                    batchBloc.batchWithProducts
-                                                        .products?.length) {
-                                                  Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 100),
-                                                      () {
-                                                    FocusScope.of(context)
-                                                        .requestFocus(
-                                                            focusNode5);
-                                                  });
-                                                } else {
-                                                  Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 100),
-                                                      () {
-                                                    FocusScope.of(context)
-                                                        .requestFocus(
-                                                            focusNode5);
-                                                  });
-                                                }
+                                                Future.delayed(
+                                                    const Duration(
+                                                        milliseconds: 100), () {
+                                                  FocusScope.of(context)
+                                                      .requestFocus(focusNode3);
+                                                });
                                               } else {
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
@@ -702,8 +683,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                   field:
                                                                       "product",
                                                                   isOk: true));
-                                                          // quantity =
-                                                          //     quantity + 1;
 
                                                           batchBloc.add(
                                                               ChangeQuantitySeparate(
@@ -736,35 +715,16 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                           .batch
                                                                           ?.id ??
                                                                       0));
-                                                          if (batchBloc.index +
-                                                                  1 ==
-                                                              batchBloc
-                                                                  .batchWithProducts
-                                                                  .products
-                                                                  ?.length) {
-                                                            //*si es la ultima posicion pasamos al foco del muelle
-                                                            Future.delayed(
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        100),
-                                                                () {
-                                                              FocusScope.of(
-                                                                      context)
-                                                                  .requestFocus(
-                                                                      focusNode5);
-                                                            });
-                                                          } else {
-                                                            Future.delayed(
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        100),
-                                                                () {
-                                                              FocusScope.of(
-                                                                      context)
-                                                                  .requestFocus(
-                                                                      focusNode3);
-                                                            });
-                                                          }
+
+                                                          Future.delayed(
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      100), () {
+                                                            FocusScope.of(
+                                                                    context)
+                                                                .requestFocus(
+                                                                    focusNode3);
+                                                          });
                                                         } else {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
@@ -793,9 +753,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                currentProduct?.productId
-                                                        .toString() ??
-                                                    '',
+                                                currentProduct.productId
+                                                    .toString(),
                                                 style: const TextStyle(
                                                     fontSize: 16, color: black),
                                               ),
@@ -841,7 +800,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               ],
                             ),
 
-                            //TODO MUELLE
+                            //Todo: MUELLE
                             //solo lo mostramos si es el ultimo producto
                             if (batchBloc.index + 1 ==
                                 batchBloc.batchWithProducts.products?.length)
@@ -854,7 +813,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                       width: 10,
                                       height: 10,
                                       decoration: BoxDecoration(
-                                        color: batchBloc.productIsOk
+                                        color: batchBloc.locationDestIsOk
                                             ? green
                                             : yellow,
                                         shape: BoxShape.circle,
@@ -890,24 +849,19 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           field: "locationDest",
                                                           isOk: true));
 
-                                                  batchBloc.add(
-                                                      ChangeLocationDestIsOkEvent(
-                                                    true,
-                                                    currentProduct.idProduct ??
-                                                        0,
-                                                    batchBloc.batchWithProducts
-                                                            .batch?.id ??
-                                                        0,
-                                                  ));
+                                                  batchBloc.add(PickingOkEvent(
+                                                      batchBloc
+                                                              .batchWithProducts
+                                                              .batch
+                                                              ?.id ??
+                                                          0));
+                                                  context
+                                                      .read<WMSPickingBloc>()
+                                                      .add(
+                                                          LoadBatchsFromDBEvent());
+                                                  Navigator.pop(context);
 
-                                                  Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 100),
-                                                      () {
-                                                    FocusScope.of(context)
-                                                        .requestFocus(
-                                                            focusNode3);
-                                                  });
+                                                  //despues de escanear al muelle lo pasamos a  la vista de todos los batchs
                                                 } else {
                                                   batchBloc.add(
                                                       ValidateFieldsEvent(
@@ -975,9 +929,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       child: Text(location),
                                                     );
                                                   }).toList(),
-                                                  onChanged: batchBloc
+
+                                                  onChanged: !batchBloc
+                                                              .quantityIsOk &&
+                                                          !batchBloc
                                                               .locationDestIsOk &&
-                                                          !batchBloc.productIsOk
+                                                          batchBloc.productIsOk
                                                       ? (String? newValue) {
                                                           if (newValue ==
                                                               batchBloc
@@ -1003,16 +960,20 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                       ?.id ??
                                                                   0,
                                                             ));
-                                                            Future.delayed(
-                                                                const Duration(
-                                                                    milliseconds:
-                                                                        100),
-                                                                () {
-                                                              FocusScope.of(
-                                                                      context)
-                                                                  .requestFocus(
-                                                                      focusNode3);
-                                                            });
+
+                                                            batchBloc.add(
+                                                                PickingOkEvent(batchBloc
+                                                                        .batchWithProducts
+                                                                        .batch
+                                                                        ?.id ??
+                                                                    0));
+                                                            context
+                                                                .read<
+                                                                    WMSPickingBloc>()
+                                                                .add(
+                                                                    LoadBatchsFromDBEvent());
+                                                            Navigator.pop(
+                                                                context);
                                                           } else {
                                                             batchBloc.add(
                                                                 ValidateFieldsEvent(
@@ -1069,12 +1030,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                 //todo: cantidad
                 SizedBox(
                   width: size.width,
-                  height: viewQuantity ? 210 : 150,
+                  height: viewQuantity ? 150 : 110,
                   child: Column(
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 5),
+                          horizontal: 10,
+                        ),
                         child: Card(
                           color: batchBloc.isQuantityOk
                               ? batchBloc.quantityIsOk
@@ -1084,7 +1046,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                           elevation: 5,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 10),
+                              horizontal: 10,
+                            ),
                             child: Center(
                               child: Row(
                                 children: [
@@ -1095,8 +1058,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10),
                                     child: Text(
-                                      currentProduct?.quantity?.toString() ??
-                                          "",
+                                      currentProduct.quantity?.toString() ?? "",
                                       style: const TextStyle(
                                           color: primaryColorApp, fontSize: 18),
                                     ),
@@ -1132,27 +1094,44 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           ValidateFieldsEvent(
                                                               field: "quantity",
                                                               isOk: true));
+
                                                       batchBloc.add(
                                                           AddQuantitySeparate(
                                                               1,
-                                                              currentProduct!
+                                                              currentProduct
                                                                       .idProduct ??
                                                                   0));
 
                                                       setState(() {
-                                                        // quantity = quantity + 1;
                                                         scannedValue3 =
                                                             ""; //limpiamos el valor escaneado
                                                       });
+
+                                                      //validamos que sea el ultimo producto:
+
                                                       //validamos que la cantidad sea igual a la cantidad del producto
                                                       if (batchBloc
                                                               .quantitySelected ==
                                                           currentProduct
-                                                              ?.quantity) {
-                                                        _nextProduct(
-                                                          currentProduct!,
-                                                          batchBloc,
-                                                        );
+                                                              .quantity) {
+                                                        if (batchBloc.index +
+                                                                1 ==
+                                                            batchBloc
+                                                                .batchWithProducts
+                                                                .products
+                                                                ?.length) {
+                                                          //activamos el muelle
+                                                          batchBloc.add(
+                                                              ValidateFieldsEvent(
+                                                                  field:
+                                                                      "locationDest",
+                                                                  isOk: true));
+                                                        } else {
+                                                          _nextProduct(
+                                                            currentProduct,
+                                                            batchBloc,
+                                                          );
+                                                        }
                                                       }
                                                     } else {
                                                       setState(() {
@@ -1203,83 +1182,107 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         visible: viewQuantity,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
-                          child: TextFormField(
-                            focusNode: focusNode4,
-                            inputFormatters: [
-                              FilteringTextInputFormatter
-                                  .digitsOnly, // Solo permite dígitos
-                            ],
-                            onChanged: (value) {
-                              batchBloc.quantitySelected = int.parse(value);
-                            },
-                            controller: cantidadController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecorations.authInputDecoration(
-                              hintText: 'Cantidad',
-                              labelText: 'Cantidad',
-                            ),
-                            //al dar enter
-                            onFieldSubmitted: (value) {
-                              setState(() {
-                                //validamos que el texto no este vacio
-                                if (value.isNotEmpty) {
-                                  if (int.parse(value) >
-                                      currentProduct.quantity) {
-                                    batchBloc.add(ValidateFieldsEvent(
-                                        field: "quantity", isOk: false));
-                                    cantidadController.clear();
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      duration: const Duration(seconds: 1),
-                                      content:
-                                          const Text('Cantidad incorrecta'),
-                                      backgroundColor: Colors.red[200],
-                                    ));
-                                  } else {
-                                    if (int.parse(value) ==
+                              horizontal: 10, vertical: 2),
+                          child: SizedBox(
+                            height: 40,
+                            child: TextFormField(
+                              //tmano del campo
+
+                              focusNode: focusNode4,
+                              inputFormatters: [
+                                FilteringTextInputFormatter
+                                    .digitsOnly, // Solo permite dígitos
+                              ],
+                              onChanged: (value) {
+                                batchBloc.quantitySelected = int.parse(value);
+                              },
+                              controller: cantidadController,
+                              keyboardType: TextInputType.number,
+                              decoration: InputDecorations.authInputDecoration(
+                                hintText: 'Cantidad',
+                                labelText: 'Cantidad',
+                              ),
+                              //al dar enter
+                              onFieldSubmitted: (value) {
+                                setState(() {
+                                  //validamos que el texto no este vacio
+                                  if (value.isNotEmpty) {
+                                    if (int.parse(value) >
                                         currentProduct.quantity) {
-                                      batchBloc.add(ChangeQuantitySeparate(
-                                          int.parse(value),
-                                          currentProduct.idProduct ?? 0));
-                                      _nextProduct(currentProduct, batchBloc);
+                                      //todo: cantidad fuera del rango
+                                      batchBloc.add(ValidateFieldsEvent(
+                                          field: "quantity", isOk: false));
+                                      cantidadController.clear();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        duration: const Duration(seconds: 1),
+                                        content:
+                                            const Text('Cantidad incorrecta'),
+                                        backgroundColor: Colors.red[200],
+                                      ));
                                     } else {
-                                      // quantity = int.parse(value);
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return DialogAdvetenciaCantidadScreen(
-                                                currentProduct: currentProduct,
-                                                cantidad:
-                                                    batchBloc.quantitySelected,
-                                                batchId: batchBloc
-                                                        .batchWithProducts
-                                                        .batch
-                                                        ?.id ??
-                                                    0,
-                                                onAccepted: () {
-                                                  batchBloc.add(
-                                                      ChangeQuantitySeparate(
-                                                          int.parse(value),
-                                                          currentProduct
-                                                                  .idProduct ??
-                                                              0));
-                                                  _nextProduct(currentProduct,
-                                                      batchBloc);
-                                                });
-                                          });
+                                      //todo: cantidad dentro del rango
+                                      if (int.parse(value) ==
+                                          currentProduct.quantity) {
+                                        //*cantidad correcta
+                                        //guardamos la cantidad en la bd
+                                        batchBloc.add(ChangeQuantitySeparate(
+                                            int.parse(value),
+                                            currentProduct.idProduct ?? 0));
+
+                                        //*ultimo producto
+                                        if (batchBloc.index + 1 ==
+                                            batchBloc.batchWithProducts.products
+                                                ?.length) {
+                                          _nextProduct(
+                                              currentProduct, batchBloc);
+                                        } else {
+                                          //todo: pasamos al siguiente producto
+                                          _nextProduct(
+                                              currentProduct, batchBloc);
+                                        }
+                                      } else {
+                                        //todo cantidad menor a la cantidad pedida
+                                        //preguntar si estamos en la ultima posicion
+
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return DialogAdvetenciaCantidadScreen(
+                                                  currentProduct:
+                                                      currentProduct,
+                                                  cantidad: batchBloc
+                                                      .quantitySelected,
+                                                  batchId: batchBloc
+                                                          .batchWithProducts
+                                                          .batch
+                                                          ?.id ??
+                                                      0,
+                                                  onAccepted: () {
+                                                    batchBloc.add(
+                                                        ChangeQuantitySeparate(
+                                                            int.parse(value),
+                                                            currentProduct
+                                                                    .idProduct ??
+                                                                0));
+                                                    _nextProduct(currentProduct,
+                                                        batchBloc);
+                                                  });
+                                            });
+                                      }
                                     }
                                   }
-                                }
-                                viewQuantity = false;
-                              });
-                            },
+                                  viewQuantity = false;
+                                });
+                              },
+                            ),
                           ),
                         ),
                       ),
                       Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
+                            horizontal: 10,
+                          ),
                           child: ElevatedButton(
                             onPressed: batchBloc.quantityIsOk &&
                                     batchBloc.quantitySelected >= 0
@@ -1334,7 +1337,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: primaryColorApp,
-                              minimumSize: Size(size.width * 0.93, 45),
+                              minimumSize: Size(size.width * 0.93, 35),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -1342,7 +1345,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             child: const Text(
                               'APLICAR CANTIDAD',
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
+                                  TextStyle(color: Colors.white, fontSize: 16),
                             ),
                           )),
                     ],
@@ -1409,31 +1412,40 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     await db.incrementProductSeparateQty(
         batchBloc.batchWithProducts.batch?.id ?? 0);
 
-    batchBloc.quantitySelected = 0;
-    cantidadController.clear();
     viewQuantity = false;
     setState(() {});
-    batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
 
     ///cambiamos al siguiente producto
     context
         .read<BatchBloc>()
         .add(ChangeCurrentProduct(currentProduct: currentProduct));
+    if (batchBloc.index + 1 == batchBloc.batchWithProducts.products?.length) {
+      print("Ultimo producto");
+      batchBloc.add(ChangeIsOkQuantity(false, currentProduct.idProduct ?? 0,
+          batchBloc.batchWithProducts.batch?.id ?? 0));
+      await db.updateIsQuantityIsFalse(
+          batchBloc.batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0);
+    } else {
+      batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
+      batchBloc.quantitySelected = 0;
+      cantidadController.clear();
+      showDialog(
+          context: context,
+          builder: (context) {
+            return const DialogLoading();
+          });
+      // Esperar 1 segundos y cerrar el diálogo y redirigirel focus
+      Future.delayed(const Duration(seconds: 1), () {
+        if (currentProduct.locationId != batchBloc.oldLocation) {
+          FocusScope.of(context).requestFocus(focusNode1);
+        } else {
+          FocusScope.of(context).requestFocus(focusNode2);
+        }
+        Navigator.pop(context);
+      });
+    }
 
     //mostramos un modal de cargando que dure 2 segudnos
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const DialogLoading();
-        });
-    // Esperar 1 segundos y cerrar el diálogo y redirigirel focus
-    Future.delayed(const Duration(seconds: 1), () {
-      if (currentProduct.locationId != batchBloc.oldLocation) {
-        FocusScope.of(context).requestFocus(focusNode1);
-      } else {
-        FocusScope.of(context).requestFocus(focusNode2);
-      }
-      Navigator.of(context).pop();
-    });
   }
 }
