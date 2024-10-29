@@ -16,6 +16,7 @@ final dynamic locationId;
   final int? productQty; //cantidad total del producto separada
   final String? timeSeparateTotal;
   final String? timeSeparateStart;
+  final String? timeSeparateEnd;
 
   final String? isSendOdoo;
   final String? isSendOdooDate;
@@ -37,6 +38,7 @@ final dynamic locationId;
     this.productQty,
     this.timeSeparateTotal,
     this.timeSeparateStart,
+    this.timeSeparateEnd,
     this.isSendOdoo,
     this.isSendOdooDate,
     this.observation,
@@ -62,6 +64,7 @@ final dynamic locationId;
       productQty: json['product_qty'],
       timeSeparateTotal: json['time_separate_total'],
       timeSeparateStart: json['time_separate_start'],
+      timeSeparateEnd: json['time_separate_end'],
       isSendOdoo: json['is_send_oddo'],
       isSendOdooDate: json['is_send_oddo_date'],
       observation: json['observation'],
@@ -85,6 +88,7 @@ final dynamic locationId;
       'product_qty': productQty,
       'time_separate_total': timeSeparateTotal,
       'time_separate_start': timeSeparateStart,
+      'time_separate_end': timeSeparateEnd,
       'is_send_oddo': isSendOdoo,
       'is_send_oddo_date': isSendOdooDate,
       'observation': observation,
@@ -111,6 +115,7 @@ final dynamic locationId;
       productQty: map['product_qty'],
       timeSeparateTotal: map['time_separate_total'],
       timeSeparateStart: map['time_separate_start'],
+      timeSeparateEnd: map['time_separate_end'],
       isSendOdoo: map['is_send_oddo'],
       isSendOdooDate: map['is_send_oddo_date'],
       observation: map['observation'],

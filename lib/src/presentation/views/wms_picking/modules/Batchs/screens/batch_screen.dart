@@ -150,7 +150,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               context.read<BatchBloc>().index = 0;
                               context.read<BatchBloc>().completedProducts = 0;
                               context.read<BatchBloc>().oldLocation = '';
-                             
+
                               Navigator.pop(context);
                             },
                             icon: const Icon(Icons.arrow_back,
@@ -854,6 +854,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               .batchWithProducts
                                                               .batch
                                                               ?.id ??
+                                                          0,
+                                                      currentProduct
+                                                              .idProduct ??
                                                           0));
                                                   context
                                                       .read<WMSPickingBloc>()
@@ -961,11 +964,14 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                   0,
                                                             ));
 
-                                                            batchBloc.add(
-                                                                PickingOkEvent(batchBloc
+                                                            batchBloc.add(PickingOkEvent(
+                                                                batchBloc
                                                                         .batchWithProducts
                                                                         .batch
                                                                         ?.id ??
+                                                                    0,
+                                                                currentProduct
+                                                                        .idProduct ??
                                                                     0));
                                                             context
                                                                 .read<

@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, depend_on_referenced_packages
+// ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps
 
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -54,8 +54,9 @@ class DataBaseSqlite {
         product_separate_qty INTEGER,
         product_qty INTEGER,
         index_list INTEGER,
-        time_separate_total VARCHAR(255),
+        time_separate_total DECIMAL(10,2),
         time_separate_start VARCHAR(255),
+        time_separate_end VARCHAR(255),
         is_send_oddo TEXT,
         is_send_oddo_date VARCHAR(255),
         observation TEXT
@@ -349,6 +350,7 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+
   Future<int?> updateLocationDestIsOk(
     int batchId,
     int productId,
@@ -372,6 +374,7 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+
   Future<int?> isPickingBatch(
     int batchId,
   ) async {
@@ -382,6 +385,7 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+
   Future<int?> updateIsQuantityIsFalse(
     int batchId,
     int productId,
@@ -420,6 +424,36 @@ class DataBaseSqlite {
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatchs SET time_separate_start = '$date' WHERE id = $batchId ");
     print("startStopwatchBatch: $resUpdate");
+    return resUpdate;
+  }
+
+  //obtener el tiempo de inicio de la separacion
+  Future<String> getFieldTableBtach(int batchId, String field) async {
+    final db = await database;
+    final res = await db!.rawQuery('''
+      SELECT $field FROM tblbatchs WHERE id = $batchId LIMIT 1
+    ''');
+    if (res.isNotEmpty) {
+      String responsefield = res[0]['${field}'].toString();
+      print("getFieldTableBtach {$field}   : $responsefield");
+      return responsefield;
+    }
+    return "";
+  }
+
+  Future<int?> endStopwatchBatch(int batchId, String date) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE tblbatchs SET time_separate_end = '$date' WHERE id = $batchId ");
+    print("startStopwatchBatch: $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> totalStopwatchBatch(int batchId, double date) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE tblbatchs SET time_separate_total = $date WHERE id = $batchId ");
+    print("endStopwatchBatch: $resUpdate");
     return resUpdate;
   }
 
@@ -476,7 +510,7 @@ class DataBaseSqlite {
   }
 
   Future<int?> updateNovedad(
-      int batchId,
+    int batchId,
     int productId,
     String novedad,
   ) async {

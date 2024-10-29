@@ -105,12 +105,24 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
     //*evento para finalizar la separacion
     on<PickingOkEvent>(_onPickingOkEvent);
-
   }
 
   ///* evento para finalizar la separacion
   void _onPickingOkEvent(PickingOkEvent event, Emitter<BatchState> emit) async {
     await db.isPickingBatch(event.batchId);
+    DateTime dateTimeEnd = DateTime.parse(DateTime.now().toString());
+    await db.endStopwatchBatch(event.batchId, dateTimeEnd.toString());
+    final starTime =
+        await db.getFieldTableBtach(event.batchId, 'time_separate_start');
+    DateTime dateTimeStart = DateTime.parse(starTime);
+    // Calcular la diferencia
+    Duration difference = dateTimeEnd.difference(dateTimeStart);
+    // Obtener la diferencia en segundos
+    double secondsDifference = difference.inMilliseconds / 1000.0;
+    print('Diferencia en segundos: $secondsDifference');
+
+    await db.totalStopwatchBatch(event.batchId, secondsDifference);
+
     //enviamos el pciking a odoo
     emit(PickingOkState());
   }
