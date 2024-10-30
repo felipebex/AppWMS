@@ -149,7 +149,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                           IconButton(
                             onPressed: () {
                               context.read<BatchBloc>().index = 0;
+                              context.read<BatchBloc>().quantitySelected = 0;
                               context.read<BatchBloc>().completedProducts = 0;
+                              cantidadController.clear();
                               context
                                   .read<WMSPickingBloc>()
                                   .add(LoadBatchsFromDBEvent());
@@ -686,7 +688,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                                           batchBloc.add(
                                                               ChangeQuantitySeparate(
-                                                                  1,
+                                                                  0,
                                                                   currentProduct
                                                                           .idProduct ??
                                                                       0));
@@ -702,7 +704,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                           .batch
                                                                           ?.id ??
                                                                       0,
-                                                                  1));
+                                                                  0));
 
                                                           batchBloc.add(
                                                               ChangeIsOkQuantity(
@@ -1170,7 +1172,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                   IconButton(
                                       onPressed: batchBloc.quantityIsOk &&
-                                              batchBloc.quantitySelected > 0
+                                              batchBloc.quantitySelected >= 0
                                           ? () {
                                               setState(() {
                                                 viewQuantity = !viewQuantity;
@@ -1302,7 +1304,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             .text.isEmpty
                                         ? batchBloc.quantitySelected.toString()
                                         : cantidadController.text);
-
+                                 
                                     if (cantidad == currentProduct.quantity) {
                                       batchBloc.add(ChangeQuantitySeparate(
                                           int.parse(cantidadController.text),
@@ -1419,7 +1421,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   }
 
   void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) async {
-
     batchBloc.completedProducts = batchBloc.completedProducts + 1;
     DataBaseSqlite db = DataBaseSqlite();
     await db.separateProduct(batchBloc.batchWithProducts.batch?.id ?? 0,
@@ -1443,7 +1444,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           batchBloc.batchWithProducts.batch?.id ?? 0,
           currentProduct.idProduct ?? 0);
       batchBloc.quantitySelected = 0;
-      return ;
+      return;
     } else {
       context
           .read<BatchBloc>()

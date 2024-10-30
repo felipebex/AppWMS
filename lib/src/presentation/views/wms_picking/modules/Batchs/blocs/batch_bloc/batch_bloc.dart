@@ -303,7 +303,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.productIsOk) {
       await db.updateIsProductIsOk(event.batchId, event.productId);
-      await db.updateProductQuantitySeparate(event.batchId, event.productId, 1);
+      await db.updateProductQuantitySeparate(event.batchId, event.productId, event.quantity);
     }
     productIsOk = event.productIsOk;
     emit(ChangeIsOkState(
