@@ -27,7 +27,7 @@ class _ConfirmationPageState extends State<ConfirmationPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0x00962e),
+      backgroundColor: const Color(0x0000962e),
       body: Center(
         child: Lottie.asset(
           "assets/animations/check.json",

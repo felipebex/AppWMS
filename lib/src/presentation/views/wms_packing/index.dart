@@ -11,7 +11,7 @@ import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class WmsPackingScreen extends StatefulWidget {
-  const WmsPackingScreen({Key? key}) : super(key: key);
+  const WmsPackingScreen({super.key});
 
   @override
   State<WmsPackingScreen> createState() => _WmsPackingScreenState();
@@ -48,7 +48,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                 children: [
                   //*barra de buscar
 
-                  Container(
+                  SizedBox(
                       height: 60,
                       width: size.width * 1,
                       child: Column(

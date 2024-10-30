@@ -413,7 +413,7 @@ class _ImteModule extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 // child: Image.network(urlImg, fit: BoxFit.cover),
-                child: Image.asset("assets/icons/${urlImg}", fit: BoxFit.cover)
+                child: Image.asset("assets/icons/$urlImg", fit: BoxFit.cover)
 
                 // CachedNetworkImage(
                 //     progressIndicatorBuilder: (context, url, progress) => Center(

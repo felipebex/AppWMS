@@ -4,7 +4,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab3Screen extends StatelessWidget {
-  const Tab3Screen({Key? key}) : super(key: key);
+  const Tab3Screen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +145,7 @@ class Tab3Screen extends StatelessWidget {
                       children: [
                         ListTile(
                           title: Text('Detalles de: ${[index]}'),
-                          subtitle: Text('Cantidad: 1'), // Puedes ajustar esto
+                          subtitle: const Text('Cantidad: 1'), // Puedes ajustar esto
                         ),
                       ],
                     ),

@@ -53,6 +53,7 @@ class _DetailClientSaleState extends State<DetailClientSale> {
                               onSubmit: () {
                                 Preferences.nameDatabase = element.toString();
                                 Navigator.pushNamed(context, 'auth');
+                                return null;
                               },
                               text: element,
                               textStyle: const TextStyle(

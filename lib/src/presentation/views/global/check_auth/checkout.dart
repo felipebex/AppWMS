@@ -1,4 +1,4 @@
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, avoid_print
 
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';

@@ -9,7 +9,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class PackingScreen extends StatefulWidget {
-  const PackingScreen({Key? key}) : super(key: key);
+  const PackingScreen({super.key});
 
   @override
   State<PackingScreen> createState() => _PackingScreenState();
@@ -57,7 +57,7 @@ class _PackingScreenState extends State<PackingScreen> {
       builder: (context, state) {
         int completedTasks = context.read<WmsPackingBloc>().index;
         int totalTasks =
-            context.read<WmsPackingBloc>().listProductPacking.length ?? 0;
+            context.read<WmsPackingBloc>().listProductPacking.length ;
         double progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
 
         final packinghBloc = context.read<WmsPackingBloc>();
@@ -165,16 +165,15 @@ class _PackingScreenState extends State<PackingScreen> {
                                       if (event.logicalKey ==
                                           LogicalKeyboardKey.enter) {
                                         if (scannedValue1.isNotEmpty) {
-                                          print(
-                                              "ScannedValue1: $scannedValue1");
+                                       
                                           //todo? aca es donde validamos la entrada con la ubicacion del producto
                                           if (scannedValue1.toLowerCase() ==
-                                              currentProduct?.locationDestId[1]
+                                              currentProduct.locationDestId[1]
                                                   .toLowerCase()) {
                                             packinghBloc.add(
                                                 ChangeLocationIsOkEvent(true));
                                             packinghBloc.oldLocation =
-                                                currentProduct?.locationDestId[1];
+                                                currentProduct.locationDestId[1];
                                             Future.delayed(
                                                 const Duration(seconds: 1), () {
                                               FocusScope.of(context)
@@ -244,13 +243,13 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 : (String? newValue) {
                                                     if (newValue ==
                                                         currentProduct
-                                                            ?.locationDestId[1]) {
+                                                            .locationDestId[1]) {
                                                       packinghBloc.add(
                                                           ChangeLocationIsOkEvent(
                                                               true));
                                                       packinghBloc.oldLocation =
                                                           currentProduct
-                                                              ?.locationDestId[1];
+                                                              .locationDestId[1];
                                                       Future.delayed(
                                                           const Duration(
                                                               seconds: 1), () {
@@ -259,11 +258,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                 focusNode2);
                                                       });
 
-                                                      // Aquí puedes usar un FocusNode si es necesario
-                                                      // FocusScope.of(context).requestFocus(focusNode2);
+                                                      
                                                     } else {
-                                                      print(
-                                                          "Ubicacion incorrecta");
                                                     }
                                                   },
                                           ),
@@ -274,7 +270,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                           child: Row(
                                             children: [
                                               Text(
-                                                currentProduct?.locationDestId[1] ??
+                                                currentProduct.locationDestId[1] ??
                                                     '',
                                                 style: const TextStyle(
                                                     fontSize: 16, color: black),
@@ -415,7 +411,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 : (String? newValue) {
                                                     if (newValue ==
                                                         currentProduct
-                                                            ?.productId) {
+                                                            .productId) {
                                                       quantity = quantity + 1;
                                                       packinghBloc.add(
                                                           ChangeProductIsOkEvent(
@@ -439,9 +435,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                         Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            currentProduct?.productId
-                                                    .toString() ??
-                                                '',
+                                            currentProduct.productId
+                                                    .toString() ,
                                             style: const TextStyle(
                                                 fontSize: 16, color: black),
                                           ),

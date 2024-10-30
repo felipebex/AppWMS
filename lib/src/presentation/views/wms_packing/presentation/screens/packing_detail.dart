@@ -21,13 +21,7 @@ class PackingDetailScreen extends StatefulWidget {
 }
 
 class _PackingDetailScreenState extends State<PackingDetailScreen> {
-  final List<String> _empaques = [];
-
-  void _addPackage(String package) {
-    setState(() {
-      _empaques.add(package);
-    });
-  }
+ 
 
   @override
   Widget build(BuildContext context) {

@@ -26,7 +26,7 @@ class UserModel {
   int? companyId;
   int? partnerId;
   String? webBaseUrl;
-  dynamic? showEffect;
+  dynamic showEffect;
   bool? displaySwitchCompanyMenu;
   int? maxTimeBetweenKeysInMs;
   bool? outOfOfficeMessage;

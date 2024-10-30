@@ -212,16 +212,18 @@ class DataBaseSqlite {
 
   //* Obtener todos los batchs
   Future<List<BatchsModel>> getAllBatchs() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db!.query('tblbatchs');
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db!.query('tblbatchs');
 
-    final List<BatchsModel> batchs = maps.map((map) {
-      return BatchsModel.fromMap(map);
-    }).toList();
-
-    print("getAllBatchs: $batchs");
-
-    return batchs;
+      final List<BatchsModel> batchs = maps.map((map) {
+        return BatchsModel.fromMap(map);
+      }).toList();
+      return batchs;
+    } catch (e, s) {
+      print("Error getAllBatchs: $e => $s");
+    }
+    return [];
   }
 
   //Todo: Métodos para batchs_products
@@ -298,8 +300,6 @@ class DataBaseSqlite {
         where: 'id = ?',
         whereArgs: [batchId],
       );
-
-      print("batchMaps: $batchMaps");
       if (batchMaps.isEmpty) {
         return null; // No se encontró el batch
       }
@@ -315,6 +315,7 @@ class DataBaseSqlite {
     } catch (e, s) {
       print('Error getBatchWithProducts: $e => $s');
     }
+    return null;
   }
 
   //Todo: Eliminar todos los registros

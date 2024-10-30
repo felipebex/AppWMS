@@ -4,7 +4,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2Screen extends StatelessWidget {
-  const Tab2Screen({Key? key}) : super(key: key);
+  const Tab2Screen({super.key});
 
   @override
   Widget build(BuildContext context) {

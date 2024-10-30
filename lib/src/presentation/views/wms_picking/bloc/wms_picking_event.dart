@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 part of 'wms_picking_bloc.dart';
 
 @immutable

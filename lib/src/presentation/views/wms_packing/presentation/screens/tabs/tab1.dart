@@ -216,7 +216,7 @@ class Tab1Screen extends StatelessWidget {
                         ListTile(
                           title: Text(
                               'Detalles de: ${context.read<WmsPackingBloc>().packages[index]}'),
-                          subtitle: Text('Cantidad: 1'), // Puedes ajustar esto
+                          subtitle: const Text('Cantidad: 1'), // Puedes ajustar esto
                         ),
                       ],
                     );

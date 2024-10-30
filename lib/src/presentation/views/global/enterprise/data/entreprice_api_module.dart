@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:wms_app/src/api/api.dart';
 
 class EntrepriceApiModule {
@@ -5,11 +7,10 @@ class EntrepriceApiModule {
   static Future<List> searchEnterprice(String enterprice) async {
     try {
       const String baseUrl = "integracionwms.bexsoluciones.com";
-      print("Buscando empresa: $enterprice");
       final response = await Api.searchEnterprice(enterprice, baseUrl);
       return response;
     } catch (e, s) {
-      print("Error en searchEnterprice: $e");
+      print("Error en searchEnterprice: $e $s");
     }
     return [];
   }

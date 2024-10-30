@@ -1,11 +1,10 @@
-// ignore_for_file: avoid_print, invalid_return_type_for_catch_error, constant_identifier_names, unnecessary_type_check
+// ignore_for_file: avoid_print, invalid_return_type_for_catch_error, constant_identifier_names, unnecessary_type_check, use_build_context_synchronously
 
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/api/api_end_points.dart';
 import 'package:wms_app/src/api/dio_factory.dart';
@@ -144,6 +143,7 @@ class Api {
       if (error.toString().contains("Session expired")) {
         await handleSessionExpired(context);
       }
+      print("Error en request: $error\nStackTrace: $s");
     }
   }
 
@@ -197,7 +197,7 @@ class Api {
   }
 
   // Función para cerrar sesión
-  static Future<void> _logout(BuildContext context) async {
+  static Future<void> logout(BuildContext context) async {
     PrefUtils.clearPrefs();
     Preferences.removeUrlWebsite();
     await DataBaseSqlite().deleteAll();

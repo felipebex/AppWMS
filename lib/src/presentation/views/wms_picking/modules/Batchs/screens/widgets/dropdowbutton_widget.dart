@@ -8,13 +8,13 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogAdvetenciaCantidadScreen extends StatefulWidget {
-  DialogAdvetenciaCantidadScreen({
-    Key? key,
+  const DialogAdvetenciaCantidadScreen({
+    super.key,
     required this.cantidad,
     required this.currentProduct,
     required this.onAccepted,
     required this.batchId,
-  }) : super(key: key);
+  });
 
   final int cantidad; // Variable para almacenar la cantidad
   final ProductsBatch currentProduct;
