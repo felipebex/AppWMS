@@ -483,21 +483,19 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 batch.id ?? 0));
 
                                         //todo navegamos a la vista de separacion de productos del batch
-                                        Navigator.pushNamed(
-                                          context,
-                                          'batch',
-                                        );
+                                        if (batch.isSeparate == 1) {
+                                          Navigator.pushNamed(
+                                            context,
+                                            'batch-detail',
+                                          );
+                                        } else {
+                                          Navigator.pushNamed(
+                                            context,
+                                            'batch',
+                                          );
+                                        }
 
-                                        DataBaseSqlite db = DataBaseSqlite();
-
-                                        await db.getBacth(batch.id ?? 0);
-
-                                        await db.getFieldTableBtach(batch.id ?? 0, 'time_separate_start');
-                                        await db.getFieldTableBtach(batch.id ?? 0, 'time_separate_end');
-
-
-
-
+                                      
 
                                         // }
                                       },

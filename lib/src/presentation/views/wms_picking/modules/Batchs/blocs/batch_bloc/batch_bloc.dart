@@ -424,8 +424,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       sortProductsByLocationId(batchWithProducts.products!);
       getPosicions();
       getMuelles();
-      currentProduct = batchWithProducts
-          .products![batchWithProducts.batch!.indexList ?? index];
+
+      int indexToAccess = batchWithProducts.batch!.indexList ?? index;
+      if (indexToAccess >= 0 &&
+          indexToAccess < batchWithProducts.products!.length) {
+        currentProduct = batchWithProducts.products![indexToAccess];
+      } 
+
       emit(LoadProductsBatchSuccesStateBD(
           listOfProductsBatch: batchWithProducts.products!));
     } else {

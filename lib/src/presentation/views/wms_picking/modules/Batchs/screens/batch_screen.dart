@@ -136,6 +136,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             backgroundColor: Colors.white,
             body: Column(
               children: [
+                //todo: barra info
                 Container(
                   padding: const EdgeInsets.only(top: 30),
                   width: size.width,
@@ -150,7 +151,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               context.read<BatchBloc>().index = 0;
                               context.read<BatchBloc>().completedProducts = 0;
                               context.read<BatchBloc>().oldLocation = '';
-
+                              context
+                                  .read<WMSPickingBloc>()
+                                  .add(LoadBatchsFromDBEvent());
                               Navigator.pop(context);
                             },
                             icon: const Icon(Icons.arrow_back,
@@ -293,6 +296,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                     ],
                   ),
                 ),
+
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
@@ -468,9 +472,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 .requestFocus(
                                                                     focusNode2);
                                                           });
-
-                                                          // Aquí puedes usar un FocusNode si es necesario
-                                                          // FocusScope.of(context).requestFocus(focusNode2);
                                                         } else {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
@@ -849,6 +850,16 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           field: "locationDest",
                                                           isOk: true));
 
+                                                  batchBloc.add(
+                                                      ChangeLocationDestIsOkEvent(
+                                                    true,
+                                                    currentProduct.idProduct ??
+                                                        0,
+                                                    batchBloc.batchWithProducts
+                                                            .batch?.id ??
+                                                        0,
+                                                  ));
+
                                                   batchBloc.add(PickingOkEvent(
                                                       batchBloc
                                                               .batchWithProducts
@@ -862,19 +873,21 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       .read<WMSPickingBloc>()
                                                       .add(
                                                           LoadBatchsFromDBEvent());
+                                                  context
+                                                      .read<BatchBloc>()
+                                                      .index = 0;
+                                                  context
+                                                      .read<BatchBloc>()
+                                                      .completedProducts = 0;
+                                                  context
+                                                      .read<BatchBloc>()
+                                                      .oldLocation = '';
                                                   Navigator.pop(context);
-
-                                                  //despues de escanear al muelle lo pasamos a  la vista de todos los batchs
                                                 } else {
                                                   batchBloc.add(
                                                       ValidateFieldsEvent(
                                                           field: "locationDest",
                                                           isOk: false));
-                                                  setState(() {
-                                                    scannedValue4 =
-                                                        ""; //limpiamos el valor escaneado
-                                                  });
-                                                  //mostramos alerta de error
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(SnackBar(
                                                     duration: const Duration(
@@ -978,6 +991,20 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                     WMSPickingBloc>()
                                                                 .add(
                                                                     LoadBatchsFromDBEvent());
+                                                            context
+                                                                .read<
+                                                                    BatchBloc>()
+                                                                .index = 0;
+                                                            context
+                                                                .read<
+                                                                    BatchBloc>()
+                                                                .completedProducts = 0;
+                                                            context
+                                                                .read<
+                                                                    BatchBloc>()
+                                                                .oldLocation = '';
+                                                            Navigator.pop(
+                                                                context);
                                                             Navigator.pop(
                                                                 context);
                                                           } else {
@@ -1088,9 +1115,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     LogicalKeyboardKey.enter) {
                                                   if (scannedValue3
                                                       .isNotEmpty) {
-                                                    print(
-                                                        "ScannedValue3: $scannedValue3");
-                                                    //todo? aca es donde validamos la entrada con la ubicacion del producto
                                                     if (scannedValue3
                                                             .toLowerCase() ==
                                                         batchBloc
@@ -1113,31 +1137,16 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             ""; //limpiamos el valor escaneado
                                                       });
 
-                                                      //validamos que sea el ultimo producto:
-
-                                                      //validamos que la cantidad sea igual a la cantidad del producto
+                                                      //*validamos que la cantidad sea igual a la cantidad del producto
                                                       if (batchBloc
                                                               .quantitySelected ==
                                                           currentProduct
                                                               .quantity) {
-                                                        if (batchBloc.index +
-                                                                1 ==
-                                                            batchBloc
-                                                                .batchWithProducts
-                                                                .products
-                                                                ?.length) {
-                                                          //activamos el muelle
-                                                          batchBloc.add(
-                                                              ValidateFieldsEvent(
-                                                                  field:
-                                                                      "locationDest",
-                                                                  isOk: true));
-                                                        } else {
-                                                          _nextProduct(
+//*validamos que el prducto sea el ultimo de la lista
+
+                                                        _nextProduct(
                                                             currentProduct,
-                                                            batchBloc,
-                                                          );
-                                                        }
+                                                            batchBloc);
                                                       }
                                                     } else {
                                                       setState(() {
@@ -1236,17 +1245,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             int.parse(value),
                                             currentProduct.idProduct ?? 0));
 
-                                        //*ultimo producto
-                                        if (batchBloc.index + 1 ==
-                                            batchBloc.batchWithProducts.products
-                                                ?.length) {
-                                          _nextProduct(
-                                              currentProduct, batchBloc);
-                                        } else {
-                                          //todo: pasamos al siguiente producto
-                                          _nextProduct(
-                                              currentProduct, batchBloc);
-                                        }
+                                        _nextProduct(currentProduct, batchBloc);
                                       } else {
                                         //todo cantidad menor a la cantidad pedida
                                         //preguntar si estamos en la ultima posicion
@@ -1297,10 +1296,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             .text.isEmpty
                                         ? batchBloc.quantitySelected.toString()
                                         : cantidadController.text);
+
                                     if (cantidad == currentProduct.quantity) {
                                       batchBloc.add(ChangeQuantitySeparate(
                                           int.parse(cantidadController.text),
                                           currentProduct.idProduct ?? 0));
+
                                       _nextProduct(currentProduct, batchBloc);
                                     } else {
                                       if (cantidad < currentProduct.quantity) {
