@@ -152,7 +152,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
 
+//* metodo para cargar las variables de la vista dependiendo del estado de los productos y del batch
   void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
+    isLocationOk = true;
+    isProductOk = true;
+    isLocationDestOk = true;
+    isQuantityOk = true;
+    index = 0;
+
     locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
     productIsOk = currentProduct.productIsOk == 1 ? true : false;
     locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
@@ -161,8 +168,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     quantitySelected = currentProduct.quantitySeparate ?? 0;
     completedProducts = batchWithProducts.batch?.productSeparateQty ?? 0;
 
+    print("-------------------------------------");
     print("batchWithProducts : ${batchWithProducts.batch?.toMap()}");
     print("Products : ${batchWithProducts.products?.length}");
+    print("currentProduct : ${currentProduct.toMap()}");
+    print('index: $index');
+    print("-------------------------------------");
 
     emit(LoadDataInfoState());
   }
@@ -215,20 +226,21 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         batchWithProducts.batch?.id ?? 0, event.currentProduct.idProduct ?? 0);
     //validamos si es el ultimo producto
     if (batchWithProducts.products?.length == index + 1) {
-      print('ultimo producto');
       //actualizamos el index de la lista de productos
       await db.updateIndexList(batchWithProducts.batch?.id ?? 0, index);
       //emitimos el estado de productos completados
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
+      return;
     } else {
       //validamos la ultima ubicacion
-      if (event.currentProduct.locationId != oldLocation) {
-        locationIsOk = false;
-      }
       productIsOk = false;
       quantityIsOk = false;
       index++;
+      if (event.currentProduct.locationId != oldLocation) {
+        locationIsOk = false;
+      }
+
       //actualizamos el index de la lista de productos
       await db.updateIndexList(batchWithProducts.batch?.id ?? 0, index);
       //actualizamos el producto actual
@@ -237,8 +249,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await db.selectProduct(
           batchWithProducts.batch?.id ?? 0, currentProduct.idProduct ?? 0);
       // Emitir el nuevo estado con el producto actual
+      print("currentProduct: ${event.currentProduct.toMap()}");
+      await db.updateIsLocationIsOk(batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0);
+
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
+      return;
     }
   }
 
@@ -429,7 +446,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       if (indexToAccess >= 0 &&
           indexToAccess < batchWithProducts.products!.length) {
         currentProduct = batchWithProducts.products![indexToAccess];
-      } 
+      }
 
       emit(LoadProductsBatchSuccesStateBD(
           listOfProductsBatch: batchWithProducts.products!));

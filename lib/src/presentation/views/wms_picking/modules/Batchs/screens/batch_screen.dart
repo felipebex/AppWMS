@@ -150,7 +150,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             onPressed: () {
                               context.read<BatchBloc>().index = 0;
                               context.read<BatchBloc>().completedProducts = 0;
-                              context.read<BatchBloc>().oldLocation = '';
                               context
                                   .read<WMSPickingBloc>()
                                   .add(LoadBatchsFromDBEvent());
@@ -879,9 +878,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   context
                                                       .read<BatchBloc>()
                                                       .completedProducts = 0;
-                                                  context
-                                                      .read<BatchBloc>()
-                                                      .oldLocation = '';
+
                                                   Navigator.pop(context);
                                                 } else {
                                                   batchBloc.add(
@@ -999,12 +996,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 .read<
                                                                     BatchBloc>()
                                                                 .completedProducts = 0;
-                                                            context
-                                                                .read<
-                                                                    BatchBloc>()
-                                                                .oldLocation = '';
-                                                            Navigator.pop(
-                                                                context);
+
                                                             Navigator.pop(
                                                                 context);
                                                           } else {
@@ -1209,7 +1201,21 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     .digitsOnly, // Solo permite dígitos
                               ],
                               onChanged: (value) {
-                                batchBloc.quantitySelected = int.parse(value);
+                                // Verifica si el valor no está vacío y si es un número válido
+                                if (value.isNotEmpty) {
+                                  try {
+                                    batchBloc.quantitySelected =
+                                        int.parse(value);
+                                  } catch (e) {
+                                    // Manejo de errores si la conversión falla
+                                    print('Error al convertir a entero: $e');
+                                    // Aquí puedes mostrar un mensaje al usuario o manejar el error de otra forma
+                                  }
+                                } else {
+                                  // Si el valor está vacío, puedes establecer un valor por defecto
+                                  batchBloc.quantitySelected =
+                                      0; // O cualquier valor que consideres adecuado
+                                }
                               },
                               controller: cantidadController,
                               keyboardType: TextInputType.number,
@@ -1327,6 +1333,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                                     _nextProduct(currentProduct,
                                                         batchBloc);
+                                                    cantidadController.clear();
                                                   });
                                             });
                                       } else {
@@ -1412,6 +1419,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   }
 
   void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) async {
+
     batchBloc.completedProducts = batchBloc.completedProducts + 1;
     DataBaseSqlite db = DataBaseSqlite();
     await db.separateProduct(batchBloc.batchWithProducts.batch?.id ?? 0,
@@ -1423,17 +1431,23 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     setState(() {});
 
     ///cambiamos al siguiente producto
-    context
-        .read<BatchBloc>()
-        .add(ChangeCurrentProduct(currentProduct: currentProduct));
+
     if (batchBloc.index + 1 == batchBloc.batchWithProducts.products?.length) {
-      print("Ultimo producto");
+      context
+          .read<BatchBloc>()
+          .add(ChangeCurrentProduct(currentProduct: currentProduct));
+
       batchBloc.add(ChangeIsOkQuantity(false, currentProduct.idProduct ?? 0,
           batchBloc.batchWithProducts.batch?.id ?? 0));
       await db.updateIsQuantityIsFalse(
           batchBloc.batchWithProducts.batch?.id ?? 0,
           currentProduct.idProduct ?? 0);
+      batchBloc.quantitySelected = 0;
+      return ;
     } else {
+      context
+          .read<BatchBloc>()
+          .add(ChangeCurrentProduct(currentProduct: currentProduct));
       batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
       batchBloc.quantitySelected = 0;
       cantidadController.clear();
@@ -1451,6 +1465,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         }
         Navigator.pop(context);
       });
+      return;
     }
 
     //mostramos un modal de cargando que dure 2 segudnos

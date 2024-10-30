@@ -26,7 +26,6 @@ class AppBarInfo extends StatelessWidget {
             IconButton(
               onPressed: () {
                 context.read<BatchBloc>().index = 0;
-                context.read<BatchBloc>().oldLocation = '';
 
                 Navigator.pop(context);
               },

@@ -53,6 +53,14 @@ class _HomePageState extends State<HomePage> {
         },
         builder: (context, state) {
           return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: () async {
+                DataBaseSqlite db = DataBaseSqlite();
+                await db.deleteAll();
+              },
+              backgroundColor: primaryColorApp,
+              child: const Icon(Icons.delete_sweep_sharp, color: white),
+            ),
             body: Container(
               width: size.width,
               height: size.height,

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -164,8 +166,7 @@ class _DialogAdvetenciaCantidadScreenState
                 // Validamos que tenga una novedad seleccionada
                 if (selectedNovedad != null) {
                   DataBaseSqlite db = DataBaseSqlite();
-                  context.read<BatchBloc>().add(ChangeCurrentProduct(
-                      currentProduct: widget.currentProduct));
+               
                   await db.updateNovedad(
                       widget.batchId,
                       widget.currentProduct.idProduct ?? 0,
