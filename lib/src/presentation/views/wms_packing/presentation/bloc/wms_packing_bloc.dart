@@ -6,6 +6,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_api_module.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 
@@ -66,7 +67,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     // //* Cargar los productos de un batch desde SQLite
     on<FetchBatchWithProductsEvent>(_onFetchBatchWithProductsEvent);
 
-    on<GetProductById>(_onGetProductById);
   }
 
   void getPosicions() {
@@ -80,19 +80,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   }
 
 
-   void _onGetProductById(GetProductById event, Emitter<WmsPackingState> emit) async {
-    try {
-      final response = await DataBaseSqlite().getProductById(event.productId);
-      if (response != null) {
-        product = response;
-      } else {
-        print('Error GetProductById: response is null');
-      }
-    } catch (e, s) {
-      print('Error GetProductById: $e, $s');
-      emit(BatchErrorState(e.toString()));
-    }
-  }
+  
 
   void _onFetchBatchWithProductsEvent(
       FetchBatchWithProductsEvent event, Emitter<WmsPackingState> emit) async {
@@ -110,7 +98,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         emit(EmptyroductsBatch());
         return;
       }
-      sortProductsByLocationId(batchWithProducts.products!);
+      // sortProductsByLocationId(batchWithProducts.products!);
       getPosicions();
       emit(LoadProductsBatchSuccesStateBD(
           listOfProductsBatch: batchWithProducts.products!));
@@ -120,12 +108,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     }
   }
 
-  void sortProductsByLocationId(List<ProductsBatch> products) {
-    products.sort((a, b) {
-      // Comparamos los locationId
-      return a.locationId.compareTo(b.locationId);
-    });
-  }
+  // void sortProductsByLocationId(List<ProductsBatch> products) {
+  //   products.sort((a, b) {
+  //     // Comparamos los locationId
+  //     return a.locationId.compareTo(b.locationId);
+  //   });
+  // }
 
 
   void _onAddProductPackingEvent(
@@ -140,12 +128,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadAllPackingEvent event, Emitter<WmsPackingState> emit) async {
     emit(WmsPackingLoading());
     try {
-      final response = await PackingSApiModule.restAllPacking(event.batchId, event.context);
-      if (response != null && response is List) {
-        print('response packing : ${response.length}');
-        listPacking.clear();
-        listPacking.addAll(response);
-      }
+      // final response = await PackingSApiModule.restAllPacking(event.batchId, event.context);
+      // if (response != null && response is List) {
+      //   print('response packing : ${response.length}');
+      //   listPacking.clear();
+      //   listPacking.addAll(response);
+      // }
       emit(WmsPackingLoaded(listPacking));
     } catch (e, s) {
       print('Error en el  _onLoadAllPackingEvent: $e, $s');
@@ -157,13 +145,13 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadProdcutsPackingEvent event, Emitter<WmsPackingState> emit) async {
     emit(WmsPackingLoadingProducts());
     try {
-      final response =
-          await PackingSApiModule.resProductsPacking(event.packingId, event.context);
-      if (response != null && response is List) {
-        print('response products packing : ${response.length}');
-        listProductPacking.clear();
-        listProductPacking.addAll(response);
-      }
+      // final response =
+      //     await PackingSApiModule.resProductsPacking(event.packingId, event.context);
+      // if (response != null && response is List) {
+      //   print('response products packing : ${response.length}');
+      //   listProductPacking.clear();
+      //   listProductPacking.addAll(response);
+      // }
       emit(WmsPackingLoadedProducts(listProductPacking));
     } catch (e, s) {
       print('Error en el  _onLoadProdcutsPackingEvent: $e, $s');

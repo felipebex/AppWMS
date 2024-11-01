@@ -1,9 +1,12 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_null_comparison, unnecessary_import
 
-import 'package:wms_app/src/presentation/views/global/login/data/login_api_module.dart';
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:wms_app/src/presentation/views/global/login/data/login_repository.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';
@@ -12,24 +15,27 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
 
-  LoginBloc() : super(LoginInitial()) {
+  LoginRepository loginRepository = LoginRepository();
 
+  LoginBloc() : super(LoginInitial()) {
     on<LoginButtonPressed>((event, emit) async {
       try {
         emit(LoginLoading());
-        final session = await LoginApiModule.loginUser(
-          email.text,
-          password.text,
-          event.context,
-        );
-        if (session) {
+
+        final response = await loginRepository.login(email.text, password.text);
+        print("Response: $response");
+        if (response.data == null) {
+          emit(LoginFailure('Autenticación fallida.'));
+        } else {
           email.clear();
           password.clear();
+          PrefUtils.setUserName(response.data?.result?.name?? 'No-name');
+          PrefUtils.setUserEmail(response.data?.result?.email?? 'No-email');
+          PrefUtils.setUserRol(response.data?.result?.rol?? 'No-rol');
+          PrefUtils.setIsLoggedIn(true);
           emit(LoginSuccess());
-          //limpiamos los campos
-        } else {
-          emit(LoginFailure('Autenticación fallida.'));
         }
+      
       } catch (e, s) {
         print('Error en login_bloc.dart: $e $s');
         emit(LoginFailure('Error en login_bloc.dart: $e $s'));

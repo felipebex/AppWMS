@@ -23,16 +23,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   void _onHomeLoadEvent(HomeLoadEvent event, Emitter<HomeState> emit) async {
     try {
-      emit(HomeLoadingState());
-      countBatchDone = await HomeApiModule.countBatchDone(
-        event.context,
-      );
-      countBatchInProgress = await HomeApiModule.countBatchInProgress(
-        event.context,
-      );
-      countBatchAll = await HomeApiModule.countAllBatch(
-        event.context,
-      );  
+      // emit(HomeLoadingState());
+      // countBatchDone = await HomeApiModule.countBatchDone(
+      //   event.context,
+      // );
+      // countBatchInProgress = await HomeApiModule.countBatchInProgress(
+      //   event.context,
+      // );
+      // countBatchAll = await HomeApiModule.countAllBatch(
+      //   event.context,
+      // );  
       emit(HomeLoadedState());
     } catch (e, s) {
       print('Error _onHomeLoadEvent: $e, $s');

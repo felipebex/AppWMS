@@ -1,22 +1,13 @@
 import 'dart:convert';
 
-import 'package:wms_app/src/presentation/views/global/login/models/user_model.dart';
+import 'package:wms_app/src/presentation/views/global/login/models/user_model_response.dart';
 import 'package:wms_app/src/utils/prefs/pref_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefUtils {
   PrefUtils();
 
-  static setToken(String token) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString(PrefKeys.token, token);
-  }
 
-
-  static Future<String> getToken() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    return preferences.getString(PrefKeys.token) ?? "";
-  }
 
   static setEnterprise(String enterprise) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -38,32 +29,41 @@ class PrefUtils {
     return preferences.getBool(PrefKeys.isLoggedIn) ?? false;
   }
 
-  static setUser(String userData) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    return preferences.setString(PrefKeys.user, userData);
-  }
 
-  static Future<UserModel> getUser() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    Map<String, dynamic> user =
-        jsonDecode(preferences.getString(PrefKeys.user) ?? "{}");
-    return UserModel.fromJson(user);
-  }
+//todo guardamos los datos del usuario
+//*nombre
+static Future<void> setUserName(String name) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setString(PrefKeys.user, name);
+}
+//*correo
+static Future<void> setUserEmail(String email) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setString(PrefKeys.email, email);
+}
+//*rol
+static Future<void> setUserRol(String rol) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setString(PrefKeys.rol, rol);
+}
+
+//*obtenemos los datos del usuario
+static Future<String> getUserName() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  return preferences.getString(PrefKeys.user) ?? "";
+}
+static Future<String> getUserEmail() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  return preferences.getString(PrefKeys.email) ?? "";
+}
+static Future<String> getUserRol() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  return preferences.getString(PrefKeys.rol) ?? "";
+}
 
   static clearPrefs() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.clear();
   }
 
-  static Future<void> setExpirationDate(DateTime expirationDate) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    await preferences.setString(
-        PrefKeys.expirationDate, expirationDate.toIso8601String());
-  }
-
-  static Future<DateTime?> getExpirationDate() async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String? dateString = preferences.getString(PrefKeys.expirationDate);
-    return dateString != null ? DateTime.parse(dateString) : null;
-  }
 }

@@ -506,7 +506,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                   .batch
                                                   ?.id ??
                                               0,
-                                          productsBatch?.idProduct ?? 0);
+                                          productsBatch?.productId?[0] ?? 0);
                                     },
                                     child: Card(
                                         elevation: 4,
@@ -532,7 +532,7 @@ class BatchDetailScreen extends StatelessWidget {
                                             children: [
                                               Center(
                                                 child: Text(
-                                                  productsBatch?.productId ??
+                                                  productsBatch?.productId?[0] ??
                                                       '',
                                                   style: const TextStyle(
                                                       fontSize: 14,

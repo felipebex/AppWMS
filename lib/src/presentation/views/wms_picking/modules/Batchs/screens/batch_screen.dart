@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dropdowbutton_widget.dart';
@@ -130,7 +130,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is PickingOkState ||
             state is ValidateFieldsState) {
           final currentProduct = batchBloc.currentProduct;
-          batchBloc.add(GetProductById(currentProduct.idProduct ?? 0));
 
           return Scaffold(
             backgroundColor: Colors.white,
@@ -342,7 +341,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue1.isNotEmpty) {
                                               if (scannedValue1.toLowerCase() ==
-                                                  currentProduct.locationId
+                                                  currentProduct.locationId.toString()
                                                       .toLowerCase()) {
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
@@ -362,7 +361,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             0));
 
                                                 batchBloc.oldLocation =
-                                                    currentProduct.locationId;
+                                                    currentProduct.locationId.toString();
 
                                                 Future.delayed(
                                                     const Duration(seconds: 1),
@@ -442,7 +441,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     : (String? newValue) {
                                                         if (newValue ==
                                                             currentProduct
-                                                                .locationId) {
+                                                                .locationId.toString()) {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
                                                                   field:
@@ -463,7 +462,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           batchBloc
                                                                   .oldLocation =
                                                               currentProduct
-                                                                  .locationId;
+                                                                  .locationId.toString() ;
                                                           Future.delayed(
                                                               const Duration(
                                                                   seconds: 1),
@@ -501,8 +500,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               child: Row(
                                                 children: [
                                                   Text(
-                                                    currentProduct.locationId ??
-                                                        '',
+                                                    currentProduct.locationId,
                                                     style: const TextStyle(
                                                         fontSize: 16,
                                                         color: black),
@@ -679,7 +677,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     ? (String? newValue) {
                                                         if (newValue ==
                                                             currentProduct
-                                                                .productId) {
+                                                                .productId.toString()) {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
                                                                   field:
@@ -844,7 +842,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 if (scannedValue4
                                                         .toLowerCase() ==
                                                     batchBloc.batchWithProducts
-                                                        .batch?.locationId
+                                                        .batch?.muelle
                                                         ?.toLowerCase()) {
                                                   batchBloc.add(
                                                       ValidateFieldsEvent(
@@ -955,7 +953,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               batchBloc
                                                                   .batchWithProducts
                                                                   .batch
-                                                                  ?.locationId) {
+                                                                  ?.muelle) {
                                                             batchBloc.add(
                                                                 ValidateFieldsEvent(
                                                                     field:
@@ -1032,7 +1030,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 alignment: Alignment.centerLeft,
                                                 child: Text(
                                                   batchBloc.batchWithProducts
-                                                          .batch?.locationId
+                                                          .batch?.muelle
                                                           .toString() ??
                                                       '',
                                                   style: const TextStyle(
@@ -1230,8 +1228,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 setState(() {
                                   //validamos que el texto no este vacio
                                   if (value.isNotEmpty) {
-                                    if (int.parse(value) >
-                                        currentProduct.quantity) {
+                                   if (int.parse(value) > (currentProduct.quantity ?? 0).toInt()) {
+
                                       //todo: cantidad fuera del rango
                                       batchBloc.add(ValidateFieldsEvent(
                                           field: "quantity", isOk: false));
@@ -1312,7 +1310,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                       _nextProduct(currentProduct, batchBloc);
                                     } else {
-                                      if (cantidad < currentProduct.quantity) {
+                                      if (cantidad <  (currentProduct.quantity ?? 0).toInt()) {
                                         showDialog(
                                             context: context,
                                             builder: (context) {

@@ -1,7 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:flutter/services.dart';
-import 'package:wms_app/src/api/dio_factory.dart';
+import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/api/http_response_handler.dart';
 import 'package:wms_app/src/presentation/blocs/network/network_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
@@ -31,7 +32,6 @@ void main() async {
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]).then((_) {
-    DioFactory.computeDeviceInfo();
     runApp(const AppState());
   });
   // Inicializar la base de datos SQLite
@@ -75,64 +75,74 @@ class MyApp extends StatelessWidget {
             context,
           ),
         ),
-       
+
         BlocProvider(
           create: (_) => WmsPackingBloc(),
         ),
       ],
       child: GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        // initialRoute: 'batch-products2',
-        initialRoute: 'checkout',
-        supportedLocales: const [Locale('es', 'ES')],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        routes: {
-          // 'cronometro' : (_) => const CronometroPage(),
-          // 'batch-picking': (_) => const BatchPickingScreen(),
+          debugShowCheckedModeBanner: false,
+          // initialRoute: 'batch-products2',
+          initialRoute: 'checkout',
+          supportedLocales: const [Locale('es', 'ES')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          routes: {
+            // 'cronometro' : (_) => const CronometroPage(),
+            // 'batch-picking': (_) => const BatchPickingScreen(),
 
-          //* Global
-          'enterprice': (_) => const SelectEnterpricePage(),
-          'auth': (_) => const LoginPage(),
-          'checkout': (_) => const CheckAuthPage(),
+            //* Global
+            'enterprice': (_) => const SelectEnterpricePage(),
+            'auth': (_) => const LoginPage(),
+            'checkout': (_) => const CheckAuthPage(),
 
-          //* wms Picking
-          'wms-picking': (_) => const WMSPickingPage(),
-          'batch': (_) => const BatchScreen(),
-          'batch-detail': (_) => const BatchDetailScreen(),
+            //* wms Picking
+            'wms-picking': (_) => const WMSPickingPage(),
+            'batch': (_) => const BatchScreen(),
+            'batch-detail': (_) => const BatchDetailScreen(),
 
-          //*wms Packing
-          'wms-packing': (_) => const WmsPackingScreen(),
+            //*wms Packing
+            'wms-packing': (_) => const WmsPackingScreen(),
 
-          'packing-list': (context) => PakingListScreen(
-              batchModel:
-                  ModalRoute.of(context)!.settings.arguments as BatchsModel?),
+            'packing-list': (context) => PakingListScreen(
+                batchModel:
+                    ModalRoute.of(context)!.settings.arguments as BatchsModel?),
 
-          'Packing': (_) => const PackingScreen(),
+            'Packing': (_) => const PackingScreen(),
 
-          'packing-detail': (context) => PackingDetailScreen(
-              packingModel:
-                  ModalRoute.of(context)!.settings.arguments as Packing?),
+            'packing-detail': (context) => PackingDetailScreen(
+                packingModel:
+                    ModalRoute.of(context)!.settings.arguments as Packing?),
 
-          //*others
-          'confirmation': (_) => const ConfirmationPage(),
-          'yms': (_) => const YMSPage(),
-          'counter': (_) => const CounterPage(),
-          'home': (_) => const HomePage(),
-          'ventor': (_) => const VentorHome(),
-        },
-        theme: ThemeData.light().copyWith(
-          scaffoldBackgroundColor: Colors.grey[300],
-          appBarTheme: const AppBarTheme(elevation: 0, color: primaryColorApp),
-          colorScheme: Theme.of(context).colorScheme.copyWith(
-                primary: primaryColorApp,
-                secondary: primaryColorApp,
-              ),
-        ),
-      ),
+            //*others
+            'confirmation': (_) => const ConfirmationPage(),
+            'yms': (_) => const YMSPage(),
+            'counter': (_) => const CounterPage(),
+            'home': (_) => const HomePage(),
+            'ventor': (_) => const VentorHome(),
+          },
+          theme: ThemeData.light().copyWith(
+            scaffoldBackgroundColor: Colors.grey[300],
+            appBarTheme:
+                const AppBarTheme(elevation: 0, color: primaryColorApp),
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: primaryColorApp,
+                  secondary: primaryColorApp,
+                ),
+          ),
+          builder: (context, navigator) {
+            final apiRequestService = ApiRequestService();
+            apiRequestService.initialize(
+              unencodePath: '/api',
+              httpHandler: HttpResponseHandler(context),
+              // tokenService: TokenService(),
+              // appLngService: AppLanguageService(),
+            );
+            return navigator!;
+          }),
     );
   }
 }

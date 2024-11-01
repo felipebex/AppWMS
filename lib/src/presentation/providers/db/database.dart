@@ -45,7 +45,7 @@ class DataBaseSqlite {
         name VARCHAR(255),
         scheduled_date VARCHAR(255),
         picking_type_id VARCHAR(255),
-        location_id VARCHAR(255),
+        muelle VARCHAR(255),
         state VARCHAR(255),
         user_id VARCHAR(255),
         is_wave TEXT,
@@ -164,12 +164,12 @@ class DataBaseSqlite {
             {
               "id": batch.id,
               "name": batch.name,
-              "scheduled_date": batch.scheduledDate,
+              "scheduled_date": batch.scheduleddate.toString(),
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
               "is_wave": batch.isWave,
-              'location_id': batch.locationId,
+              'muelle': batch.muelle,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -181,12 +181,12 @@ class DataBaseSqlite {
             {
               "id": batch.id,
               "name": batch.name,
-              "scheduled_date": batch.scheduledDate,
+              "scheduled_date": batch.scheduleddate.toString(),
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
               "is_wave": batch.isWave,
-              'location_id': batch.locationId,
+              'muelle': batch.muelle,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -235,53 +235,57 @@ class DataBaseSqlite {
       // Inicia la transacción
       await db!.transaction((txn) async {
         for (var productBatch in productsBatchList) {
-          // Verificar si el producto ya existe con el batchId
-          final List<Map<String, dynamic>> existingProduct = await txn.query(
-            'tblbatch_products',
-            where: 'product_id = ? AND batch_id = ?',
-            whereArgs: [productBatch.productId, productBatch.batchId],
-          );
 
-          if (existingProduct.isNotEmpty) {
-            // se comenta para que no actualice todo el modelo
-            await txn.update(
+            // Verificar si el producto ya existe con el batchId
+            final List<Map<String, dynamic>> existingProduct = await txn.query(
               'tblbatch_products',
-              {
-                "id_product": productBatch.idProduct,
-                "batch_id": productBatch.batchId,
-                "product_id": productBatch.productId,
-                "picking_id": productBatch.pickingId,
-                "lot_id": productBatch.lotId,
-                "location_id": productBatch.locationId,
-                "location_dest_id": productBatch.locationDestId,
-                "quantity": productBatch.quantity,
-              },
-              where: 'product_id = ? AND batch_id = ?',
-              whereArgs: [productBatch.productId, productBatch.batchId],
+              where: 'id_product = ? AND batch_id = ?',
+              whereArgs: [productBatch.idProduct, productBatch.batchId],
             );
-          } else {
-            // Insertar nuevo producto
-            await txn.insert(
-              'tblbatch_products',
-              {
-                "id_product": productBatch.idProduct,
-                "batch_id": productBatch.batchId,
-                "product_id": productBatch.productId,
-                "picking_id": productBatch.pickingId,
-                "lot_id": productBatch.lotId,
-                "location_id": productBatch.locationId,
-                "location_dest_id": productBatch.locationDestId,
-                "quantity": productBatch.quantity,
-              },
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          }
+
+            if (existingProduct.isNotEmpty) {
+              // se comenta para que no actualice todo el modelo
+              await txn.update(
+                'tblbatch_products',
+                {
+                  "id_product": productBatch.idProduct,
+                  "batch_id": productBatch.batchId,
+                  "picking_id": productBatch.pickingId?[1],
+                  "location_id": productBatch.locationId?[1],
+                  "lot_id": productBatch.lotId?[1],
+                  "location_dest_id": productBatch.locationDestId?[1],
+                  "quantity": productBatch.quantity,
+                },
+                where: 'id_product = ? AND batch_id = ?',
+                whereArgs: [productBatch.idProduct, productBatch.batchId],
+              );
+            } else {
+              // Insertar nuevo producto
+              await txn.insert(
+                'tblbatch_products',
+                {
+                  "id_product": productBatch.idProduct,
+                  "batch_id": productBatch.batchId,
+                  "product_id": productBatch.productId?[1],
+                  "picking_id": productBatch.pickingId?[1],
+                  "location_id": productBatch.locationId?[1],
+                  "lot_id": productBatch.lotId?[1],
+                  "location_dest_id": productBatch.locationDestId?[1],
+                  "quantity": productBatch.quantity,
+
+                  
+                },
+                conflictAlgorithm: ConflictAlgorithm.replace,
+              );
+            }
         }
       });
     } catch (e, s) {
       print('Error insertBatchProducts: $e => $s');
     }
   }
+
+
 
   //* Obtener todos los productos de tblbatch_products
   Future<List<ProductsBatch>> getProducts() async {
@@ -294,6 +298,7 @@ class DataBaseSqlite {
   //* Obtener un batch con sus productos
   Future<BatchWithProducts?> getBatchWithProducts(int batchId) async {
     try {
+      print("batchId: $batchId");
       final db = await database;
       final List<Map<String, dynamic>> batchMaps = await db!.query(
         'tblbatchs',
@@ -303,6 +308,9 @@ class DataBaseSqlite {
       if (batchMaps.isEmpty) {
         return null; // No se encontró el batch
       }
+
+
+
       final BatchsModel batch = BatchsModel.fromMap(batchMaps.first);
       final List<Map<String, dynamic>> productMaps = await db.query(
         'tblbatch_products',
@@ -311,6 +319,7 @@ class DataBaseSqlite {
       );
       final List<ProductsBatch> products =
           productMaps.map((map) => ProductsBatch.fromMap(map)).toList();
+
       return BatchWithProducts(batch: batch, products: products);
     } catch (e, s) {
       print('Error getBatchWithProducts: $e => $s');

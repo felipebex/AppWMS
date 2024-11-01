@@ -1,10 +1,9 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
 import 'package:wms_app/src/presentation/providers/db/database.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_api_module.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 
@@ -74,8 +73,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   int completedProducts = 0;
 
   BatchBloc() : super(BatchInitial()) {
-    //* Cargar todos los productos de un batch desde Odoo
-    on<LoadAllProductsBatchsEvent>(_onLoadAllProductsBatchsEvent);
 
     // //* Buscar un producto en un lote en SQLite
     on<SearchProductsBatchEvent>(_onSearchBacthEvent);
@@ -83,8 +80,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<ClearSearchProudctsBatchEvent>(_onClearSearchEvent);
     // //* Cargar los productos de un batch desde SQLite
     on<FetchBatchWithProductsEvent>(_onFetchBatchWithProductsEvent);
-    //*metodo para traer el producto de product.product
-    on<GetProductById>(_onGetProductById);
 
     //*cambiar el estado de las variables
     on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
@@ -204,9 +199,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void getPosicions() {
     positions.clear();
+    print('batchWithProducts.products!.length: ${batchWithProducts.products!.length}');
     for (var i = 0; i < batchWithProducts.products!.length; i++) {
       if (batchWithProducts.products![i].locationId != false) {
-        positions.add(batchWithProducts.products![i].locationId);
+        positions.add(batchWithProducts.products?[i].locationId[0] ?? '');
         print('positions: ${positions[i]}');
       }
     }
@@ -214,8 +210,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void getMuelles() {
     muelles.clear();
-    if (batchWithProducts.batch?.locationId != false) {
-      muelles.add(batchWithProducts.batch?.locationId ?? '');
+    if (batchWithProducts.batch?.muelle?.isNotEmpty == true) {
+      muelles.add(batchWithProducts.batch?.muelle ?? '');
     }
   }
 
@@ -250,8 +246,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           batchWithProducts.batch?.id ?? 0, currentProduct.idProduct ?? 0);
       // Emitir el nuevo estado con el producto actual
       print("currentProduct: ${event.currentProduct.toMap()}");
-      await db.updateIsLocationIsOk(batchWithProducts.batch?.id ?? 0,
-          currentProduct.idProduct ?? 0);
+      await db.updateIsLocationIsOk(
+          batchWithProducts.batch?.id ?? 0, currentProduct.idProduct ?? 0);
 
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
@@ -282,6 +278,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await db.selectBatch(event.batchId);
       await db.selectProduct(event.batchId, event.productId);
       locationIsOk = event.locationIsOk;
+
+
+
+     print(currentProduct = batchWithProducts.products![index]);
       emit(ChangeIsOkState(
         locationIsOk,
       ));
@@ -303,7 +303,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.productIsOk) {
       await db.updateIsProductIsOk(event.batchId, event.productId);
-      await db.updateProductQuantitySeparate(event.batchId, event.productId, event.quantity);
+      await db.updateProductQuantitySeparate(
+          event.batchId, event.productId, event.quantity);
     }
     productIsOk = event.productIsOk;
     emit(ChangeIsOkState(
@@ -311,84 +312,78 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     ));
   }
 
-  void _onGetProductById(GetProductById event, Emitter<BatchState> emit) async {
-    try {
-      final response = await DataBaseSqlite().getProductById(event.productId);
-      if (response != null) {
-        product = response;
-      } else {
-        print('Error GetProductById: response is null');
-      }
-    } catch (e, s) {
-      print('Error GetProductById: $e, $s');
-      emit(BatchErrorState(e.toString()));
-    }
-  }
 
   void _onLoadAllProductsBatchsEvent(
       LoadAllProductsBatchsEvent event, Emitter<BatchState> emit) async {
     try {
       emit(ProductsBatchLoadingState());
-      final response = await PickingApiModule.resProductsBatchApi(
-          event.batchId, event.context);
-      if (response != null && response is List) {
-        listOfProductsBatch.clear();
-        listOfProductsBatch.addAll(response);
 
-        // Ordenar la lista de productos por location_id
-        listOfProductsBatch.sort((a, b) {
-          String locationIdA = a.locationId[1];
-          String locationIdB = b.locationId[1];
-          return locationIdA.compareTo(locationIdB);
-        });
+//       final response = await PickingApiModule.resProductsBatchApi(
+//           event.batchId, event.context);
 
-        for (var i = 0; i < listOfProductsBatch.length; i++) {
-          for (var j = i + 1; j < listOfProductsBatch.length; j++) {
-            //compramos cada producto con los demas
-            if (listOfProductsBatch[i].locationId[1] ==
-                    listOfProductsBatch[j].locationId[1] &&
-                listOfProductsBatch[i].productId?[1] ==
-                    listOfProductsBatch[j].productId?[1]) {
-              //si son iguales sumamos las cantidades
-              listOfProductsBatch[i].quantity +=
-                  listOfProductsBatch[j].quantity;
-              listOfProductsBatch.removeAt(j);
-              j--;
-            }
-          }
-        }
+          final response = await db.getBatchWithProducts(event.batchId);
 
-        print('listOfProductsBatch: ${listOfProductsBatch.length}');
+          print('response: $response');
+        
 
-        List<ProductsBatch> productsToInsert = [];
+//       if (response != null && response is List) {
+//         listOfProductsBatch.clear();
+//         listOfProductsBatch.addAll(response);
 
-        for (var product in listOfProductsBatch) {
-          print("product 🍉: ${product.toMap()}");
+//         // Ordenar la lista de productos por location_id
+//         listOfProductsBatch.sort((a, b) {
+//           String locationIdA = a.locationId[1];
+//           String locationIdB = b.locationId[1];
+//           return locationIdA.compareTo(locationIdB);
+//         });
 
-          productsToInsert.add(ProductsBatch(
-            idProduct: product.idProduct,
-            batchId: event.batchId,
-            productId: product.productId?[1],
-            pickingId: product.pickingId[1],
-            lotId: product.lotId,
-            locationId:
-                product.locationId.isNotEmpty ? product.locationId[1] : null,
-            locationDestId: product.locationDestId.isNotEmpty
-                ? product.locationDestId[1]
-                : null,
-            quantity: product.quantity.toInt(),
-          ));
-        }
+//         for (var i = 0; i < listOfProductsBatch.length; i++) {
+//           for (var j = i + 1; j < listOfProductsBatch.length; j++) {
+//             //compramos cada producto con los demas
+//             if (listOfProductsBatch[i].locationId[1] ==
+//                     listOfProductsBatch[j].locationId[1] &&
+//                 listOfProductsBatch[i].productId?[1] ==
+//                     listOfProductsBatch[j].productId?[1]) {
+//               //si son iguales sumamos las cantidades
+//               listOfProductsBatch[i].quantity +=
+//                   listOfProductsBatch[j].quantity;
+//               listOfProductsBatch.removeAt(j);
+//               j--;
+//             }
+//           }
+//         }
 
-// Llamar al método de inserción masiva
-        await DataBaseSqlite().insertBatchProducts(productsToInsert);
+//         print('listOfProductsBatch: ${listOfProductsBatch.length}');
 
-        add(FetchBatchWithProductsEvent(event.batchId));
-        emit(LoadProductsBatchSuccesState(
-            listOfProductsBatch: listOfProductsBatch));
-      } else {
-        emit(BatchErrorState('Error resProductsBatchApi: response is null'));
-      }
+//         List<ProductsBatch> productsToInsert = [];
+
+//         for (var product in listOfProductsBatch) {
+//           print("product 🍉: ${product.toMap()}");
+
+//           productsToInsert.add(ProductsBatch(
+//             idProduct: product.idProduct,
+//             batchId: event.batchId,
+//             productId: product.productId?[1],
+//             pickingId: product.pickingId[1],
+//             lotId: product.lotId,
+//             locationId:
+//                 product.locationId.isNotEmpty ? product.locationId[1] : null,
+//             locationDestId: product.locationDestId.isNotEmpty
+//                 ? product.locationDestId[1]
+//                 : null,
+//             quantity: product.quantity.toInt(),
+//           ));
+//         }
+
+// // Llamar al método de inserción masiva
+//         await DataBaseSqlite().insertBatchProducts(productsToInsert);
+
+//         add(FetchBatchWithProductsEvent(event.batchId));
+//         emit(LoadProductsBatchSuccesState(
+//             listOfProductsBatch: listOfProductsBatch));
+      // } else {
+      //   emit(BatchErrorState('Error resProductsBatchApi: response is null'));
+      // }
     } catch (e, s) {
       print('Error LoadAllProductsBatchsEvent: $e, $s');
       emit(BatchErrorState(e.toString()));
@@ -414,7 +409,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           listOfProductsBatchDB; // Si la búsqueda está vacía, mostrar todos los productos
     } else {
       filteredProducts = listOfProductsBatchDB.where((batch) {
-        return batch.productId?.toLowerCase().contains(query) ?? false;
+        return batch.productId?[1]?.toLowerCase().contains(query) ?? false;
       }).toList();
     }
     emit(LoadProductsBatchSuccesState(
@@ -435,6 +430,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         emit(EmptyroductsBatch());
         return;
       }
+
 
       add(LoadDataInfoEvent());
 
@@ -459,9 +455,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void sortProductsByLocationId(List<ProductsBatch> products) {
     products.sort((a, b) {
       // Comparamos los locationId
-      return a.locationId.compareTo(b.locationId);
+      return a.locationId?[1].compareTo(b.locationId?[1]??"");
     });
   }
+  
 
   String calculateProgress() {
     final totalItems = batchWithProducts.products?.length ?? 0;

@@ -3,9 +3,7 @@
 import 'dart:ui';
 
 import 'package:wms_app/src/presentation/providers/db/database.dart';
-import 'package:wms_app/src/presentation/views/global/login/models/user_model.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
-
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -22,6 +20,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String userName = '';
+  String userEmail = '';
+  String userRol = '';
 
   @override
   void initState() {
@@ -30,11 +30,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadUserData() async {
-    UserModel user = await PrefUtils.getUser();
-    setState(() {
-      userName =
-          user.name ?? 'Usuario'; // Fallback en caso de que no haya nombre
-    });
+    userName = await PrefUtils.getUserName();
+    userEmail = await PrefUtils.getUserEmail();
+    userRol = await PrefUtils.getUserRol();
+    setState(() {});
   }
 
   @override
@@ -123,6 +122,25 @@ class _HomePageState extends State<HomePage> {
                                         )
                                       ],
                                     ),
+                                    Row(
+                                      children: [
+                                         Icon(Icons.email,
+                                            color:  Colors.amber[200], size: 18),
+                                        const SizedBox(width: 5),
+                                        SizedBox(
+                                          width: size.width * 0.6,
+                                          child: Text(
+                                            userEmail,
+                                            style: const TextStyle(
+                                                color: white,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ],
                                 ),
                                 //ICONO DE CERRAR SESION
@@ -197,6 +215,7 @@ class _HomePageState extends State<HomePage> {
                                                         .removeUrlWebsite();
                                                     DataBaseSqlite()
                                                         .deleteAll();
+
                                                     PrefUtils.setIsLoggedIn(
                                                         false);
                                                     Navigator

@@ -1,4 +1,3 @@
-import 'package:wms_app/src/presentation/views/global/login/components/already_have_an_account_acheck.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
 
@@ -51,11 +50,7 @@ class LoginForm extends StatelessWidget {
             ),
           ),
           const SizedBox(height: defaultPadding),
-          AlreadyHaveAnAccountCheck(
-            press: () {
-              
-            },
-          ),
+          
         ],
       ),
     );

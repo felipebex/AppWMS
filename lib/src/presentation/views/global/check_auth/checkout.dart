@@ -9,21 +9,14 @@ class CheckAuthPage extends StatelessWidget {
 
   // Método para validar la sesión
   Future<bool> validateSession() async {
-    String? token = await PrefUtils.getToken();
-    if (token.isEmpty) {
+    bool? token = await PrefUtils.getIsLoggedIn();
+    if (!token) {
       print('No hay token, sesión no válida');
       return false; // No hay token, sesión no válida
+    } else {
+      print('La sesión es válida');
+      return true; // La sesión es válida
     }
-
-    DateTime? expires = await PrefUtils.getExpirationDate();
-    if (expires == null || DateTime.now().isAfter(expires)) {
-      print('La cookie ha expirado');
-      return false; // La cookie ha expirado
-    }
-
-    print('La sesión es válida');
-
-    return true; // La sesión es válida
   }
 
   @override

@@ -368,110 +368,110 @@ class _PackingScreenState extends State<PackingScreen> {
                                     return KeyEventResult.ignored;
                                   },
                                   child: Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Center(
-                                          child: DropdownButton<String>(
-                                            underline: Container(
-                                              height: 0,
-                                            ),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            focusColor: Colors.white,
-                                            isExpanded: true,
-                                            hint: const Text(
-                                              'Producto',
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: primaryColorApp),
-                                            ),
-                                            icon: Image.asset(
-                                              "assets/icons/producto.png",
-                                              color: primaryColorApp,
-                                              width: 24,
-                                            ),
-                                            value: selectedLocation,
-                                            // items: batchBloc.positions
-                                            items: packinghBloc
-                                                .batchWithProducts.products
-                                                ?.map((ProductsBatch product) {
-                                              return DropdownMenuItem<String>(
-                                                value: product.productId
-                                                    .toString(),
-                                                child: Text(product.productId
-                                                    .toString()),
-                                              );
-                                            }).toList(),
+                                  //   child: Column(
+                                  //     mainAxisAlignment:
+                                  //         MainAxisAlignment.center,
+                                  //     children: [
+                                  //       Center(
+                                  //         child: DropdownButton<String>(
+                                  //           underline: Container(
+                                  //             height: 0,
+                                  //           ),
+                                  //           borderRadius:
+                                  //               BorderRadius.circular(10),
+                                  //           focusColor: Colors.white,
+                                  //           isExpanded: true,
+                                  //           hint: const Text(
+                                  //             'Producto',
+                                  //             style: TextStyle(
+                                  //                 fontSize: 16,
+                                  //                 color: primaryColorApp),
+                                  //           ),
+                                  //           icon: Image.asset(
+                                  //             "assets/icons/producto.png",
+                                  //             color: primaryColorApp,
+                                  //             width: 24,
+                                  //           ),
+                                  //           value: selectedLocation,
+                                  //           // items: batchBloc.positions
+                                  //           items: packinghBloc
+                                  //               .batchWithProducts.products
+                                  //               ?.map((ProductsBatch product) {
+                                  //             return DropdownMenuItem<String>(
+                                  //               value: product.productId
+                                  //                   .toString(),
+                                  //               child: Text(product.productId
+                                  //                   .toString()),
+                                  //             );
+                                  //           }).toList(),
 
-                                            onChanged: !packinghBloc
-                                                    .locationIsOk
-                                                ? null
-                                                : (String? newValue) {
-                                                    if (newValue ==
-                                                        currentProduct
-                                                            .productId) {
-                                                      quantity = quantity + 1;
-                                                      packinghBloc.add(
-                                                          ChangeProductIsOkEvent(
-                                                              true));
-                                                      packinghBloc.add(
-                                                          ChangeIsOkQuantity(
-                                                              true));
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              milliseconds:
-                                                                  100), () {
-                                                        FocusScope.of(context)
-                                                            .requestFocus(
-                                                                focusNode3);
-                                                      });
-                                                    } else {}
-                                                  },
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            currentProduct.productId
-                                                    .toString() ,
-                                            style: const TextStyle(
-                                                fontSize: 16, color: black),
-                                          ),
-                                        ),
+                                  //           onChanged: !packinghBloc
+                                  //                   .locationIsOk
+                                  //               ? null
+                                  //               : (String? newValue) {
+                                  //                   if (newValue ==
+                                  //                       currentProduct
+                                  //                           .productId) {
+                                  //                     quantity = quantity + 1;
+                                  //                     packinghBloc.add(
+                                  //                         ChangeProductIsOkEvent(
+                                  //                             true));
+                                  //                     packinghBloc.add(
+                                  //                         ChangeIsOkQuantity(
+                                  //                             true));
+                                  //                     Future.delayed(
+                                  //                         const Duration(
+                                  //                             milliseconds:
+                                  //                                 100), () {
+                                  //                       FocusScope.of(context)
+                                  //                           .requestFocus(
+                                  //                               focusNode3);
+                                  //                     });
+                                  //                   } else {}
+                                  //                 },
+                                  //         ),
+                                  //       ),
+                                  //       const SizedBox(height: 10),
+                                  //       Align(
+                                  //         alignment: Alignment.centerLeft,
+                                  //         child: Text(
+                                  //           currentProduct.productId
+                                  //                   .toString() ,
+                                  //           style: const TextStyle(
+                                  //               fontSize: 16, color: black),
+                                  //         ),
+                                  //       ),
 
-                                        const SizedBox(height: 10),
-                                        // informacion del lote:
-                                        // if (batchBloc.product.tracking ==
-                                        //         'lot' ||
-                                        //     batchBloc.product.tracking ==
-                                        //         'serial')
-                                        //   const Column(
-                                        //     children: [
-                                        //       Align(
-                                        //         alignment: Alignment.centerLeft,
-                                        //         child: Text(
-                                        //           'Lote/Numero de serie ',
-                                        //           style: TextStyle(
-                                        //               fontSize: 16,
-                                        //               color: primaryColorApp),
-                                        //         ),
-                                        //       ),
-                                        //       Align(
-                                        //         alignment: Alignment.centerLeft,
-                                        //         child: Text(
-                                        //           "",
-                                        //           style: TextStyle(
-                                        //               fontSize: 16,
-                                        //               color: black),
-                                        //         ),
-                                        //       ),
-                                        //     ],
-                                        //   ),
-                                      ],
-                                    ),
+                                  //       const SizedBox(height: 10),
+                                  //       // informacion del lote:
+                                  //       // if (batchBloc.product.tracking ==
+                                  //       //         'lot' ||
+                                  //       //     batchBloc.product.tracking ==
+                                  //       //         'serial')
+                                  //       //   const Column(
+                                  //       //     children: [
+                                  //       //       Align(
+                                  //       //         alignment: Alignment.centerLeft,
+                                  //       //         child: Text(
+                                  //       //           'Lote/Numero de serie ',
+                                  //       //           style: TextStyle(
+                                  //       //               fontSize: 16,
+                                  //       //               color: primaryColorApp),
+                                  //       //         ),
+                                  //       //       ),
+                                  //       //       Align(
+                                  //       //         alignment: Alignment.centerLeft,
+                                  //       //         child: Text(
+                                  //       //           "",
+                                  //       //           style: TextStyle(
+                                  //       //               fontSize: 16,
+                                  //       //               color: black),
+                                  //       //         ),
+                                  //       //       ),
+                                  //       //     ],
+                                  //       //   ),
+                                  //     ],
+                                  //   ),
                                   ),
                                 ),
                               ),

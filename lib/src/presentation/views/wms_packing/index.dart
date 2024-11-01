@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -127,10 +128,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                               final List<BatchsModel> inProgressBatches =
                                   context
                                       .read<WMSPickingBloc>()
-                                      .filteredBatchs
-                                      .where((element) =>
-                                          element.state == 'in_progress')
-                                      .toList(); // Convertir a lista
+                                      .filteredBatchs; // Convertir a lista
 
                               // Asegurarse de que hay batches en progreso
                               if (inProgressBatches.isEmpty) {
@@ -156,7 +154,8 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             batch.id ?? 0));
 
                                     context.read<WmsPackingBloc>().add(
-                                        LoadAllPackingEvent(batch.id ?? 0, context));
+                                        LoadAllPackingEvent(
+                                            batch.id ?? 0, context));
                                     Navigator.pushNamed(context, 'packing-list',
                                         arguments: batch);
                                   },
@@ -215,52 +214,52 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Builder(
-                                              builder: (context) {
-                                                // Verifica si `scheduledDate` es false o null
-                                                String displayDate;
-                                                if (batch.scheduledDate ==
-                                                        false ||
-                                                    batch.scheduledDate ==
-                                                        null) {
-                                                  displayDate = 'sin fecha';
-                                                } else {
-                                                  try {
-                                                    DateTime dateTime =
-                                                        DateTime.parse(batch
-                                                            .scheduledDate!);
-                                                    // Formatear la fecha usando Intl
-                                                    displayDate = DateFormat(
-                                                            'dd MMMM yyyy',
-                                                            'es_ES')
-                                                        .format(dateTime);
-                                                  } catch (e) {
-                                                    displayDate =
-                                                        'sin fecha'; // Si ocurre un error al parsear
-                                                  }
-                                                }
+                                          // Align(
+                                          //   alignment: Alignment.centerLeft,
+                                          //   child: Builder(
+                                          //     builder: (context) {
+                                          //       // Verifica si `scheduledDate` es false o null
+                                          //       String displayDate;
+                                          //       if (batch.scheduledDate ==
+                                          //               false ||
+                                          //           batch.scheduledDate ==
+                                          //               null) {
+                                          //         displayDate = 'sin fecha';
+                                          //       } else {
+                                          //         try {
+                                          //           DateTime dateTime =
+                                          //               DateTime.parse(batch
+                                          //                   .scheduledDate!);
+                                          //           // Formatear la fecha usando Intl
+                                          //           displayDate = DateFormat(
+                                          //                   'dd MMMM yyyy',
+                                          //                   'es_ES')
+                                          //               .format(dateTime);
+                                          //         } catch (e) {
+                                          //           displayDate =
+                                          //               'sin fecha'; // Si ocurre un error al parsear
+                                          //         }
+                                          //       }
 
-                                                return Row(
-                                                  children: [
-                                                    const Icon(
-                                                      Icons
-                                                          .calendar_month_sharp,
-                                                      color: primaryColorApp,
-                                                      size: 15,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                      displayDate,
-                                                      style: const TextStyle(
-                                                          fontSize: 14),
-                                                    ),
-                                                  ],
-                                                );
-                                              },
-                                            ),
-                                          ),
+                                          //       return Row(
+                                          //         children: [
+                                          //           const Icon(
+                                          //             Icons
+                                          //                 .calendar_month_sharp,
+                                          //             color: primaryColorApp,
+                                          //             size: 15,
+                                          //           ),
+                                          //           const SizedBox(width: 5),
+                                          //           Text(
+                                          //             displayDate,
+                                          //             style: const TextStyle(
+                                          //                 fontSize: 14),
+                                          //           ),
+                                          //         ],
+                                          //       );
+                                          //     },
+                                          //   ),
+                                          // ),
                                           Builder(builder: (context) {
                                             dynamic nameUser = batch.userId;
 

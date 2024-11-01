@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
@@ -90,39 +89,39 @@ class PakingListScreen extends StatelessWidget {
                               style: TextStyle(fontSize: 16, color: black),
                             )),
                         const SizedBox(width: 10),
-                        Builder(
-                          builder: (context) {
-                            // Verifica si `scheduledDate` es false o null
-                            String displayDate;
-                            if (batchModel?.scheduledDate == false ||
-                                batchModel?.scheduledDate == null) {
-                              displayDate = 'sin fecha';
-                            } else {
-                              try {
-                                DateTime dateTime = DateTime.parse(
-                                    batchModel?.scheduledDate ??
-                                        ''); // Parsear la fecha
-                                // Formatear la fecha usando Intl
-                                displayDate =
-                                    DateFormat('dd MMMM yyyy', 'es_ES')
-                                        .format(dateTime);
-                              } catch (e) {
-                                displayDate =
-                                    'sin fecha'; // Si ocurre un error al parsear
-                              }
-                            }
+                        // Builder(
+                        //   builder: (context) {
+                        //     // Verifica si `scheduledDate` es false o null
+                        //     String displayDate;
+                        //     if (batchModel?.scheduledDate == false ||
+                        //         batchModel?.scheduledDate == null) {
+                        //       displayDate = 'sin fecha';
+                        //     } else {
+                        //       try {
+                        //         DateTime dateTime = DateTime.parse(
+                        //             batchModel?.scheduledDate ??
+                        //                 ''); // Parsear la fecha
+                        //         // Formatear la fecha usando Intl
+                        //         displayDate =
+                        //             DateFormat('dd MMMM yyyy', 'es_ES')
+                        //                 .format(dateTime);
+                        //       } catch (e) {
+                        //         displayDate =
+                        //             'sin fecha'; // Si ocurre un error al parsear
+                        //       }
+                        //     }
 
-                            return SizedBox(
-                              width: size.width * 0.35,
-                              child: Text(
-                                displayDate,
-                                style: const TextStyle(
-                                    fontSize: 16, color: primaryColorApp),
-                                textAlign: TextAlign.center,
-                              ),
-                            );
-                          },
-                        ),
+                        //     return SizedBox(
+                        //       width: size.width * 0.35,
+                        //       child: Text(
+                        //         displayDate,
+                        //         style: const TextStyle(
+                        //             fontSize: 16, color: primaryColorApp),
+                        //         textAlign: TextAlign.center,
+                        //       ),
+                        //     );
+                        //   },
+                        // ),
                       ],
                     ),
                   ],
