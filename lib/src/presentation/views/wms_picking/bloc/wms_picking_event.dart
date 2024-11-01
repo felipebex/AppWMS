@@ -36,8 +36,9 @@ class LoadProductsFromDBEvent extends PickingEvent {
 
 class SearchBatchEvent extends PickingEvent {
   final String query;
+  final int indexMenu;
 
-  SearchBatchEvent(this.query);
+  SearchBatchEvent(this.query, this.indexMenu);
 }
 
 //*evento para cargar los batchs de la base de datos

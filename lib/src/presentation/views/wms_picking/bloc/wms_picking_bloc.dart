@@ -7,7 +7,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/product_templa
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
 
 part 'wms_picking_event.dart';
 part 'wms_picking_state.dart';
@@ -16,6 +15,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   //*batchs
   List<BatchsModel> listOfBatchs = [];
   List<BatchsModel> filteredBatchs = []; // Lista para los productos filtrados
+  List<BatchsModel> batchsDone = []; // Lista para los productos filtrados
 
   WmsPickingRepository wmsPickingRepository = WmsPickingRepository();
 
@@ -32,8 +32,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     on<LoadBatchsFromDBEvent>(_onLoadBatchsFromDBEvent);
     //*buscar un batch
     on<SearchBatchEvent>(_onSearchBacthEvent);
-    //*limpiar la busqueda
-    on<ClearSearchBacthEvent>(_onClearSearchEvent);
     //*filtrar por estado los batchs desde SQLite
     on<FilterBatchesBStatusEvent>(_onFilterBatchesBStatusEvent);
 
@@ -47,6 +45,9 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   void _onFilterBatchesByTypeEvent(
       FilterBatchesByTypeEvent event, Emitter<PickingState> emit) {
     String status = '';
+
+    add(LoadBatchsFromDBEvent());
+
     if (event.indexMenu == 0) {
       filteredBatchs = listOfBatchs.where((batch) {
         return batch.isWave.toString() == event.isWave;
@@ -55,9 +56,15 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       switch (event.indexMenu) {
         case 1:
           status = 'in_progress';
+          filteredBatchs = listOfBatchs.where((batch) {
+            return batch.isSeparate == status;
+          }).toList();
           break;
         case 2:
           status = 'done';
+          filteredBatchs = listOfBatchs.where((batch) {
+            return batch.isSeparate == 1;
+          }).toList();
           break;
       }
 
@@ -141,13 +148,17 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       FilterBatchesBStatusEvent event, Emitter<PickingState> emit) {
     if (event.status == '') {
       filteredBatchs = listOfBatchs;
+      filteredBatchs = filteredBatchs
+          .where((element) => element.isSeparate == null)
+          .toList();
+
+      emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
+      return;
+    } else if (event.status == 'done') {
+      filteredBatchs = batchsDone;
       emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
       return;
     }
-    filteredBatchs =
-        listOfBatchs.where((batch) => batch.state == event.status).toList();
-    print('filteredBatchs by state: ${filteredBatchs.length}');
-    emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
   }
 
   void _onLoadAllBatchsEvent(
@@ -182,19 +193,16 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           }
         }
 
+        // Convertir el mapa en una lista de productos únicos con cantidades sumadas
+        List<ProductsBatch> productsToInsert =
+            listOfBatchs.expand((batch) => batch.listItems!).toList();
 
-              // Convertir el mapa en una lista de productos únicos con cantidades sumadas
-              List<ProductsBatch> productsToInsert =
-                  listOfBatchs.expand((batch) => batch.listItems!).toList();
+        print('productsToInsert: ${productsToInsert.length}');
 
-              print('productsToInsert: ${productsToInsert.length}');
+        sortProductsByLocationId(productsToInsert);
 
-              sortProductsByLocationId(productsToInsert);
-
-              // Enviar la lista agrupada a insertBatchProducts
-              await DataBaseSqlite().insertBatchProducts(productsToInsert);
-            
-
+        // Enviar la lista agrupada a insertBatchProducts
+        await DataBaseSqlite().insertBatchProducts(productsToInsert);
 
         //* Carga los batches desde la base de datos
         add(LoadBatchsFromDBEvent());
@@ -208,19 +216,24 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     }
   }
 
-  void _onClearSearchEvent(
-      ClearSearchBacthEvent event, Emitter<PickingState> emit) {
-    searchController.clear();
-    filteredBatchs = listOfBatchs; // Mostrar todos los productos
-    emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
-  }
-
   void _onLoadBatchsFromDBEvent(
       LoadBatchsFromDBEvent event, Emitter<PickingState> emit) async {
     try {
+      batchsDone.clear();
       emit(BatchsPickingLoadingState());
       final batchsFromDB = await _databas.getAllBatchs();
+
       filteredBatchs = batchsFromDB;
+
+      batchsDone =
+          batchsFromDB.where((batch) => batch.isSeparate == 1).toList();
+      //filtramos los batch que tenga is_seprate en 1
+      filteredBatchs = filteredBatchs
+          .where((element) => element.isSeparate == null)
+          .toList();
+
+      print('batchsDone: ${batchsDone.length}');
+
       emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
     } catch (e) {
       print('Error loading batchs from DB: $e');
@@ -230,16 +243,29 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
   void _onSearchBacthEvent(SearchBatchEvent event, Emitter<PickingState> emit) {
     final query = event.query.toLowerCase();
-    if (query.isEmpty) {
-      filteredBatchs =
-          listOfBatchs; // Si la búsqueda está vacía, mostrar todos los productos
+    if (event.indexMenu == 0) {
+      if (query.isEmpty) {
+        filteredBatchs =
+            listOfBatchs; // Si la búsqueda está vacía, mostrar todos los productos
+        filteredBatchs = filteredBatchs
+            .where((element) => element.isSeparate == null)
+            .toList();
+      } else {
+        filteredBatchs = listOfBatchs.where((batch) {
+          return batch.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      // Emitir la lista filtrada
     } else {
-      filteredBatchs = listOfBatchs.where((batch) {
-        return batch.name?.toLowerCase().contains(query) ?? false;
-      }).toList();
+      if (query.isEmpty) {
+        filteredBatchs = batchsDone;
+      } else {
+        filteredBatchs = batchsDone.where((batch) {
+          return batch.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
     }
-    emit(LoadBatchsSuccesState(
-        listOfBatchs: filteredBatchs)); // Emitir la lista filtrada
+    emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
   }
 
   void sortProductsByLocationId(List<ProductsBatch> products) {

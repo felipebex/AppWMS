@@ -202,8 +202,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     print('batchWithProducts.products!.length: ${batchWithProducts.products!.length}');
     for (var i = 0; i < batchWithProducts.products!.length; i++) {
       if (batchWithProducts.products![i].locationId != false) {
-        positions.add(batchWithProducts.products?[i].locationId[0] ?? '');
-        print('positions: ${positions[i]}');
+        positions.add(batchWithProducts.products?[i].locationId ?? '');
       }
     }
   }

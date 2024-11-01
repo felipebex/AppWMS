@@ -82,9 +82,9 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                   .read<WMSPickingBloc>()
                                                   .searchController
                                                   .clear();
-                                              context
-                                                  .read<WMSPickingBloc>()
-                                                  .add(SearchBatchEvent(''));
+                                              // context
+                                              //     .read<WMSPickingBloc>()
+                                              //     .add(SearchBatchEvent(''));
                                               FocusScope.of(context).unfocus();
                                             },
                                             icon: const Icon(Icons.close,
@@ -97,9 +97,9 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                         border: InputBorder.none,
                                       ),
                                       onChanged: (value) {
-                                        context
-                                            .read<WMSPickingBloc>()
-                                            .add(SearchBatchEvent(value));
+                                        // context
+                                        //     .read<WMSPickingBloc>()
+                                        //     .add(SearchBatchEvent(value));
                                       },
                                     ),
                                   ),

@@ -532,7 +532,7 @@ class BatchDetailScreen extends StatelessWidget {
                                             children: [
                                               Center(
                                                 child: Text(
-                                                  productsBatch?.productId?[0] ??
+                                                  productsBatch?.productId ??
                                                       '',
                                                   style: const TextStyle(
                                                       fontSize: 14,

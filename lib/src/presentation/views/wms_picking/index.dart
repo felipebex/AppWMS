@@ -1,4 +1,4 @@
-// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use
+// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use, prefer_is_empty
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -27,6 +27,7 @@ class _PickingPageState extends State<WMSPickingPage> {
 
   @override
   Widget build(BuildContext context) {
+   
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -50,6 +51,22 @@ class _PickingPageState extends State<WMSPickingPage> {
         ],
         child: BlocBuilder<WMSPickingBloc, PickingState>(
           builder: (context, state) {
+
+           
+
+        double progress = context
+                                    .read<WMSPickingBloc>()
+                                    .listOfBatchs
+                                    .length > 0
+            ?  context.read<WMSPickingBloc>().batchsDone.length
+            
+             / context
+                                    .read<WMSPickingBloc>()
+                                    .listOfBatchs
+                                    .length
+            : 0.0;
+
+
             final size = MediaQuery.sizeOf(context);
             return Scaffold(
                 bottomNavigationBar: AnimatedNotchBottomBar(
@@ -97,8 +114,12 @@ class _PickingPageState extends State<WMSPickingPage> {
                     });
                     switch (index) {
                       case 0:
+                        context.read<WMSPickingBloc>().add(
+                            FilterBatchesBStatusEvent('',));
                         break;
                       case 1:
+                        context.read<WMSPickingBloc>().add(
+                            FilterBatchesBStatusEvent('done',));
                         break;
 
                       default:
@@ -150,10 +171,16 @@ class _PickingPageState extends State<WMSPickingPage> {
                                   const Spacer(),
                                 ],
                               ),
-                              const ProgressIndicatorWidget(
-                                progress: 30.5,
-                                completed: 2,
-                                total: 10,
+                               ProgressIndicatorWidget(
+                                progress: progress,
+                                completed: context
+                                    .read<WMSPickingBloc>()
+                                    .batchsDone
+                                    .length,
+                                total: context
+                                    .read<WMSPickingBloc>()
+                                    .listOfBatchs
+                                    .length,
                               ),
                             ],
                           ),
@@ -197,7 +224,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   context
                                                       .read<WMSPickingBloc>()
                                                       .add(
-                                                          SearchBatchEvent(''));
+                                                          SearchBatchEvent('', controller.index));
                                                   FocusScope.of(context)
                                                       .unfocus();
                                                 },
@@ -214,7 +241,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           onChanged: (value) {
                                             context
                                                 .read<WMSPickingBloc>()
-                                                .add(SearchBatchEvent(value));
+                                                .add(SearchBatchEvent(value, controller.index));
                                           },
                                         ),
                                       ),
