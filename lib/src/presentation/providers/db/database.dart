@@ -193,18 +193,7 @@ class DataBaseSqlite {
         }
       });
 
-      // await db?.insert(
-      //     'tblbatchs',
-      //     {
-      //       "id": batch.id,
-      //       "name": batch.name,
-      //       "scheduled_date": batch.scheduledDate,
-      //       "picking_type_id": batch.pickingTypeId,
-      //       "state": batch.state,
-      //       "user_id": batch.userId,
-      //       "is_wave": batch.isWave,
-      //     },
-      //     conflictAlgorithm: ConflictAlgorithm.replace);
+      
     } catch (e) {
       print("Error al insertar batch: $e");
     }

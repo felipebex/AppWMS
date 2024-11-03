@@ -189,7 +189,7 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                       //*barra de buscar
 
-                      Container(
+                      SizedBox(
                         // color: Colors.amber,
                           height: 70,//120
                           width: size.width * 1,
@@ -201,7 +201,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Container(
+                                    SizedBox(
                                       width: size.width * 0.75,
                                       child: Card(
                                         color: Colors.white,

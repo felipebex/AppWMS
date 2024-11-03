@@ -12,11 +12,15 @@ class LoginRepository {
       var response = await ApiRequestService().post(endpoint: 'login', body: {
         "url_rpc": "http://34.30.1.186:8069",
         "db_rpc": "paisapan",
-        "email_rpc": "felipe.bedoya@bexsoluciones.com",
-        "clave_rpc": "Desarrollo"
+        "email_rpc": email,
+        "clave_rpc": password,
       });
 
-      return UserModelResponse.fromMap(jsonDecode(response.body));
+      if (response.statusCode < 400) {
+        return UserModelResponse.fromMap(jsonDecode(response.body));
+      } else {
+        return UserModelResponse();
+      }
     } catch (e, s) {
       print('Error en login_repository.dart: $e $s');
     }

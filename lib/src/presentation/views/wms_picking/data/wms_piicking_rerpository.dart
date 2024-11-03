@@ -1,13 +1,12 @@
 // ignore_for_file: avoid_print
 
-import 'package:flutter/material.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 import 'dart:convert'; // Asegúrate de importar esto
 
 class WmsPickingRepository {
-  Future<List<BatchsModel>> resBatchs(BuildContext context) async {
+  Future<List<BatchsModel>> resBatchs() async {
     try {
       var response = await ApiRequestService().post(endpoint: 'batchs', body: {
         "url_rpc": "http://34.30.1.186:8069",

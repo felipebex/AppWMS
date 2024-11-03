@@ -73,7 +73,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   int completedProducts = 0;
 
   BatchBloc() : super(BatchInitial()) {
-
     // //* Buscar un producto en un lote en SQLite
     on<SearchProductsBatchEvent>(_onSearchBacthEvent);
     // //* Limpiar la búsqueda
@@ -100,6 +99,19 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
     //*evento para finalizar la separacion
     on<PickingOkEvent>(_onPickingOkEvent);
+    //*evento para dejar pendiente la separacion
+    on<ProductPendingEvent>(_onPickingPendingEvent);
+  }
+
+  //*evento para dejar pendiente la separacion
+  void _onPickingPendingEvent(
+      ProductPendingEvent event, Emitter<BatchState> emit) async {
+    try {
+      //dejamos pendiente el producto, lo cual es enviar este producto al final de la lista de batchWithProducts.products
+      
+    } catch (e, s) {
+      print('Error _onPickingPendingEvent: $e, $s');
+    }
   }
 
   ///* evento para finalizar la separacion
@@ -199,7 +211,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void getPosicions() {
     positions.clear();
-    print('batchWithProducts.products!.length: ${batchWithProducts.products!.length}');
+    print(
+        'batchWithProducts.products!.length: ${batchWithProducts.products!.length}');
     for (var i = 0; i < batchWithProducts.products!.length; i++) {
       if (batchWithProducts.products![i].locationId != false) {
         positions.add(batchWithProducts.products?[i].locationId ?? '');
@@ -278,9 +291,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await db.selectProduct(event.batchId, event.productId);
       locationIsOk = event.locationIsOk;
 
-
-
-     print(currentProduct = batchWithProducts.products![index]);
+      print(currentProduct = batchWithProducts.products![index]);
       emit(ChangeIsOkState(
         locationIsOk,
       ));
@@ -311,7 +322,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     ));
   }
 
-
   void _onLoadAllProductsBatchsEvent(
       LoadAllProductsBatchsEvent event, Emitter<BatchState> emit) async {
     try {
@@ -320,10 +330,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 //       final response = await PickingApiModule.resProductsBatchApi(
 //           event.batchId, event.context);
 
-          final response = await db.getBatchWithProducts(event.batchId);
+      final response = await db.getBatchWithProducts(event.batchId);
 
-          print('response: $response');
-        
+      print('response: $response');
 
 //       if (response != null && response is List) {
 //         listOfProductsBatch.clear();
@@ -430,7 +439,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         return;
       }
 
-
       add(LoadDataInfoEvent());
 
       sortProductsByLocationId(batchWithProducts.products!);
@@ -454,10 +462,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void sortProductsByLocationId(List<ProductsBatch> products) {
     products.sort((a, b) {
       // Comparamos los locationId
-      return a.locationId?[1].compareTo(b.locationId?[1]??"");
+      return a.locationId?[1].compareTo(b.locationId?[1] ?? "");
     });
   }
-  
 
   String calculateProgress() {
     final totalItems = batchWithProducts.products?.length ?? 0;

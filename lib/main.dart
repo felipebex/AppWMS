@@ -49,9 +49,9 @@ class AppState extends StatelessWidget {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
     return MultiBlocProvider(
       providers: [
         //BLOC PROVIDERS
@@ -81,68 +81,63 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: GetMaterialApp(
-          debugShowCheckedModeBanner: false,
-          // initialRoute: 'batch-products2',
-          initialRoute: 'checkout',
-          supportedLocales: const [Locale('es', 'ES')],
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          routes: {
-            // 'cronometro' : (_) => const CronometroPage(),
-            // 'batch-picking': (_) => const BatchPickingScreen(),
+        debugShowCheckedModeBanner: false,
+        initialRoute: 'checkout',
+        supportedLocales: const [Locale('es', 'ES')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        routes: {
 
-            //* Global
-            'enterprice': (_) => const SelectEnterpricePage(),
-            'auth': (_) => const LoginPage(),
-            'checkout': (_) => const CheckAuthPage(),
+          //* Global
+          'enterprice': (_) => const SelectEnterpricePage(),
+          'auth': (_) => const LoginPage(),
+          'checkout': (_) => const CheckAuthPage(),
 
-            //* wms Picking
-            'wms-picking': (_) => const WMSPickingPage(),
-            'batch': (_) => const BatchScreen(),
-            'batch-detail': (_) => const BatchDetailScreen(),
+          //* wms Picking
+          'wms-picking': (_) => const WMSPickingPage(),
+          'batch': (_) => const BatchScreen(),
+          'batch-detail': (_) => const BatchDetailScreen(),
 
-            //*wms Packing
-            'wms-packing': (_) => const WmsPackingScreen(),
+          //*wms Packing
+          'wms-packing': (_) => const WmsPackingScreen(),
 
-            'packing-list': (context) => PakingListScreen(
-                batchModel:
-                    ModalRoute.of(context)!.settings.arguments as BatchsModel?),
+          'packing-list': (context) => PakingListScreen(
+              batchModel:
+                  ModalRoute.of(context)!.settings.arguments as BatchsModel?),
 
-            'Packing': (_) => const PackingScreen(),
+          'Packing': (_) => const PackingScreen(),
 
-            'packing-detail': (context) => PackingDetailScreen(
-                packingModel:
-                    ModalRoute.of(context)!.settings.arguments as Packing?),
+          'packing-detail': (context) => PackingDetailScreen(
+              packingModel:
+                  ModalRoute.of(context)!.settings.arguments as Packing?),
 
-            //*others
-            'confirmation': (_) => const ConfirmationPage(),
-            'yms': (_) => const YMSPage(),
-            'counter': (_) => const CounterPage(),
-            'home': (_) => const HomePage(),
-            'ventor': (_) => const VentorHome(),
-          },
-          theme: ThemeData.light().copyWith(
-            scaffoldBackgroundColor: Colors.grey[300],
-            appBarTheme:
-                const AppBarTheme(elevation: 0, color: primaryColorApp),
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: primaryColorApp,
-                  secondary: primaryColorApp,
-                ),
-          ),
-          builder: (context, navigator) {
-            final apiRequestService = ApiRequestService();
-            apiRequestService.initialize(
-              unencodePath: '/api',
-              httpHandler: HttpResponseHandler(context),
-              // tokenService: TokenService(),
-              // appLngService: AppLanguageService(),
-            );
-            return navigator!;
-          }),
+          //*others
+          'confirmation': (_) => const ConfirmationPage(),
+          'yms': (_) => const YMSPage(),
+          'counter': (_) => const CounterPage(),
+          'home': (_) => const HomePage(),
+          'ventor': (_) => const VentorHome(),
+        },
+        theme: ThemeData.light().copyWith(
+          scaffoldBackgroundColor: Colors.grey[300],
+          appBarTheme: const AppBarTheme(elevation: 0, color: primaryColorApp),
+          colorScheme: Theme.of(context).colorScheme.copyWith(
+                primary: primaryColorApp,
+                secondary: primaryColorApp,
+              ),
+        ),
+        builder: (context, navigator) {
+          final apiRequestService = ApiRequestService();
+          apiRequestService.initialize(
+            unencodePath: '/api',
+            httpHandler: HttpResponseHandler(context),
+          );
+          return navigator!;
+        }
+      ),
     );
   }
 }

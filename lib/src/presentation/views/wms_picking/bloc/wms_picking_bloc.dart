@@ -145,13 +145,13 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   }
 
   void _onFilterBatchesBStatusEvent(
-      FilterBatchesBStatusEvent event, Emitter<PickingState> emit) {
+      FilterBatchesBStatusEvent event, Emitter<PickingState> emit) async {
     if (event.status == '') {
-      filteredBatchs = listOfBatchs;
+      final batchsFromDB = await _databas.getAllBatchs();
+      filteredBatchs = batchsFromDB;
       filteredBatchs = filteredBatchs
           .where((element) => element.isSeparate == null)
           .toList();
-
       emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
       return;
     } else if (event.status == 'done') {
@@ -166,7 +166,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     try {
       emit(BatchsPickingLoadingState());
 
-      final response = await wmsPickingRepository.resBatchs(event.context);
+      final response = await wmsPickingRepository.resBatchs();
 
       if (response != null && response is List) {
         print('response batchs: ${response.length}');
@@ -241,17 +241,18 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     }
   }
 
-  void _onSearchBacthEvent(SearchBatchEvent event, Emitter<PickingState> emit) {
+  void _onSearchBacthEvent(
+      SearchBatchEvent event, Emitter<PickingState> emit) async {
     final query = event.query.toLowerCase();
+    final batchsFromDB = await _databas.getAllBatchs();
     if (event.indexMenu == 0) {
       if (query.isEmpty) {
-        filteredBatchs =
-            listOfBatchs; // Si la búsqueda está vacía, mostrar todos los productos
+        filteredBatchs = batchsFromDB;
         filteredBatchs = filteredBatchs
             .where((element) => element.isSeparate == null)
             .toList();
       } else {
-        filteredBatchs = listOfBatchs.where((batch) {
+        filteredBatchs = batchsFromDB.where((batch) {
           return batch.name?.toLowerCase().contains(query) ?? false;
         }).toList();
       }

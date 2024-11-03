@@ -114,3 +114,11 @@ class PickingOkEvent extends BatchEvent {
 
   PickingOkEvent(this.batchId, this.productId);
 }
+
+
+class ProductPendingEvent extends BatchEvent {
+  final int batchId;
+  final ProductsBatch product;
+
+  ProductPendingEvent(this.batchId, this.product);
+}
