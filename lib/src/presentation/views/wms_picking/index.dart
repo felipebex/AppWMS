@@ -2,6 +2,9 @@
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
@@ -27,7 +30,6 @@ class _PickingPageState extends State<WMSPickingPage> {
 
   @override
   Widget build(BuildContext context) {
-   
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -51,21 +53,11 @@ class _PickingPageState extends State<WMSPickingPage> {
         ],
         child: BlocBuilder<WMSPickingBloc, PickingState>(
           builder: (context, state) {
-
-           
-
-        double progress = context
-                                    .read<WMSPickingBloc>()
-                                    .listOfBatchs
-                                    .length > 0
-            ?  context.read<WMSPickingBloc>().batchsDone.length
-            
-             / context
-                                    .read<WMSPickingBloc>()
-                                    .listOfBatchs
-                                    .length
-            : 0.0;
-
+            double progress =
+                context.read<WMSPickingBloc>().listOfBatchs.length > 0
+                    ? context.read<WMSPickingBloc>().batchsDone.length /
+                        context.read<WMSPickingBloc>().listOfBatchs.length
+                    : 0.0;
 
             final size = MediaQuery.sizeOf(context);
             return Scaffold(
@@ -96,7 +88,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                       ),
                       itemLabel: 'En Proceso',
                     ),
-                     BottomBarItem(
+                    BottomBarItem(
                       inActiveItem: Icon(
                         Icons.batch_prediction,
                         color: green,
@@ -114,12 +106,18 @@ class _PickingPageState extends State<WMSPickingPage> {
                     });
                     switch (index) {
                       case 0:
-                        context.read<WMSPickingBloc>().add(
-                            FilterBatchesBStatusEvent('',));
+                        context
+                            .read<WMSPickingBloc>()
+                            .add(FilterBatchesBStatusEvent(
+                              '',
+                            ));
                         break;
                       case 1:
-                        context.read<WMSPickingBloc>().add(
-                            FilterBatchesBStatusEvent('done',));
+                        context
+                            .read<WMSPickingBloc>()
+                            .add(FilterBatchesBStatusEvent(
+                              'done',
+                            ));
                         break;
 
                       default:
@@ -133,8 +131,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 10, top: 30, bottom: 10),
                         decoration: const BoxDecoration(
                           color: primaryColorApp,
                           borderRadius: BorderRadius.only(
@@ -142,56 +138,73 @@ class _PickingPageState extends State<WMSPickingPage> {
                             bottomRight: Radius.circular(20),
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back,
-                                        color: white),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
+                        child: BlocProvider(
+                          create: (context) => ConnectionStatusCubit(),
+                          child: BlocBuilder<ConnectionStatusCubit,
+                              ConnectionStatus>(builder: (context, status) {
+                            return Column(
+                              children: [
+                                const WarningWidgetCubit(),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 10,
+                                      right: 10,
+                                      top: status != ConnectionStatus.online
+                                          ? 0
+                                          : 35,
+                                      bottom: 10),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.arrow_back,
+                                                color: white),
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                left: size.width * 0.3),
+                                            child: const Text(
+                                              'BATCHS',
+                                              style: TextStyle(
+                                                  color: white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                        ],
+                                      ),
+                                      ProgressIndicatorWidget(
+                                        progress: progress,
+                                        completed: context
+                                            .read<WMSPickingBloc>()
+                                            .batchsDone
+                                            .length,
+                                        total: context
+                                            .read<WMSPickingBloc>()
+                                            .listOfBatchs
+                                            .length,
+                                      ),
+                                    ],
                                   ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(left: size.width * 0.3),
-                                    child: const Text(
-                                      'BATCHS',
-                                      style: TextStyle(
-                                          color: white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                ],
-                              ),
-                               ProgressIndicatorWidget(
-                                progress: progress,
-                                completed: context
-                                    .read<WMSPickingBloc>()
-                                    .batchsDone
-                                    .length,
-                                total: context
-                                    .read<WMSPickingBloc>()
-                                    .listOfBatchs
-                                    .length,
-                              ),
-                            ],
-                          ),
+                                ),
+                              ],
+                            );
+                          }),
                         ),
                       ),
 
                       //*barra de buscar
 
                       SizedBox(
-                        // color: Colors.amber,
-                          height: 70,//120
+                          // color: Colors.amber,
+                          height: 70, //120
                           width: size.width * 1,
                           child: Column(
                             children: [
@@ -223,8 +236,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       .clear();
                                                   context
                                                       .read<WMSPickingBloc>()
-                                                      .add(
-                                                          SearchBatchEvent('', controller.index));
+                                                      .add(SearchBatchEvent('',
+                                                          controller.index));
                                                   FocusScope.of(context)
                                                       .unfocus();
                                                 },
@@ -239,9 +252,9 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             border: InputBorder.none,
                                           ),
                                           onChanged: (value) {
-                                            context
-                                                .read<WMSPickingBloc>()
-                                                .add(SearchBatchEvent(value, controller.index));
+                                            context.read<WMSPickingBloc>().add(
+                                                SearchBatchEvent(
+                                                    value, controller.index));
                                           },
                                         ),
                                       ),

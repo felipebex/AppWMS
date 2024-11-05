@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/constans/gaps.dart';
@@ -37,6 +38,7 @@ class LoginPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                const WarningWidgetCubit(),
                 const SizedBox(
                   height: 80,
                 ),
@@ -72,7 +74,8 @@ class LoginPage extends StatelessWidget {
                             topRight: Radius.circular(60))),
                     child: SingleChildScrollView(
                       child: Padding(
-                          padding: const EdgeInsets.all(30),
+                          padding: const EdgeInsets.only(
+                              left: 30, right: 30, ),
                           child: BlocBuilder<LoginBloc, LoginState>(
                             builder: (context, state) {
                               return _LoginForm();
@@ -110,13 +113,12 @@ class _LoginForm extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(200),
                 child: Image.asset(
-                  'assets/images/icon.png',
-                  width: 200,
-                  height: 100,
+                  'assets/images/logo.jpeg',
+                  width: 250,
+                  height: 140,
                   fit: BoxFit.cover,
                 ),
               ),
-              const SizedBox(height: 20),
               Container(
                 decoration: BoxDecoration(
                     color: Colors.white,

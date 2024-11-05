@@ -3,7 +3,7 @@
 import 'package:flutter/services.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
-import 'package:wms_app/src/presentation/blocs/network/network_bloc.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
@@ -26,6 +26,9 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'src/presentation/views/wms_packing/presentation/screens/packing_detail.dart';
+
+
+final internetChecker = CheckInternetConnection();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,10 +57,9 @@ class MyApp extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
-        //BLOC PROVIDERS
-        BlocProvider(
-          create: (_) => NetworkBloc()..add(NetworkObserve()),
-        ),
+        //bloc de network
+
+       
         BlocProvider(
           create: (_) => LoginBloc(),
         ),

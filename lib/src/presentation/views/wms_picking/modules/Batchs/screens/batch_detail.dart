@@ -3,6 +3,9 @@
 import 'dart:ui';
 
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:flutter/material.dart';
@@ -20,13 +23,67 @@ class BatchDetailScreen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
             backgroundColor: Colors.white,
-            appBar: AppBarGlobal(
-                tittle: 'Picking Detail', actions: const SizedBox()),
+            // appBar: AppBarGlobal(
+            //     tittle: 'Picking Detail', actions: const SizedBox()),
             body: SizedBox(
               width: size.width,
               height: size.height * 0.85,
               child: Column(
+                ///apbar
+
                 children: [
+                  //*appbar
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: primaryColorApp,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    width: double.infinity,
+                    child: BlocProvider(
+                      create: (context) => ConnectionStatusCubit(),
+                      child:
+                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                              builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                bottom: 10,
+                                  top: status != ConnectionStatus.online
+                                      ? 0
+                                      : 35),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: white),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: size.width * 0.25),
+                                    child: const Text('Detalles Picking',
+                                        style: TextStyle(
+                                            color: white, fontSize: 18)),
+                                  ),
+                                  const Spacer(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+
                   //*widget de busqueda
                   // Padding(
                   //   padding:

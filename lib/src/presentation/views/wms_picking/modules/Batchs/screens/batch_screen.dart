@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
@@ -137,163 +140,192 @@ class _BatchDetailScreenState extends State<BatchScreen> {
               children: [
                 //todo: barra info
                 Container(
-                  padding: const EdgeInsets.only(top: 30),
+                  // padding: const EdgeInsets.only(top: 30),
                   width: size.width,
-                  height: 120,
+                  // height: 120,
                   color: primaryColorApp,
-                  child: Column(
-                    children: [
-                      Row(
+                  child: BlocProvider(
+                    create: (context) => ConnectionStatusCubit(),
+                    child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                        builder: (context, status) {
+                      return Column(
                         children: [
-                          IconButton(
-                            onPressed: () {
-                              context.read<BatchBloc>().index = 0;
-                              context.read<BatchBloc>().quantitySelected = 0;
-                              context.read<BatchBloc>().completedProducts = 0;
-                              cantidadController.clear();
-                              context
-                                  .read<WMSPickingBloc>()
-                                  .add(LoadBatchsFromDBEvent());
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(Icons.arrow_back,
-                                color: Colors.white, size: 30),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              context
-                                      .read<BatchBloc>()
-                                      .batchWithProducts
-                                      .batch
-                                      ?.name ??
-                                  '',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 18),
-                            ),
-                          ),
-                          const Spacer(),
-                          PopupMenuButton<String>(
-                            shadowColor: Colors.white,
-                            color: Colors.white,
-                            icon: const Icon(Icons.more_vert,
-                                color: Colors.white, size: 30),
-                            onSelected: (String value) {
-                              // Manejar la selección de opciones aquí
-                              if (value == '1') {
-                                context.read<BatchBloc>().add(
-                                    FetchBatchWithProductsEvent(
-                                        batchBloc.batchWithProducts.batch?.id ??
-                                            0));
+                          const WarningWidgetCubit(),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                top:
+                                    status != ConnectionStatus.online ? 0 : 30),
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    context.read<BatchBloc>().index = 0;
+                                    context.read<BatchBloc>().quantitySelected =
+                                        0;
+                                    context
+                                        .read<BatchBloc>()
+                                        .completedProducts = 0;
+                                    cantidadController.clear();
+                                    context
+                                        .read<WMSPickingBloc>()
+                                        .add(LoadBatchsFromDBEvent());
+                                    Navigator.pop(context);
+                                  },
+                                  icon: const Icon(Icons.arrow_back,
+                                      color: Colors.white, size: 30),
+                                ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    context
+                                            .read<BatchBloc>()
+                                            .batchWithProducts
+                                            .batch
+                                            ?.name ??
+                                        '',
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 18),
+                                  ),
+                                ),
+                                const Spacer(),
+                                PopupMenuButton<String>(
+                                  shadowColor: Colors.white,
+                                  color: Colors.white,
+                                  icon: const Icon(Icons.more_vert,
+                                      color: Colors.white, size: 30),
+                                  onSelected: (String value) {
+                                    // Manejar la selección de opciones aquí
+                                    if (value == '1') {
+                                      context.read<BatchBloc>().add(
+                                          FetchBatchWithProductsEvent(batchBloc
+                                                  .batchWithProducts
+                                                  .batch
+                                                  ?.id ??
+                                              0));
 
-                                Navigator.pushNamed(
-                                  context,
-                                  'batch-detail',
-                                );
-                                // Acción para opción 1
-                              } else if (value == '2') {
-                                // Acción para opción 2
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return BackdropFilter(
-                                        filter: ImageFilter.blur(
-                                            sigmaX: 5, sigmaY: 5),
-                                        child: AlertDialog(
-                                          backgroundColor: Colors.white,
-                                          actionsAlignment:
-                                              MainAxisAlignment.center,
-                                          title: const Center(
-                                              child: Text('Dejar pendiente',
-                                                  style: TextStyle(
-                                                      color: primaryColorApp))),
-                                          content: const Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Center(
-                                                child: Text(
-                                                    '¿Estás seguro de dejar pendiente este producto al final de la lista?'),
-                                              ),
-                                            ],
-                                          ),
-                                          actions: [
-                                            ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
+                                      Navigator.pushNamed(
+                                        context,
+                                        'batch-detail',
+                                      );
+                                      // Acción para opción 1
+                                    } else if (value == '2') {
+                                      // Acción para opción 2
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return BackdropFilter(
+                                              filter: ImageFilter.blur(
+                                                  sigmaX: 5, sigmaY: 5),
+                                              child: AlertDialog(
+                                                backgroundColor: Colors.white,
+                                                actionsAlignment:
+                                                    MainAxisAlignment.center,
+                                                title: const Center(
+                                                    child: Text(
+                                                        'Dejar pendiente',
+                                                        style: TextStyle(
+                                                            color:
+                                                                primaryColorApp))),
+                                                content: const Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Center(
+                                                      child: Text(
+                                                          '¿Estás seguro de dejar pendiente este producto al final de la lista?'),
                                                     ),
-                                                    elevation: 3),
-                                                child: const Text('Cancelar',
-                                                    style: TextStyle(
-                                                        color:
-                                                            primaryColorApp))),
-                                            ElevatedButton(
-                                                onPressed: () {},
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      primaryColorApp,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                  ),
-                                                  elevation: 3,
+                                                  ],
                                                 ),
-                                                child: const Text('Aceptar',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                    ))),
+                                                actions: [
+                                                  ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                              backgroundColor:
+                                                                  Colors.white,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                              elevation: 3),
+                                                      child: const Text(
+                                                          'Cancelar',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  primaryColorApp))),
+                                                  ElevatedButton(
+                                                      onPressed: () {},
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                            primaryColorApp,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                        ),
+                                                        elevation: 3,
+                                                      ),
+                                                      child: const Text(
+                                                          'Aceptar',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ))),
+                                                ],
+                                              ),
+                                            );
+                                          });
+                                    }
+                                    // Agrega más opciones según sea necesario
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return [
+                                      const PopupMenuItem<String>(
+                                        value: '1',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.info,
+                                                color: primaryColorApp,
+                                                size: 20),
+                                            SizedBox(width: 10),
+                                            Text('Ver detalles'),
                                           ],
                                         ),
-                                      );
-                                    });
-                              }
-                              // Agrega más opciones según sea necesario
-                            },
-                            itemBuilder: (BuildContext context) {
-                              return [
-                                const PopupMenuItem<String>(
-                                  value: '1',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.info,
-                                          color: primaryColorApp, size: 20),
-                                      SizedBox(width: 10),
-                                      Text('Ver detalles'),
-                                    ],
-                                  ),
+                                      ),
+                                      const PopupMenuItem<String>(
+                                        value: '2',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.timelapse_rounded,
+                                                color: primaryColorApp,
+                                                size: 20),
+                                            SizedBox(width: 10),
+                                            Text('Dejar pendiente'),
+                                          ],
+                                        ),
+                                      ),
+                                      // Agrega más PopupMenuItems aquí
+                                    ];
+                                  },
                                 ),
-                                const PopupMenuItem<String>(
-                                  value: '2',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.timelapse_rounded,
-                                          color: primaryColorApp, size: 20),
-                                      SizedBox(width: 10),
-                                      Text('Dejar pendiente'),
-                                    ],
-                                  ),
-                                ),
-                                // Agrega más PopupMenuItems aquí
-                              ];
-                            },
+                              ],
+                            ),
                           ),
+                          ProgressIndicatorWidget(
+                            progress: progress,
+                            completed: batchBloc.completedProducts,
+                            total: totalTasks,
+                          ),
+                          const SizedBox(height: 10),
                         ],
-                      ),
-                      ProgressIndicatorWidget(
-                        progress: progress,
-                        completed: batchBloc.completedProducts,
-                        total: totalTasks,
-                      ),
-                    ],
+                      );
+                    }),
                   ),
                 ),
 
@@ -341,7 +373,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue1.isNotEmpty) {
                                               if (scannedValue1.toLowerCase() ==
-                                                  currentProduct.locationId.toString()
+                                                  currentProduct.locationId
+                                                      .toString()
                                                       .toLowerCase()) {
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
@@ -361,7 +394,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             0));
 
                                                 batchBloc.oldLocation =
-                                                    currentProduct.locationId.toString();
+                                                    currentProduct.locationId
+                                                        .toString();
 
                                                 Future.delayed(
                                                     const Duration(seconds: 1),
@@ -441,7 +475,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     : (String? newValue) {
                                                         if (newValue ==
                                                             currentProduct
-                                                                .locationId.toString()) {
+                                                                .locationId
+                                                                .toString()) {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
                                                                   field:
@@ -462,7 +497,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           batchBloc
                                                                   .oldLocation =
                                                               currentProduct
-                                                                  .locationId.toString() ;
+                                                                  .locationId
+                                                                  .toString();
                                                           Future.delayed(
                                                               const Duration(
                                                                   seconds: 1),
@@ -677,7 +713,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     ? (String? newValue) {
                                                         if (newValue ==
                                                             currentProduct
-                                                                .productId.toString()) {
+                                                                .productId
+                                                                .toString()) {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
                                                                   field:
@@ -1228,8 +1265,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 setState(() {
                                   //validamos que el texto no este vacio
                                   if (value.isNotEmpty) {
-                                   if (int.parse(value) > (currentProduct.quantity ?? 0).toInt()) {
-
+                                    if (int.parse(value) >
+                                        (currentProduct.quantity ?? 0)
+                                            .toInt()) {
                                       //todo: cantidad fuera del rango
                                       batchBloc.add(ValidateFieldsEvent(
                                           field: "quantity", isOk: false));
@@ -1302,7 +1340,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             .text.isEmpty
                                         ? batchBloc.quantitySelected.toString()
                                         : cantidadController.text);
-                                 
+
                                     if (cantidad == currentProduct.quantity) {
                                       batchBloc.add(ChangeQuantitySeparate(
                                           int.parse(cantidadController.text),
@@ -1310,7 +1348,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                       _nextProduct(currentProduct, batchBloc);
                                     } else {
-                                      if (cantidad <  (currentProduct.quantity ?? 0).toInt()) {
+                                      if (cantidad <
+                                          (currentProduct.quantity ?? 0)
+                                              .toInt()) {
                                         showDialog(
                                             context: context,
                                             builder: (context) {

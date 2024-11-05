@@ -335,6 +335,7 @@
 import 'dart:io';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/widgets/list_database.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -375,6 +376,7 @@ class SelectEnterpricePage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                const WarningWidgetCubit(),
                 const SizedBox(
                   height: 80,
                 ),
@@ -385,17 +387,16 @@ class SelectEnterpricePage extends StatelessWidget {
                     children: [
                       Center(
                           child: Text(
-                            "Bienvenido a WMS",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 22),
-                          )),
+                        "Bienvenido a WMS",
+                        style: TextStyle(color: Colors.white, fontSize: 22),
+                      )),
                       SizedBox(
                         height: 10,
                       ),
                       Center(
                         child: Text("Version: 1.0.0",
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 10)),
+                            style: TextStyle(
+                                color: Colors.white, fontSize: 10)),
                       )
                       //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
                     ],
@@ -410,7 +411,7 @@ class SelectEnterpricePage extends StatelessWidget {
                             topRight: Radius.circular(60))),
                     child: SingleChildScrollView(
                       child: Padding(
-                          padding: const EdgeInsets.all(30),
+                          padding: const EdgeInsets.only( left: 30, right: 30),
                           child: _loginForm()),
                     ),
                   ),
@@ -437,13 +438,15 @@ class _loginForm extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(200),
-            child: Image.asset(
-              'assets/images/icon.png',
-              width: 200,
-              height: 100,
-              fit: BoxFit.cover,
+          Container(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(200),
+              child: Image.asset(
+                'assets/images/logo.jpeg',
+                width: 250,
+                height: 140,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           FadeIn(
@@ -484,7 +487,7 @@ class _loginForm extends StatelessWidget {
                   ],
                 ),
               )),
-         const SizedBox(height: 20),
+          const SizedBox(height: 20),
           MaterialButton(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),

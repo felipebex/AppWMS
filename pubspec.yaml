@@ -40,6 +40,8 @@ dependencies:
 
   mobile_scanner: ^5.1.1
   permission_handler: ^11.2.0
+  connectivity_plus: ^6.0.3
+  provider: ^6.1.2
 
 
   bloc: ^8.1.1
@@ -47,7 +49,6 @@ dependencies:
   get_storage: ^2.1.1
   url_launcher: ^6.1.10
   lottie: ^2.7.0
-  connectivity_plus: ^6.0.0
   cupertino_icons: ^1.0.2
   animate_do: ^3.3.4
   flutter_svg: ^2.0.10+1

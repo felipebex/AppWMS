@@ -3,6 +3,7 @@
 import 'dart:ui';
 
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/services/preferences.dart';
@@ -84,6 +85,7 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        const WarningWidgetCubit(),
                         Container(
                             padding: const EdgeInsets.only(left: 20, top: 60),
                             width: size.width,
