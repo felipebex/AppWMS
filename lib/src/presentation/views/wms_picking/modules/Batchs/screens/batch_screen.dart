@@ -1510,20 +1510,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
     viewQuantity = false;
     setState(() {});
-
-    // await db.endStopwatchProduct(
-    //     batchBloc.batchWithProducts.batch?.id ?? 0,
-    //     DateTime.now().toString(),
-    //     currentProduct.idProduct ?? 0,
-    //     currentProduct.idMove ?? 0);
-
-    //  String tiempoTotal =  await batchBloc.calcularTiempoTotalPickingProduct(
-    //     batchBloc.batchWithProducts.batch?.id ?? 0,
-    //     currentProduct.idProduct ?? 0,
-    //     currentProduct.idMove ?? 0);
-
-      // print("tiempoTotal: $tiempoTotal");
-
     ///cambiamos al siguiente producto
 
     if (batchBloc.index + 1 == batchBloc.batchWithProducts.products?.length) {

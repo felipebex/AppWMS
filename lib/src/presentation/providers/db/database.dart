@@ -256,7 +256,6 @@ class DataBaseSqlite {
               {
                 "id_product": productBatch.idProduct,
                 "batch_id": productBatch.batchId,
-                // "picking_id": productBatch.pickingId?[1],
                 "location_id": productBatch.locationId?[1],
                 "lot_id": productBatch.lotId?[1],
                 "lote_id": productBatch.loteId,
@@ -266,7 +265,7 @@ class DataBaseSqlite {
                 "unidades": productBatch.unidades,
                 "barcode": productBatch.barcode,
                 "weight": productBatch.weigth,
-                
+
 
               },
               where: 'id_product = ? AND batch_id = ?',
@@ -280,7 +279,6 @@ class DataBaseSqlite {
                 "id_product": productBatch.idProduct,
                 "batch_id": productBatch.batchId,
                 "product_id": productBatch.productId?[1],
-                // "picking_id": productBatch.pickingId?[1],
                 "location_id": productBatch.locationId?[1],
                 "lot_id": productBatch.lotId?[1],
                 "lote_id": productBatch.loteId,
@@ -475,7 +473,7 @@ class DataBaseSqlite {
     try {
       final db = await database;
       final res = await db!.rawQuery('''
-      SELECT $field FROM tblbatch_products WHERE id = $batchId AND  id_product = $productId AND id_move = $moveId LIMIT 1
+      SELECT $field FROM tblbatch_products WHERE batch_id = $batchId AND  id_product = $productId AND id_move = $moveId LIMIT 1
     ''');
       if (res.isNotEmpty) {
         String responsefield = res[0]['${field}'].toString();
@@ -499,9 +497,15 @@ class DataBaseSqlite {
 
   Future<int?> endStopwatchProduct(
       int batchId, String date, int productId, int moveId) async {
+
+      print("batchId: $batchId");
+      print("productId: $productId");
+      print("moveId: $moveId");
+      print("date: $date");
+
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        "UPDATE tblbatch_products SET time_separate_end = '$date' WHERE id = $batchId AND id_product = $productId AND id_move = $moveId");
+        "UPDATE tblbatch_products SET time_separate_end = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
 
     print("endStopwatchProduct: $resUpdate");
     return resUpdate;

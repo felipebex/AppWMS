@@ -554,16 +554,7 @@ class BatchDetailScreen extends StatelessWidget {
                                       horizontal: 10, vertical: 5),
                                   child: GestureDetector(
                                     onTap: () async {
-                                      DataBaseSqlite db = DataBaseSqlite();
-
-                                      await db.getProductBacth(
-                                          context
-                                                  .read<BatchBloc>()
-                                                  .batchWithProducts
-                                                  .batch
-                                                  ?.id ??
-                                              0,
-                                          productsBatch?.productId?[0] ?? 0);
+                                     
                                     },
                                     child: Card(
                                         elevation: 4,
@@ -697,74 +688,143 @@ class BatchDetailScreen extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.timer_rounded,
-                                                      color: primaryColorApp,
-                                                      size: 20,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    const Text("Empezo:",
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: black)),
-                                                    const SizedBox(width: 5),
-                                                    SizedBox(
-                                                      width: size.width * 0.6,
-                                                      child: Text(
-                                                          productsBatch?.timeSeparateStart
-                                                                  .toString() ??
-                                                              '',
-                                                          style: const TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  primaryColorApp)),
-                                                    ),
-                                                  ],
+
+                                              if (productsBatch?.isSeparate ==
+                                                  1)
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(horizontal: 8),
+                                                  child: Row(
+                                                    children: [
+                                                      FutureBuilder<String>(
+                                                        future: context
+                                                            .read<BatchBloc>()
+                                                            .calcularTiempoTotalProducto(
+                                                              context
+                                                                      .read<
+                                                                          BatchBloc>()
+                                                                      .batchWithProducts
+                                                                      .batch
+                                                                      ?.id ??
+                                                                  0,
+                                                              productsBatch
+                                                                      ?.idProduct ??
+                                                                  0,
+                                                              productsBatch
+                                                                      ?.idMove ??
+                                                                  0,
+                                                            ), // Asegúrate de pasar los IDs correctos
+                                                        builder: (BuildContext
+                                                                context,
+                                                            AsyncSnapshot<
+                                                                    String>
+                                                                snapshot) {
+                                                          if (snapshot
+                                                                  .connectionState ==
+                                                              ConnectionState
+                                                                  .waiting) {
+                                                            // Muestra un indicador de carga mientras esperas el resultado
+                                                            return const Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                Icon(
+                                                                    Icons.timer,
+                                                                    color:
+                                                                        primaryColorApp,
+                                                                    size: 20),
+                                                                SizedBox(
+                                                                    width: 10),
+                                                                CircularProgressIndicator(), // O cualquier otro widget de carga
+                                                              ],
+                                                            );
+                                                          } else {
+                                                            // Cuando se tiene el resultado
+                                                            String tiempoTotal =
+                                                                snapshot.data ??
+                                                                    "00:00:00"; // Valor por defecto si es nulo
+                                                            return Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                const Icon(
+                                                                    Icons.timer,
+                                                                    color:
+                                                                        primaryColorApp,
+                                                                    size: 20),
+                                                                const SizedBox(
+                                                                    width: 5),
+                                                                RichText(
+                                                                  text:
+                                                                      TextSpan(
+                                                                    children: [
+                                                                      const TextSpan(
+                                                                        text:
+                                                                            "Tiempo total: ",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              black, // color del texto antes de tiempoTotal
+                                                                        ),
+                                                                      ),
+                                                                      TextSpan(
+                                                                        text:
+                                                                            tiempoTotal,
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          fontSize:
+                                                                              14,
+                                                                          color:
+                                                                              primaryColorApp, // color rojo para tiempoTotal
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            );
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
 
-
-                                              
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 8),
-                                                child: Row(
-                                                  children: [
-                                                    const Icon(
-                                                      Icons.timer_rounded,
-                                                      color: primaryColorApp,
-                                                      size: 20,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    const Text("Termino:",
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: black)),
-                                                    const SizedBox(width: 5),
-                                                    SizedBox(
-                                                      width: size.width * 0.6,
-                                                      child: Text(
-                                                          productsBatch?.timeSeparateEnd
-                                                                  .toString() ??
-                                                              '',
-                                                          style: const TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  primaryColorApp)),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-
-
-
+                                              // Padding(
+                                              //   padding:
+                                              //       const EdgeInsets.symmetric(
+                                              //           horizontal: 8),
+                                              //   child: Row(
+                                              //     children: [
+                                              //       const Icon(
+                                              //         Icons.timer_rounded,
+                                              //         color: primaryColorApp,
+                                              //         size: 20,
+                                              //       ),
+                                              //       const SizedBox(width: 5),
+                                              //       const Text("Termino:",
+                                              //           style: TextStyle(
+                                              //               fontSize: 14,
+                                              //               color: black)),
+                                              //       const SizedBox(width: 5),
+                                              //       SizedBox(
+                                              //         width: size.width * 0.6,
+                                              //         child: Text(
+                                              //             productsBatch?.timeSeparateEnd
+                                              //                     .toString() ??
+                                              //                 '',
+                                              //             style: const TextStyle(
+                                              //                 fontSize: 14,
+                                              //                 color:
+                                              //                     primaryColorApp)),
+                                              //       ),
+                                              //     ],
+                                              //   ),
+                                              // ),
 
                                               const SizedBox(height: 5),
                                               Card(

@@ -234,6 +234,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     //desseleccionamos el producto actual
     await db.deselectProduct(batchWithProducts.batch?.id ?? 0,
         event.currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
+
+    
+    await db.endStopwatchProduct(
+        batchWithProducts.batch?.id ?? 0,
+        DateTime.now().toString(),
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0);
+
+
     //validamos si es el ultimo producto
     if (batchWithProducts.products?.length == index + 1) {
       //actualizamos el index de la lista de productos
@@ -258,6 +267,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       //seleccionamos el producto actual
       await db.selectProduct(batchWithProducts.batch?.id ?? 0,
           currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
+
+      await db.startStopwatch(
+        batchWithProducts.batch?.id ?? 0,
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0,
+        DateTime.now().toString(),
+      );
       // Emitir el nuevo estado con el producto actual
       print("currentProduct: ${event.currentProduct.toMap()}");
       await db.updateIsLocationIsOk(batchWithProducts.batch?.id ?? 0,
@@ -284,12 +300,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.locationIsOk) {
-
       await db.updateIsLocationIsOk(
           event.batchId, event.productId, event.idMove);
       //empezamos el tiempo de separacion del batch y del producto
       await db.startStopwatch(
-          event.batchId, event.productId, event.idMove, DateTime.now().toString(),);
+        event.batchId,
+        event.productId,
+        event.idMove,
+        DateTime.now().toString(),
+      );
       await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
       //cuando se lea la ubicacion se selecciona el batch y el producto
       await db.selectBatch(event.batchId);
@@ -461,19 +480,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     return formattedTime;
   }
 
-  Future<String> c(
-      int batchId, int productId, int moveId) async {
+  Future<String> calcularTiempoTotalProducto(int batchId, int productId, int moveId) async {
     // Obtener los valores de las fechas desde la base de datos
     final starTime = await db.getFieldTableProducts(
         batchId, productId, moveId, 'time_separate_start');
-
-    print('start time: $starTime');
 
 
     final endTime = await db.getFieldTableProducts(
         batchId, productId, moveId, 'time_separate_end');
 
-    print('end time: $endTime');
 
     // Verificar si las fechas son válidas o están vacías
     if (starTime == null || starTime.isEmpty) {
@@ -511,7 +526,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     } catch (e) {
       // Si ocurre un error al analizar las fechas, imprimir el error
       print("Error al analizar las fechas: $e");
-      return "Error al calcular el tiempo";
+      return "00:00:00"; // Devolver un valor por defecto
     }
   }
 }
