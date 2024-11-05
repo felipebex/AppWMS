@@ -310,18 +310,18 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           ],
                                         ),
                                       ),
-                                      const PopupMenuItem<String>(
-                                        value: '2',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.timelapse_rounded,
-                                                color: primaryColorApp,
-                                                size: 20),
-                                            SizedBox(width: 10),
-                                            Text('Dejar pendiente'),
-                                          ],
-                                        ),
-                                      ),
+                                      // const PopupMenuItem<String>(
+                                      //   value: '2',
+                                      //   child: Row(
+                                      //     children: [
+                                      //       Icon(Icons.timelapse_rounded,
+                                      //           color: primaryColorApp,
+                                      //           size: 20),
+                                      //       SizedBox(width: 10),
+                                      //       Text('Dejar pendiente'),
+                                      //     ],
+                                      //   ),
+                                      // ),
                                       // Agrega más PopupMenuItems aquí
                                     ];
                                   },
