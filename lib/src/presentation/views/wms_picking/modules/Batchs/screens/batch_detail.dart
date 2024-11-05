@@ -7,7 +7,6 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,7 +26,7 @@ class BatchDetailScreen extends StatelessWidget {
             //     tittle: 'Picking Detail', actions: const SizedBox()),
             body: SizedBox(
               width: size.width,
-              height: size.height * 0.85,
+              height: size.height * 0.96,
               child: Column(
                 ///apbar
 
@@ -52,7 +51,7 @@ class BatchDetailScreen extends StatelessWidget {
                             const WarningWidgetCubit(),
                             Padding(
                               padding: EdgeInsets.only(
-                                bottom: 10,
+                                  bottom: 10,
                                   top: status != ConnectionStatus.online
                                       ? 0
                                       : 35),
@@ -69,9 +68,10 @@ class BatchDetailScreen extends StatelessWidget {
                                   ),
                                   Padding(
                                     padding: EdgeInsets.only(
-                                        left: size.width * 0.25),
-                                    child: const Text('Detalles Picking',
-                                        style: TextStyle(
+                                        left: size.width * 0.18),
+                                    child: Text(
+                                        "Detalles ${context.read<BatchBloc>().batchWithProducts.batch?.name}",
+                                        style: const TextStyle(
                                             color: white, fontSize: 18)),
                                   ),
                                   const Spacer(),
@@ -666,6 +666,106 @@ class BatchDetailScreen extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.bookmarks_sharp,
+                                                      color: primaryColorApp,
+                                                      size: 20,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    const Text("Lote:",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const SizedBox(width: 5),
+                                                    SizedBox(
+                                                      width: size.width * 0.7,
+                                                      child: Text(
+                                                          productsBatch?.lotId
+                                                                  .toString() ??
+                                                              '',
+                                                          style: const TextStyle(
+                                                              fontSize: 14,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.timer_rounded,
+                                                      color: primaryColorApp,
+                                                      size: 20,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    const Text("Empezo:",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const SizedBox(width: 5),
+                                                    SizedBox(
+                                                      width: size.width * 0.6,
+                                                      child: Text(
+                                                          productsBatch?.timeSeparateStart
+                                                                  .toString() ??
+                                                              '',
+                                                          style: const TextStyle(
+                                                              fontSize: 14,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+
+                                              
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8),
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons.timer_rounded,
+                                                      color: primaryColorApp,
+                                                      size: 20,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    const Text("Termino:",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const SizedBox(width: 5),
+                                                    SizedBox(
+                                                      width: size.width * 0.6,
+                                                      child: Text(
+                                                          productsBatch?.timeSeparateEnd
+                                                                  .toString() ??
+                                                              '',
+                                                          style: const TextStyle(
+                                                              fontSize: 14,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+
+
+
                                               const SizedBox(height: 5),
                                               Card(
                                                 color: productsBatch
@@ -742,6 +842,27 @@ class BatchDetailScreen extends StatelessWidget {
                                                                   fontSize: 16,
                                                                   color:
                                                                       primaryColorApp)),
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          const Icon(
+                                                            Icons
+                                                                .assessment_outlined,
+                                                            color:
+                                                                primaryColorApp,
+                                                            size: 20,
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Text(
+                                                              "Unidades: ${productsBatch?.unidades ?? ''}",
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      color:
+                                                                          black)),
                                                         ],
                                                       ),
                                                       Align(

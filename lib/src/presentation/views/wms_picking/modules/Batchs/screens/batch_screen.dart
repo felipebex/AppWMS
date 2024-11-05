@@ -89,6 +89,18 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
         if (state is EmptyroductsBatch) {
           return Scaffold(
+            // floatingActionButton: FloatingActionButton(
+            //   onPressed: () {
+            //     showDialog(
+            //         context: context,
+            //         builder: (context) {
+            //           return DialogLoading();
+            //         });
+            //     Future.delayed(const Duration(seconds: 2), () {
+            //       Navigator.pop(context);
+            //     });
+            //   },
+            // ),
             appBar:
                 AppBarGlobal(tittle: 'Detalle de Batch', actions: Container()),
             backgroundColor: Colors.white,
@@ -154,7 +166,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                           Padding(
                             padding: EdgeInsets.only(
                                 top:
-                                    status != ConnectionStatus.online ? 0 : 30),
+                                    status != ConnectionStatus.online ? 0 : 35),
                             child: Row(
                               children: [
                                 IconButton(
@@ -317,10 +329,14 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               ],
                             ),
                           ),
-                          ProgressIndicatorWidget(
-                            progress: progress,
-                            completed: batchBloc.completedProducts,
-                            total: totalTasks,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            child: ProgressIndicatorWidget(
+                              progress: progress,
+                              completed: batchBloc.completedProducts,
+                              total: totalTasks,
+                            ),
                           ),
                           const SizedBox(height: 10),
                         ],
@@ -384,13 +400,14 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 batchBloc.add(
                                                     ChangeLocationIsOkEvent(
                                                         true,
-                                                        currentProduct
-                                                                .idProduct ??
+                                                        currentProduct.idProduct ??
                                                             0,
                                                         batchBloc
                                                                 .batchWithProducts
                                                                 .batch
                                                                 ?.id ??
+                                                            0,
+                                                        currentProduct.idMove ??
                                                             0));
 
                                                 batchBloc.oldLocation =
@@ -482,17 +499,19 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                   field:
                                                                       "location",
                                                                   isOk: true));
-                                                          batchBloc.add(
-                                                              ChangeLocationIsOkEvent(
-                                                                  true,
-                                                                  currentProduct
-                                                                          .idProduct ??
-                                                                      0,
-                                                                  batchBloc
-                                                                          .batchWithProducts
-                                                                          .batch
-                                                                          ?.id ??
-                                                                      0));
+                                                          batchBloc.add(ChangeLocationIsOkEvent(
+                                                              true,
+                                                              currentProduct
+                                                                      .idProduct ??
+                                                                  0,
+                                                              batchBloc
+                                                                      .batchWithProducts
+                                                                      .batch
+                                                                      ?.id ??
+                                                                  0,
+                                                              currentProduct
+                                                                      .idMove ??
+                                                                  0));
 
                                                           batchBloc
                                                                   .oldLocation =
@@ -604,20 +623,20 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                         1,
                                                         currentProduct
                                                                 .idProduct ??
+                                                            0,
+                                                        currentProduct.idMove ??
                                                             0));
 
-                                                batchBloc.add(
-                                                    ChangeProductIsOkEvent(
-                                                        true,
-                                                        currentProduct
-                                                                .idProduct ??
-                                                            0,
-                                                        batchBloc
-                                                                .batchWithProducts
-                                                                .batch
-                                                                ?.id ??
-                                                            0,
-                                                        1));
+                                                batchBloc.add(ChangeProductIsOkEvent(
+                                                    true,
+                                                    currentProduct.idProduct ??
+                                                        0,
+                                                    batchBloc.batchWithProducts
+                                                            .batch?.id ??
+                                                        0,
+                                                    1,
+                                                    currentProduct.idMove ??
+                                                        0));
 
                                                 batchBloc.add(ChangeIsOkQuantity(
                                                     true,
@@ -625,6 +644,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                         0,
                                                     batchBloc.batchWithProducts
                                                             .batch?.id ??
+                                                        0,
+                                                    currentProduct.idMove ??
                                                         0));
 
                                                 Future.delayed(
@@ -726,32 +747,39 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                   0,
                                                                   currentProduct
                                                                           .idProduct ??
+                                                                      0,
+                                                                  currentProduct
+                                                                          .idMove ??
                                                                       0));
 
-                                                          batchBloc.add(
-                                                              ChangeProductIsOkEvent(
-                                                                  true,
-                                                                  currentProduct
-                                                                          .idProduct ??
-                                                                      0,
-                                                                  batchBloc
-                                                                          .batchWithProducts
-                                                                          .batch
-                                                                          ?.id ??
-                                                                      0,
+                                                          batchBloc.add(ChangeProductIsOkEvent(
+                                                              true,
+                                                              currentProduct
+                                                                      .idProduct ??
+                                                                  0,
+                                                              batchBloc
+                                                                      .batchWithProducts
+                                                                      .batch
+                                                                      ?.id ??
+                                                                  0,
+                                                              0,
+                                                              currentProduct
+                                                                      .idMove ??
                                                                   0));
 
-                                                          batchBloc.add(
-                                                              ChangeIsOkQuantity(
-                                                                  true,
-                                                                  currentProduct
-                                                                          .idProduct ??
-                                                                      0,
-                                                                  batchBloc
-                                                                          .batchWithProducts
-                                                                          .batch
-                                                                          ?.id ??
-                                                                      0));
+                                                          batchBloc.add(ChangeIsOkQuantity(
+                                                              true,
+                                                              currentProduct
+                                                                      .idProduct ??
+                                                                  0,
+                                                              batchBloc
+                                                                      .batchWithProducts
+                                                                      .batch
+                                                                      ?.id ??
+                                                                  0,
+                                                              currentProduct
+                                                                      .idMove ??
+                                                                  0));
 
                                                           Future.delayed(
                                                               const Duration(
@@ -888,13 +916,18 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                                   batchBloc.add(
                                                       ChangeLocationDestIsOkEvent(
-                                                    true,
-                                                    currentProduct.idProduct ??
-                                                        0,
-                                                    batchBloc.batchWithProducts
-                                                            .batch?.id ??
-                                                        0,
-                                                  ));
+                                                          true,
+                                                          currentProduct
+                                                                  .idProduct ??
+                                                              0,
+                                                          batchBloc
+                                                                  .batchWithProducts
+                                                                  .batch
+                                                                  ?.id ??
+                                                              0,
+                                                          currentProduct
+                                                                  .idMove ??
+                                                              0));
 
                                                   batchBloc.add(PickingOkEvent(
                                                       batchBloc
@@ -998,18 +1031,19 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                     isOk:
                                                                         true));
 
-                                                            batchBloc.add(
-                                                                ChangeLocationDestIsOkEvent(
-                                                              true,
-                                                              currentProduct
-                                                                      .idProduct ??
-                                                                  0,
-                                                              batchBloc
-                                                                      .batchWithProducts
-                                                                      .batch
-                                                                      ?.id ??
-                                                                  0,
-                                                            ));
+                                                            batchBloc.add(ChangeLocationDestIsOkEvent(
+                                                                true,
+                                                                currentProduct
+                                                                        .idProduct ??
+                                                                    0,
+                                                                batchBloc
+                                                                        .batchWithProducts
+                                                                        .batch
+                                                                        ?.id ??
+                                                                    0,
+                                                                currentProduct
+                                                                        .idMove ??
+                                                                    0));
 
                                                             batchBloc.add(PickingOkEvent(
                                                                 batchBloc
@@ -1125,8 +1159,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           color: primaryColorApp, fontSize: 18),
                                     ),
                                   ),
-                                  const Text('UND',
-                                      style: TextStyle(
+                                  Text(currentProduct.unidades ?? "",
+                                      style: const TextStyle(
                                           color: Colors.black, fontSize: 18)),
                                   const Spacer(),
                                   Padding(
@@ -1287,7 +1321,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                         //guardamos la cantidad en la bd
                                         batchBloc.add(ChangeQuantitySeparate(
                                             int.parse(value),
-                                            currentProduct.idProduct ?? 0));
+                                            currentProduct.idProduct ?? 0,
+                                            currentProduct.idMove ?? 0));
 
                                         _nextProduct(currentProduct, batchBloc);
                                       } else {
@@ -1313,6 +1348,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             int.parse(value),
                                                             currentProduct
                                                                     .idProduct ??
+                                                                0,
+                                                            currentProduct
+                                                                    .idMove ??
                                                                 0));
                                                     _nextProduct(currentProduct,
                                                         batchBloc);
@@ -1344,7 +1382,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     if (cantidad == currentProduct.quantity) {
                                       batchBloc.add(ChangeQuantitySeparate(
                                           int.parse(cantidadController.text),
-                                          currentProduct.idProduct ?? 0));
+                                          currentProduct.idProduct ?? 0,
+                                          currentProduct.idMove ?? 0));
 
                                       _nextProduct(currentProduct, batchBloc);
                                     } else {
@@ -1369,6 +1408,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             cantidad,
                                                             currentProduct
                                                                     .idProduct ??
+                                                                0,
+                                                            currentProduct
+                                                                    .idMove ??
                                                                 0));
 
                                                     _nextProduct(currentProduct,
@@ -1462,12 +1504,25 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     batchBloc.completedProducts = batchBloc.completedProducts + 1;
     DataBaseSqlite db = DataBaseSqlite();
     await db.separateProduct(batchBloc.batchWithProducts.batch?.id ?? 0,
-        currentProduct.idProduct ?? 0);
+        currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
     await db.incrementProductSeparateQty(
         batchBloc.batchWithProducts.batch?.id ?? 0);
 
     viewQuantity = false;
     setState(() {});
+
+    // await db.endStopwatchProduct(
+    //     batchBloc.batchWithProducts.batch?.id ?? 0,
+    //     DateTime.now().toString(),
+    //     currentProduct.idProduct ?? 0,
+    //     currentProduct.idMove ?? 0);
+
+    //  String tiempoTotal =  await batchBloc.calcularTiempoTotalPickingProduct(
+    //     batchBloc.batchWithProducts.batch?.id ?? 0,
+    //     currentProduct.idProduct ?? 0,
+    //     currentProduct.idMove ?? 0);
+
+      // print("tiempoTotal: $tiempoTotal");
 
     ///cambiamos al siguiente producto
 
@@ -1476,11 +1531,15 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           .read<BatchBloc>()
           .add(ChangeCurrentProduct(currentProduct: currentProduct));
 
-      batchBloc.add(ChangeIsOkQuantity(false, currentProduct.idProduct ?? 0,
-          batchBloc.batchWithProducts.batch?.id ?? 0));
+      batchBloc.add(ChangeIsOkQuantity(
+          false,
+          currentProduct.idProduct ?? 0,
+          batchBloc.batchWithProducts.batch?.id ?? 0,
+          currentProduct.idMove ?? 0));
       await db.updateIsQuantityIsFalse(
           batchBloc.batchWithProducts.batch?.id ?? 0,
-          currentProduct.idProduct ?? 0);
+          currentProduct.idProduct ?? 0,
+          currentProduct.idMove ?? 0);
       batchBloc.quantitySelected = 0;
       return;
     } else {

@@ -1,5 +1,8 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
+import 'dart:math';
+
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -108,7 +111,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ProductPendingEvent event, Emitter<BatchState> emit) async {
     try {
       //dejamos pendiente el producto, lo cual es enviar este producto al final de la lista de batchWithProducts.products
-      
     } catch (e, s) {
       print('Error _onPickingPendingEvent: $e, $s');
     }
@@ -139,8 +141,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ChangeQuantitySeparate event, Emitter<BatchState> emit) async {
     if (event.quantity > 0) {
       quantitySelected = event.quantity;
-      await db.updateQtyProductSeparate(
-          batchWithProducts.batch?.id ?? 0, event.productId, event.quantity);
+      await db.updateQtyProductSeparate(batchWithProducts.batch?.id ?? 0,
+          event.productId, event.quantity, event.idMove);
     }
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
@@ -230,8 +232,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
     //desseleccionamos el producto actual
-    await db.deselectProduct(
-        batchWithProducts.batch?.id ?? 0, event.currentProduct.idProduct ?? 0);
+    await db.deselectProduct(batchWithProducts.batch?.id ?? 0,
+        event.currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
     //validamos si es el ultimo producto
     if (batchWithProducts.products?.length == index + 1) {
       //actualizamos el index de la lista de productos
@@ -254,12 +256,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       //actualizamos el producto actual
       currentProduct = batchWithProducts.products![index];
       //seleccionamos el producto actual
-      await db.selectProduct(
-          batchWithProducts.batch?.id ?? 0, currentProduct.idProduct ?? 0);
+      await db.selectProduct(batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
       // Emitir el nuevo estado con el producto actual
       print("currentProduct: ${event.currentProduct.toMap()}");
-      await db.updateIsLocationIsOk(
-          batchWithProducts.batch?.id ?? 0, currentProduct.idProduct ?? 0);
+      await db.updateIsLocationIsOk(batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
 
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
@@ -270,7 +272,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeQuantityIsOkEvent(
       ChangeIsOkQuantity event, Emitter<BatchState> emit) async {
     if (event.isOk) {
-      await db.updateIsQuantityIsOk(event.batchId, event.productId);
+      await db.updateIsQuantityIsOk(
+          event.batchId, event.productId, event.idMove);
     }
     quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
@@ -281,14 +284,16 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.locationIsOk) {
-      await db.updateIsLocationIsOk(event.batchId, event.productId);
+
+      await db.updateIsLocationIsOk(
+          event.batchId, event.productId, event.idMove);
       //empezamos el tiempo de separacion del batch y del producto
       await db.startStopwatch(
-          event.batchId, event.productId, DateTime.now().toString());
+          event.batchId, event.productId, event.idMove, DateTime.now().toString(),);
       await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
       //cuando se lea la ubicacion se selecciona el batch y el producto
       await db.selectBatch(event.batchId);
-      await db.selectProduct(event.batchId, event.productId);
+      await db.selectProduct(event.batchId, event.productId, event.idMove);
       locationIsOk = event.locationIsOk;
 
       print(currentProduct = batchWithProducts.products![index]);
@@ -301,7 +306,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeLocationDestIsOkEvent(
       ChangeLocationDestIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.locationDestIsOk) {
-      await db.updateLocationDestIsOk(event.batchId, event.productId);
+      await db.updateLocationDestIsOk(
+          event.batchId, event.productId, event.idMove);
     }
     locationDestIsOk = event.locationDestIsOk;
     emit(ChangeIsOkState(
@@ -312,9 +318,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.productIsOk) {
-      await db.updateIsProductIsOk(event.batchId, event.productId);
+      await db.updateIsProductIsOk(
+          event.batchId, event.productId, event.idMove);
       await db.updateProductQuantitySeparate(
-          event.batchId, event.productId, event.quantity);
+          event.batchId, event.productId, event.quantity, event.idMove);
     }
     productIsOk = event.productIsOk;
     emit(ChangeIsOkState(
@@ -452,5 +459,59 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     print('Diferencia en formato 00:00:00: $formattedTime');
 
     return formattedTime;
+  }
+
+  Future<String> c(
+      int batchId, int productId, int moveId) async {
+    // Obtener los valores de las fechas desde la base de datos
+    final starTime = await db.getFieldTableProducts(
+        batchId, productId, moveId, 'time_separate_start');
+
+    print('start time: $starTime');
+
+
+    final endTime = await db.getFieldTableProducts(
+        batchId, productId, moveId, 'time_separate_end');
+
+    print('end time: $endTime');
+
+    // Verificar si las fechas son válidas o están vacías
+    if (starTime == null || starTime.isEmpty) {
+      throw const FormatException("start time is null or empty");
+    }
+    if (endTime == null || endTime.isEmpty) {
+      throw const FormatException("end time is null or empty");
+    }
+
+    // Intentar analizar las fechas con el formato esperado
+    try {
+      // Definir el formato de fecha. Aquí puedes cambiar el patrón dependiendo de cómo se almacenen las fechas en la base de datos
+      DateFormat dateFormat =
+          DateFormat('yyyy-MM-dd HH:mm:ss'); // Cambia esto si es otro formato
+
+      DateTime dateTimeStart = dateFormat.parse(starTime);
+      DateTime dateTimeEnd = dateFormat.parse(endTime);
+
+      // Calcular la diferencia entre las fechas
+      Duration difference = dateTimeEnd.difference(dateTimeStart);
+
+      // Obtener las horas, minutos y segundos de la diferencia
+      int hours = difference.inHours;
+      int minutes = difference.inMinutes.remainder(60);
+      int seconds = difference.inSeconds.remainder(60);
+
+      // Formatear el tiempo en formato 00:00:00
+      String formattedTime = '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
+
+      // Imprimir y devolver el tiempo calculado
+      print('Diferencia de producto formato 00:00:00: $formattedTime');
+      return formattedTime;
+    } catch (e) {
+      // Si ocurre un error al analizar las fechas, imprimir el error
+      print("Error al analizar las fechas: $e");
+      return "Error al calcular el tiempo";
+    }
   }
 }

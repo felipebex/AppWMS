@@ -163,25 +163,29 @@ class ProductsBatch {
   final int? id;
   final String? barcode;
   final String? barcodes;
-  final String? weigth;
+  final int? weigth;
   final String? unidades;
+
+  final int? idMove;
 
   final int? idProduct;
   final dynamic productId;
   final int? batchId;
   final String? name;
-  final dynamic pickingId;
+  // final dynamic pickingId;
   final dynamic lotId;
   final int? loteId;
   final dynamic locationId;
   final dynamic locationDestId;
   final dynamic quantity; // Cambiado a double
+  final List<Barcodes>? productPacking;
 
   final int? quantitySeparate;
   final dynamic isSelected;
   final int? isSeparate;
   final String? timeSeparate;
   final String? timeSeparateStart;
+    final String? timeSeparateEnd;
   final String? observation;
 
   // Variables para el picking
@@ -197,7 +201,8 @@ class ProductsBatch {
   ProductsBatch({
     this.id,
     this.batchId,
-    this.pickingId,
+    this.idMove,
+    // this.pickingId,
     this.idProduct,
     this.productId,
     this.lotId,
@@ -205,6 +210,7 @@ class ProductsBatch {
     this.locationId,
     this.locationDestId,
     this.quantity,
+    this.productPacking,
     this.barcode,
     this.name,
     this.barcodes,
@@ -215,6 +221,7 @@ class ProductsBatch {
     this.isSeparate,
     this.timeSeparate,
     this.timeSeparateStart,
+    this.timeSeparateEnd,
     this.observation,
     this.isLocationIsOk,
     this.productIsOk,
@@ -222,42 +229,22 @@ class ProductsBatch {
     this.isQuantityIsOk,
   });
 
-  // factory ProductsBatch.fromMap(Map<String, dynamic> json) {
-  //   return ProductsBatch(
-  //     batchId: json["batch_id"],
-  //     pickingId: json["picking_id"],
-  //     productId: json["product_id"],
-  //     lotId: json["lot_id"],
-  //     locationId: json["location_id"],
-  //     locationDestId: json["location_dest_id"],
-  //     quantity: json["quantity"]?.toDouble(), // Asegúrate de convertir a double
-  //     barcode: json["barcode"],
-  //     name: json["name"],
-  //     barcodes: json["barcodes"],
-  //     weigth: json["weigth"],
-  //     unidades: json["unidades"],
-  //     quantitySeparate: json["quantity_separate"],
-  //     isSelected: json["is_selected"],
-  //     isSeparate: json["is_separate"],
-  //     timeSeparate: json["time_separate"],
-  //     timeSeparateStart: json["time_separate_start"],
-  //     observation: json["observation"],
-  //     isLocationIsOk: json["is_location_is_ok"] ?? false,
-  //     productIsOk: json["product_is_ok"] ?? false,
-  //     locationDestIsOk: json["location_dest_is_ok"] ?? false,
-  //     isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
-  //   );
-  // }
+ 
   factory ProductsBatch.fromMap(Map<String, dynamic> map) {
     return ProductsBatch(
       id: map['id'],
       batchId: map['batch_id'],
       idProduct: map['id_product'],
       productId: map['product_id'],
-      pickingId: map['picking_id'],
+      idMove: map['id_move'],
+      
+      // pickingId: map['picking_id'],
       lotId: map['lot_id'],
       loteId: map['lote_id'],
-      
+      productPacking: map['product_packing'] == null
+          ? []
+          : List<Barcodes>.from(
+              map['product_packing'].map((x) => Barcodes.fromMap(x))),
       locationId: map['location_id'],
       locationDestId: map['location_dest_id'],
       quantity: map['quantity'],
@@ -271,6 +258,7 @@ class ProductsBatch {
       isSeparate: map['is_separate'],
       timeSeparate: map['time_separate'],
       timeSeparateStart: map['time_separate_start'],
+      timeSeparateEnd: map['time_separate_end'],
       observation: map['observation'],
       isLocationIsOk: map["is_location_is_ok"] ?? false,
       productIsOk: map["product_is_ok"] ?? false,
@@ -284,13 +272,15 @@ class ProductsBatch {
       "id": id,
       "id_product": idProduct,
       "batch_id": batchId,
-      "picking_id": pickingId,
+      "id_move": idMove,
+      // "picking_id": pickingId,
       "product_id": productId,
       "lot_id": lotId,
       "lote_id": loteId,
       "location_id": locationId,
       "location_dest_id": locationDestId,
       "quantity": quantity,
+      "product_packing": productPacking == null ? [] : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
       "barcode": barcode,
       "name": name,
       "barcodes": barcodes,
@@ -301,6 +291,7 @@ class ProductsBatch {
       "is_separate": isSeparate,
       "time_separate": timeSeparate,
       "time_separate_start": timeSeparateStart,
+      "time_separate_end": timeSeparateEnd,
       "observation": observation,
       "is_location_is_ok": isLocationIsOk,
       "product_is_ok": productIsOk,
@@ -308,4 +299,37 @@ class ProductsBatch {
       "is_quantity_is_ok": isQuantityIsOk,
     };
   }
+
 }
+
+
+
+class Barcodes {
+    final String? barcode;
+    final double? cantidad;
+
+    Barcodes({
+        this.barcode,
+        this.cantidad,
+    });
+
+    factory Barcodes.fromJson(String str) => Barcodes.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory Barcodes.fromMap(Map<String, dynamic> json) => Barcodes(
+        barcode: json["barcode"],
+        cantidad: json["cantidad"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "barcode": barcode,
+        "cantidad": cantidad,
+    };
+}
+
+
+
+
+
+

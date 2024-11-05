@@ -257,50 +257,56 @@ class _HomePageState extends State<HomePage> {
                               ],
                             )),
                         Center(
-                          child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              width: size.width,
-                              height: 50,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  _ItemList(
-                                    size: size,
-                                    color: green,
-                                    title: 'BATCH Hechos',
-                                    value: context
-                                        .read<WMSPickingBloc>()
-                                        .batchsDone
-                                        .length
-                                        .toString(),
-                                  ),
-                                  _ItemList(
-                                    size: size,
-                                    color: primaryColorApp,
-                                    title: 'BATCH En Proceso',
-                                    value: (context
-                                                .read<WMSPickingBloc>()
-                                                .listOfBatchs
-                                                .length -
-                                            context
-                                                .read<WMSPickingBloc>()
-                                                .batchsDone
-                                                .length)
-                                        .toString(),
-                                  ),
-                                  _ItemList(
-                                    size: size,
-                                    color: Colors.amber,
-                                    title: 'BATCH Totales',
-                                    value: context
-                                        .read<WMSPickingBloc>()
-                                        .listOfBatchs
-                                        .length
-                                        .toString(),
-                                  ),
-                                ],
-                              )),
+                          child: BlocBuilder<WMSPickingBloc, PickingState>(
+
+                            
+                            builder: (context, state) {
+                              return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  width: size.width,
+                                  height: 50,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    children: [
+                                      _ItemList(
+                                        size: size,
+                                        color: green,
+                                        title: 'BATCH Hechos',
+                                        value: context
+                                            .read<WMSPickingBloc>()
+                                            .batchsDone
+                                            .length
+                                            .toString(),
+                                      ),
+                                      _ItemList(
+                                        size: size,
+                                        color: primaryColorApp,
+                                        title: 'BATCH En Proceso',
+                                        value: (context
+                                                    .read<WMSPickingBloc>()
+                                                    .listOfBatchs
+                                                    .length -
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .batchsDone
+                                                    .length)
+                                            .toString(),
+                                      ),
+                                      _ItemList(
+                                        size: size,
+                                        color: Colors.amber,
+                                        title: 'BATCH Totales',
+                                        value: context
+                                            .read<WMSPickingBloc>()
+                                            .listOfBatchs
+                                            .length
+                                            .toString(),
+                                      ),
+                                    ],
+                                  ));
+                            },
+                          ),
                         ),
                         const Padding(
                           padding: EdgeInsets.symmetric(

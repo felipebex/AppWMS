@@ -44,15 +44,17 @@ class ChangeLocationIsOkEvent extends BatchEvent {
   final bool locationIsOk;
   final int productId;
   final int batchId;
-  ChangeLocationIsOkEvent(this.locationIsOk, this.productId, this.batchId);
+  final int idMove;
+  ChangeLocationIsOkEvent(this.locationIsOk, this.productId, this.batchId, this.idMove);
 }
 
 class ChangeLocationDestIsOkEvent extends BatchEvent {
   final bool locationDestIsOk;
   final int productId;
   final int batchId;
+  final int idMove;
   ChangeLocationDestIsOkEvent(
-      this.locationDestIsOk, this.productId, this.batchId);
+      this.locationDestIsOk, this.productId, this.batchId, this.idMove);
 }
 
 class ChangeProductIsOkEvent extends BatchEvent {
@@ -60,14 +62,16 @@ class ChangeProductIsOkEvent extends BatchEvent {
   final int productId;
   final int batchId;
   final int quantity;
-  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.batchId, this.quantity);
+  final int idMove;
+  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.batchId, this.quantity, this.idMove);
 }
 
 class ChangeIsOkQuantity extends BatchEvent {
   final bool isOk;
   final int productId;
   final int batchId;
-  ChangeIsOkQuantity(this.isOk, this.productId, this.batchId);
+  final int idMove;
+  ChangeIsOkQuantity(this.isOk, this.productId, this.batchId, this.idMove);
 }
 
 class ChangeCurrentProduct extends BatchEvent {
@@ -99,7 +103,8 @@ class LoadDataInfoEvent extends BatchEvent {
 class ChangeQuantitySeparate extends BatchEvent {
   final int quantity;
   final int productId;
-  ChangeQuantitySeparate(this.quantity, this.productId);
+  final int idMove;
+  ChangeQuantitySeparate(this.quantity, this.productId, this.idMove);
 }
 class AddQuantitySeparate extends BatchEvent {
   final int quantity;

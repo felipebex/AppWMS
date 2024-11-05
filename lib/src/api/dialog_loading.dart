@@ -4,11 +4,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
 
-import '../../../../../../../utils/constans/colors.dart';
 
-class DialogLoading extends StatelessWidget {
-  const DialogLoading({
+class DialogLoadingNetwork extends StatelessWidget {
+  const DialogLoadingNetwork({
     super.key,
   });
 
@@ -27,7 +27,7 @@ class DialogLoading extends StatelessWidget {
               height: 100,
               width: 200,
               child: Image.asset(
-                "assets/images/logo.jpeg",
+                "assets/images/icono.jpeg",
                 fit: BoxFit.cover,
               ),
             ),
@@ -39,7 +39,7 @@ class DialogLoading extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            const Text('Pasando al siguiente producto...',
+            const Text('Espera un momento...',
                 style: TextStyle(color: grey, fontSize: 14)),
           ],
         )),
