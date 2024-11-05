@@ -4,9 +4,13 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
 
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -31,13 +35,75 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return Scaffold(
-        backgroundColor: Colors.white,
-        appBar:
-            AppBarGlobal(tittle: 'BATCH - PACKING', actions: const SizedBox()),
-        body: Container(
-          margin: const EdgeInsets.only(top: 10),
+        bottomNavigationBar: AnimatedNotchBottomBar(
+                  /// Provide NotchBottomBarController
+                  notchBottomBarController: controller,
+                  color: Colors.white,
+                  showLabel: true,
+                  textOverflow: TextOverflow.visible,
+                  maxLine: 1,
+                  shadowElevation: 3,
+                  kBottomRadius: 8.0,
+                  notchColor: primaryColorApp,
+                  removeMargins: false,
+                  showShadow: false,
+                  durationInMilliSeconds: 300,
+                  itemLabelStyle: const TextStyle(fontSize: 10),
+                  elevation: 12,
+                  bottomBarItems: const [
+                    BottomBarItem(
+                      inActiveItem: Icon(
+                        Icons.batch_prediction,
+                        color: primaryColorApp,
+                      ),
+                      activeItem: Icon(
+                        Icons.batch_prediction,
+                        color: white,
+                      ),
+                      itemLabel: 'En Proceso',
+                    ),
+                    BottomBarItem(
+                      inActiveItem: Icon(
+                        Icons.batch_prediction,
+                        color: green,
+                      ),
+                      activeItem: Icon(
+                        Icons.batch_prediction,
+                        color: white,
+                      ),
+                      itemLabel: 'Hechos',
+                    ),
+                  ],
+                  onTap: (index) {
+                    setState(() {
+                      controller.index = index;
+                    });
+                    switch (index) {
+                      case 0:
+                        // context
+                        //     .read<WMSPickingBloc>()
+                        //     .add(FilterBatchesBStatusEvent(
+                        //       '',
+                        //     ));
+                        break;
+                      case 1:
+                        // context
+                        //     .read<WMSPickingBloc>()
+                        //     .add(FilterBatchesBStatusEvent(
+                        //       'done',
+                        //     ));
+                        break;
+
+                      default:
+                    }
+                  },
+                  kIconSize: 24.0,
+                ),
+
+
+        body: SizedBox(
           width: size.width * 1,
-          height: size.height * 0.9,
+          height: size.height * 0.87,
           child:
 
               ///*listado de bacths
@@ -47,9 +113,75 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
             builder: (context, state) {
               return Column(
                 children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: primaryColorApp,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: BlocProvider(
+                      create: (context) => ConnectionStatusCubit(),
+                      child:
+                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                              builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 10,
+                                  right: 10,
+                                  top: status != ConnectionStatus.online
+                                      ? 0
+                                      : 35,
+                                  bottom: 10),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.arrow_back,
+                                            color: white),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: size.width * 0.2),
+                                        child: const Text(
+                                          'BATCH - PACKING',
+                                          style: TextStyle(
+                                              color: white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                    ],
+                                  ),
+                                  const ProgressIndicatorWidget(
+                                    progress: 0.625,
+                                    completed: 5,
+                                    total: 8,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+
                   //*barra de buscar
 
-                  SizedBox(
+                  Container(
+                      margin: const EdgeInsets.only(top: 10),
                       height: 60,
                       width: size.width * 1,
                       child: Column(

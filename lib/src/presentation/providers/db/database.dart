@@ -226,11 +226,18 @@ class DataBaseSqlite {
         for (var productBatch in productsBatchList) {
 
             // Verificar si el producto ya existe con el batchId
+            // final List<Map<String, dynamic>> existingProduct = await txn.query(
+            //   'tblbatch_products',
+            //   where: 'id_product = ? AND batch_id = ? AND lot_id',
+            //   whereArgs: [productBatch.idProduct, productBatch.batchId, productBatch.lotId],
+            // );
+
+
             final List<Map<String, dynamic>> existingProduct = await txn.query(
-              'tblbatch_products',
-              where: 'id_product = ? AND batch_id = ?',
-              whereArgs: [productBatch.idProduct, productBatch.batchId],
-            );
+  'tblbatch_products',
+  where: 'id_product = ? AND batch_id = ? AND lot_id = ?',
+  whereArgs: [productBatch.idProduct, productBatch.batchId, productBatch.loteId],
+);
 
             if (existingProduct.isNotEmpty) {
               // se comenta para que no actualice todo el modelo
@@ -242,6 +249,7 @@ class DataBaseSqlite {
                   "picking_id": productBatch.pickingId?[1],
                   "location_id": productBatch.locationId?[1],
                   "lot_id": productBatch.lotId?[1],
+                  "lote_id": productBatch.loteId,
                   "location_dest_id": productBatch.locationDestId?[1],
                   "quantity": productBatch.quantity,
                 },
@@ -259,6 +267,7 @@ class DataBaseSqlite {
                   "picking_id": productBatch.pickingId?[1],
                   "location_id": productBatch.locationId?[1],
                   "lot_id": productBatch.lotId?[1],
+                  "lote_id": productBatch.loteId,
                   "location_dest_id": productBatch.locationDestId?[1],
                   "quantity": productBatch.quantity,
 

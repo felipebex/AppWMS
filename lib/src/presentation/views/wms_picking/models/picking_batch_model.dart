@@ -172,6 +172,7 @@ class ProductsBatch {
   final String? name;
   final dynamic pickingId;
   final dynamic lotId;
+  final int? loteId;
   final dynamic locationId;
   final dynamic locationDestId;
   final dynamic quantity; // Cambiado a double
@@ -200,6 +201,7 @@ class ProductsBatch {
     this.idProduct,
     this.productId,
     this.lotId,
+    this.loteId,
     this.locationId,
     this.locationDestId,
     this.quantity,
@@ -254,6 +256,8 @@ class ProductsBatch {
       productId: map['product_id'],
       pickingId: map['picking_id'],
       lotId: map['lot_id'],
+      loteId: map['lote_id'],
+      
       locationId: map['location_id'],
       locationDestId: map['location_dest_id'],
       quantity: map['quantity'],
@@ -283,6 +287,7 @@ class ProductsBatch {
       "picking_id": pickingId,
       "product_id": productId,
       "lot_id": lotId,
+      "lote_id": loteId,
       "location_id": locationId,
       "location_dest_id": locationDestId,
       "quantity": quantity,

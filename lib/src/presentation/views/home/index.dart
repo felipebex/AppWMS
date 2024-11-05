@@ -126,8 +126,8 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     Row(
                                       children: [
-                                         Icon(Icons.email,
-                                            color:  Colors.amber[200], size: 18),
+                                        Icon(Icons.email,
+                                            color: Colors.amber[200], size: 18),
                                         const SizedBox(width: 5),
                                         SizedBox(
                                           width: size.width * 0.6,
@@ -270,17 +270,23 @@ class _HomePageState extends State<HomePage> {
                                     color: green,
                                     title: 'BATCH Hechos',
                                     value: context
-                                        .read<HomeBloc>()
-                                        .countBatchDone
+                                        .read<WMSPickingBloc>()
+                                        .batchsDone
+                                        .length
                                         .toString(),
                                   ),
                                   _ItemList(
                                     size: size,
                                     color: primaryColorApp,
                                     title: 'BATCH En Proceso',
-                                    value: context
-                                        .read<HomeBloc>()
-                                        .countBatchInProgress
+                                    value: (context
+                                                .read<WMSPickingBloc>()
+                                                .listOfBatchs
+                                                .length -
+                                            context
+                                                .read<WMSPickingBloc>()
+                                                .batchsDone
+                                                .length)
                                         .toString(),
                                   ),
                                   _ItemList(
@@ -288,8 +294,9 @@ class _HomePageState extends State<HomePage> {
                                     color: Colors.amber,
                                     title: 'BATCH Totales',
                                     value: context
-                                        .read<HomeBloc>()
-                                        .countBatchAll
+                                        .read<WMSPickingBloc>()
+                                        .listOfBatchs
+                                        .length
                                         .toString(),
                                   ),
                                 ],
