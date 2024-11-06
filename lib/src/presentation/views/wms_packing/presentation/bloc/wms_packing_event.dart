@@ -84,4 +84,13 @@ class ChangeIsOkQuantity extends WmsPackingEvent {
 }
 
 
+class AddQuantitySeparate extends WmsPackingEvent {
+  final int quantity;
+  final int productId;
+  final int pedidoId;
+  AddQuantitySeparate(this.quantity, this.productId, this.pedidoId);
+}
+
+
+
 

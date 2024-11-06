@@ -79,7 +79,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
     on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
     on<ChangeProductIsOkEvent>(_onChangeProductIsOkEvent);
+    //*cantidad
     on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
+     on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
 
     //*agregar un producto a nuevo empaque
     on<AddProductPackingEvent>(_onAddProductPackingEvent);
@@ -287,13 +289,31 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     if (event.isOk) {
       //actualizamos la cantidad del producto a true
       await db.getFieldTableProductosPedidos(
-          event.pedidoId, event.productId, "is_location_is_ok", "true");
+          event.pedidoId, event.productId, "is_quantity_is_ok", "true");
     }
     quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
       quantityIsOk,
     ));
   }
+
+
+  void _onAddQuantitySeparateEvent(
+      AddQuantitySeparate event, Emitter<WmsPackingState> emit) async {
+    quantitySelected = quantitySelected + event.quantity;
+    if (event.quantity > 0) {
+      quantitySelected = quantitySelected + event.quantity;
+      await db.incremenQtytProductSeparatePacking(
+          event.pedidoId , event.productId);
+    }
+    emit(ChangeQuantitySeparateState(quantitySelected));
+  }
+
+
+
+
+
+
 
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<WmsPackingState> emit) async {

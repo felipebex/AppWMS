@@ -606,16 +606,10 @@ class DataBaseSqlite {
     await db?.delete('tblproductos_pedidos');
   }
 
-
-
   //todo: Metodos para packing
 
-   Future<int?> getFieldTableProductosPedidos(
-    int pedidoId,
-    int productId,
-    String field,
-    dynamic setValue
-  ) async {
+  Future<int?> getFieldTableProductosPedidos(
+      int pedidoId, int productId, String field, dynamic setValue) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE product_id = $productId AND pedido_id = $pedidoId');
@@ -624,9 +618,7 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
-
-
- Future<String> getFieldTableBtach(int batchId, String field) async {
+  Future<String> getFieldTableBtach(int batchId, String field) async {
     final db = await database;
     final res = await db!.rawQuery('''
       SELECT $field FROM tblbatchs WHERE id = $batchId LIMIT 1
@@ -638,10 +630,6 @@ class DataBaseSqlite {
     }
     return "";
   }
-
-
-
-
 
   //todo: Metodos para realizar el picking de un producto
 
@@ -944,6 +932,38 @@ class DataBaseSqlite {
           {'quantity_separate': newQty},
           where: 'batch_id = $batchId AND id_product = $productId',
           whereArgs: [batchId, productId],
+        );
+      }
+
+      return null; // No se encontró el batch con el batchId proporcionado
+    });
+  }
+
+  Future<int?> incremenQtytProductSeparatePacking(
+      int pedidoId, int productId) async {
+    final db = await database;
+    return await db!.transaction((txn) async {
+      // Primero, obtenemos el valor actual de product_separate_qty
+      final result = await txn.query(
+        'tblproductos_pedidos',
+        columns: ['quantity_separate'],
+        where: 'pedido_id = $pedidoId AND product_id = $productId',
+        whereArgs: [pedidoId, productId],
+      );
+
+      if (result.isNotEmpty) {
+        // Extraemos el valor actual
+        int currentQty = (result.first['quantity_separate'] as int?) ?? 0;
+
+        // Incrementamos la cantidad
+        int newQty = currentQty + 1;
+
+        // Actualizamos la tabla
+        return await txn.update(
+          'tblproductos_pedidos',
+          {'quantity_separate': newQty},
+          where: 'pedido_id = $pedidoId AND product_id = $productId',
+          whereArgs: [pedidoId, productId],
         );
       }
 

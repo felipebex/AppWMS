@@ -84,6 +84,9 @@ class _PackingScreenState extends State<PackingScreen> {
                           children: [
                             IconButton(
                               onPressed: () {
+                                   context.read<WmsPackingBloc>().add(
+                                    LoadAllProductsFromPedidoEvent(
+                                        packinghBloc.currentProduct.pedidoId ?? 0));
                                 Navigator.pop(context);
                               },
                               icon: const Icon(Icons.arrow_back,
@@ -719,48 +722,57 @@ class _PackingScreenState extends State<PackingScreen> {
                                                   if (event.logicalKey ==
                                                       LogicalKeyboardKey
                                                           .enter) {
-                                                    //                                                   if (scannedValue3
-                                                    //                                                       .isNotEmpty) {
-                                                    //                                                     if (scannedValue3
-                                                    //                                                             .toLowerCase() ==
-                                                    //                                                         batchBloc
-                                                    //                                                             .product.barcode
-                                                    //                                                             ?.toLowerCase()) {
-                                                    //                                                       batchBloc.add(
-                                                    //                                                           ValidateFieldsEvent(
-                                                    //                                                               field: "quantity",
-                                                    //                                                               isOk: true));
+                                                    if (scannedValue3
+                                                        .isNotEmpty) {
+                                                      if (scannedValue3
+                                                              .toLowerCase() ==
+                                                          packinghBloc
+                                                              .currentProduct
+                                                              .barcode
+                                                              ?.toLowerCase()) {
+                                                        packinghBloc.add(
+                                                            ValidateFieldsPackingEvent(
+                                                                field:
+                                                                    "quantity",
+                                                                isOk: true));
 
-                                                    //                                                       batchBloc.add(
-                                                    //                                                           AddQuantitySeparate(
-                                                    //                                                               1,
-                                                    //                                                               currentProduct
-                                                    //                                                                       .idProduct ??
-                                                    //                                                                   0));
+                                                        packinghBloc.add(
+                                                            AddQuantitySeparate(
+                                                          1,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .productId ??
+                                                              0,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .pedidoId ??
+                                                              0,
+                                                        ));
 
-                                                    //                                                       setState(() {
-                                                    //                                                         scannedValue3 =
-                                                    //                                                             ""; //limpiamos el valor escaneado
-                                                    //                                                       });
+                                                        setState(() {
+                                                          scannedValue3 =
+                                                              ""; //limpiamos el valor escaneado
+                                                        });
 
-                                                    //                                                       //*validamos que la cantidad sea igual a la cantidad del producto
-                                                    //                                                       if (batchBloc
-                                                    //                                                               .quantitySelected ==
-                                                    //                                                           currentProduct
-                                                    //                                                               .quantity) {
-                                                    // //*validamos que el prducto sea el ultimo de la lista
+                                                        //*validamos que la cantidad sea igual a la cantidad del producto
+                                                        if (packinghBloc
+                                                                .quantitySelected ==
+                                                            packinghBloc
+                                                                .currentProduct
+                                                                .quantity) {
+                                                          //*validamos que el prducto sea el ultimo de la lista
 
-                                                    //                                                         _nextProduct(
-                                                    //                                                             currentProduct,
-                                                    //                                                             batchBloc);
-                                                    //                                                       }
-                                                    //                                                     } else {
-                                                    //                                                       setState(() {
-                                                    //                                                         scannedValue3 =
-                                                    //                                                             ""; //limpiamos el valor escaneado
-                                                    //                                                       });
-                                                    //                                                     }
-                                                    // }
+                                                          // _nextProduct(
+                                                          //     currentProduct,
+                                                          //     batchBloc);
+                                                        }
+                                                      } else {
+                                                        setState(() {
+                                                          scannedValue3 =
+                                                              ""; //limpiamos el valor escaneado
+                                                        });
+                                                      }
+                                                    }
 
                                                     return KeyEventResult
                                                         .handled;
@@ -785,7 +797,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                       ),
                                     ),
                                     IconButton(
-                                        onPressed: packinghBloc.quantityIsOk &&
+                                        onPressed: packinghBloc. quantityIsOk &&
                                                 packinghBloc.quantitySelected >=
                                                     0
                                             ? () {

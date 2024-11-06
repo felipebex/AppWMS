@@ -11,145 +11,149 @@ class Tab2Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      floatingActionButton: const FloatingActionButton(
-        backgroundColor: primaryColorApp,
-        onPressed: null,
-        child: Icon(
-          Icons.playlist_add_check_circle_sharp,
-          color: Colors.white,
-        ),
-      ),
-      body: Container(
-        margin: const EdgeInsets.only(top: 10),
-        width: double.infinity,
-        height: size.height * 0.8,
-        child: ListView.builder(
-            itemCount: context.read<WmsPackingBloc>().listOfProductos.length,
-            itemBuilder: (context, index) {
-              final product =
-                  context.read<WmsPackingBloc>().listOfProductos[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: GestureDetector(
-                  onTap: () {
-                    //actualizamos el currentProduct
-
-                    context
-                        .read<WmsPackingBloc>()
-                        .add(FetchProductEvent(product));
-
-                    Navigator.pushNamed(
-                      context,
-                      'Packing',
-                    );
-
-                    print("Producto seleccionado: ${product.toJson()}");
-
-                  },
-                  child: Card(
-                      color: product.isSelected == 1
-                          ? primaryColorAppLigth
-                          : Colors.white,
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 10),
-                        child: Column(
-                          children: [
-                            const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Producto:",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: primaryColorApp,
-                                ),
-                              ),
-                            ),
-                            Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(" ${product.idProduct}",
-                                    style: const TextStyle(
-                                        fontSize: 16, color: black))),
-                            Row(
+    return BlocBuilder<WmsPackingBloc, WmsPackingState>(
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: Colors.white,
+          floatingActionButton: const FloatingActionButton(
+            backgroundColor: primaryColorApp,
+            onPressed: null,
+            child: Icon(
+              Icons.playlist_add_check_circle_sharp,
+              color: Colors.white,
+            ),
+          ),
+          body: Container(
+            margin: const EdgeInsets.only(top: 10),
+            width: double.infinity,
+            height: size.height * 0.8,
+            child: ListView.builder(
+                itemCount: context.read<WmsPackingBloc>().listOfProductos.length,
+                itemBuilder: (context, index) {
+                  final product =
+                      context.read<WmsPackingBloc>().listOfProductos[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        //actualizamos el currentProduct
+    
+                        context
+                            .read<WmsPackingBloc>()
+                            .add(FetchProductEvent(product));
+    
+                        Navigator.pushNamed(
+                          context,
+                          'Packing',
+                        );
+    
+                        print("Producto seleccionado: ${product.toJson()}");
+    
+                      },
+                      child: Card(
+                          color: product.isSelected == 1
+                              ? primaryColorAppLigth
+                              : Colors.white,
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                            child: Column(
                               children: [
-                                const Text(
-                                  "pedido: ",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: primaryColorApp,
-                                  ),
-                                ),
-                                Text("${product.pedidoId}",
-                                    style: const TextStyle(
-                                        fontSize: 16, color: black)),
-                               
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Text(
-                                  "Cantidad: ",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: primaryColorApp,
-                                  ),
-                                ),
-                                Text("${product.quantity}",
-                                    style: const TextStyle(
-                                        fontSize: 16, color: black)),
-                                const Spacer(),
-                                const Text(
-                                  "Unidad de medida: ",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: primaryColorApp,
-                                  ),
-                                ),
-                                Text("${product.unidades}",
-                                    style: const TextStyle(
-                                        fontSize: 16, color: black)),
-                              ],
-                            ),
-                            if (product.tracking != false)
-                              Row(
-                                children: [
-                                  const Text(
-                                    "Numero de serie/lote: ",
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Producto:",
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: primaryColorApp,
                                     ),
                                   ),
-                                  Text("${product.tracking}",
-                                      style: const TextStyle(
-                                          fontSize: 16, color: black)),
-                                ],
-                              ),
-                            // if (product.expirationDate != false)
-                            //   Row(
-                            //     children: [
-                            //       const Text(
-                            //         "Fecha de caducidad: ",
-                            //         style: TextStyle(
-                            //           fontSize: 16,
-                            //           color: primaryColorApp,
-                            //         ),
-                            //       ),
-                            //       Text("${product.expirationDate}",
-                            //           style: const TextStyle(
-                            //               fontSize: 16, color: black)),
-                            //     ],
-                            //   )
-                          ],
-                        ),
-                      )),
-                ),
-              );
-            }),
-      ),
+                                ),
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(" ${product.idProduct}",
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black))),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "pedido: ",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: primaryColorApp,
+                                      ),
+                                    ),
+                                    Text("${product.pedidoId}",
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black)),
+                                   
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Cantidad: ",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: primaryColorApp,
+                                      ),
+                                    ),
+                                    Text("${product.quantity}",
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black)),
+                                    const Spacer(),
+                                    const Text(
+                                      "Unidad de medida: ",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: primaryColorApp,
+                                      ),
+                                    ),
+                                    Text("${product.unidades}",
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black)),
+                                  ],
+                                ),
+                                if (product.tracking != false)
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        "Numero de serie/lote: ",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: primaryColorApp,
+                                        ),
+                                      ),
+                                      Text("${product.tracking}",
+                                          style: const TextStyle(
+                                              fontSize: 16, color: black)),
+                                    ],
+                                  ),
+                                // if (product.expirationDate != false)
+                                //   Row(
+                                //     children: [
+                                //       const Text(
+                                //         "Fecha de caducidad: ",
+                                //         style: TextStyle(
+                                //           fontSize: 16,
+                                //           color: primaryColorApp,
+                                //         ),
+                                //       ),
+                                //       Text("${product.expirationDate}",
+                                //           style: const TextStyle(
+                                //               fontSize: 16, color: black)),
+                                //     ],
+                                //   )
+                              ],
+                            ),
+                          )),
+                    ),
+                  );
+                }),
+          ),
+        );
+      },
     );
   }
 }
