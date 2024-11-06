@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unused_element
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unused_element, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -764,9 +764,59 @@ class _PackingScreenState extends State<PackingScreen> {
                                                             packinghBloc
                                                                 .currentProduct
                                                                 .quantity) {
-                                                          // _nextProduct(
-                                                          //     currentProduct,
-                                                          //     batchBloc);
+                                                          packinghBloc.add(
+                                                              ChangeQuantitySeparate(
+                                                            packinghBloc
+                                                                .quantitySelected,
+                                                            packinghBloc
+                                                                    .currentProduct
+                                                                    .productId ??
+                                                                0,
+                                                            packinghBloc
+                                                                    .currentProduct
+                                                                    .productId ??
+                                                                0,
+                                                          ));
+
+                                                          packinghBloc.add(SetPickingsEvent(
+                                                              packinghBloc
+                                                                      .currentProduct
+                                                                      .productId ??
+                                                                  0,
+                                                              packinghBloc
+                                                                      .currentProduct
+                                                                      .pedidoId ??
+                                                                  0));
+
+                                                          cantidadController
+                                                              .clear();
+
+                                                          setState(() {
+                                                            viewQuantity =
+                                                                false;
+                                                          });
+
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogLoadingPacking();
+                                                              });
+                                                          Future.delayed(
+                                                              const Duration(
+                                                                  seconds: 1),
+                                                              () {
+                                                            Navigator.pop(
+                                                                context);
+                                                            Navigator.pop(
+                                                                context);
+                                                            packinghBloc.add(
+                                                                LoadAllProductsFromPedidoEvent(
+                                                                    packinghBloc
+                                                                            .currentProduct
+                                                                            .pedidoId ??
+                                                                        0));
+                                                          });
                                                         }
                                                       } else {
                                                         setState(() {
@@ -834,21 +884,21 @@ class _PackingScreenState extends State<PackingScreen> {
                                       .digitsOnly, // Solo permite dígitos
                                 ],
                                 onChanged: (value) {
-                                  // // Verifica si el valor no está vacío y si es un número válido
-                                  // if (value.isNotEmpty) {
-                                  //   try {
-                                  //     batchBloc.quantitySelected =
-                                  //         int.parse(value);
-                                  //   } catch (e) {
-                                  //     // Manejo de errores si la conversión falla
-                                  //     print('Error al convertir a entero: $e');
-                                  //     // Aquí puedes mostrar un mensaje al usuario o manejar el error de otra forma
-                                  //   }
-                                  // } else {
-                                  //   // Si el valor está vacío, puedes establecer un valor por defecto
-                                  //   batchBloc.quantitySelected =
-                                  //       0; // O cualquier valor que consideres adecuado
-                                  // }
+                                  // Verifica si el valor no está vacío y si es un número válido
+                                  if (value.isNotEmpty) {
+                                    try {
+                                      packinghBloc.quantitySelected =
+                                          int.parse(value);
+                                    } catch (e) {
+                                      // Manejo de errores si la conversión falla
+                                      print('Error al convertir a entero: $e');
+                                      // Aquí puedes mostrar un mensaje al usuario o manejar el error de otra forma
+                                    }
+                                  } else {
+                                    // Si el valor está vacío, puedes establecer un valor por defecto
+                                    packinghBloc.quantitySelected =
+                                        0; // O cualquier valor que consideres adecuado
+                                  }
                                 },
                                 controller: cantidadController,
                                 keyboardType: TextInputType.number,
@@ -986,8 +1036,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                         .pedidoId ??
                                                                     0));
                                                       });
-                                                        Navigator.pop(context);
-                                                        Navigator.pop(context);
+                                                      Navigator.pop(context);
+                                                      Navigator.pop(context);
                                                       return;
                                                     });
                                               });
@@ -1018,6 +1068,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                       if (cantidad ==
                                           packinghBloc
                                               .currentProduct.quantity) {
+                                        //*cantidad correcta
+                                        //guardamos la cantidad en la bd
                                         packinghBloc.add(ChangeQuantitySeparate(
                                           int.parse(cantidadController.text),
                                           packinghBloc
@@ -1028,39 +1080,108 @@ class _PackingScreenState extends State<PackingScreen> {
                                               0,
                                         ));
 
-                                        // _nextProduct(currentProduct, batchBloc);
+                                        packinghBloc.add(SetPickingsEvent(
+                                            packinghBloc
+                                                    .currentProduct.productId ??
+                                                0,
+                                            packinghBloc
+                                                    .currentProduct.pedidoId ??
+                                                0));
+
+                                        cantidadController.clear();
+                                        setState(() {
+                                          viewQuantity = false;
+                                        });
+
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return const DialogLoadingPacking();
+                                            });
+                                        Future.delayed(
+                                            const Duration(seconds: 1), () {
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                          packinghBloc.add(
+                                              LoadAllProductsFromPedidoEvent(
+                                                  packinghBloc.currentProduct
+                                                          .pedidoId ??
+                                                      0));
+                                        });
+                                        return;
                                       } else {
                                         if (cantidad <
                                             (packinghBloc.currentProduct
                                                         .quantity ??
                                                     0)
                                                 .toInt()) {
-                                          // showDialog(
-                                          //     context: context,
-                                          //     builder: (context) {
-                                          //       return DialogAdvetenciaCantidadScreen(
-                                          //           currentProduct: currentProduct,
-                                          //           cantidad: cantidad,
-                                          //           batchId: batchBloc
-                                          //                   .batchWithProducts
-                                          //                   .batch
-                                          //                   ?.id ??
-                                          //               0,
-                                          //           onAccepted: () async {
-                                          //             batchBloc.add(
-                                          //                 ChangeQuantitySeparate(
-                                          //                     cantidad,
-                                          //                     currentProduct
-                                          //                             .idProduct ??
-                                          //                         0,
-                                          //                     currentProduct.idMove ??
-                                          //                         0));
+                                          //*cantidad menor a la cantidad pedida
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return DialogPackingAdvetenciaCantidadScreen(
+                                                    currentProduct: packinghBloc
+                                                        .currentProduct,
+                                                    cantidad: int.parse(
+                                                        cantidadController
+                                                                .text.isEmpty
+                                                            ? '0'
+                                                            : cantidadController
+                                                                .text),
+                                                    onAccepted: () {
+                                                      packinghBloc.add(
+                                                          ChangeQuantitySeparate(
+                                                        int.parse(cantidadController
+                                                                .text.isEmpty
+                                                            ? '0'
+                                                            : cantidadController
+                                                                .text),
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .productId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .pedidoId ??
+                                                            0,
+                                                      ));
 
-                                          //             _nextProduct(
-                                          //                 currentProduct, batchBloc);
-                                          //             cantidadController.clear();
-                                          //           });
-                                          //     });
+                                                      packinghBloc.add(SetPickingsEvent(
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .productId ??
+                                                              0,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .pedidoId ??
+                                                              0));
+
+                                                      cantidadController
+                                                          .clear();
+                                                      setState(() {
+                                                        viewQuantity = false;
+                                                      });
+
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return const DialogLoadingPacking();
+                                                          });
+                                                      Future.delayed(
+                                                          const Duration(
+                                                              seconds: 1), () {
+                                                        packinghBloc.add(
+                                                            LoadAllProductsFromPedidoEvent(
+                                                                packinghBloc
+                                                                        .currentProduct
+                                                                        .pedidoId ??
+                                                                    0));
+                                                      });
+                                                      Navigator.pop(context);
+                                                      Navigator.pop(context);
+                                                      return;
+                                                    });
+                                              });
                                         } else {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(

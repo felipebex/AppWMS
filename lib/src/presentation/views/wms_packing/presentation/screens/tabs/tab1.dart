@@ -145,10 +145,7 @@ class Tab1Screen extends StatelessWidget {
                           Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                context
-                                    .read<WmsPackingBloc>()
-                                    .numPackages
-                                    .toString(),
+                                packingModel?.numeroPaquetes.toString()??"",
                                 style: const TextStyle(
                                     fontSize: 16, color: primaryColorApp),
                               )),

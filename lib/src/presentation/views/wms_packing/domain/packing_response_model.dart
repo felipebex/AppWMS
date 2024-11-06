@@ -110,7 +110,7 @@ class PedidoPacking {
     final int? cantidadProductos;
     final int? numeroPaquetes;
     final List<ListaProducto>? listaProductos;
-    final List<ListaPaquete>? listaPaquetes;
+    final List<Paquete>? listaPaquetes;
 
     PedidoPacking({
         this.id,
@@ -147,7 +147,7 @@ class PedidoPacking {
         cantidadProductos: json["cantidad_productos"],
         numeroPaquetes: json["numero paquetes"],
         listaProductos: json["lista_productos"] == null ? [] : List<ListaProducto>.from(json["lista_productos"]!.map((x) => ListaProducto.fromMap(x))),
-        listaPaquetes: json["lista_paquetes"] == null ? [] : List<ListaPaquete>.from(json["lista_paquetes"]!.map((x) => ListaPaquete.fromMap(x))),
+        listaPaquetes: json["lista_paquetes"] == null ? [] : List<Paquete>.from(json["lista_paquetes"]!.map((x) => Paquete.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
@@ -184,45 +184,57 @@ class PedidoPacking {
 
 
 
-class ListaPaquete {
+class Paquete {
     final String? name;
+    final int? batchId;
+    final int? pedidoId;
     final int? cantidadProductos;
     final List<dynamic>? listaProductos;
     final bool? isSticker;
-    final DateTime? fechaCreacion;
-    final DateTime? fechaActualiazacion;
+    // final DateTime? fechaCreacion;
+    // final DateTime? fechaActualiazacion;
 
-    ListaPaquete({
+    Paquete({
         this.name,
+        this.batchId,
+        this.pedidoId,
         this.cantidadProductos,
         this.listaProductos,
         this.isSticker,
-        this.fechaCreacion,
-        this.fechaActualiazacion,
+        // this.fechaCreacion,
+        // this.fechaActualiazacion,
     });
 
-    factory ListaPaquete.fromJson(String str) => ListaPaquete.fromMap(json.decode(str));
+    factory Paquete.fromJson(String str) => Paquete.fromMap(json.decode(str));
 
     String toJson() => json.encode(toMap());
 
-    factory ListaPaquete.fromMap(Map<String, dynamic> json) => ListaPaquete(
+    factory Paquete.fromMap(Map<String, dynamic> json) => Paquete(
         name: json["name"],
+        batchId: json["batch_id"],
+        pedidoId: json["pedido_id"],
         cantidadProductos: json["cantidad_productos"],
         listaProductos: json["lista_productos"] == null ? [] : List<dynamic>.from(json["lista_productos"]!.map((x) => x)),
         isSticker: json["is_sticker"],
-        fechaCreacion: json["fecha_creacion"] == null ? null : DateTime.parse(json["fecha_creacion"]),
-        fechaActualiazacion: json["fecha_actualiazacion"] == null ? null : DateTime.parse(json["fecha_actualiazacion"]),
+        // fechaCreacion: json["fecha_creacion"] == null ? null : DateTime.parse(json["fecha_creacion"]),
+        // fechaActualiazacion: json["fecha_actualiazacion"] == null ? null : DateTime.parse(json["fecha_actualiazacion"]),
     );
 
     Map<String, dynamic> toMap() => {
         "name": name,
+        "batch_id": batchId,
+        "pedido_id": pedidoId,
         "cantidad_productos": cantidadProductos,
         "lista_productos": listaProductos == null ? [] : List<dynamic>.from(listaProductos!.map((x) => x)),
         "is_sticker": isSticker,
-        "fecha_creacion": "${fechaCreacion!.year.toString().padLeft(4, '0')}-${fechaCreacion!.month.toString().padLeft(2, '0')}-${fechaCreacion!.day.toString().padLeft(2, '0')}",
-        "fecha_actualiazacion": "${fechaActualiazacion!.year.toString().padLeft(4, '0')}-${fechaActualiazacion!.month.toString().padLeft(2, '0')}-${fechaActualiazacion!.day.toString().padLeft(2, '0')}",
+        // "fecha_creacion"
+        // "fecha_actualiazacion": "${fechaActualiazacion!.year.toString().padLeft(4, '0')}-${fechaActualiazacion!.month.toString().padLeft(2, '0')}-${fechaActualiazacion!.day.toString().padLeft(2, '0')}",
     };
 }
+
+
+
+
 
 class ListaProducto {
 

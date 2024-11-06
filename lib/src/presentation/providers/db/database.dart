@@ -109,6 +109,7 @@ class DataBaseSqlite {
 
         is_separate INTEGER, 
         is_selected INTEGER, 
+        is_packing INTEGER,
         product_separate_qty INTEGER,
         product_qty INTEGER,
         index_list INTEGER,

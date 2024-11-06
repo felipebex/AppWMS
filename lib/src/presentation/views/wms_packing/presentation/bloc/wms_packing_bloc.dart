@@ -23,6 +23,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   List<PorductoPedido> listOfProductos = [];
   List<PorductoPedido> listOfProductosProgress = [];
   List<PorductoPedido> productsDone = [];
+  //*lista de todos los productos a empacar
+  List<PorductoPedido> productsPacking = [];
+  //*lista de paquetes
+  List<Paquete> packages = [];
 
   PorductoPedido currentProduct = PorductoPedido();
 
@@ -52,10 +56,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   int quantitySelected = 0;
 
   //*numero de paquetes
-  int numPackages = 0;
-
-  //Lista de paquetes
-  List<String> packages = [];
 
   int index = 0;
 
@@ -94,13 +94,44 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //*Picking
     on<SetPickingsEvent>(_onSetPickingsEvent);
+
+    //*packing
+    on<SetPackingsEvent>(_onSetPackingsEvent);
+  }
+
+  //*metodo para realizar el empacado
+  void _onSetPackingsEvent(
+      SetPackingsEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      if (event.productos.isNotEmpty) {
+        //creamos un paquete
+        packages.add(Paquete(
+          name: 'PACK000${index++}',
+          batchId: event.batchId,
+          pedidoId: event.pedidoId,
+          cantidadProductos: event.productos.length,
+          listaProductos: event.productos,
+          isSticker: event.isSticker,
+        ));
+
+        for (var product in event.productos) {
+          //actualizamos el estado del producto como empacado
+          await db.getFieldTableProductosPedidos(
+              event.pedidoId, product.productId ?? 0, "is_packing", "true");
+        }
+
+        productsDone.clear();
+      }
+    } catch (e, s) {
+      print('Error en el  _onSetPackingsEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
   }
 
   //*metodo que se encarga de hacer el picking
   void _onSetPickingsEvent(
       SetPickingsEvent event, Emitter<WmsPackingState> emit) async {
     try {
-     
       //actualizamos el estado del producto como separado
       await db.getFieldTableProductosPedidos(
           event.pedidoId, event.productId, "is_separate", "true");
@@ -179,14 +210,14 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         listOfProductos.addAll(response);
 
         productsDone = listOfProductos
-            .where((product) => product.isSeparate == 1)
+            .where(
+                (product) => product.isSeparate == 1 && product.isPacking != 1)
             .toList();
 
         print('productsDone: ${productsDone.length}');
 
         listOfProductosProgress = listOfProductos
-            .where((product) =>
-                product.isSeparate == null )
+            .where((product) => product.isSeparate == null)
             .toList();
 
         print('productsProgress: ${listOfProductosProgress.length}');
@@ -344,10 +375,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<WmsPackingState> emit) async {
     if (event.locationIsOk) {
-
-       //actualizamos el estado del pedido como seleccionado
+      //actualizamos el estado del pedido como seleccionado
       await db.getFieldTablePedidosPacking(
-          currentProduct.batchId ??0, event.pedidoId, "is_selected", "true");
+          currentProduct.batchId ?? 0, event.pedidoId, "is_selected", "true");
 
       //actualizamos la ubicacion del producto a true
       await db.getFieldTableProductosPedidos(

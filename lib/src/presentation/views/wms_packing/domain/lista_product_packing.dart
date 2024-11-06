@@ -15,6 +15,7 @@ class PorductoPedido {
   final dynamic weight;
   final String? unidades;
   final String? observation;
+  final int? isPacking;
 
   //vairbales para el packing
    final int? quantitySeparate;
@@ -45,6 +46,7 @@ class PorductoPedido {
     this.quantitySeparate,
     this.isSelected,
     this.isSeparate,
+    this.isPacking,
     this.isLocationIsOk,
     this.productIsOk,
     this.locationDestIsOk,
@@ -79,6 +81,7 @@ class PorductoPedido {
         locationDestIsOk: json["location_dest_is_ok"] ?? false,
         isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
         observation: json["observation"],
+        isPacking: json["is_packing"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -103,5 +106,6 @@ class PorductoPedido {
         "location_dest_is_ok": locationDestIsOk,
         "is_quantity_is_ok": isQuantityIsOk,
         "observation": observation,
+        "is_packing": isPacking,
       };
 }
