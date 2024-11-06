@@ -54,6 +54,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<LoadBatchPackingFromDBEvent>(_onLoadBatchsFromDBEvent);
     //*obtener todos los pedidos de un batch
     on<LoadAllPedidosFromBatchEvent>(_onLoadAllPedidosFromBatchEvent);
+    //*obtener todos los productos de un pedido
+    on<LoadAllProductsFromPedidoEvent>(_onLoadAllProductsFromPedidoEvent);
 
     //*cambiar el estado de las variables
     on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
@@ -65,6 +67,23 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<AddProductPackingEvent>(_onAddProductPackingEvent);
   }
 
+
+
+
+void _onLoadAllProductsFromPedidoEvent(
+      LoadAllProductsFromPedidoEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      emit(WmsPackingLoading());
+
+
+
+
+    
+    } catch (e, s) {
+      print('Error en el  _onLoadAllProductsFromPedidoEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
+  }
 
 
   void _onLoadAllPedidosFromBatchEvent(
@@ -135,6 +154,17 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
         // Enviar la lista agrupada de productos de un batch para packing
         await DataBaseSqlite().insertPedidosBatchPacking(pedidosToInsert);
+
+
+        //convertir el mapa en una lista de productos unicos del pedido para packing
+        List<ListaProducto> productsToInsert = pedidosToInsert
+            .expand((pedido) => pedido.listaProductos!)
+            .toList();
+
+        print('productsToInsert: ${productsToInsert.length}');
+        // Enviar la lista agrupada de productos de un pedido para packing
+        await DataBaseSqlite().insertProductosPedidos(productsToInsert);
+
 
         // //* Carga los batches desde la base de datos
         add(LoadBatchPackingFromDBEvent());

@@ -152,19 +152,19 @@ class PakingListScreen extends StatelessWidget {
                             final packing = packingBloc.listOfPedidos[index];
                             return GestureDetector(
                               onTap: () {
-                                // context
-                                //     .read<WmsPackingBloc>()
-                                //     .add(ChangeLocationIsOkEvent(false));
-                                // context
-                                //     .read<WmsPackingBloc>()
-                                //     .add(ChangeProductIsOkEvent(false));
-                                // context.read<WmsPackingBloc>().index = 0;
-                                // context.read<WmsPackingBloc>().oldLocation = '';
-                                // packingBloc.add(LoadProdcutsPackingEvent(
-                                //     packing.id, context));
 
-                                // Navigator.pushNamed(context, 'packing-detail',
-                                //     arguments: packing);
+                                //pedimos todos los productos de un pedido
+                                
+
+
+
+                                //viajamos a la vista de detalle de un pedido
+                                Navigator.pushNamed(context, 'packing-detail',
+                                    arguments: packing);
+
+
+
+
                               },
                               child: Card(
                                   elevation: 5,

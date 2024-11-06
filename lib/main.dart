@@ -111,9 +111,9 @@ class MyApp extends StatelessWidget {
 
           'Packing': (_) => const PackingScreen(),
 
-          // 'packing-detail': (context) => PackingDetailScreen(
-          //     packingModel:
-          //         ModalRoute.of(context)!.settings.arguments as Packing?),
+          'packing-detail': (context) => PackingDetailScreen(
+              packingModel:
+                  ModalRoute.of(context)!.settings.arguments as PedidoPacking?),
 
           //*others
           'confirmation': (_) => const ConfirmationPage(),

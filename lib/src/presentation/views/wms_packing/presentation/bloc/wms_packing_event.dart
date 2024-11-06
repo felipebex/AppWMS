@@ -21,6 +21,14 @@ class LoadAllPedidosFromBatchEvent extends WmsPackingEvent {
   );
 }
 
+
+class LoadAllProductsFromPedidoEvent extends WmsPackingEvent {
+  final int pedidoId;
+  LoadAllProductsFromPedidoEvent(
+    this.pedidoId,
+  );
+}
+
 // 
 class AddProductPackingEvent extends WmsPackingEvent {}
 

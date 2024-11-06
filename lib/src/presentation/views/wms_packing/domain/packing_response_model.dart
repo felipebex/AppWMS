@@ -220,6 +220,7 @@ class ListaProducto {
 
     final int? productId;
     final int? batchId;
+    final int? pedidoId;
     final List<dynamic>? idProduct;
     final int? loteId;
     final dynamic lotId;
@@ -235,6 +236,7 @@ class ListaProducto {
     ListaProducto({
         this.productId,
         this.batchId,
+        this.pedidoId,
         this.idProduct,
         this.loteId,
         this.lotId,
@@ -255,6 +257,7 @@ class ListaProducto {
     factory ListaProducto.fromMap(Map<String, dynamic> json) => ListaProducto(
         productId: json["product_id"],
         batchId: json["batch_id"],
+        pedidoId: json["pedido_id"],
         idProduct: json["id_product"] == null ? [] : List<dynamic>.from(json["id_product"]!.map((x) => x)),
         loteId: json["lote_id"],
         lotId: json["lot_id"],
@@ -271,6 +274,7 @@ class ListaProducto {
     Map<String, dynamic> toMap() => {
         "product_id": productId,
         "batch_id": batchId,
+        "pedido_id": pedidoId,
         "id_product": idProduct == null ? [] : List<dynamic>.from(idProduct!.map((x) => x)),
         "lote_id": loteId,
         "lot_id": lotId,

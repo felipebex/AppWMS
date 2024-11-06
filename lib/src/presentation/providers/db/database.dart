@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps
+// ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks
 
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
@@ -25,7 +25,10 @@ class DataBaseSqlite {
     final path = join(dbPath, 'wmsapp.db');
 
     return await openDatabase(path,
-        version: 2, onCreate: _createDB, onUpgrade: _upgradeDB, singleInstance: true );
+        version: 2,
+        onCreate: _createDB,
+        onUpgrade: _upgradeDB,
+        singleInstance: true);
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -273,6 +276,95 @@ class DataBaseSqlite {
     }
   }
 
+  Future<void> insertProductosPedidos(List<ListaProducto> productosList) async {
+    try {
+      final db = await database;
+
+      // Inicia la transacción
+      await db!.transaction((txn) async {
+        for (var producto in productosList) {
+          // Verificar si el producto ya existe
+          final List<Map<String, dynamic>> existingProducto = await txn.query(
+            'productos_pedidos',
+            where: 'id = ? AND batch_id = ? AND pedido_id = ?',
+            whereArgs: [
+              producto.productId,
+              producto.batchId,
+              producto.pedidoId
+            ],
+          );
+
+          if (existingProducto.isNotEmpty) {
+            // Actualizar el producto si ya existe
+            await txn.update(
+              'productos_pedidos',
+              {
+                "product_id": producto.productId,
+                "batch_id": producto.batchId,
+                "pedido_id": producto.pedidoId,
+                "id_product": producto.idProduct?[1],
+                "lote_id": producto.loteId,
+                "lot_id": producto.lotId == false ? "" : producto.lotId?[1],
+                "location_id": producto.locationId?[1],
+                "location_dest_id": producto.locationDestId?[1],
+                "quantity": producto.quantity,
+                "tracking": producto.tracking == false
+                    ? ""
+                    : producto.tracking, // Si tracking es false, poner ""
+                "barcode": producto.barcode == false
+                    ? ""
+                    : producto.barcode, // Si barcode es false, poner ""
+                "weight": producto.weight == false
+                    ? 0
+                    : producto.weight, // Si weight es false, poner 0
+                "unidades": producto.unidades == false
+                    ? ""
+                    : producto.unidades, // Si unidades es false, poner ""
+              },
+              where: 'id = ? AND batch_id = ? AND pedido_id = ?',
+              whereArgs: [
+                producto.productId,
+                producto.batchId,
+                producto.pedidoId
+              ],
+            );
+          } else {
+            // Insertar el producto si no existe
+            await txn.insert(
+              'productos_pedidos',
+              {
+                "product_id": producto.productId,
+                "batch_id": producto.batchId,
+                "pedido_id": producto.pedidoId,
+                "id_product": producto.idProduct?[1],
+                "lote_id": producto.loteId,
+                "lot_id": producto.lotId == false ? "" : producto.lotId?[1],
+                "location_id": producto.locationId?[1],
+                "location_dest_id": producto.locationDestId?[1],
+                "quantity": producto.quantity,
+                "tracking": producto.tracking == false
+                    ? ""
+                    : producto.tracking, // Si tracking es false, poner ""
+                "barcode": producto.barcode == false
+                    ? ""
+                    : producto.barcode, // Si barcode es false, poner ""
+                "weight": producto.weight == false
+                    ? 0
+                    : producto.weight, // Si weight es false, poner 0
+                "unidades": producto.unidades == false
+                    ? ""
+                    : producto.unidades, // Si unidades es false, poner ""
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
+        }
+      });
+    } catch (e, s) {
+      print("Error al insertar productos en productos_pedidos: $e ==> $s");
+    }
+  }
+
   //Todo: Métodos para batches
   //* Insertar un batch
   Future<void> insertBatch(BatchsModel batch) async {
@@ -342,11 +434,13 @@ class DataBaseSqlite {
     }
     return [];
   }
+
   //* Obtener todos los batchs del packing
   Future<List<BatchPackingModel>> getAllBatchsPacking() async {
     try {
       final db = await database;
-      final List<Map<String, dynamic>> maps = await db!.query('tblbatchs_packing');
+      final List<Map<String, dynamic>> maps =
+          await db!.query('tblbatchs_packing');
 
       final List<BatchPackingModel> batchs = maps.map((map) {
         return BatchPackingModel.fromMap(map);
@@ -357,7 +451,6 @@ class DataBaseSqlite {
     }
     return [];
   }
-
 
   //todo metodos para obtener los pedidos de un packing
   Future<List<PedidoPacking>> getPedidosPacking(int batchId) async {
@@ -374,6 +467,20 @@ class DataBaseSqlite {
     return pedidos;
   }
 
+  // //todo metodos para obtener los productos de un pedido
+  // Future<List<ProductosPedidos>> getProductosPedidos(int pedidoId) async {
+  //   final db = await database;
+  //   final List<Map<String, dynamic>> maps = await db!.query(
+  //     'productos_pedidos',
+  //     where: 'pedido_id = ?',
+  //     whereArgs: [pedidoId],
+  //   );
+
+  //   final List<ProductosPedidos> productos = maps.map((map) {
+  //     return ProductosPedidos.fromMap(map);
+  //   }).toList();
+  //   return productos;
+  // }
 
   //Todo: Métodos para batchs_products
 
@@ -384,13 +491,6 @@ class DataBaseSqlite {
       // Inicia la transacción
       await db!.transaction((txn) async {
         for (var productBatch in productsBatchList) {
-          // Verificar si el producto ya existe con el batchId
-          // final List<Map<String, dynamic>> existingProduct = await txn.query(
-          //   'tblbatch_products',
-          //   where: 'id_product = ? AND batch_id = ? AND lot_id',
-          //   whereArgs: [productBatch.idProduct, productBatch.batchId, productBatch.lotId],
-          // );
-
           final List<Map<String, dynamic>> existingProduct = await txn.query(
             'tblbatch_products',
             where: 'id_product = ? AND batch_id = ? AND lot_id = ?',
