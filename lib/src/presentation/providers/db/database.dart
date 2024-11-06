@@ -155,6 +155,7 @@ class DataBaseSqlite {
       unidades TEXT,
 
       is_selected INTEGER,
+      is_separate INTEGER,
       quantity_separate INTEGER,
 
       is_location_is_ok INTEGER,

@@ -1,10 +1,12 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unused_element
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_loading_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
@@ -84,9 +86,10 @@ class _PackingScreenState extends State<PackingScreen> {
                           children: [
                             IconButton(
                               onPressed: () {
-                                   context.read<WmsPackingBloc>().add(
+                                context.read<WmsPackingBloc>().add(
                                     LoadAllProductsFromPedidoEvent(
-                                        packinghBloc.currentProduct.pedidoId ?? 0));
+                                        packinghBloc.currentProduct.pedidoId ??
+                                            0));
                                 Navigator.pop(context);
                               },
                               icon: const Icon(Icons.arrow_back,
@@ -760,8 +763,6 @@ class _PackingScreenState extends State<PackingScreen> {
                                                             packinghBloc
                                                                 .currentProduct
                                                                 .quantity) {
-                                                          //*validamos que el prducto sea el ultimo de la lista
-
                                                           // _nextProduct(
                                                           //     currentProduct,
                                                           //     batchBloc);
@@ -797,7 +798,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                       ),
                                     ),
                                     IconButton(
-                                        onPressed: packinghBloc. quantityIsOk &&
+                                        onPressed: packinghBloc.quantityIsOk &&
                                                 packinghBloc.quantitySelected >=
                                                     0
                                             ? () {
@@ -896,10 +897,39 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 0,
                                           ));
 
+                                          packinghBloc.add(SetPickingsEvent(
+                                              packinghBloc.currentProduct
+                                                      .productId ??
+                                                  0,
+                                              packinghBloc.currentProduct
+                                                      .pedidoId ??
+                                                  0));
+
+                                          cantidadController.clear();
+                                          setState(() {
+                                            viewQuantity = false;
+                                          });
+
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return const DialogLoadingPacking();
+                                              });
+                                          Future.delayed(
+                                              const Duration(seconds: 1), () {
+                                            Navigator.pop(context);
+                                            Navigator.pop(context);
+                                            packinghBloc.add(
+                                                LoadAllProductsFromPedidoEvent(
+                                                    packinghBloc
+                                                            .currentProduct.pedidoId ??
+                                                        0));
+                                          });
+                                          return;
+
                                           // _nextProduct(currentProduct, batchBloc);
                                         } else {
                                           //todo cantidad menor a la cantidad pedida
-                                          //preguntar si estamos en la ultima posicion
 
                                           // showDialog(
                                           // context: context,

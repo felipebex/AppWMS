@@ -4,15 +4,12 @@ part of 'wms_packing_bloc.dart';
 sealed class WmsPackingEvent {}
 
 class LoadAllPackingEvent extends WmsPackingEvent {
-  LoadAllPackingEvent(
-  );
+  LoadAllPackingEvent();
 }
 
 class LoadBatchPackingFromDBEvent extends WmsPackingEvent {
-  LoadBatchPackingFromDBEvent(
-  );
+  LoadBatchPackingFromDBEvent();
 }
-
 
 class LoadAllPedidosFromBatchEvent extends WmsPackingEvent {
   final int batchId;
@@ -28,14 +25,12 @@ class FetchProductEvent extends WmsPackingEvent {
   );
 }
 
-
 class LoadAllProductsFromPedidoEvent extends WmsPackingEvent {
   final int pedidoId;
   LoadAllProductsFromPedidoEvent(
     this.pedidoId,
   );
 }
-
 
 class ValidateFieldsPackingEvent extends WmsPackingEvent {
   final String field;
@@ -45,15 +40,13 @@ class ValidateFieldsPackingEvent extends WmsPackingEvent {
 
 class ChangeQuantitySeparate extends WmsPackingEvent {
   final int quantity;
-   final int productId;
+  final int productId;
   final int pedidoId;
   ChangeQuantitySeparate(this.quantity, this.productId, this.pedidoId);
 }
 
-
-// 
+//
 class AddProductPackingEvent extends WmsPackingEvent {}
-
 
 //* CAMBIAR VALORES DE VARIABLES
 class ChangeLocationIsOkEvent extends WmsPackingEvent {
@@ -73,7 +66,8 @@ class ChangeProductIsOkEvent extends WmsPackingEvent {
   final int productId;
   final int pedidoId;
   final int quantity;
-  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.pedidoId, this.quantity);
+  ChangeProductIsOkEvent(
+      this.productIsOk, this.productId, this.pedidoId, this.quantity);
 }
 
 class ChangeIsOkQuantity extends WmsPackingEvent {
@@ -83,7 +77,6 @@ class ChangeIsOkQuantity extends WmsPackingEvent {
   ChangeIsOkQuantity(this.isOk, this.productId, this.pedidoId);
 }
 
-
 class AddQuantitySeparate extends WmsPackingEvent {
   final int quantity;
   final int productId;
@@ -91,6 +84,9 @@ class AddQuantitySeparate extends WmsPackingEvent {
   AddQuantitySeparate(this.quantity, this.productId, this.pedidoId);
 }
 
+class SetPickingsEvent extends WmsPackingEvent {
+  final int productId;
+  final int pedidoId;
 
-
-
+  SetPickingsEvent(this.productId, this.pedidoId);
+}

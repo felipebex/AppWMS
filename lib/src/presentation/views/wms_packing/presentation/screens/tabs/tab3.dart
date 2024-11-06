@@ -17,106 +17,120 @@ class Tab3Screen extends StatelessWidget {
             margin: const EdgeInsets.only(top: 10, bottom: 10),
             width: double.infinity,
             height: size.height * 0.4,
-            // child: ListView.builder(
-            //     itemCount:
-            //         context.read<WmsPackingBloc>().listProductPacking.length,
-            //     itemBuilder: (context, index) {
-            //       final product =
-            //           context.read<WmsPackingBloc>().listProductPacking[index];
-            //       return Padding(
-            //         padding: const EdgeInsets.symmetric(horizontal: 8),
-            //         child: GestureDetector(
-            //           onTap: () {
-            //             Navigator.pushNamed(
-            //               context,
-            //               'Packing',
-            //             );
-            //           },
-            //           child: Card(
-            //               color: Colors.white,
-            //               elevation: 5,
-            //               child: Padding(
-            //                 padding: const EdgeInsets.symmetric(
-            //                     horizontal: 12, vertical: 10),
-            //                 child: Column(
-            //                   children: [
-            //                     const Align(
-            //                       alignment: Alignment.centerLeft,
-            //                       child: Text(
-            //                         "Producto:",
-            //                         style: TextStyle(
-            //                           fontSize: 16,
-            //                           color: primaryColorApp,
-            //                         ),
-            //                       ),
-            //                     ),
-            //                     Align(
-            //                         alignment: Alignment.centerLeft,
-            //                         child: Text(
-            //                             "Product: ${product.productId[1]}",
-            //                             style: const TextStyle(
-            //                                 fontSize: 16, color: black))),
-            //                     Row(
-            //                       children: [
-            //                         const Text(
-            //                           "Cantidad: ",
-            //                           style: TextStyle(
-            //                             fontSize: 16,
-            //                             color: primaryColorApp,
-            //                           ),
-            //                         ),
-            //                         Text("${product.quantity}",
-            //                             style: const TextStyle(
-            //                                 fontSize: 16, color: black)),
-            //                         const Spacer(),
-            //                         const Text(
-            //                           "Unidad de medida: ",
-            //                           style: TextStyle(
-            //                             fontSize: 16,
-            //                             color: primaryColorApp,
-            //                           ),
-            //                         ),
-            //                         Text("${product.productUomId[1]}",
-            //                             style: const TextStyle(
-            //                                 fontSize: 16, color: black)),
-            //                       ],
-            //                     ),
-            //                     if (product.lotName != false)
-            //                       Row(
-            //                         children: [
-            //                           const Text(
-            //                             "Numero de serie/lote: ",
-            //                             style: TextStyle(
-            //                               fontSize: 16,
-            //                               color: primaryColorApp,
-            //                             ),
-            //                           ),
-            //                           Text("${product.lotName}",
-            //                               style: const TextStyle(
-            //                                   fontSize: 16, color: black)),
-            //                         ],
-            //                       ),
-            //                     if (product.expirationDate != false)
-            //                       Row(
-            //                         children: [
-            //                           const Text(
-            //                             "Fecha de caducidad: ",
-            //                             style: TextStyle(
-            //                               fontSize: 16,
-            //                               color: primaryColorApp,
-            //                             ),
-            //                           ),
-            //                           Text("${product.expirationDate}",
-            //                               style: const TextStyle(
-            //                                   fontSize: 16, color: black)),
-            //                         ],
-            //                       )
-            //                   ],
-            //                 ),
-            //               )),
-            //         ),
-            //       );
-            //     }),
+            child: ListView.builder(
+                itemCount: context.read<WmsPackingBloc>().productsDone.length,
+                itemBuilder: (context, index) {
+                  final product =
+                      context.read<WmsPackingBloc>().productsDone[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          'Packing',
+                        );
+                      },
+                      child: Card(
+                          color: product.isSeparate == 1
+                              ? Colors.green[100]
+                              : Colors.white,
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
+                            child: Column(
+                              children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    "Producto:",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: primaryColorApp,
+                                    ),
+                                  ),
+                                ),
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(" ${product.idProduct}",
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black))),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "pedido: ",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: primaryColorApp,
+                                      ),
+                                    ),
+                                    Text("${product.pedidoId}",
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black)),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      "Cantidad: ",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: primaryColorApp,
+                                      ),
+                                    ),
+                                    Text("${product.quantity}",
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black)),
+                                    const Spacer(),
+                                    const Text(
+                                      "Unidad de medida: ",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: primaryColorApp,
+                                      ),
+                                    ),
+                                    Text("${product.unidades}",
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black)),
+                                  ],
+                                ),
+                                if (product.tracking != false)
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        "Numero de serie/lote: ",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: primaryColorApp,
+                                        ),
+                                      ),
+                                      Text("${product.tracking}",
+                                          style: const TextStyle(
+                                              fontSize: 16, color: black)),
+                                    ],
+                                  ),
+                                // if (product.expirationDate != false)
+                                //   Row(
+                                //     children: [
+                                //       const Text(
+                                //         "Fecha de caducidad: ",
+                                //         style: TextStyle(
+                                //           fontSize: 16,
+                                //           color: primaryColorApp,
+                                //         ),
+                                //       ),
+                                //       Text("${product.expirationDate}",
+                                //           style: const TextStyle(
+                                //               fontSize: 16, color: black)),
+                                //     ],
+                                //   )
+                              ],
+                            ),
+                          )),
+                    ),
+                  );
+                }),
           ),
           const Text("Listado de empaques",
               style: TextStyle(
@@ -145,7 +159,8 @@ class Tab3Screen extends StatelessWidget {
                       children: [
                         ListTile(
                           title: Text('Detalles de: ${[index]}'),
-                          subtitle: const Text('Cantidad: 1'), // Puedes ajustar esto
+                          subtitle:
+                              const Text('Cantidad: 1'), // Puedes ajustar esto
                         ),
                       ],
                     ),

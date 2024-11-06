@@ -21,7 +21,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
   //*lista de productos de un pedido
   List<PorductoPedido> listOfProductos = [];
-  List<PorductoPedido> listOfProductosRecomendados = [];
+  List<PorductoPedido> listOfProductosProgress = [];
+  List<PorductoPedido> productsDone = [];
 
   PorductoPedido currentProduct = PorductoPedido();
 
@@ -81,7 +82,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ChangeProductIsOkEvent>(_onChangeProductIsOkEvent);
     //*cantidad
     on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
-     on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
 
     //*agregar un producto a nuevo empaque
     on<AddProductPackingEvent>(_onAddProductPackingEvent);
@@ -90,6 +91,24 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //*evento para cambiar la cantidad seleccionada
     on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
+
+    //*Picking
+    on<SetPickingsEvent>(_onSetPickingsEvent);
+  }
+
+  //*metodo que se encarga de hacer el picking
+  void _onSetPickingsEvent(
+      SetPickingsEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      await db.getFieldTableProductosPedidos(
+          event.pedidoId, event.productId, "is_separate", "true");
+
+      // viewQuantity = false;
+      quantitySelected = 0;
+    } catch (e, s) {
+      print('Error en el  _onSetPickingsEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
   }
 
   //*metodo para cambiar la cantidad seleccionada
@@ -157,6 +176,19 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         print('response lista de productos: ${response.length}');
         listOfProductos.clear();
         listOfProductos.addAll(response);
+
+        productsDone = listOfProductos
+            .where((product) => product.isSeparate == 1)
+            .toList();
+
+        print('productsDone: ${productsDone.length}');
+
+        listOfProductosProgress = listOfProductos
+            .where((product) =>
+                product.isSeparate == null )
+            .toList();
+
+        print('productsProgress: ${listOfProductosProgress.length}');
 
         getPosicions();
 
@@ -297,23 +329,16 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     ));
   }
 
-
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<WmsPackingState> emit) async {
     quantitySelected = quantitySelected + event.quantity;
     if (event.quantity > 0) {
       quantitySelected = quantitySelected + event.quantity;
       await db.incremenQtytProductSeparatePacking(
-          event.pedidoId , event.productId);
+          event.pedidoId, event.productId);
     }
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
-
-
-
-
-
-
 
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<WmsPackingState> emit) async {

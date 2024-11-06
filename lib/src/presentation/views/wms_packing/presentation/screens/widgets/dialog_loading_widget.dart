@@ -4,11 +4,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
 
-import '../../../../../../../utils/constans/colors.dart';
 
-class DialogLoading extends StatelessWidget {
-  const DialogLoading({
+class DialogLoadingPacking extends StatelessWidget {
+  const DialogLoadingPacking({
     super.key,
   });
 
@@ -39,8 +39,6 @@ class DialogLoading extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            const Text('Pasando al siguiente producto...',
-                style: TextStyle(color: grey, fontSize: 14)),
           ],
         )),
         content: const Column(

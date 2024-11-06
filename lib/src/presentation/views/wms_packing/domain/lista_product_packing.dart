@@ -18,6 +18,7 @@ class PorductoPedido {
   //vairbales para el packing
    final int? quantitySeparate;
   final dynamic isSelected;
+  final dynamic isSeparate;
   final dynamic
       isLocationIsOk; // Variable para si la ubicación es leída correctamente
   final dynamic
@@ -42,6 +43,7 @@ class PorductoPedido {
     this.unidades,
     this.quantitySeparate,
     this.isSelected,
+    this.isSeparate,
     this.isLocationIsOk,
     this.productIsOk,
     this.locationDestIsOk,
@@ -69,6 +71,7 @@ class PorductoPedido {
         unidades: json["unidades"],
         quantitySeparate: json["quantity_separate"],
         isSelected: json["is_selected"],
+        isSeparate: json["is_separate"],
         isLocationIsOk: json["is_location_is_ok"] ?? false,
         productIsOk: json["product_is_ok"] ?? false,
         locationDestIsOk: json["location_dest_is_ok"] ?? false,
@@ -91,6 +94,7 @@ class PorductoPedido {
         "unidades": unidades,
         "quantity_separate": quantitySeparate,
         "is_selected": isSelected,
+        "is_separate": isSeparate,
         "is_location_is_ok": isLocationIsOk,
         "product_is_ok": productIsOk,
         "location_dest_is_ok": locationDestIsOk,

@@ -28,10 +28,10 @@ class Tab2Screen extends StatelessWidget {
             width: double.infinity,
             height: size.height * 0.8,
             child: ListView.builder(
-                itemCount: context.read<WmsPackingBloc>().listOfProductos.length,
+                itemCount: context.read<WmsPackingBloc>().listOfProductosProgress.length,
                 itemBuilder: (context, index) {
                   final product =
-                      context.read<WmsPackingBloc>().listOfProductos[index];
+                      context.read<WmsPackingBloc>().listOfProductosProgress[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: GestureDetector(
