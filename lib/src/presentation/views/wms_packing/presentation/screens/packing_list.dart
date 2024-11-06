@@ -154,7 +154,10 @@ class PakingListScreen extends StatelessWidget {
                               onTap: () {
 
                                 //pedimos todos los productos de un pedido
-                                
+                                context.read<WmsPackingBloc>().add(
+                                    LoadAllProductsFromPedidoEvent(
+                                        packing.id ?? 0));
+
 
 
 

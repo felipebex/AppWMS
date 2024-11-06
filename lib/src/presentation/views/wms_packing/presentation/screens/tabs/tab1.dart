@@ -62,8 +62,7 @@ class Tab1Screen extends StatelessWidget {
                       Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            // packingModel?.parterId[1].toString() ?? "",
-                            "",
+                            packingModel?.contacto ?? '',
                             style: const TextStyle(
                                 fontSize: 16, color: primaryColorApp),
                           )),
@@ -140,17 +139,13 @@ class Tab1Screen extends StatelessWidget {
                                 'Numero de productos: ',
                                 style: TextStyle(fontSize: 16, color: black),
                               )),
-                          // Align(
-                          //     alignment: Alignment.centerLeft,
-                          //     child: Text(
-                          //       context
-                          //           .read<WmsPackingBloc>()
-                          //           .listProductPacking
-                          //           .length
-                          //           .toString(),
-                          //       style: const TextStyle(
-                          //           fontSize: 16, color: primaryColorApp),
-                          //     )),
+                          Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                              packingModel?.cantidadProductos.toString() ?? "",
+                                style: const TextStyle(
+                                    fontSize: 16, color: primaryColorApp),
+                              )),
                         ],
                       ),
                       const Align(
@@ -162,8 +157,7 @@ class Tab1Screen extends StatelessWidget {
                       Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            // packingModel?.pickingTypeId[1].toString() ?? "",
-                            "",
+                            packingModel?.tipoOperacion ?? "",
                             style: const TextStyle(
                                 fontSize: 16, color: primaryColorApp),
                           )),

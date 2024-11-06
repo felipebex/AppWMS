@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks
 
+import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -468,19 +469,19 @@ class DataBaseSqlite {
   }
 
   // //todo metodos para obtener los productos de un pedido
-  // Future<List<ProductosPedidos>> getProductosPedidos(int pedidoId) async {
-  //   final db = await database;
-  //   final List<Map<String, dynamic>> maps = await db!.query(
-  //     'productos_pedidos',
-  //     where: 'pedido_id = ?',
-  //     whereArgs: [pedidoId],
-  //   );
+  Future<List<PorductoPedido>> getProductosPedido(int pedidoId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'productos_pedidos',
+      where: 'pedido_id = ?',
+      whereArgs: [pedidoId],
+    );
 
-  //   final List<ProductosPedidos> productos = maps.map((map) {
-  //     return ProductosPedidos.fromMap(map);
-  //   }).toList();
-  //   return productos;
-  // }
+    final List<PorductoPedido> productos = maps.map((map) {
+      return PorductoPedido.fromMap(map);
+    }).toList();
+    return productos;
+  }
 
   //Todo: Métodos para batchs_products
 

@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 
@@ -18,6 +19,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   
   //*listad de pedido de un batch
   List<PedidoPacking> listOfPedidos = [];
+
+  //*lista de productos de un pedido
+  List<PorductoPedido> listOfProductos = [];
 
   //*lista de todas las pocisiones de los productos del batchs
   List<String> positions = [];
@@ -75,9 +79,15 @@ void _onLoadAllProductsFromPedidoEvent(
     try {
       emit(WmsPackingLoading());
 
-
-
-
+      final response = await DataBaseSqlite().getProductosPedido(event.pedidoId);
+      if (response != null && response is List) {
+        print('response lista de productos: ${response.length}');
+        listOfProductos.clear();
+        listOfProductos.addAll(response);
+        emit(WmsPackingLoaded());
+      } else {
+        print('Error _onLoadAllProductsFromPedidoEvent: response is null');
+      }
     
     } catch (e, s) {
       print('Error en el  _onLoadAllProductsFromPedidoEvent: $e, $s');
@@ -96,7 +106,7 @@ void _onLoadAllProductsFromPedidoEvent(
         listOfPedidos.clear();
         listOfPedidos.addAll(response);
         print('pedidosToInsert: ${response.length}');
-        emit(WmsPackingLoaded(listOfBatchsDB));
+        emit(WmsPackingLoaded());
       } else {
         print('Error resPedidos: response is null');
       }
@@ -168,7 +178,7 @@ void _onLoadAllProductsFromPedidoEvent(
 
         // //* Carga los batches desde la base de datos
         add(LoadBatchPackingFromDBEvent());
-        emit(WmsPackingLoaded(listOfBatchs));
+        emit(WmsPackingLoaded());
       } else {
         print('Error resBatchs: response is null');
       }
@@ -186,7 +196,7 @@ void _onLoadAllProductsFromPedidoEvent(
       listOfBatchsDB.clear();
       listOfBatchsDB.addAll(batchsFromDB);
       print('batchsFromDB: ${batchsFromDB.length}');
-      emit(WmsPackingLoaded(listOfBatchsDB));
+      emit(WmsPackingLoaded());
     } catch (e, s) {
       print('Error en el  _onLoadBatchsFromDBEvent: $e, $s');
       emit(WmsPackingError(e.toString()));

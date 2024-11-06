@@ -9,8 +9,6 @@ final class WmsPackingInitial extends WmsPackingState {}
 final class WmsPackingLoading extends WmsPackingState {}
 
 final class WmsPackingLoaded extends WmsPackingState {
-  final List<BatchPackingModel> listPacking;
-  WmsPackingLoaded(this.listPacking);
 }
 
 final class WmsPackingError extends WmsPackingState {
