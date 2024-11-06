@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -33,7 +34,8 @@ class PakingListScreen extends StatelessWidget {
                   elevation: 5,
                   color: Colors.grey[200],
                   child: Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.only(
+                        left: 10, right: 10,  bottom: 10),
                     margin: const EdgeInsets.only(top: 10),
                     width: size.width * 0.9,
                     child: Column(
@@ -47,7 +49,6 @@ class PakingListScreen extends StatelessWidget {
                                   color: primaryColorApp,
                                   fontWeight: FontWeight.bold),
                             )),
-                        const SizedBox(height: 10),
                         Row(
                           children: [
                             const Align(
@@ -128,6 +129,23 @@ class PakingListScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 5),
+                        Card(
+                          elevation: 3,
+                          color: primaryColorApp,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 10, top: 10, bottom: 5),
+                            child: ProgressIndicatorWidget(
+                              progress: 0.625,
+                              completed: 5,
+                              total: context
+                                  .read<WmsPackingBloc>()
+                                  .listOfPedidos
+                                  .length,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -152,22 +170,14 @@ class PakingListScreen extends StatelessWidget {
                             final packing = packingBloc.listOfPedidos[index];
                             return GestureDetector(
                               onTap: () {
-
                                 //pedimos todos los productos de un pedido
                                 context.read<WmsPackingBloc>().add(
                                     LoadAllProductsFromPedidoEvent(
                                         packing.id ?? 0));
 
-
-
-
                                 //viajamos a la vista de detalle de un pedido
                                 Navigator.pushNamed(context, 'packing-detail',
                                     arguments: packing);
-
-
-
-
                               },
                               child: Card(
                                   elevation: 5,
@@ -211,20 +221,26 @@ class PakingListScreen extends StatelessWidget {
                                             Container(
                                               margin: const EdgeInsets.only(
                                                   left: 10),
-                                              width: 80,
+                                              width: 85,
                                               height: 30,
                                               decoration: BoxDecoration(
-                                                  color: primaryColorApp,
+                                                  color: packing.isSelected != 1
+                                                      ? grey
+                                                      : Colors.green[100],
                                                   borderRadius:
                                                       BorderRadius.circular(
                                                           10)),
-                                              child: const Center(
+                                              child: Center(
                                                 child: Text(
-                                                  // packing.state == 'assigned'
-                                                  //     ? 'Listo'
-                                                  'En proceso',
+                                                  packing.isSelected != 1
+                                                      ? 'Sin procesar'
+                                                      : 'En proceso',
                                                   style: TextStyle(
-                                                      color: Colors.white,
+                                                      color:
+                                                          packing.isSelected !=
+                                                                  1
+                                                              ? white
+                                                              : black,
                                                       fontSize: 12),
                                                   textAlign: TextAlign.center,
                                                 ),

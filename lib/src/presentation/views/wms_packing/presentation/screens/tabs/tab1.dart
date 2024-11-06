@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -103,34 +102,7 @@ class Tab1Screen extends StatelessWidget {
                       //     );
                       //   },
                       // ),
-                      const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Ubicacion de origen:",
-                            style: TextStyle(fontSize: 16, color: black),
-                          )),
-                      const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            // packingModel?.locationId[1].toString() ?? "",
-                            "",
-                            style: TextStyle(
-                                fontSize: 16, color: primaryColorApp),
-                          )),
-                      const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Ubicacion de destino:",
-                            style: TextStyle(fontSize: 16, color: black),
-                          )),
-                      const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            // packingModel?.locationDestId[1].toString() ?? "",
-                            "",
-                            style: TextStyle(
-                                fontSize: 16, color: primaryColorApp),
-                          )),
+
                       Row(
                         children: [
                           const Align(
@@ -142,7 +114,8 @@ class Tab1Screen extends StatelessWidget {
                           Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                              packingModel?.cantidadProductos.toString() ?? "",
+                                packingModel?.cantidadProductos.toString() ??
+                                    "",
                                 style: const TextStyle(
                                     fontSize: 16, color: primaryColorApp),
                               )),
@@ -189,10 +162,10 @@ class Tab1Screen extends StatelessWidget {
             const SizedBox(height: 10),
             const Text("Listado de empaques",
                 style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 16,
                     color: primaryColorApp,
                     fontWeight: FontWeight.bold)),
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
             Expanded(
               child: Container(
                 padding:
@@ -206,17 +179,20 @@ class Tab1Screen extends StatelessWidget {
                 ),
                 child: ListView.builder(
                   padding: const EdgeInsets.only(bottom: 55),
-                  itemCount: context.read<WmsPackingBloc>().packages.length,
+                  itemCount: 2,
                   itemBuilder: (BuildContext context, int index) {
-                    return ExpansionTile(
-                      title: Text('Paquete ${index + 1}'),
-                      children: [
-                        ListTile(
-                          title: Text(
-                              'Detalles de: ${context.read<WmsPackingBloc>().packages[index]}'),
-                          subtitle: const Text('Cantidad: 1'), // Puedes ajustar esto
-                        ),
-                      ],
+                    return Card(
+                      color: Colors.white,
+                      child: ExpansionTile(
+                        title: Text('Empaque ${index + 1}'),
+                        children: [
+                          ListTile(
+                            title: Text('Detalles de: ${[index]}'),
+                            subtitle: const Text(
+                                'Cantidad: 1'), // Puedes ajustar esto
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),

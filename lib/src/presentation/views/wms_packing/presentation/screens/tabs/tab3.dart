@@ -33,7 +33,7 @@ class Tab3Screen extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(top: 10, bottom: 10),
             width: double.infinity,
-            height: size.height * 0.4,
+            height: size.height * 0.75,
             child: (context.read<WmsPackingBloc>().productsDone.isEmpty)
                 ? Center(
                     child: Column(
@@ -226,43 +226,7 @@ class Tab3Screen extends StatelessWidget {
                       );
                     }),
           ),
-          const Text("Listado de empaques",
-              style: TextStyle(
-                  fontSize: 16,
-                  color: primaryColorApp,
-                  fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-              child: ListView.builder(
-                padding: const EdgeInsets.only(bottom: 55),
-                itemCount: 2,
-                itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                    color: Colors.white,
-                    child: ExpansionTile(
-                      title: Text('Empaque ${index + 1}'),
-                      children: [
-                        ListTile(
-                          title: Text('Detalles de: ${[index]}'),
-                          subtitle:
-                              const Text('Cantidad: 1'), // Puedes ajustar esto
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
+          
         ],
       ),
     );
