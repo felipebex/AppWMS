@@ -3,8 +3,7 @@
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/products_batch_model.dart';
+
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -26,7 +25,7 @@ class DataBaseSqlite {
     final path = join(dbPath, 'wmsapp.db');
 
     return await openDatabase(path,
-        version: 2, onCreate: _createDB, onUpgrade: _upgradeDB);
+        version: 2, onCreate: _createDB, onUpgrade: _upgradeDB, singleInstance: true );
   }
 
   Future<void> _createDB(Database db, int version) async {
@@ -239,7 +238,7 @@ class DataBaseSqlite {
                     ? ""
                     : pedido.referencia, // Si referencia es false, poner ""
                 "contacto": pedido
-                    .contacto?[1], // Convierte contacto a JSON si es necesario
+                    .contacto, // Convierte contacto a JSON si es necesario
                 "tipo_operacion": pedido.tipoOperacion.toString(),
                 "cantidad_productos": pedido.cantidadProductos,
                 "numero_paquetes": pedido.numeroPaquetes,
@@ -259,7 +258,7 @@ class DataBaseSqlite {
                     ? ""
                     : pedido.referencia, // Si referencia es false, poner ""
                 "contacto": pedido
-                    .contacto?[1], // Convierte contacto a JSON si es necesario
+                    .contacto, // Convierte contacto a JSON si es necesario
                 "tipo_operacion": pedido.tipoOperacion.toString(),
                 "cantidad_productos": pedido.cantidadProductos,
                 "numero_paquetes": pedido.numeroPaquetes,
@@ -358,6 +357,23 @@ class DataBaseSqlite {
     }
     return [];
   }
+
+
+  //todo metodos para obtener los pedidos de un packing
+  Future<List<PedidoPacking>> getPedidosPacking(int batchId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblpedidos_packing',
+      where: 'batch_id = ?',
+      whereArgs: [batchId],
+    );
+
+    final List<PedidoPacking> pedidos = maps.map((map) {
+      return PedidoPacking.fromMap(map);
+    }).toList();
+    return pedidos;
+  }
+
 
   //Todo: Métodos para batchs_products
 

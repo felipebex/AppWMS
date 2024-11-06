@@ -8,9 +8,10 @@ import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing_list.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
@@ -104,15 +105,15 @@ class MyApp extends StatelessWidget {
           //*wms Packing
           'wms-packing': (_) => const WmsPackingScreen(),
 
-          // 'packing-list': (context) => PakingListScreen(
-          //     batchModel:
-          //         ModalRoute.of(context)!.settings.arguments as BatchsModel?),
+          'packing-list': (context) => PakingListScreen(
+              batchModel:
+                  ModalRoute.of(context)!.settings.arguments as BatchPackingModel?),
 
           'Packing': (_) => const PackingScreen(),
 
-          'packing-detail': (context) => PackingDetailScreen(
-              packingModel:
-                  ModalRoute.of(context)!.settings.arguments as Packing?),
+          // 'packing-detail': (context) => PackingDetailScreen(
+          //     packingModel:
+          //         ModalRoute.of(context)!.settings.arguments as Packing?),
 
           //*others
           'confirmation': (_) => const ConfirmationPage(),

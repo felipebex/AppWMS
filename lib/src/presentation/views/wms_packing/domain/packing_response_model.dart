@@ -102,7 +102,8 @@ class PedidoPacking {
     final int? batchId;
     final String? name;
     final dynamic referencia;
-    final List<dynamic>? contacto;
+    final String? contacto;
+    final int? contactoId;
     final String? tipoOperacion;
     final int? cantidadProductos;
     final int? numeroPaquetes;
@@ -115,6 +116,7 @@ class PedidoPacking {
         this.name,
         this.referencia,
         this.contacto,
+        this.contactoId,
         this.tipoOperacion,
         this.cantidadProductos,
         this.numeroPaquetes,
@@ -131,7 +133,10 @@ class PedidoPacking {
         batchId: json["batch_id"],
         name: json["name"],
         referencia: json["referencia"],
-        contacto: json["contacto"] == null ? [] : List<dynamic>.from(json["contacto"]!.map((x) => x)),
+        
+        // contacto: json["contacto"] == null ? [] : List<dynamic>.from(json["contacto"]!.map((x) => x)),
+        contacto: json["contacto"],
+        contactoId: json["contacto_id"],
         tipoOperacion: json["tipo_operacion"],
         cantidadProductos: json["cantidad_productos"],
         numeroPaquetes: json["numero paquetes"],
@@ -144,7 +149,8 @@ class PedidoPacking {
         "batch_id": batchId,
         "name": name,
         "referencia": referencia,
-        "contacto": contacto == null ? [] : List<dynamic>.from(contacto!.map((x) => x)),
+        "contacto": contacto ,
+        "contacto_id": contactoId,
         "tipo_operacion": tipoOperacion,
         "cantidad_productos": cantidadProductos,
         "numero paquetes": numeroPaquetes,
@@ -223,7 +229,7 @@ class ListaProducto {
     final String? tracking;
     final dynamic barcode;
     final List<ProductPacking>? productPacking;
-    final dynamic? weight;
+    final dynamic weight;
     final String? unidades;
 
     ListaProducto({
@@ -279,27 +285,8 @@ class ListaProducto {
     };
 }
 
-enum LocationDestIdEnum {
-    PARTNERS_CUSTOMERS,
-    PARTNERS_VENDORS
-}
 
-final locationDestIdEnumValues = EnumValues({
-    "Partners/Customers": LocationDestIdEnum.PARTNERS_CUSTOMERS,
-    "Partners/Vendors": LocationDestIdEnum.PARTNERS_VENDORS
-});
 
-enum LocationIdEnum {
-    MD_SALIDA,
-    PG_EXISTENCIAS_MATERIA_PRIMA,
-    SS_EXISTENCIAS_PRODUCTO_TERMINADO
-}
-
-final locationIdEnumValues = EnumValues({
-    "MD/Salida": LocationIdEnum.MD_SALIDA,
-    "PG/Existencias/Materia Prima": LocationIdEnum.PG_EXISTENCIAS_MATERIA_PRIMA,
-    "SS/Existencias/Producto Terminado": LocationIdEnum.SS_EXISTENCIAS_PRODUCTO_TERMINADO
-});
 
 class ProductPacking {
     final dynamic barcode;
@@ -323,28 +310,4 @@ class ProductPacking {
         "barcode": barcode,
         "cantidad": cantidad,
     };
-}
-
-enum PickingTypeId {
-    CEDI_MEDELLIN_RDENES_DE_ENTREGA,
-    PAISAPAN_RDENES_DE_ENTREGA,
-    SAN_SEBASTIAN_RDENES_DE_ENTREGA
-}
-
-final pickingTypeIdValues = EnumValues({
-    "CEDI MEDELLIN: Órdenes de Entrega": PickingTypeId.CEDI_MEDELLIN_RDENES_DE_ENTREGA,
-    "PAISAPAN: Órdenes de Entrega": PickingTypeId.PAISAPAN_RDENES_DE_ENTREGA,
-    "SAN SEBASTIAN: Órdenes de Entrega": PickingTypeId.SAN_SEBASTIAN_RDENES_DE_ENTREGA
-});
-
-class EnumValues<T> {
-    Map<String, T> map;
-    late Map<T, String> reverseMap;
-
-    EnumValues(this.map);
-
-    Map<T, String> get reverse {
-            reverseMap = map.map((k, v) => MapEntry(v, k));
-            return reverseMap;
-    }
 }

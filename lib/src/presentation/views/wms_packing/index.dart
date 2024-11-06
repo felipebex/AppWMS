@@ -9,7 +9,6 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
 
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -35,71 +34,69 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
     final size = MediaQuery.sizeOf(context);
     return Scaffold(
         bottomNavigationBar: AnimatedNotchBottomBar(
-                  /// Provide NotchBottomBarController
-                  notchBottomBarController: controller,
-                  color: Colors.white,
-                  showLabel: true,
-                  textOverflow: TextOverflow.visible,
-                  maxLine: 1,
-                  shadowElevation: 3,
-                  kBottomRadius: 8.0,
-                  notchColor: primaryColorApp,
-                  removeMargins: false,
-                  showShadow: false,
-                  durationInMilliSeconds: 300,
-                  itemLabelStyle: const TextStyle(fontSize: 10),
-                  elevation: 12,
-                  bottomBarItems: const [
-                    BottomBarItem(
-                      inActiveItem: Icon(
-                        Icons.batch_prediction,
-                        color: primaryColorApp,
-                      ),
-                      activeItem: Icon(
-                        Icons.batch_prediction,
-                        color: white,
-                      ),
-                      itemLabel: 'En Proceso',
-                    ),
-                    BottomBarItem(
-                      inActiveItem: Icon(
-                        Icons.batch_prediction,
-                        color: green,
-                      ),
-                      activeItem: Icon(
-                        Icons.batch_prediction,
-                        color: white,
-                      ),
-                      itemLabel: 'Hechos',
-                    ),
-                  ],
-                  onTap: (index) {
-                    setState(() {
-                      controller.index = index;
-                    });
-                    switch (index) {
-                      case 0:
-                        // context
-                        //     .read<WMSPickingBloc>()
-                        //     .add(FilterBatchesBStatusEvent(
-                        //       '',
-                        //     ));
-                        break;
-                      case 1:
-                        // context
-                        //     .read<WMSPickingBloc>()
-                        //     .add(FilterBatchesBStatusEvent(
-                        //       'done',
-                        //     ));
-                        break;
+          /// Provide NotchBottomBarController
+          notchBottomBarController: controller,
+          color: Colors.white,
+          showLabel: true,
+          textOverflow: TextOverflow.visible,
+          maxLine: 1,
+          shadowElevation: 3,
+          kBottomRadius: 8.0,
+          notchColor: primaryColorApp,
+          removeMargins: false,
+          showShadow: false,
+          durationInMilliSeconds: 300,
+          itemLabelStyle: const TextStyle(fontSize: 10),
+          elevation: 12,
+          bottomBarItems: const [
+            BottomBarItem(
+              inActiveItem: Icon(
+                Icons.batch_prediction,
+                color: primaryColorApp,
+              ),
+              activeItem: Icon(
+                Icons.batch_prediction,
+                color: white,
+              ),
+              itemLabel: 'En Proceso',
+            ),
+            BottomBarItem(
+              inActiveItem: Icon(
+                Icons.batch_prediction,
+                color: green,
+              ),
+              activeItem: Icon(
+                Icons.batch_prediction,
+                color: white,
+              ),
+              itemLabel: 'Hechos',
+            ),
+          ],
+          onTap: (index) {
+            setState(() {
+              controller.index = index;
+            });
+            switch (index) {
+              case 0:
+                // context
+                //     .read<WMSPickingBloc>()
+                //     .add(FilterBatchesBStatusEvent(
+                //       '',
+                //     ));
+                break;
+              case 1:
+                // context
+                //     .read<WMSPickingBloc>()
+                //     .add(FilterBatchesBStatusEvent(
+                //       'done',
+                //     ));
+                break;
 
-                      default:
-                    }
-                  },
-                  kIconSize: 24.0,
-                ),
-
-
+              default:
+            }
+          },
+          kIconSize: 24.0,
+        ),
         body: SizedBox(
           width: size.width * 1,
           height: size.height * 0.87,
@@ -163,10 +160,13 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                       const Spacer(),
                                     ],
                                   ),
-                                   ProgressIndicatorWidget(
+                                  ProgressIndicatorWidget(
                                     progress: 0.625,
                                     completed: 5,
-                                    total: context.read<WmsPackingBloc>().listOfBatchs.length,
+                                    total: context
+                                        .read<WmsPackingBloc>()
+                                        .listOfBatchs
+                                        .length,
                                   ),
                                 ],
                               ),
@@ -256,8 +256,6 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                 .listOfBatchsDB
                                 .length,
                             itemBuilder: (context, index) {
-
-
                               final List<BatchPackingModel> inProgressBatches =
                                   context
                                       .read<WmsPackingBloc>()
@@ -282,7 +280,22 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                     horizontal: 10, vertical: 5),
                                 child: GestureDetector(
                                   onTap: () async {
-                                   
+                                    //mandamos a traer de la base de datos los pedidos del batch
+                                    context
+                                        .read<WmsPackingBloc>()
+                                        .add(LoadAllPedidosFromBatchEvent(
+                                          batch.id ?? 0,
+                                        ));
+
+                                    //viajamos a la vista de detalles del batch con sus pedidos
+                                    Navigator.pushNamed(
+                                      context,
+                                      'packing-list',
+                                      arguments: batch,
+                                    );
+
+
+                                      
                                   },
                                   child: Card(
                                     color: Colors.white,
@@ -389,7 +402,8 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             dynamic nameUser = batch.userId;
 
                                             if (batch.userId is List) {
-                                              nameUser = batch.userId.toString();
+                                              nameUser =
+                                                  batch.userId.toString();
                                             }
                                             return Align(
                                               alignment: Alignment.centerLeft,

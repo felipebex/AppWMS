@@ -13,6 +13,14 @@ class LoadBatchPackingFromDBEvent extends WmsPackingEvent {
   );
 }
 
+
+class LoadAllPedidosFromBatchEvent extends WmsPackingEvent {
+  final int batchId;
+  LoadAllPedidosFromBatchEvent(
+    this.batchId,
+  );
+}
+
 // 
 class AddProductPackingEvent extends WmsPackingEvent {}
 

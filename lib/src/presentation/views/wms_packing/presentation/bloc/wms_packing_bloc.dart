@@ -11,9 +11,13 @@ part 'wms_packing_event.dart';
 part 'wms_packing_state.dart';
 
 class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
+  
   //*lista de batchs para packing
   List<BatchPackingModel> listOfBatchs = [];
   List<BatchPackingModel> listOfBatchsDB = [];
+  
+  //*listad de pedido de un batch
+  List<PedidoPacking> listOfPedidos = [];
 
   //*lista de todas las pocisiones de los productos del batchs
   List<String> positions = [];
@@ -46,8 +50,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   WmsPackingBloc() : super(WmsPackingInitial()) {
     //*obtener todos los batchs para packing de odoo
     on<LoadAllPackingEvent>(_onLoadAllPackingEvent);
-
+    //*obtener todos los batchs para packing de la base de datos
     on<LoadBatchPackingFromDBEvent>(_onLoadBatchsFromDBEvent);
+    //*obtener todos los pedidos de un batch
+    on<LoadAllPedidosFromBatchEvent>(_onLoadAllPedidosFromBatchEvent);
 
     //*cambiar el estado de las variables
     on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
@@ -58,6 +64,30 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     //*agregar un producto a nuevo empaque
     on<AddProductPackingEvent>(_onAddProductPackingEvent);
   }
+
+
+
+  void _onLoadAllPedidosFromBatchEvent(
+      LoadAllPedidosFromBatchEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      emit(WmsPackingLoading());
+      final response = await DataBaseSqlite().getPedidosPacking(event.batchId);
+      if (response != null && response is List) {
+        print('response pedidos: ${response.length}');
+        listOfPedidos.clear();
+        listOfPedidos.addAll(response);
+        print('pedidosToInsert: ${response.length}');
+        emit(WmsPackingLoaded(listOfBatchsDB));
+      } else {
+        print('Error resPedidos: response is null');
+      }
+    } catch (e, s) {
+      print('Error en el  _onLoadAllPedidosFromBatchEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
+  }
+
+
 
   void getPosicions() {}
 
