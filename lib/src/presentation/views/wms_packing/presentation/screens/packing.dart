@@ -7,6 +7,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_loading_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dropdowbutton_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
@@ -921,8 +922,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                             Navigator.pop(context);
                                             packinghBloc.add(
                                                 LoadAllProductsFromPedidoEvent(
-                                                    packinghBloc
-                                                            .currentProduct.pedidoId ??
+                                                    packinghBloc.currentProduct
+                                                            .pedidoId ??
                                                         0));
                                           });
                                           return;
@@ -931,33 +932,65 @@ class _PackingScreenState extends State<PackingScreen> {
                                         } else {
                                           //todo cantidad menor a la cantidad pedida
 
-                                          // showDialog(
-                                          // context: context,
-                                          // builder: (context) {
-                                          //   return DialogAdvetenciaCantidadScreen(
-                                          //       currentProduct:
-                                          //           currentProduct,
-                                          //       cantidad: batchBloc
-                                          //           .quantitySelected,
-                                          //       batchId: batchBloc
-                                          //               .batchWithProducts
-                                          //               .batch
-                                          //               ?.id ??
-                                          //           0,
-                                          //       onAccepted: () {
-                                          //         batchBloc.add(
-                                          //             ChangeQuantitySeparate(
-                                          //                 int.parse(value),
-                                          //                 currentProduct
-                                          //                         .idProduct ??
-                                          //                     0,
-                                          //                 currentProduct
-                                          //                         .idMove ??
-                                          //                     0));
-                                          //         _nextProduct(currentProduct,
-                                          //             batchBloc);
-                                          //       });
-                                          // });
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return DialogPackingAdvetenciaCantidadScreen(
+                                                    currentProduct: packinghBloc
+                                                        .currentProduct,
+                                                    cantidad: int.parse(
+                                                        cantidadController
+                                                            .text),
+                                                    onAccepted: () {
+                                                      packinghBloc.add(
+                                                          ChangeQuantitySeparate(
+                                                        int.parse(value),
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .productId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .pedidoId ??
+                                                            0,
+                                                      ));
+
+                                                      packinghBloc.add(SetPickingsEvent(
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .productId ??
+                                                              0,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .pedidoId ??
+                                                              0));
+
+                                                      cantidadController
+                                                          .clear();
+                                                      setState(() {
+                                                        viewQuantity = false;
+                                                      });
+
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return const DialogLoadingPacking();
+                                                          });
+                                                      Future.delayed(
+                                                          const Duration(
+                                                              seconds: 1), () {
+                                                        Navigator.pop(context);
+                                                        Navigator.pop(context);
+                                                        packinghBloc.add(
+                                                            LoadAllProductsFromPedidoEvent(
+                                                                packinghBloc
+                                                                        .currentProduct
+                                                                        .pedidoId ??
+                                                                    0));
+                                                      });
+                                                      return;
+                                                    });
+                                              });
                                         }
                                       }
                                     }

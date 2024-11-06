@@ -14,6 +14,7 @@ class PorductoPedido {
   final dynamic barcode;
   final dynamic weight;
   final String? unidades;
+  final String? observation;
 
   //vairbales para el packing
    final int? quantitySeparate;
@@ -48,6 +49,7 @@ class PorductoPedido {
     this.productIsOk,
     this.locationDestIsOk,
     this.isQuantityIsOk,
+    this.observation,
   });
 
   factory PorductoPedido.fromJson(String str) =>
@@ -76,6 +78,7 @@ class PorductoPedido {
         productIsOk: json["product_is_ok"] ?? false,
         locationDestIsOk: json["location_dest_is_ok"] ?? false,
         isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
+        observation: json["observation"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -99,5 +102,6 @@ class PorductoPedido {
         "product_is_ok": productIsOk,
         "location_dest_is_ok": locationDestIsOk,
         "is_quantity_is_ok": isQuantityIsOk,
+        "observation": observation,
       };
 }

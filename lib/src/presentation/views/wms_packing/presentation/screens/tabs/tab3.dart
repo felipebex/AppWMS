@@ -56,45 +56,76 @@ class Tab3Screen extends StatelessWidget {
                                     child: Text(" ${product.idProduct}",
                                         style: const TextStyle(
                                             fontSize: 16, color: black))),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      "pedido: ",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: primaryColorApp,
-                                      ),
+
+                                Card(
+                                  elevation: 3,
+                                  color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Text(
+                                              "Cantidad: ",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: primaryColorApp,
+                                              ),
+                                            ),
+                                            Text("${product.quantity}",
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: black)),
+                                            const Spacer(),
+                                            const Text(
+                                              "Unidades: ",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: primaryColorApp,
+                                              ),
+                                            ),
+                                            Text("${product.unidades}",
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: black)),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Text(
+                                              "Cantidades Separadas : ",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: primaryColorApp,
+                                              ),
+                                            ),
+                                            Text("${product.quantitySeparate}",
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: black)),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Text(
+                                              "Novedades : ",
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: primaryColorApp,
+                                              ),
+                                            ),
+                                            Text("${product.observation}",
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: black)),
+                                          ],
+                                        ),
+                                      ],
                                     ),
-                                    Text("${product.pedidoId}",
-                                        style: const TextStyle(
-                                            fontSize: 16, color: black)),
-                                  ],
+                                  ),
                                 ),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      "Cantidad: ",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: primaryColorApp,
-                                      ),
-                                    ),
-                                    Text("${product.quantity}",
-                                        style: const TextStyle(
-                                            fontSize: 16, color: black)),
-                                    const Spacer(),
-                                    const Text(
-                                      "Unidad de medida: ",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: primaryColorApp,
-                                      ),
-                                    ),
-                                    Text("${product.unidades}",
-                                        style: const TextStyle(
-                                            fontSize: 16, color: black)),
-                                  ],
-                                ),
+
                                 if (product.tracking != false)
                                   Row(
                                     children: [
@@ -106,6 +137,21 @@ class Tab3Screen extends StatelessWidget {
                                         ),
                                       ),
                                       Text("${product.tracking}",
+                                          style: const TextStyle(
+                                              fontSize: 16, color: black)),
+                                    ],
+                                  ),
+
+                                   Row(
+                                    children: [
+                                      const Text(
+                                        "Peso: ",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: primaryColorApp,
+                                        ),
+                                      ),
+                                      Text("${product.weight}",
                                           style: const TextStyle(
                                               fontSize: 16, color: black)),
                                     ],

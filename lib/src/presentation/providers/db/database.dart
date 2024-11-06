@@ -162,6 +162,7 @@ class DataBaseSqlite {
       product_is_ok INTEGER,
       is_quantity_is_ok INTEGER,
       location_dest_is_ok INTEGER,
+      observation TEXT,
 
       FOREIGN KEY (pedido_id) REFERENCES tblpedidos_packing (id)
     )
@@ -870,6 +871,17 @@ class DataBaseSqlite {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         " UPDATE tblbatch_products SET observation = '$novedad' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove");
+    print("updateNovedad: $resUpdate");
+    return resUpdate;
+  }
+  Future<int?> updateNovedadPacking(
+    int pedidoId,
+    int productId,
+    String novedad,
+  ) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        " UPDATE tblproductos_pedidos SET observation = '$novedad' WHERE product_id = $productId AND pedido_id = $pedidoId");
     print("updateNovedad: $resUpdate");
     return resUpdate;
   }
