@@ -1463,7 +1463,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   height: 100,
                   width: 200,
                   child: Image.asset(
-                    "assets/images/icon.png",
+                    "assets/images/logo.jpeg",
                     fit: BoxFit.cover,
                   ),
                 ),

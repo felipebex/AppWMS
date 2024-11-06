@@ -24,6 +24,9 @@ final class BatchsPickingErrorState extends PickingState {
   final String error;
   BatchsPickingErrorState(this.error);
 }
+
+
+
 final class LoadBatchsSuccesState extends PickingState {
   final List<BatchsModel> listOfBatchs;
 

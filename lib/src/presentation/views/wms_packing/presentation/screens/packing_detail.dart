@@ -37,26 +37,6 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
             length: 3,
             child: Scaffold(
               backgroundColor: Colors.white,
-
-
-              // floatingActionButton: 
-              
-              
-              
-              // FloatingActionButton(
-              //   backgroundColor: primaryColorApp,
-              //   onPressed: () {
-              //     showDialog(
-              //       context: context,
-              //       builder: (context) =>
-              //           DialogNewPackage(onPackageAdded: _addPackage),
-              //     );
-              //   },
-              //   child: const Icon(
-              //     Icons.add,
-              //     color: Colors.white,
-              //   ),
-              // ),
               appBar: AppBar(
                 centerTitle: true,
                 leading: IconButton(

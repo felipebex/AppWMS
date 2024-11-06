@@ -3,16 +3,15 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
 
-import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class WmsPackingScreen extends StatefulWidget {
@@ -108,7 +107,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
 
               ///*listado de bacths
 
-              BlocConsumer<WMSPickingBloc, PickingState>(
+              BlocConsumer<WmsPackingBloc, WmsPackingState>(
             listener: (context, state) {},
             builder: (context, state) {
               return Column(
@@ -164,10 +163,10 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                       const Spacer(),
                                     ],
                                   ),
-                                  const ProgressIndicatorWidget(
+                                   ProgressIndicatorWidget(
                                     progress: 0.625,
                                     completed: 5,
-                                    total: 8,
+                                    total: context.read<WmsPackingBloc>().listOfBatchs.length,
                                   ),
                                 ],
                               ),
@@ -245,22 +244,24 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                   //*listado de batchs
                   Expanded(
                     child: context
-                            .read<WMSPickingBloc>()
-                            .filteredBatchs
+                            .read<WmsPackingBloc>()
+                            .listOfBatchsDB
                             .isNotEmpty
                         ? ListView.builder(
                             padding: const EdgeInsets.only(top: 20, bottom: 20),
                             shrinkWrap: true,
                             physics: const ScrollPhysics(),
                             itemCount: context
-                                .read<WMSPickingBloc>()
-                                .filteredBatchs
+                                .read<WmsPackingBloc>()
+                                .listOfBatchsDB
                                 .length,
                             itemBuilder: (context, index) {
-                              final List<BatchsModel> inProgressBatches =
+
+
+                              final List<BatchPackingModel> inProgressBatches =
                                   context
-                                      .read<WMSPickingBloc>()
-                                      .filteredBatchs; // Convertir a lista
+                                      .read<WmsPackingBloc>()
+                                      .listOfBatchs; // Convertir a lista
 
                               // Asegurarse de que hay batches en progreso
                               if (inProgressBatches.isEmpty) {
@@ -281,15 +282,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                     horizontal: 10, vertical: 5),
                                 child: GestureDetector(
                                   onTap: () async {
-                                    context.read<WmsPackingBloc>().add(
-                                        FetchBatchWithProductsEvent(
-                                            batch.id ?? 0));
-
-                                    context.read<WmsPackingBloc>().add(
-                                        LoadAllPackingEvent(
-                                            batch.id ?? 0, context));
-                                    Navigator.pushNamed(context, 'packing-list',
-                                        arguments: batch);
+                                   
                                   },
                                   child: Card(
                                     color: Colors.white,
@@ -396,8 +389,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             dynamic nameUser = batch.userId;
 
                                             if (batch.userId is List) {
-                                              nameUser = batch.userId[1] ??
-                                                  'Sin responsable';
+                                              nameUser = batch.userId.toString();
                                             }
                                             return Align(
                                               alignment: Alignment.centerLeft,

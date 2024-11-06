@@ -1,17 +1,14 @@
-// // ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unrelated_type_equality_checks
 
-// ignore_for_file: unrelated_type_equality_checks, avoid_print
-
-// import 'package:wms_app/src/api/api_request_service.dart';
-import 'package:wms_app/src/api/api_request_service.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:convert';
 import 'dart:io';
 
-class WmsPickingRepository {
-  Future<List<BatchsModel>> resBatchs() async {
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
+
+class WmsPackingRepository {
+  Future<List<BatchPackingModel>> resBatchsPacking() async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -21,7 +18,7 @@ class WmsPickingRepository {
     }
 
     try {
-      var response = await ApiRequestService().post(endpoint: 'batchs', body: {
+      var response = await ApiRequestService().post(endpoint: 'batch_packing', body: {
         "url_rpc": "http://34.30.1.186:8069",
         "db_rpc": "paisapan",
         "email_rpc": "felipe.bedoya@bexsoluciones.com",
@@ -36,23 +33,23 @@ class WmsPickingRepository {
           Map<String, dynamic> data = jsonResponse['data'];
           // Asegúrate de que 'result' exista y sea una lista
           if (data.containsKey('result') && data['result'] is List) {
-            List<dynamic> batches = data['result'];
+            List<dynamic> batchs = data['result'];
             // Mapea los datos decodificados a una lista de BatchsModel
-            List<BatchsModel> products =
-                batches.map((data) => BatchsModel.fromMap(data)).toList();
-            return products;
+            List<BatchPackingModel> batch =
+                batchs.map((data) => BatchPackingModel.fromMap(data)).toList();
+            return batch;
           }
         }
       } else {
-        print('Error resBatchs: response is null');
+        print('Error resBatchsPacking: response is null');
       }
     } on SocketException catch (e) {
-      // Manejo de error de red
+      
       print('Error de red: $e');
       return [];
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error resBatchs: $e, $s');
+      print('Error resBatchsPacking: $e, $s');
     }
     return [];
   }

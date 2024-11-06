@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps
 
+import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
@@ -30,14 +31,8 @@ class DataBaseSqlite {
 
   Future<void> _createDB(Database db, int version) async {
     // Crear tablas
-    await db.execute('''
-      CREATE TABLE tblproducts (
-        id INTEGER PRIMARY KEY,
-        name VARCHAR(255),
-        barcode VARCHAR(255),
-        tracking TEXT
-      )
-    ''');
+
+    //todo PICKING
 
     await db.execute('''
       CREATE TABLE tblbatchs (
@@ -85,28 +80,78 @@ class DataBaseSqlite {
         time_separate_start VARCHAR(255),
         time_separate_end VARCHAR(255),
 
-
-
-
         observation TEXT,
         unidades TEXT,
         is_location_is_ok INTEGER,
         product_is_ok INTEGER,
         is_quantity_is_ok INTEGER,
         location_dest_is_ok INTEGER,
-        FOREIGN KEY (batch_id) REFERENCES tblbatchs (id),
-        FOREIGN KEY (product_id) REFERENCES tblproducts (id)
+        FOREIGN KEY (batch_id) REFERENCES tblbatchs (id)
       )
     ''');
 
+    //todo PACKING
+
     await db.execute('''
-      CREATE TABLE tblurlsrecientes (
+      CREATE TABLE tblbatchs_packing (
+
         id INTEGER PRIMARY KEY,
-        url VARCHAR(255),
-        fecha VARCHAR(255),
-        method VARCHAR(255)
+        name VARCHAR(255),
+        scheduled_date VARCHAR(255),
+        picking_type_id VARCHAR(255),
+        state VARCHAR(255),
+        user_id INTEGER,
+
+        is_separate INTEGER, 
+        is_selected INTEGER, 
+        product_separate_qty INTEGER,
+        product_qty INTEGER,
+        index_list INTEGER,
+
+        time_separate_total DECIMAL(10,2),
+        time_separate_start VARCHAR(255),
+        time_separate_end VARCHAR(255),
+        is_send_oddo TEXT,
+        is_send_oddo_date VARCHAR(255)
+
       )
     ''');
+    await db.execute('''
+      CREATE TABLE tblpedidos_packing (
+
+        id INTEGER PRIMARY KEY,
+        batch_id INTEGER,
+        name VARCHAR(255),
+        referencia VARCHAR(255),
+        contacto VARCHAR(255),
+        tipo_operacion VARCHAR(255),
+        cantidad_productos INTEGER,
+        numero_paquetes INTEGER,
+        FOREIGN KEY (batch_id) REFERENCES tblbatchs_packing (id)
+      )
+    ''');
+
+    // Crear tabla de productos_pedidos (relacionada con tblpedidos_packing)
+    await db.execute('''
+    CREATE TABLE productos_pedidos (
+
+      id INTEGER PRIMARY KEY,
+      product_id INTEGER,
+      batch_id INTEGER,
+      pedido_id INTEGER,
+      id_product TEXT,
+      lote_id INTEGER,
+      lot_id TEXT,
+      location_id TEXT,
+      location_dest_id TEXT,
+      quantity INTEGER,
+      tracking TEXT,
+      barcode TEXT,
+      weight INTEGER,
+      unidades TEXT,
+      FOREIGN KEY (pedido_id) REFERENCES tblpedidos_packing (id)
+    )
+  ''');
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -115,42 +160,118 @@ class DataBaseSqlite {
     }
   }
 
-  //Todo: Métodos para productos
-  //* Insertar un producto
-  Future<void> insertProduct(Products product) async {
-    final db = await database;
-    await db?.insert('tblproducts', product.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
-  }
+  //todo insertar btach de packing
+  Future<void> insertBatchPacking(BatchPackingModel batch) async {
+    try {
+      final db = await database;
 
-  //* Insertar varios productos
-  Future<void> insertProducts(List<Products> products) async {
-    final db = await database;
-    final batch = db?.batch();
-    for (var product in products) {
-      batch?.insert('tblproducts', product.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.replace);
+      await db!.transaction((txn) async {
+        // Verificar si el batch ya existe
+        final List<Map<String, dynamic>> existingBatch = await txn.query(
+          'tblbatchs_packing',
+          where: 'id = ?',
+          whereArgs: [batch.id],
+        );
+
+        if (existingBatch.isNotEmpty) {
+          // Actualizar el batch
+          await txn.update(
+            'tblbatchs_packing',
+            {
+              "id": batch.id,
+              "name": batch.name,
+              "scheduled_date": batch.scheduleddate.toString(),
+              "picking_type_id": batch.pickingTypeId,
+              "state": batch.state,
+              "user_id": batch.userId,
+            },
+            where: 'id = ?',
+            whereArgs: [batch.id],
+          );
+        } else {
+          // Insertar nuevo batch
+          await txn.insert(
+            'tblbatchs_packing',
+            {
+              "id": batch.id,
+              "name": batch.name,
+              "scheduled_date": batch.scheduleddate.toString(),
+              "picking_type_id": batch.pickingTypeId,
+              "state": batch.state,
+              "user_id": batch.userId,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+      });
+    } catch (e) {
+      print("Error al insertar tblbatchs_packing: $e");
     }
-    await batch?.commit();
   }
 
-  //* Obtener todos los productos
-  Future<List<Products>> getAllProducts() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db!.query('tblproducts');
-    return maps.map((map) => Products.fromMap(map)).toList();
-  }
+  //todo insertar pedidos del btach de packing
 
-  //* obtener un producto por id
-  Future<Products?> getProductById(int id) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps =
-        await db!.query('tblproducts', where: 'id = ?', whereArgs: [id]);
-    if (maps.isNotEmpty) {
-      print("maps.first: ${maps.first}");
-      return Products.fromMap(maps.first);
+  Future<void> insertPedidosBatchPacking(
+      List<PedidoPacking> pedidosList) async {
+    try {
+      final db = await database;
+
+      // Inicia la transacción
+      await db!.transaction((txn) async {
+        // Recorre la lista de pedidos
+        for (var pedido in pedidosList) {
+          // Verificar si el pedido ya existe
+          final List<Map<String, dynamic>> existingPedido = await txn.query(
+            'tblpedidos_packing',
+            where: 'id = ?',
+            whereArgs: [pedido.id],
+          );
+
+          if (existingPedido.isNotEmpty) {
+            // Actualizar el pedido si ya existe
+            await txn.update(
+              'tblpedidos_packing',
+              {
+                "id": pedido.id,
+                "batch_id": pedido.batchId,
+                "name": pedido.name,
+                "referencia": pedido.referencia == false
+                    ? ""
+                    : pedido.referencia, // Si referencia es false, poner ""
+                "contacto": pedido
+                    .contacto?[1], // Convierte contacto a JSON si es necesario
+                "tipo_operacion": pedido.tipoOperacion.toString(),
+                "cantidad_productos": pedido.cantidadProductos,
+                "numero_paquetes": pedido.numeroPaquetes,
+              },
+              where: 'id = ?',
+              whereArgs: [pedido.id],
+            );
+          } else {
+            // Insertar el pedido si no existe
+            await txn.insert(
+              'tblpedidos_packing',
+              {
+                "id": pedido.id,
+                "batch_id": pedido.batchId,
+                "name": pedido.name,
+                "referencia": pedido.referencia == false
+                    ? ""
+                    : pedido.referencia, // Si referencia es false, poner ""
+                "contacto": pedido
+                    .contacto?[1], // Convierte contacto a JSON si es necesario
+                "tipo_operacion": pedido.tipoOperacion.toString(),
+                "cantidad_productos": pedido.cantidadProductos,
+                "numero_paquetes": pedido.numeroPaquetes,
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
+        }
+      });
+    } catch (e, s) {
+      print("Error al insertar insertPedidosBatchPacking: $e ==> $s");
     }
-    return null;
   }
 
   //Todo: Métodos para batches
@@ -222,6 +343,21 @@ class DataBaseSqlite {
     }
     return [];
   }
+  //* Obtener todos los batchs del packing
+  Future<List<BatchPackingModel>> getAllBatchsPacking() async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db!.query('tblbatchs_packing');
+
+      final List<BatchPackingModel> batchs = maps.map((map) {
+        return BatchPackingModel.fromMap(map);
+      }).toList();
+      return batchs;
+    } catch (e, s) {
+      print("Error tblbatchs_packing: $e => $s");
+    }
+    return [];
+  }
 
   //Todo: Métodos para batchs_products
 
@@ -265,8 +401,6 @@ class DataBaseSqlite {
                 "unidades": productBatch.unidades,
                 "barcode": productBatch.barcode,
                 "weight": productBatch.weigth,
-
-
               },
               where: 'id_product = ? AND batch_id = ?',
               whereArgs: [productBatch.idProduct, productBatch.batchId],
@@ -283,7 +417,6 @@ class DataBaseSqlite {
                 "lot_id": productBatch.lotId?[1],
                 "lote_id": productBatch.loteId,
                 "id_move": productBatch.idMove,
-
                 "location_dest_id": productBatch.locationDestId?[1],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
@@ -339,9 +472,10 @@ class DataBaseSqlite {
   //Todo: Eliminar todos los registros
   Future<void> deleteAll() async {
     final db = await database;
-    await db?.delete('tblproducts');
     await db?.delete('tblbatchs');
     await db?.delete('tblbatch_products');
+    await db?.delete('tblbatchs_packing');
+    await db?.delete('tblpedidos_packing');
   }
 
   //todo: Metodos para realizar el picking de un producto
@@ -497,11 +631,10 @@ class DataBaseSqlite {
 
   Future<int?> endStopwatchProduct(
       int batchId, String date, int productId, int moveId) async {
-
-      print("batchId: $batchId");
-      print("productId: $productId");
-      print("moveId: $moveId");
-      print("date: $date");
+    print("batchId: $batchId");
+    print("productId: $productId");
+    print("moveId: $moveId");
+    print("date: $date");
 
     final db = await database;
     final resUpdate = await db!.rawUpdate(

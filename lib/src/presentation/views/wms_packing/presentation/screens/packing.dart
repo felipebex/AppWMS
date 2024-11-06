@@ -57,13 +57,14 @@ class _PackingScreenState extends State<PackingScreen> {
       builder: (context, state) {
         int completedTasks = context.read<WmsPackingBloc>().index;
         int totalTasks =
-            context.read<WmsPackingBloc>().listProductPacking.length ;
+            // context.read<WmsPackingBloc>().listProductPacking.length ;
+            10;
         double progress = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
 
         final packinghBloc = context.read<WmsPackingBloc>();
 
-        final currentProduct =
-            packinghBloc.listProductPacking[packinghBloc.index];
+        // final currentProduct =
+        //     packinghBloc.listProductPacking[packinghBloc.index];
 
         return Scaffold(
             body: Column(
@@ -166,33 +167,33 @@ class _PackingScreenState extends State<PackingScreen> {
                                           LogicalKeyboardKey.enter) {
                                         if (scannedValue1.isNotEmpty) {
                                        
-                                          //todo? aca es donde validamos la entrada con la ubicacion del producto
-                                          if (scannedValue1.toLowerCase() ==
-                                              currentProduct.locationDestId[1]
-                                                  .toLowerCase()) {
-                                            packinghBloc.add(
-                                                ChangeLocationIsOkEvent(true));
-                                            packinghBloc.oldLocation =
-                                                currentProduct.locationDestId[1];
-                                            Future.delayed(
-                                                const Duration(seconds: 1), () {
-                                              FocusScope.of(context)
-                                                  .requestFocus(focusNode2);
-                                            });
-                                          } else {
-                                            setState(() {
-                                              scannedValue1 =
-                                                  ""; //limpiamos el valor escaneado
-                                            });
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(SnackBar(
-                                              duration: const Duration(
-                                                  milliseconds: 1000),
-                                              content:
-                                                  const Text('Codigo erroneo'),
-                                              backgroundColor: Colors.red[200],
-                                            ));
-                                          }
+                                          // //todo? aca es donde validamos la entrada con la ubicacion del producto
+                                          // if (scannedValue1.toLowerCase() ==
+                                          //     currentProduct.locationDestId[1]
+                                          //         .toLowerCase()) {
+                                          //   packinghBloc.add(
+                                          //       ChangeLocationIsOkEvent(true));
+                                          //   packinghBloc.oldLocation =
+                                          //       currentProduct.locationDestId[1];
+                                          //   Future.delayed(
+                                          //       const Duration(seconds: 1), () {
+                                          //     FocusScope.of(context)
+                                          //         .requestFocus(focusNode2);
+                                          //   });
+                                          // } else {
+                                          //   setState(() {
+                                          //     scannedValue1 =
+                                          //         ""; //limpiamos el valor escaneado
+                                          //   });
+                                          //   ScaffoldMessenger.of(context)
+                                          //       .showSnackBar(SnackBar(
+                                          //     duration: const Duration(
+                                          //         milliseconds: 1000),
+                                          //     content:
+                                          //         const Text('Codigo erroneo'),
+                                          //     backgroundColor: Colors.red[200],
+                                          //   ));
+                                          // }
                                         }
 
                                         return KeyEventResult.handled;
@@ -241,26 +242,26 @@ class _PackingScreenState extends State<PackingScreen> {
                                             onChanged: packinghBloc.locationIsOk
                                                 ? null
                                                 : (String? newValue) {
-                                                    if (newValue ==
-                                                        currentProduct
-                                                            .locationDestId[1]) {
-                                                      packinghBloc.add(
-                                                          ChangeLocationIsOkEvent(
-                                                              true));
-                                                      packinghBloc.oldLocation =
-                                                          currentProduct
-                                                              .locationDestId[1];
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              seconds: 1), () {
-                                                        FocusScope.of(context)
-                                                            .requestFocus(
-                                                                focusNode2);
-                                                      });
+                                                    // if (newValue ==
+                                                    //     currentProduct
+                                                    //         .locationDestId[1]) {
+                                                    //   packinghBloc.add(
+                                                    //       ChangeLocationIsOkEvent(
+                                                    //           true));
+                                                    //   packinghBloc.oldLocation =
+                                                    //       currentProduct
+                                                    //           .locationDestId[1];
+                                                    //   Future.delayed(
+                                                    //       const Duration(
+                                                    //           seconds: 1), () {
+                                                    //     FocusScope.of(context)
+                                                    //         .requestFocus(
+                                                    //             focusNode2);
+                                                    //   });
 
                                                       
-                                                    } else {
-                                                    }
+                                                    // } else {
+                                                    // }
                                                   },
                                           ),
                                         ),
@@ -270,7 +271,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                           child: Row(
                                             children: [
                                               Text(
-                                                currentProduct.locationDestId[1] ??
+                                                // currentProduct.locationDestId[1] ??
                                                     '',
                                                 style: const TextStyle(
                                                     fontSize: 16, color: black),
@@ -322,36 +323,36 @@ class _PackingScreenState extends State<PackingScreen> {
                                           LogicalKeyboardKey.enter) {
                                         if (scannedValue2.isNotEmpty) {
                                           if (scannedValue2.isNotEmpty) {
-                                            if (scannedValue2.toLowerCase() ==
-                                                packinghBloc.product.barcode
-                                                    ?.toLowerCase()) {
-                                              quantity = quantity + 1;
-                                              packinghBloc.add(
-                                                  ChangeProductIsOkEvent(true));
-                                              packinghBloc.add(
-                                                  ChangeIsOkQuantity(true));
-                                              Future.delayed(
-                                                  const Duration(
-                                                      milliseconds: 100), () {
-                                                FocusScope.of(context)
-                                                    .requestFocus(focusNode3);
-                                              });
-                                            } else {
-                                              setState(() {
-                                                scannedValue2 =
-                                                    ""; //limpiamos el valor escaneado
-                                              });
-                                              //mostramos alerta de error
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(SnackBar(
-                                                duration: const Duration(
-                                                    milliseconds: 1000),
-                                                content: const Text(
-                                                    'Codigo erroneo'),
-                                                backgroundColor:
-                                                    Colors.red[200],
-                                              ));
-                                            }
+                                            // if (scannedValue2.toLowerCase() ==
+                                            //     packinghBloc.product.barcode
+                                            //         ?.toLowerCase()) {
+                                            //   quantity = quantity + 1;
+                                            //   packinghBloc.add(
+                                            //       ChangeProductIsOkEvent(true));
+                                            //   packinghBloc.add(
+                                            //       ChangeIsOkQuantity(true));
+                                            //   Future.delayed(
+                                            //       const Duration(
+                                            //           milliseconds: 100), () {
+                                            //     FocusScope.of(context)
+                                            //         .requestFocus(focusNode3);
+                                            //   });
+                                            // } else {
+                                            //   setState(() {
+                                            //     scannedValue2 =
+                                            //         ""; //limpiamos el valor escaneado
+                                            //   });
+                                            //   //mostramos alerta de error
+                                            //   ScaffoldMessenger.of(context)
+                                            //       .showSnackBar(SnackBar(
+                                            //     duration: const Duration(
+                                            //         milliseconds: 1000),
+                                            //     content: const Text(
+                                            //         'Codigo erroneo'),
+                                            //     backgroundColor:
+                                            //         Colors.red[200],
+                                            //   ));
+                                            // }
                                           }
 
                                           return KeyEventResult.handled;

@@ -11,9 +11,7 @@ import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing_list.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
@@ -106,9 +104,9 @@ class MyApp extends StatelessWidget {
           //*wms Packing
           'wms-packing': (_) => const WmsPackingScreen(),
 
-          'packing-list': (context) => PakingListScreen(
-              batchModel:
-                  ModalRoute.of(context)!.settings.arguments as BatchsModel?),
+          // 'packing-list': (context) => PakingListScreen(
+          //     batchModel:
+          //         ModalRoute.of(context)!.settings.arguments as BatchsModel?),
 
           'Packing': (_) => const PackingScreen(),
 

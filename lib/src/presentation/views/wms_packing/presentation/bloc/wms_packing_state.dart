@@ -9,7 +9,7 @@ final class WmsPackingInitial extends WmsPackingState {}
 final class WmsPackingLoading extends WmsPackingState {}
 
 final class WmsPackingLoaded extends WmsPackingState {
-  final List<Packing> listPacking;
+  final List<BatchPackingModel> listPacking;
   WmsPackingLoaded(this.listPacking);
 }
 
@@ -18,29 +18,17 @@ final class WmsPackingError extends WmsPackingState {
   WmsPackingError(this.error);
 }
 
-//* estados pra cargar todos los productos de un packing
-final class WmsPackingLoadingProducts extends WmsPackingState {}
 
-final class WmsPackingLoadedProducts extends WmsPackingState {
-  final List<ProductPacking> listProductPacking;
-  WmsPackingLoadedProducts(this.listProductPacking);
-}
 
 class ChangeIsOkState extends WmsPackingState {
   final bool isOk;
   ChangeIsOkState(this.isOk);
 }
 
-final class LoadProductsBatchSuccesStateBD extends WmsPackingState {
-  final List<ProductsBatch> listOfProductsBatch;
-  LoadProductsBatchSuccesStateBD({required this.listOfProductsBatch});
-}
 
-final class EmptyroductsBatch extends WmsPackingState {}
+class BatchsPackingLoadingState extends WmsPackingState {}
 
 
 
-final class BatchErrorState extends WmsPackingState {
-  final String error;
-  BatchErrorState(this.error);
-}
+
+

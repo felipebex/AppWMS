@@ -137,17 +137,17 @@ class Tab1Screen extends StatelessWidget {
                                 'Numero de productos: ',
                                 style: TextStyle(fontSize: 16, color: black),
                               )),
-                          Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                context
-                                    .read<WmsPackingBloc>()
-                                    .listProductPacking
-                                    .length
-                                    .toString(),
-                                style: const TextStyle(
-                                    fontSize: 16, color: primaryColorApp),
-                              )),
+                          // Align(
+                          //     alignment: Alignment.centerLeft,
+                          //     child: Text(
+                          //       context
+                          //           .read<WmsPackingBloc>()
+                          //           .listProductPacking
+                          //           .length
+                          //           .toString(),
+                          //       style: const TextStyle(
+                          //           fontSize: 16, color: primaryColorApp),
+                          //     )),
                         ],
                       ),
                       const Align(

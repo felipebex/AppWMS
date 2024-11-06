@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -49,6 +50,7 @@ class _HomePageState extends State<HomePage> {
         listener: (context, state) {
           if (state is HomeLoadedState) {
             context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context));
+            context.read<WmsPackingBloc>().add(LoadAllPackingEvent());
           }
         },
         builder: (context, state) {
