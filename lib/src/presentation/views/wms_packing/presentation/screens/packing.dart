@@ -979,8 +979,6 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       Future.delayed(
                                                           const Duration(
                                                               seconds: 1), () {
-                                                        Navigator.pop(context);
-                                                        Navigator.pop(context);
                                                         packinghBloc.add(
                                                             LoadAllProductsFromPedidoEvent(
                                                                 packinghBloc
@@ -988,6 +986,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                         .pedidoId ??
                                                                     0));
                                                       });
+                                                        Navigator.pop(context);
+                                                        Navigator.pop(context);
                                                       return;
                                                     });
                                               });

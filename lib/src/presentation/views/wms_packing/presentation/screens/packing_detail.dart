@@ -21,8 +21,6 @@ class PackingDetailScreen extends StatefulWidget {
 }
 
 class _PackingDetailScreenState extends State<PackingDetailScreen> {
- 
-
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
@@ -42,6 +40,11 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: white),
                   onPressed: () {
+                    context
+                        .read<WmsPackingBloc>()
+                        .add(LoadAllPedidosFromBatchEvent(
+                          widget.packingModel?.batchId ?? 0,
+                        ));
                     Navigator.pop(context);
                   },
                 ),

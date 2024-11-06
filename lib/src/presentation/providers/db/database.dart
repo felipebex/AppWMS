@@ -121,6 +121,7 @@ class DataBaseSqlite {
 
       )
     ''');
+   
     await db.execute('''
       CREATE TABLE tblpedidos_packing (
 
@@ -132,6 +133,8 @@ class DataBaseSqlite {
         tipo_operacion VARCHAR(255),
         cantidad_productos INTEGER,
         numero_paquetes INTEGER,
+        is_selected INTEGER,
+        is_packing INTEGER,
         FOREIGN KEY (batch_id) REFERENCES tblbatchs_packing (id)
       )
     ''');
@@ -610,6 +613,7 @@ class DataBaseSqlite {
 
   //todo: Metodos para packing
 
+  //*metodo para actualizar la tabla de productos de un pedido
   Future<int?> getFieldTableProductosPedidos(
       int pedidoId, int productId, String field, dynamic setValue) async {
     final db = await database;
@@ -619,6 +623,22 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+
+  
+  //*metodo para actualizar la tabla de pedidos de un batch
+  Future<int?> getFieldTablePedidosPacking(
+      int batchId, int pedidoId, String field, dynamic setValue) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId');
+    print("update tblpedidos_packing ($field): $resUpdate");
+
+    return resUpdate;
+  }
+
+
+
+
 
   Future<String> getFieldTableBtach(int batchId, String field) async {
     final db = await database;

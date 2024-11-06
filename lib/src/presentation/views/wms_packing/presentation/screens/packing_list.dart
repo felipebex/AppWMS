@@ -171,7 +171,9 @@ class PakingListScreen extends StatelessWidget {
                               },
                               child: Card(
                                   elevation: 5,
-                                  color: Colors.white,
+                                  color: packing.isSelected == 1
+                                      ? primaryColorAppLigth
+                                      : Colors.white,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 15, vertical: 15),

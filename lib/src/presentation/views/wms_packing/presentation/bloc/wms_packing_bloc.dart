@@ -100,10 +100,11 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onSetPickingsEvent(
       SetPickingsEvent event, Emitter<WmsPackingState> emit) async {
     try {
+     
+      //actualizamos el estado del producto como separado
       await db.getFieldTableProductosPedidos(
           event.pedidoId, event.productId, "is_separate", "true");
-
-      // viewQuantity = false;
+      //actualizamos la cantidad separada
       quantitySelected = 0;
     } catch (e, s) {
       print('Error en el  _onSetPickingsEvent: $e, $s');
@@ -343,6 +344,11 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<WmsPackingState> emit) async {
     if (event.locationIsOk) {
+
+       //actualizamos el estado del pedido como seleccionado
+      await db.getFieldTablePedidosPacking(
+          currentProduct.batchId ??0, event.pedidoId, "is_selected", "true");
+
       //actualizamos la ubicacion del producto a true
       await db.getFieldTableProductosPedidos(
           event.pedidoId, event.productId, "is_location_is_ok", "true");

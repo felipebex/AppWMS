@@ -102,6 +102,8 @@ class PedidoPacking {
     final int? batchId;
     final String? name;
     final dynamic referencia;
+    final int? isSelected;
+    final int? isPacking;
     final String? contacto;
     final int? contactoId;
     final String? tipoOperacion;
@@ -112,6 +114,8 @@ class PedidoPacking {
 
     PedidoPacking({
         this.id,
+        this.isSelected,
+        this.isPacking,
         this.batchId,
         this.name,
         this.referencia,
@@ -130,6 +134,8 @@ class PedidoPacking {
 
     factory PedidoPacking.fromMap(Map<String, dynamic> json) => PedidoPacking(
         id: json["id"],
+        isSelected: json["is_selected"],
+        isPacking: json["is_packing"],
         batchId: json["batch_id"],
         name: json["name"],
         referencia: json["referencia"],
@@ -146,6 +152,8 @@ class PedidoPacking {
 
     Map<String, dynamic> toMap() => {
         "id": id,
+        "is_selected": isSelected,
+        "is_packing": isPacking,
         "batch_id": batchId,
         "name": name,
         "referencia": referencia,
