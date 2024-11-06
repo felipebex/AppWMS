@@ -109,12 +109,12 @@ class Tab1Screen extends StatelessWidget {
                             "Ubicacion de origen:",
                             style: TextStyle(fontSize: 16, color: black),
                           )),
-                      Align(
+                      const Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             // packingModel?.locationId[1].toString() ?? "",
                             "",
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 16, color: primaryColorApp),
                           )),
                       const Align(
@@ -123,12 +123,12 @@ class Tab1Screen extends StatelessWidget {
                             "Ubicacion de destino:",
                             style: TextStyle(fontSize: 16, color: black),
                           )),
-                      Align(
+                      const Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             // packingModel?.locationDestId[1].toString() ?? "",
                             "",
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 16, color: primaryColorApp),
                           )),
                       Row(

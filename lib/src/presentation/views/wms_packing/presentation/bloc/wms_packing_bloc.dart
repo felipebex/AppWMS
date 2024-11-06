@@ -12,16 +12,18 @@ part 'wms_packing_event.dart';
 part 'wms_packing_state.dart';
 
 class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
-  
   //*lista de batchs para packing
   List<BatchPackingModel> listOfBatchs = [];
   List<BatchPackingModel> listOfBatchsDB = [];
-  
+
   //*listad de pedido de un batch
   List<PedidoPacking> listOfPedidos = [];
 
   //*lista de productos de un pedido
   List<PorductoPedido> listOfProductos = [];
+  List<PorductoPedido> listOfProductosRecomendados = [];
+
+  PorductoPedido currentProduct = PorductoPedido();
 
   //*lista de todas las pocisiones de los productos del batchs
   List<String> positions = [];
@@ -38,7 +40,15 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   bool quantityIsOk = false;
   String oldLocation = '';
 
+  // //*validaciones de campos del estado de la vista
+  bool isLocationOk = true;
+  bool isProductOk = true;
+  bool isLocationDestOk = true;
+  bool isQuantityOk = true;
+
   int completedProducts = 0;
+
+  int quantitySelected = 0;
 
   //*numero de paquetes
   int numPackages = 0;
@@ -47,6 +57,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   List<String> packages = [];
 
   int index = 0;
+
+  DataBaseSqlite db = DataBaseSqlite();
 
   //*batch con productos
   BatchWithProducts batchWithProducts = BatchWithProducts();
@@ -61,6 +73,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     //*obtener todos los productos de un pedido
     on<LoadAllProductsFromPedidoEvent>(_onLoadAllProductsFromPedidoEvent);
 
+    on<FetchProductEvent>(_onFetchProductEvent);
+
     //*cambiar el estado de las variables
     on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
     on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
@@ -69,32 +83,90 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //*agregar un producto a nuevo empaque
     on<AddProductPackingEvent>(_onAddProductPackingEvent);
+
+    on<ValidateFieldsPackingEvent>(_onValidateFieldsPacking);
+
+    //*evento para cambiar la cantidad seleccionada
+    on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
   }
 
+  //*metodo para cambiar la cantidad seleccionada
+  void _onChangeQuantitySelectedEvent(
+      ChangeQuantitySeparate event, Emitter<WmsPackingState> emit) async {
+    if (event.quantity > 0) {
+      quantitySelected = event.quantity;
+      await db.getFieldTableProductosPedidos(event.pedidoId, event.productId,
+          "quantity_separate", quantitySelected);
+    }
+    emit(ChangeQuantitySeparateState(quantitySelected));
+  }
 
+  void _onValidateFieldsPacking(
+      ValidateFieldsPackingEvent event, Emitter<WmsPackingState> emit) {
+    switch (event.field) {
+      case 'location':
+        isLocationOk = event.isOk;
+        break;
+      case 'product':
+        isProductOk = event.isOk;
+        break;
+      case 'locationDest':
+        isLocationDestOk = event.isOk;
+        break;
+      case 'quantity':
+        isQuantityOk = event.isOk;
+        break;
+    }
+    emit(ValidateFieldsPackingState(event.isOk));
+  }
 
+  void _onFetchProductEvent(
+      FetchProductEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      emit(WmsProductInfoLoading());
+      currentProduct = PorductoPedido();
+      currentProduct = event.pedido;
 
-void _onLoadAllProductsFromPedidoEvent(
-      LoadAllProductsFromPedidoEvent event, Emitter<WmsPackingState> emit) async {
+      isLocationOk = true;
+      isProductOk = true;
+      isLocationDestOk = true;
+      isQuantityOk = true;
+
+      locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+      productIsOk = currentProduct.productIsOk == 1 ? true : false;
+      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
+      quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+      quantitySelected = currentProduct.quantitySeparate ?? 0;
+      emit(WmsProductInfoLoaded());
+    } catch (e, s) {
+      print('Error en el  _onFetchProductEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
+  }
+
+  void _onLoadAllProductsFromPedidoEvent(LoadAllProductsFromPedidoEvent event,
+      Emitter<WmsPackingState> emit) async {
     try {
       emit(WmsPackingLoading());
 
-      final response = await DataBaseSqlite().getProductosPedido(event.pedidoId);
+      final response =
+          await DataBaseSqlite().getProductosPedido(event.pedidoId);
       if (response != null && response is List) {
         print('response lista de productos: ${response.length}');
         listOfProductos.clear();
         listOfProductos.addAll(response);
+
+        getPosicions();
+
         emit(WmsPackingLoaded());
       } else {
         print('Error _onLoadAllProductsFromPedidoEvent: response is null');
       }
-    
     } catch (e, s) {
       print('Error en el  _onLoadAllProductsFromPedidoEvent: $e, $s');
       emit(WmsPackingError(e.toString()));
     }
   }
-
 
   void _onLoadAllPedidosFromBatchEvent(
       LoadAllPedidosFromBatchEvent event, Emitter<WmsPackingState> emit) async {
@@ -116,9 +188,19 @@ void _onLoadAllProductsFromPedidoEvent(
     }
   }
 
-
-
-  void getPosicions() {}
+  void getPosicions() {
+    positions.clear(); // Limpia la lista antes de agregar nuevas posiciones
+    for (var product in listOfProductos) {
+      if (product.locationId != null) {
+        // Verifica si la posición ya existe en la lista
+        if (!positions.contains(product.locationId!)) {
+          positions
+              .add(product.locationId!); // Solo agrega si no está en la lista
+        }
+      }
+    }
+    print('positions: ${positions.length}');
+  }
 
   void _onAddProductPackingEvent(
       AddProductPackingEvent event, Emitter<WmsPackingState> emit) async {
@@ -165,16 +247,13 @@ void _onLoadAllProductsFromPedidoEvent(
         // Enviar la lista agrupada de productos de un batch para packing
         await DataBaseSqlite().insertPedidosBatchPacking(pedidosToInsert);
 
-
         //convertir el mapa en una lista de productos unicos del pedido para packing
-        List<ListaProducto> productsToInsert = pedidosToInsert
-            .expand((pedido) => pedido.listaProductos!)
-            .toList();
+        List<ListaProducto> productsToInsert =
+            pedidosToInsert.expand((pedido) => pedido.listaProductos!).toList();
 
         print('productsToInsert: ${productsToInsert.length}');
         // Enviar la lista agrupada de productos de un pedido para packing
         await DataBaseSqlite().insertProductosPedidos(productsToInsert);
-
 
         // //* Carga los batches desde la base de datos
         add(LoadBatchPackingFromDBEvent());
@@ -189,10 +268,10 @@ void _onLoadAllProductsFromPedidoEvent(
   }
 
   void _onLoadBatchsFromDBEvent(
-      LoadBatchPackingFromDBEvent event, Emitter<WmsPackingState> emit) async{
+      LoadBatchPackingFromDBEvent event, Emitter<WmsPackingState> emit) async {
     try {
       emit(BatchsPackingLoadingState());
-      final  batchsFromDB = await DataBaseSqlite().getAllBatchsPacking();
+      final batchsFromDB = await DataBaseSqlite().getAllBatchsPacking();
       listOfBatchsDB.clear();
       listOfBatchsDB.addAll(batchsFromDB);
       print('batchsFromDB: ${batchsFromDB.length}');
@@ -204,7 +283,12 @@ void _onLoadAllProductsFromPedidoEvent(
   }
 
   void _onChangeQuantityIsOkEvent(
-      ChangeIsOkQuantity event, Emitter<WmsPackingState> emit) {
+      ChangeIsOkQuantity event, Emitter<WmsPackingState> emit) async {
+    if (event.isOk) {
+      //actualizamos la cantidad del producto a true
+      await db.getFieldTableProductosPedidos(
+          event.pedidoId, event.productId, "is_location_is_ok", "true");
+    }
     quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
       quantityIsOk,
@@ -212,11 +296,21 @@ void _onLoadAllProductsFromPedidoEvent(
   }
 
   void _onChangeLocationIsOkEvent(
-      ChangeLocationIsOkEvent event, Emitter<WmsPackingState> emit) {
-    locationIsOk = event.locationIsOk;
-    emit(ChangeIsOkState(
-      locationIsOk,
-    ));
+      ChangeLocationIsOkEvent event, Emitter<WmsPackingState> emit) async {
+    if (event.locationIsOk) {
+      //actualizamos la ubicacion del producto a true
+      await db.getFieldTableProductosPedidos(
+          event.pedidoId, event.productId, "is_location_is_ok", "true");
+      //todo: actualiar al pedido de comenzado
+
+      // actualizamo el valor de que he seleccionado el producto
+      await db.getFieldTableProductosPedidos(
+          event.pedidoId, event.productId, "is_selected", "true");
+      locationIsOk = event.locationIsOk;
+      emit(ChangeIsOkState(
+        locationIsOk,
+      ));
+    }
   }
 
   void _onChangeLocationDestIsOkEvent(
@@ -228,7 +322,15 @@ void _onLoadAllProductsFromPedidoEvent(
   }
 
   void _onChangeProductIsOkEvent(
-      ChangeProductIsOkEvent event, Emitter<WmsPackingState> emit) {
+      ChangeProductIsOkEvent event, Emitter<WmsPackingState> emit) async {
+    if (event.productIsOk) {
+      //actualizamos el producto a true
+      await db.getFieldTableProductosPedidos(
+          event.pedidoId, event.productId, "product_is_ok", "true");
+      //actualizamos la cantidad separada
+      await db.getFieldTableProductosPedidos(
+          event.pedidoId, event.productId, "quantity_separate", event.quantity);
+    }
     productIsOk = event.productIsOk;
     emit(ChangeIsOkState(
       productIsOk,

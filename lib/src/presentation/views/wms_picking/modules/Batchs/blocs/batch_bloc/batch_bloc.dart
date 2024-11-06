@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
-import 'dart:math';
 
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -297,6 +296,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     ));
   }
 
+
+
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.locationIsOk) {
@@ -321,6 +322,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ));
     }
   }
+
+  
+
+
+
 
   void _onChangeLocationDestIsOkEvent(
       ChangeLocationDestIsOkEvent event, Emitter<BatchState> emit) async {

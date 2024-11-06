@@ -21,6 +21,13 @@ class LoadAllPedidosFromBatchEvent extends WmsPackingEvent {
   );
 }
 
+class FetchProductEvent extends WmsPackingEvent {
+  final PorductoPedido pedido;
+  FetchProductEvent(
+    this.pedido,
+  );
+}
+
 
 class LoadAllProductsFromPedidoEvent extends WmsPackingEvent {
   final int pedidoId;
@@ -29,6 +36,21 @@ class LoadAllProductsFromPedidoEvent extends WmsPackingEvent {
   );
 }
 
+
+class ValidateFieldsPackingEvent extends WmsPackingEvent {
+  final String field;
+  final bool isOk;
+  ValidateFieldsPackingEvent({required this.field, required this.isOk});
+}
+
+class ChangeQuantitySeparate extends WmsPackingEvent {
+  final int quantity;
+   final int productId;
+  final int pedidoId;
+  ChangeQuantitySeparate(this.quantity, this.productId, this.pedidoId);
+}
+
+
 // 
 class AddProductPackingEvent extends WmsPackingEvent {}
 
@@ -36,7 +58,9 @@ class AddProductPackingEvent extends WmsPackingEvent {}
 //* CAMBIAR VALORES DE VARIABLES
 class ChangeLocationIsOkEvent extends WmsPackingEvent {
   final bool locationIsOk;
-  ChangeLocationIsOkEvent(this.locationIsOk);
+  final int productId;
+  final int pedidoId;
+  ChangeLocationIsOkEvent(this.locationIsOk, this.productId, this.pedidoId);
 }
 
 class ChangeLocationDestIsOkEvent extends WmsPackingEvent {
@@ -46,12 +70,17 @@ class ChangeLocationDestIsOkEvent extends WmsPackingEvent {
 
 class ChangeProductIsOkEvent extends WmsPackingEvent {
   final bool productIsOk;
-  ChangeProductIsOkEvent(this.productIsOk);
+  final int productId;
+  final int pedidoId;
+  final int quantity;
+  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.pedidoId, this.quantity);
 }
 
 class ChangeIsOkQuantity extends WmsPackingEvent {
   final bool isOk;
-  ChangeIsOkQuantity(this.isOk);
+  final int productId;
+  final int pedidoId;
+  ChangeIsOkQuantity(this.isOk, this.productId, this.pedidoId);
 }
 
 

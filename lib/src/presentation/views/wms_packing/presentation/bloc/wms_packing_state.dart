@@ -7,6 +7,8 @@ final class WmsPackingInitial extends WmsPackingState {}
 
 //*estados para cargar todos los batchs para packing
 final class WmsPackingLoading extends WmsPackingState {}
+final class WmsProductInfoLoading extends WmsPackingState {}
+final class WmsProductInfoLoaded extends WmsPackingState {}
 
 final class WmsPackingLoaded extends WmsPackingState {
 }
@@ -28,5 +30,15 @@ class BatchsPackingLoadingState extends WmsPackingState {}
 
 
 
+class ValidateFieldsPackingState extends WmsPackingState {
+  final bool isOk;
+  ValidateFieldsPackingState(this.isOk);
+}
 
 
+
+
+class ChangeQuantitySeparateState extends WmsPackingState {
+  final int quantity;
+  ChangeQuantitySeparateState(this.quantity);
+}

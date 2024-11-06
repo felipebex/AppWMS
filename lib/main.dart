@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing.dart';
@@ -25,7 +26,6 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'src/presentation/views/wms_packing/presentation/screens/packing_detail.dart';
-
 
 final internetChecker = CheckInternetConnection();
 
@@ -53,12 +53,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return MultiBlocProvider(
       providers: [
         //bloc de network
 
-       
         BlocProvider(
           create: (_) => LoginBloc(),
         ),
@@ -82,63 +80,63 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: 'checkout',
-        supportedLocales: const [Locale('es', 'ES')],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        routes: {
+          debugShowCheckedModeBanner: false,
+          initialRoute: 'checkout',
+          supportedLocales: const [Locale('es', 'ES')],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          routes: {
+            //* Global
+            'enterprice': (_) => const SelectEnterpricePage(),
+            'auth': (_) => const LoginPage(),
+            'checkout': (_) => const CheckAuthPage(),
 
-          //* Global
-          'enterprice': (_) => const SelectEnterpricePage(),
-          'auth': (_) => const LoginPage(),
-          'checkout': (_) => const CheckAuthPage(),
+            //* wms Picking
+            'wms-picking': (_) => const WMSPickingPage(),
+            'batch': (_) => const BatchScreen(),
+            'batch-detail': (_) => const BatchDetailScreen(),
 
-          //* wms Picking
-          'wms-picking': (_) => const WMSPickingPage(),
-          'batch': (_) => const BatchScreen(),
-          'batch-detail': (_) => const BatchDetailScreen(),
+            //*wms Packing
+            'wms-packing': (_) => const WmsPackingScreen(),
 
-          //*wms Packing
-          'wms-packing': (_) => const WmsPackingScreen(),
+            'packing-list': (context) => PakingListScreen(
+                batchModel: ModalRoute.of(context)!.settings.arguments
+                    as BatchPackingModel?),
 
-          'packing-list': (context) => PakingListScreen(
-              batchModel:
-                  ModalRoute.of(context)!.settings.arguments as BatchPackingModel?),
+            'Packing': (_) => PackingScreen(
+            ),
 
-          'Packing': (_) => const PackingScreen(),
+            'packing-detail': (context) => PackingDetailScreen(
+                packingModel: ModalRoute.of(context)!.settings.arguments
+                    as PedidoPacking?),
 
-          'packing-detail': (context) => PackingDetailScreen(
-              packingModel:
-                  ModalRoute.of(context)!.settings.arguments as PedidoPacking?),
-
-          //*others
-          'confirmation': (_) => const ConfirmationPage(),
-          'yms': (_) => const YMSPage(),
-          'counter': (_) => const CounterPage(),
-          'home': (_) => const HomePage(),
-          'ventor': (_) => const VentorHome(),
-        },
-        theme: ThemeData.light().copyWith(
-          scaffoldBackgroundColor: Colors.grey[300],
-          appBarTheme: const AppBarTheme(elevation: 0, color: primaryColorApp),
-          colorScheme: Theme.of(context).colorScheme.copyWith(
-                primary: primaryColorApp,
-                secondary: primaryColorApp,
-              ),
-        ),
-        builder: (context, navigator) {
-          final apiRequestService = ApiRequestService();
-          apiRequestService.initialize(
-            unencodePath: '/api',
-            httpHandler: HttpResponseHandler(context),
-          );
-          return navigator!;
-        }
-      ),
+            //*others
+            'confirmation': (_) => const ConfirmationPage(),
+            'yms': (_) => const YMSPage(),
+            'counter': (_) => const CounterPage(),
+            'home': (_) => const HomePage(),
+            'ventor': (_) => const VentorHome(),
+          },
+          theme: ThemeData.light().copyWith(
+            scaffoldBackgroundColor: Colors.grey[300],
+            appBarTheme:
+                const AppBarTheme(elevation: 0, color: primaryColorApp),
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: primaryColorApp,
+                  secondary: primaryColorApp,
+                ),
+          ),
+          builder: (context, navigator) {
+            final apiRequestService = ApiRequestService();
+            apiRequestService.initialize(
+              unencodePath: '/api',
+              httpHandler: HttpResponseHandler(context),
+            );
+            return navigator!;
+          }),
     );
   }
 }

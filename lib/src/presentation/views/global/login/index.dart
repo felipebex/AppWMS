@@ -113,7 +113,7 @@ class _LoginForm extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(200),
                 child: Image.asset(
-                  'assets/images/logo.jpeg',
+                  'assets/images/icono.jpeg',
                   width: 250,
                   height: 140,
                   fit: BoxFit.cover,

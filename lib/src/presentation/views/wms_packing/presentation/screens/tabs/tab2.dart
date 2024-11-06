@@ -25,9 +25,7 @@ class Tab2Screen extends StatelessWidget {
         margin: const EdgeInsets.only(top: 10),
         width: double.infinity,
         height: size.height * 0.8,
-        child: 
-        
-        ListView.builder(
+        child: ListView.builder(
             itemCount: context.read<WmsPackingBloc>().listOfProductos.length,
             itemBuilder: (context, index) {
               final product =
@@ -36,13 +34,24 @@ class Tab2Screen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: GestureDetector(
                   onTap: () {
+                    //actualizamos el currentProduct
+
+                    context
+                        .read<WmsPackingBloc>()
+                        .add(FetchProductEvent(product));
+
                     Navigator.pushNamed(
                       context,
                       'Packing',
                     );
+
+                    print("Producto seleccionado: ${product.toJson()}");
+
                   },
                   child: Card(
-                      color: Colors.white,
+                      color: product.isSelected == 1
+                          ? primaryColorAppLigth
+                          : Colors.white,
                       elevation: 5,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
@@ -61,9 +70,24 @@ class Tab2Screen extends StatelessWidget {
                             ),
                             Align(
                                 alignment: Alignment.centerLeft,
-                                child: Text("Product: ${product.idProduct}",
+                                child: Text(" ${product.idProduct}",
                                     style: const TextStyle(
                                         fontSize: 16, color: black))),
+                            Row(
+                              children: [
+                                const Text(
+                                  "pedido: ",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: primaryColorApp,
+                                  ),
+                                ),
+                                Text("${product.pedidoId}",
+                                    style: const TextStyle(
+                                        fontSize: 16, color: black)),
+                               
+                              ],
+                            ),
                             Row(
                               children: [
                                 const Text(

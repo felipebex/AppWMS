@@ -67,7 +67,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   }
 
   TextEditingController cantidadController = TextEditingController();
-  // int quantity = 0;
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -89,18 +89,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
         if (state is EmptyroductsBatch) {
           return Scaffold(
-            // floatingActionButton: FloatingActionButton(
-            //   onPressed: () {
-            //     showDialog(
-            //         context: context,
-            //         builder: (context) {
-            //           return DialogLoading();
-            //         });
-            //     Future.delayed(const Duration(seconds: 2), () {
-            //       Navigator.pop(context);
-            //     });
-            //   },
-            // ),
             appBar:
                 AppBarGlobal(tittle: 'Detalle de Batch', actions: Container()),
             backgroundColor: Colors.white,
@@ -494,6 +482,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             currentProduct
                                                                 .locationId
                                                                 .toString()) {
+
+
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
                                                                   field:
@@ -518,6 +508,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               currentProduct
                                                                   .locationId
                                                                   .toString();
+
+                                                                  
                                                           Future.delayed(
                                                               const Duration(
                                                                   seconds: 1),
@@ -527,6 +519,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 .requestFocus(
                                                                     focusNode2);
                                                           });
+
+
+
+
+
                                                         } else {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
@@ -610,6 +607,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           if (event.logicalKey ==
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue2.isNotEmpty) {
+
+
+
                                               if (scannedValue2.toLowerCase() ==
                                                   batchBloc.product.barcode
                                                       ?.toLowerCase()) {
@@ -675,6 +675,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       Colors.red[200],
                                                 ));
                                               }
+
+                                              
                                             }
                                             return KeyEventResult.handled;
                                           } else {
@@ -732,6 +734,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             .locationIsOk &&
                                                         !batchBloc.productIsOk
                                                     ? (String? newValue) {
+
+
+
                                                         if (newValue ==
                                                             currentProduct
                                                                 .productId

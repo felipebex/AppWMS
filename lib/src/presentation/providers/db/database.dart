@@ -75,6 +75,7 @@ class DataBaseSqlite {
         location_id TEXT,
         location_dest_id TEXT,
         quantity INTEGER,
+
         quantity_separate INTEGER,
         is_selected INTEGER,
         is_separate INTEGER,
@@ -85,6 +86,7 @@ class DataBaseSqlite {
 
         observation TEXT,
         unidades TEXT,
+
         is_location_is_ok INTEGER,
         product_is_ok INTEGER,
         is_quantity_is_ok INTEGER,
@@ -134,9 +136,8 @@ class DataBaseSqlite {
       )
     ''');
 
-    // Crear tabla de productos_pedidos (relacionada con tblpedidos_packing)
     await db.execute('''
-    CREATE TABLE productos_pedidos (
+    CREATE TABLE tblproductos_pedidos (
 
       id INTEGER PRIMARY KEY,
       product_id INTEGER,
@@ -152,6 +153,15 @@ class DataBaseSqlite {
       barcode TEXT,
       weight INTEGER,
       unidades TEXT,
+
+      is_selected INTEGER,
+      quantity_separate INTEGER,
+
+      is_location_is_ok INTEGER,
+      product_is_ok INTEGER,
+      is_quantity_is_ok INTEGER,
+      location_dest_is_ok INTEGER,
+
       FOREIGN KEY (pedido_id) REFERENCES tblpedidos_packing (id)
     )
   ''');
@@ -286,8 +296,8 @@ class DataBaseSqlite {
         for (var producto in productosList) {
           // Verificar si el producto ya existe
           final List<Map<String, dynamic>> existingProducto = await txn.query(
-            'productos_pedidos',
-            where: 'id = ? AND batch_id = ? AND pedido_id = ?',
+            'tblproductos_pedidos',
+            where: 'product_id = ? AND batch_id = ? AND pedido_id = ?',
             whereArgs: [
               producto.productId,
               producto.batchId,
@@ -298,7 +308,7 @@ class DataBaseSqlite {
           if (existingProducto.isNotEmpty) {
             // Actualizar el producto si ya existe
             await txn.update(
-              'productos_pedidos',
+              'tblproductos_pedidos',
               {
                 "product_id": producto.productId,
                 "batch_id": producto.batchId,
@@ -332,7 +342,7 @@ class DataBaseSqlite {
           } else {
             // Insertar el producto si no existe
             await txn.insert(
-              'productos_pedidos',
+              'tblproductos_pedidos',
               {
                 "product_id": producto.productId,
                 "batch_id": producto.batchId,
@@ -472,7 +482,7 @@ class DataBaseSqlite {
   Future<List<PorductoPedido>> getProductosPedido(int pedidoId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db!.query(
-      'productos_pedidos',
+      'tblproductos_pedidos',
       where: 'pedido_id = ?',
       whereArgs: [pedidoId],
     );
@@ -593,7 +603,45 @@ class DataBaseSqlite {
     await db?.delete('tblbatch_products');
     await db?.delete('tblbatchs_packing');
     await db?.delete('tblpedidos_packing');
+    await db?.delete('tblproductos_pedidos');
   }
+
+
+
+  //todo: Metodos para packing
+
+   Future<int?> getFieldTableProductosPedidos(
+    int pedidoId,
+    int productId,
+    String field,
+    dynamic setValue
+  ) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE product_id = $productId AND pedido_id = $pedidoId');
+    print("update tblproductos_pedidos ($field): $resUpdate");
+
+    return resUpdate;
+  }
+
+
+
+ Future<String> getFieldTableBtach(int batchId, String field) async {
+    final db = await database;
+    final res = await db!.rawQuery('''
+      SELECT $field FROM tblbatchs WHERE id = $batchId LIMIT 1
+    ''');
+    if (res.isNotEmpty) {
+      String responsefield = res[0]['${field}'].toString();
+      print("getFieldTableBtach {$field}   : $responsefield");
+      return responsefield;
+    }
+    return "";
+  }
+
+
+
+
 
   //todo: Metodos para realizar el picking de un producto
 
@@ -705,18 +753,18 @@ class DataBaseSqlite {
   }
 
   //obtener el tiempo de inicio de la separacion
-  Future<String> getFieldTableBtach(int batchId, String field) async {
-    final db = await database;
-    final res = await db!.rawQuery('''
-      SELECT $field FROM tblbatchs WHERE id = $batchId LIMIT 1
-    ''');
-    if (res.isNotEmpty) {
-      String responsefield = res[0]['${field}'].toString();
-      print("getFieldTableBtach {$field}   : $responsefield");
-      return responsefield;
-    }
-    return "";
-  }
+  // Future<String> getFieldTableBtach(int batchId, String field) async {
+  //   final db = await database;
+  //   final res = await db!.rawQuery('''
+  //     SELECT $field FROM tblbatchs WHERE id = $batchId LIMIT 1
+  //   ''');
+  //   if (res.isNotEmpty) {
+  //     String responsefield = res[0]['${field}'].toString();
+  //     print("getFieldTableBtach {$field}   : $responsefield");
+  //     return responsefield;
+  //   }
+  //   return "";
+  // }
 
   //obtener el tiempo de inicio de la separacion de la tabla product
   Future<String> getFieldTableProducts(
