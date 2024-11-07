@@ -798,6 +798,7 @@ class _PackingScreenState extends State<PackingScreen> {
 
                                                           showDialog(
                                                               context: context,
+                                                              barrierDismissible: false,
                                                               builder:
                                                                   (context) {
                                                                 return const DialogLoadingPacking();
@@ -962,6 +963,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                           });
 
                                           showDialog(
+                                            barrierDismissible: false,
                                               context: context,
                                               builder: (context) {
                                                 return const DialogLoadingPacking();
@@ -1022,6 +1024,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       });
 
                                                       showDialog(
+                                                        barrierDismissible: false,
                                                           context: context,
                                                           builder: (context) {
                                                             return const DialogLoadingPacking();
@@ -1094,6 +1097,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                         });
 
                                         showDialog(
+                                          barrierDismissible: false,
                                             context: context,
                                             builder: (context) {
                                               return const DialogLoadingPacking();
@@ -1163,6 +1167,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       });
 
                                                       showDialog(
+                                                        barrierDismissible: false,
                                                           context: context,
                                                           builder: (context) {
                                                             return const DialogLoadingPacking();

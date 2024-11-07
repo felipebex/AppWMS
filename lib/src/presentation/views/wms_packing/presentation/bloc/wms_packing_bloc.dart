@@ -38,6 +38,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
   WmsPackingRepository wmsPackingRepository = WmsPackingRepository();
 
+
+  //*isSticker
+  bool isSticker = false;
+
   //*variables para validar
   bool locationIsOk = false;
   bool productIsOk = false;
@@ -97,28 +101,53 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //*packing
     on<SetPackingsEvent>(_onSetPackingsEvent);
+
+    //*confirmar el sticker
+    on<ChangeStickerEvent>(_onChangeStickerEvent);
   }
+
+
+  ///*metodo para cambiar el estado del sticker
+  void _onChangeStickerEvent(
+      ChangeStickerEvent event, Emitter<WmsPackingState> emit) {
+    isSticker = event.isSticker;
+    emit(ChangeStickerState(isSticker));
+  } 
+
 
   //*metodo para realizar el empacado
   void _onSetPackingsEvent(
       SetPackingsEvent event, Emitter<WmsPackingState> emit) async {
     try {
       if (event.productos.isNotEmpty) {
+
+        //creamos un numero de paquete con la cantidad de productos y fecha actual
+        int index = packages.length + DateTime.now().millisecondsSinceEpoch;
+
+        print('index: $index');
+
+
         //creamos un paquete
         packages.add(Paquete(
-          name: 'PACK000${index++}',
-          batchId: event.batchId,
-          pedidoId: event.pedidoId,
+          id: index,
+          name: 'PACK-$index',
+          batchId: currentProduct.batchId,
+          pedidoId: currentProduct.pedidoId,
           cantidadProductos: event.productos.length,
           listaProductos: event.productos,
           isSticker: event.isSticker,
         ));
 
         for (var product in event.productos) {
+          print('product: ${product.idProduct}');
           //actualizamos el estado del producto como empacado
-          await db.getFieldTableProductosPedidos(
-              event.pedidoId, product.productId ?? 0, "is_packing", "true");
+          await db.getFieldTableProductosPedidos(currentProduct.pedidoId ?? 0,
+              product.productId ?? 0, "is_packing", "true");
+          await db.getFieldTableProductosPedidos(currentProduct.pedidoId ?? 0,
+              product.productId ?? 0, "id_package", index );
         }
+
+        add(LoadAllProductsFromPedidoEvent(currentProduct.pedidoId ?? 0));
 
         productsDone.clear();
       }

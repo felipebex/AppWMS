@@ -16,6 +16,7 @@ class PorductoPedido {
   final String? unidades;
   final String? observation;
   final int? isPacking;
+  final int? idPackage;
 
   //vairbales para el packing
    final int? quantitySeparate;
@@ -52,6 +53,7 @@ class PorductoPedido {
     this.locationDestIsOk,
     this.isQuantityIsOk,
     this.observation,
+    this.idPackage,
   });
 
   factory PorductoPedido.fromJson(String str) =>
@@ -82,6 +84,7 @@ class PorductoPedido {
         isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
         observation: json["observation"],
         isPacking: json["is_packing"],
+        idPackage: json["id_package"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -107,5 +110,6 @@ class PorductoPedido {
         "is_quantity_is_ok": isQuantityIsOk,
         "observation": observation,
         "is_packing": isPacking,
+        "id_package": idPackage,
       };
 }

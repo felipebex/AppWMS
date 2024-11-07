@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab3Screen extends StatelessWidget {
@@ -14,11 +15,14 @@ class Tab3Screen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
-        onPressed: 
-        
-        context.read<WmsPackingBloc>().productsDone.isEmpty
+        onPressed: context.read<WmsPackingBloc>().productsDone.isEmpty
             ? null
             : () {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return DialogConfirmatedPacking();
+                    });
               },
         backgroundColor: primaryColorApp,
         child: Image.asset(
@@ -149,26 +153,26 @@ class Tab3Screen extends StatelessWidget {
                                                         color: black)),
                                               ],
                                             ),
-                                            if(product.observation != null)
-                                            Row(
-                                              children: [
-                                                const Text(
-                                                  "Novedades : ",
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: primaryColorApp,
+                                            if (product.observation != null)
+                                              Row(
+                                                children: [
+                                                  const Text(
+                                                    "Novedades : ",
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp,
+                                                    ),
                                                   ),
-                                                ),
-                                                SizedBox(
-                                                  width: size.width * 0.6,
-                                                  child: Text(
-                                                      "${product.observation}",
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                ),
-                                              ],
-                                            ),
+                                                  SizedBox(
+                                                    width: size.width * 0.6,
+                                                    child: Text(
+                                                        "${product.observation}",
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                  ),
+                                                ],
+                                              ),
                                           ],
                                         ),
                                       ),
@@ -226,7 +230,6 @@ class Tab3Screen extends StatelessWidget {
                       );
                     }),
           ),
-          
         ],
       ),
     );

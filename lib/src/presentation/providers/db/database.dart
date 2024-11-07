@@ -122,6 +122,21 @@ class DataBaseSqlite {
 
       )
     ''');
+
+
+
+    //todo tabla de empaque
+
+    await db.execute('''
+      CREATE TABLE tblpackages (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(255),
+        batch_id INTEGER,
+        cantidad_productos INTEGER,
+        is_sticker INTEGER,
+        FOREIGN KEY (batch_id) REFERENCES tblbatchs_packing (id)
+      )
+    ''');
    
     await db.execute('''
       CREATE TABLE tblpedidos_packing (
@@ -167,7 +182,9 @@ class DataBaseSqlite {
       is_quantity_is_ok INTEGER,
       location_dest_is_ok INTEGER,
       observation TEXT,
-
+      id_package INTEGER,
+      is_packing INTEGER,
+      FOREIGN KEY (id_package) REFERENCES tblpackages (id)
       FOREIGN KEY (pedido_id) REFERENCES tblpedidos_packing (id)
     )
   ''');

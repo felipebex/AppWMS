@@ -145,7 +145,7 @@ class Tab1Screen extends StatelessWidget {
                           Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                packingModel?.numeroPaquetes.toString()??"",
+                                packingModel?.numeroPaquetes.toString() ?? "",
                                 style: const TextStyle(
                                     fontSize: 16, color: primaryColorApp),
                               )),
@@ -163,6 +163,7 @@ class Tab1Screen extends StatelessWidget {
                     color: primaryColorApp,
                     fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),
+
             Expanded(
               child: Container(
                 padding:
@@ -176,25 +177,126 @@ class Tab1Screen extends StatelessWidget {
                 ),
                 child: ListView.builder(
                   padding: const EdgeInsets.only(bottom: 55),
-                  itemCount: 2,
+                  itemCount: context.read<WmsPackingBloc>().packages.length,
                   itemBuilder: (BuildContext context, int index) {
+                    final package =
+                        context.read<WmsPackingBloc>().packages[index];
+
+                    // Filtrar los productos de acuerdo al id_package del paquete actual
+                    final filteredProducts = context
+                        .read<WmsPackingBloc>()
+                        .listOfProductos
+                        .where((product) => product.idPackage == package.id)
+                        .toList();
+
                     return Card(
                       color: Colors.white,
                       child: ExpansionTile(
-                        title: Text('Empaque ${index + 1}'),
+                        childrenPadding: const EdgeInsets.all(10),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${package.name}",
+                              style:
+                                  const TextStyle(fontSize: 14, color: primaryColorApp),
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Cantidad de productos: ${package.cantidadProductos}",
+                                  style:
+                                      const TextStyle(fontSize: 14, color: black),
+                                ),
+                                const Spacer(),
+                                if(package.isSticker == true)
+                                IconButton(onPressed: (){}, icon: const Icon(Icons.print, color: primaryColorApp, size: 20,))
+                              ],
+                            ),
+                          ],
+                        ),
                         children: [
-                          ListTile(
-                            title: Text('Detalles de: ${[index]}'),
-                            subtitle: const Text(
-                                'Cantidad: 1'), // Puedes ajustar esto
+                          // Aquí generamos la lista de productos filtrados
+                          SizedBox(
+                            width: double.infinity,
+                            height: 150,
+                            child: ListView.builder(
+                              itemCount: filteredProducts
+                                  .length, // La cantidad de productos filtrados
+                              itemBuilder: (context, index) {
+                                final product = filteredProducts[index];
+                                return Card(
+                                  color: white,
+                                  elevation: 2,
+                                  child: ListTile(
+                                    title: Text(product.idProduct ?? "",
+                                        style: const TextStyle(
+                                            fontSize: 12,
+                                            color:
+                                                black)), // Muestra el nombre del producto
+                                    subtitle: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        RichText(
+                                          text: TextSpan(
+                                            style: const TextStyle(
+                                              fontSize: 14, // Tamaño del texto
+                                              color: Colors
+                                                  .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                            ),
+                                            children: <TextSpan>[
+                                              const TextSpan(
+                                                  text: "Cantidad separada: ",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          black)), // Parte del texto en color negro (o el color que prefieras)
+                                              TextSpan(
+                                                text:
+                                                    "${product.quantity}", // La cantidad en color rojo
+                                                style: const TextStyle(
+                                                    color: primaryColorApp,
+                                                    fontSize:
+                                                        12), // Estilo solo para la cantidad
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ), // Muestra la cantidad
+                                  ),
+                                );
+                              },
+                            ),
                           ),
+                          if (package.isSticker == true)
+                            ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey[300],
+                                    minimumSize:  Size(size.width, 35),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.print),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      "Imprimir sticker",
+                                      style: TextStyle(color: black),
+                                    )
+                                  ],
+                                )),
                         ],
                       ),
                     );
                   },
                 ),
               ),
-            ),
+            )
           ],
         );
       },

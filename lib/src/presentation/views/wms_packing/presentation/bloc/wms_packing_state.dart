@@ -42,3 +42,8 @@ class ChangeQuantitySeparateState extends WmsPackingState {
   final int quantity;
   ChangeQuantitySeparateState(this.quantity);
 }
+
+class ChangeStickerState extends WmsPackingState {
+  final bool isSticker;
+  ChangeStickerState(this.isSticker);
+}

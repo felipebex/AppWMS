@@ -185,6 +185,7 @@ class PedidoPacking {
 
 
 class Paquete {
+    final int? id;
     final String? name;
     final int? batchId;
     final int? pedidoId;
@@ -195,6 +196,7 @@ class Paquete {
     // final DateTime? fechaActualiazacion;
 
     Paquete({
+        this.id,
         this.name,
         this.batchId,
         this.pedidoId,
@@ -210,6 +212,7 @@ class Paquete {
     String toJson() => json.encode(toMap());
 
     factory Paquete.fromMap(Map<String, dynamic> json) => Paquete(
+        id: json["id"],
         name: json["name"],
         batchId: json["batch_id"],
         pedidoId: json["pedido_id"],
@@ -221,6 +224,7 @@ class Paquete {
     );
 
     Map<String, dynamic> toMap() => {
+        "id": id,
         "name": name,
         "batch_id": batchId,
         "pedido_id": pedidoId,
