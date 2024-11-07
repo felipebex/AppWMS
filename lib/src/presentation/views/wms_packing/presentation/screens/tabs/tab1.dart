@@ -28,6 +28,37 @@ class Tab1Screen extends StatelessWidget {
           backgroundColor: white,
           floatingActionButton: FloatingActionButton(
             onPressed: () {
+              if (context.read<WmsPackingBloc>().packages.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      'No se puede confirmar un pedido sin empaques',
+                      style: TextStyle(color: white),
+                    ),
+                    backgroundColor: Colors.red[200],
+                  ),
+                );
+                return;
+              } else if (context
+                      .read<WmsPackingBloc>()
+                      .productsDone
+                      .isNotEmpty &&
+                  context
+                      .read<WmsPackingBloc>()
+                      .listOfProductosProgress
+                      .isNotEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
+                      style: TextStyle(color: white),
+                    ),
+                    backgroundColor: Colors.red[200],
+                  ),
+                );
+                return;
+              }
+
               showDialog(
                   context: context,
                   builder: (context) {
@@ -372,6 +403,7 @@ class Tab1Screen extends StatelessWidget {
                                               children: [
                                                 Row(
                                                   children: [
+                                                    if(product.isCertificate !=0)
                                                     RichText(
                                                       text: TextSpan(
                                                         style: const TextStyle(
@@ -397,6 +429,40 @@ class Tab1Screen extends StatelessWidget {
                                                                 fontSize:
                                                                     12), // Estilo solo para la cantidad
                                                           ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    if(product.isCertificate ==0)
+                                                    RichText(
+                                                      text: const TextSpan(
+                                                        style: TextStyle(
+                                                          fontSize:
+                                                              14, // Tamaño del texto
+                                                          color: Colors
+                                                              .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                        ),
+                                                        children: <TextSpan>[
+                                                          TextSpan(
+                                                              text:
+                                                                  "Cantidad: ",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black)), // Parte del texto en color negro (o el color que prefieras)
+                                                         
+                                                         
+                                                          TextSpan(
+                                                            text:
+                                                                "cantidad no certificada", // La cantidad en color rojo
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.red,
+                                                                fontSize:
+                                                                    12), // Estilo solo para la cantidad
+                                                          ),
+
+
+
                                                         ],
                                                       ),
                                                     ),

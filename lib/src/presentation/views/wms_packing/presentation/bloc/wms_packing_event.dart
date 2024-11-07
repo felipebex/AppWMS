@@ -95,8 +95,9 @@ class SetPickingsEvent extends WmsPackingEvent {
 class SetPackingsEvent extends WmsPackingEvent {
   final List<PorductoPedido> productos;
   final bool isSticker;
+  final bool isCertificate;
 
-  SetPackingsEvent( this.productos, this.isSticker);
+  SetPackingsEvent( this.productos, this.isSticker, this.isCertificate);
 
 
 }

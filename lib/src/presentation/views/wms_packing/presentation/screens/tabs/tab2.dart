@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2Screen extends StatelessWidget {
@@ -19,7 +20,18 @@ class Tab2Screen extends StatelessWidget {
             onPressed:
                 context.read<WmsPackingBloc>().listOfProductosProgress.isEmpty
                     ? null
-                    : () {},
+                    : () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return  DialogConfirmatedPacking(
+                                productos: context
+                                    .read<WmsPackingBloc>()
+                                    .listOfProductosProgress,
+                                isCertificate: false,
+                              );
+                            });
+                      },
             backgroundColor: primaryColorApp,
             child: Image.asset(
               'assets/icons/packing.png',

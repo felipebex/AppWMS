@@ -4,13 +4,17 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogConfirmatedPacking extends StatelessWidget {
   const DialogConfirmatedPacking({
-    super.key,
+    super.key, required this.productos, required this.isCertificate,
   });
+
+  final List<PorductoPedido> productos;
+  final bool isCertificate;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +58,7 @@ class DialogConfirmatedPacking extends StatelessWidget {
                       value: context.read<WmsPackingBloc>().isSticker,
                       onChanged: (value) {
                         context.read<WmsPackingBloc>().add(ChangeStickerEvent(
-                            !context.read<WmsPackingBloc>().isSticker));
+                            !context.read<WmsPackingBloc>().isSticker, ));
                       },
                     ),
                     const Icon(Icons.print, color: primaryColorApp),
@@ -87,13 +91,14 @@ class DialogConfirmatedPacking extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
+
               context.read<WmsPackingBloc>().add(SetPackingsEvent(
-                    context.read<WmsPackingBloc>().productsDone,
+                    productos,
                     context.read<WmsPackingBloc>().isSticker,
+                    isCertificate,
                   ));
               
-                context.read<WmsPackingBloc>().add(ChangeStickerEvent(
-                            !context.read<WmsPackingBloc>().isSticker));
+                context.read<WmsPackingBloc>().add(ChangeStickerEvent(false));
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(

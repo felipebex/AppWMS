@@ -174,6 +174,7 @@ class DataBaseSqlite {
       is_selected INTEGER,
       is_separate INTEGER,
       quantity_separate INTEGER,
+      is_certificate INTEGER,
 
       is_location_is_ok INTEGER,
       product_is_ok INTEGER,
@@ -415,7 +416,7 @@ class DataBaseSqlite {
 
         if (existingPackage.isNotEmpty) {
           // Actualizar el batch
-          await txn.update(
+        final response=  await txn.update(
             'tblpackages',
             {
               "id": package.id,
@@ -428,9 +429,10 @@ class DataBaseSqlite {
             where: 'id = ?',
             whereArgs: [package.id],
           );
+          print("response update package: $response");
         } else {
           // Insertar nuevo batch
-          await txn.insert(
+         final response = await txn.insert(
             'tblpackages',
             {
               "id": package.id,
@@ -442,6 +444,7 @@ class DataBaseSqlite {
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
+          print("response insert package: $response");
         }
       });
     } catch (e) {
