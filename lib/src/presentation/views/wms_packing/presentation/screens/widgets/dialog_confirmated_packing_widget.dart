@@ -45,9 +45,13 @@ class DialogConfirmatedPacking extends StatelessWidget {
             ),
           ],
         )),
-        content: Column(
+        content: 
+        
+       
+        Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+             (isCertificate)?
             BlocBuilder<WmsPackingBloc, WmsPackingState>(
               builder: (context, state) {
                 return Row(
@@ -70,7 +74,8 @@ class DialogConfirmatedPacking extends StatelessWidget {
                   ],
                 );
               },
-            ),
+            )
+            : const Text("Esta realizando una separación sin certificado, tampoco se incluira el sticker de certificación", style: TextStyle(color: black, fontSize: 14), textAlign: TextAlign.center,),
           ],
         ),
         actions: [

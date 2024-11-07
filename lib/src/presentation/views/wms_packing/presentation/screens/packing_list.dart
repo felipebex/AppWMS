@@ -177,169 +177,133 @@ class PakingListScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold)),
 
                 BlocBuilder<WmsPackingBloc, WmsPackingState>(
-                  builder: (context, state) {
-                    final packingBloc = context.read<WmsPackingBloc>();
-                    return Expanded(
-                        child: Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 10),
-                      child: ListView.builder(
-                          itemCount: packingBloc.listOfPedidos.length,
-                          itemBuilder: (context, index) {
-                            final packing = packingBloc.listOfPedidos[index];
-                            return GestureDetector(
-                              onTap: () {
-                                //limpiamos la lista de paquetes
-                                context.read<WmsPackingBloc>().packages = [];
-                                //pedimos todos los productos de un pedido
-                                context.read<WmsPackingBloc>().add(
-                                    LoadAllProductsFromPedidoEvent(
-                                        packing.id ?? 0));
+  builder: (context, state) {
+    final packingBloc = context.read<WmsPackingBloc>();
+    
+    // Ordenamos la lista de pedidos
+    final sortedPedidos = List.from(packingBloc.listOfPedidos); // Copiamos la lista para no modificarla directamente
+    sortedPedidos.sort((a, b) {
+      // Si 'isTerminate' es diferente de 1, debe ir primero
+      return (a.isTerminate == 1 ? 1 : 0).compareTo(b.isTerminate == 1 ? 1 : 0);
+    });
 
-                                //viajamos a la vista de detalle de un pedido
-                                Navigator.pushNamed(context, 'packing-detail',
-                                    arguments: packing);
-                              },
-                              child: Card(
-                                  elevation: 5,
-                                  color: packing.isTerminate == 1
-                                      ? Colors.green[100]
-                                      : packing.isSelected == 1
-                                          ? primaryColorAppLigth
-                                          : Colors.white,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15, vertical: 15),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            const Text("Nombre:",
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: primaryColorApp)),
-                                            const SizedBox(width: 10),
-                                            SizedBox(
-                                              width: size.width * 0.65,
-                                              child: Text(packing.name ?? " ",
-                                                  style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: black)),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            const Text('Referencia:',
-                                                style: TextStyle(
-                                                    color: primaryColorApp,
-                                                    fontSize: 14)),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Text(
-                                                  packing.referencia ?? '',
-                                                  style: const TextStyle(
-                                                      color: black,
-                                                      fontSize: 14)),
-                                            ),
-                                            Container(
-                                              margin: const EdgeInsets.only(
-                                                  left: 10),
-                                              width: 85,
-                                              height: 30,
-                                              decoration: BoxDecoration(
-                                                  color: packing.isTerminate ==
-                                                          1
-                                                      ? primaryColorAppLigth
-                                                      : packing.isSelected != 1
-                                                          ? grey
-                                                          : Colors.green[100],
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10)),
-                                              child: Center(
-                                                child: Text(
-                                                  packing.isTerminate == 1
-                                                      ? 'Terminado'
-                                                      : packing.isSelected != 1
-                                                          ? 'Sin procesar'
-                                                          : 'En proceso',
-                                                  style: TextStyle(
-                                                      color: packing
-                                                                  .isTerminate ==
-                                                              1
-                                                          ? black
-                                                          : packing.isSelected !=
-                                                                  1
-                                                              ? white
-                                                              : black,
-                                                      fontSize: 12),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        child: ListView.builder(
+          itemCount: sortedPedidos.length,  // Usamos la lista ordenada
+          itemBuilder: (context, index) {
+            final packing = sortedPedidos[index];
+            return GestureDetector(
+              onTap: () {
+                // Limpiamos la lista de paquetes
+                context.read<WmsPackingBloc>().packages = [];
+                // Pedimos todos los productos de un pedido
+                context.read<WmsPackingBloc>().add(
+                    LoadAllProductsFromPedidoEvent(packing.id ?? 0));
 
-                                        const Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text("Tipo de operación:",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: primaryColorApp)),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        SizedBox(
-                                          width: size.width * 0.9,
-                                          child: Text(
-                                              packing.tipoOperacion ?? " ",
-                                              style: const TextStyle(
-                                                  fontSize: 14, color: black)),
-                                        ),
-
-                                        // const SizedBox(height: 5),
-                                        // Row(
-                                        //   children: [
-                                        //     const Text("A:",
-                                        //         style: TextStyle(
-                                        //             fontSize: 16,
-                                        //             color: primaryColorApp)),
-                                        //     const SizedBox(width: 10),
-                                        //     SizedBox(
-                                        //       width: size.width * 0.7,
-                                        //       child: Text(
-                                        //           // packing.locationDestId[1]
-                                        //           // .toString(),
-                                        //           " ",
-                                        //           style: const TextStyle(
-                                        //               fontSize: 16,
-                                        //               color: black)),
-                                        //     ),
-                                        //   ],
-                                        // ),
-                                        // const SizedBox(height: 5),
-                                        const Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text("Contacto:",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  color: primaryColorApp)),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        SizedBox(
-                                          width: size.width * 0.9,
-                                          child: Text(packing.contacto ?? " ",
-                                              style: const TextStyle(
-                                                  fontSize: 14, color: black)),
-                                        ),
-                                      ],
-                                    ),
-                                  )),
-                            );
-                          }),
-                    ));
-                  },
+                // Viajamos a la vista de detalle de un pedido
+                Navigator.pushNamed(context, 'packing-detail', arguments: packing);
+              },
+              child: Card(
+                elevation: 5,
+                color: packing.isTerminate == 1
+                    ? Colors.green[100]
+                    : packing.isSelected == 1
+                        ? primaryColorAppLigth
+                        : Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const Text("Nombre:",
+                              style: TextStyle(fontSize: 14, color: primaryColorApp)),
+                          const SizedBox(width: 10),
+                          SizedBox(
+                            width: size.width * 0.65,
+                            child: Text(packing.name ?? " ",
+                                style: const TextStyle(fontSize: 14, color: black)),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Text('Referencia:',
+                              style: TextStyle(color: primaryColorApp, fontSize: 14)),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(packing.referencia ?? '',
+                                style: const TextStyle(color: black, fontSize: 14)),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 10),
+                            width: 85,
+                            height: 30,
+                            decoration: BoxDecoration(
+                                color: packing.isTerminate == 1
+                                    ? primaryColorAppLigth
+                                    : packing.isSelected != 1
+                                        ? grey
+                                        : Colors.green[100],
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Center(
+                              child: Text(
+                                packing.isTerminate == 1
+                                    ? 'Terminado'
+                                    : packing.isSelected != 1
+                                        ? 'Sin procesar'
+                                        : 'En proceso',
+                                style: TextStyle(
+                                    color: packing.isTerminate == 1
+                                        ? black
+                                        : packing.isSelected != 1
+                                            ? white
+                                            : black,
+                                    fontSize: 12),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Tipo de operación:",
+                            style: TextStyle(fontSize: 14, color: primaryColorApp)),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        width: size.width * 0.9,
+                        child: Text(packing.tipoOperacion ?? " ",
+                            style: const TextStyle(fontSize: 14, color: black)),
+                      ),
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text("Contacto:",
+                            style: TextStyle(fontSize: 14, color: primaryColorApp)),
+                      ),
+                      const SizedBox(width: 10),
+                      SizedBox(
+                        width: size.width * 0.9,
+                        child: Text(packing.contacto ?? " ",
+                            style: const TextStyle(fontSize: 14, color: black)),
+                      ),
+                    ],
+                  ),
                 ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  },
+)
+
+
+
               ],
             ),
           ),
