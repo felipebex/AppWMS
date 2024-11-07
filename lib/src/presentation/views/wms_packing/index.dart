@@ -183,62 +183,62 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                       margin: const EdgeInsets.only(top: 10),
                       height: 60,
                       width: size.width * 1,
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              left: 10,
-                              right: 10,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: size.width * 0.9,
-                                  child: Card(
-                                    color: Colors.white,
-                                    elevation: 3,
-                                    child: TextFormField(
-                                      textAlignVertical:
-                                          TextAlignVertical.center,
-                                      controller: context
-                                          .read<WMSPickingBloc>()
-                                          .searchController,
-                                      decoration: InputDecoration(
-                                        prefixIcon: const Icon(Icons.search,
-                                            color: grey),
-                                        suffixIcon: IconButton(
-                                            onPressed: () {
-                                              context
-                                                  .read<WMSPickingBloc>()
-                                                  .searchController
-                                                  .clear();
-                                              // context
-                                              //     .read<WMSPickingBloc>()
-                                              //     .add(SearchBatchEvent(''));
-                                              FocusScope.of(context).unfocus();
-                                            },
-                                            icon: const Icon(Icons.close,
-                                                color: grey)),
-                                        disabledBorder:
-                                            const OutlineInputBorder(),
-                                        hintText: "Buscar batch",
-                                        hintStyle: const TextStyle(
-                                            color: Colors.grey, fontSize: 14),
-                                        border: InputBorder.none,
-                                      ),
-                                      onChanged: (value) {
-                                        // context
-                                        //     .read<WMSPickingBloc>()
-                                        //     .add(SearchBatchEvent(value));
-                                      },
-                                    ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: size.width * 0.9,
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 3,
+                                child: TextFormField(
+                                  textAlignVertical:
+                                      TextAlignVertical.center,
+                                  controller: context
+                                      .read<WmsPackingBloc>()
+                                      .searchController,
+
+                                  decoration: InputDecoration(
+                                    prefixIcon: const Icon(Icons.search,
+                                        color: grey),
+                                    suffixIcon: IconButton(
+                                        onPressed: () {
+
+                                          context
+                                              .read<WmsPackingBloc>()
+                                              .searchController
+                                              .clear();
+                                          context
+                                              .read<WmsPackingBloc>()
+                                              .add(SearchBatchPackingEvent(
+                                                  '', controller.index));
+
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                        icon: const Icon(Icons.close,
+                                            color: grey)),
+                                    disabledBorder:
+                                        const OutlineInputBorder(),
+                                    hintText: "Buscar batch",
+                                    hintStyle: const TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                    border: InputBorder.none,
                                   ),
+                                  onChanged: (value) {
+                                    context.read<WmsPackingBloc>().add(
+                                        SearchBatchPackingEvent(
+                                            value, controller.index));
+                                  },
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       )),
 
                   //*listado de batchs
@@ -259,7 +259,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                               final List<BatchPackingModel> inProgressBatches =
                                   context
                                       .read<WmsPackingBloc>()
-                                      .listOfBatchs; // Convertir a lista
+                                      .listOfBatchsDB; // Convertir a lista
 
                               // Asegurarse de que hay batches en progreso
                               if (inProgressBatches.isEmpty) {
@@ -293,9 +293,6 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                       'packing-list',
                                       arguments: batch,
                                     );
-
-
-                                      
                                   },
                                   child: Card(
                                     color: Colors.white,

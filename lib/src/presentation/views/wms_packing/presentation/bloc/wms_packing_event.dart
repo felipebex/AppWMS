@@ -32,6 +32,14 @@ class LoadAllProductsFromPedidoEvent extends WmsPackingEvent {
   );
 }
 
+class SearchBatchPackingEvent extends WmsPackingEvent {
+  final String query;
+  final int indexMenu;
+
+  SearchBatchPackingEvent(this.query, this.indexMenu);
+}
+
+
 class ValidateFieldsPackingEvent extends WmsPackingEvent {
   final String field;
   final bool isOk;

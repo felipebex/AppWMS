@@ -15,6 +15,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   //*lista de batchs para packing
   List<BatchPackingModel> listOfBatchs = [];
   List<BatchPackingModel> listOfBatchsDB = [];
+  List<BatchPackingModel> listOfBatchsDoneDB = [];
 
   //*listad de pedido de un batch
   List<PedidoPacking> listOfPedidos = [];
@@ -79,6 +80,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     on<FetchProductEvent>(_onFetchProductEvent);
 
+    //*buscar un batch
+    on<SearchBatchPackingEvent>(_onSearchBacthEvent);
+
     //*cambiar el estado de las variables
     on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
     on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
@@ -103,6 +107,35 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //*confirmar el sticker
     on<ChangeStickerEvent>(_onChangeStickerEvent);
+  }
+
+  //metodo para buscar un batch de packing
+  void _onSearchBacthEvent(
+      SearchBatchPackingEvent event, Emitter<WmsPackingState> emit) async {
+    final query = event.query.toLowerCase();
+    final batchsFromDB = await db.getAllBatchsPacking();
+    if (event.indexMenu == 0) {
+      if (query.isEmpty) {
+        listOfBatchsDB = batchsFromDB;
+        listOfBatchsDB = listOfBatchsDB
+            .where((element) => element.isSeparate == null)
+            .toList();
+      } else {
+        listOfBatchsDB = batchsFromDB.where((batch) {
+          return batch.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      // Emitir la lista filtrada
+    } else {
+      if (query.isEmpty) {
+        listOfBatchsDB = listOfBatchsDoneDB;
+      } else {
+        listOfBatchsDB = listOfBatchsDoneDB.where((batch) {
+          return batch.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+    }
+    emit(WmsPackingLoaded());
   }
 
   ///*metodo para cambiar el estado del sticker
@@ -149,7 +182,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           //verificamos si el empaquetado esta certificado
           if (!event.isCertificate) {
             print("if ${product.productId}");
-           
 
             await db.getFieldTableProductosPedidos(product.pedidoId ?? 0,
                 product.productId ?? 0, "is_separate", "true");
@@ -400,7 +432,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadBatchPackingFromDBEvent event, Emitter<WmsPackingState> emit) async {
     try {
       emit(BatchsPackingLoadingState());
-      final batchsFromDB = await DataBaseSqlite().getAllBatchsPacking();
+      final batchsFromDB = await db.getAllBatchsPacking();
       listOfBatchsDB.clear();
       listOfBatchsDB.addAll(batchsFromDB);
       print('batchsFromDB: ${batchsFromDB.length}');
