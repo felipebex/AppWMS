@@ -78,18 +78,18 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
             });
             switch (index) {
               case 0:
-                // context
-                //     .read<WMSPickingBloc>()
-                //     .add(FilterBatchesBStatusEvent(
-                //       '',
-                //     ));
+                context
+                    .read<WmsPackingBloc>()
+                    .add(FilterBatchPackingStatusEvent(
+                      '',
+                    ));
                 break;
               case 1:
-                // context
-                //     .read<WMSPickingBloc>()
-                //     .add(FilterBatchesBStatusEvent(
-                //       'done',
-                //     ));
+                context
+                    .read<WmsPackingBloc>()
+                    .add(FilterBatchPackingStatusEvent(
+                      'done',
+                    ));
                 break;
 
               default:
@@ -161,8 +161,22 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                     ],
                                   ),
                                   ProgressIndicatorWidget(
-                                    progress: 0.625,
-                                    completed: 5,
+                                    progress: context
+                                          .read<WmsPackingBloc>()
+                                          .listOfBatchs.isNotEmpty
+                                  ? context
+                                          .read<WmsPackingBloc>()
+                                          .listOfBatchsDoneDB
+                                          .length /
+                                      context
+                                          .read<WmsPackingBloc>()
+                                          .listOfBatchs
+                                          .length
+                                  : 0.0,
+                                    completed: context
+                                        .read<WmsPackingBloc>()
+                                        .listOfBatchsDoneDB
+                                        .length,
                                     total: context
                                         .read<WmsPackingBloc>()
                                         .listOfBatchs
@@ -197,33 +211,28 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                 color: Colors.white,
                                 elevation: 3,
                                 child: TextFormField(
-                                  textAlignVertical:
-                                      TextAlignVertical.center,
+                                  textAlignVertical: TextAlignVertical.center,
                                   controller: context
                                       .read<WmsPackingBloc>()
                                       .searchController,
-
                                   decoration: InputDecoration(
-                                    prefixIcon: const Icon(Icons.search,
-                                        color: grey),
+                                    prefixIcon:
+                                        const Icon(Icons.search, color: grey),
                                     suffixIcon: IconButton(
                                         onPressed: () {
-
                                           context
                                               .read<WmsPackingBloc>()
                                               .searchController
                                               .clear();
-                                          context
-                                              .read<WmsPackingBloc>()
-                                              .add(SearchBatchPackingEvent(
+                                          context.read<WmsPackingBloc>().add(
+                                              SearchBatchPackingEvent(
                                                   '', controller.index));
 
                                           FocusScope.of(context).unfocus();
                                         },
                                         icon: const Icon(Icons.close,
                                             color: grey)),
-                                    disabledBorder:
-                                        const OutlineInputBorder(),
+                                    disabledBorder: const OutlineInputBorder(),
                                     hintText: "Buscar batch",
                                     hintStyle: const TextStyle(
                                         color: Colors.grey, fontSize: 14),
@@ -295,7 +304,11 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                     );
                                   },
                                   child: Card(
-                                    color: Colors.white,
+                                   color: batch.isSeparate == 1
+                                            ? Colors.green[100]
+                                            : batch.isSelected == 1
+                                                ? primaryColorAppLigth
+                                                : Colors.white,
                                     elevation: 5,
                                     child: ListTile(
                                       trailing: const Icon(

@@ -35,7 +35,9 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
             length: 3,
             child: Scaffold(
               backgroundColor: Colors.white,
-              appBar: AppBar(
+              appBar: 
+              
+              AppBar(
                 centerTitle: true,
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back, color: white),
@@ -92,6 +94,9 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                   bottom: Radius.circular(20),
                 )),
               ),
+
+
+              
               body: TabBarView(
                 children: [
                   Tab1Screen(

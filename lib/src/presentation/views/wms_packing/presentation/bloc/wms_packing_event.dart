@@ -115,3 +115,10 @@ class ChangeStickerEvent extends WmsPackingEvent {
   final bool isSticker;
   ChangeStickerEvent(this.isSticker);
 }
+
+
+class FilterBatchPackingStatusEvent extends WmsPackingEvent {
+  final String status;
+
+  FilterBatchPackingStatusEvent(this.status);
+}

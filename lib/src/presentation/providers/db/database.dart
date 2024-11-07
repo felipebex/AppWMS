@@ -732,17 +732,19 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+  //*metodo para actualizar la tabla de batch de un packing
+  Future<int?> getFieldTableBatchPacking(
+      int batchId, String field, dynamic setValue) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblbatchs_packing SET $field = $setValue WHERE id = $batchId');
+    print("update tblbatchs_packing ($field): $resUpdate");
 
-  // //*metodo para actualizar la tabla de pedidos de un batch
-  // Future<int?> getFieldTablePackage(
-  //     int batchId, int pedidoId, String field, dynamic setValue) async {
-  //   final db = await database;
-  //   final resUpdate = await db!.rawUpdate(
-  //       ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId');
-  //   print("update tblpedidos_packing ($field): $resUpdate");
+    return resUpdate;
+  }
+ 
 
-  // //   return resUpdate;
-  // // }
+ 
 
   Future<String> getFieldTableBtach(int batchId, String field) async {
     final db = await database;

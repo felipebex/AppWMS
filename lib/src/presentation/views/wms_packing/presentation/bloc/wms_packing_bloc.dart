@@ -107,6 +107,28 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //*confirmar el sticker
     on<ChangeStickerEvent>(_onChangeStickerEvent);
+
+    //*filtrar por estado los batchs desde SQLite
+    on<FilterBatchPackingStatusEvent>(_onFilterBatchesBStatusEvent);
+  }
+
+  void _onFilterBatchesBStatusEvent(FilterBatchPackingStatusEvent event,
+      Emitter<WmsPackingState> emit) async {
+    if (event.status == '') {
+      final batchsFromDB = await db.getAllBatchsPacking();
+      listOfBatchsDB = batchsFromDB;
+      listOfBatchsDB = listOfBatchsDB
+          .where((element) => element.isSeparate == null)
+          .toList();
+      emit(WmsPackingLoaded());
+
+      return;
+    } else if (event.status == 'done') {
+      listOfBatchsDB = listOfBatchsDoneDB;
+      emit(WmsPackingLoaded());
+
+      return;
+    }
   }
 
   //metodo para buscar un batch de packing
@@ -114,6 +136,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       SearchBatchPackingEvent event, Emitter<WmsPackingState> emit) async {
     final query = event.query.toLowerCase();
     final batchsFromDB = await db.getAllBatchsPacking();
+
     if (event.indexMenu == 0) {
       if (query.isEmpty) {
         listOfBatchsDB = batchsFromDB;
@@ -177,11 +200,13 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         ));
 
         for (var product in event.productos) {
-          print("id: ${product.productId}");
-
           //verificamos si el empaquetado esta certificado
           if (!event.isCertificate) {
-            print("if ${product.productId}");
+            await db.getFieldTableBatchPacking(event.productos[0].batchId ?? 0,
+                 "is_selected", "true");
+
+            await db.getFieldTablePedidosPacking(event.productos[0].batchId ?? 0,
+                product.pedidoId ?? 0, "is_selected", "true");
 
             await db.getFieldTableProductosPedidos(product.pedidoId ?? 0,
                 product.productId ?? 0, "is_separate", "true");
@@ -474,6 +499,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       await db.getFieldTablePedidosPacking(
           currentProduct.batchId ?? 0, event.pedidoId, "is_selected", "true");
 
+      //actualizamos el estado de seleccion de un batch
+       await db.getFieldTableBatchPacking(currentProduct.batchId ?? 0,
+                 "is_selected", "true");
       //actualizamos la ubicacion del producto a true
       await db.getFieldTableProductosPedidos(
           event.pedidoId, event.productId, "is_location_is_ok", "true");
