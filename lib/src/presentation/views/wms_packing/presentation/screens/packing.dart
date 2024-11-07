@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_loading_widget.dart';
@@ -12,7 +11,7 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
 class PackingScreen extends StatefulWidget {
-  PackingScreen({
+  const PackingScreen({
     super.key,
   });
 
@@ -933,21 +932,28 @@ class _PackingScreenState extends State<PackingScreen> {
                                         ));
                                       } else {
                                         //todo: cantidad dentro del rango
+                                        
                                         if (int.parse(value) ==
                                             packinghBloc
                                                 .currentProduct.quantity) {
                                           //*cantidad correcta
+                                         print("cantidad correcta");
+                                         
                                           //guardamos la cantidad en la bd
-                                          packinghBloc
-                                              .add(ChangeQuantitySeparate(
-                                            int.parse(value),
-                                            packinghBloc
-                                                    .currentProduct.productId ??
-                                                0,
-                                            packinghBloc
-                                                    .currentProduct.productId ??
-                                                0,
-                                          ));
+                                          packinghBloc.add(
+                                                          ChangeQuantitySeparate(
+                                                        int.parse(value),
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .productId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .pedidoId ??
+                                                            0,
+                                                      ));
+
+
 
                                           packinghBloc.add(SetPickingsEvent(
                                               packinghBloc.currentProduct
@@ -956,6 +962,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                               packinghBloc.currentProduct
                                                       .pedidoId ??
                                                   0));
+
+
 
                                           cantidadController.clear();
                                           setState(() {
@@ -994,6 +1002,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                         cantidadController
                                                             .text),
                                                     onAccepted: () {
+
                                                       packinghBloc.add(
                                                           ChangeQuantitySeparate(
                                                         int.parse(value),
@@ -1073,15 +1082,18 @@ class _PackingScreenState extends State<PackingScreen> {
                                               .currentProduct.quantity) {
                                         //*cantidad correcta
                                         //guardamos la cantidad en la bd
-                                        packinghBloc.add(ChangeQuantitySeparate(
-                                          int.parse(cantidadController.text),
-                                          packinghBloc
-                                                  .currentProduct.productId ??
-                                              0,
-                                          packinghBloc
-                                                  .currentProduct.productId ??
-                                              0,
-                                        ));
+                                       packinghBloc.add(
+                                                          ChangeQuantitySeparate(packinghBloc
+                                              .currentProduct.quantity,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .productId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .pedidoId ??
+                                                            0,
+                                                      ));
 
                                         packinghBloc.add(SetPickingsEvent(
                                             packinghBloc

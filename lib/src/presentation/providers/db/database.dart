@@ -110,20 +110,15 @@ class DataBaseSqlite {
         is_separate INTEGER, 
         is_selected INTEGER, 
         is_packing INTEGER,
-        product_separate_qty INTEGER,
-        product_qty INTEGER,
+        pedido_separate_qty INTEGER,
         index_list INTEGER,
 
         time_separate_total DECIMAL(10,2),
         time_separate_start VARCHAR(255),
-        time_separate_end VARCHAR(255),
-        is_send_oddo TEXT,
-        is_send_oddo_date VARCHAR(255)
+        time_separate_end VARCHAR(255)
 
       )
     ''');
-
-
 
     //todo tabla de empaque
 
@@ -132,12 +127,13 @@ class DataBaseSqlite {
         id INTEGER PRIMARY KEY,
         name VARCHAR(255),
         batch_id INTEGER,
+        pedido_id INTEGER,
         cantidad_productos INTEGER,
         is_sticker INTEGER,
-        FOREIGN KEY (batch_id) REFERENCES tblbatchs_packing (id)
+        FOREIGN KEY (pedido_id) REFERENCES tblpedidos_packing (id)
       )
     ''');
-   
+
     await db.execute('''
       CREATE TABLE tblpedidos_packing (
 
@@ -145,12 +141,14 @@ class DataBaseSqlite {
         batch_id INTEGER,
         name VARCHAR(255),
         referencia VARCHAR(255),
+        fecha VARCHAR(255),
         contacto VARCHAR(255),
         tipo_operacion VARCHAR(255),
         cantidad_productos INTEGER,
         numero_paquetes INTEGER,
         is_selected INTEGER,
         is_packing INTEGER,
+        is_terminate INTEGER,
         FOREIGN KEY (batch_id) REFERENCES tblbatchs_packing (id)
       )
     ''');
@@ -271,6 +269,7 @@ class DataBaseSqlite {
                 "id": pedido.id,
                 "batch_id": pedido.batchId,
                 "name": pedido.name,
+                "fecha": pedido.fecha.toString(),
                 "referencia": pedido.referencia == false
                     ? ""
                     : pedido.referencia, // Si referencia es false, poner ""
@@ -291,6 +290,7 @@ class DataBaseSqlite {
                 "id": pedido.id,
                 "batch_id": pedido.batchId,
                 "name": pedido.name,
+                "fecha": pedido.fecha.toString(),
                 "referencia": pedido.referencia == false
                     ? ""
                     : pedido.referencia, // Si referencia es false, poner ""
@@ -396,6 +396,56 @@ class DataBaseSqlite {
       });
     } catch (e, s) {
       print("Error al insertar productos en productos_pedidos: $e ==> $s");
+    }
+  }
+
+  //todo meotod para insertar paquete
+
+  Future<void> insertPackage(Paquete package) async {
+    try {
+      final db = await database;
+
+      await db!.transaction((txn) async {
+        // Verificar si el batch ya existe
+        final List<Map<String, dynamic>> existingPackage = await txn.query(
+          'tblpackages',
+          where: 'id = ?',
+          whereArgs: [package.id],
+        );
+
+        if (existingPackage.isNotEmpty) {
+          // Actualizar el batch
+          await txn.update(
+            'tblpackages',
+            {
+              "id": package.id,
+              "name": package.name,
+              "batch_id": package.batchId,
+              "pedido_id": package.pedidoId,
+              "cantidad_productos": package.cantidadProductos,
+              "is_sticker": package.isSticker == true ? 1 : 0,
+            },
+            where: 'id = ?',
+            whereArgs: [package.id],
+          );
+        } else {
+          // Insertar nuevo batch
+          await txn.insert(
+            'tblpackages',
+            {
+              "id": package.id,
+              "name": package.name,
+              "batch_id": package.batchId,
+              "pedido_id": package.pedidoId,
+              "cantidad_productos": package.cantidadProductos,
+              "is_sticker": package.isSticker == true ? 1 : 0,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+      });
+    } catch (e) {
+      print("Error al insertar package: $e");
     }
   }
 
@@ -516,6 +566,31 @@ class DataBaseSqlite {
     return productos;
   }
 
+  //todo metodos para obtener los paquetes de un pedido
+
+  Future<List<Paquete>> getPackagesPedido(int pedidoId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblpackages',
+      where: 'pedido_id = ?',
+      whereArgs: [pedidoId],
+    );
+    final List<Paquete> productos = maps.map((map) {
+      return Paquete(
+        id: map['id'],
+        name: map['name'],
+        batchId: map['batch_id'],
+        pedidoId: map['pedido_id'],
+        cantidadProductos: map['cantidad_productos'],
+        isSticker: map['is_sticker'] == 1 ? true : false,
+      );
+    }).toList();
+    return productos;
+  }
+
+
+
+
   //Todo: Métodos para batchs_products
 
   Future<void> insertBatchProducts(
@@ -627,6 +702,8 @@ class DataBaseSqlite {
     await db?.delete('tblbatchs_packing');
     await db?.delete('tblpedidos_packing');
     await db?.delete('tblproductos_pedidos');
+    await db?.delete('tblpackages');
+
   }
 
   //todo: Metodos para packing
@@ -642,7 +719,6 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
-  
   //*metodo para actualizar la tabla de pedidos de un batch
   Future<int?> getFieldTablePedidosPacking(
       int batchId, int pedidoId, String field, dynamic setValue) async {
@@ -654,9 +730,16 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
+  // //*metodo para actualizar la tabla de pedidos de un batch
+  // Future<int?> getFieldTablePackage(
+  //     int batchId, int pedidoId, String field, dynamic setValue) async {
+  //   final db = await database;
+  //   final resUpdate = await db!.rawUpdate(
+  //       ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId');
+  //   print("update tblpedidos_packing ($field): $resUpdate");
 
-
-
+  // //   return resUpdate;
+  // // }
 
   Future<String> getFieldTableBtach(int batchId, String field) async {
     final db = await database;
@@ -912,6 +995,7 @@ class DataBaseSqlite {
     print("updateNovedad: $resUpdate");
     return resUpdate;
   }
+
   Future<int?> updateNovedadPacking(
     int pedidoId,
     int productId,

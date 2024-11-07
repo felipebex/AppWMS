@@ -138,6 +138,17 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           isSticker: event.isSticker,
         ));
 
+
+
+        await db.insertPackage(Paquete(
+          id: index,
+          name: 'PACK-$index',
+          batchId: currentProduct.batchId,
+          pedidoId: currentProduct.pedidoId,
+          cantidadProductos: event.productos.length,
+          isSticker: event.isSticker,
+        ));
+
         for (var product in event.productos) {
           print('product: ${product.idProduct}');
           //actualizamos el estado del producto como empacado
@@ -150,6 +161,14 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         add(LoadAllProductsFromPedidoEvent(currentProduct.pedidoId ?? 0));
 
         productsDone.clear();
+
+
+         await db.getFieldTablePedidosPacking(currentProduct.batchId ?? 0,
+              currentProduct.pedidoId ?? 0, "is_packing", "true");
+
+
+
+        emit(WmsPackingLoaded());
       }
     } catch (e, s) {
       print('Error en el  _onSetPackingsEvent: $e, $s');
@@ -175,10 +194,11 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   //*metodo para cambiar la cantidad seleccionada
   void _onChangeQuantitySelectedEvent(
       ChangeQuantitySeparate event, Emitter<WmsPackingState> emit) async {
+        print('event.quantity: ${event.quantity}');
     if (event.quantity > 0) {
       quantitySelected = event.quantity;
       await db.getFieldTableProductosPedidos(event.pedidoId, event.productId,
-          "quantity_separate", quantitySelected);
+          "quantity_separate", event.quantity);
     }
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
@@ -233,24 +253,31 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
       final response =
           await DataBaseSqlite().getProductosPedido(event.pedidoId);
+
       if (response != null && response is List) {
         print('response lista de productos: ${response.length}');
         listOfProductos.clear();
         listOfProductos.addAll(response);
 
+        //filtramos y creamos la lista de productos listo a empacar
         productsDone = listOfProductos
             .where(
                 (product) => product.isSeparate == 1 && product.isPacking != 1)
             .toList();
 
-        print('productsDone: ${productsDone.length}');
-
+        //filtramos y creamos la lista de productos listo a separar para empaque
         listOfProductosProgress = listOfProductos
             .where((product) => product.isSeparate == null)
             .toList();
 
-        print('productsProgress: ${listOfProductosProgress.length}');
+        //traemos todos los paquetes de la base de datos del pedido en cuesiton
+        final packagesDB = await db.getPackagesPedido(event.pedidoId);
+        packages.clear();
+        packages.addAll(packagesDB);
+        print('packagesDB: ${packagesDB.length}');
 
+
+        //obtenemos las posiciones de los productos
         getPosicions();
 
         emit(WmsPackingLoaded());

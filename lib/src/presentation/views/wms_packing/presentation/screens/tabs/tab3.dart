@@ -21,7 +21,7 @@ class Tab3Screen extends StatelessWidget {
                 showDialog(
                     context: context,
                     builder: (context) {
-                      return DialogConfirmatedPacking();
+                      return const DialogConfirmatedPacking();
                     });
               },
         backgroundColor: primaryColorApp,
@@ -63,10 +63,7 @@ class Tab3Screen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              'Packing',
-                            );
+                           print("Producto: ${product.toJson()}");
                           },
                           child: Card(
                               color: product.isSeparate == 1

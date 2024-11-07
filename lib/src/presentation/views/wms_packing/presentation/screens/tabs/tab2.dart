@@ -91,7 +91,7 @@ class Tab2Screen extends StatelessWidget {
                                       child: Text(
                                         "Producto:",
                                         style: TextStyle(
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           color: primaryColorApp,
                                         ),
                                       ),
@@ -100,13 +100,13 @@ class Tab2Screen extends StatelessWidget {
                                         alignment: Alignment.centerLeft,
                                         child: Text(" ${product.idProduct}",
                                             style: const TextStyle(
-                                                fontSize: 16, color: black))),
+                                                fontSize: 14, color: black))),
                                     Row(
                                       children: [
                                         const Text(
                                           "pedido: ",
                                           style: TextStyle(
-                                            fontSize: 16,
+                                            fontSize: 14,
                                             color: primaryColorApp,
                                           ),
                                         ),
@@ -120,24 +120,24 @@ class Tab2Screen extends StatelessWidget {
                                         const Text(
                                           "Cantidad: ",
                                           style: TextStyle(
-                                            fontSize: 16,
+                                            fontSize: 14,
                                             color: primaryColorApp,
                                           ),
                                         ),
                                         Text("${product.quantity}",
                                             style: const TextStyle(
-                                                fontSize: 16, color: black)),
+                                                fontSize: 14, color: black)),
                                         const Spacer(),
                                         const Text(
                                           "Unidad de medida: ",
                                           style: TextStyle(
-                                            fontSize: 16,
+                                            fontSize: 14,
                                             color: primaryColorApp,
                                           ),
                                         ),
                                         Text("${product.unidades}",
                                             style: const TextStyle(
-                                                fontSize: 16, color: black)),
+                                                fontSize: 14, color: black)),
                                       ],
                                     ),
                                     if (product.tracking != false)
@@ -146,13 +146,13 @@ class Tab2Screen extends StatelessWidget {
                                           const Text(
                                             "Numero de serie/lote: ",
                                             style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               color: primaryColorApp,
                                             ),
                                           ),
                                           Text("${product.tracking}",
                                               style: const TextStyle(
-                                                  fontSize: 16, color: black)),
+                                                  fontSize: 14, color: black)),
                                         ],
                                       ),
                                     // if (product.expirationDate != false)

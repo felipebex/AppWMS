@@ -53,6 +53,7 @@ class _PickingPageState extends State<WMSPickingPage> {
         ],
         child: BlocBuilder<WMSPickingBloc, PickingState>(
           builder: (context, state) {
+            
             double progress =
                 context.read<WMSPickingBloc>().listOfBatchs.length > 0
                     ? context.read<WMSPickingBloc>().batchsDone.length /
