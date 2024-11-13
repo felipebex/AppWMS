@@ -162,7 +162,7 @@ class Tab2Screen extends StatelessWidget {
                                               color: primaryColorApp,
                                             ),
                                           ),
-                                          Text("${product.tracking}",
+                                          Text("${product.lotId}",
                                               style: const TextStyle(
                                                   fontSize: 14, color: black)),
                                         ],

@@ -27,12 +27,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         if (response.data == null) {
           emit(LoginFailure('Autenticación fallida.'));
         } else {
-          email.clear();
-          password.clear();
           PrefUtils.setUserName(response.data?.result?.name?? 'No-name');
           PrefUtils.setUserEmail(response.data?.result?.email?? 'No-email');
           PrefUtils.setUserRol(response.data?.result?.rol?? 'No-rol');
+          PrefUtils.setUserPass(password.text);
           PrefUtils.setIsLoggedIn(true);
+          email.clear();
+          password.clear();
           emit(LoginSuccess());
         }
       

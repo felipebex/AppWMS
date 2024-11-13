@@ -18,6 +18,8 @@ class PorductoPedido {
   final int? isPacking;
   final int? idPackage;
   final int? isCertificate;
+  final int? isSendOdoo;
+  final String? isSendOdooDate;
 
   //vairbales para el packing
    final int? quantitySeparate;
@@ -56,6 +58,8 @@ class PorductoPedido {
     this.observation,
     this.idPackage,
     this.isCertificate,
+    this.isSendOdoo,
+    this.isSendOdooDate,
   });
 
   factory PorductoPedido.fromJson(String str) =>
@@ -88,6 +92,8 @@ class PorductoPedido {
         isPacking: json["is_packing"],
         idPackage: json["id_package"],
         isCertificate: json["is_certificate"],
+        isSendOdoo: json["is_send_odoo"],
+        isSendOdooDate: json["is_send_odoo_date"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -115,5 +121,7 @@ class PorductoPedido {
         "is_packing": isPacking,
         "id_package": idPackage,
         "is_certificate": isCertificate,
+        "is_send_odoo": isSendOdoo,
+        "is_send_odoo_date": isSendOdooDate,
       };
 }

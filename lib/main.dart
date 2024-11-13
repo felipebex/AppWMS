@@ -1,5 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 
+import 'dart:io';
+
+import 'package:cron/cron.dart';
 import 'package:flutter/services.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
@@ -38,6 +41,20 @@ void main() async {
   });
   // Inicializar la base de datos SQLite
   await Preferences.init();
+
+  //cron
+  var cron = Cron();
+  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+  
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+       // ignore: avoid_print
+        print('connected');
+        
+      }
+    } on SocketException catch (_) {}
+  });
 }
 
 class AppState extends StatelessWidget {

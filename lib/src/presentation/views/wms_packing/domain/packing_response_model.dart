@@ -184,10 +184,12 @@ class PedidoPacking {
       batchId: json["batch_id"],
       name: json["name"],
       referencia: json["referencia"],
-      fecha: json["fecha"] == null ? null : DateTime.parse(json["fecha"]),
+     fecha: json["fecha"] == null ? DateTime.now() : DateTime.parse(json["fecha"]),
 
-      // contacto: json["contacto"] == null ? [] : List<dynamic>.from(json["contacto"]!.map((x) => x)),
-      contacto: json["contacto"],
+
+       contacto: (json["contacto"] != null && json["contacto"].isNotEmpty) 
+        ? json["contacto"][1] 
+        : null,  // Aquí aseguramos que solo se tome el valor de la posición [1]
       contactoId: json["contacto_id"],
       tipoOperacion: json["tipo_operacion"],
       cantidadProductos: json["cantidad_productos"],

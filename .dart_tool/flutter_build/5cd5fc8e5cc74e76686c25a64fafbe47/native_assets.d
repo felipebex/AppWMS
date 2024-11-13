@@ -1,1 +1,0 @@
- /Users/estebanrodriguezmarles/Downloads/appwms/.dart_tool/flutter_build/5cd5fc8e5cc74e76686c25a64fafbe47/native_assets.yaml: 

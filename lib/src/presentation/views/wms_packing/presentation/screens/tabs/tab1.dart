@@ -114,7 +114,7 @@ class Tab1Screen extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () async {
                               await DataBaseSqlite()
-                                  .getFieldTablePedidosPacking(
+                                  .setFieldTablePedidosPacking(
                                       packingModel?.batchId ?? 0,
                                       packingModel?.id ?? 0,
                                       "is_terminate",

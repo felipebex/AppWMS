@@ -67,7 +67,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   }
 
   TextEditingController cantidadController = TextEditingController();
- 
 
   @override
   Widget build(BuildContext context) {
@@ -482,8 +481,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             currentProduct
                                                                 .locationId
                                                                 .toString()) {
-
-
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
                                                                   field:
@@ -509,7 +506,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                   .locationId
                                                                   .toString();
 
-                                                                  
                                                           Future.delayed(
                                                               const Duration(
                                                                   seconds: 1),
@@ -519,11 +515,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 .requestFocus(
                                                                     focusNode2);
                                                           });
-
-
-
-
-
                                                         } else {
                                                           batchBloc.add(
                                                               ValidateFieldsEvent(
@@ -607,11 +598,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           if (event.logicalKey ==
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue2.isNotEmpty) {
-
-
-
                                               if (scannedValue2.toLowerCase() ==
-                                                  batchBloc.product.barcode
+                                                  currentProduct.barcode
                                                       ?.toLowerCase()) {
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
@@ -675,8 +663,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       Colors.red[200],
                                                 ));
                                               }
-
-                                              
                                             }
                                             return KeyEventResult.handled;
                                           } else {
@@ -734,9 +720,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             .locationIsOk &&
                                                         !batchBloc.productIsOk
                                                     ? (String? newValue) {
-
-
-
                                                         if (newValue ==
                                                             currentProduct
                                                                 .productId
@@ -832,13 +815,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                             const SizedBox(height: 10),
                                             //informacion del lote:
-                                            if (batchBloc.product.tracking ==
-                                                    'lot' ||
-                                                batchBloc.product.tracking ==
-                                                    'serial')
-                                              const Column(
+                                            if (currentProduct.loteId != null)
+                                              Column(
                                                 children: [
-                                                  Align(
+                                                  const Align(
                                                     alignment:
                                                         Alignment.centerLeft,
                                                     child: Text(
@@ -853,8 +833,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     alignment:
                                                         Alignment.centerLeft,
                                                     child: Text(
-                                                      "",
-                                                      style: TextStyle(
+                                                      currentProduct
+                                                              .lotId ??
+                                                          '',
+                                                      style: const TextStyle(
                                                           fontSize: 16,
                                                           color: black),
                                                     ),
@@ -1185,8 +1167,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       .isNotEmpty) {
                                                     if (scannedValue3
                                                             .toLowerCase() ==
-                                                        batchBloc
-                                                            .product.barcode
+                                                        currentProduct.barcode
                                                             ?.toLowerCase()) {
                                                       batchBloc.add(
                                                           ValidateFieldsEvent(
@@ -1508,13 +1489,18 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) async {
     batchBloc.completedProducts = batchBloc.completedProducts + 1;
     DataBaseSqlite db = DataBaseSqlite();
-    await db.separateProduct(batchBloc.batchWithProducts.batch?.id ?? 0,
-        currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
+    await db.setFieldTableBatchProducts(
+        batchBloc.batchWithProducts.batch?.id ?? 0,
+        currentProduct.idProduct ?? 0,
+        'is_separate',
+        'true',
+        currentProduct.idMove ?? 0);
     await db.incrementProductSeparateQty(
         batchBloc.batchWithProducts.batch?.id ?? 0);
 
     viewQuantity = false;
     setState(() {});
+
     ///cambiamos al siguiente producto
 
     if (batchBloc.index + 1 == batchBloc.batchWithProducts.products?.length) {
@@ -1527,9 +1513,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           currentProduct.idProduct ?? 0,
           batchBloc.batchWithProducts.batch?.id ?? 0,
           currentProduct.idMove ?? 0));
-      await db.updateIsQuantityIsFalse(
+      await db.setFieldTableBatchProducts(
           batchBloc.batchWithProducts.batch?.id ?? 0,
           currentProduct.idProduct ?? 0,
+          'is_quantity_is_ok',
+          'false',
           currentProduct.idMove ?? 0);
       batchBloc.quantitySelected = 0;
       return;

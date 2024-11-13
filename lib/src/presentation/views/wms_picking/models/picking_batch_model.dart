@@ -180,13 +180,17 @@ class ProductsBatch {
   final dynamic quantity; // Cambiado a double
   final List<Barcodes>? productPacking;
 
+
   final int? quantitySeparate;
   final dynamic isSelected;
   final int? isSeparate;
-  final String? timeSeparate;
+  final double? timeSeparate;
   final String? timeSeparateStart;
     final String? timeSeparateEnd;
   final String? observation;
+  final int? isSendOdoo;
+  final String? isSendOdooDate;
+  final double? weight;
 
   // Variables para el picking
   late dynamic
@@ -227,6 +231,9 @@ class ProductsBatch {
     this.productIsOk,
     this.locationDestIsOk,
     this.isQuantityIsOk,
+    this.isSendOdoo,
+    this.isSendOdooDate,
+    this.weight,
   });
 
  
@@ -264,6 +271,9 @@ class ProductsBatch {
       productIsOk: map["product_is_ok"] ?? false,
       locationDestIsOk: map["location_dest_is_ok"] ?? false,
       isQuantityIsOk: map["is_quantity_is_ok"] ?? false,
+      isSendOdoo: map['is_send_odoo'],
+      isSendOdooDate: map['is_send_odoo_date'],
+      weight: map['weight'],
     );
   }
 
@@ -297,6 +307,9 @@ class ProductsBatch {
       "product_is_ok": productIsOk,
       "location_dest_is_ok": locationDestIsOk,
       "is_quantity_is_ok": isQuantityIsOk,
+      "is_send_odoo": isSendOdoo,
+      "is_send_odoo_date": isSendOdooDate,
+      "weight": weight,
     };
   }
 

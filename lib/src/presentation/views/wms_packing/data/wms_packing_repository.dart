@@ -6,6 +6,8 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
+import 'package:wms_app/src/services/preferences.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class WmsPackingRepository {
   Future<List<BatchPackingModel>> resBatchsPacking() async {
@@ -18,11 +20,16 @@ class WmsPackingRepository {
     }
 
     try {
-      var response = await ApiRequestService().post(endpoint: 'batch_packing', body: {
+      final String userEmail = await PrefUtils.getUserEmail();
+      final String pass = await PrefUtils.getUserPass();
+      final String dataBd = Preferences.nameDatabase;
+
+      var response =
+          await ApiRequestService().post(endpoint: 'batch_packing', body: {
         "url_rpc": "http://34.30.1.186:8069",
-        "db_rpc": "paisapan",
-        "email_rpc": "felipe.bedoya@bexsoluciones.com",
-        "clave_rpc": "Desarrollo"
+        "db_rpc": dataBd,
+        "email_rpc": userEmail,
+        "clave_rpc": pass,
       });
 
       if (response.statusCode < 400) {
@@ -44,7 +51,6 @@ class WmsPackingRepository {
         print('Error resBatchsPacking: response is null');
       }
     } on SocketException catch (e) {
-      
       print('Error de red: $e');
       return [];
     } catch (e, s) {

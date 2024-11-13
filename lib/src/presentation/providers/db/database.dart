@@ -56,7 +56,7 @@ class DataBaseSqlite {
 
         time_separate_start VARCHAR(255),
         time_separate_end VARCHAR(255),
-        is_send_oddo TEXT,
+        is_send_oddo INTEGER,
         is_send_oddo_date VARCHAR(255),
         observation TEXT
       )
@@ -75,7 +75,7 @@ class DataBaseSqlite {
         location_id TEXT,
         location_dest_id TEXT,
         quantity INTEGER,
-
+        barcode TEXT,
         quantity_separate INTEGER,
         is_selected INTEGER,
         is_separate INTEGER,
@@ -86,11 +86,14 @@ class DataBaseSqlite {
 
         observation TEXT,
         unidades TEXT,
+        weight INTEGER,
 
         is_location_is_ok INTEGER,
         product_is_ok INTEGER,
         is_quantity_is_ok INTEGER,
         location_dest_is_ok INTEGER,
+        is_send_odoo INTEGER,
+        is_send_odoo_date VARCHAR(255),
         FOREIGN KEY (batch_id) REFERENCES tblbatchs (id)
       )
     ''');
@@ -596,68 +599,90 @@ class DataBaseSqlite {
 
   //Todo: Métodos para batchs_products
 
-  Future<void> insertBatchProducts(
-      List<ProductsBatch> productsBatchList) async {
-    try {
-      final db = await database;
-      // Inicia la transacción
-      await db!.transaction((txn) async {
-        for (var productBatch in productsBatchList) {
-          final List<Map<String, dynamic>> existingProduct = await txn.query(
-            'tblbatch_products',
-            where: 'id_product = ? AND batch_id = ? AND lot_id = ?',
-            whereArgs: [
-              productBatch.idProduct,
-              productBatch.batchId,
-              productBatch.loteId
-            ],
-          );
 
-          if (existingProduct.isNotEmpty) {
-            // se comenta para que no actualice todo el modelo
-            await txn.update(
-              'tblbatch_products',
-              {
-                "id_product": productBatch.idProduct,
-                "batch_id": productBatch.batchId,
-                "location_id": productBatch.locationId?[1],
-                "lot_id": productBatch.lotId?[1],
-                "lote_id": productBatch.loteId,
-                "id_move": productBatch.idMove,
-                "location_dest_id": productBatch.locationDestId?[1],
-                "quantity": productBatch.quantity,
-                "unidades": productBatch.unidades,
-                "barcode": productBatch.barcode,
-                "weight": productBatch.weigth,
-              },
-              where: 'id_product = ? AND batch_id = ?',
-              whereArgs: [productBatch.idProduct, productBatch.batchId],
-            );
-          } else {
-            // Insertar nuevo producto
-            await txn.insert(
-              'tblbatch_products',
-              {
-                "id_product": productBatch.idProduct,
-                "batch_id": productBatch.batchId,
-                "product_id": productBatch.productId?[1],
-                "location_id": productBatch.locationId?[1],
-                "lot_id": productBatch.lotId?[1],
-                "lote_id": productBatch.loteId,
-                "id_move": productBatch.idMove,
-                "location_dest_id": productBatch.locationDestId?[1],
-                "quantity": productBatch.quantity,
-                "unidades": productBatch.unidades,
-              },
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          }
+
+  Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
+  try {
+    final db = await database;
+
+    // Inicia la transacción
+    await db!.transaction((txn) async {
+      for (var productBatch in productsBatchList) {
+        // Realizamos la consulta para verificar si ya existe el producto
+        final List<Map<String, dynamic>> existingProduct = await txn.query(
+          'tblbatch_products',
+          where: 'id_product = ? AND batch_id =? AND id_move = ?',
+          whereArgs: [
+            productBatch.idProduct,
+            productBatch.batchId,
+            productBatch.idMove
+          ],
+        );
+
+        if (existingProduct.isNotEmpty) {
+          // Si el producto ya existe, lo actualizamos
+          await txn.update(
+            'tblbatch_products',
+            {
+              "id_product": productBatch.idProduct,
+              "batch_id": productBatch.batchId,
+              "location_id": productBatch.locationId?[1],
+              "lot_id": productBatch.lotId?[1],
+              "lote_id": productBatch.loteId,
+              "id_move": productBatch.idMove,
+              "location_dest_id": productBatch.locationDestId?[1],
+              "quantity": productBatch.quantity,
+              "unidades": productBatch.unidades,
+              "barcode": productBatch.barcode,
+              "weight": productBatch.weigth,
+            },
+            where: 'id_product = ? AND batch_id = ? AND id_move = ?',
+            whereArgs: [productBatch.idProduct, productBatch.batchId, productBatch.idMove],
+          );
+        } else {
+          // Si el producto no existe, insertamos un nuevo registro
+          await txn.insert(
+            'tblbatch_products',
+            {
+              "id_product": productBatch.idProduct,
+              "batch_id": productBatch.batchId,
+              "product_id": productBatch.productId?[1],  // Usar el valor correcto
+              "location_id": productBatch.locationId?[1],
+              "lot_id": productBatch.lotId?[1],
+              "lote_id": productBatch.loteId,
+              "id_move": productBatch.idMove,
+              "location_dest_id": productBatch.locationDestId?[1],
+              "quantity": productBatch.quantity,
+              "unidades": productBatch.unidades,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace, // Reemplaza si hay conflicto en la clave primaria
+          );
         }
-      });
-    } catch (e, s) {
-      print('Error insertBatchProducts: $e => $s');
-    }
+      }
+    });
+  } catch (e, s) {
+    print('Error insertBatchProducts: $e => $s');
   }
+}
+
+
+
+
+  //metodo para traer un producto de un batch de la tabla tblbatch_products
+  Future<ProductsBatch?> getProductBatch(int batchId, int productId, int idMove) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblbatch_products',
+      where: 'batch_id = ? AND id_product = ? AND id_move = ?',
+      whereArgs: [batchId, productId, idMove],
+    );
+
+    if (maps.isNotEmpty) {
+      return ProductsBatch.fromMap(maps.first);
+    }
+    return null;
+  }
+
 
   //* Obtener todos los productos de tblbatch_products
   Future<List<ProductsBatch>> getProducts() async {
@@ -709,10 +734,10 @@ class DataBaseSqlite {
 
   }
 
-  //todo: Metodos para packing
+  //todo: Metodos para actualizar los campos de las tablas
 
   //*metodo para actualizar la tabla de productos de un pedido
-  Future<int?> getFieldTableProductosPedidos(
+  Future<int?> setFieldTableProductosPedidos(
       int pedidoId, int productId, String field, dynamic setValue) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
@@ -723,7 +748,7 @@ class DataBaseSqlite {
   }
 
   //*metodo para actualizar la tabla de pedidos de un batch
-  Future<int?> getFieldTablePedidosPacking(
+  Future<int?> setFieldTablePedidosPacking(
       int batchId, int pedidoId, String field, dynamic setValue) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
@@ -733,12 +758,35 @@ class DataBaseSqlite {
     return resUpdate;
   }
   //*metodo para actualizar la tabla de batch de un packing
-  Future<int?> getFieldTableBatchPacking(
+  Future<int?> setFieldTableBatchPacking(
       int batchId, String field, dynamic setValue) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatchs_packing SET $field = $setValue WHERE id = $batchId');
     print("update tblbatchs_packing ($field): $resUpdate");
+
+    return resUpdate;
+  }
+
+
+  //*metodo para actualizar la tabla tblbatchs
+  Future<int?> setFieldTableBatch(
+      int batchId, String field, dynamic setValue) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblbatchs SET $field = $setValue WHERE id = $batchId');
+    print("update tblbatchs ($field): $resUpdate");
+
+    return resUpdate;
+  }
+
+  //*metodo para actualizar la tabla de productos de un batch
+  Future<int?> setFieldTableBatchProducts(
+      int batchId, int productId, String field, dynamic setValue, int idMove) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblbatch_products SET $field = $setValue WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
+    print("update tblbatch_products ($field): $resUpdate");
 
     return resUpdate;
   }
@@ -759,130 +807,7 @@ class DataBaseSqlite {
     return "";
   }
 
-  //todo: Metodos para realizar el picking de un producto
-
-  Future<int?> updateIsLocationIsOk(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET is_location_is_ok = true WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("updateIsLocationIsOk: $resUpdate");
-
-    return resUpdate;
-  }
-
-  Future<int?> updateIsProductIsOk(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET product_is_ok = true WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("updateIsProductIsOk: $resUpdate");
-
-    return resUpdate;
-  }
-
-  Future<int?> updateLocationDestIsOk(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET location_dest_is_ok = true WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("updateLocationDestIsOk: $resUpdate");
-
-    return resUpdate;
-  }
-
-  Future<int?> updateIsQuantityIsOk(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET is_quantity_is_ok = true WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("updateIsQuantityIsOk: $resUpdate");
-
-    return resUpdate;
-  }
-
-  Future<int?> isPickingBatch(
-    int batchId,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatchs SET is_separate = true WHERE id = $batchId ');
-    print("isPickingBatch: $resUpdate");
-
-    return resUpdate;
-  }
-
-  Future<int?> updateIsQuantityIsFalse(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET is_quantity_is_ok = false WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("updateIsQuantityIsOk: $resUpdate");
-
-    return resUpdate;
-  }
-
-  Future<int?> updateProductQuantitySeparate(
-    int batchId,
-    int productId,
-    int quantitySeparate,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET quantity_separate = $quantitySeparate WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("updateIsQuantityIsOk: $resUpdate");
-
-    return resUpdate;
-  }
-
-  Future<int?> startStopwatch(
-      int batchId, int productId, int moveId, String date) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        "UPDATE tblbatch_products SET time_separate_start = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId ");
-    print("startStopwatch: $resUpdate");
-    return resUpdate;
-  }
-
-  Future<int?> startStopwatchBatch(int batchId, String date) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        "UPDATE tblbatchs SET time_separate_start = '$date' WHERE id = $batchId ");
-    print("startStopwatchBatch: $resUpdate");
-    return resUpdate;
-  }
-
-  //obtener el tiempo de inicio de la separacion
-  // Future<String> getFieldTableBtach(int batchId, String field) async {
-  //   final db = await database;
-  //   final res = await db!.rawQuery('''
-  //     SELECT $field FROM tblbatchs WHERE id = $batchId LIMIT 1
-  //   ''');
-  //   if (res.isNotEmpty) {
-  //     String responsefield = res[0]['${field}'].toString();
-  //     print("getFieldTableBtach {$field}   : $responsefield");
-  //     return responsefield;
-  //   }
-  //   return "";
-  // }
-
-  //obtener el tiempo de inicio de la separacion de la tabla product
+ //obtener el tiempo de inicio de la separacion de la tabla product
   Future<String> getFieldTableProducts(
       int batchId, int productId, int moveId, String field) async {
     try {
@@ -902,6 +827,34 @@ class DataBaseSqlite {
     return "";
   }
 
+
+  //todo: Metodos para realizar el picking de un producto
+
+  Future<int?> startStopwatch(
+      int batchId, int productId, int moveId, String date) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE tblbatch_products SET time_separate_start = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId ");
+    print("startStopwatch: $resUpdate");
+    return resUpdate;
+  }
+  Future<int?> totalStopwatchProduct(
+      int batchId, int productId, int moveId, double time) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE tblbatch_products SET time_separate = $time WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId ");
+    print("startStopwatch: $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> startStopwatchBatch(int batchId, String date) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE tblbatchs SET time_separate_start = '$date' WHERE id = $batchId ");
+    print("startStopwatchBatch: $resUpdate");
+    return resUpdate;
+  }
+
   Future<int?> endStopwatchBatch(int batchId, String date) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
@@ -912,11 +865,6 @@ class DataBaseSqlite {
 
   Future<int?> endStopwatchProduct(
       int batchId, String date, int productId, int moveId) async {
-    print("batchId: $batchId");
-    print("productId: $productId");
-    print("moveId: $moveId");
-    print("date: $date");
-
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatch_products SET time_separate_end = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
@@ -925,68 +873,15 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
-  Future<int?> totalStopwatchBatch(int batchId, double date) async {
+  Future<int?> totalStopwatchBatch(int batchId, double time) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        "UPDATE tblbatchs SET time_separate_total = $date WHERE id = $batchId ");
+        "UPDATE tblbatchs SET time_separate_total = $time WHERE id = $batchId ");
     print("endStopwatchBatch: $resUpdate");
     return resUpdate;
   }
 
-  Future<int?> selectProduct(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET is_selected = true WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("selectProduct: $resUpdate");
-    return resUpdate;
-  }
 
-  Future<int?> deselectProduct(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET is_selected = false WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("deselectProduct: $resUpdate");
-    return resUpdate;
-  }
-
-  Future<int?> separateProduct(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatch_products SET is_separate = true WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("separateProduct: $resUpdate");
-    return resUpdate;
-  }
-
-  Future<int?> selectBatch(
-    int batchId,
-  ) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatchs SET is_selected = true WHERE id = $batchId');
-    print("selectBatch: $resUpdate");
-    return resUpdate;
-  }
-
-  //dejar guardado el index de la lista de productos en el batch
-  Future<int?> updateIndexList(int batchId, int indexList) async {
-    final db = await database;
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatchs SET index_list = $indexList WHERE id = $batchId');
-    print("updateIndexList: $resUpdate");
-    return resUpdate;
-  }
 
   Future<int?> updateNovedad(
     int batchId,
@@ -1111,21 +1006,7 @@ class DataBaseSqlite {
     });
   }
 
-  Future<int?> updateQtyProductSeparate(
-    int batchId,
-    int productId,
-    int quantity,
-    int idMove,
-  ) async {
-    final db = await database;
-
-    final resUpdate = await db!.rawUpdate(
-      ' UPDATE tblbatch_products SET quantity_separate = $quantity WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove',
-    );
-    print("updateQtyProductSeparate: $resUpdate");
-    return resUpdate;
-  }
-
+ 
   //actualozar el index de la lista de productos
 
   Future<List> getProductBacth(
@@ -1151,18 +1032,4 @@ class DataBaseSqlite {
     return res;
   }
 
-  //actualziar en el tabla tblbatch_products el campo de product_is_ok en "true"
-  Future<void> updateProductIsOk(
-    int batchId,
-    int productId,
-    int idMove,
-  ) async {
-    final db = await database;
-    await db?.update(
-      'tblbatch_products',
-      {'product_is_ok': 'true'},
-      where: 'batch_id = ? AND product_id = ? AND id_move = ?',
-      whereArgs: [batchId, productId, idMove],
-    );
-  }
 }

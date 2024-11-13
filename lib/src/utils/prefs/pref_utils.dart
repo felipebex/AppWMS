@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:wms_app/src/presentation/views/global/login/models/user_model_response.dart';
 import 'package:wms_app/src/utils/prefs/pref_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,6 +27,11 @@ class PrefUtils {
     return preferences.getBool(PrefKeys.isLoggedIn) ?? false;
   }
 
+  static getUserPass() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString(PrefKeys.pass) ?? "";
+  }
+
 
 //todo guardamos los datos del usuario
 //*nombre
@@ -45,6 +48,12 @@ static Future<void> setUserEmail(String email) async {
 static Future<void> setUserRol(String rol) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   await preferences.setString(PrefKeys.rol, rol);
+}
+
+//*contraseña
+static Future<void> setUserPass(String pass) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setString(PrefKeys.pass, pass);
 }
 
 //*obtenemos los datos del usuario
