@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element, avoid_print
+// ignore_for_file: unused_element, avoid_print, unrelated_type_equality_checks
 
 import 'dart:async';
 import 'dart:convert';
@@ -10,7 +10,6 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:wms_app/src/api/dialog_loading.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -57,6 +56,7 @@ class ApiRequestService {
     final bodyJson = jsonEncode(body);
 
     try {
+      //verfiicamos que tengamos conexion a internet
       var connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult == ConnectivityResult.none) {
         // Si no hay conexión, retornar una lista vacía
@@ -70,45 +70,67 @@ class ApiRequestService {
               color: primaryColorApp,
             ));
       } else {
-        // Mostrar el diálogo de carga con Get.dialog
-        Get.dialog(
-          const DialogLoadingNetwork(),
-          barrierDismissible:
-              false, // No permitir cerrar tocando fuera del diálogo
-        );
+        //verificamos que tengamos conexion a internet y navegacion
+        final result = await InternetAddress.lookup('example.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          //si tenemos navegacion y conexion a internet
+          // Mostrar el diálogo de carga con Get.dialog
+          Get.dialog(
+            const DialogLoadingNetwork(),
+            barrierDismissible:
+                false, // No permitir cerrar tocando fuera del diálogo
+          );
+        
+          final response = await http.post(
+            Uri.http(authority, '$unencodePath/$endpoint'),
+            body: bodyJson,
+            headers: {
+              HttpHeaders.contentTypeHeader: 'application/json',
+            },
+          );
 
-        // Intentar hacer la solicitud HTTP
-        final response = await http.post(
-          Uri.http(authority, '$unencodePath/$endpoint'),
-          body: bodyJson,
-          headers: {
-            HttpHeaders.contentTypeHeader: 'application/json',
-          },
+          if (response.statusCode == 200) {
+            return response;
+          } else {
+            Get.back();
+            Get.back();
+            Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+            if (jsonResponse.containsKey('data') &&
+                jsonResponse['data'] is Map) {
+              Map<String, dynamic> data = jsonResponse['data'];
+              print("data: $data");
+              //mostramos alerta del error
+              Get.snackbar(
+                'Error en $endpoint : ${data['code']}',
+                data['msg'],
+                duration: const Duration(seconds: 5),
+                snackPosition: SnackPosition.BOTTOM,
+                backgroundColor: Colors.red,
+                colorText: Colors.white,
+              );
+            }
+            return http.Response('Error en la solicitud', 404);
+          }
+        }
+        Get.snackbar(
+          'Error de red',
+          'No se pudo conectar al servidor',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          duration: const Duration(seconds: 5),
+          leftBarIndicatorColor: yellow,
+          icon: const Icon(
+            Icons.error,
+            color: primaryColorApp,
+          ),
         );
-
-        // Cerrar el diálogo de carga cuando la solicitud se haya completado
+        // Cerrar el diálogo de carga incluso en caso de error de red
         Get.back();
-
-        return response;
       }
       return http.Response('Error de red', 404);
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
-      Get.snackbar(
-        'Error de red',
-        'No se pudo conectar al servidor',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        duration: const Duration(seconds: 5),
-        leftBarIndicatorColor: yellow,
-        icon: const Icon(
-          Icons.error,
-          color: primaryColorApp,
-        ),
-      );
-      // Cerrar el diálogo de carga incluso en caso de error de red
-      Get.back();
       rethrow; // Re-lanzamos la excepción para que sea manejada en el repositorio
     } catch (e) {
       // Manejo de otros errores
@@ -170,7 +192,7 @@ class ApiRequestService {
       final response = await Future.any([responseFuture, timeout]);
 
       // Procesar la respuesta
-      if (response is http.Response && response.statusCode == 200) {
+      if (response.statusCode == 200) {
         PrefUtils.getEnterprise().then((value) {
           if (value != company) {
             PrefUtils.setEnterprise(company);
@@ -227,7 +249,7 @@ class ApiRequestService {
         body: body,
         headers: headers,
       );
-      print("body: $body"); 
+      print("body: $body");
       print('Petición enviada: $request');
 
       return request;

@@ -195,6 +195,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   onSelected: (String value) {
                                     // Manejar la selección de opciones aquí
                                     if (value == '1') {
+
+
+                                      //cerramos el focus
+                                      FocusScope.of(context).unfocus();
+
                                       context.read<BatchBloc>().add(
                                           FetchBatchWithProductsEvent(batchBloc
                                                   .batchWithProducts
@@ -371,10 +376,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                       focusNode: focusNode1,
                                       onKey:
                                           (FocusNode node, RawKeyEvent event) {
+                                              print(scannedValue1);
                                         if (event is RawKeyDownEvent) {
+                                              print(scannedValue1);
                                           if (event.logicalKey ==
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue1.isNotEmpty) {
+                                              print(scannedValue1);
                                               if (scannedValue1.toLowerCase() ==
                                                   currentProduct.locationId
                                                       .toString()
@@ -465,7 +473,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   width: 24,
                                                 ),
                                                 value: selectedLocation,
-                                                items: batchBloc.positions
+                                                items: batchBloc.positionsOrigen
                                                     .map((String location) {
                                                   return DropdownMenuItem<
                                                       String>(
@@ -702,19 +710,19 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 ),
                                                 value: selectedLocation,
                                                 // items: batchBloc.positions
+                                                // items:
+
                                                 items: batchBloc
-                                                    .batchWithProducts.products
-                                                    ?.map((ProductsBatch
-                                                        product) {
+                                                    .listOfProductsName
+                                                    .map((String product) {
                                                   return DropdownMenuItem<
                                                       String>(
-                                                    value: product.productId
-                                                        .toString(),
-                                                    child: Text(product
-                                                        .productId
-                                                        .toString()),
+                                                    value: product,
+                                                    child: Text(product),
                                                   );
                                                 }).toList(),
+
+                                                
 
                                                 onChanged: batchBloc
                                                             .locationIsOk &&
@@ -833,8 +841,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     alignment:
                                                         Alignment.centerLeft,
                                                     child: Text(
-                                                      currentProduct
-                                                              .lotId ??
+                                                      currentProduct.lotId ??
                                                           '',
                                                       style: const TextStyle(
                                                           fontSize: 16,

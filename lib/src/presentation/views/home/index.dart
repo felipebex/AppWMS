@@ -84,296 +84,298 @@ class _HomePageState extends State<HomePage> {
                   SizedBox(
                     width: size.width,
                     height: size.height,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const WarningWidgetCubit(),
-                        Container(
-                            padding: const EdgeInsets.only(left: 20, top: 60),
-                            width: size.width,
-                            height: 140,
-                            child: Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Row(
-                                      children: [
-                                        Text("Bienvenido a, ",
-                                            style: TextStyle(
-                                                fontSize: 18, color: white)),
-                                        Text('WMS',
-                                            style: TextStyle(
-                                                fontSize: 18, color: white))
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        const Text("Hola, ",
-                                            style: TextStyle(
-                                                fontSize: 20, color: white)),
-                                        SizedBox(
-                                          width: size.width * 0.6,
-                                          child: Text(
-                                            userName,
-                                            style: TextStyle(
-                                                color: Colors.amber[200],
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Icon(Icons.email,
-                                            color: Colors.amber[200], size: 18),
-                                        const SizedBox(width: 5),
-                                        SizedBox(
-                                          width: size.width * 0.6,
-                                          child: Text(
-                                            userEmail,
-                                            style: const TextStyle(
-                                                color: white,
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                //ICONO DE CERRAR SESION
-                                const Spacer(),
-                                GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return BackdropFilter(
-                                            filter: ImageFilter.blur(
-                                                sigmaX: 5, sigmaY: 5),
-                                            child: AlertDialog(
-                                              actionsAlignment:
-                                                  MainAxisAlignment.center,
-                                              backgroundColor: white,
-                                              title: const Center(
-                                                  child: Text('Cerrar sesión',
-                                                      style: TextStyle(
-                                                          color:
-                                                              primaryColorApp))),
-                                              content: const Text(
-                                                  '¿Estás seguro de que deseas cerrar sesión?'),
-                                              actions: [
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    minimumSize:
-                                                        const Size(100, 40),
-                                                    backgroundColor: grey,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: const Text(
-                                                    'Cancelar',
-                                                    style: TextStyle(
-                                                      color: white,
-                                                      fontSize: 14,
-                                                      fontFamily: 'Poppins',
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                ElevatedButton(
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    minimumSize:
-                                                        const Size(100, 40),
-                                                    backgroundColor:
-                                                        primaryColorApp,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                    ),
-                                                  ),
-                                                  onPressed: () {
-                                                    PrefUtils.clearPrefs();
-                                                    //limpiamos toda la base de datos
-
-                                                    Preferences
-                                                        .removeUrlWebsite();
-                                                    DataBaseSqlite()
-                                                        .deleteAll();
-
-                                                    PrefUtils.setIsLoggedIn(
-                                                        false);
-                                                    Navigator
-                                                        .pushNamedAndRemoveUntil(
-                                                            context,
-                                                            'enterprice',
-                                                            (route) => false);
-                                                  },
-                                                  child: const Text(
-                                                    'Aceptar',
-                                                    style: TextStyle(
-                                                      color: white,
-                                                      fontSize: 14,
-                                                      fontFamily: 'Poppins',
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        });
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.only(right: 20),
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                        color: white,
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    child: const Icon(Icons.logout,
-                                        color: primaryColorApp),
-                                  ),
-                                )
-                              ],
-                            )),
-                        Center(
-                          child: BlocBuilder<WMSPickingBloc, PickingState>(
-
-                            
-                            builder: (context, state) {
-                              return Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  width: size.width,
-                                  height: 50,
-                                  child: ListView(
-                                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const WarningWidgetCubit(),
+                          Container(
+                              padding: const EdgeInsets.only(left: 20, top: 30),
+                              width: size.width,
+                              height: 120,
+                              child: Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      _ItemList(
-                                        size: size,
-                                        color: green,
-                                        title: 'BATCH Hechos',
-                                        value: context
-                                            .read<WMSPickingBloc>()
-                                            .batchsDone
-                                            .length
-                                            .toString(),
+                                      const Row(
+                                        children: [
+                                          Text("Bienvenido a, ",
+                                              style: TextStyle(
+                                                  fontSize: 18, color: white)),
+                                          Text('WMS',
+                                              style: TextStyle(
+                                                  fontSize: 18, color: white))
+                                        ],
                                       ),
-                                      _ItemList(
-                                        size: size,
-                                        color: primaryColorApp,
-                                        title: 'BATCH En Proceso',
-                                        value: (context
-                                                    .read<WMSPickingBloc>()
-                                                    .listOfBatchs
-                                                    .length -
-                                                context
-                                                    .read<WMSPickingBloc>()
-                                                    .batchsDone
-                                                    .length)
-                                            .toString(),
+                                      Row(
+                                        children: [
+                                          const Text("Hola, ",
+                                              style: TextStyle(
+                                                  fontSize: 20, color: white)),
+                                          SizedBox(
+                                            width: size.width * 0.6,
+                                            child: Text(
+                                              userName,
+                                              style: TextStyle(
+                                                  color: Colors.amber[200],
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          )
+                                        ],
                                       ),
-                                      _ItemList(
-                                        size: size,
-                                        color: Colors.amber,
-                                        title: 'BATCH Totales',
-                                        value: context
-                                            .read<WMSPickingBloc>()
-                                            .listOfBatchs
-                                            .length
-                                            .toString(),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.email,
+                                              color: Colors.amber[200], size: 18),
+                                          const SizedBox(width: 5),
+                                          SizedBox(
+                                            width: size.width * 0.6,
+                                            child: Text(
+                                              userEmail,
+                                              style: const TextStyle(
+                                                  color: white,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          )
+                                        ],
                                       ),
                                     ],
-                                  ));
-                            },
-                          ),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 20),
-                          child: Text("Mis módulos",
-                              style: TextStyle(
-                                  color: white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold)),
-                        ),
-                        Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
+                                  ),
+                                  //ICONO DE CERRAR SESION
+                                  const Spacer(),
+                                  GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return BackdropFilter(
+                                              filter: ImageFilter.blur(
+                                                  sigmaX: 5, sigmaY: 5),
+                                              child: AlertDialog(
+                                                actionsAlignment:
+                                                    MainAxisAlignment.center,
+                                                backgroundColor: white,
+                                                title: const Center(
+                                                    child: Text('Cerrar sesión',
+                                                        style: TextStyle(
+                                                            color:
+                                                                primaryColorApp))),
+                                                content: const Text(
+                                                    '¿Estás seguro de que deseas cerrar sesión?'),
+                                                actions: [
+                                                  ElevatedButton(
+                                                    style:
+                                                        ElevatedButton.styleFrom(
+                                                      minimumSize:
+                                                          const Size(100, 40),
+                                                      backgroundColor: grey,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                10),
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: const Text(
+                                                      'Cancelar',
+                                                      style: TextStyle(
+                                                        color: white,
+                                                        fontSize: 14,
+                                                        fontFamily: 'Poppins',
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  ElevatedButton(
+                                                    style:
+                                                        ElevatedButton.styleFrom(
+                                                      minimumSize:
+                                                          const Size(100, 40),
+                                                      backgroundColor:
+                                                          primaryColorApp,
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                10),
+                                                      ),
+                                                    ),
+                                                    onPressed: () {
+                                                      PrefUtils.clearPrefs();
+                                                      //limpiamos toda la base de datos
+                      
+                                                      Preferences
+                                                          .removeUrlWebsite();
+                                                      DataBaseSqlite()
+                                                          .deleteAll();
+                      
+                                                      PrefUtils.setIsLoggedIn(
+                                                          false);
+                                                      Navigator
+                                                          .pushNamedAndRemoveUntil(
+                                                              context,
+                                                              'enterprice',
+                                                              (route) => false);
+                                                    },
+                                                    child: const Text(
+                                                      'Aceptar',
+                                                      style: TextStyle(
+                                                        color: white,
+                                                        fontSize: 14,
+                                                        fontFamily: 'Poppins',
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          });
+                                    },
+                                    child: Container(
+                                      margin: const EdgeInsets.only(right: 20),
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                          color: white,
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      child: const Icon(Icons.logout,
+                                          color: primaryColorApp),
+                                    ),
+                                  )
+                                ],
+                              )),
+                          Center(
+                            child: BlocBuilder<WMSPickingBloc, PickingState>(
+                      
+                              
+                              builder: (context, state) {
+                                return Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    width: size.width,
+                                    height: 50,
+                                    child: ListView(
+                                      scrollDirection: Axis.horizontal,
+                                      children: [
+                                        _ItemList(
+                                          size: size,
+                                          color: green,
+                                          title: 'BATCH Hechos',
+                                          value: context
+                                              .read<WMSPickingBloc>()
+                                              .batchsDone
+                                              .length
+                                              .toString(),
+                                        ),
+                                        _ItemList(
+                                          size: size,
+                                          color: primaryColorApp,
+                                          title: 'BATCH En Proceso',
+                                          value: (context
+                                                      .read<WMSPickingBloc>()
+                                                      .listOfBatchs
+                                                      .length -
+                                                  context
+                                                      .read<WMSPickingBloc>()
+                                                      .batchsDone
+                                                      .length)
+                                              .toString(),
+                                        ),
+                                        _ItemList(
+                                          size: size,
+                                          color: Colors.amber,
+                                          title: 'BATCH Totales',
+                                          value: context
+                                              .read<WMSPickingBloc>()
+                                              .listOfBatchs
+                                              .length
+                                              .toString(),
+                                        ),
+                                      ],
+                                    ));
+                              },
                             ),
-                            width: size.width,
-                            height: size.height * 0.55,
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        context
-                                            .read<WMSPickingBloc>()
-                                            .add(LoadBatchsFromDBEvent());
-                                        Navigator.pushNamed(
-                                            context, 'wms-picking');
-                                      },
-                                      child: const _ImteModule(
-                                        urlImg: "picking.png",
-                                        title: 'WMS Picking',
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 20),
+                            child: Text("Mis módulos",
+                                style: TextStyle(
+                                    color: white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              width: size.width,
+                              height: size.height * 0.55,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          context
+                                              .read<WMSPickingBloc>()
+                                              .add(LoadBatchsFromDBEvent());
+                                          Navigator.pushNamed(
+                                              context, 'wms-picking');
+                                        },
+                                        child: const _ImteModule(
+                                          urlImg: "picking.png",
+                                          title: 'WMS Picking',
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 5),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushNamed(
-                                            context, 'wms-packing');
-                                      },
-                                      child: const _ImteModule(
-                                        urlImg: "packing.png",
-                                        title: 'WMS Packing',
+                                      const SizedBox(width: 5),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushNamed(
+                                              context, 'wms-packing');
+                                        },
+                                        child: const _ImteModule(
+                                          urlImg: "packing.png",
+                                          title: 'WMS Packing',
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _ImteModule(
-                                      urlImg: "inventario.png",
-                                      title: 'WMS Conteo',
-                                    ),
-                                    SizedBox(width: 5),
-                                    _ImteModule(
-                                      urlImg: "yms.png",
-                                      title: 'YMS',
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ))
-                      ],
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      _ImteModule(
+                                        urlImg: "inventario.png",
+                                        title: 'WMS Conteo',
+                                      ),
+                                      SizedBox(width: 5),
+                                      _ImteModule(
+                                        urlImg: "yms.png",
+                                        title: 'YMS',
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ))
+                        ],
+                      ),
                     ),
                   ),
                 ],

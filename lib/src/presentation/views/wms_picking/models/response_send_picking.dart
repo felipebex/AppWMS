@@ -24,11 +24,11 @@ class SendPickingResponse {
 
 class Data {
   final int? code;
-  final List<Result>? result;
+  final List<Result> result;
 
   Data({
     this.code,
-    this.result,
+    required this.result,
   });
 
   factory Data.fromJson(String str) => Data.fromMap(json.decode(str));

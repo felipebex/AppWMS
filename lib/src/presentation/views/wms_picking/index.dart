@@ -151,8 +151,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       left: 10,
                                       right: 10,
                                       top: status != ConnectionStatus.online
-                                          ? 0
-                                          : 35,
+                                          ? 20
+                                          : 20,
                                       bottom: 10),
                                   child: Column(
                                     children: [
@@ -169,7 +169,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           ),
                                           Padding(
                                             padding: EdgeInsets.only(
-                                                left: size.width * 0.3),
+                                                left: size.width * 0.25),
                                             child: const Text(
                                               'BATCHS',
                                               style: TextStyle(

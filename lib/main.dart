@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, avoid_print
 
 import 'dart:io';
 
@@ -6,17 +6,19 @@ import 'package:cron/cron.dart';
 import 'package:flutter/services.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing_list.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
@@ -45,13 +47,11 @@ void main() async {
   //cron
   var cron = Cron();
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-  
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-       // ignore: avoid_print
         print('connected');
-        
+        searchProductsNoSendOdoo();
       }
     } on SocketException catch (_) {}
   });
@@ -73,7 +73,6 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         //bloc de network
-
         BlocProvider(
           create: (_) => LoginBloc(),
         ),
@@ -91,7 +90,6 @@ class MyApp extends StatelessWidget {
             context,
           ),
         ),
-
         BlocProvider(
           create: (_) => WmsPackingBloc(),
         ),
@@ -123,8 +121,7 @@ class MyApp extends StatelessWidget {
                 batchModel: ModalRoute.of(context)!.settings.arguments
                     as BatchPackingModel?),
 
-            'Packing': (_) => PackingScreen(
-            ),
+            'Packing': (_) => PackingScreen(),
 
             'packing-detail': (context) => PackingDetailScreen(
                 packingModel: ModalRoute.of(context)!.settings.arguments
@@ -155,5 +152,56 @@ class MyApp extends StatelessWidget {
             return navigator!;
           }),
     );
+  }
+}
+
+///metodo el cual se encarga de verificar que productos estan con estado no enviado para enviarlos a odoo
+void searchProductsNoSendOdoo() async {
+  DataBaseSqlite db = DataBaseSqlite();
+  WmsPickingRepository repository = WmsPickingRepository();
+  //traemos todos los productos
+  final products = await db.getProducts();
+  //filtramos la lista de produtos para dejar solo los productos que cumplan esta condicion is_send_odoo == 0
+  final productsNoSendOdoo =
+      products.where((element) => element.isSendOdoo == 0).toList();
+  //recorremos la lista
+  for (var product in productsNoSendOdoo) {
+    //enviamos el producto a odoo
+    final response = await repository.sendPicking(
+        idBatch: product.batchId ?? 0,
+        timeTotal: 0,
+        cantItemsSeparados: 0,
+        listItem: [
+          Item(
+            idMove: product.idMove ?? 0,
+            productId: product.idProduct ?? 0,
+            lote: product.lotId ?? '',
+            cantidad: product.quantitySeparate ?? 0,
+            novedad: product.observation ?? '',
+            timeLine: 0,
+          ),
+        ]);
+    print("response searchProductsNoSendOdoo: ${response.data?.code} ");
+    if (response.data?.code == 200) {
+      //recorremos todos los resultados de la respuesta
+      for (var resultProduct in response.data!.result) {
+        await db.setFieldTableBatchProducts(
+          resultProduct.idBatch ?? 0,
+          resultProduct.idProduct ?? 0,
+          'is_send_odoo',
+          'true',
+          resultProduct.idMove ?? 0,
+        );
+      }
+    } else {
+      //elementos que no se pudieron enviar a odoo
+      await db.setFieldTableBatchProducts(
+        product.batchId ?? 0,
+        product.idProduct ?? 0,
+        'is_send_odoo',
+        'false',
+        product.idMove ?? 0,
+      );
+    }
   }
 }

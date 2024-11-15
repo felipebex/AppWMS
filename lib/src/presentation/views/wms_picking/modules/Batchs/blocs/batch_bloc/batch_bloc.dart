@@ -62,12 +62,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   int quantitySelected = 0;
 
   //*lista de todas las pocisiones de los productos del batchs
-  List<String> positions = [];
+  List<String> positionsOrigen = [];
 
   //*lista de muelles
   List<String> muelles = [];
   List<String> listOfProductsName = [];
-
 
   //*indice del producto actual
   int index = 0;
@@ -129,7 +128,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     Duration difference = dateTimeEnd.difference(dateTimeStart);
     // Obtener la diferencia en segundos
     double secondsDifference = difference.inMilliseconds / 1000.0;
-    print('Diferencia en segundos: $secondsDifference');
 
     await db.totalStopwatchBatch(event.batchId, secondsDifference);
 
@@ -177,13 +175,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     quantitySelected = currentProduct.quantitySeparate ?? 0;
     completedProducts = batchWithProducts.batch?.productSeparateQty ?? 0;
 
-    print("-------------------------------------");
-    print("batchWithProducts : ${batchWithProducts.batch?.toMap()}");
-    print("Products : ${batchWithProducts.products?.length}");
-    print("currentProduct : ${currentProduct.toMap()}");
-    print('index: $index');
-    print("-------------------------------------");
-
     emit(LoadDataInfoState());
   }
 
@@ -221,11 +212,24 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     if (response.data?.code == 200) {
       //recorremos todos los resultados de la respuesta
-      for (var result in response.data?.result ?? []) {
-        //actualizamos el estado de envio de odoo de los productos
-        await db.getBatchWithProducts(product?.batchId ?? 0);
-        print("result completed: ${result.complete}");
+      for (var resultProduct in response.data!.result) {
+        await db.setFieldTableBatchProducts(
+          resultProduct.idBatch ?? 0,
+          resultProduct.idProduct ?? 0,
+          'is_send_odoo',
+          'true',
+          resultProduct.idMove ?? 0,
+        );
       }
+    } else {
+      //elementos que no se pudieron enviar a odoo
+      await db.setFieldTableBatchProducts(
+        product?.batchId ?? 0,
+        product?.idProduct ?? 0,
+        'is_send_odoo',
+        'false',
+        product?.idMove ?? 0,
+      );
     }
   }
 
@@ -254,14 +258,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void getPosicions() {
-    positions.clear();
+    positionsOrigen.clear();
     for (var i = 0; i < batchWithProducts.products!.length; i++) {
       if (batchWithProducts.products![i].locationId != false) {
-        if (positions
+        if (positionsOrigen
             .contains(batchWithProducts.products?[i].locationId ?? '')) {
           continue;
         }
-        positions.add(batchWithProducts.products?[i].locationId ?? '');
+        positionsOrigen.add(batchWithProducts.products?[i].locationId ?? '');
       }
     }
   }
@@ -270,26 +274,41 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     muelles.clear();
     if (batchWithProducts.batch?.muelle?.isNotEmpty == true) {
       // if (positions.contains(batchWithProducts.batch?.muelle)) {
-        muelles.add(batchWithProducts.batch?.muelle ?? '');
+      muelles.add(batchWithProducts.batch?.muelle ?? '');
       // }
     }
   }
 
-// void products() {
-//   positions.clear(); // Limpiamos la lista 'positions' para asegurarnos que no haya duplicados de iteraciones anteriores
-  
-//   // Recorremos los productos del batch
-//   for (var i = 0; i < batchWithProducts.products!.length; i++) {
-//   var productName = batchWithProducts.products?[i]; // Obtenemos el nombre del producto
-//     // Validamos que el producto tenga un nombre y que el nombre no se haya agregado previamente
-//     print('productName: $productName');
-//     if (!positions.contains(productName)) {
-//       listOfProductsName.add(batchWithProducts.products![i].name ??""); // Agregar el producto a la lista 'listOfProducts'
-//     }
-//   }
-// }
+  void products() {
+    // Limpiamos la lista 'listOfProductsName' para asegurarnos que no haya duplicados de iteraciones anteriores
+    listOfProductsName.clear();
 
+    // Recorremos los productos del batch
+    for (var i = 0; i < batchWithProducts.products!.length; i++) {
+      var product = batchWithProducts.products?[i];
 
+      // Aseguramos que productId no sea nulo antes de intentar agregarlo
+      if (product != null && product.productId != null) {
+        var productIdString =
+            product.productId.toString(); // Convertimos a String
+
+        // Validamos si el productId ya existe en la lista 'positions'
+        if (!listOfProductsName.contains(productIdString)) {
+          print('Agregando productId: $productIdString'); // Para depuración
+          listOfProductsName.add(
+              productIdString); // Agregamos el productId a la lista 'listOfProductsName'
+        } else {
+          print('ProductId repetido: $productIdString'); // Para depuración
+        }
+      } else {
+        print(
+            'productId es nulo en el producto en la iteración $i'); // Para depuración
+      }
+    }
+
+    // Imprimimos el tamaño de la lista para ver cuántos productos únicos se agregaron
+    print('Productos agregados: ${listOfProductsName.length}');
+  }
 
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
@@ -368,7 +387,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         DateTime.now().toString(),
       );
       // Emitir el nuevo estado con el producto actual
-      print("currentProduct: ${event.currentProduct.toMap()}");
       await db.setFieldTableBatchProducts(
           batchWithProducts.batch?.id ?? 0,
           currentProduct.idProduct ?? 0,
@@ -414,7 +432,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           event.batchId, event.productId, 'is_selected', 'true', event.idMove);
       locationIsOk = event.locationIsOk;
 
-      print(currentProduct = batchWithProducts.products![index]);
       emit(ChangeIsOkState(
         locationIsOk,
       ));
@@ -451,7 +468,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ClearSearchProudctsBatchEvent event, Emitter<BatchState> emit) {
     searchController.clear();
     filteredProducts.clear();
-    print('listOfProductsBatchDB: ${listOfProductsBatchDB.length}');
     filteredProducts.addAll(listOfProductsBatchDB);
     emit(LoadProductsBatchSuccesState(listOfProductsBatch: filteredProducts));
   }
@@ -493,13 +509,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       sortProductsByLocationId(batchWithProducts.products!);
       getPosicions();
       getMuelles();
-      // products();
 
       int indexToAccess = batchWithProducts.batch!.indexList ?? index;
       if (indexToAccess >= 0 &&
           indexToAccess < batchWithProducts.products!.length) {
         currentProduct = batchWithProducts.products![indexToAccess];
       }
+      products();
 
       emit(LoadProductsBatchSuccesStateBD(
           listOfProductsBatch: batchWithProducts.products!));
@@ -543,8 +559,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           (product.quantity as int?) ?? 0; // Aseguramos que sea int
     }
 
-    print('totalSeparadas: $totalSeparadas');
-
     // Evitar división por cero
     if (totalCantidades == 0) {
       return "0.0";
@@ -574,8 +588,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     String formattedTime = '${hours.toString().padLeft(2, '0')}:'
         '${minutes.toString().padLeft(2, '0')}:'
         '${seconds.toString().padLeft(2, '0')}';
-
-    print('Diferencia en formato 00:00:00: $formattedTime');
 
     return formattedTime;
   }
@@ -620,7 +632,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           '${seconds.toString().padLeft(2, '0')}';
 
       // Imprimir y devolver el tiempo calculado
-      print('Diferencia de producto formato 00:00:00: $formattedTime');
       return formattedTime;
     } catch (e) {
       // Si ocurre un error al analizar las fechas, imprimir el error
@@ -631,41 +642,5 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   //*metodo para buscar en la bd los products que no se pudieron enviar a odoo
 
-  void searchProductsNoSendOdoo() async {
-    //traemos todos los productos
-    final products = await db.getProducts();
-    //filtramos la lista de produtos para dejar solo los productos que cumplan esta condicion is_send_odoo == 0
-    final productsNoSendOdoo =
-        products.where((element) => element.isSendOdoo == 0).toList();
-    //recorremos la lista
-    for (var product in productsNoSendOdoo) {
-      //enviamos el producto a odoo
-      final response = await repository.sendPicking(
-          idBatch: product.batchId ?? 0,
-          timeTotal: 0,
-          cantItemsSeparados: 0,
-          listItem: [
-            Item(
-              idMove: product.idMove ?? 0,
-              productId: product.idProduct ?? 0,
-              lote: product.lotId ?? '',
-              cantidad: product.quantitySeparate ?? 0,
-              novedad: product.observation ?? '',
-              timeLine: 0,
-            ),
-          ]);
-      //validamos la respuesta
-      // if (response.data?.code == 200) {
-      //   //recorremos todos los resultados de la respuesta
-      //   for (var result in response.data?.result ?? []) {
-      //     //si el producto se envio correctamente
-      //     if (result.complete == 'true') {
-      //       //actualizamos el estado de envio de odoo de los productos
-      //       await db.updateIsSendOdoo(product.batchId ?? 0, product.idProduct ?? 0, product.idMove ?? 0);
-      //     }
-      //     print("result completed: ${result.complete}");
-      //   }
-      // }
-    }
-  }
+
 }

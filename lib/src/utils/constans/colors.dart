@@ -8,7 +8,7 @@ const Color white = Color(0xFFFFFFFF);
 const Color grey = Colors.grey;
 const Color lightGrey = Color.fromARGB(255, 200, 198, 198);
 const Color black = Colors.black54;
-const Color red = Color.fromARGB(255, 78, 119, 237);
+const Color red = Color.fromARGB(255, 237, 78, 78);
 
 const Color green = Color(0xFF43aa8b);
 const Color yellow = Color(0xFFf7b731);
