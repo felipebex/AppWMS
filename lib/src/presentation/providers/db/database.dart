@@ -190,6 +190,19 @@ class DataBaseSqlite {
       FOREIGN KEY (pedido_id) REFERENCES tblpedidos_packing (id)
     )
   ''');
+
+    //tabla de barcodes de los productos
+    await db.execute('''
+    CREATE TABLE tblbarcodes_packages (
+      id INTEGER PRIMARY KEY,
+      batch_id INTEGER,
+      id_move INTEGER,
+      id_product INTEGER,
+      barcode TEXT,
+      cantidad DECIMAL(10,2),
+      FOREIGN KEY (batch_id) REFERENCES tblbatchs (id)
+    )
+    ''');
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -419,7 +432,7 @@ class DataBaseSqlite {
 
         if (existingPackage.isNotEmpty) {
           // Actualizar el batch
-        final response=  await txn.update(
+          final response = await txn.update(
             'tblpackages',
             {
               "id": package.id,
@@ -435,7 +448,7 @@ class DataBaseSqlite {
           print("response update package: $response");
         } else {
           // Insertar nuevo batch
-         final response = await txn.insert(
+          final response = await txn.insert(
             'tblpackages',
             {
               "id": package.id,
@@ -594,82 +607,133 @@ class DataBaseSqlite {
     return productos;
   }
 
-
-
-
   //Todo: Métodos para batchs_products
 
+  Future<void> insertBatchProducts(
+      List<ProductsBatch> productsBatchList) async {
+    try {
+      final db = await database;
 
-
-  Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
-  try {
-    final db = await database;
-
-    // Inicia la transacción
-    await db!.transaction((txn) async {
-      for (var productBatch in productsBatchList) {
-        // Realizamos la consulta para verificar si ya existe el producto
-        final List<Map<String, dynamic>> existingProduct = await txn.query(
-          'tblbatch_products',
-          where: 'id_product = ? AND batch_id =? AND id_move = ?',
-          whereArgs: [
-            productBatch.idProduct,
-            productBatch.batchId,
-            productBatch.idMove
-          ],
-        );
-
-        if (existingProduct.isNotEmpty) {
-          // Si el producto ya existe, lo actualizamos
-          await txn.update(
+      // Inicia la transacción
+      await db!.transaction((txn) async {
+        for (var productBatch in productsBatchList) {
+          // Realizamos la consulta para verificar si ya existe el producto
+          final List<Map<String, dynamic>> existingProduct = await txn.query(
             'tblbatch_products',
-            {
-              "id_product": productBatch.idProduct,
-              "batch_id": productBatch.batchId,
-              "location_id": productBatch.locationId?[1],
-              "lot_id": productBatch.lotId?[1],
-              "lote_id": productBatch.loteId,
-              "id_move": productBatch.idMove,
-              "location_dest_id": productBatch.locationDestId?[1],
-              "quantity": productBatch.quantity,
-              "unidades": productBatch.unidades,
-              "barcode": productBatch.barcode,
-              "weight": productBatch.weigth,
-            },
-            where: 'id_product = ? AND batch_id = ? AND id_move = ?',
-            whereArgs: [productBatch.idProduct, productBatch.batchId, productBatch.idMove],
+            where: 'id_product = ? AND batch_id =? AND id_move = ?',
+            whereArgs: [
+              productBatch.idProduct,
+              productBatch.batchId,
+              productBatch.idMove
+            ],
           );
-        } else {
-          // Si el producto no existe, insertamos un nuevo registro
-          await txn.insert(
-            'tblbatch_products',
-            {
-              "id_product": productBatch.idProduct,
-              "batch_id": productBatch.batchId,
-              "product_id": productBatch.productId?[1],  // Usar el valor correcto
-              "location_id": productBatch.locationId?[1],
-              "lot_id": productBatch.lotId?[1],
-              "lote_id": productBatch.loteId,
-              "id_move": productBatch.idMove,
-              "location_dest_id": productBatch.locationDestId?[1],
-              "quantity": productBatch.quantity,
-              "unidades": productBatch.unidades,
-            },
-            conflictAlgorithm: ConflictAlgorithm.replace, // Reemplaza si hay conflicto en la clave primaria
-          );
+
+          if (existingProduct.isNotEmpty) {
+            // Si el producto ya existe, lo actualizamos
+            await txn.update(
+              'tblbatch_products',
+              {
+                "id_product": productBatch.idProduct,
+                "batch_id": productBatch.batchId,
+                "location_id": productBatch.locationId?[1],
+                "lot_id": productBatch.lotId?[1],
+                "lote_id": productBatch.loteId,
+                "id_move": productBatch.idMove,
+                "location_dest_id": productBatch.locationDestId?[1],
+                "quantity": productBatch.quantity,
+                "unidades": productBatch.unidades,
+                "barcode": productBatch.barcode,
+                "weight": productBatch.weigth,
+              },
+              where: 'id_product = ? AND batch_id = ? AND id_move = ?',
+              whereArgs: [
+                productBatch.idProduct,
+                productBatch.batchId,
+                productBatch.idMove
+              ],
+            );
+          } else {
+            // Si el producto no existe, insertamos un nuevo registro
+            await txn.insert(
+              'tblbatch_products',
+              {
+                "id_product": productBatch.idProduct,
+                "batch_id": productBatch.batchId,
+                "product_id":
+                    productBatch.productId?[1], // Usar el valor correcto
+                "location_id": productBatch.locationId?[1],
+                "lot_id": productBatch.lotId?[1],
+                "lote_id": productBatch.loteId,
+                "id_move": productBatch.idMove,
+                "location_dest_id": productBatch.locationDestId?[1],
+                "quantity": productBatch.quantity,
+                "unidades": productBatch.unidades,
+              },
+              conflictAlgorithm: ConflictAlgorithm
+                  .replace, // Reemplaza si hay conflicto en la clave primaria
+            );
+          }
         }
-      }
-    });
-  } catch (e, s) {
-    print('Error insertBatchProducts: $e => $s');
+      });
+    } catch (e, s) {
+      print('Error insertBatchProducts: $e => $s');
+    }
   }
-}
 
+  ///todo insertar los barcodes de los productos
+  Future<void> insertBarcodesPackageProduct(List<Barcodes> barcodesList) async {
+    try {
+      final db = await database;
 
+      // Inicia la transacción
+      await db!.transaction((txn) async {
+        for (var barcode in barcodesList) {
+          // Realizamos la consulta para verificar si ya existe el producto
+          final List<Map<String, dynamic>> existingProduct = await txn.query(
+            'tblbarcodes_packages',
+            where: 'id_product = ? AND batch_id =? AND id_move = ?',
+            whereArgs: [barcode.idProduct, barcode.batchId, barcode.idMove],
+          );
 
+          if (existingProduct.isNotEmpty) {
+            // Si el producto ya existe, lo actualizamos
+            await txn.update(
+              'tblbarcodes_packages',
+              {
+                "id_product": barcode.idProduct,
+                "batch_id": barcode.batchId,
+                "id_move": barcode.idMove,
+                "barcode": barcode.barcode,
+                "cantidad": barcode.cantidad,
+              },
+              where: 'id_product = ? AND batch_id = ? AND id_move = ?',
+              whereArgs: [barcode.idProduct, barcode.batchId, barcode.idMove],
+            );
+          } else {
+            // Si el producto no existe, insertamos un nuevo registro
+            await txn.insert(
+              'tblbarcodes_packages',
+              {
+                "id_product": barcode.idProduct,
+                "batch_id": barcode.batchId,
+                "id_move": barcode.idMove,
+                "barcode": barcode.barcode,
+                "cantidad": barcode.cantidad,
+              },
+              conflictAlgorithm: ConflictAlgorithm
+                  .replace, // Reemplaza si hay conflicto en la clave primaria
+            );
+          }
+        }
+      });
+    } catch (e, s) {
+      print('Error insertBarcodesPackageProduct: $e => $s');
+    }
+  }
 
   //metodo para traer un producto de un batch de la tabla tblbatch_products
-  Future<ProductsBatch?> getProductBatch(int batchId, int productId, int idMove) async {
+  Future<ProductsBatch?> getProductBatch(
+      int batchId, int productId, int idMove) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblbatch_products',
@@ -682,7 +746,6 @@ class DataBaseSqlite {
     }
     return null;
   }
-
 
   //* Obtener todos los productos de tblbatch_products
   Future<List<ProductsBatch>> getProducts() async {
@@ -731,7 +794,7 @@ class DataBaseSqlite {
     await db?.delete('tblpedidos_packing');
     await db?.delete('tblproductos_pedidos');
     await db?.delete('tblpackages');
-
+    await db?.delete('tblbarcodes_packages');
   }
 
   //todo: Metodos para actualizar los campos de las tablas
@@ -757,6 +820,7 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+
   //*metodo para actualizar la tabla de batch de un packing
   Future<int?> setFieldTableBatchPacking(
       int batchId, String field, dynamic setValue) async {
@@ -767,7 +831,6 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
-
 
   //*metodo para actualizar la tabla tblbatchs
   Future<int?> setFieldTableBatch(
@@ -781,8 +844,8 @@ class DataBaseSqlite {
   }
 
   //*metodo para actualizar la tabla de productos de un batch
-  Future<int?> setFieldTableBatchProducts(
-      int batchId, int productId, String field, dynamic setValue, int idMove) async {
+  Future<int?> setFieldTableBatchProducts(int batchId, int productId,
+      String field, dynamic setValue, int idMove) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatch_products SET $field = $setValue WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
@@ -790,9 +853,6 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
- 
-
- 
 
   Future<String> getFieldTableBtach(int batchId, String field) async {
     final db = await database;
@@ -807,7 +867,7 @@ class DataBaseSqlite {
     return "";
   }
 
- //obtener el tiempo de inicio de la separacion de la tabla product
+  //obtener el tiempo de inicio de la separacion de la tabla product
   Future<String> getFieldTableProducts(
       int batchId, int productId, int moveId, String field) async {
     try {
@@ -827,7 +887,6 @@ class DataBaseSqlite {
     return "";
   }
 
-
   //todo: Metodos para realizar el picking de un producto
 
   Future<int?> startStopwatch(
@@ -838,6 +897,7 @@ class DataBaseSqlite {
     print("startStopwatch: $resUpdate");
     return resUpdate;
   }
+
   Future<int?> totalStopwatchProduct(
       int batchId, int productId, int moveId, double time) async {
     final db = await database;
@@ -880,8 +940,6 @@ class DataBaseSqlite {
     print("endStopwatchBatch: $resUpdate");
     return resUpdate;
   }
-
-
 
   Future<int?> updateNovedad(
     int batchId,
@@ -1006,7 +1064,6 @@ class DataBaseSqlite {
     });
   }
 
- 
   //actualozar el index de la lista de productos
 
   Future<List> getProductBacth(
@@ -1031,5 +1088,4 @@ class DataBaseSqlite {
     ''');
     return res;
   }
-
 }

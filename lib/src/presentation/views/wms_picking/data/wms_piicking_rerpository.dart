@@ -3,6 +3,8 @@
 // ignore_for_file: unrelated_type_equality_checks, avoid_print
 
 // import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -53,6 +55,21 @@ class WmsPickingRepository {
           }
         }
       } else {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
+          Map<String, dynamic> data = jsonResponse['data'];
+          print("data: $data");
+          //mostramos alerta del error
+          Get.snackbar(
+            'Error en batchs : ${data['code']}',
+            data['msg'],
+            duration: const Duration(seconds: 5),
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+
         print('Error resBatchs: response is null');
       }
     } on SocketException catch (e) {
@@ -104,6 +121,20 @@ class WmsPickingRepository {
 
         //volver a enviar los represados
       } else {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
+          Map<String, dynamic> data = jsonResponse['data'];
+          print("data: $data");
+          //mostramos alerta del error
+          Get.snackbar(
+            'Error en send_batch : ${data['code']}',
+            data['msg'],
+            duration: const Duration(seconds: 5),
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
         print('Error sendPicking: ${response.statusCode}');
       }
     } on SocketException catch (e) {

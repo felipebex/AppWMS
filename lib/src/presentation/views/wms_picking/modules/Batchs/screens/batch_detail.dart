@@ -392,38 +392,38 @@ class BatchDetailScreen extends StatelessWidget {
                                     )),
                               ),
                             ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: Card(
-                              color: Colors.white,
-                              elevation: 2,
-                              child: TextFormField(
-                                focusNode: FocusNode(),
-                                textAlignVertical: TextAlignVertical.center,
-                                // controller:
-                                //     context.read<BatchBloc>().searchController,
-                                decoration: InputDecoration(
-                                  prefixIcon:
-                                      const Icon(Icons.search, color: grey),
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        context.read<BatchBloc>().add(
-                                            ClearSearchProudctsBatchEvent());
-                                        FocusScope.of(context).unfocus();
-                                      },
-                                      icon:
-                                          const Icon(Icons.close, color: grey)),
-                                  disabledBorder: const OutlineInputBorder(),
-                                  hintText: "Buscar productos",
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey, fontSize: 14),
-                                  border: InputBorder.none,
-                                ),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(
+                          //       horizontal: 10, vertical: 5),
+                          //   child: Card(
+                          //     color: Colors.white,
+                          //     elevation: 2,
+                          //     child: TextFormField(
+                          //       focusNode: FocusNode(),
+                          //       textAlignVertical: TextAlignVertical.center,
+                          //       // controller:
+                          //       //     context.read<BatchBloc>().searchController,
+                          //       decoration: InputDecoration(
+                          //         prefixIcon:
+                          //             const Icon(Icons.search, color: grey),
+                          //         suffixIcon: IconButton(
+                          //             onPressed: () {
+                          //               context.read<BatchBloc>().add(
+                          //                   ClearSearchProudctsBatchEvent());
+                          //               FocusScope.of(context).unfocus();
+                          //             },
+                          //             icon:
+                          //                 const Icon(Icons.close, color: grey)),
+                          //         disabledBorder: const OutlineInputBorder(),
+                          //         hintText: "Buscar productos",
+                          //         hintStyle: const TextStyle(
+                          //             color: Colors.grey, fontSize: 14),
+                          //         border: InputBorder.none,
+                          //       ),
 
-                              ),
-                            ),
-                          ),
+                          //     ),
+                          //   ),
+                          // ),
 
                           if (context
                                   .read<BatchBloc>()

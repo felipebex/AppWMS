@@ -162,7 +162,6 @@ class BatchsModel {
 class ProductsBatch {
   final int? id;
   final String? barcode;
-  final String? barcodes;
   final int? weigth;
   final String? unidades;
 
@@ -217,7 +216,6 @@ class ProductsBatch {
     this.productPacking,
     this.barcode,
     this.name,
-    this.barcodes,
     this.weigth,
     this.unidades,
     this.quantitySeparate,
@@ -257,7 +255,6 @@ class ProductsBatch {
       quantity: map['quantity'],
       barcode: map['barcode'],
       name: map['name'],
-      barcodes: map['barcodes'],
       weigth: map['weigth'],
       unidades: map['unidades'],
       quantitySeparate: map['quantity_separate'],
@@ -293,7 +290,6 @@ class ProductsBatch {
       "product_packing": productPacking == null ? [] : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
       "barcode": barcode,
       "name": name,
-      "barcodes": barcodes,
       "weigth": weigth,
       "unidades": unidades,
       "quantity_separate": quantitySeparate,
@@ -318,10 +314,17 @@ class ProductsBatch {
 
 
 class Barcodes {
+
+    final int? batchId;
+    final int? idMove;
+    final int? idProduct;
     final String? barcode;
     final double? cantidad;
 
     Barcodes({
+        this.batchId,
+        this.idMove,
+        this.idProduct,
         this.barcode,
         this.cantidad,
     });
@@ -331,11 +334,17 @@ class Barcodes {
     String toJson() => json.encode(toMap());
 
     factory Barcodes.fromMap(Map<String, dynamic> json) => Barcodes(
+        batchId: json["batch_id"],
+        idMove: json["id_move"],
+        idProduct: json["id_product"],
         barcode: json["barcode"],
         cantidad: json["cantidad"],
     );
 
     Map<String, dynamic> toMap() => {
+        "batch_id": batchId,
+        "id_move": idMove,
+        "id_product": idProduct,
         "barcode": barcode,
         "cantidad": cantidad,
     };

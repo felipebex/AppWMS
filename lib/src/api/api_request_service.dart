@@ -56,7 +56,6 @@ class ApiRequestService {
     final bodyJson = jsonEncode(body);
 
     try {
-      //verfiicamos que tengamos conexion a internet
       var connectivityResult = await Connectivity().checkConnectivity();
       if (connectivityResult == ConnectivityResult.none) {
         // Si no hay conexión, retornar una lista vacía
@@ -70,17 +69,16 @@ class ApiRequestService {
               color: primaryColorApp,
             ));
       } else {
-        //verificamos que tengamos conexion a internet y navegacion
         final result = await InternetAddress.lookup('example.com');
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-          //si tenemos navegacion y conexion a internet
           // Mostrar el diálogo de carga con Get.dialog
           Get.dialog(
             const DialogLoadingNetwork(),
             barrierDismissible:
                 false, // No permitir cerrar tocando fuera del diálogo
           );
-        
+
+          // Intentar hacer la solicitud HTTP
           final response = await http.post(
             Uri.http(authority, '$unencodePath/$endpoint'),
             body: bodyJson,
@@ -89,48 +87,43 @@ class ApiRequestService {
             },
           );
 
-          if (response.statusCode == 200) {
-            return response;
-          } else {
-            Get.back();
-            Get.back();
-            Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-            if (jsonResponse.containsKey('data') &&
-                jsonResponse['data'] is Map) {
-              Map<String, dynamic> data = jsonResponse['data'];
-              print("data: $data");
-              //mostramos alerta del error
-              Get.snackbar(
-                'Error en $endpoint : ${data['code']}',
-                data['msg'],
-                duration: const Duration(seconds: 5),
-                snackPosition: SnackPosition.BOTTOM,
-                backgroundColor: Colors.red,
-                colorText: Colors.white,
-              );
-            }
-            return http.Response('Error en la solicitud', 404);
-          }
+          // Cerrar el diálogo de carga cuando la solicitud se haya completado
+          Get.back();
+
+          return response;
+        } else {
+          Get.snackbar(
+            'Error de red',
+            'No se pudo conectar al servidor',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            duration: const Duration(seconds: 5),
+            leftBarIndicatorColor: yellow,
+            icon: const Icon(
+              Icons.error,
+              color: primaryColorApp,
+            ),
+          );
         }
-        Get.snackbar(
-          'Error de red',
-          'No se pudo conectar al servidor',
-          backgroundColor: white,
-          colorText: primaryColorApp,
-          duration: const Duration(seconds: 5),
-          leftBarIndicatorColor: yellow,
-          icon: const Icon(
-            Icons.error,
-            color: primaryColorApp,
-          ),
-        );
-        // Cerrar el diálogo de carga incluso en caso de error de red
-        Get.back();
       }
       return http.Response('Error de red', 404);
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
+      Get.snackbar(
+        'Error de red',
+        'No se pudo conectar al servidor',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(seconds: 5),
+        leftBarIndicatorColor: yellow,
+        icon: const Icon(
+          Icons.error,
+          color: primaryColorApp,
+        ),
+      );
+      // Cerrar el diálogo de carga incluso en caso de error de red
+      Get.back();
       rethrow; // Re-lanzamos la excepción para que sea manejada en el repositorio
     } catch (e) {
       // Manejo de otros errores
@@ -140,6 +133,8 @@ class ApiRequestService {
       rethrow; // Re-lanzamos la excepción para manejarla en el repositorio
     }
   }
+
+ 
 
   static Future<List> searchEnterprice(
       String enterprice, String baseUrl) async {

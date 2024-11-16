@@ -196,13 +196,21 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         // Convertir el mapa en una lista de productos únicos con cantidades sumadas
         List<ProductsBatch> productsToInsert =
             listOfBatchs.expand((batch) => batch.listItems!).toList();
-
-        print('productsToInsert: ${productsToInsert.length}');
-
         sortProductsByLocationId(productsToInsert);
 
+        //Convertir el mapa en una lista los barcodes unicos de cada producto
+        List<Barcodes> barcodesToInsert = listOfBatchs
+            .expand((batch) => batch.listItems!)
+            .expand((product) => product.productPacking!)
+            .toList();
+
+      print('productsToInsert: ${productsToInsert.length}');
+      print('barcodesToInsert: ${barcodesToInsert.length}');
         // Enviar la lista agrupada a insertBatchProducts
         await DataBaseSqlite().insertBatchProducts(productsToInsert);
+
+        // Enviar la lista agrupada a insertBarcodesPackageProduct
+        await DataBaseSqlite().insertBarcodesPackageProduct(barcodesToInsert);
 
         //* Carga los batches desde la base de datos
         add(LoadBatchsFromDBEvent());

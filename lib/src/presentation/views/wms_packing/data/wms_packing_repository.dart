@@ -12,9 +12,6 @@ import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class WmsPackingRepository {
-
-
-
   Future<List<BatchPackingModel>> resBatchsPacking() async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -53,6 +50,20 @@ class WmsPackingRepository {
           }
         }
       } else {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
+          Map<String, dynamic> data = jsonResponse['data'];
+          print("data: $data");
+          //mostramos alerta del error
+          Get.snackbar(
+            'Error en batch_packing : ${data['code']}',
+            data['msg'],
+            duration: const Duration(seconds: 5),
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
         print('Error resBatchsPacking: response is null');
       }
     } on SocketException catch (e) {
