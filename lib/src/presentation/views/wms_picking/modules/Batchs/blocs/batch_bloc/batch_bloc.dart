@@ -17,6 +17,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<ProductsBatch> listOfProductsBatch = [];
   List<ProductsBatch> filteredProducts = [];
   List<ProductsBatch> listOfProductsBatchDB = [];
+  List<Barcodes> listOfBarcodes = [];
 
   // //*validaciones de campos del estado de la vista
   bool isLocationOk = true;
@@ -150,12 +151,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<BatchState> emit) async {
     quantitySelected = quantitySelected + event.quantity;
-
-    if (event.quantity > 0) {
-      quantitySelected = quantitySelected + event.quantity;
-      await db.incremenQtytProductSeparate(
-          batchWithProducts.batch?.id ?? 0, event.productId);
-    }
+    await db.incremenQtytProductSeparate(
+        batchWithProducts.batch?.id ?? 0, event.productId, event.idMove, event.quantity);
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
 
@@ -294,24 +291,16 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
         // Validamos si el productId ya existe en la lista 'positions'
         if (!listOfProductsName.contains(productIdString)) {
-          print('Agregando productId: $productIdString'); // Para depuración
           listOfProductsName.add(
               productIdString); // Agregamos el productId a la lista 'listOfProductsName'
-        } else {
-          print('ProductId repetido: $productIdString'); // Para depuración
         }
-      } else {
-        print(
-            'productId es nulo en el producto en la iteración $i'); // Para depuración
       }
     }
-
-    // Imprimimos el tamaño de la lista para ver cuántos productos únicos se agregaron
-    print('Productos agregados: ${listOfProductsName.length}');
   }
 
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
+    print("entro al evento de cambiar producto");
     //desseleccionamos el producto actual
     await db.setFieldTableBatchProducts(
         batchWithProducts.batch?.id ?? 0,
@@ -393,6 +382,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           'is_location_is_ok',
           'true',
           currentProduct.idMove ?? 0);
+
+      listOfBarcodes.clear();
+
+      listOfBarcodes = await db.getBarcodesProduct(
+        batchWithProducts.batch?.id ?? 0,
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0,
+      );
+      print('Barcodes: $listOfBarcodes');
 
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
@@ -514,6 +512,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       if (indexToAccess >= 0 &&
           indexToAccess < batchWithProducts.products!.length) {
         currentProduct = batchWithProducts.products![indexToAccess];
+        //agregamos la lista de barcodes al producto actual
+        listOfBarcodes.clear();
+
+        listOfBarcodes = await db.getBarcodesProduct(
+          batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0,
+          currentProduct.idMove ?? 0,
+        );
+        print('Barcodes: $listOfBarcodes');
       }
       products();
 
@@ -641,6 +648,4 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   //*metodo para buscar en la bd los products que no se pudieron enviar a odoo
-
-
 }

@@ -407,7 +407,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       onTap: () async {
                                         context.read<BatchBloc>().add(
                                             FetchBatchWithProductsEvent(
-                                                batch.id ?? 0));
+                                                batch.id ?? 0, ));
 
                                         //todo navegamos a la vista de separacion de productos del batch
                                         if (batch.isSeparate == 1) {

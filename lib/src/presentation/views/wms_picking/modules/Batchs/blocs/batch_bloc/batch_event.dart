@@ -107,9 +107,10 @@ class ChangeQuantitySeparate extends BatchEvent {
   ChangeQuantitySeparate(this.quantity, this.productId, this.idMove);
 }
 class AddQuantitySeparate extends BatchEvent {
-  final int quantity;
   final int productId;
-  AddQuantitySeparate(this.quantity, this.productId);
+  final int idMove;
+  final int quantity;
+  AddQuantitySeparate(this.productId, this.idMove, this.quantity);
 }
 
 

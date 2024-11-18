@@ -319,7 +319,7 @@ class Barcodes {
     final int? idMove;
     final int? idProduct;
     final String? barcode;
-    final double? cantidad;
+    final dynamic? cantidad;
 
     Barcodes({
         this.batchId,

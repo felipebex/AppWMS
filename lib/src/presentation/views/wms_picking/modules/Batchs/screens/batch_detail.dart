@@ -54,7 +54,7 @@ class BatchDetailScreen extends StatelessWidget {
                                   bottom: 5,
                                   top: status != ConnectionStatus.online
                                       ? 20
-                                      : 0),
+                                      : 30),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -93,8 +93,8 @@ class BatchDetailScreen extends StatelessWidget {
                                 .batch
                                 ?.isSeparate ==
                             1
-                        ? 225
-                        : 130,
+                        ? 185
+                        : 80,
                     child: SingleChildScrollView(
                       child: Column(
                         children: [

@@ -211,6 +211,32 @@ class DataBaseSqlite {
     }
   }
 
+
+
+  //metodo para obtener todos los tblbarcodes_packages de un producto
+  Future<List<Barcodes>> getBarcodesProduct(
+      int batchId, int productId, int idMove) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblbarcodes_packages',
+      where: 'batch_id = ? AND id_product = ? AND id_move = ?',
+      whereArgs: [batchId, productId, idMove],
+    );
+
+    final List<Barcodes> barcodes = maps.map((map) {
+      return Barcodes(
+        batchId: map['batch_id'],
+        idMove: map['id_move'],
+        idProduct: map['id_product'],
+        barcode: map['barcode'],
+        cantidad: map['cantidad'],
+      );
+    }).toList();
+    return barcodes;
+  }
+
+
+
   //todo insertar btach de packing
   Future<void> insertBatchPacking(BatchPackingModel batch) async {
     try {
@@ -668,6 +694,8 @@ class DataBaseSqlite {
                 "location_dest_id": productBatch.locationDestId?[1],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
+                "barcode": productBatch.barcode,
+                "weight": productBatch.weigth,
               },
               conflictAlgorithm: ConflictAlgorithm
                   .replace, // Reemplaza si hay conflicto en la clave primaria
@@ -1001,15 +1029,20 @@ class DataBaseSqlite {
   }
 
   //incrementar la cantidad de productos separados en la tabla de tblbatch_products
-  Future<int?> incremenQtytProductSeparate(int batchId, int productId) async {
+  Future<int?> incremenQtytProductSeparate(
+      int batchId, int productId, int idMove, int quantity) async {
     final db = await database;
     return await db!.transaction((txn) async {
       // Primero, obtenemos el valor actual de product_separate_qty
       final result = await txn.query(
         'tblbatch_products',
         columns: ['quantity_separate'],
-        where: 'batch_id = $batchId AND id_product = $productId',
-        whereArgs: [batchId, productId],
+        where: 'batch_id = ? AND id_product = ? AND id_move = ?',
+        whereArgs: [
+          batchId,
+          productId,
+          idMove
+        ], // Usamos whereArgs para los parámetros
       );
 
       if (result.isNotEmpty) {
@@ -1017,14 +1050,18 @@ class DataBaseSqlite {
         int currentQty = (result.first['quantity_separate'] as int?) ?? 0;
 
         // Incrementamos la cantidad
-        int newQty = currentQty + 1;
+        int newQty = currentQty + quantity;
 
         // Actualizamos la tabla
         return await txn.update(
           'tblbatch_products',
           {'quantity_separate': newQty},
-          where: 'batch_id = $batchId AND id_product = $productId',
-          whereArgs: [batchId, productId],
+          where: 'batch_id = ? AND id_product = ? AND id_move = ?',
+          whereArgs: [
+            batchId,
+            productId,
+            idMove
+          ], // Usamos whereArgs para los parámetros
         );
       }
 
