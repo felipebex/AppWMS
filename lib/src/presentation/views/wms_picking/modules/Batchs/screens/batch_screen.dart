@@ -75,9 +75,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       FocusScope.of(context).requestFocus(focusNode3);
     }
 
-    if (!batchBloc.locationIsOk &&
+    if (batchBloc.locationIsOk &&
         batchBloc.productIsOk &&
-        batchBloc.quantityIsOk &&
+        !batchBloc.quantityIsOk &&
         !batchBloc.locationDestIsOk) {
       print("focus: ubicacion destino");
       FocusScope.of(context).requestFocus(focusNode5);
@@ -1502,7 +1502,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             currentProduct
                                                                     .idMove ??
                                                                 0));
-
+                                                    _nextProduct(currentProduct,
+                                                        batchBloc);
                                                     cantidadController.clear();
                                                   });
                                             });

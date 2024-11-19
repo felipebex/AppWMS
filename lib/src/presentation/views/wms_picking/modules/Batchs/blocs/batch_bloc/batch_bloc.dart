@@ -151,8 +151,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<BatchState> emit) async {
     quantitySelected = quantitySelected + event.quantity;
-    await db.incremenQtytProductSeparate(
-        batchWithProducts.batch?.id ?? 0, event.productId, event.idMove, event.quantity);
+    await db.incremenQtytProductSeparate(batchWithProducts.batch?.id ?? 0,
+        event.productId, event.idMove, event.quantity);
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
 
@@ -346,21 +346,32 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       //emitimos el estado de productos completados
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
+      if (currentProduct.locationId == oldLocation) {
+        print('La ubicacion es igual');
+        locationIsOk = true;
+      } else {
+        locationIsOk = false;
+        print('La ubicacion es diferente');
+      }
       return;
     } else {
       //validamos la ultima ubicacion
       productIsOk = false;
       quantityIsOk = false;
       index++;
-      if (event.currentProduct.locationId != oldLocation) {
-        locationIsOk = false;
-      }
 
       //actualizamos el index de la lista de productos
       await db.setFieldTableBatch(
           batchWithProducts.batch?.id ?? 0, 'index_list', index);
       //actualizamos el producto actual
       currentProduct = batchWithProducts.products![index];
+      if (currentProduct.locationId == oldLocation) {
+        print('La ubicacion es igual');
+        locationIsOk = true;
+      } else {
+        locationIsOk = false;
+        print('La ubicacion es diferente');
+      }
       //seleccionamos el producto actual
       await db.setFieldTableBatchProducts(
           batchWithProducts.batch?.id ?? 0,
@@ -376,12 +387,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         DateTime.now().toString(),
       );
       // Emitir el nuevo estado con el producto actual
-      await db.setFieldTableBatchProducts(
-          batchWithProducts.batch?.id ?? 0,
-          currentProduct.idProduct ?? 0,
-          'is_location_is_ok',
-          'true',
-          currentProduct.idMove ?? 0);
+      if (batchWithProducts.products?.length != index + 1) {
+        await db.setFieldTableBatchProducts(
+            batchWithProducts.batch?.id ?? 0,
+            currentProduct.idProduct ?? 0,
+            'is_location_is_ok',
+            'true',
+            currentProduct.idMove ?? 0);
+      }
 
       listOfBarcodes.clear();
 

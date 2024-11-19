@@ -183,7 +183,7 @@ class ProductsBatch {
   final int? quantitySeparate;
   final dynamic isSelected;
   final int? isSeparate;
-  final double? timeSeparate;
+  final dynamic? timeSeparate;
   final String? timeSeparateStart;
     final String? timeSeparateEnd;
   final String? observation;
