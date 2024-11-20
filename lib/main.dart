@@ -22,6 +22,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_r
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
+import 'package:wms_app/src/services/notification_service.dart';
 
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -29,13 +30,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 import 'src/presentation/views/wms_packing/presentation/screens/packing_detail.dart';
 
 final internetChecker = CheckInternetConnection();
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotificationsService.reqyestPermissionsLocalNotifications();
+
+  await LocalNotificationsService()
+      .initializeNotifications(); // Llama a la función de inicialización
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]).then((_) {
@@ -50,8 +57,34 @@ void main() async {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        print('connected');
-        searchProductsNoSendOdoo();
+        final isLogin = await PrefUtils.getIsLoggedIn();
+        if (isLogin) {
+          print('connected');
+          searchProductsNoSendOdoo();
+        }
+        // {
+        //   print('No se ha iniciado sesión');
+        // }
+      }
+    } on SocketException catch (_) {}
+  });
+  cron.schedule(Schedule.parse('*/2 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        // Acceder al contexto global para llamar a refreshData
+        if (navigatorKey.currentContext != null) {
+          final isLogin = await PrefUtils.getIsLoggedIn();
+          if (isLogin) {
+            print('connected 2');
+            refreshData(navigatorKey.currentContext!);
+          }
+          // {
+          // LocalNotificationsService().showNotification('Nuevos batchs',
+          //     'Se han agregado nuevos batchs para picking', '');
+          //   print('No se ha iniciado sesión');
+          // }
+        }
       }
     } on SocketException catch (_) {}
   });
@@ -61,12 +94,12 @@ class AppState extends StatelessWidget {
   const AppState({super.key});
   @override
   Widget build(BuildContext context) {
-    return const MyApp();
+    return MyApp();
   }
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +128,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: GetMaterialApp(
+          navigatorKey: navigatorKey, // Usa el navigatorKey aquí
           debugShowCheckedModeBanner: false,
           initialRoute: 'checkout',
           supportedLocales: const [Locale('es', 'ES')],
@@ -112,7 +146,7 @@ class MyApp extends StatelessWidget {
             //* wms Picking
             'wms-picking': (context) => WMSPickingPage(
                   indexSelected:
-                      ModalRoute.of(context)!.settings.arguments as int ,
+                      ModalRoute.of(context)!.settings.arguments as int,
                 ),
             'batch': (_) => const BatchScreen(),
             'batch-detail': (_) => const BatchDetailScreen(),
@@ -206,4 +240,10 @@ void searchProductsNoSendOdoo() async {
       );
     }
   }
+}
+
+void refreshData(BuildContext context) async {
+  //mandamos a traer todos los batchs de picking
+  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, false));
+  // context.read<WmsPackingBloc>().add(LoadAllPackingEvent());
 }

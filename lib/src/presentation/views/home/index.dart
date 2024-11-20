@@ -50,8 +50,10 @@ class _HomePageState extends State<HomePage> {
       child: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {
           if (state is HomeLoadedState) {
-            context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context));
-            context.read<WmsPackingBloc>().add(LoadAllPackingEvent());
+            context
+                .read<WMSPickingBloc>()
+                .add(LoadAllBatchsEvent(context, true));
+            context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true));
           }
         },
         builder: (context, state) {
@@ -91,7 +93,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           const WarningWidgetCubit(),
                           Container(
-                              padding: const EdgeInsets.only(left: 20, top: 30),
+                              padding: const EdgeInsets.only(left: 20, top: 40),
                               width: size.width,
                               height: 120,
                               child: Row(
@@ -107,7 +109,7 @@ class _HomePageState extends State<HomePage> {
                                                   fontSize: 18, color: white)),
                                           // Text('WMS',
                                           Text(
-                                              '${Environment.flavor.appName ?? 'WMS'}',
+                                              Environment.flavor.appName,
                                               style: const TextStyle(
                                                   fontSize: 18, color: white))
                                         ],

@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/global/login/models/user_model_response.dart';
 import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class LoginRepository {
   Future<UserModelResponse> login(
@@ -20,7 +19,9 @@ class LoginRepository {
         "db_rpc": dataBd,
         "email_rpc": email,
         "clave_rpc": password,
-      });
+      },
+      isLoadinDialog: true
+      );
 
       if (response.statusCode < 400) {
         return UserModelResponse.fromMap(jsonDecode(response.body));

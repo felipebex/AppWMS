@@ -51,6 +51,7 @@ class ApiRequestService {
   Future<http.Response> post({
     required String endpoint,
     required Map<String, dynamic>? body,
+    required bool isLoadinDialog,
   }) async {
     // Convertir el cuerpo a JSON si no es nulo
     final bodyJson = jsonEncode(body);
@@ -64,19 +65,21 @@ class ApiRequestService {
             colorText: primaryColorApp,
             duration: const Duration(seconds: 5),
             leftBarIndicatorColor: yellow,
-            icon:  Icon(
+            icon: Icon(
               Icons.error,
               color: primaryColorApp,
             ));
       } else {
         final result = await InternetAddress.lookup('example.com');
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-          // Mostrar el diálogo de carga con Get.dialog
-          Get.dialog(
-            const DialogLoadingNetwork(),
-            barrierDismissible:
-                false, // No permitir cerrar tocando fuera del diálogo
-          );
+          if (isLoadinDialog) {
+            // Mostrar el diálogo de carga con Get.dialog
+            Get.dialog(
+              const DialogLoadingNetwork(),
+              barrierDismissible:
+                  false, // No permitir cerrar tocando fuera del diálogo
+            );
+          }
 
           // Intentar hacer la solicitud HTTP
           final response = await http.post(
@@ -87,8 +90,10 @@ class ApiRequestService {
             },
           );
 
-          // Cerrar el diálogo de carga cuando la solicitud se haya completado
-          Get.back();
+            // Cerrar el diálogo de carga cuando la solicitud se haya completado
+          if (isLoadinDialog) {
+            Get.back();
+          }
 
           return response;
         } else {
@@ -99,7 +104,7 @@ class ApiRequestService {
             colorText: primaryColorApp,
             duration: const Duration(seconds: 5),
             leftBarIndicatorColor: yellow,
-            icon:  Icon(
+            icon: Icon(
               Icons.error,
               color: primaryColorApp,
             ),
@@ -117,7 +122,7 @@ class ApiRequestService {
         colorText: primaryColorApp,
         duration: const Duration(seconds: 5),
         leftBarIndicatorColor: yellow,
-        icon:  Icon(
+        icon: Icon(
           Icons.error,
           color: primaryColorApp,
         ),
@@ -133,8 +138,6 @@ class ApiRequestService {
       rethrow; // Re-lanzamos la excepción para manejarla en el repositorio
     }
   }
-
- 
 
   static Future<List> searchEnterprice(
       String enterprice, String baseUrl) async {
@@ -217,7 +220,7 @@ class ApiRequestService {
           colorText: primaryColorApp,
           duration: const Duration(seconds: 5),
           leftBarIndicatorColor: yellow,
-          icon:  Icon(
+          icon: Icon(
             Icons.error,
             color: primaryColorApp,
           ));

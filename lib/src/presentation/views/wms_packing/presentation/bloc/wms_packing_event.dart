@@ -4,7 +4,8 @@ part of 'wms_packing_bloc.dart';
 sealed class WmsPackingEvent {}
 
 class LoadAllPackingEvent extends WmsPackingEvent {
-  LoadAllPackingEvent();
+  final bool isLoadinDialog;
+  LoadAllPackingEvent(this.isLoadinDialog);
 }
 
 class LoadBatchPackingFromDBEvent extends WmsPackingEvent {

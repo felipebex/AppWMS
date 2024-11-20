@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print
 
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -400,7 +402,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadAllPackingEvent event, Emitter<WmsPackingState> emit) async {
     emit(WmsPackingLoading());
     try {
-      final response = await wmsPackingRepository.resBatchsPacking();
+      final response = await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog);
 
       if (response != null && response is List) {
         print('response batchs: ${response.length}');

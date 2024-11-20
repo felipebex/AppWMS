@@ -5,6 +5,7 @@ import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/widgets/list_database.dart';
+import 'package:wms_app/src/services/notification_service.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
@@ -196,7 +197,8 @@ class _loginForm extends StatelessWidget {
                     );
                   },
                 ),
-              ))
+              )),
+
         ],
       ),
     );

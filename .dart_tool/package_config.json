@@ -74,18 +74,6 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "checked_yaml",
-      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/checked_yaml-2.0.3",
-      "packageUri": "lib/",
-      "languageVersion": "2.19"
-    },
-    {
-      "name": "cli_util",
-      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/cli_util-0.4.2",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
       "name": "clock",
       "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/clock-1.1.1",
       "packageUri": "lib/",
@@ -207,13 +195,31 @@
     },
     {
       "name": "flutter_launcher_icons",
-      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_launcher_icons-0.13.1",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_launcher_icons-0.9.3",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "2.12"
     },
     {
       "name": "flutter_lints",
       "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_lints-3.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "flutter_local_notifications",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "flutter_local_notifications_linux",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-5.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "flutter_local_notifications_platform_interface",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-8.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.1"
     },
@@ -339,7 +345,7 @@
     },
     {
       "name": "image",
-      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/image-4.3.0",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/image-3.3.0",
       "packageUri": "lib/",
       "languageVersion": "2.15"
     },
@@ -354,12 +360,6 @@
       "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/js-0.6.7",
       "packageUri": "lib/",
       "languageVersion": "2.19"
-    },
-    {
-      "name": "json_annotation",
-      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
     },
     {
       "name": "leak_tracker",
@@ -710,6 +710,12 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "timezone",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/timezone-0.10.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "typed_data",
       "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/typed_data-1.3.2",
       "packageUri": "lib/",
@@ -842,7 +848,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2024-11-19T18:37:27.046070Z",
+  "generated": "2024-11-20T19:33:07.171270Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/estebanrodriguezmarles/Documents/flutter",

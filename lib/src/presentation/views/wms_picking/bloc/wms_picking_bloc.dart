@@ -7,6 +7,8 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/product_templa
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:wms_app/src/services/notification_service.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'wms_picking_event.dart';
 part 'wms_picking_state.dart';
@@ -166,10 +168,25 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     try {
       emit(BatchsPickingLoadingState());
 
-      final response = await wmsPickingRepository.resBatchs();
+      final response = await wmsPickingRepository.resBatchs(
+        event.isLoadinDialog,
+      );
 
       if (response != null && response is List) {
+        // validamos que si hace la petición cada 3 minutos
+        if (!event.isLoadinDialog) {
+          //obtenemos la cantidad de los batchs guardados en la pasada petición
+          int pickingBatchs = await PrefUtils.getPickingBatchs();
+          //si la cantidad de los batchs es mayor a la cantidad de los batchs actuales
+          if (response.length > pickingBatchs) {
+            //mostramos una notificación
+            LocalNotificationsService().showNotification('Nuevos batchs',
+                'Se han agregado nuevos batchs para picking', '');
+          }
+        }
+
         print('response batchs: ${response.length}');
+        PrefUtils.setPickingBatchs(response.length);
         listOfBatchs.clear();
         listOfBatchs.addAll(response);
 
@@ -205,8 +222,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
             .expand((product) => product.productPacking!)
             .toList();
 
-      print('productsToInsert: ${productsToInsert.length}');
-      print('barcodesToInsert: ${barcodesToInsert.length}');
+        print('productsToInsert: ${productsToInsert.length}');
+        print('barcodesToInsert: ${barcodesToInsert.length}');
         // Enviar la lista agrupada a insertBatchProducts
         await DataBaseSqlite().insertBatchProducts(productsToInsert);
 

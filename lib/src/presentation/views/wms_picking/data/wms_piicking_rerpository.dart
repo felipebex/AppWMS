@@ -18,7 +18,7 @@ import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class WmsPickingRepository {
-  Future<List<BatchsModel>> resBatchs() async {
+  Future<List<BatchsModel>> resBatchs(bool isLoadinDialog) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -32,12 +32,15 @@ class WmsPickingRepository {
       final String pass = await PrefUtils.getUserPass();
       final String dataBd = Preferences.nameDatabase;
 
-      var response = await ApiRequestService().post(endpoint: 'batchs', body: {
-        "url_rpc": "http://34.30.1.186:8069",
-        "db_rpc": dataBd,
-        "email_rpc": userEmail,
-        "clave_rpc": pass,
-      });
+      var response = await ApiRequestService().post(
+          endpoint: 'batchs',
+          body: {
+            "url_rpc": "http://34.30.1.186:8069",
+            "db_rpc": dataBd,
+            "email_rpc": userEmail,
+            "clave_rpc": pass,
+          },
+          isLoadinDialog: isLoadinDialog);
 
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa

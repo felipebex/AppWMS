@@ -14,7 +14,8 @@ class LoadAllProductsEvent extends PickingEvent {
 
 class LoadAllBatchsEvent extends PickingEvent {
   BuildContext context; 
-  LoadAllBatchsEvent(this.context);
+  bool isLoadinDialog;
+  LoadAllBatchsEvent(this.context, this.isLoadinDialog);
 }
 
 //*evento para buscar un producto
