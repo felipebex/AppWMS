@@ -19,12 +19,12 @@ class WarningWidgetCubit extends StatelessWidget {
             padding: const EdgeInsets.only(top: 35, left: 16, right: 16),
             height: 85,
             color: grey,
-            child: const Row(
+            child:  Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.wifi_off, color: primaryColorApp, size: 30,),
-                SizedBox(width: 8),
-                Text('No hay conexión a internet',
+                const SizedBox(width: 8),
+                const Text('No hay conexión a internet',
                     style: TextStyle(color: Colors.white, fontSize: 16)),
               ],
             ),

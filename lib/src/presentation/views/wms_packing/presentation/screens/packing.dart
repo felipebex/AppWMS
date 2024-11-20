@@ -233,7 +233,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       BorderRadius.circular(10),
                                                   focusColor: Colors.white,
                                                   isExpanded: true,
-                                                  hint: const Text(
+                                                  hint:  Text(
                                                     'Ubicación de origen',
                                                     style: TextStyle(
                                                         fontSize: 16,
@@ -489,7 +489,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       BorderRadius.circular(10),
                                                   focusColor: Colors.white,
                                                   isExpanded: true,
-                                                  hint: const Text(
+                                                  hint:  Text(
                                                     'Producto',
                                                     style: TextStyle(
                                                         fontSize: 16,
@@ -700,7 +700,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                         packinghBloc.currentProduct.quantity
                                                 ?.toString() ??
                                             "",
-                                        style: const TextStyle(
+                                        style:  TextStyle(
                                             color: primaryColorApp,
                                             fontSize: 18),
                                       ),
@@ -711,142 +711,135 @@ class _PackingScreenState extends State<PackingScreen> {
                                         style: const TextStyle(
                                             color: Colors.black, fontSize: 18)),
                                     const Spacer(),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      child: Expanded(
-                                        child: Container(
-                                            alignment: Alignment.center,
-                                            child: Focus(
-                                              focusNode: focusNode3,
-                                              onKey: (FocusNode node,
-                                                  RawKeyEvent event) {
-                                                if (event is RawKeyDownEvent) {
-                                                  if (event.logicalKey ==
-                                                      LogicalKeyboardKey
-                                                          .enter) {
+                                    Expanded(
+                                      child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          alignment: Alignment.center,
+                                          child: Focus(
+                                            focusNode: focusNode3,
+                                            onKey: (FocusNode node,
+                                                RawKeyEvent event) {
+                                              if (event is RawKeyDownEvent) {
+                                                if (event.logicalKey ==
+                                                    LogicalKeyboardKey.enter) {
+                                                  if (scannedValue3
+                                                      .isNotEmpty) {
                                                     if (scannedValue3
-                                                        .isNotEmpty) {
-                                                      if (scannedValue3
-                                                              .toLowerCase() ==
+                                                            .toLowerCase() ==
+                                                        packinghBloc
+                                                            .currentProduct
+                                                            .barcode
+                                                            ?.toLowerCase()) {
+                                                      packinghBloc.add(
+                                                          ValidateFieldsPackingEvent(
+                                                              field: "quantity",
+                                                              isOk: true));
+
+                                                      packinghBloc.add(
+                                                          AddQuantitySeparate(
+                                                        1,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .productId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .pedidoId ??
+                                                            0,
+                                                      ));
+
+                                                      setState(() {
+                                                        scannedValue3 =
+                                                            ""; //limpiamos el valor escaneado
+                                                      });
+
+                                                      //*validamos que la cantidad sea igual a la cantidad del producto
+                                                      if (packinghBloc
+                                                              .quantitySelected ==
                                                           packinghBloc
                                                               .currentProduct
-                                                              .barcode
-                                                              ?.toLowerCase()) {
+                                                              .quantity) {
                                                         packinghBloc.add(
-                                                            ValidateFieldsPackingEvent(
-                                                                field:
-                                                                    "quantity",
-                                                                isOk: true));
-
-                                                        packinghBloc.add(
-                                                            AddQuantitySeparate(
-                                                          1,
+                                                            ChangeQuantitySeparate(
+                                                          packinghBloc
+                                                              .quantitySelected,
                                                           packinghBloc
                                                                   .currentProduct
                                                                   .productId ??
                                                               0,
                                                           packinghBloc
                                                                   .currentProduct
-                                                                  .pedidoId ??
+                                                                  .productId ??
                                                               0,
                                                         ));
 
+                                                        packinghBloc.add(SetPickingsEvent(
+                                                            packinghBloc
+                                                                    .currentProduct
+                                                                    .productId ??
+                                                                0,
+                                                            packinghBloc
+                                                                    .currentProduct
+                                                                    .pedidoId ??
+                                                                0));
+
+                                                        cantidadController
+                                                            .clear();
+
                                                         setState(() {
-                                                          scannedValue3 =
-                                                              ""; //limpiamos el valor escaneado
+                                                          viewQuantity = false;
                                                         });
 
-                                                        //*validamos que la cantidad sea igual a la cantidad del producto
-                                                        if (packinghBloc
-                                                                .quantitySelected ==
-                                                            packinghBloc
-                                                                .currentProduct
-                                                                .quantity) {
+                                                        showDialog(
+                                                            context: context,
+                                                            barrierDismissible:
+                                                                false,
+                                                            builder: (context) {
+                                                              return const DialogLoadingPacking();
+                                                            });
+                                                        Future.delayed(
+                                                            const Duration(
+                                                                seconds: 1),
+                                                            () {
+                                                          Navigator.pop(
+                                                              context);
+                                                          Navigator.pop(
+                                                              context);
                                                           packinghBloc.add(
-                                                              ChangeQuantitySeparate(
-                                                            packinghBloc
-                                                                .quantitySelected,
-                                                            packinghBloc
-                                                                    .currentProduct
-                                                                    .productId ??
-                                                                0,
-                                                            packinghBloc
-                                                                    .currentProduct
-                                                                    .productId ??
-                                                                0,
-                                                          ));
-
-                                                          packinghBloc.add(SetPickingsEvent(
-                                                              packinghBloc
-                                                                      .currentProduct
-                                                                      .productId ??
-                                                                  0,
-                                                              packinghBloc
-                                                                      .currentProduct
-                                                                      .pedidoId ??
-                                                                  0));
-
-                                                          cantidadController
-                                                              .clear();
-
-                                                          setState(() {
-                                                            viewQuantity =
-                                                                false;
-                                                          });
-
-                                                          showDialog(
-                                                              context: context,
-                                                              barrierDismissible: false,
-                                                              builder:
-                                                                  (context) {
-                                                                return const DialogLoadingPacking();
-                                                              });
-                                                          Future.delayed(
-                                                              const Duration(
-                                                                  seconds: 1),
-                                                              () {
-                                                            Navigator.pop(
-                                                                context);
-                                                            Navigator.pop(
-                                                                context);
-                                                            packinghBloc.add(
-                                                                LoadAllProductsFromPedidoEvent(
-                                                                    packinghBloc
-                                                                            .currentProduct
-                                                                            .pedidoId ??
-                                                                        0));
-                                                          });
-                                                        }
-                                                      } else {
-                                                        setState(() {
-                                                          scannedValue3 =
-                                                              ""; //limpiamos el valor escaneado
+                                                              LoadAllProductsFromPedidoEvent(
+                                                                  packinghBloc
+                                                                          .currentProduct
+                                                                          .pedidoId ??
+                                                                      0));
                                                         });
                                                       }
+                                                    } else {
+                                                      setState(() {
+                                                        scannedValue3 =
+                                                            ""; //limpiamos el valor escaneado
+                                                      });
                                                     }
-
-                                                    return KeyEventResult
-                                                        .handled;
-                                                  } else {
-                                                    setState(() {
-                                                      scannedValue3 +=
-                                                          event.data.keyLabel;
-                                                    });
-                                                    return KeyEventResult
-                                                        .handled;
                                                   }
+
+                                                  return KeyEventResult.handled;
+                                                } else {
+                                                  setState(() {
+                                                    scannedValue3 +=
+                                                        event.data.keyLabel;
+                                                  });
+                                                  return KeyEventResult.handled;
                                                 }
-                                                return KeyEventResult.ignored;
-                                              },
-                                              child: Text(
-                                                  packinghBloc.quantitySelected
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 18)),
-                                            )),
-                                      ),
+                                              }
+                                              return KeyEventResult.ignored;
+                                            },
+                                            child: Text(
+                                                packinghBloc.quantitySelected
+                                                    .toString(),
+                                                style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 18)),
+                                          )),
                                     ),
                                     IconButton(
                                         onPressed: packinghBloc.quantityIsOk &&
@@ -858,7 +851,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 });
                                               }
                                             : null,
-                                        icon: const Icon(
+                                        icon:  Icon(
                                             Icons.edit_note_rounded,
                                             color: primaryColorApp,
                                             size: 30)),
@@ -932,28 +925,24 @@ class _PackingScreenState extends State<PackingScreen> {
                                         ));
                                       } else {
                                         //todo: cantidad dentro del rango
-                                        
+
                                         if (int.parse(value) ==
                                             packinghBloc
                                                 .currentProduct.quantity) {
                                           //*cantidad correcta
-                                         print("cantidad correcta");
-                                         
+                                          print("cantidad correcta");
+
                                           //guardamos la cantidad en la bd
-                                          packinghBloc.add(
-                                                          ChangeQuantitySeparate(
-                                                        int.parse(value),
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .productId ??
-                                                            0,
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .pedidoId ??
-                                                            0,
-                                                      ));
-
-
+                                          packinghBloc
+                                              .add(ChangeQuantitySeparate(
+                                            int.parse(value),
+                                            packinghBloc
+                                                    .currentProduct.productId ??
+                                                0,
+                                            packinghBloc
+                                                    .currentProduct.pedidoId ??
+                                                0,
+                                          ));
 
                                           packinghBloc.add(SetPickingsEvent(
                                               packinghBloc.currentProduct
@@ -963,15 +952,13 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       .pedidoId ??
                                                   0));
 
-
-
                                           cantidadController.clear();
                                           setState(() {
                                             viewQuantity = false;
                                           });
 
                                           showDialog(
-                                            barrierDismissible: false,
+                                              barrierDismissible: false,
                                               context: context,
                                               builder: (context) {
                                                 return const DialogLoadingPacking();
@@ -1002,7 +989,6 @@ class _PackingScreenState extends State<PackingScreen> {
                                                         cantidadController
                                                             .text),
                                                     onAccepted: () {
-
                                                       packinghBloc.add(
                                                           ChangeQuantitySeparate(
                                                         int.parse(value),
@@ -1033,7 +1019,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       });
 
                                                       showDialog(
-                                                        barrierDismissible: false,
+                                                          barrierDismissible:
+                                                              false,
                                                           context: context,
                                                           builder: (context) {
                                                             return const DialogLoadingPacking();
@@ -1082,18 +1069,15 @@ class _PackingScreenState extends State<PackingScreen> {
                                               .currentProduct.quantity) {
                                         //*cantidad correcta
                                         //guardamos la cantidad en la bd
-                                       packinghBloc.add(
-                                                          ChangeQuantitySeparate(packinghBloc
-                                              .currentProduct.quantity,
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .productId ??
-                                                            0,
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .pedidoId ??
-                                                            0,
-                                                      ));
+                                        packinghBloc.add(ChangeQuantitySeparate(
+                                          packinghBloc.currentProduct.quantity,
+                                          packinghBloc
+                                                  .currentProduct.productId ??
+                                              0,
+                                          packinghBloc
+                                                  .currentProduct.pedidoId ??
+                                              0,
+                                        ));
 
                                         packinghBloc.add(SetPickingsEvent(
                                             packinghBloc
@@ -1109,7 +1093,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                         });
 
                                         showDialog(
-                                          barrierDismissible: false,
+                                            barrierDismissible: false,
                                             context: context,
                                             builder: (context) {
                                               return const DialogLoadingPacking();
@@ -1179,7 +1163,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       });
 
                                                       showDialog(
-                                                        barrierDismissible: false,
+                                                          barrierDismissible:
+                                                              false,
                                                           context: context,
                                                           builder: (context) {
                                                             return const DialogLoadingPacking();

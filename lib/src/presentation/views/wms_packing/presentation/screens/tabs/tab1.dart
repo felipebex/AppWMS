@@ -68,7 +68,7 @@ class Tab1Screen extends StatelessWidget {
                       child: AlertDialog(
                         backgroundColor: Colors.white,
                         actionsAlignment: MainAxisAlignment.center,
-                        title: const Text(
+                        title:  Text(
                           'Confirmar pedido',
                           style:
                               TextStyle(color: primaryColorApp, fontSize: 16),
@@ -177,7 +177,7 @@ class Tab1Screen extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               packingModel?.name ?? '',
-                              style: const TextStyle(
+                              style:  TextStyle(
                                   fontSize: 18,
                                   color: primaryColorApp,
                                   fontWeight: FontWeight.bold),
@@ -192,7 +192,7 @@ class Tab1Screen extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               packingModel?.contacto ?? '',
-                              style: const TextStyle(
+                              style:  TextStyle(
                                   fontSize: 14, color: primaryColorApp),
                             )),
                         Row(
@@ -229,7 +229,7 @@ class Tab1Screen extends StatelessWidget {
                                   width: size.width * 0.55,
                                   child: Text(
                                     displayDate,
-                                    style: const TextStyle(
+                                    style:  TextStyle(
                                         fontSize: 14, color: primaryColorApp),
                                     textAlign: TextAlign.left,
                                   ),
@@ -254,7 +254,7 @@ class Tab1Screen extends StatelessWidget {
                                       .listOfProductos
                                       .length
                                       .toString(),
-                                  style: const TextStyle(
+                                  style:  TextStyle(
                                       fontSize: 14, color: primaryColorApp),
                                 )),
                           ],
@@ -269,7 +269,7 @@ class Tab1Screen extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               packingModel?.tipoOperacion ?? "",
-                              style: const TextStyle(
+                              style:  TextStyle(
                                   fontSize: 14, color: primaryColorApp),
                             )),
                         Row(
@@ -288,7 +288,7 @@ class Tab1Screen extends StatelessWidget {
                                       .packages
                                       .length
                                       .toString(),
-                                  style: const TextStyle(
+                                  style:  TextStyle(
                                       fontSize: 14, color: primaryColorApp),
                                 )),
                           ],
@@ -298,7 +298,7 @@ class Tab1Screen extends StatelessWidget {
                   ),
                 ),
               ),
-              const Text("Listado de empaques",
+               Text("Listado de empaques",
                   style: TextStyle(
                       fontSize: 16,
                       color: primaryColorApp,
@@ -357,7 +357,7 @@ class Tab1Screen extends StatelessWidget {
                                   children: [
                                     Text(
                                       "${package.name}",
-                                      style: const TextStyle(
+                                      style:  TextStyle(
                                           fontSize: 14, color: primaryColorApp),
                                     ),
                                     Row(
@@ -371,7 +371,7 @@ class Tab1Screen extends StatelessWidget {
                                         if (package.isSticker == true)
                                           IconButton(
                                               onPressed: () {},
-                                              icon: const Icon(
+                                              icon:  Icon(
                                                 Icons.print,
                                                 color: primaryColorApp,
                                                 size: 20,
@@ -428,7 +428,7 @@ class Tab1Screen extends StatelessWidget {
                                                             TextSpan(
                                                               text:
                                                                   "${product.quantitySeparate}", // La cantidad en color rojo
-                                                              style: const TextStyle(
+                                                              style:  TextStyle(
                                                                   color:
                                                                       primaryColorApp,
                                                                   fontSize:
@@ -489,7 +489,7 @@ class Tab1Screen extends StatelessWidget {
                                                           TextSpan(
                                                             text:
                                                                 "${product.unidades}", // La cantidad en color rojo
-                                                            style: const TextStyle(
+                                                            style:  TextStyle(
                                                                 color:
                                                                     primaryColorApp,
                                                                 fontSize:
@@ -521,7 +521,7 @@ class Tab1Screen extends StatelessWidget {
                                                           TextSpan(
                                                             text:
                                                                 "${product.quantity}", // La cantidad en color rojo
-                                                            style: const TextStyle(
+                                                            style:  TextStyle(
                                                                 color:
                                                                     primaryColorApp,
                                                                 fontSize:
@@ -549,7 +549,7 @@ class Tab1Screen extends StatelessWidget {
                                                           TextSpan(
                                                             text:
                                                                 "${product.weight}", // La cantidad en color rojo
-                                                            style: const TextStyle(
+                                                            style:  TextStyle(
                                                                 color:
                                                                     primaryColorApp,
                                                                 fontSize:

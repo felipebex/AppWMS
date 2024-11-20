@@ -59,6 +59,7 @@ class BatchsModel {
   final String? muelle; // es el mismo location_id
   final String? state;
   final dynamic userId;
+  final String? userName;
   final int? countItems;
 
   final int? indexList;
@@ -85,6 +86,7 @@ class BatchsModel {
     this.muelle,
     this.state,
     this.userId,
+    this.userName,
     this.countItems,
     this.indexList,
     this.isWave,
@@ -115,6 +117,7 @@ class BatchsModel {
         muelle: json['muelle'],
         state: json['state'],
         userId: json['user_id'],
+        userName: json['user_name'],
         countItems: json['count_items'],
         indexList: json['index_list'],
         isWave: json['is_wave'],
@@ -141,6 +144,7 @@ class BatchsModel {
         'muelle': muelle,
         'state': state,
         'user_id': userId,
+        'user_name': userName,
         'count_items': countItems,
         'index_list': indexList,
         'is_wave': isWave,
@@ -161,7 +165,7 @@ class BatchsModel {
 
 class ProductsBatch {
   final int? id;
-  final String? barcode;
+  final dynamic? barcode;
   final int? weigth;
   final String? unidades;
 
@@ -318,7 +322,7 @@ class Barcodes {
     final int? batchId;
     final int? idMove;
     final int? idProduct;
-    final String? barcode;
+    final dynamic? barcode;
     final dynamic? cantidad;
 
     Barcodes({

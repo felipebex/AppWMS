@@ -64,7 +64,7 @@ class AppBarInfo extends StatelessWidget {
                           child: AlertDialog(
                             backgroundColor: Colors.white,
                             actionsAlignment: MainAxisAlignment.center,
-                            title: const Center(
+                            title:  Center(
                                 child: Text('Dejar pendiente',
                                     style: TextStyle(color: primaryColorApp))),
                             content: const Column(
@@ -87,7 +87,7 @@ class AppBarInfo extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       elevation: 3),
-                                  child: const Text('Cancelar',
+                                  child:  Text('Cancelar',
                                       style:
                                           TextStyle(color: primaryColorApp))),
                               ElevatedButton(
@@ -112,24 +112,24 @@ class AppBarInfo extends StatelessWidget {
               },
               itemBuilder: (BuildContext context) {
                 return [
-                  const PopupMenuItem<String>(
+                   PopupMenuItem<String>(
                     value: '1',
                     child: Row(
                       children: [
                         Icon(Icons.info, color: primaryColorApp, size: 20),
-                        SizedBox(width: 10),
-                        Text('Ver detalles'),
+                        const SizedBox(width: 10),
+                        const Text('Ver detalles'),
                       ],
                     ),
                   ),
-                  const PopupMenuItem<String>(
+                   PopupMenuItem<String>(
                     value: '2',
                     child: Row(
                       children: [
                         Icon(Icons.timelapse_rounded,
                             color: primaryColorApp, size: 20),
-                        SizedBox(width: 10),
-                        Text('Dejar pendiente'),
+                        const SizedBox(width: 10),
+                        const Text('Dejar pendiente'),
                       ],
                     ),
                   ),

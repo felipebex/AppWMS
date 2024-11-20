@@ -47,19 +47,19 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
           durationInMilliSeconds: 300,
           itemLabelStyle: const TextStyle(fontSize: 10),
           elevation: 12,
-          bottomBarItems: const [
+          bottomBarItems:  [
             BottomBarItem(
               inActiveItem: Icon(
                 Icons.batch_prediction,
                 color: primaryColorApp,
               ),
-              activeItem: Icon(
+              activeItem: const Icon(
                 Icons.batch_prediction,
                 color: white,
               ),
               itemLabel: 'En Proceso',
             ),
-            BottomBarItem(
+            const BottomBarItem(
               inActiveItem: Icon(
                 Icons.batch_prediction,
                 color: green,
@@ -109,9 +109,9 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
               return Column(
                 children: [
                   Container(
-                    decoration: const BoxDecoration(
+                    decoration:  BoxDecoration(
                       color: primaryColorApp,
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(20),
                         bottomRight: Radius.circular(20),
                       ),
@@ -310,7 +310,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                 : Colors.white,
                                     elevation: 5,
                                     child: ListTile(
-                                      trailing: const Icon(
+                                      trailing:  Icon(
                                         Icons.arrow_forward_ios,
                                         color: primaryColorApp,
                                       ),
@@ -354,7 +354,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             alignment: Alignment.centerLeft,
                                             child: Text(
                                               batch.pickingTypeId.toString(),
-                                              style: const TextStyle(
+                                              style:  TextStyle(
                                                   fontSize: 14,
                                                   color: primaryColorApp),
                                               maxLines: 2,
@@ -418,7 +418,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                               alignment: Alignment.centerLeft,
                                               child: Row(
                                                 children: [
-                                                  const Icon(
+                                                   Icon(
                                                     Icons.person,
                                                     color: primaryColorApp,
                                                     size: 15,

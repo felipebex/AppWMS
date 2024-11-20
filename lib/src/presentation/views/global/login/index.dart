@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -31,7 +32,7 @@ class LoginPage extends StatelessWidget {
         return Scaffold(
           body: Container(
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration:  BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     colors: [primaryColorApp, secondary, primaryColorApp])),
@@ -42,20 +43,20 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(
                   height: 80,
                 ),
-                const Padding(
+                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
                           child: Text(
-                        "Bienvenido a WMS",
-                        style: TextStyle(color: Colors.white, fontSize: 22),
+                        "Bienvenido a ${ Environment.flavor.appName ?? 'WMS'} ",
+                        style: const TextStyle(color: Colors.white, fontSize: 22),
                       )),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
-                      Center(
+                      const Center(
                         child: Text("Version: 1.0.0",
                             style:
                                 TextStyle(color: Colors.white, fontSize: 10)),
@@ -113,8 +114,10 @@ class _LoginForm extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(200),
                 child: Image.asset(
-                  'assets/images/icono.jpeg',
-                  width: 250,
+                 Environment.flavor.appName == "BexPicking"
+                  ? 'assets/icons/iconBex.png'
+                  : 'assets/images/icono.jpeg',
+              width: Environment.flavor.appName == "BexPicking" ? 100 : 250,
                   height: 140,
                   fit: BoxFit.cover,
                 ),
@@ -133,8 +136,8 @@ class _LoginForm extends StatelessWidget {
                   children: [
                     TextFormField(
                         controller: context.read<LoginBloc>().email,
-                        decoration: const InputDecoration(
-                            disabledBorder: OutlineInputBorder(),
+                        decoration:  InputDecoration(
+                            disabledBorder: const OutlineInputBorder(),
                             prefixIcon: Icon(
                               Icons.email,
                               size: 20,
@@ -142,18 +145,18 @@ class _LoginForm extends StatelessWidget {
                             ),
                             hintText: "Correo electronico",
                             hintStyle:
-                                TextStyle(color: Colors.grey, fontSize: 14),
+                                const TextStyle(color: Colors.grey, fontSize: 14),
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(10),
+                            contentPadding: const EdgeInsets.all(10),
                             errorStyle:
-                                TextStyle(color: Colors.red, fontSize: 12)),
+                                const TextStyle(color: Colors.red, fontSize: 12)),
                         validator: (value) => Validator.email(value, context)),
                     TextFormField(
                       controller: context.read<LoginBloc>().password,
                       autocorrect: false,
-                      decoration: const InputDecoration(
-                          disabledBorder: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.all(10),
+                      decoration:  InputDecoration(
+                          disabledBorder: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.all(10),
                           prefixIcon: Icon(
                             Icons.lock,
                             size: 20,
@@ -161,9 +164,9 @@ class _LoginForm extends StatelessWidget {
                           ),
                           hintText: "Contraseña",
                           errorStyle:
-                              TextStyle(color: Colors.red, fontSize: 12),
+                              const TextStyle(color: Colors.red, fontSize: 12),
                           hintStyle:
-                              TextStyle(color: Colors.grey, fontSize: 14),
+                              const TextStyle(color: Colors.grey, fontSize: 14),
                           border: InputBorder.none),
                       validator: (value) => Validator.password(value, context),
                     ),

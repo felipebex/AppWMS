@@ -35,7 +35,7 @@ class DialogConfirmatedPacking extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            const Align(
+             Align(
               alignment: Alignment.center,
               child: Text(
                 'Esta seguro de empacar los productos seleccionados?',
@@ -65,7 +65,7 @@ class DialogConfirmatedPacking extends StatelessWidget {
                             !context.read<WmsPackingBloc>().isSticker, ));
                       },
                     ),
-                    const Icon(Icons.print, color: primaryColorApp),
+                     Icon(Icons.print, color: primaryColorApp),
                     const SizedBox(width: 10),
                     const Text(
                       'Incluir sticker de certificación',

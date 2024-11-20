@@ -31,7 +31,7 @@ class DialogLoadingPacking extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            const Align(
+             Align(
               alignment: Alignment.center,
               child: Text(
                 'Cargando Información...',
@@ -41,7 +41,7 @@ class DialogLoadingPacking extends StatelessWidget {
             ),
           ],
         )),
-        content: const Column(
+        content:  Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

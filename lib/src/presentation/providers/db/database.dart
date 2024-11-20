@@ -46,6 +46,7 @@ class DataBaseSqlite {
         muelle VARCHAR(255),
         state VARCHAR(255),
         user_id VARCHAR(255),
+        user_name VARCHAR(255),
         is_wave TEXT,
         is_separate INTEGER, 
         is_selected INTEGER, 
@@ -211,8 +212,6 @@ class DataBaseSqlite {
     }
   }
 
-
-
   //metodo para obtener todos los tblbarcodes_packages de un producto
   Future<List<Barcodes>> getBarcodesProduct(
       int batchId, int productId, int idMove) async {
@@ -234,8 +233,6 @@ class DataBaseSqlite {
     }).toList();
     return barcodes;
   }
-
-
 
   //todo insertar btach de packing
   Future<void> insertBatchPacking(BatchPackingModel batch) async {
@@ -519,6 +516,7 @@ class DataBaseSqlite {
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
+              "user_name": batch.userName,
               "is_wave": batch.isWave,
               'muelle': batch.muelle,
             },
@@ -536,6 +534,7 @@ class DataBaseSqlite {
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
+              "user_name": batch.userName,
               "is_wave": batch.isWave,
               'muelle': batch.muelle,
             },
@@ -668,7 +667,7 @@ class DataBaseSqlite {
                 "location_dest_id": productBatch.locationDestId?[1],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
-                "barcode": productBatch.barcode,
+                "barcode": productBatch.barcode == false ? "" : productBatch.barcode,
                 "weight": productBatch.weigth,
               },
               where: 'id_product = ? AND batch_id = ? AND id_move = ?',
@@ -694,7 +693,8 @@ class DataBaseSqlite {
                 "location_dest_id": productBatch.locationDestId?[1],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
-                "barcode": productBatch.barcode,
+                "barcode":
+                    productBatch.barcode == false ? "" : productBatch.barcode,
                 "weight": productBatch.weigth,
               },
               conflictAlgorithm: ConflictAlgorithm
@@ -731,7 +731,7 @@ class DataBaseSqlite {
                 "id_product": barcode.idProduct,
                 "batch_id": barcode.batchId,
                 "id_move": barcode.idMove,
-                "barcode": barcode.barcode,
+                "barcode": barcode.barcode == false ? "" : barcode.barcode,
                 "cantidad": barcode.cantidad,
               },
               where: 'id_product = ? AND batch_id = ? AND id_move = ?',
@@ -745,7 +745,7 @@ class DataBaseSqlite {
                 "id_product": barcode.idProduct,
                 "batch_id": barcode.batchId,
                 "id_move": barcode.idMove,
-                "barcode": barcode.barcode,
+                "barcode": barcode.barcode == false ? "" : barcode.barcode,
                 "cantidad": barcode.cantidad,
               },
               conflictAlgorithm: ConflictAlgorithm

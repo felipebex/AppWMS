@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
-import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -140,7 +139,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                       alignment: Alignment.center,
                       child: Text(
                           'El Batch  ${context.read<BatchBloc>().batchWithProducts.batch?.name} no tiene productos',
-                          style: const TextStyle(
+                          style:  TextStyle(
                               fontSize: 18, color: primaryColorApp),
                           textAlign: TextAlign.center),
                     ),
@@ -262,7 +261,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 backgroundColor: Colors.white,
                                                 actionsAlignment:
                                                     MainAxisAlignment.center,
-                                                title: const Center(
+                                                title:  Center(
                                                     child: Text(
                                                         'Dejar pendiente',
                                                         style: TextStyle(
@@ -295,7 +294,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                             10),
                                                               ),
                                                               elevation: 3),
-                                                      child: const Text(
+                                                      child:  Text(
                                                           'Cancelar',
                                                           style: TextStyle(
                                                               color:
@@ -334,15 +333,15 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   },
                                   itemBuilder: (BuildContext context) {
                                     return [
-                                      const PopupMenuItem<String>(
+                                       PopupMenuItem<String>(
                                         value: '1',
                                         child: Row(
                                           children: [
                                             Icon(Icons.info,
                                                 color: primaryColorApp,
                                                 size: 20),
-                                            SizedBox(width: 10),
-                                            Text('Ver detalles'),
+                                            const SizedBox(width: 10),
+                                            const Text('Ver detalles'),
                                           ],
                                         ),
                                       ),
@@ -359,15 +358,15 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                       //   ),
                                       // ),
                                       // Agrega más PopupMenuItems aquí
-                                      const PopupMenuItem<String>(
+                                       PopupMenuItem<String>(
                                         value: '3',
                                         child: Row(
                                           children: [
                                             Icon(Icons.timelapse_rounded,
                                                 color: primaryColorApp,
                                                 size: 20),
-                                            SizedBox(width: 10),
-                                            Text('Example'),
+                                            const SizedBox(width: 10),
+                                            const Text('Example'),
                                           ],
                                         ),
                                       ),
@@ -517,7 +516,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     BorderRadius.circular(10),
                                                 focusColor: Colors.white,
                                                 isExpanded: true,
-                                                hint: const Text(
+                                                hint:  Text(
                                                   'Ubicación de origen',
                                                   style: TextStyle(
                                                       fontSize: 16,
@@ -753,7 +752,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     BorderRadius.circular(10),
                                                 focusColor: Colors.white,
                                                 isExpanded: true,
-                                                hint: const Text(
+                                                hint:  Text(
                                                   'Producto',
                                                   style: TextStyle(
                                                       fontSize: 16,
@@ -880,7 +879,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             if (currentProduct.loteId != null)
                                               Column(
                                                 children: [
-                                                  const Align(
+                                                   Align(
                                                     alignment:
                                                         Alignment.centerLeft,
                                                     child: Text(
@@ -1039,7 +1038,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       BorderRadius.circular(10),
                                                   focusColor: Colors.white,
                                                   isExpanded: true,
-                                                  hint: const Text(
+                                                  hint:  Text(
                                                     'Muelle',
                                                     style: TextStyle(
                                                         fontSize: 16,
@@ -1224,7 +1223,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                         horizontal: 10),
                                     child: Text(
                                       currentProduct.quantity?.toString() ?? "",
-                                      style: const TextStyle(
+                                      style:  TextStyle(
                                           color: primaryColorApp, fontSize: 16),
                                     ),
                                   ),
@@ -1325,7 +1324,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               });
                                             }
                                           : null,
-                                      icon: const Icon(Icons.edit_note_rounded,
+                                      icon:  Icon(Icons.edit_note_rounded,
                                           color: primaryColorApp, size: 30)),
                                 ],
                               ),

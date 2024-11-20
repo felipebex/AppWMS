@@ -15,11 +15,11 @@ class InputDecorations {
       enabledBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(12)),
           borderSide: BorderSide(color: grey)),
-      focusedBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
+      focusedBorder:  OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
           borderSide: BorderSide(color: primaryColorApp)),
-      border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
+      border:  OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
           borderSide: BorderSide(color: primaryColorApp)),
       hintText: hintText,
       labelText: labelText,

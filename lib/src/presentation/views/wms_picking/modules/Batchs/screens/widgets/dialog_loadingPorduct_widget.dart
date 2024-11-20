@@ -31,7 +31,7 @@ class DialogLoading extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-            const Align(
+             Align(
               alignment: Alignment.center,
               child: Text(
                 'Cargando Información...',
@@ -43,7 +43,7 @@ class DialogLoading extends StatelessWidget {
                 style: TextStyle(color: grey, fontSize: 14)),
           ],
         )),
-        content: const Column(
+        content:  Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

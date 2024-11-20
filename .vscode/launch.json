@@ -1,0 +1,59 @@
+{
+    "version": "0.2.0", // This is the configuration file version. You don't need to worry about it; just leave it as is.
+    "configurations": [ // Here, we define different configurations for running and debugging our apps.
+        {
+            "name": "BexPicking(Debug Mode)", // This is the name that will appear in the dropdown menu in VSCode when you select an app to run or debug.
+            "request": "launch", // This tells VSCode to launch (run or debug) the app.
+            "type": "dart", // It specifies that we are working with Dart code.
+            "program": "lib/main_bexpicking.dart", // This is the main code file for the 'Harry Potter' app.
+            "flutterMode": "debug", // It indicates that we are running the app in debug mode.
+            "args": [ // These are additional arguments that we pass to the app.
+                "--flavor",
+                "bexpicking", // This is the flavor name, which helps the app know it's 'Harry Potter.'
+                "--target",
+                "lib/main_bexpicking.dart" // This is the target main file for the app, specifically for 'Harry Potter.'
+            ]
+        },
+
+        {
+            "name": "BexPicking (Release Mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_bexpicking.dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor",
+                "bexpicking",
+                "--target",
+                "lib/main_bexpicking.dart"
+            ]
+        },
+       
+        {
+            "name": "On Point (Debug Mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/.dart",
+            "flutterMode": "debug",
+            "args": [
+                "--flavor",
+                "onpoint",
+                "--target",
+                "lib/main_onpoint.dart"
+            ]
+        },
+        {
+            "name": "On Point (Release Mode)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main_onpoint.dart",
+            "flutterMode": "release",
+            "args": [
+                "--flavor",
+                "onpoint",
+                "--target",
+                "lib/main_onpoint.dart"
+            ]
+        }
+    ]
+}

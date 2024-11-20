@@ -33,9 +33,9 @@ class BatchDetailScreen extends StatelessWidget {
                 children: [
                   //*appbar
                   Container(
-                    decoration: const BoxDecoration(
+                    decoration:  BoxDecoration(
                       color: primaryColorApp,
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(20),
                         bottomRight: Radius.circular(20),
                       ),
@@ -177,7 +177,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                           actionsAlignment:
                                                               MainAxisAlignment
                                                                   .center,
-                                                          title: const Center(
+                                                          title:  Center(
                                                             child: Text(
                                                                 "Información",
                                                                 style: TextStyle(
@@ -228,7 +228,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     },
                                                   );
                                                 },
-                                                child: const Icon(Icons.help,
+                                                child:  Icon(Icons.help,
                                                     color: primaryColorApp,
                                                     size: 20)),
                                           ],
@@ -268,7 +268,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                           actionsAlignment:
                                                               MainAxisAlignment
                                                                   .center,
-                                                          title: const Center(
+                                                          title:  Center(
                                                             child: Text(
                                                                 "Información",
                                                                 style: TextStyle(
@@ -317,7 +317,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     },
                                                   );
                                                 },
-                                                child: const Icon(Icons.help,
+                                                child:  Icon(Icons.help,
                                                     color: primaryColorApp,
                                                     size: 20)),
                                           ],
@@ -357,15 +357,15 @@ class BatchDetailScreen extends StatelessWidget {
                                         if (snapshot.connectionState ==
                                             ConnectionState.waiting) {
                                           // Muestra un indicador de carga mientras esperas el resultado
-                                          return const Row(
+                                          return  Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
                                               Icon(Icons.timer,
                                                   color: primaryColorApp,
                                                   size: 20),
-                                              SizedBox(width: 10),
-                                              CircularProgressIndicator(), // O cualquier otro widget de carga
+                                              const SizedBox(width: 10),
+                                              const CircularProgressIndicator(), // O cualquier otro widget de carga
                                             ],
                                           );
                                         } else {
@@ -376,7 +376,7 @@ class BatchDetailScreen extends StatelessWidget {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                              const Icon(Icons.timer,
+                                               Icon(Icons.timer,
                                                   color: primaryColorApp,
                                                   size: 20),
                                               const SizedBox(width: 10),
@@ -462,7 +462,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                       actionsAlignment:
                                                           MainAxisAlignment
                                                               .center,
-                                                      title: const Center(
+                                                      title:  Center(
                                                         child: Text(
                                                             "Información",
                                                             style: TextStyle(
@@ -510,7 +510,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                 },
                                               );
                                             },
-                                            child: const Icon(Icons.check,
+                                            child:  Icon(Icons.check,
                                                 color: primaryColorApp,
                                                 size: 20)),
                                       ],
@@ -597,7 +597,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                       horizontal: 8),
                                               child: Row(
                                                 children: [
-                                                  const Icon(
+                                                   Icon(
                                                     Icons.location_on,
                                                     color: primaryColorApp,
                                                     size: 20,
@@ -614,7 +614,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                 ?.locationId
                                                                 ?.toString() ??
                                                             '',
-                                                        style: const TextStyle(
+                                                        style:  TextStyle(
                                                             fontSize: 14,
                                                             color:
                                                                 primaryColorApp)),
@@ -628,7 +628,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                       horizontal: 8),
                                               child: Row(
                                                 children: [
-                                                  const Icon(
+                                                   Icon(
                                                     Icons.arrow_forward,
                                                     color: primaryColorApp,
                                                     size: 20,
@@ -646,7 +646,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                 ?.locationDestId
                                                                 .toString() ??
                                                             '',
-                                                        style: const TextStyle(
+                                                        style:  TextStyle(
                                                             fontSize: 14,
                                                             color:
                                                                 primaryColorApp)),
@@ -660,7 +660,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                       horizontal: 8),
                                               child: Row(
                                                 children: [
-                                                  const Icon(
+                                                   Icon(
                                                     Icons.bookmarks_sharp,
                                                     color: primaryColorApp,
                                                     size: 20,
@@ -677,7 +677,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                         productsBatch?.lotId
                                                                 .toString() ??
                                                             '',
-                                                        style: const TextStyle(
+                                                        style:  TextStyle(
                                                             fontSize: 14,
                                                             color:
                                                                 primaryColorApp)),
@@ -693,7 +693,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     .symmetric(horizontal: 3),
                                                 child: Row(
                                                   children: [
-                                                    const Icon(
+                                                     Icon(
                                                       Icons
                                                           .send_to_mobile_outlined,
                                                       color: primaryColorApp,
@@ -770,7 +770,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                             ConnectionState
                                                                 .waiting) {
                                                           // Muestra un indicador de carga mientras esperas el resultado
-                                                          return const Row(
+                                                          return  Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
                                                                     .center,
@@ -780,9 +780,9 @@ class BatchDetailScreen extends StatelessWidget {
                                                                   color:
                                                                       primaryColorApp,
                                                                   size: 20),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                   width: 10),
-                                                              CircularProgressIndicator(), // O cualquier otro widget de carga
+                                                              const CircularProgressIndicator(), // O cualquier otro widget de carga
                                                             ],
                                                           );
                                                         } else {
@@ -795,7 +795,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                 MainAxisAlignment
                                                                     .center,
                                                             children: [
-                                                              const Icon(
+                                                               Icon(
                                                                   Icons.timer,
                                                                   color:
                                                                       primaryColorApp,
@@ -821,7 +821,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                       text:
                                                                           tiempoTotal,
                                                                       style:
-                                                                          const TextStyle(
+                                                                           TextStyle(
                                                                         fontSize:
                                                                             14,
                                                                         color:
@@ -893,7 +893,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                   children: [
                                                     Row(
                                                       children: [
-                                                        const Icon(
+                                                         Icon(
                                                           Icons.add,
                                                           color:
                                                               primaryColorApp,
@@ -914,12 +914,12 @@ class BatchDetailScreen extends StatelessWidget {
                                                                     ?.quantity
                                                                     .toString() ??
                                                                 "",
-                                                            style: const TextStyle(
+                                                            style:  TextStyle(
                                                                 fontSize: 16,
                                                                 color:
                                                                     primaryColorApp)),
                                                         const Spacer(),
-                                                        const Icon(
+                                                         Icon(
                                                           Icons.check,
                                                           color:
                                                               primaryColorApp,
@@ -944,7 +944,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                         ?.quantitySeparate
                                                                         .toString() ??
                                                                     "",
-                                                            style: const TextStyle(
+                                                            style:  TextStyle(
                                                                 fontSize: 16,
                                                                 color:
                                                                     primaryColorApp)),
@@ -952,7 +952,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     ),
                                                     Row(
                                                       children: [
-                                                        const Icon(
+                                                         Icon(
                                                           Icons
                                                               .assessment_outlined,
                                                           color:
@@ -979,7 +979,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                             .centerLeft,
                                                         child: Row(
                                                           children: [
-                                                            const Icon(
+                                                             Icon(
                                                               Icons
                                                                   .assignment_late,
                                                               color:
@@ -1018,7 +1018,7 @@ class BatchDetailScreen extends StatelessWidget {
                                     height:
                                         200), // Ajusta la altura según necesites
                                 const SizedBox(height: 10),
-                                const Text('No se encontraron resultados',
+                                 Text('No se encontraron resultados',
                                     style: TextStyle(
                                         fontSize: 18,
                                         color: primaryColorApp)),

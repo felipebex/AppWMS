@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
@@ -96,15 +97,18 @@ class _HomePageState extends State<HomePage> {
                               child: Row(
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Row(
+                                      Row(
                                         children: [
-                                          Text("Bienvenido a, ",
+                                          const Text("Bienvenido a, ",
                                               style: TextStyle(
                                                   fontSize: 18, color: white)),
-                                          Text('WMS',
-                                              style: TextStyle(
+                                          // Text('WMS',
+                                          Text(
+                                              '${Environment.flavor.appName ?? 'WMS'}',
+                                              style: const TextStyle(
                                                   fontSize: 18, color: white))
                                         ],
                                       ),
@@ -130,7 +134,8 @@ class _HomePageState extends State<HomePage> {
                                       Row(
                                         children: [
                                           Icon(Icons.email,
-                                              color: Colors.amber[200], size: 18),
+                                              color: Colors.amber[200],
+                                              size: 18),
                                           const SizedBox(width: 5),
                                           SizedBox(
                                             width: size.width * 0.6,
@@ -162,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                                                 actionsAlignment:
                                                     MainAxisAlignment.center,
                                                 backgroundColor: white,
-                                                title: const Center(
+                                                title: Center(
                                                     child: Text('Cerrar sesión',
                                                         style: TextStyle(
                                                             color:
@@ -171,16 +176,16 @@ class _HomePageState extends State<HomePage> {
                                                     '¿Estás seguro de que deseas cerrar sesión?'),
                                                 actions: [
                                                   ElevatedButton(
-                                                    style:
-                                                        ElevatedButton.styleFrom(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
                                                       minimumSize:
                                                           const Size(100, 40),
                                                       backgroundColor: grey,
                                                       shape:
                                                           RoundedRectangleBorder(
                                                         borderRadius:
-                                                            BorderRadius.circular(
-                                                                10),
+                                                            BorderRadius
+                                                                .circular(10),
                                                       ),
                                                     ),
                                                     onPressed: () {
@@ -199,8 +204,8 @@ class _HomePageState extends State<HomePage> {
                                                   ),
                                                   const SizedBox(width: 10),
                                                   ElevatedButton(
-                                                    style:
-                                                        ElevatedButton.styleFrom(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
                                                       minimumSize:
                                                           const Size(100, 40),
                                                       backgroundColor:
@@ -208,19 +213,19 @@ class _HomePageState extends State<HomePage> {
                                                       shape:
                                                           RoundedRectangleBorder(
                                                         borderRadius:
-                                                            BorderRadius.circular(
-                                                                10),
+                                                            BorderRadius
+                                                                .circular(10),
                                                       ),
                                                     ),
                                                     onPressed: () {
                                                       PrefUtils.clearPrefs();
                                                       //limpiamos toda la base de datos
-                      
+
                                                       Preferences
                                                           .removeUrlWebsite();
                                                       DataBaseSqlite()
                                                           .deleteAll();
-                      
+
                                                       PrefUtils.setIsLoggedIn(
                                                           false);
                                                       Navigator
@@ -253,7 +258,7 @@ class _HomePageState extends State<HomePage> {
                                           color: white,
                                           borderRadius:
                                               BorderRadius.circular(10)),
-                                      child: const Icon(Icons.logout,
+                                      child: Icon(Icons.logout,
                                           color: primaryColorApp),
                                     ),
                                   )
@@ -261,8 +266,6 @@ class _HomePageState extends State<HomePage> {
                               )),
                           Center(
                             child: BlocBuilder<WMSPickingBloc, PickingState>(
-                      
-                              
                               builder: (context, state) {
                                 return Container(
                                     padding: const EdgeInsets.symmetric(
@@ -272,40 +275,60 @@ class _HomePageState extends State<HomePage> {
                                     child: ListView(
                                       scrollDirection: Axis.horizontal,
                                       children: [
-                                        _ItemList(
-                                          size: size,
-                                          color: green,
-                                          title: 'BATCH Hechos',
-                                          value: context
-                                              .read<WMSPickingBloc>()
-                                              .batchsDone
-                                              .length
-                                              .toString(),
+                                        GestureDetector(
+                                          onTap: () {
+                                            context
+                                                .read<WMSPickingBloc>()
+                                                .add(LoadBatchsFromDBEvent());
+                                            Navigator.pushNamed(
+                                                context, 'wms-picking',
+                                                arguments: 1);
+                                          },
+                                          child: _ItemList(
+                                            size: size,
+                                            color: green,
+                                            title: 'BATCH Hechos',
+                                            value: context
+                                                .read<WMSPickingBloc>()
+                                                .batchsDone
+                                                .length
+                                                .toString(),
+                                          ),
                                         ),
-                                        _ItemList(
-                                          size: size,
-                                          color: primaryColorApp,
-                                          title: 'BATCH En Proceso',
-                                          value: (context
-                                                      .read<WMSPickingBloc>()
-                                                      .listOfBatchs
-                                                      .length -
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .batchsDone
-                                                      .length)
-                                              .toString(),
+                                        GestureDetector(
+                                          onTap: () {
+                                            context
+                                                .read<WMSPickingBloc>()
+                                                .add(LoadBatchsFromDBEvent());
+                                            Navigator.pushNamed(
+                                                context, 'wms-picking',
+                                                arguments: 0);
+                                          },
+                                          child: _ItemList(
+                                            size: size,
+                                            color: primaryColorApp,
+                                            title: 'BATCH En Proceso',
+                                            value: (context
+                                                        .read<WMSPickingBloc>()
+                                                        .listOfBatchs
+                                                        .length -
+                                                    context
+                                                        .read<WMSPickingBloc>()
+                                                        .batchsDone
+                                                        .length)
+                                                .toString(),
+                                          ),
                                         ),
-                                        _ItemList(
-                                          size: size,
-                                          color: Colors.amber,
-                                          title: 'BATCH Totales',
-                                          value: context
-                                              .read<WMSPickingBloc>()
-                                              .listOfBatchs
-                                              .length
-                                              .toString(),
-                                        ),
+                                        // _ItemList(
+                                        //   size: size,
+                                        //   color: Colors.amber,
+                                        //   title: 'BATCH Totales',
+                                        //   value: context
+                                        //       .read<WMSPickingBloc>()
+                                        //       .listOfBatchs
+                                        //       .length
+                                        //       .toString(),
+                                        // ),
                                       ],
                                     ));
                               },
@@ -337,7 +360,8 @@ class _HomePageState extends State<HomePage> {
                                               .read<WMSPickingBloc>()
                                               .add(LoadBatchsFromDBEvent());
                                           Navigator.pushNamed(
-                                              context, 'wms-picking');
+                                              context, 'wms-picking',
+                                              arguments: 0);
                                         },
                                         child: const _ImteModule(
                                           urlImg: "picking.png",
@@ -419,7 +443,7 @@ class _ItemList extends StatelessWidget {
             Text(title, style: const TextStyle(fontSize: 14)),
             const SizedBox(width: 5),
             Text(value,
-                style: const TextStyle(
+                style: TextStyle(
                     color: primaryColorApp,
                     fontSize: 14,
                     fontWeight: FontWeight.bold)),
@@ -473,7 +497,7 @@ class _ImteModule extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 14,
                   color: primaryColorApp,
                   fontWeight: FontWeight.bold),

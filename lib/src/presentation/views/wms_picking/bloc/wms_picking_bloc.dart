@@ -184,6 +184,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
                 muelle: batch.muelle,
                 state: batch.state,
                 userId: batch.userId,
+                userName: batch.userName,
                 isWave: batch.isWave.toString(),
                 countItems: batch.countItems,
               ));

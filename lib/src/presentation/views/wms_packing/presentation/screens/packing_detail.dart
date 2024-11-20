@@ -125,7 +125,7 @@ class DialogNewPackage extends StatelessWidget {
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: AlertDialog(
         actionsAlignment: MainAxisAlignment.center,
-        title: const Center(
+        title:  Center(
           child: Text(
             'Agregar empaque',
             style: TextStyle(

@@ -68,7 +68,7 @@ class _DialogAdvetenciaCantidadScreenState
                   ),
                   TextSpan(
                     text: '${widget.cantidad} ',
-                    style: const TextStyle(
+                    style:  TextStyle(
                       color: primaryColorApp,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -157,7 +157,7 @@ class _DialogAdvetenciaCantidadScreenState
                 ),
                 elevation: 3,
               ),
-              child: const Text('Cancelar',
+              child:  Text('Cancelar',
                   style: TextStyle(color: primaryColorApp))),
           ElevatedButton(
               onPressed: () async {

@@ -98,7 +98,7 @@ class Tab2Screen extends StatelessWidget {
                                     horizontal: 12, vertical: 10),
                                 child: Column(
                                   children: [
-                                    const Align(
+                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         "Producto:",
@@ -115,7 +115,7 @@ class Tab2Screen extends StatelessWidget {
                                                 fontSize: 14, color: black))),
                                     Row(
                                       children: [
-                                        const Text(
+                                         Text(
                                           "pedido: ",
                                           style: TextStyle(
                                             fontSize: 14,
@@ -129,7 +129,7 @@ class Tab2Screen extends StatelessWidget {
                                     ),
                                     Row(
                                       children: [
-                                        const Text(
+                                         Text(
                                           "Cantidad: ",
                                           style: TextStyle(
                                             fontSize: 14,
@@ -140,7 +140,7 @@ class Tab2Screen extends StatelessWidget {
                                             style: const TextStyle(
                                                 fontSize: 14, color: black)),
                                         const Spacer(),
-                                        const Text(
+                                         Text(
                                           "Unidad de medida: ",
                                           style: TextStyle(
                                             fontSize: 14,
@@ -155,7 +155,7 @@ class Tab2Screen extends StatelessWidget {
                                     if (product.tracking != false)
                                       Row(
                                         children: [
-                                          const Text(
+                                           Text(
                                             "Numero de serie/lote: ",
                                             style: TextStyle(
                                               fontSize: 14,

@@ -64,7 +64,7 @@ class ApiRequestService {
             colorText: primaryColorApp,
             duration: const Duration(seconds: 5),
             leftBarIndicatorColor: yellow,
-            icon: const Icon(
+            icon:  Icon(
               Icons.error,
               color: primaryColorApp,
             ));
@@ -99,7 +99,7 @@ class ApiRequestService {
             colorText: primaryColorApp,
             duration: const Duration(seconds: 5),
             leftBarIndicatorColor: yellow,
-            icon: const Icon(
+            icon:  Icon(
               Icons.error,
               color: primaryColorApp,
             ),
@@ -117,7 +117,7 @@ class ApiRequestService {
         colorText: primaryColorApp,
         duration: const Duration(seconds: 5),
         leftBarIndicatorColor: yellow,
-        icon: const Icon(
+        icon:  Icon(
           Icons.error,
           color: primaryColorApp,
         ),
@@ -217,7 +217,7 @@ class ApiRequestService {
           colorText: primaryColorApp,
           duration: const Duration(seconds: 5),
           leftBarIndicatorColor: yellow,
-          icon: const Icon(
+          icon:  Icon(
             Icons.error,
             color: primaryColorApp,
           ));

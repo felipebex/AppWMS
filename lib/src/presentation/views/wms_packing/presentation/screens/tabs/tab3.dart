@@ -87,7 +87,7 @@ class Tab3Screen extends StatelessWidget {
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                              const Text(
+                                               Text(
                                                 "Producto:",
                                                 style: TextStyle(
                                                   fontSize: 14,
@@ -118,7 +118,7 @@ class Tab3Screen extends StatelessWidget {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    const Text(
+                                                     Text(
                                                       "Cantidad: ",
                                                       style: TextStyle(
                                                         fontSize: 14,
@@ -130,7 +130,7 @@ class Tab3Screen extends StatelessWidget {
                                                             fontSize: 14,
                                                             color: black)),
                                                     const Spacer(),
-                                                    const Text(
+                                                     Text(
                                                       "Unidades: ",
                                                       style: TextStyle(
                                                         fontSize: 14,
@@ -145,7 +145,7 @@ class Tab3Screen extends StatelessWidget {
                                                 ),
                                                 Row(
                                                   children: [
-                                                    const Text(
+                                                     Text(
                                                       "Cantidades Separadas : ",
                                                       style: TextStyle(
                                                         fontSize: 14,
@@ -162,7 +162,7 @@ class Tab3Screen extends StatelessWidget {
                                                 if (product.observation != null)
                                                   Row(
                                                     children: [
-                                                      const Text(
+                                                       Text(
                                                         "Novedades : ",
                                                         style: TextStyle(
                                                           fontSize: 14,
@@ -191,7 +191,7 @@ class Tab3Screen extends StatelessWidget {
                                         if (product.tracking != false)
                                           Row(
                                             children: [
-                                              const Text(
+                                               Text(
                                                 "Numero de serie/lote: ",
                                                 style: TextStyle(
                                                   fontSize: 14,
@@ -207,7 +207,7 @@ class Tab3Screen extends StatelessWidget {
 
                                         Row(
                                           children: [
-                                            const Text(
+                                             Text(
                                               "Peso: ",
                                               style: TextStyle(
                                                 fontSize: 14,

@@ -1,8 +1,7 @@
-
-
 import 'dart:io';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/widgets/list_database.dart';
@@ -37,7 +36,7 @@ class SelectEnterpricePage extends StatelessWidget {
         return Scaffold(
           body: Container(
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     colors: [primaryColorApp, secondary, primaryColorApp])),
@@ -48,23 +47,24 @@ class SelectEnterpricePage extends StatelessWidget {
                 const SizedBox(
                   height: 80,
                 ),
-                const Padding(
-                  padding: EdgeInsets.all(55),
+                Padding(
+                  padding: const EdgeInsets.all(55),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
                           child: Text(
-                        "Bienvenido a WMS",
-                        style: TextStyle(color: Colors.white, fontSize: 22),
+                        "Bienvenido a ${Environment.flavor.appName ?? 'WMS'} ",
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 22),
                       )),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
-                      Center(
+                      const Center(
                         child: Text("Version: 1.0.0",
-                            style: TextStyle(
-                                color: Colors.white, fontSize: 10)),
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 10)),
                       )
                       //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
                     ],
@@ -79,7 +79,7 @@ class SelectEnterpricePage extends StatelessWidget {
                             topRight: Radius.circular(60))),
                     child: SingleChildScrollView(
                       child: Padding(
-                          padding: const EdgeInsets.only( left: 30, right: 30),
+                          padding: const EdgeInsets.only(left: 30, right: 30),
                           child: _loginForm()),
                     ),
                   ),
@@ -106,15 +106,15 @@ class _loginForm extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
-          Container(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(200),
-              child: Image.asset(
-                'assets/images/icono.jpeg',
-                width: 250,
-                height: 140,
-                fit: BoxFit.cover,
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(200),
+            child: Image.asset(
+              Environment.flavor.appName == "BexPicking"
+                  ? 'assets/icons/iconBex.png'
+                  : 'assets/images/icono.jpeg',
+              width: Environment.flavor.appName == "BexPicking" ? 100 : 250,
+              height: 140,
+              fit: BoxFit.cover,
             ),
           ),
           FadeIn(

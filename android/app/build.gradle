@@ -30,6 +30,27 @@ android {
         multiDexEnabled true
     }
 
+   flavorDimensions "app"
+
+    productFlavors {
+        // Flavor name that is decided in .vscode/launch.json
+        onpoint { 
+            dimension "app"
+            resValue "string", "app_name", "On Point" // Application NAME
+            applicationId "com.example.onpoint" // Bundle ID
+            applicationIdSuffix ""
+        }
+        // Flavor name that is decided in .vscode/launch.json
+        bexpicking { 
+            dimension "app"
+            resValue "string", "app_name", "BexPicking" // Application NAME
+            applicationId "com.example.bexpicking" // Bundle ID
+            applicationIdSuffix ""
+        }
+    }
+
+
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

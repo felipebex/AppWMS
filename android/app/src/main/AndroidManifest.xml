@@ -27,7 +27,7 @@
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:supportsRtl="true"
-        android:label="appwms"
+        android:label="@string/app_name"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

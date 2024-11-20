@@ -47,7 +47,7 @@ class _DetailClientSaleState extends State<DetailClientSale> {
                 elevation: 0,
                 sliderRotate: false,
                 borderRadius: 20,
-                sliderButtonIcon: const Icon(
+                sliderButtonIcon:  Icon(
                   Icons.lock_open,
                   size: 18,
                   color: primaryColorApp,

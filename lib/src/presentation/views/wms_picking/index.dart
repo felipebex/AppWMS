@@ -1,6 +1,7 @@
-// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use, prefer_is_empty
+// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use, prefer_is_empty, avoid_print
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -13,7 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WMSPickingPage extends StatefulWidget {
-  const WMSPickingPage({Key? key}) : super(key: key);
+  const WMSPickingPage({Key? key, required this.indexSelected})
+      : super(key: key);
+  final int indexSelected;
 
   @override
   State<WMSPickingPage> createState() => _PickingPageState();
@@ -24,7 +27,8 @@ class _PickingPageState extends State<WMSPickingPage> {
 
   @override
   void initState() {
-    controller.index = 0;
+    print("indexSelected: ${widget.indexSelected}");
+    controller.index = widget.indexSelected;
     super.initState();
   }
 
@@ -53,7 +57,12 @@ class _PickingPageState extends State<WMSPickingPage> {
         ],
         child: BlocBuilder<WMSPickingBloc, PickingState>(
           builder: (context, state) {
-            
+            if (controller.index == 1) {
+              context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
+                    'done',
+                  ));
+            }
+
             double progress =
                 context.read<WMSPickingBloc>().listOfBatchs.length > 0
                     ? context.read<WMSPickingBloc>().batchsDone.length /
@@ -77,19 +86,19 @@ class _PickingPageState extends State<WMSPickingPage> {
                   durationInMilliSeconds: 300,
                   itemLabelStyle: const TextStyle(fontSize: 10),
                   elevation: 12,
-                  bottomBarItems: const [
+                  bottomBarItems: [
                     BottomBarItem(
                       inActiveItem: Icon(
                         Icons.batch_prediction,
                         color: primaryColorApp,
                       ),
-                      activeItem: Icon(
+                      activeItem: const Icon(
                         Icons.batch_prediction,
                         color: white,
                       ),
                       itemLabel: 'En Proceso',
                     ),
-                    BottomBarItem(
+                    const BottomBarItem(
                       inActiveItem: Icon(
                         Icons.batch_prediction,
                         color: green,
@@ -132,9 +141,9 @@ class _PickingPageState extends State<WMSPickingPage> {
                   child: Column(
                     children: [
                       Container(
-                        decoration: const BoxDecoration(
+                        decoration: BoxDecoration(
                           color: primaryColorApp,
-                          borderRadius: BorderRadius.only(
+                          borderRadius: const BorderRadius.only(
                             bottomLeft: Radius.circular(20),
                             bottomRight: Radius.circular(20),
                           ),
@@ -322,58 +331,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                   ],
                                 ),
                               ),
-                              // Padding(
-                              //     padding: const EdgeInsets.only(
-                              //         left: 5, right: 5, bottom: 5),
-                              //     child: SizedBox(
-                              //         width: size.width * 0.8,
-                              //         height: 45,
-                              //         child: Row(
-                              //           mainAxisAlignment:
-                              //               MainAxisAlignment.center,
-                              //           children: [
-                              //             GestureDetector(
-                              //               onTap: () {
-                              //                 context
-                              //                     .read<WMSPickingBloc>()
-                              //                     .add(FilterBatchesByTypeEvent(
-                              //                         "false",
-                              //                         controller.index));
-                              //               },
-                              //               child: const Card(
-                              //                   color: Colors.white,
-                              //                   elevation: 2,
-                              //                   child: Padding(
-                              //                     padding: EdgeInsets.symmetric(
-                              //                         horizontal: 12,
-                              //                         vertical: 8),
-                              //                     child: Text(
-                              //                       "BATCH",
-                              //                     ),
-                              //                   )),
-                              //             ),
-                              //             GestureDetector(
-                              //               onTap: () {
-                              //                 context
-                              //                     .read<WMSPickingBloc>()
-                              //                     .add(FilterBatchesByTypeEvent(
-                              //                         "true",
-                              //                         controller.index));
-                              //               },
-                              //               child: const Card(
-                              //                   color: Colors.white,
-                              //                   elevation: 2,
-                              //                   child: Padding(
-                              //                     padding: EdgeInsets.symmetric(
-                              //                         horizontal: 12,
-                              //                         vertical: 8),
-                              //                     child: Text(
-                              //                       "WAVE",
-                              //                     ),
-                              //                   )),
-                              //             ),
-                              //           ],
-                              //         ))),
                             ],
                           )),
 
@@ -405,9 +362,11 @@ class _PickingPageState extends State<WMSPickingPage> {
                                         horizontal: 10, vertical: 5),
                                     child: GestureDetector(
                                       onTap: () async {
-                                        context.read<BatchBloc>().add(
-                                            FetchBatchWithProductsEvent(
-                                                batch.id ?? 0, ));
+                                        context
+                                            .read<BatchBloc>()
+                                            .add(FetchBatchWithProductsEvent(
+                                              batch.id ?? 0,
+                                            ));
 
                                         //todo navegamos a la vista de separacion de productos del batch
                                         if (batch.isSeparate == 1) {
@@ -442,7 +401,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 : Colors.white,
                                         elevation: 3,
                                         child: ListTile(
-                                          trailing: const Icon(
+                                          trailing: Icon(
                                             Icons.arrow_forward_ios,
                                             color: primaryColorApp,
                                           ),
@@ -490,7 +449,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 child: Text(
                                                   batch.pickingTypeId
                                                       .toString(),
-                                                  style: const TextStyle(
+                                                  style: TextStyle(
                                                       fontSize: 14,
                                                       color: primaryColorApp),
                                                   maxLines: 2,
@@ -498,92 +457,56 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       TextOverflow.ellipsis,
                                                 ),
                                               ),
-                                              // Align(
-                                              //   alignment: Alignment.centerLeft,
-                                              //   child: Builder(
-                                              //     builder: (context) {
-                                              //       // Verifica si `scheduledDate` es false o null
-                                              //       String displayDate;
-                                              //       if (batch.scheduledDate ==
-                                              //               false ||
-                                              //           batch.scheduledDate ==
-                                              //               null) {
-                                              //         displayDate = 'sin fecha';
-                                              //       } else {
-                                              //         try {
-                                              //           DateTime dateTime =
-                                              //               DateTime.parse(batch
-                                              //                   .scheduledDate!);
-                                              //           // Formatear la fecha usando Intl
-                                              //           displayDate = DateFormat(
-                                              //                   'dd MMMM yyyy',
-                                              //                   'es_ES')
-                                              //               .format(dateTime);
-                                              //         } catch (e) {
-                                              //           displayDate =
-                                              //               'sin fecha'; // Si ocurre un error al parsear
-                                              //         }
-                                              //       }
-
-                                              //       return Row(
-                                              //         children: [
-                                              //           const Icon(
-                                              //             Icons
-                                              //                 .calendar_month_sharp,
-                                              //             color:
-                                              //                 primaryColorApp,
-                                              //             size: 15,
-                                              //           ),
-                                              //           const SizedBox(
-                                              //               width: 5),
-                                              //           Text(
-                                              //             displayDate,
-                                              //             style:
-                                              //                 const TextStyle(
-                                              //                     fontSize: 14),
-                                              //           ),
-                                              //         ],
-                                              //       );
-                                              //     },
-                                              //   ),
-                                              // ),
-                                              Builder(builder: (context) {
-                                                dynamic nameUser = batch.userId;
-
-                                                if (batch.userId is List) {
-                                                  nameUser = batch.userId[1] ??
-                                                      'Sin responsable';
-                                                }
-                                                return Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      const Icon(
-                                                        Icons.person,
-                                                        color: primaryColorApp,
-                                                        size: 15,
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .calendar_month_sharp,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      batch.scheduleddate !=
+                                                              null
+                                                          ? DateFormat(
+                                                                  'dd/MM/yyyy')
+                                                              .format(batch
+                                                                  .scheduleddate!)
+                                                          : "Sin fecha",
+                                                      style: const TextStyle(
+                                                          fontSize: 14),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.person,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Expanded(
+                                                      child: Text(
+                                                        batch.userName ??
+                                                            "Sin usuario",
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
-                                                      const SizedBox(width: 5),
-                                                      Expanded(
-                                                        child: Text(
-                                                          nameUser == false
-                                                              ? 'Sin responsable'
-                                                              : nameUser
-                                                                  .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: black),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              }),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ],
                                           ),
                                         ),
