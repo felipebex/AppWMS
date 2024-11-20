@@ -6,6 +6,7 @@ import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/services/preferences.dart';
@@ -54,18 +55,19 @@ class _HomePageState extends State<HomePage> {
                 .read<WMSPickingBloc>()
                 .add(LoadAllBatchsEvent(context, true));
             context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true));
+            context.read<UserBloc>().add(GetConfigurations());
           }
         },
         builder: (context, state) {
           return Scaffold(
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                DataBaseSqlite db = DataBaseSqlite();
-                await db.deleteAll();
-              },
-              backgroundColor: primaryColorApp,
-              child: const Icon(Icons.delete_sweep_sharp, color: white),
-            ),
+            // floatingActionButton: FloatingActionButton(
+            //   onPressed: () async {
+            //     DataBaseSqlite db = DataBaseSqlite();
+            //     await db.deleteAll();
+            //   },
+            //   backgroundColor: primaryColorApp,
+            //   child: const Icon(Icons.delete_sweep_sharp, color: white),
+            // ),
             body: Container(
               width: size.width,
               height: size.height,
@@ -108,31 +110,51 @@ class _HomePageState extends State<HomePage> {
                                               style: TextStyle(
                                                   fontSize: 18, color: white)),
                                           // Text('WMS',
-                                          Text(
-                                              Environment.flavor.appName,
+                                          Text(Environment.flavor.appName,
                                               style: const TextStyle(
                                                   fontSize: 18, color: white))
                                         ],
                                       ),
-                                      Row(
-                                        children: [
-                                          const Text("Hola, ",
-                                              style: TextStyle(
-                                                  fontSize: 20, color: white)),
-                                          SizedBox(
-                                            width: size.width * 0.6,
-                                            child: Text(
-                                              userName,
-                                              style: TextStyle(
-                                                  color: Colors.amber[200],
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushNamed(context, 'user');
+                                        },
+                                        child: Row(
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(100),
+                                              child: Container(
+                                                color: white,
+                                                height: 25,
+                                                width: 25,
+                                                child: Icon(Icons.person,
+                                                    color: primaryColorApp,
+                                                    size: 20),
+                                              ),
                                             ),
-                                          )
-                                        ],
+                                            const SizedBox(width: 5),
+                                            const Text("Hola, ",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: white)),
+                                            SizedBox(
+                                              width: size.width * 0.5,
+                                              child: Text(
+                                                userName,
+                                                style: TextStyle(
+                                                    color: Colors.amber[200],
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
+                                      const SizedBox(height: 2),
                                       Row(
                                         children: [
                                           Icon(Icons.email,

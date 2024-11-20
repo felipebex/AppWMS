@@ -12,6 +12,8 @@ import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing.dart';
@@ -62,9 +64,6 @@ void main() async {
           print('connected');
           searchProductsNoSendOdoo();
         }
-        // {
-        //   print('No se ha iniciado sesión');
-        // }
       }
     } on SocketException catch (_) {}
   });
@@ -79,11 +78,23 @@ void main() async {
             print('connected 2');
             refreshData(navigatorKey.currentContext!);
           }
-          // {
-          // LocalNotificationsService().showNotification('Nuevos batchs',
-          //     'Se han agregado nuevos batchs para picking', '');
-          //   print('No se ha iniciado sesión');
-          // }
+         
+        }
+      }
+    } on SocketException catch (_) {}
+  });
+  cron.schedule(Schedule.parse('*/5 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        // Acceder al contexto global para llamar a refreshData
+        if (navigatorKey.currentContext != null) {
+          final isLogin = await PrefUtils.getIsLoggedIn();
+          if (isLogin) {
+            print('connected 3');
+            configurations(navigatorKey.currentContext!);
+          }
+         
         }
       }
     } on SocketException catch (_) {}
@@ -108,6 +119,9 @@ class MyApp extends StatelessWidget {
         //bloc de network
         BlocProvider(
           create: (_) => LoginBloc(),
+        ),
+        BlocProvider(
+          create: (_) => UserBloc(),
         ),
         BlocProvider(
           create: (_) => EntrepriseBloc(),
@@ -170,6 +184,7 @@ class MyApp extends StatelessWidget {
             'counter': (_) => const CounterPage(),
             'home': (_) => const HomePage(),
             'ventor': (_) => const VentorHome(),
+            'user': (_) => const UserScreen(),
           },
           theme: ThemeData.light().copyWith(
             scaffoldBackgroundColor: Colors.grey[300],
@@ -246,4 +261,9 @@ void refreshData(BuildContext context) async {
   //mandamos a traer todos los batchs de picking
   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, false));
   // context.read<WmsPackingBloc>().add(LoadAllPackingEvent());
+}
+
+
+void configurations(BuildContext context)async{
+  context.read<UserBloc>().add(GetConfigurations());
 }
