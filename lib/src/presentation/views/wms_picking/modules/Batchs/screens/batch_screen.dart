@@ -158,6 +158,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is LoadDataInfoState ||
             state is ChangeQuantitySeparateState ||
             state is PickingOkState ||
+            state is ProductPendingState ||
             state is ConfigurationLoaded ||
             state is ValidateFieldsState) {
           final currentProduct = batchBloc.currentProduct;
@@ -311,7 +312,17 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               color:
                                                                   primaryColorApp))),
                                                   ElevatedButton(
-                                                      onPressed: () {},
+                                                      onPressed: () {
+                                                        batchBloc.add(
+                                                            ProductPendingEvent(
+                                                                batchBloc
+                                                                        .batchWithProducts
+                                                                        .batch
+                                                                        ?.id ??
+                                                                    0,
+                                                                currentProduct));
+                                                        Navigator.pop(context);
+                                                      },
                                                       style: ElevatedButton
                                                           .styleFrom(
                                                         backgroundColor:
@@ -350,18 +361,22 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           ],
                                         ),
                                       ),
-                                      // const PopupMenuItem<String>(
-                                      //   value: '2',
-                                      //   child: Row(
-                                      //     children: [
-                                      //       Icon(Icons.timelapse_rounded,
-                                      //           color: primaryColorApp,
-                                      //           size: 20),
-                                      //       SizedBox(width: 10),
-                                      //       Text('Dejar pendiente'),
-                                      //     ],
-                                      //   ),
-                                      // ),
+                                      if (batchBloc.locationIsOk == true &&
+                                          batchBloc.index + 1 <
+                                              batchBloc.batchWithProducts
+                                                  .products!.length)
+                                        PopupMenuItem<String>(
+                                          value: '2',
+                                          child: Row(
+                                            children: [
+                                              Icon(Icons.timelapse_rounded,
+                                                  color: primaryColorApp,
+                                                  size: 20),
+                                              const SizedBox(width: 10),
+                                              const Text('Dejar pendiente'),
+                                            ],
+                                          ),
+                                        ),
                                     ];
                                   },
                                 ),
@@ -879,22 +894,34 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment
-                                                    .start, //alineamos el texto a la izquierda
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment
+                                                        .start, //alineamos el texto a la izquierda
                                                 children: [
                                                   Text(
                                                     currentProduct.productId
                                                         .toString(),
                                                     style: const TextStyle(
-                                                        fontSize: 16, color: black),
+                                                        fontSize: 16,
+                                                        color: black),
                                                   ),
                                                   Visibility(
-                                                    visible: currentProduct.barcode == false || currentProduct.barcode == null || currentProduct.barcode == "",
+                                                    visible: currentProduct
+                                                                .barcode ==
+                                                            false ||
+                                                        currentProduct
+                                                                .barcode ==
+                                                            null ||
+                                                        currentProduct
+                                                                .barcode ==
+                                                            "",
                                                     child: const Text(
                                                       "Sin codigo de barras",
-                                                      textAlign: TextAlign.start,
+                                                      textAlign:
+                                                          TextAlign.start,
                                                       style: TextStyle(
-                                                          fontSize: 16, color: red),
+                                                          fontSize: 16,
+                                                          color: red),
                                                     ),
                                                   ),
                                                 ],
@@ -1198,26 +1225,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                 ],
                               ),
-
-                            // //btn de example
-                            // ElevatedButton(
-                            //   onPressed: () {
-                            //     validateScannedBarcode("17501125184861",
-                            //         batchBloc.currentProduct, batchBloc);
-                            //   },
-                            //   child: const Text('Scan paquete'),
-                            // ),
-                            // ElevatedButton(
-                            //   onPressed: () {
-                            //     batchBloc.add(ValidateFieldsEvent(
-                            //         field: "quantity", isOk: true));
-                            //     batchBloc.add(AddQuantitySeparate(
-                            //         currentProduct.idProduct ?? 0,
-                            //         currentProduct.idMove ?? 0,
-                            //         1));
-                            //   },
-                            //   child: const Text('Scan'),
-                            // ),
                           ],
                         ),
                       ),

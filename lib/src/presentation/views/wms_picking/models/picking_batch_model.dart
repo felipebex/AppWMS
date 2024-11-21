@@ -192,6 +192,7 @@ class ProductsBatch {
     final String? timeSeparateEnd;
   final String? observation;
   final int? isSendOdoo;
+  final int? isPending;
   final String? isSendOdooDate;
   final double? weight;
 
@@ -219,6 +220,7 @@ class ProductsBatch {
     this.quantity,
     this.productPacking,
     this.barcode,
+    this.isPending,
     this.name,
     this.weigth,
     this.unidades,
@@ -264,6 +266,7 @@ class ProductsBatch {
       quantitySeparate: map['quantity_separate'],
       isSelected: map['is_selected'],
       isSeparate: map['is_separate'],
+      isPending: map['is_pending'],
       timeSeparate: map['time_separate'],
       timeSeparateStart: map['time_separate_start'],
       timeSeparateEnd: map['time_separate_end'],
@@ -298,6 +301,7 @@ class ProductsBatch {
       "unidades": unidades,
       "quantity_separate": quantitySeparate,
       "is_selected": isSelected,
+      "is_pending": isPending,
       "is_separate": isSeparate,
       "time_separate": timeSeparate,
       "time_separate_start": timeSeparateStart,

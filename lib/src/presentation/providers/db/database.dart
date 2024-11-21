@@ -81,6 +81,7 @@ class DataBaseSqlite {
         quantity_separate INTEGER,
         is_selected INTEGER,
         is_separate INTEGER,
+        is_pending INTEGER,
 
         time_separate DECIMAL(10,2),
         time_separate_start VARCHAR(255),

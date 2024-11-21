@@ -98,4 +98,8 @@ class ConfigurationError extends BatchState {
   ConfigurationError(this.error);
 }
 
+class ProductPendingState extends BatchState {
+  final List<ProductsBatch> listOfProductsBatch;
+  ProductPendingState({required this.listOfProductsBatch});
 
+}

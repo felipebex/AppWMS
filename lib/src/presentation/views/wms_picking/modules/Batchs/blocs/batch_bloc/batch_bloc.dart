@@ -80,9 +80,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   int completedProducts = 0;
 
   BatchBloc() : super(BatchInitial()) {
-
-
-
     on<LoadConfigurationsUser>((event, emit) async {
       try {
         final response = await db.getConfiguration(368);
@@ -96,7 +93,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         print('Error en GetConfigurations.dart: $e =>$s');
       }
     });
-
 
     // //* Buscar un producto en un lote en SQLite
     on<SearchProductsBatchEvent>(_onSearchBacthEvent);
@@ -132,7 +128,33 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onPickingPendingEvent(
       ProductPendingEvent event, Emitter<BatchState> emit) async {
     try {
-      //dejamos pendiente el producto, lo cual es enviar este producto al final de la lista de batchWithProducts.products
+      if (batchWithProducts.products!.isEmpty) {
+        return;
+      }
+
+      print('Index: $index');
+      print('Products list: ${batchWithProducts.products!.toList()}');
+      print("event current product: ${event.product}");
+
+      //cambiamos el estado del producto a pendiente
+      await db.setFieldTableBatchProducts(
+          batchWithProducts.batch?.id ?? 0,
+          event.product.idProduct ?? 0,
+          'is_pending',
+          'true',
+          event.product.idMove ?? 0);
+
+      //deseleccionamos el producto actual
+      await db.setFieldTableBatchProducts(
+          batchWithProducts.batch?.id ?? 0,
+          event.product.idProduct ?? 0,
+          'is_selected',
+          'false',
+          event.product.idMove ?? 0);
+
+      //actualizamos la lista de productos
+      add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
+      
     } catch (e, s) {
       print('Error _onPickingPendingEvent: $e, $s');
     }
@@ -569,11 +591,31 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
+  // void sortProductsByLocationId(List<ProductsBatch> products) {
+  //   products.sort((a, b) {
+  //     // Comparamos los locationId
+  //     return a.locationId?[1].compareTo(b.locationId?[1] ?? "");
+  //   });
+  // }
+
   void sortProductsByLocationId(List<ProductsBatch> products) {
+    // Ordenar los productos por locationId
     products.sort((a, b) {
-      // Comparamos los locationId
       return a.locationId?[1].compareTo(b.locationId?[1] ?? "");
     });
+
+    // Filtrar los productos con isPending == 1
+    List<ProductsBatch> pendingProducts =
+        products.where((product) => product.isPending == 1).toList();
+
+    // Filtrar los productos que no están pendientes
+    List<ProductsBatch> nonPendingProducts =
+        products.where((product) => product.isPending != 1).toList();
+
+    // Concatenar los productos no pendientes con los productos pendientes al final
+    products.clear();
+    products.addAll(nonPendingProducts);
+    products.addAll(pendingProducts);
   }
 
   String calculateProgress() {
