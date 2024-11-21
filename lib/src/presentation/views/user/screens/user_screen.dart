@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/environment/environment.dart';
@@ -33,13 +35,13 @@ class UserScreen extends StatelessWidget {
               ),
               BlocBuilder<UserBloc, UserState>(
                 builder: (context, state) {
-                  final config = (state as ConfigurationLoaded).configurations;
+                  final config = context.read<UserBloc>().configurations;
                   return SizedBox(
                     width: size.width,
                     height: size.height,
                     child: Container(
                       padding:
-                          const EdgeInsets.only(left: 10, top: 55, right: 10),
+                          const EdgeInsets.only(left: 10, top: 35, right: 10),
                       width: size.width,
                       child: Column(
                         children: [
@@ -78,7 +80,7 @@ class UserScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 10),
                           Card(
                             color: white,
                             elevation: 2,
@@ -90,40 +92,42 @@ class UserScreen extends StatelessWidget {
                                     children: [
                                       Text("Nombre: ",
                                           style: TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 16,
                                               color: primaryColorApp)),
                                       // Text('WMS',
                                       Text(config.data?.result?.name ?? '',
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
-                                              fontSize: 18, color: black))
+                                              fontSize: 16, color: black))
                                     ],
                                   ),
-                                  Row(
-                                    children: [
-                                      Text("Correo: ",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              color: primaryColorApp)),
-                                      // Text('WMS',
-                                      Text(config.data?.result?.email ?? '',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              fontSize: 18, color: black))
-                                    ],
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text("Correo: ",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: primaryColorApp)),
+                                  ),
+                                  SizedBox(
+                                    width: size.width*0.9 ,
+                                    child: Text(
+                                        config.data?.result?.email ?? '',
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                            fontSize: 16, color: black)),
                                   ),
                                   Row(
                                     children: [
                                       Text("Rol: ",
                                           style: TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 16,
                                               color: primaryColorApp)),
                                       // Text('WMS',
                                       Text(config.data?.result?.rol ?? '',
                                           style: const TextStyle(
-                                              fontSize: 18, color: black))
+                                              fontSize: 16, color: black))
                                     ],
                                   ),
                                 ],
@@ -142,7 +146,8 @@ class UserScreen extends StatelessWidget {
                                 child: SingleChildScrollView(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Center(
                                         child: Text("Permisos:",
@@ -153,21 +158,35 @@ class UserScreen extends StatelessWidget {
                                       const SizedBox(height: 10),
                                       Row(
                                         children: [
-                                          const Text("Ubicacion de origen manual: ",
+                                          const Text("Ubicacion de origen: ",
                                               style: TextStyle(
                                                   fontSize: 16, color: black)),
                                           const Spacer(),
                                           Checkbox(
-                                            
                                               value: config.data?.result
                                                       ?.locationPickingManual ??
                                                   false,
-                                              onChanged: (value) {}),
+                                              onChanged: null),
+                                          IconButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogInfo(
+                                                        title:
+                                                            "Ubicacion de origen manual",
+                                                        body:
+                                                            "Permite seleccionar la ubicacion de origen en el proceso del picking de forma manual",
+                                                      );
+                                                    });
+                                              },
+                                              icon: Icon(Icons.help,
+                                                  color: primaryColorApp))
                                         ],
                                       ),
                                       Row(
                                         children: [
-                                          const Text("Seleccionar Producto manual: ",
+                                          const Text("Seleccionar Producto: ",
                                               style: TextStyle(
                                                   fontSize: 16, color: black)),
                                           const Spacer(),
@@ -175,12 +194,27 @@ class UserScreen extends StatelessWidget {
                                               value: config.data?.result
                                                       ?.manualProductSelection ??
                                                   false,
-                                              onChanged: (value) {}),
+                                              onChanged: null),
+                                          IconButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogInfo(
+                                                        title:
+                                                            "Seleccionar Producto manual",
+                                                        body:
+                                                            "Permite seleccionar el producto en el proceso del picking de forma manual",
+                                                      );
+                                                    });
+                                              },
+                                              icon: Icon(Icons.help,
+                                                  color: primaryColorApp))
                                         ],
                                       ),
                                       Row(
                                         children: [
-                                          const Text("Seleccionar Cantidad manual: ",
+                                          const Text("Seleccionar Cantidad: ",
                                               style: TextStyle(
                                                   fontSize: 16, color: black)),
                                           const Spacer(),
@@ -188,12 +222,27 @@ class UserScreen extends StatelessWidget {
                                               value: config.data?.result
                                                       ?.manualQuantity ??
                                                   false,
-                                              onChanged: (value) {}),
+                                              onChanged: null),
+                                          IconButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogInfo(
+                                                        title:
+                                                            "Seleccionar Cantidad manual",
+                                                        body:
+                                                            "Permite seleccionar la cantidad en el proceso del picking de forma manual",
+                                                      );
+                                                    });
+                                              },
+                                              icon: Icon(Icons.help,
+                                                  color: primaryColorApp))
                                         ],
                                       ),
                                       Row(
                                         children: [
-                                          const Text("Seleccionar Muelle manual: ",
+                                          const Text("Seleccionar Muelle: ",
                                               style: TextStyle(
                                                   fontSize: 16, color: black)),
                                           const Spacer(),
@@ -201,7 +250,22 @@ class UserScreen extends StatelessWidget {
                                               value: config.data?.result
                                                       ?.manualSpringSelection ??
                                                   false,
-                                              onChanged: (value) {}),
+                                              onChanged: null),
+                                          IconButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogInfo(
+                                                        title:
+                                                            "Seleccionar Muelle manual",
+                                                        body:
+                                                            "Permite seleccionar el muelle en el proceso del picking de forma manual",
+                                                      );
+                                                    });
+                                              },
+                                              icon: Icon(Icons.help,
+                                                  color: primaryColorApp))
                                         ],
                                       ),
                                       Row(
@@ -214,20 +278,51 @@ class UserScreen extends StatelessWidget {
                                               value: config.data?.result
                                                       ?.showDetallesPicking ??
                                                   false,
-                                              onChanged: (value) {}),
+                                              onChanged: null),
+                                          IconButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogInfo(
+                                                        title:
+                                                            "Ver detalles picking",
+                                                        body:
+                                                            "Permite ver los detalles del picking de manera mas detallada, como la cantidad de productos, ubicaciones, etc.",
+                                                      );
+                                                    });
+                                              },
+                                              icon: Icon(Icons.help,
+                                                  color: primaryColorApp))
                                         ],
                                       ),
                                       Row(
                                         children: [
-                                          const Text("Ver proximas ubicaciones: ",
+                                          const Text(
+                                              "Ver proximas ubicaciones: ",
                                               style: TextStyle(
                                                   fontSize: 16, color: black)),
                                           const Spacer(),
                                           Checkbox(
                                               value: config.data?.result
-                                                      ?.showDetallesPicking ??
+                                                      ?.showNextLocationsInDetails ??
                                                   false,
-                                              onChanged: (value) {}),
+                                              onChanged: null),
+                                          IconButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogInfo(
+                                                        title:
+                                                            "Ver proximas ubicaciones",
+                                                        body:
+                                                            "Permite ver las proximas ubicaciones a las que se debe dirigir el operario para completar el picking",
+                                                      );
+                                                    });
+                                              },
+                                              icon: Icon(Icons.help,
+                                                  color: primaryColorApp))
                                         ],
                                       ),
                                       //checkbox
@@ -245,6 +340,43 @@ class UserScreen extends StatelessWidget {
               ),
             ],
           )),
+    );
+  }
+}
+
+class DialogInfo extends StatelessWidget {
+  const DialogInfo({
+    super.key,
+    required this.title,
+    required this.body,
+  });
+
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: AlertDialog(
+        title: Center(
+            child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: primaryColorApp, fontSize: 20),
+        )),
+        content: Text(
+          body,
+          style: const TextStyle(color: black, fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Aceptar"))
+        ],
+      ),
     );
   }
 }

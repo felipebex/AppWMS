@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, unnecessary_import, unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
@@ -28,6 +29,11 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   final DataBaseSqlite _databas = DataBaseSqlite();
 
   WMSPickingBloc() : super(ProductspickingInitial()) {
+
+
+
+    
+
     //*obtener todos los batchs desde odoox
     on<LoadAllBatchsEvent>(_onLoadAllBatchsEvent);
     //*obtener todos los batchs desde SQLite

@@ -16,7 +16,6 @@ class BatchDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final size = MediaQuery.sizeOf(context);
     return BlocBuilder<BatchBloc, BatchState>(
       builder: (context, state) {
@@ -33,7 +32,7 @@ class BatchDetailScreen extends StatelessWidget {
                 children: [
                   //*appbar
                   Container(
-                    decoration:  BoxDecoration(
+                    decoration: BoxDecoration(
                       color: primaryColorApp,
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(20),
@@ -177,7 +176,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                           actionsAlignment:
                                                               MainAxisAlignment
                                                                   .center,
-                                                          title:  Center(
+                                                          title: Center(
                                                             child: Text(
                                                                 "Información",
                                                                 style: TextStyle(
@@ -228,7 +227,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     },
                                                   );
                                                 },
-                                                child:  Icon(Icons.help,
+                                                child: Icon(Icons.help,
                                                     color: primaryColorApp,
                                                     size: 20)),
                                           ],
@@ -268,7 +267,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                           actionsAlignment:
                                                               MainAxisAlignment
                                                                   .center,
-                                                          title:  Center(
+                                                          title: Center(
                                                             child: Text(
                                                                 "Información",
                                                                 style: TextStyle(
@@ -317,7 +316,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     },
                                                   );
                                                 },
-                                                child:  Icon(Icons.help,
+                                                child: Icon(Icons.help,
                                                     color: primaryColorApp,
                                                     size: 20)),
                                           ],
@@ -357,7 +356,7 @@ class BatchDetailScreen extends StatelessWidget {
                                         if (snapshot.connectionState ==
                                             ConnectionState.waiting) {
                                           // Muestra un indicador de carga mientras esperas el resultado
-                                          return  Row(
+                                          return Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
@@ -376,7 +375,7 @@ class BatchDetailScreen extends StatelessWidget {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                               Icon(Icons.timer,
+                                              Icon(Icons.timer,
                                                   color: primaryColorApp,
                                                   size: 20),
                                               const SizedBox(width: 10),
@@ -462,7 +461,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                       actionsAlignment:
                                                           MainAxisAlignment
                                                               .center,
-                                                      title:  Center(
+                                                      title: Center(
                                                         child: Text(
                                                             "Información",
                                                             style: TextStyle(
@@ -510,7 +509,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                 },
                                               );
                                             },
-                                            child:  Icon(Icons.check,
+                                            child: Icon(Icons.check,
                                                 color: primaryColorApp,
                                                 size: 20)),
                                       ],
@@ -566,8 +565,7 @@ class BatchDetailScreen extends StatelessWidget {
                                               : productsBatch?.isSelected == 1
                                                   ? primaryColorApp
                                                       .withOpacity(0.3)
-                                                  : productsBatch
-                                                              ?.isSeparate ==
+                                                  : productsBatch?.isSeparate ==
                                                           1
                                                       ? Colors.green[100]
                                                       : Colors.white,
@@ -577,49 +575,57 @@ class BatchDetailScreen extends StatelessWidget {
                                           children: [
                                             Center(
                                               child: Text(
-                                                productsBatch?.productId ??
-                                                    '',
+                                                productsBatch?.productId ?? '',
                                                 style: const TextStyle(
                                                     fontSize: 14,
                                                     color: black,
                                                     fontWeight:
                                                         FontWeight.bold),
                                                 maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                                 textAlign: TextAlign.center,
                                               ),
                                             ),
                                             const SizedBox(height: 5),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8),
-                                              child: Row(
-                                                children: [
-                                                   Icon(
-                                                    Icons.location_on,
-                                                    color: primaryColorApp,
-                                                    size: 20,
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  const Text("Desde: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  SizedBox(
-                                                    width: size.width * 0.6,
-                                                    child: Text(
-                                                        productsBatch
-                                                                ?.locationId
-                                                                ?.toString() ??
-                                                            '',
-                                                        style:  TextStyle(
+
+                                            Visibility(
+                                              visible: context
+                                                      .read<BatchBloc>()
+                                                      .configurations
+                                                      .data
+                                                      ?.result
+                                                      ?.showNextLocationsInDetails ==
+                                                  true,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.location_on,
+                                                      color: primaryColorApp,
+                                                      size: 20,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    const Text("Desde: ",
+                                                        style: TextStyle(
                                                             fontSize: 14,
-                                                            color:
-                                                                primaryColorApp)),
-                                                  ),
-                                                ],
+                                                            color: black)),
+                                                    SizedBox(
+                                                      width: size.width * 0.6,
+                                                      child: Text(
+                                                          productsBatch
+                                                                  ?.locationId
+                                                                  ?.toString() ??
+                                                              '',
+                                                          style: TextStyle(
+                                                              fontSize: 14,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                             Padding(
@@ -628,7 +634,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                       horizontal: 8),
                                               child: Row(
                                                 children: [
-                                                   Icon(
+                                                  Icon(
                                                     Icons.arrow_forward,
                                                     color: primaryColorApp,
                                                     size: 20,
@@ -646,7 +652,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                 ?.locationDestId
                                                                 .toString() ??
                                                             '',
-                                                        style:  TextStyle(
+                                                        style: TextStyle(
                                                             fontSize: 14,
                                                             color:
                                                                 primaryColorApp)),
@@ -660,7 +666,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                       horizontal: 8),
                                               child: Row(
                                                 children: [
-                                                   Icon(
+                                                  Icon(
                                                     Icons.bookmarks_sharp,
                                                     color: primaryColorApp,
                                                     size: 20,
@@ -677,7 +683,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                         productsBatch?.lotId
                                                                 .toString() ??
                                                             '',
-                                                        style:  TextStyle(
+                                                        style: TextStyle(
                                                             fontSize: 14,
                                                             color:
                                                                 primaryColorApp)),
@@ -689,26 +695,25 @@ class BatchDetailScreen extends StatelessWidget {
                                               elevation: 0,
                                               color: white,
                                               child: Padding(
-                                                padding: const EdgeInsets
-                                                    .symmetric(horizontal: 3),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 3),
                                                 child: Row(
                                                   children: [
-                                                     Icon(
+                                                    Icon(
                                                       Icons
                                                           .send_to_mobile_outlined,
                                                       color: primaryColorApp,
                                                       size: 20,
                                                     ),
                                                     const SizedBox(width: 5),
-                                                    const Text(
-                                                        "Subido a Odoo:",
+                                                    const Text("Subido a Odoo:",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
                                                     const SizedBox(width: 5),
                                                     SizedBox(
-                                                      width:
-                                                          size.width * 0.45,
+                                                      width: size.width * 0.45,
                                                       child: Text(
                                                           productsBatch
                                                                       ?.isSendOdoo ==
@@ -725,7 +730,8 @@ class BatchDetailScreen extends StatelessWidget {
                                                                           ?.isSendOdoo ==
                                                                       null
                                                                   ? primaryColorApp
-                                                                  : productsBatch?.isSendOdoo ==
+                                                                  : productsBatch
+                                                                              ?.isSendOdoo ==
                                                                           1
                                                                       ? green
                                                                       : red)),
@@ -735,11 +741,11 @@ class BatchDetailScreen extends StatelessWidget {
                                               ),
                                             ),
 
-                                            if (productsBatch?.isSeparate ==
-                                                1)
+                                            if (productsBatch?.isSeparate == 1)
                                               Padding(
-                                                padding: const EdgeInsets
-                                                    .symmetric(horizontal: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8),
                                                 child: Row(
                                                   children: [
                                                     FutureBuilder<String>(
@@ -762,21 +768,19 @@ class BatchDetailScreen extends StatelessWidget {
                                                           ), // Asegúrate de pasar los IDs correctos
                                                       builder: (BuildContext
                                                               context,
-                                                          AsyncSnapshot<
-                                                                  String>
+                                                          AsyncSnapshot<String>
                                                               snapshot) {
                                                         if (snapshot
                                                                 .connectionState ==
                                                             ConnectionState
                                                                 .waiting) {
                                                           // Muestra un indicador de carga mientras esperas el resultado
-                                                          return  Row(
+                                                          return Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
                                                                     .center,
                                                             children: [
-                                                              Icon(
-                                                                  Icons.timer,
+                                                              Icon(Icons.timer,
                                                                   color:
                                                                       primaryColorApp,
                                                                   size: 20),
@@ -795,16 +799,14 @@ class BatchDetailScreen extends StatelessWidget {
                                                                 MainAxisAlignment
                                                                     .center,
                                                             children: [
-                                                               Icon(
-                                                                  Icons.timer,
+                                                              Icon(Icons.timer,
                                                                   color:
                                                                       primaryColorApp,
                                                                   size: 20),
                                                               const SizedBox(
                                                                   width: 5),
                                                               RichText(
-                                                                text:
-                                                                    TextSpan(
+                                                                text: TextSpan(
                                                                   children: [
                                                                     const TextSpan(
                                                                       text:
@@ -821,7 +823,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                       text:
                                                                           tiempoTotal,
                                                                       style:
-                                                                           TextStyle(
+                                                                          TextStyle(
                                                                         fontSize:
                                                                             14,
                                                                         color:
@@ -874,8 +876,7 @@ class BatchDetailScreen extends StatelessWidget {
 
                                             const SizedBox(height: 5),
                                             Card(
-                                              color: productsBatch
-                                                          ?.quantity ==
+                                              color: productsBatch?.quantity ==
                                                       productsBatch
                                                           ?.quantitySeparate
                                                   ? Colors.green[100]
@@ -885,15 +886,15 @@ class BatchDetailScreen extends StatelessWidget {
                                                       ? Colors.red[100]
                                                       : Colors.amber[100],
                                               child: Padding(
-                                                padding: const EdgeInsets
-                                                    .symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 2),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 2),
                                                 child: Column(
                                                   children: [
                                                     Row(
                                                       children: [
-                                                         Icon(
+                                                        Icon(
                                                           Icons.add,
                                                           color:
                                                               primaryColorApp,
@@ -901,12 +902,10 @@ class BatchDetailScreen extends StatelessWidget {
                                                         ),
                                                         const SizedBox(
                                                             width: 5),
-                                                        const Text(
-                                                            "Unidades:",
+                                                        const Text("Unidades:",
                                                             style: TextStyle(
                                                                 fontSize: 16,
-                                                                color:
-                                                                    black)),
+                                                                color: black)),
                                                         const SizedBox(
                                                             width: 5),
                                                         Text(
@@ -914,12 +913,12 @@ class BatchDetailScreen extends StatelessWidget {
                                                                     ?.quantity
                                                                     .toString() ??
                                                                 "",
-                                                            style:  TextStyle(
+                                                            style: TextStyle(
                                                                 fontSize: 16,
                                                                 color:
                                                                     primaryColorApp)),
                                                         const Spacer(),
-                                                         Icon(
+                                                        Icon(
                                                           Icons.check,
                                                           color:
                                                               primaryColorApp,
@@ -927,12 +926,10 @@ class BatchDetailScreen extends StatelessWidget {
                                                         ),
                                                         const SizedBox(
                                                             width: 5),
-                                                        const Text(
-                                                            "Separadas:",
+                                                        const Text("Separadas:",
                                                             style: TextStyle(
                                                                 fontSize: 16,
-                                                                color:
-                                                                    black)),
+                                                                color: black)),
                                                         const SizedBox(
                                                             width: 5),
                                                         Text(
@@ -944,7 +941,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                         ?.quantitySeparate
                                                                         .toString() ??
                                                                     "",
-                                                            style:  TextStyle(
+                                                            style: TextStyle(
                                                                 fontSize: 16,
                                                                 color:
                                                                     primaryColorApp)),
@@ -952,7 +949,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     ),
                                                     Row(
                                                       children: [
-                                                         Icon(
+                                                        Icon(
                                                           Icons
                                                               .assessment_outlined,
                                                           color:
@@ -979,7 +976,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                             .centerLeft,
                                                         child: Row(
                                                           children: [
-                                                             Icon(
+                                                            Icon(
                                                               Icons
                                                                   .assignment_late,
                                                               color:
@@ -1018,10 +1015,9 @@ class BatchDetailScreen extends StatelessWidget {
                                     height:
                                         200), // Ajusta la altura según necesites
                                 const SizedBox(height: 10),
-                                 Text('No se encontraron resultados',
+                                Text('No se encontraron resultados',
                                     style: TextStyle(
-                                        fontSize: 18,
-                                        color: primaryColorApp)),
+                                        fontSize: 18, color: primaryColorApp)),
                                 const Text('Intenta con otra búsqueda',
                                     style:
                                         TextStyle(fontSize: 14, color: grey)),

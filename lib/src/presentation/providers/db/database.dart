@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks
 
+import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
@@ -204,6 +205,24 @@ class DataBaseSqlite {
       FOREIGN KEY (batch_id) REFERENCES tblbatchs (id)
     )
     ''');
+
+    //tabla de configuracion del usuario
+    await db.execute('''
+    CREATE TABLE tblconfigurations(
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER,
+    name TEXT,
+    last_name TEXT,
+    email TEXT,
+    rol TEXT,
+    location_picking_manual INTEGER,
+    manual_product_selection INTEGER,
+    manual_quantity INTEGER,
+    manual_spring_selection INTEGER,
+    show_detalles_picking INTEGER,
+    show_next_locations_in_details INTEGER
+    )
+    ''');
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -211,6 +230,101 @@ class DataBaseSqlite {
       await db.execute("ALTER TABLE tblbatchs ADD COLUMN is_wave VARCHAR(255)");
     }
   }
+
+  Future<void> insertConfiguration(
+      Configurations configuration, int userId) async {
+    try {
+      final db = await database;
+      await db!.transaction((txn) async {
+        // Verificar si la configuración ya existe
+        final List<Map<String, dynamic>> existingConfiguration =
+            await txn.query(
+          'tblconfigurations',
+          where: 'user_id = ?',
+          whereArgs: [userId],
+        );
+
+        // Convertir valores booleanos a enteros (0 o 1)
+        Map<String, dynamic> configurationData = {
+          "user_id": userId,
+          "name": configuration.data?.result?.name,
+          "last_name": configuration.data?.result?.lastName,
+          "email": configuration.data?.result?.email,
+          "rol": configuration.data?.result?.rol,
+          "location_picking_manual":
+              configuration.data?.result?.locationPickingManual == true ? 1 : 0,
+          "manual_product_selection":
+              configuration.data?.result?.manualProductSelection == true
+                  ? 1
+                  : 0,
+          "manual_quantity":
+              configuration.data?.result?.manualQuantity == true ? 1 : 0,
+          "manual_spring_selection":
+              configuration.data?.result?.manualSpringSelection == true ? 1 : 0,
+          "show_detalles_picking":
+              configuration.data?.result?.showDetallesPicking == true ? 1 : 0,
+          "show_next_locations_in_details":
+              configuration.data?.result?.showNextLocationsInDetails == true
+                  ? 1
+                  : 0,
+        };
+
+        if (existingConfiguration.isNotEmpty) {
+          // Actualizar la configuración
+          await txn.update(
+            'tblconfigurations',
+            configurationData,
+            where: 'user_id = ?',
+            whereArgs: [userId],
+          );
+        } else {
+          // Insertar nueva configuración
+          await txn.insert(
+            'tblconfigurations',
+            configurationData,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+      });
+    } catch (e) {
+      print("Error al insertar configuración: $e");
+    }
+  }
+
+
+  //metodo para obtener la configuracion del usuario
+  Future<Configurations> getConfiguration(int userId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblconfigurations',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+    );
+
+   final config = Configurations(
+    data: DataConfig(
+      code: 200,
+      result: Result(
+        name: maps[0]['name'],
+        lastName: maps[0]['last_name'],
+        email: maps[0]['email'],
+        rol: maps[0]['rol'],
+        userId: maps[0]['user_id'],
+        locationPickingManual: maps[0]['location_picking_manual'] == 1 ? true : false,
+        manualProductSelection: maps[0]['manual_product_selection'] == 1 ? true : false,
+        manualQuantity: maps[0]['manual_quantity'] == 1 ? true : false,
+        manualSpringSelection: maps[0]['manual_spring_selection'] == 1 ? true : false,
+        showDetallesPicking: maps[0]['show_detalles_picking'] == 1 ? true : false,
+        showNextLocationsInDetails: maps[0]['show_next_locations_in_details'] == 1 ? true : false,
+      ),
+    ),
+
+
+   );
+    return config;
+  }
+
+
 
   //metodo para obtener todos los tblbarcodes_packages de un producto
   Future<List<Barcodes>> getBarcodesProduct(
@@ -667,7 +781,8 @@ class DataBaseSqlite {
                 "location_dest_id": productBatch.locationDestId?[1],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
-                "barcode": productBatch.barcode == false ? "" : productBatch.barcode,
+                "barcode":
+                    productBatch.barcode == false ? "" : productBatch.barcode,
                 "weight": productBatch.weigth,
               },
               where: 'id_product = ? AND batch_id = ? AND id_move = ?',
@@ -823,6 +938,7 @@ class DataBaseSqlite {
     await db?.delete('tblproductos_pedidos');
     await db?.delete('tblpackages');
     await db?.delete('tblbarcodes_packages');
+    await db?.delete('tblconfigurations');
   }
 
   //todo: Metodos para actualizar los campos de las tablas

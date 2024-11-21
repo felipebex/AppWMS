@@ -10,6 +10,11 @@ class LoadAllProductsEvent extends PickingEvent {
   LoadAllProductsEvent();
 }
 
+
+
+
+
+
 //*evento para cargar todos los batchs de odoo
 
 class LoadAllBatchsEvent extends PickingEvent {

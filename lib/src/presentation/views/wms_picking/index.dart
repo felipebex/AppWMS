@@ -1,4 +1,4 @@
-// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use, prefer_is_empty, avoid_print
+// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use, prefer_is_empty, avoid_print, use_build_context_synchronously
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
@@ -375,10 +376,27 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             'batch-detail',
                                           );
                                         } else {
-                                          Navigator.pushNamed(
-                                            context,
-                                            'batch',
-                                          );
+                                          // Mostrar un diálogo de carga antes de navegar a la vista "batch"
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return const DialogLoading();
+                                              });
+
+                                          // Esperar 3 segundos antes de continuar
+                                          Future.delayed(
+                                              const Duration(seconds: 1), () {
+                                            // Cerrar el diálogo de carga
+                                            Navigator.of(context,
+                                                    rootNavigator: true)
+                                                .pop();
+
+                                            // Ahora navegar a la vista "batch"
+                                            Navigator.pushNamed(
+                                              context,
+                                              'batch',
+                                            );
+                                          });
                                         }
 
                                         DataBaseSqlite db = DataBaseSqlite();

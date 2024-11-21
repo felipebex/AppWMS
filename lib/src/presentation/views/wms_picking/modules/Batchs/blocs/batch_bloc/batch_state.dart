@@ -80,6 +80,22 @@ class ChangeQuantitySeparateState extends BatchState {
 }
 
 class PickingOkState extends BatchState {
-  // final bool isOk;
-  // PickingOkState(this.isOk);
 }
+
+
+
+class ConfigurationLoading extends BatchState {}
+
+class ConfigurationLoaded extends BatchState {
+  final Configurations configurations;
+
+  ConfigurationLoaded(this.configurations);
+}
+
+class ConfigurationError extends BatchState {
+  final String error;
+
+  ConfigurationError(this.error);
+}
+
+

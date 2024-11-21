@@ -128,3 +128,8 @@ class ProductPendingEvent extends BatchEvent {
 
   ProductPendingEvent(this.batchId, this.product);
 }
+
+
+class LoadConfigurationsUser extends BatchEvent {
+  LoadConfigurationsUser();
+}

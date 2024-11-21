@@ -2,6 +2,7 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/data/user_repository.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 
@@ -11,8 +12,11 @@ part 'user_state.dart';
 class UserBloc extends Bloc<UserEvent, UserState> {
   UserRepository userRepository = UserRepository();
 
-  //configuraciones
+  //*configuraciones
   Configurations configurations = Configurations();
+
+    //*instancia de la base de datos
+  final DataBaseSqlite db = DataBaseSqlite();
 
   UserBloc() : super(UserInitial()) {
     on<GetConfigurations>((event, emit) async {
@@ -22,6 +26,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         if(response !=null ){
           configurations = Configurations();
           configurations = response;
+
+          await db.insertConfiguration(configurations, 368);
           emit(ConfigurationLoaded(configurations));
         }else{
           emit(ConfigurationError('Error al cargar configuraciones'));

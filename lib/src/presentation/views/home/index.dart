@@ -60,14 +60,17 @@ class _HomePageState extends State<HomePage> {
         },
         builder: (context, state) {
           return Scaffold(
-            // floatingActionButton: FloatingActionButton(
-            //   onPressed: () async {
-            //     DataBaseSqlite db = DataBaseSqlite();
-            //     await db.deleteAll();
-            //   },
-            //   backgroundColor: primaryColorApp,
-            //   child: const Icon(Icons.delete_sweep_sharp, color: white),
-            // ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () async {
+                context
+                    .read<WMSPickingBloc>()
+                    .add(LoadAllBatchsEvent(context, true));
+                context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true));
+                context.read<UserBloc>().add(GetConfigurations());
+              },
+              backgroundColor: primaryColorApp,
+              child: const Icon(Icons.refresh_outlined, color: white),
+            ),
             body: Container(
               width: size.width,
               height: size.height,

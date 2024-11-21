@@ -2,6 +2,7 @@
 
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
@@ -60,6 +61,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   String selectedNovedad = '';
 
+  //configuracion del usuario //permisos
+  Configurations configurations = Configurations();
+
   int quantitySelected = 0;
 
   //*lista de todas las pocisiones de los productos del batchs
@@ -76,6 +80,24 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   int completedProducts = 0;
 
   BatchBloc() : super(BatchInitial()) {
+
+
+
+    on<LoadConfigurationsUser>((event, emit) async {
+      try {
+        final response = await db.getConfiguration(368);
+        if (response != null) {
+          emit(ConfigurationLoaded(response));
+          configurations = response;
+        } else {
+          emit(ConfigurationError('Error al cargar configuraciones'));
+        }
+      } catch (e, s) {
+        print('Error en GetConfigurations.dart: $e =>$s');
+      }
+    });
+
+
     // //* Buscar un producto en un lote en SQLite
     on<SearchProductsBatchEvent>(_onSearchBacthEvent);
     // //* Limpiar la búsqueda
@@ -503,6 +525,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onFetchBatchWithProductsEvent(
       FetchBatchWithProductsEvent event, Emitter<BatchState> emit) async {
     batchWithProducts = BatchWithProducts();
+
+    add(LoadConfigurationsUser());
 
     final response = await DataBaseSqlite().getBatchWithProducts(event.batchId);
 

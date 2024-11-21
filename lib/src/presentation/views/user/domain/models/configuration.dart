@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Configurations {
-    final Data? data;
+    final DataConfig? data;
 
     Configurations({
         this.data,
@@ -12,7 +12,7 @@ class Configurations {
     String toJson() => json.encode(toMap());
 
     factory Configurations.fromMap(Map<String, dynamic> json) => Configurations(
-        data: json["data"] == null ? null : Data.fromMap(json["data"]),
+        data: json["data"] == null ? null : DataConfig.fromMap(json["data"]),
     );
 
     Map<String, dynamic> toMap() => {
@@ -20,20 +20,20 @@ class Configurations {
     };
 }
 
-class Data {
+class DataConfig {
     final int? code;
     final Result? result;
 
-    Data({
+    DataConfig({
         this.code,
         this.result,
     });
 
-    factory Data.fromJson(String str) => Data.fromMap(json.decode(str));
+    factory DataConfig.fromJson(String str) => DataConfig.fromMap(json.decode(str));
 
     String toJson() => json.encode(toMap());
 
-    factory Data.fromMap(Map<String, dynamic> json) => Data(
+    factory DataConfig.fromMap(Map<String, dynamic> json) => DataConfig(
         code: json["code"],
         result: json["result"] == null ? null : Result.fromMap(json["result"]),
     );
@@ -49,6 +49,7 @@ class Result {
     final String? lastName;
     final String? email;
     final String? rol;
+    final int? userId;
     final bool? locationPickingManual;
     final bool? manualProductSelection;
     final bool? manualQuantity;
@@ -59,6 +60,7 @@ class Result {
     Result({
         this.name,
         this.lastName,
+        this.userId,
         this.email,
         this.rol,
         this.locationPickingManual,
@@ -78,6 +80,7 @@ class Result {
         lastName: json["last_name"],
         email: json["email"],
         rol: json["rol"],
+        userId: json["user_id"],
         locationPickingManual: json["location_picking_manual"],
         manualProductSelection: json["manual_product_selection"],
         manualQuantity: json["manual_quantity"],
@@ -91,6 +94,7 @@ class Result {
         "last_name": lastName,
         "email": email,
         "rol": rol,
+        "user_id": userId,
         "location_picking_manual": locationPickingManual,
         "manual_product_selection": manualProductSelection,
         "manual_quantity": manualQuantity,
