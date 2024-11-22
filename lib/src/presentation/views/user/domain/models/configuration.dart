@@ -49,7 +49,7 @@ class Result {
     final String? lastName;
     final String? email;
     final String? rol;
-    final int? userId;
+    final int? id;
     final bool? locationPickingManual;
     final bool? manualProductSelection;
     final bool? manualQuantity;
@@ -60,7 +60,7 @@ class Result {
     Result({
         this.name,
         this.lastName,
-        this.userId,
+        this.id,
         this.email,
         this.rol,
         this.locationPickingManual,
@@ -80,7 +80,7 @@ class Result {
         lastName: json["last_name"],
         email: json["email"],
         rol: json["rol"],
-        userId: json["user_id"],
+        id: json["id"],
         locationPickingManual: json["location_picking_manual"],
         manualProductSelection: json["manual_product_selection"],
         manualQuantity: json["manual_quantity"],
@@ -94,7 +94,7 @@ class Result {
         "last_name": lastName,
         "email": email,
         "rol": rol,
-        "user_id": userId,
+        "id": id,
         "location_picking_manual": locationPickingManual,
         "manual_product_selection": manualProductSelection,
         "manual_quantity": manualQuantity,

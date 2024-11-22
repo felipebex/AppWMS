@@ -27,7 +27,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           configurations = Configurations();
           configurations = response;
 
-          await db.insertConfiguration(configurations, 368);
+          await db.insertConfiguration(configurations, configurations.data?.result?.id??0);
           emit(ConfigurationLoaded(configurations));
         }else{
           emit(ConfigurationError('Error al cargar configuraciones'));

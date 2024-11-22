@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -451,7 +452,8 @@ class BatchDetailScreen extends StatelessWidget {
                                         const SizedBox(width: 10),
                                         //icono de check
                                         GestureDetector(
-                                            onTap: () {
+                                            onTap: () async {
+                                           
                                               showDialog(
                                                 context: context,
                                                 builder: (context) {
@@ -625,35 +627,46 @@ class BatchDetailScreen extends StatelessWidget {
                                                               color:
                                                                   primaryColorApp)),
                                                     ),
-                                                    if(productsBatch?.isPending == 1)
-                                                    Container(
-                                                      width: 30,
-                                                      height: 30,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius: BorderRadius.circular(5),
-                                                        color: Colors.amber[100],
-                                                      ),
-                                                      padding: const EdgeInsets.all(3),
-                                                      child: GestureDetector(
-                                                        onTap: (){
-                                                           showDialog(
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return const DialogInfo(
-                                                          title:
-                                                              "Producto pendiente",
-                                                          body:
-                                                              "Este producto fue enviado al final de la lista de picking. ",
-                                                        );
-                                                      });
-                                                        },
-                                                        child: Image.asset(
-                                                          'assets/icons/list_final.png',
-                                                          height: 20,
-                                                          color: primaryColorApp,
+                                                    if (productsBatch
+                                                            ?.isPending ==
+                                                        1)
+                                                      Container(
+                                                        width: 30,
+                                                        height: 30,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(5),
+                                                          color:
+                                                              Colors.amber[100],
+                                                        ),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(3),
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return const DialogInfo(
+                                                                    title:
+                                                                        "Producto pendiente",
+                                                                    body:
+                                                                        "Este producto fue enviado al final de la lista de picking. ",
+                                                                  );
+                                                                });
+                                                          },
+                                                          child: Image.asset(
+                                                            'assets/icons/list_final.png',
+                                                            height: 20,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
                                                   ],
                                                 ),
                                               ),

@@ -364,7 +364,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                       if (batchBloc.locationIsOk == true &&
                                           batchBloc.index + 1 <
                                               batchBloc.batchWithProducts
-                                                  .products!.length)
+                                                  .products!.length &&
+                                          currentProduct.isPending != 1)
                                         PopupMenuItem<String>(
                                           value: '2',
                                           child: Row(
@@ -446,7 +447,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             if (scannedValue1.isNotEmpty) {
                                               print(scannedValue1);
                                               if (scannedValue1.toLowerCase() ==
-                                                  currentProduct.locationId
+                                                  currentProduct.barcodeLocation
                                                       .toString()
                                                       .toLowerCase()) {
                                                 batchBloc.add(
@@ -1007,8 +1008,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               if (scannedValue4.isNotEmpty) {
                                                 if (scannedValue4
                                                         .toLowerCase() ==
-                                                    batchBloc.batchWithProducts
-                                                        .batch?.muelle
+                                                    currentProduct
+                                                        .barcodeLocationDest
                                                         ?.toLowerCase()) {
                                                   batchBloc.add(
                                                       ValidateFieldsEvent(
@@ -1225,6 +1226,18 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                 ],
                               ),
+
+                            // ElevatedButton(
+                            //   onPressed: () {
+                            //     batchBloc.add(ValidateFieldsEvent(
+                            //         field: "quantity", isOk: true));
+                            //     batchBloc.add(AddQuantitySeparate(
+                            //         currentProduct.idProduct ?? 0,
+                            //         currentProduct.idMove ?? 0,
+                            //         1));
+                            //   },
+                            //   child: const Text('Scan'),
+                            // ),
                           ],
                         ),
                       ),

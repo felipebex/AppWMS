@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
+import 'dart:math';
+
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -82,7 +84,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   BatchBloc() : super(BatchInitial()) {
     on<LoadConfigurationsUser>((event, emit) async {
       try {
-        final response = await db.getConfiguration(368);
+        final response = await db.getConfiguration();
         if (response != null) {
           emit(ConfigurationLoaded(response));
           configurations = response;
@@ -131,11 +133,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       if (batchWithProducts.products!.isEmpty) {
         return;
       }
-
-      print('Index: $index');
-      print('Products list: ${batchWithProducts.products!.toList()}');
-      print("event current product: ${event.product}");
-
+      print("event current product: ${event.product.toMap()}");
       //cambiamos el estado del producto a pendiente
       await db.setFieldTableBatchProducts(
           batchWithProducts.batch?.id ?? 0,
@@ -154,7 +152,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       //actualizamos la lista de productos
       add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
-      
+      print(
+          'Products next selected: ${batchWithProducts.products?[index + 1].toMap()}');
+      //seleccionamos el producto actual
+      await db.setFieldTableBatchProducts(
+          batchWithProducts.batch?.id ?? 0,
+          batchWithProducts.products?[index + 1].idProduct ?? 0,
+          'is_selected',
+          'true',
+          batchWithProducts.products?[index + 1].idMove ?? 0);
     } catch (e, s) {
       print('Error _onPickingPendingEvent: $e, $s');
     }
@@ -165,9 +171,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     await db.setFieldTableBatch(event.batchId, 'is_separate', 'true');
 
     DateTime dateTimeEnd = DateTime.parse(DateTime.now().toString());
+
     await db.endStopwatchBatch(event.batchId, dateTimeEnd.toString());
+
     final starTime =
         await db.getFieldTableBtach(event.batchId, 'time_separate_start');
+
     DateTime dateTimeStart = DateTime.parse(starTime);
     // Calcular la diferencia
     Duration difference = dateTimeEnd.difference(dateTimeStart);
@@ -176,7 +185,16 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     await db.totalStopwatchBatch(event.batchId, secondsDifference);
 
+    print("el tiempo total de separacion es: $secondsDifference");
     emit(PickingOkState());
+
+
+//         product?.batchId ?? 0, 'time_separate_start');
+//     DateTime dateTimeStart = DateTime.parse(starTime);
+//     // Calcular la diferencia
+//     Duration difference = dateTimeActuality.difference(dateTimeStart);
+//     // Obtener la diferencia en segundos
+//     double secondsDifference = difference.inMilliseconds / 1000.0;
   }
 
   //*metodo para cambiar la cantidad seleccionada
@@ -480,7 +498,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         event.idMove,
         DateTime.now().toString(),
       );
-      await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
+      if (index == 0) {
+        await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
+      }
       //cuando se lea la ubicacion se selecciona el batch y el producto
       await db.setFieldTableBatch(event.batchId, 'is_selected', 'true');
       await db.setFieldTableBatchProducts(
@@ -594,14 +614,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   // void sortProductsByLocationId(List<ProductsBatch> products) {
   //   products.sort((a, b) {
   //     // Comparamos los locationId
-  //     return a.locationId?[1].compareTo(b.locationId?[1] ?? "");
+  //     return a.locationId[1]?.compareTo(b.locationId[1] ?? "");
   //   });
   // }
 
   void sortProductsByLocationId(List<ProductsBatch> products) {
     // Ordenar los productos por locationId
     products.sort((a, b) {
-      return a.locationId?[1].compareTo(b.locationId?[1] ?? "");
+      return a.locationId?.compareTo(b.locationId ?? "");
     });
 
     // Filtrar los productos con isPending == 1
@@ -658,6 +678,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     final starTime =
         await db.getFieldTableBtach(batchId, 'time_separate_start');
     final endTime = await db.getFieldTableBtach(batchId, 'time_separate_end');
+
+    print('start time: $starTime');
+    print('end time: $endTime');
 
     DateTime dateTimeStart = DateTime.parse(starTime);
     DateTime dateTimeEnd = DateTime.parse(endTime);

@@ -60,54 +60,56 @@ class _HomePageState extends State<HomePage> {
         },
         builder: (context, state) {
           return Scaffold(
-            // floatingActionButton: FloatingActionButton(
-            //   onPressed: () async {
-            //     context
-            //         .read<WMSPickingBloc>()
-            //         .add(LoadAllBatchsEvent(context, true));
-            //     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true));
-            //     context.read<UserBloc>().add(GetConfigurations());
-            //   },
-            //   backgroundColor: primaryColorApp,
-            //   child: const Icon(Icons.refresh_outlined, color: white),
-            // ),
-
-            floatingActionButton: Stack(
-              children: [
-                // Primer botón flotante
-                Positioned(
-                  bottom: 70,
-                  right: 0,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      context
-                          .read<WMSPickingBloc>()
-                          .add(LoadAllBatchsEvent(context, true));
-                      context
-                          .read<WmsPackingBloc>()
-                          .add(LoadAllPackingEvent(true));
-                      context.read<UserBloc>().add(GetConfigurations());
-                    },
-                    backgroundColor: primaryColorApp,
-                    child: const Icon(Icons.refresh_outlined, color: white),
-                  ),
-                ),
-
-                // Segundo botón flotante
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: FloatingActionButton(
-                    onPressed: () async {
-                      DataBaseSqlite db = DataBaseSqlite();
-                      await db.deleteAll();
-                    },
-                    backgroundColor: primaryColorApp,
-                    child: const Icon(Icons.delete, color: white),
-                  ),
-                ),
-              ],
+            floatingActionButton: FloatingActionButton(
+              onPressed: ()  {
+                context
+                    .read<WMSPickingBloc>()
+                    .add(LoadAllBatchsEvent(context, true));
+                context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true));
+                context.read<UserBloc>().add(GetConfigurations());
+                // DataBaseSqlite db = DataBaseSqlite();
+                // await db.deleteAll();
+              },
+              backgroundColor: primaryColorApp,
+              child: const Icon(Icons.refresh_outlined, color: white),
             ),
+
+            // floatingActionButton: Stack(
+            //   children: [
+            //     // Primer botón flotante
+            //     Positioned(
+            //       bottom: 70,
+            //       right: 0,
+            //       child: FloatingActionButton(
+            //         onPressed: () async {
+            //           context
+            //               .read<WMSPickingBloc>()
+            //               .add(LoadAllBatchsEvent(context, true));
+            //           context
+            //               .read<WmsPackingBloc>()
+            //               .add(LoadAllPackingEvent(true));
+            //           context.read<UserBloc>().add(GetConfigurations());
+            //         },
+            //         backgroundColor: primaryColorApp,
+            //         child: const Icon(Icons.refresh_outlined, color: white),
+            //       ),
+            //     ),
+
+            //     // Segundo botón flotante
+            //     Positioned(
+            //       bottom: 0,
+            //       right: 0,
+            //       child: FloatingActionButton(
+            //         onPressed: () async {
+            //           DataBaseSqlite db = DataBaseSqlite();
+            //           await db.deleteAll();
+            //         },
+            //         backgroundColor: primaryColorApp,
+            //         child: const Icon(Icons.delete, color: white),
+            //       ),
+            //     ),
+            //   ],
+            // ),
 
             body: Container(
               width: size.width,

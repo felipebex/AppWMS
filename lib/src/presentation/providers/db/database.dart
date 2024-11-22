@@ -78,6 +78,8 @@ class DataBaseSqlite {
         location_dest_id TEXT,
         quantity INTEGER,
         barcode TEXT,
+        barcode_location_dest TEXT,
+        barcode_location TEXT,
         quantity_separate INTEGER,
         is_selected INTEGER,
         is_separate INTEGER,
@@ -247,7 +249,7 @@ class DataBaseSqlite {
 
         // Convertir valores booleanos a enteros (0 o 1)
         Map<String, dynamic> configurationData = {
-          "user_id": userId,
+          "id": configuration.data?.result?.id,
           "name": configuration.data?.result?.name,
           "last_name": configuration.data?.result?.lastName,
           "email": configuration.data?.result?.email,
@@ -275,8 +277,8 @@ class DataBaseSqlite {
           await txn.update(
             'tblconfigurations',
             configurationData,
-            where: 'user_id = ?',
-            whereArgs: [userId],
+            where: 'id = ?',
+            whereArgs: [configurationData["id"]],
           );
         } else {
           // Insertar nueva configuración
@@ -292,40 +294,48 @@ class DataBaseSqlite {
     }
   }
 
-
-  //metodo para obtener la configuracion del usuario
-  Future<Configurations> getConfiguration(int userId) async {
+// Método para obtener la configuración del primer registro
+  Future<Configurations?> getConfiguration() async {
     final db = await database;
+
+    // Realizamos la consulta para obtener el primer registro de la tabla sin filtro
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblconfigurations',
-      where: 'user_id = ?',
-      whereArgs: [userId],
+      limit: 1, // Limitamos la consulta a un solo registro
     );
 
-   final config = Configurations(
-    data: DataConfig(
-      code: 200,
-      result: Result(
-        name: maps[0]['name'],
-        lastName: maps[0]['last_name'],
-        email: maps[0]['email'],
-        rol: maps[0]['rol'],
-        userId: maps[0]['user_id'],
-        locationPickingManual: maps[0]['location_picking_manual'] == 1 ? true : false,
-        manualProductSelection: maps[0]['manual_product_selection'] == 1 ? true : false,
-        manualQuantity: maps[0]['manual_quantity'] == 1 ? true : false,
-        manualSpringSelection: maps[0]['manual_spring_selection'] == 1 ? true : false,
-        showDetallesPicking: maps[0]['show_detalles_picking'] == 1 ? true : false,
-        showNextLocationsInDetails: maps[0]['show_next_locations_in_details'] == 1 ? true : false,
-      ),
-    ),
-
-
-   );
-    return config;
+    // Verificamos si la consulta retornó resultados
+    if (maps.isNotEmpty) {
+      // Si hay resultados, devolvemos el primer registro en el formato esperado
+      final config = Configurations(
+        data: DataConfig(
+          code: 200,
+          result: Result(
+            name: maps[0]['name'],
+            lastName: maps[0]['last_name'],
+            email: maps[0]['email'],
+            rol: maps[0]['rol'],
+            id: maps[0]['id'],
+            locationPickingManual:
+                maps[0]['location_picking_manual'] == 1 ? true : false,
+            manualProductSelection:
+                maps[0]['manual_product_selection'] == 1 ? true : false,
+            manualQuantity: maps[0]['manual_quantity'] == 1 ? true : false,
+            manualSpringSelection:
+                maps[0]['manual_spring_selection'] == 1 ? true : false,
+            showDetallesPicking:
+                maps[0]['show_detalles_picking'] == 1 ? true : false,
+            showNextLocationsInDetails:
+                maps[0]['show_next_locations_in_details'] == 1 ? true : false,
+          ),
+        ),
+      );
+      return config;
+    } else {
+      // Si no se encuentra ninguna configuración, retornamos null o lanzamos una excepción
+      return null; // O puedes lanzar una excepción si prefieres
+    }
   }
-
-
 
   //metodo para obtener todos los tblbarcodes_packages de un producto
   Future<List<Barcodes>> getBarcodesProduct(
@@ -779,6 +789,13 @@ class DataBaseSqlite {
                 "lot_id": productBatch.lotId?[1],
                 "lote_id": productBatch.loteId,
                 "id_move": productBatch.idMove,
+                "barcode_location_dest":
+                    productBatch.barcodeLocationDest == false
+                        ? ""
+                        : productBatch.barcodeLocationDest,
+                "barcode_location": productBatch.barcodeLocation == false
+                    ? ""
+                    : productBatch.barcodeLocation,
                 "location_dest_id": productBatch.locationDestId?[1],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
@@ -804,6 +821,13 @@ class DataBaseSqlite {
                     productBatch.productId?[1], // Usar el valor correcto
                 "location_id": productBatch.locationId?[1],
                 "lot_id": productBatch.lotId?[1],
+                "barcode_location_dest":
+                    productBatch.barcodeLocationDest == false
+                        ? ""
+                        : productBatch.barcodeLocationDest,
+                "barcode_location": productBatch.barcodeLocation == false
+                    ? ""
+                    : productBatch.barcodeLocation,
                 "lote_id": productBatch.loteId,
                 "id_move": productBatch.idMove,
                 "location_dest_id": productBatch.locationDestId?[1],

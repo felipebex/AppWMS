@@ -184,6 +184,10 @@ class ProductsBatch {
   final List<Barcodes>? productPacking;
 
 
+  final dynamic? barcodeLocation;
+  final dynamic? barcodeLocationDest;
+
+
   final int? quantitySeparate;
   final dynamic isSelected;
   final int? isSeparate;
@@ -211,12 +215,14 @@ class ProductsBatch {
     this.batchId,
     this.idMove,
     // this.pickingId,
+    this.barcodeLocation,
     this.idProduct,
     this.productId,
     this.lotId,
     this.loteId,
     this.locationId,
     this.locationDestId,
+    this.barcodeLocationDest,
     this.quantity,
     this.productPacking,
     this.barcode,
@@ -248,7 +254,8 @@ class ProductsBatch {
       idProduct: map['id_product'],
       productId: map['product_id'],
       idMove: map['id_move'],
-      
+      barcodeLocation: map['barcode_location'],
+      barcodeLocationDest: map['barcode_location_dest'],
       // pickingId: map['picking_id'],
       lotId: map['lot_id'],
       loteId: map['lote_id'],
@@ -287,6 +294,7 @@ class ProductsBatch {
       "id_product": idProduct,
       "batch_id": batchId,
       "id_move": idMove,
+      "barcode_location_dest": barcodeLocation,
       // "picking_id": pickingId,
       "product_id": productId,
       "lot_id": lotId,
@@ -298,6 +306,7 @@ class ProductsBatch {
       "barcode": barcode,
       "name": name,
       "weigth": weigth,
+      "barcode_location": barcodeLocation,
       "unidades": unidades,
       "quantity_separate": quantitySeparate,
       "is_selected": isSelected,
