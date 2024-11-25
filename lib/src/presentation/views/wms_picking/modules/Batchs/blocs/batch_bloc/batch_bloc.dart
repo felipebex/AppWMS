@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'batch_event.dart';
 part 'batch_state.dart';
@@ -84,7 +85,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   BatchBloc() : super(BatchInitial()) {
     on<LoadConfigurationsUser>((event, emit) async {
       try {
+        final int userId = await PrefUtils.getUserId();
+        print('userId: $userId');
         final response = await db.getConfiguration();
+        print('configurations: ${response?.toMap()}');
         if (response != null) {
           emit(ConfigurationLoaded(response));
           configurations = response;
@@ -124,7 +128,22 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<PickingOkEvent>(_onPickingOkEvent);
     //*evento para dejar pendiente la separacion
     on<ProductPendingEvent>(_onPickingPendingEvent);
+
+    //*evento para actualizar los datos del producto desde odoo
+    on<UpdateProductOdooEvent>(_onUpdateProductOdooEvent);
   }
+
+
+
+
+  //*metodo para actualizar los datos del producto desde odoo
+  void _onUpdateProductOdooEvent(
+      UpdateProductOdooEvent event, Emitter<BatchState> emit) async {
+  
+  }
+
+
+
 
   //*evento para dejar pendiente la separacion
   void _onPickingPendingEvent(
@@ -264,7 +283,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             productId: product?.idProduct ?? 0,
             lote: product?.lotId ?? '',
             cantidad: product?.quantitySeparate ?? 0,
-            novedad: product?.observation ?? '',
+            novedad: product?.observation ?? 'Sin novedad',
             timeLine: product?.timeSeparate ?? 0,
           ),
         ]);
@@ -619,6 +638,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   // }
 
   void sortProductsByLocationId(List<ProductsBatch> products) {
+
+
+    // Primero, ordenamos por rimovalPriority (prioridad alfabética y numérica)
+ // Primero, ordenamos por rimovalPriority (prioridad alfabética y numérica)
+  products.sort((a, b) {
+    return compareRimovalPriority(a.rimovalPriority, b.rimovalPriority);
+  });
+
     // Ordenar los productos por locationId
     products.sort((a, b) {
       return a.locationId?.compareTo(b.locationId ?? "");
@@ -637,6 +664,37 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     products.addAll(nonPendingProducts);
     products.addAll(pendingProducts);
   }
+
+
+
+// Función para comparar rimovalPriority (alfanumérico)
+int compareRimovalPriority(String? a, String? b) {
+  if (a == null || b == null) return 0; // Si alguno es null, no los consideramos diferentes
+
+  // Expresión regular para separar la parte alfabética y la numérica
+  final RegExp regex = RegExp(r"([A-Za-z]+)(\d+)");
+
+  final matchA = regex.firstMatch(a);
+  final matchB = regex.firstMatch(b);
+
+  if (matchA != null && matchB != null) {
+    final letterA = matchA.group(1);
+    final numberA = int.parse(matchA.group(2)!);
+
+    final letterB = matchB.group(1);
+    final numberB = int.parse(matchB.group(2)!);
+
+    // Primero comparamos las letras (alfabéticamente)
+    int letterComparison = letterA!.compareTo(letterB!);
+    if (letterComparison != 0) return letterComparison;
+
+    // Si las letras son iguales, comparamos los números de manera ascendente
+    return numberA.compareTo(numberB);
+  }
+
+  // Si no se encuentra una coincidencia (por algún error en el formato), comparamos como texto.
+  return a.compareTo(b);
+}
 
   String calculateProgress() {
     final totalItems = batchWithProducts.products?.length ?? 0;

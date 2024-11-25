@@ -344,6 +344,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               ),
                                             );
                                           });
+                                    } else if (value == '3'){
+                                      print(batchBloc.batchWithProducts.batch?.toMap());
+                                      print("--------------------");  
+                                      print(currentProduct.toMap());
+
                                     }
                                     // Agrega más opciones según sea necesario
                                   },
@@ -358,6 +363,18 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 size: 20),
                                             const SizedBox(width: 10),
                                             const Text('Ver detalles'),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        value: '3',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.refresh,
+                                                color: primaryColorApp,
+                                                size: 20),
+                                            const SizedBox(width: 10),
+                                            const Text('Actualizar Datos'),
                                           ],
                                         ),
                                       ),
@@ -762,7 +779,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Center(
+
                                               child: DropdownButton<String>(
+                                                // dropdownColor: primaryColorApp,
                                                 underline: Container(
                                                   height: 0,
                                                 ),
@@ -791,7 +810,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: product,
-                                                    child: Text(product),
+                                                    child: Text(product, style: const TextStyle(
+                                                      color: black,
+                                                      fontSize: 14
+                                                    )),
                                                   );
                                                 }).toList(),
 

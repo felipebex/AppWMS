@@ -1,26 +1,25 @@
 class RecentUrl{
 
-
+  final int? id;
    String url;
    String fecha;
-   String method;
 
   RecentUrl({
+    this.id,
     required this.url,
     required this.fecha,  
-    required this.method,
   });
 
   factory RecentUrl.fromJson(Map<String, dynamic> json) => RecentUrl(
+    id: json["id"],
     url: json["url"],
     fecha: json["fecha"],
-    method: json["method"],
   );
 
   Map<String, dynamic> toJson() => {
+    "id": id,
     "url": url,
     "fecha": fecha,
-    "method": method,
   };
 
   

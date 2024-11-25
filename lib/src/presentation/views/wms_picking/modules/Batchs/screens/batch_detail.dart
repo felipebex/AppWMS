@@ -678,6 +678,38 @@ class BatchDetailScreen extends StatelessWidget {
                                               child: Row(
                                                 children: [
                                                   Icon(
+                                                    Icons.priority_high,
+                                                    color: primaryColorApp,
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text("priority:",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: black)),
+                                                  const SizedBox(width: 5),
+                                                  SizedBox(
+                                                    width: size.width * 0.6,
+                                                    child: Text(
+                                                        productsBatch
+                                                                ?.rimovalPriority
+                                                                .toString() ??
+                                                            '',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                primaryColorApp)),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
                                                     Icons.arrow_forward,
                                                     color: primaryColorApp,
                                                     size: 20,
@@ -750,7 +782,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                       size: 20,
                                                     ),
                                                     const SizedBox(width: 5),
-                                                    const Text("Subido a Odoo:",
+                                                    const Text("Subido a WMS:",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),

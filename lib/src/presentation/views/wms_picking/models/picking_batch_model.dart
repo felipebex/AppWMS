@@ -63,7 +63,7 @@ class BatchsModel {
   final int? countItems;
 
   final int? indexList;
-  final dynamic? isWave;
+  final dynamic isWave;
   final int? isSeparate;
   final dynamic isSelected;
   final int? productSeparateQty; //cantidad que se lleva separada
@@ -175,23 +175,24 @@ class ProductsBatch {
   final dynamic productId;
   final int? batchId;
   final String? name;
+  final String? rimovalPriority;
   // final dynamic pickingId;
   final dynamic lotId;
-  final int? loteId;
+  final dynamic loteId;
   final dynamic locationId;
   final dynamic locationDestId;
   final dynamic quantity; // Cambiado a double
   final List<Barcodes>? productPacking;
 
 
-  final dynamic? barcodeLocation;
-  final dynamic? barcodeLocationDest;
+  final dynamic barcodeLocation;
+  final dynamic barcodeLocationDest;
 
 
   final int? quantitySeparate;
   final dynamic isSelected;
   final int? isSeparate;
-  final dynamic? timeSeparate;
+  final dynamic timeSeparate;
   final String? timeSeparateStart;
     final String? timeSeparateEnd;
   final String? observation;
@@ -214,6 +215,7 @@ class ProductsBatch {
     this.id,
     this.batchId,
     this.idMove,
+    this.rimovalPriority,
     // this.pickingId,
     this.barcodeLocation,
     this.idProduct,
@@ -250,6 +252,7 @@ class ProductsBatch {
   factory ProductsBatch.fromMap(Map<String, dynamic> map) {
     return ProductsBatch(
       id: map['id'],
+      rimovalPriority: map['rimoval_priority'],
       batchId: map['batch_id'],
       idProduct: map['id_product'],
       productId: map['product_id'],
@@ -291,6 +294,7 @@ class ProductsBatch {
   Map<String, dynamic> toMap() {
     return {
       "id": id,
+      "rimoval_priority": rimovalPriority,
       "id_product": idProduct,
       "batch_id": batchId,
       "id_move": idMove,

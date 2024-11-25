@@ -1,8 +1,8 @@
+// ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings
 
-
-// ignore_for_file: avoid_print
-
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/data/entreprice_repository.dart';
+import 'package:wms_app/src/presentation/views/global/enterprise/models/recent_url_model.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:bloc/bloc.dart';
@@ -15,30 +15,59 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
   final TextEditingController entrepriceController = TextEditingController();
 
   List<String> entrepriceList = [];
-  List<String> recentUrls = []; // Lista para almacenar las URLs recientes
-
+  List<RecentUrl> recentUrls = []; // Lista para almacenar las URLs recientes
 
   EntrepriceRepository entrepriceRepository = EntrepriceRepository();
 
   EntrepriseBloc() : super(EntrepriseInitial()) {
+    final DataBaseSqlite databas = DataBaseSqlite();
+
+    on<LoadUrlFromDB>((event, emit) async {
+      try {
+        // await _databas.deleteAllUrlsRecientes();
+        emit(EntrepriseLoading());
+        recentUrls = [];
+        recentUrls = await databas.getAllUrlsRecientes();
+        print(recentUrls.length);
+        emit(UpdateListUrls(recentUrls));
+      } catch (e, s) {
+        print('Error en LoadUrlFromDB: $e $s');
+        emit(EntrepriseFailure('Error en EntrepriseBloc: $e'));
+      }
+    });
+
+    add(LoadUrlFromDB());
+
     on<EntrepriseButtonPressed>((event, emit) async {
       try {
         emit(EntrepriseLoading());
 
         final session = await entrepriceRepository.searchEnterprice(
-            entrepriceController.text, );
+          entrepriceController.text,
+        );
 
         print('session: $session');
-        
-        if (session.isNotEmpty) {
-           Preferences.setUrlWebsite = entrepriceController.text;
-           PrefUtils.setEnterprise(entrepriceController.text); // Guardar la URL en las preferencias
 
-          recentUrls.add(entrepriceController.text); // Agregar la URL a la lista de recientes
+        if (session.isNotEmpty) {
+          Preferences.setUrlWebsite = entrepriceController.text;
+          PrefUtils.setEnterprise(
+              entrepriceController.text); // Guardar la URL en las preferencias
+
+          // Agregar la URL a la lista de recientes
+          await databas.insertUrlReciente(RecentUrl(
+            url: entrepriceController.text,
+            fecha: //guardar la fecha en formato 22/09/2021
+                DateTime.now().day.toString() +
+                    '/' +
+                    DateTime.now().month.toString() +
+                    '/' +
+                    DateTime.now().year.toString(),
+          ));
+
+          add(LoadUrlFromDB());
           // Usar una lista temporal
           List<String> tempList = [];
           for (var element in session) {
-            
             tempList.add(element);
           }
           entrepriceList = tempList; // Reemplazar la lista original
@@ -53,22 +82,16 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
       }
     });
 
-
     on<DeleteUrl>((event, emit) async {
       try {
         emit(EntrepriseLoading());
         recentUrls.removeAt(event.index);
+        await databas.deleteUrlReciente(event.url);
         emit(UpdateListUrls(recentUrls));
       } catch (e, s) {
         print('Error en DeleteUrl: $e $s');
         emit(EntrepriseFailure('Error en EntrepriseBloc: $e'));
       }
     });
-
   }
-
-
-
-
 }
-

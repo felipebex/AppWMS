@@ -402,7 +402,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadAllPackingEvent event, Emitter<WmsPackingState> emit) async {
     emit(WmsPackingLoading());
     try {
-      final response = await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog);
+      final response = await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog, event.context);
 
       if (response != null && response is List) {
         print('response batchs: ${response.length}');

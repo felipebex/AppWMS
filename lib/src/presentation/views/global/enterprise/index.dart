@@ -5,7 +5,6 @@ import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/widgets/list_database.dart';
-import 'package:wms_app/src/services/notification_service.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +45,7 @@ class SelectEnterpricePage extends StatelessWidget {
               children: <Widget>[
                 const WarningWidgetCubit(),
                 const SizedBox(
-                  height: 80,
+                  height: 10,
                 ),
                 Padding(
                   padding: const EdgeInsets.all(55),
@@ -73,6 +72,7 @@ class SelectEnterpricePage extends StatelessWidget {
                 ),
                 Expanded(
                   child: Container(
+                    padding: const EdgeInsets.only(top: 15),
                     decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -113,50 +113,114 @@ class _loginForm extends StatelessWidget {
               Environment.flavor.appName == "BexPicking"
                   ? 'assets/icons/iconBex.png'
                   : 'assets/images/icono.jpeg',
-              width: Environment.flavor.appName == "BexPicking" ? 100 : 250,
-              height: 140,
+              width: Environment.flavor.appName == "BexPicking" ? 100 : 150,
+              height: 90,
               fit: BoxFit.cover,
             ),
           ),
-          FadeIn(
-              duration: const Duration(microseconds: 3),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                          color: primaryColorApp.withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10))
-                    ]),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: TextFormField(
-                        autocorrect: false,
-                        controller:
-                            context.read<EntrepriseBloc>().entrepriceController,
-                        decoration: const InputDecoration(
-                            disabledBorder: OutlineInputBorder(),
-                            hintText: "Ingrese la url",
-                            hintStyle: TextStyle(color: Colors.grey),
-                            border: InputBorder.none),
-                        onChanged: (value) {
+          Container(
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                      color: primaryColorApp.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10))
+                ]),
+            child: Column(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: TextFormField(
+                    autocorrect: false,
+                    controller:
+                        context.read<EntrepriseBloc>().entrepriceController,
+                    style: const TextStyle(fontSize: 12),
+                    decoration: InputDecoration(
+                        disabledBorder: const OutlineInputBorder(),
+                        hintText: "Ingrese la url",
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 14),
+                        border: InputBorder.none,
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              context
+                                  .read<EntrepriseBloc>()
+                                  .entrepriceController
+                                  .clear();
+                            },
+                            icon: Icon(
+                              Icons.clear,
+                              color: primaryColorApp,
+                              size: 20,
+                            ))),
+                    validator: ((value) => Validator.isEmpty(value, context)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (context.read<EntrepriseBloc>().recentUrls.isNotEmpty)
+            const Padding(
+              padding: EdgeInsets.only(top: 15, bottom: 5),
+              child: Text(
+                'URLs recientes',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          SizedBox(
+            width: double.infinity,
+            height: context.read<EntrepriseBloc>().recentUrls.isEmpty
+                ? 100
+                : 230, // Altura de la lista de URLs recientes
+            child: ListView.builder(
+              padding: const EdgeInsets.all(0),
+              itemCount: context.read<EntrepriseBloc>().recentUrls.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  color: Colors.white,
+                  elevation: 2,
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.history,
+                      color: primaryColorApp,
+                      size: 20,
+                    ),
+                    title: Text(
+                        context.read<EntrepriseBloc>().recentUrls[index].url,
+                        style: const TextStyle(fontSize: 12)),
+                    subtitle: Text(
+                        context.read<EntrepriseBloc>().recentUrls[index].fecha,
+                        style: const TextStyle(fontSize: 10)),
+                    trailing: IconButton(
+                      icon:
+                          Icon(Icons.delete, size: 20, color: Colors.grey[400]),
+                      onPressed: () {
+                        context.read<EntrepriseBloc>().add(DeleteUrl(
+                            context
+                                .read<EntrepriseBloc>()
+                                .recentUrls[index]
+                                .url,
+                            index));
+                      },
+                    ),
+                    onTap: () {
+                      context.read<EntrepriseBloc>().entrepriceController.text =
                           context
                               .read<EntrepriseBloc>()
-                              .entrepriceController
-                              .text = value;
-                        },
-                        validator: ((value) =>
-                            Validator.isEmpty(value, context)),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-          const SizedBox(height: 20),
+                              .recentUrls[index]
+                              .url; // Cambiar la URL
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
           MaterialButton(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -179,26 +243,22 @@ class _loginForm extends StatelessWidget {
                   showModalDialog(context, 'Error al procesar la solicitud');
                 }
               },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 80, vertical: 15),
-                child: BlocBuilder<EntrepriseBloc, EntrepriseState>(
-                  builder: (context, state) {
-                    if (state is EntrepriseLoading) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
-                      );
-                    }
-                    return const Text(
-                      "Consultar",
-                      style: TextStyle(color: Colors.white),
+              child: BlocBuilder<EntrepriseBloc, EntrepriseState>(
+                builder: (context, state) {
+                  if (state is EntrepriseLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        
+                      ),
                     );
-                  },
-                ),
+                  }
+                  return const Text(
+                    "Consultar",
+                    style: TextStyle(color: Colors.white),
+                  );
+                },
               )),
-
         ],
       ),
     );

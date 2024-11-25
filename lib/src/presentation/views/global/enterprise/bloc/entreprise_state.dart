@@ -47,6 +47,6 @@ final class EntrepriseFailure extends EntrepriseState {
 }
 
 final class UpdateListUrls extends EntrepriseState {
-  final List<String> recentUrls;
+  final List<RecentUrl> recentUrls;
   UpdateListUrls(this.recentUrls);
 }

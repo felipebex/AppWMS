@@ -139,420 +139,438 @@ class _PickingPageState extends State<WMSPickingPage> {
                 body: SizedBox(
                   width: size.width * 1,
                   height: size.height * 0.87,
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: primaryColorApp,
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20),
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      context
+                          .read<WMSPickingBloc>()
+                          .add(LoadAllBatchsEvent(context, true));
+                     
+                    },
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: primaryColorApp,
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
+                            ),
+                          ),
+                          child: BlocProvider(
+                            create: (context) => ConnectionStatusCubit(),
+                            child: BlocBuilder<ConnectionStatusCubit,
+                                ConnectionStatus>(builder: (context, status) {
+                              return Column(
+                                children: [
+                                  const WarningWidgetCubit(),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 10,
+                                        right: 10,
+                                        top: status != ConnectionStatus.online
+                                            ? 20
+                                            : 20,
+                                        bottom: 10),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            IconButton(
+                                              icon: const Icon(Icons.arrow_back,
+                                                  color: white),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: size.width * 0.25),
+                                              child: const Text(
+                                                'BATCHS',
+                                                style: TextStyle(
+                                                    color: white,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            const Spacer(),
+                                          ],
+                                        ),
+                                        ProgressIndicatorWidget(
+                                          progress: progress,
+                                          completed: context
+                                              .read<WMSPickingBloc>()
+                                              .batchsDone
+                                              .length,
+                                          total: context
+                                              .read<WMSPickingBloc>()
+                                              .listOfBatchs
+                                              .length,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
                           ),
                         ),
-                        child: BlocProvider(
-                          create: (context) => ConnectionStatusCubit(),
-                          child: BlocBuilder<ConnectionStatusCubit,
-                              ConnectionStatus>(builder: (context, status) {
-                            return Column(
+
+                        //*barra de buscar
+
+                        SizedBox(
+                            // color: Colors.amber,
+                            height: 70, //120
+                            width: size.width * 1,
+                            child: Column(
                               children: [
-                                const WarningWidgetCubit(),
                                 Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 10,
-                                      right: 10,
-                                      top: status != ConnectionStatus.online
-                                          ? 20
-                                          : 20,
-                                      bottom: 10),
-                                  child: Column(
+                                  padding: const EdgeInsets.only(
+                                      left: 10, right: 10, top: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.arrow_back,
-                                                color: white),
-                                            onPressed: () {
-                                              Navigator.pop(context);
+                                      SizedBox(
+                                        width: size.width * 0.75,
+                                        child: Card(
+                                          color: Colors.white,
+                                          elevation: 3,
+                                          child: TextFormField(
+                                            textAlignVertical:
+                                                TextAlignVertical.center,
+                                            controller: context
+                                                .read<WMSPickingBloc>()
+                                                .searchController,
+                                            decoration: InputDecoration(
+                                              prefixIcon: const Icon(
+                                                  Icons.search,
+                                                  color: grey),
+                                              suffixIcon: IconButton(
+                                                  onPressed: () {
+                                                    context
+                                                        .read<WMSPickingBloc>()
+                                                        .searchController
+                                                        .clear();
+                                                    context
+                                                        .read<WMSPickingBloc>()
+                                                        .add(SearchBatchEvent(
+                                                            '',
+                                                            controller.index));
+                                                    FocusScope.of(context)
+                                                        .unfocus();
+                                                  },
+                                                  icon: const Icon(Icons.close,
+                                                      color: grey)),
+                                              disabledBorder:
+                                                  const OutlineInputBorder(),
+                                              hintText: "Buscar batch",
+                                              hintStyle: const TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 14),
+                                              border: InputBorder.none,
+                                            ),
+                                            onChanged: (value) {
+                                              context
+                                                  .read<WMSPickingBloc>()
+                                                  .add(SearchBatchEvent(
+                                                      value, controller.index));
                                             },
                                           ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                left: size.width * 0.25),
-                                            child: const Text(
-                                              'BATCHS',
-                                              style: TextStyle(
-                                                  color: white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                        ],
+                                        ),
                                       ),
-                                      ProgressIndicatorWidget(
-                                        progress: progress,
-                                        completed: context
-                                            .read<WMSPickingBloc>()
-                                            .batchsDone
-                                            .length,
-                                        total: context
-                                            .read<WMSPickingBloc>()
-                                            .listOfBatchs
-                                            .length,
-                                      ),
+                                      Card(
+                                        color: Colors.white,
+                                        elevation: 3,
+                                        child: PopupMenuButton<String>(
+                                          shadowColor: Colors.white,
+                                          color: Colors.white,
+                                          icon: const Icon(Icons.more_vert,
+                                              color: grey, size: 25),
+                                          onSelected: (String value) {
+                                            switch (value) {
+                                              case '1':
+                                                context.read<WMSPickingBloc>().add(
+                                                    FilterBatchesByOperationTypeEvent(
+                                                        'Órdenes de Entrega',
+                                                        controller.index));
+                                                break;
+                                              case '2':
+                                                context.read<WMSPickingBloc>().add(
+                                                    FilterBatchesByOperationTypeEvent(
+                                                        'Recogida',
+                                                        controller.index));
+                                                break;
+                                              case '3':
+                                                context.read<WMSPickingBloc>().add(
+                                                    FilterBatchesByOperationTypeEvent(
+                                                        'Recibos',
+                                                        controller.index));
+                                                break;
+                                              case '4':
+                                                context.read<WMSPickingBloc>().add(
+                                                    FilterBatchesByOperationTypeEvent(
+                                                        'Todos',
+                                                        controller.index));
+                                                break;
+                                              default:
+                                            }
+                                          },
+                                          itemBuilder: (BuildContext context) {
+                                            return [
+                                              const PopupMenuItem<String>(
+                                                value: '1',
+                                                child:
+                                                    Text('Órdenes de Entrega'),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: '2',
+                                                child: Text('Recogida'),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: '3',
+                                                child: Text('Recibos'),
+                                              ),
+                                              const PopupMenuItem<String>(
+                                                value: '4',
+                                                child: Text('Todos'),
+                                              ),
+                                            ];
+                                          },
+                                        ),
+                                      )
                                     ],
                                   ),
                                 ),
                               ],
-                            );
-                          }),
-                        ),
-                      ),
+                            )),
 
-                      //*barra de buscar
+                        //filtro por tipo de batch
 
-                      SizedBox(
-                          // color: Colors.amber,
-                          height: 70, //120
-                          width: size.width * 1,
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 10, right: 10, top: 5),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: size.width * 0.75,
-                                      child: Card(
-                                        color: Colors.white,
-                                        elevation: 3,
-                                        child: TextFormField(
-                                          textAlignVertical:
-                                              TextAlignVertical.center,
-                                          controller: context
-                                              .read<WMSPickingBloc>()
-                                              .searchController,
-                                          decoration: InputDecoration(
-                                            prefixIcon: const Icon(Icons.search,
-                                                color: grey),
-                                            suffixIcon: IconButton(
-                                                onPressed: () {
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .searchController
-                                                      .clear();
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .add(SearchBatchEvent('',
-                                                          controller.index));
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                },
-                                                icon: const Icon(Icons.close,
-                                                    color: grey)),
-                                            disabledBorder:
-                                                const OutlineInputBorder(),
-                                            hintText: "Buscar batch",
-                                            hintStyle: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 14),
-                                            border: InputBorder.none,
-                                          ),
-                                          onChanged: (value) {
-                                            context.read<WMSPickingBloc>().add(
-                                                SearchBatchEvent(
-                                                    value, controller.index));
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    Card(
-                                      color: Colors.white,
-                                      elevation: 3,
-                                      child: PopupMenuButton<String>(
-                                        shadowColor: Colors.white,
-                                        color: Colors.white,
-                                        icon: const Icon(Icons.more_vert,
-                                            color: grey, size: 25),
-                                        onSelected: (String value) {
-                                          switch (value) {
-                                            case '1':
-                                              context.read<WMSPickingBloc>().add(
-                                                  FilterBatchesByOperationTypeEvent(
-                                                      'Órdenes de Entrega',
-                                                      controller.index));
-                                              break;
-                                            case '2':
-                                              context.read<WMSPickingBloc>().add(
-                                                  FilterBatchesByOperationTypeEvent(
-                                                      'Recogida',
-                                                      controller.index));
-                                              break;
-                                            case '3':
-                                              context.read<WMSPickingBloc>().add(
-                                                  FilterBatchesByOperationTypeEvent(
-                                                      'Recibos',
-                                                      controller.index));
-                                              break;
-                                            case '4':
-                                              context.read<WMSPickingBloc>().add(
-                                                  FilterBatchesByOperationTypeEvent(
-                                                      'Todos',
-                                                      controller.index));
-                                              break;
-                                            default:
-                                          }
-                                        },
-                                        itemBuilder: (BuildContext context) {
-                                          return [
-                                            const PopupMenuItem<String>(
-                                              value: '1',
-                                              child: Text('Órdenes de Entrega'),
-                                            ),
-                                            const PopupMenuItem<String>(
-                                              value: '2',
-                                              child: Text('Recogida'),
-                                            ),
-                                            const PopupMenuItem<String>(
-                                              value: '3',
-                                              child: Text('Recibos'),
-                                            ),
-                                            const PopupMenuItem<String>(
-                                              value: '4',
-                                              child: Text('Todos'),
-                                            ),
-                                          ];
-                                        },
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          )),
-
-                      //filtro por tipo de batch
-
-                      //*listado de batchs
-                      Expanded(
-                        child: context
-                                .read<WMSPickingBloc>()
-                                .filteredBatchs
-                                .isNotEmpty
-                            ? ListView.builder(
-                                padding: EdgeInsets.only(
-                                    top: 10, bottom: size.height * 0.15),
-                                shrinkWrap: true,
-                                physics: const ScrollPhysics(),
-                                itemCount: context
-                                    .read<WMSPickingBloc>()
-                                    .filteredBatchs
-                                    .length,
-                                itemBuilder: (context, index) {
-                                  final batch = context
+                        //*listado de batchs
+                        Expanded(
+                          child: context
+                                  .read<WMSPickingBloc>()
+                                  .filteredBatchs
+                                  .isNotEmpty
+                              ? ListView.builder(
+                                  padding: EdgeInsets.only(
+                                      top: 10, bottom: size.height * 0.15),
+                                  shrinkWrap: true,
+                                  physics: const ScrollPhysics(),
+                                  itemCount: context
                                       .read<WMSPickingBloc>()
-                                      .filteredBatchs[index];
-                                  //convertimos la fecha
+                                      .filteredBatchs
+                                      .length,
+                                  itemBuilder: (context, index) {
+                                    final batch = context
+                                        .read<WMSPickingBloc>()
+                                        .filteredBatchs[index];
+                                    //convertimos la fecha
 
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 5),
-                                    child: GestureDetector(
-                                      onTap: () async {
-                                        context
-                                            .read<BatchBloc>()
-                                            .add(FetchBatchWithProductsEvent(
-                                              batch.id ?? 0,
-                                            ));
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 5),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          context
+                                              .read<BatchBloc>()
+                                              .add(FetchBatchWithProductsEvent(
+                                                batch.id ?? 0,
+                                              ));
 
-                                        //todo navegamos a la vista de separacion de productos del batch
-                                        if (batch.isSeparate == 1) {
-                                          Navigator.pushNamed(
-                                            context,
-                                            'batch-detail',
-                                          );
-                                        } else {
-                                          // Mostrar un diálogo de carga antes de navegar a la vista "batch"
-                                          showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return const DialogLoading();
-                                              });
-
-                                          // Esperar 3 segundos antes de continuar
-                                          Future.delayed(
-                                              const Duration(seconds: 1), () {
-                                            // Cerrar el diálogo de carga
-                                            Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .pop();
-
-                                            // Ahora navegar a la vista "batch"
+                                          //todo navegamos a la vista de separacion de productos del batch
+                                          if (batch.isSeparate == 1) {
                                             Navigator.pushNamed(
                                               context,
-                                              'batch',
+                                              'batch-detail',
                                             );
-                                          });
-                                        }
+                                          } else {
+                                            // Mostrar un diálogo de carga antes de navegar a la vista "batch"
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading();
+                                                });
 
-                                        DataBaseSqlite db = DataBaseSqlite();
+                                            // Esperar 3 segundos antes de continuar
+                                            Future.delayed(
+                                                const Duration(seconds: 1), () {
+                                              // Cerrar el diálogo de carga
+                                              Navigator.of(context,
+                                                      rootNavigator: true)
+                                                  .pop();
 
-                                        final response =
-                                            await db.getBacth(batch.id ?? 0);
-                                        print("batch: $response");
-                                        final responseProduct =
-                                            await db.getProductBacth(
-                                                batch.id ?? 0, 3734);
-                                        print("product: $responseProduct");
+                                              // Ahora navegar a la vista "batch"
+                                              Navigator.pushNamed(
+                                                context,
+                                                'batch',
+                                              );
+                                            });
+                                          }
 
-                                        // }
-                                      },
-                                      child: Card(
-                                        color: batch.isSeparate == 1
-                                            ? Colors.green[100]
-                                            : batch.isSelected == 1
-                                                ? primaryColorAppLigth
-                                                : Colors.white,
-                                        elevation: 3,
-                                        child: ListTile(
-                                          trailing: Icon(
-                                            Icons.arrow_forward_ios,
-                                            color: primaryColorApp,
-                                          ),
-                                          leading: Container(
-                                            padding: const EdgeInsets.all(5),
-                                            decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
+                                          DataBaseSqlite db = DataBaseSqlite();
 
-                                                //sombras
-                                                boxShadow: const [
-                                                  BoxShadow(
-                                                      color: Colors.black12,
-                                                      blurRadius: 5,
-                                                      offset: Offset(0, 2))
-                                                ]),
-                                            child: Image.asset(
-                                              "assets/icons/producto.png",
-                                              color: batch.state == 'done'
-                                                  ? Colors.green
-                                                  : batch.state == 'cancel'
-                                                      ? Colors.red
-                                                      : primaryColorApp,
-                                              width: 24,
+                                          final response =
+                                              await db.getBacth(batch.id ?? 0);
+                                          print("batch: $response");
+                                          final responseProduct =
+                                              await db.getProductBacth(
+                                                  batch.id ?? 0, 3734);
+                                          print("product: $responseProduct");
+
+                                          // }
+                                        },
+                                        child: Card(
+                                          color: batch.isSeparate == 1
+                                              ? Colors.green[100]
+                                              : batch.isSelected == 1
+                                                  ? primaryColorAppLigth
+                                                  : Colors.white,
+                                          elevation: 3,
+                                          child: ListTile(
+                                            trailing: Icon(
+                                              Icons.arrow_forward_ios,
+                                              color: primaryColorApp,
                                             ),
-                                          ),
-                                          title: Text(batch.name ?? '',
-                                              style: const TextStyle(
-                                                  fontSize: 14)),
-                                          subtitle: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              const Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                    "Tipo de operación:",
+                                            leading: Container(
+                                              padding: const EdgeInsets.all(5),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+
+                                                  //sombras
+                                                  boxShadow: const [
+                                                    BoxShadow(
+                                                        color: Colors.black12,
+                                                        blurRadius: 5,
+                                                        offset: Offset(0, 2))
+                                                  ]),
+                                              child: Image.asset(
+                                                "assets/icons/producto.png",
+                                                color: batch.state == 'done'
+                                                    ? Colors.green
+                                                    : batch.state == 'cancel'
+                                                        ? Colors.red
+                                                        : primaryColorApp,
+                                                width: 24,
+                                              ),
+                                            ),
+                                            title: Text(batch.name ?? '',
+                                                style: const TextStyle(
+                                                    fontSize: 14)),
+                                            subtitle: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                const Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                      "Tipo de operación:",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: grey)),
+                                                ),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    batch.pickingTypeId
+                                                        .toString(),
                                                     style: TextStyle(
                                                         fontSize: 14,
-                                                        color: grey)),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  batch.pickingTypeId
-                                                      .toString(),
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: primaryColorApp),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                                        color: primaryColorApp),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
                                                 ),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons
-                                                          .calendar_month_sharp,
-                                                      color: primaryColorApp,
-                                                      size: 15,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                      batch.scheduleddate !=
-                                                              null
-                                                          ? DateFormat(
-                                                                  'dd/MM/yyyy')
-                                                              .format(batch
-                                                                  .scheduleddate!)
-                                                          : "Sin fecha",
-                                                      style: const TextStyle(
-                                                          fontSize: 14),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.person,
-                                                      color: primaryColorApp,
-                                                      size: 15,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Expanded(
-                                                      child: Text(
-                                                        batch.userName ??
-                                                            "Sin usuario",
-                                                        style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color: black),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .calendar_month_sharp,
+                                                        color: primaryColorApp,
+                                                        size: 15,
                                                       ),
-                                                    ),
-                                                  ],
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        batch.scheduleddate !=
+                                                                null
+                                                            ? DateFormat(
+                                                                    'dd/MM/yyyy')
+                                                                .format(batch
+                                                                    .scheduleddate!)
+                                                            : "Sin fecha",
+                                                        style: const TextStyle(
+                                                            fontSize: 14),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.person,
+                                                        color: primaryColorApp,
+                                                        size: 15,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Expanded(
+                                                        child: Text(
+                                                          batch.userName ??
+                                                              "Sin usuario",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: black),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              )
-                            : Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset('assets/images/empty.png',
-                                        height:
-                                            150), // Ajusta la altura según necesites
-                                    const SizedBox(height: 10),
-                                    const Text('No se encontraron resultados',
-                                        style: TextStyle(
-                                            fontSize: 18, color: grey)),
-                                    const Text('Intenta con otra búsqueda',
-                                        style: TextStyle(
-                                            fontSize: 14, color: grey)),
-                                  ],
+                                    );
+                                  },
+                                )
+                              : Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset('assets/images/empty.png',
+                                          height:
+                                              150), // Ajusta la altura según necesites
+                                      const SizedBox(height: 10),
+                                      const Text('No se encontraron resultados',
+                                          style: TextStyle(
+                                              fontSize: 18, color: grey)),
+                                      const Text('Intenta con otra búsqueda',
+                                          style: TextStyle(
+                                              fontSize: 14, color: grey)),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
                   ),
                 ));
           },

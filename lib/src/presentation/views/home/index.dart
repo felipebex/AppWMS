@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'dart:ui';
 
@@ -7,8 +7,8 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
@@ -50,23 +50,25 @@ class _HomePageState extends State<HomePage> {
       },
       child: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {
-          if (state is HomeLoadedState) {
-            context
-                .read<WMSPickingBloc>()
-                .add(LoadAllBatchsEvent(context, true));
-            context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true));
-            context.read<UserBloc>().add(GetConfigurations());
-          }
+          print('STATE: $state');
+          // if (state is HomeLoadedState) {
+          //   context
+          //       .read<WMSPickingBloc>()
+          //       .add(LoadAllBatchsEvent(context, true));
+          //   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true, context));
+          //   context.read<UserBloc>().add(GetConfigurations(context));
+
+          // }
         },
         builder: (context, state) {
           return Scaffold(
             floatingActionButton: FloatingActionButton(
-              onPressed: ()  {
+              onPressed: () {
                 context
                     .read<WMSPickingBloc>()
                     .add(LoadAllBatchsEvent(context, true));
-                context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true));
-                context.read<UserBloc>().add(GetConfigurations());
+                // context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true, context));
+                context.read<UserBloc>().add(GetConfigurations(context));
                 // DataBaseSqlite db = DataBaseSqlite();
                 // await db.deleteAll();
               },
@@ -160,6 +162,9 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       GestureDetector(
                                         onTap: () {
+                                          // context
+                                          //     .read<UserBloc>()
+                                          //     .add(GetConfigurations());
                                           Navigator.pushNamed(context, 'user');
                                         },
                                         child: Row(
@@ -343,13 +348,41 @@ class _HomePageState extends State<HomePage> {
                                       scrollDirection: Axis.horizontal,
                                       children: [
                                         GestureDetector(
-                                          onTap: () {
-                                            context
-                                                .read<WMSPickingBloc>()
-                                                .add(LoadBatchsFromDBEvent());
-                                            Navigator.pushNamed(
-                                                context, 'wms-picking',
-                                                arguments: 1);
+                                          onTap: () async {
+                                            final String rol =
+                                                await PrefUtils.getUserRol();
+
+                                            if (rol == 'picking') {
+                                              context
+                                                  .read<WMSPickingBloc>()
+                                                  .add(LoadBatchsFromDBEvent());
+
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogLoading();
+                                                  });
+
+                                              // Esperar 3 segundos antes de continuar
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                Navigator.pop(context);
+                                                Navigator.pushNamed(
+                                                    context, 'wms-picking',
+                                                    arguments: 1);
+                                              });
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Su usuario no tiene permisos para acceder a este módulo"),
+                                                  duration:
+                                                      Duration(seconds: 4),
+                                                ),
+                                              );
+                                            }
                                           },
                                           child: _ItemList(
                                             size: size,
@@ -362,14 +395,43 @@ class _HomePageState extends State<HomePage> {
                                                 .toString(),
                                           ),
                                         ),
+
                                         GestureDetector(
-                                          onTap: () {
-                                            context
-                                                .read<WMSPickingBloc>()
-                                                .add(LoadBatchsFromDBEvent());
-                                            Navigator.pushNamed(
-                                                context, 'wms-picking',
-                                                arguments: 0);
+                                          onTap: () async {
+                                            final String rol =
+                                                await PrefUtils.getUserRol();
+
+                                            if (rol == 'picking') {
+                                              context
+                                                  .read<WMSPickingBloc>()
+                                                  .add(LoadBatchsFromDBEvent());
+
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogLoading();
+                                                  });
+
+                                              // Esperar 3 segundos antes de continuar
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                Navigator.pop(context);
+                                                Navigator.pushNamed(
+                                                    context, 'wms-picking',
+                                                    arguments: 0);
+                                              });
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Su usuario no tiene permisos para acceder a este módulo"),
+                                                  duration:
+                                                      Duration(seconds: 4),
+                                                ),
+                                              );
+                                            }
                                           },
                                           child: _ItemList(
                                             size: size,
@@ -386,16 +448,7 @@ class _HomePageState extends State<HomePage> {
                                                 .toString(),
                                           ),
                                         ),
-                                        // _ItemList(
-                                        //   size: size,
-                                        //   color: Colors.amber,
-                                        //   title: 'BATCH Totales',
-                                        //   value: context
-                                        //       .read<WMSPickingBloc>()
-                                        //       .listOfBatchs
-                                        //       .length
-                                        //       .toString(),
-                                        // ),
+                                       
                                       ],
                                     ));
                               },
@@ -422,13 +475,40 @@ class _HomePageState extends State<HomePage> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       GestureDetector(
-                                        onTap: () {
-                                          context
-                                              .read<WMSPickingBloc>()
-                                              .add(LoadBatchsFromDBEvent());
-                                          Navigator.pushNamed(
-                                              context, 'wms-picking',
-                                              arguments: 0);
+                                        onTap: () async {
+                                          //verficamos que rol tiene el usuario
+                                          final String rol =
+                                              await PrefUtils.getUserRol();
+
+                                          if (rol == 'picking') {
+                                            context
+                                                .read<WMSPickingBloc>()
+                                                .add(LoadBatchsFromDBEvent());
+
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading();
+                                                });
+
+                                            // Esperar 3 segundos antes de continuar
+                                            Future.delayed(
+                                                const Duration(seconds: 1), () {
+                                              Navigator.pop(context);
+                                              Navigator.pushNamed(
+                                                  context, 'wms-picking',
+                                                  arguments: 0);
+                                            });
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    "Su usuario no tiene permisos para acceder a este módulo"),
+                                                duration: Duration(seconds: 4),
+                                              ),
+                                            );
+                                          }
                                         },
                                         child: const _ImteModule(
                                           urlImg: "picking.png",
@@ -437,9 +517,23 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       const SizedBox(width: 5),
                                       GestureDetector(
-                                        onTap: () {
-                                          Navigator.pushNamed(
-                                              context, 'wms-packing');
+                                        onTap: () async {
+                                          final String rol =
+                                              await PrefUtils.getUserRol();
+
+                                          if (rol == 'packing') {
+                                            Navigator.pushNamed(
+                                                context, 'wms-packing');
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    "Su usuario no tiene permisos para acceder a este módulo"),
+                                                duration: Duration(seconds: 4),
+                                              ),
+                                            );
+                                          }
                                         },
                                         child: const _ImteModule(
                                           urlImg: "packing.png",

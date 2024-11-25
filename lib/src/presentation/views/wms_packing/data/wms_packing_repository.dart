@@ -12,7 +12,7 @@ import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class WmsPackingRepository {
-  Future<List<BatchPackingModel>> resBatchsPacking(bool isLoadinDialog) async {
+  Future<List<BatchPackingModel>> resBatchsPacking(bool isLoadinDialog,  BuildContext context,) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -22,22 +22,25 @@ class WmsPackingRepository {
     }
 
     try {
+      final String urlRpc = Preferences.urlWebsite;
       final String userEmail = await PrefUtils.getUserEmail();
       final String pass = await PrefUtils.getUserPass();
       final String dataBd = Preferences.nameDatabase;
 
       var response =
           await ApiRequestService().post(endpoint: 'batch_packing', body: {
-        "url_rpc": "http://34.30.1.186:8069",
+        "url_rpc": urlRpc,
         "db_rpc": dataBd,
         "email_rpc": userEmail,
         "clave_rpc": pass,
       },
-      isLoadinDialog: isLoadinDialog
+      isLoadinDialog: isLoadinDialog,
+      context: context
       
       );
 
       if (response.statusCode < 400) {
+        Preferences.setIntList = [0];
         // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         // Accede a la clave "data" y luego a "result"
@@ -53,6 +56,7 @@ class WmsPackingRepository {
           }
         }
       } else {
+        Preferences.setIntList = [1];
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
           Map<String, dynamic> data = jsonResponse['data'];

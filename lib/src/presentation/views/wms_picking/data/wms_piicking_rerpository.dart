@@ -18,7 +18,7 @@ import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class WmsPickingRepository {
-  Future<List<BatchsModel>> resBatchs(bool isLoadinDialog) async {
+  Future<List<BatchsModel>> resBatchs(bool isLoadinDialog,  BuildContext context,) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -28,6 +28,7 @@ class WmsPickingRepository {
     }
 
     try {
+            final String urlRpc = Preferences.urlWebsite;
       final String userEmail = await PrefUtils.getUserEmail();
       final String pass = await PrefUtils.getUserPass();
       final String dataBd = Preferences.nameDatabase;
@@ -35,14 +36,23 @@ class WmsPickingRepository {
       var response = await ApiRequestService().post(
           endpoint: 'batchs',
           body: {
-            "url_rpc": "http://34.30.1.186:8069",
+            "url_rpc": urlRpc,
             "db_rpc": dataBd,
             "email_rpc": userEmail,
             "clave_rpc": pass,
+
           },
-          isLoadinDialog: isLoadinDialog);
+          isLoadinDialog: isLoadinDialog,
+          context: context
+          
+          );
 
       if (response.statusCode < 400) {
+
+
+        //gardamos la respuesta de la peticion en el arreglo
+        Preferences.setIntList = [0];
+
         // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         // Accede a la clave "data" y luego a "result"
@@ -58,6 +68,7 @@ class WmsPickingRepository {
           }
         }
       } else {
+        Preferences.setIntList = [1];
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
           Map<String, dynamic> data = jsonResponse['data'];
@@ -92,6 +103,7 @@ class WmsPickingRepository {
     required int cantItemsSeparados,
     required List<Item> listItem, //
   }) async {
+    final String urlRpc = Preferences.urlWebsite;
     final String userEmail = await PrefUtils.getUserEmail();
     final String pass = await PrefUtils.getUserPass();
     final String dataBd = Preferences.nameDatabase;
@@ -101,7 +113,7 @@ class WmsPickingRepository {
     };
 
     var body = json.encode({
-      "url_rpc": "http://34.30.1.186:8069",
+      "url_rpc": urlRpc,
       "db_rpc": dataBd,
       "email_rpc": userEmail,
       "clave_rpc": pass,

@@ -8,3 +8,6 @@ class LoginButtonPressed extends LoginEvent {
 
   LoginButtonPressed(this.context);
 }
+
+// Evento para cambiar la visibilidad del texto en el campo de contraseña
+class TogglePasswordVisibility extends LoginEvent {}

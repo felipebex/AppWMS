@@ -36,4 +36,16 @@ class Preferences {
   }
 
 
+  //metodo para gyar un arreglo de datos de tipo int
+  static List<int> get getIntList {
+    return _prefs.getStringList('intList')?.map((e) => int.parse(e)).toList() ?? [];
+  }
+
+  //metodo para obtener un arreglo de datos de tipo int
+  static set setIntList(List<int> intList) {
+    _prefs.setStringList('intList', intList.map((e) => e.toString()).toList());
+  }
+  
+
+
 }

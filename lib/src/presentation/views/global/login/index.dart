@@ -5,6 +5,9 @@ import 'dart:io';
 import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/constans/gaps.dart';
 import 'package:wms_app/src/utils/validator.dart';
@@ -21,6 +24,9 @@ class LoginPage extends StatelessWidget {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccess) {
+          context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, true));
+          // context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true, context));
+          context.read<UserBloc>().add(GetConfigurations(context));
           Navigator.pushNamed(context, 'home');
         }
 
@@ -32,7 +38,7 @@ class LoginPage extends StatelessWidget {
         return Scaffold(
           body: Container(
             width: double.infinity,
-            decoration:  BoxDecoration(
+            decoration: BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     colors: [primaryColorApp, secondary, primaryColorApp])),
@@ -43,15 +49,16 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(
                   height: 80,
                 ),
-                 Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
                           child: Text(
-                        "Bienvenido a ${ Environment.flavor.appName ?? 'WMS'} ",
-                        style: const TextStyle(color: Colors.white, fontSize: 22),
+                        "Bienvenido a ${Environment.flavor.appName ?? 'WMS'} ",
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 22),
                       )),
                       const SizedBox(
                         height: 10,
@@ -76,7 +83,9 @@ class LoginPage extends StatelessWidget {
                     child: SingleChildScrollView(
                       child: Padding(
                           padding: const EdgeInsets.only(
-                              left: 30, right: 30, ),
+                            left: 30,
+                            right: 30,
+                          ),
                           child: BlocBuilder<LoginBloc, LoginState>(
                             builder: (context, state) {
                               return _LoginForm();
@@ -111,13 +120,16 @@ class _LoginForm extends StatelessWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
+              const SizedBox(
+                height: 20,
+              ),
               ClipRRect(
                 borderRadius: BorderRadius.circular(200),
                 child: Image.asset(
-                 Environment.flavor.appName == "BexPicking"
-                  ? 'assets/icons/iconBex.png'
-                  : 'assets/images/icono.jpeg',
-              width: Environment.flavor.appName == "BexPicking" ? 100 : 250,
+                  Environment.flavor.appName == "BexPicking"
+                      ? 'assets/icons/iconBex.png'
+                      : 'assets/images/icono.jpeg',
+                  width: Environment.flavor.appName == "BexPicking" ? 100 : 250,
                   height: 140,
                   fit: BoxFit.cover,
                 ),
@@ -136,25 +148,28 @@ class _LoginForm extends StatelessWidget {
                   children: [
                     TextFormField(
                         controller: context.read<LoginBloc>().email,
-                        decoration:  InputDecoration(
+                        
+                        decoration: InputDecoration(
                             disabledBorder: const OutlineInputBorder(),
                             prefixIcon: Icon(
                               Icons.email,
                               size: 20,
                               color: primaryColorApp,
                             ),
+                         
                             hintText: "Correo electronico",
-                            hintStyle:
-                                const TextStyle(color: Colors.grey, fontSize: 14),
+                            hintStyle: const TextStyle(
+                                color: Colors.grey, fontSize: 12),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.all(10),
-                            errorStyle:
-                                const TextStyle(color: Colors.red, fontSize: 12)),
+                            errorStyle: const TextStyle(
+                                color: Colors.red, fontSize: 12)),
                         validator: (value) => Validator.email(value, context)),
                     TextFormField(
                       controller: context.read<LoginBloc>().password,
                       autocorrect: false,
-                      decoration:  InputDecoration(
+                      obscureText: context.watch<LoginBloc>().isVisible,
+                      decoration: InputDecoration(
                           disabledBorder: const OutlineInputBorder(),
                           contentPadding: const EdgeInsets.all(10),
                           prefixIcon: Icon(
@@ -162,11 +177,24 @@ class _LoginForm extends StatelessWidget {
                             size: 20,
                             color: primaryColorApp,
                           ),
+                             suffixIcon: IconButton(
+                              onPressed: () {
+                                context
+                                    .read<LoginBloc>()
+                                    .add(TogglePasswordVisibility());
+                              },
+                              icon: Icon(
+                                context.watch<LoginBloc>().isVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: primaryColorApp,
+                              ),
+                            ),
                           hintText: "Contraseña",
                           errorStyle:
                               const TextStyle(color: Colors.red, fontSize: 12),
                           hintStyle:
-                              const TextStyle(color: Colors.grey, fontSize: 14),
+                              const TextStyle(color: Colors.grey, fontSize: 12),
                           border: InputBorder.none),
                       validator: (value) => Validator.password(value, context),
                     ),
@@ -204,7 +232,7 @@ class _LoginForm extends StatelessWidget {
                   },
                   child: Container(
                     width: size.width * 0.9,
-                    height: 50,
+                    height: 20,
                     alignment: Alignment.center,
                     child: BlocBuilder<LoginBloc, LoginState>(
                       builder: (context, state) {
@@ -223,21 +251,20 @@ class _LoginForm extends StatelessWidget {
                       },
                     ),
                   )),
-              const SizedBox(height: 10),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                     elevation: 0,
-                    minimumSize: Size(size.width * 0.9, 40),
+                    minimumSize: Size(size.width * 0.9, 20),
                   ),
                   onPressed: () {
                     Navigator.pushNamed(context, 'enterprice');
                   },
                   child: Container(
                     width: 220,
-                    height: 50,
+                    height: 30,
                     alignment: Alignment.center,
                     child: const Text(
                       "Atras",

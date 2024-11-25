@@ -78,27 +78,26 @@ void main() async {
             print('connected 2');
             refreshData(navigatorKey.currentContext!);
           }
-         
         }
       }
     } on SocketException catch (_) {}
   });
-  cron.schedule(Schedule.parse('*/5 * * * *'), () async {
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        // Acceder al contexto global para llamar a refreshData
-        if (navigatorKey.currentContext != null) {
-          final isLogin = await PrefUtils.getIsLoggedIn();
-          if (isLogin) {
-            print('connected 3');
-            configurations(navigatorKey.currentContext!);
-          }
-         
-        }
-      }
-    } on SocketException catch (_) {}
-  });
+  // cron.schedule(Schedule.parse('*/5 * * * *'), () async {
+  //   try {
+  //     final result = await InternetAddress.lookup('example.com');
+  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //       // Acceder al contexto global para llamar a refreshData
+  //       if (navigatorKey.currentContext != null) {
+  //         final isLogin = await PrefUtils.getIsLoggedIn();
+  //         if (isLogin) {
+  //           print('connected 3');
+  //           configurations(navigatorKey.currentContext!);
+  //         }
+
+  //       }
+  //     }
+  //   } on SocketException catch (_) {}
+  // });
 }
 
 class AppState extends StatelessWidget {
@@ -217,6 +216,10 @@ void searchProductsNoSendOdoo() async {
       products.where((element) => element.isSendOdoo == 0).toList();
   //recorremos la lista
   for (var product in productsNoSendOdoo) {
+    //TIEMPO DE INICIO DEL PRODUCTO
+    final totalTime = await db.getFieldTableProducts(product.batchId ?? 0,
+        product.idProduct ?? 0, product.idMove ?? 0, 'time_separate');
+
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
         idBatch: product.batchId ?? 0,
@@ -228,8 +231,8 @@ void searchProductsNoSendOdoo() async {
             productId: product.idProduct ?? 0,
             lote: product.lotId ?? '',
             cantidad: product.quantitySeparate ?? 0,
-            novedad: product.observation ?? '',
-            timeLine: 0,
+            novedad: product.observation ?? 'Sin novedad',
+            timeLine: double.parse(totalTime ?? '0'),
           ),
         ]);
     print("response searchProductsNoSendOdoo: ${response.data?.code} ");
@@ -263,7 +266,6 @@ void refreshData(BuildContext context) async {
   // context.read<WmsPackingBloc>().add(LoadAllPackingEvent());
 }
 
-
-void configurations(BuildContext context)async{
-  context.read<UserBloc>().add(GetConfigurations());
+void configurations(BuildContext context) async {
+  context.read<UserBloc>().add(GetConfigurations(context));
 }

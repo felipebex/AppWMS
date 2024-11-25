@@ -48,6 +48,7 @@ class Result {
     final String? name;
     final String? lastName;
     final String? email;
+    final int? userId;
     final String? rol;
     final List<Location>? locations;
 
@@ -56,6 +57,7 @@ class Result {
         this.lastName,
         this.email,
         this.rol,
+        this.userId,
         this.locations,
     });
 
@@ -67,6 +69,7 @@ class Result {
         name: json["name"],
         lastName: json["last_name"],
         email: json["email"],
+        userId: json["user_id"],
         rol: json["rol"],
         locations: json["locations"] == null ? [] : List<Location>.from(json["locations"]!.map((x) => Location.fromMap(x))),
     );
@@ -75,6 +78,7 @@ class Result {
         "name": name,
         "last_name": lastName,
         "email": email,
+        "user_id": userId,
         "rol": rol,
         "locations": locations == null ? [] : List<dynamic>.from(locations!.map((x) => x.toMap())),
     };

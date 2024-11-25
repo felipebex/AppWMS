@@ -15,6 +15,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
 
+
+
+   bool isVisible = false;
+
   LoginRepository loginRepository = LoginRepository();
 
   LoginBloc() : super(LoginInitial()) {
@@ -22,7 +26,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       try {
         emit(LoginLoading());
 
-        final response = await loginRepository.login(email.text, password.text);
+        final response = await loginRepository.login(email.text, password.text, event.context);
         print("Response: $response");
         if (response.data == null) {
           emit(LoginFailure('Autenticación fallida.'));
@@ -31,6 +35,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           PrefUtils.setUserEmail(response.data?.result?.email?? 'No-email');
           PrefUtils.setUserRol(response.data?.result?.rol?? 'No-rol');
           PrefUtils.setUserPass(password.text);
+          PrefUtils.setUserId(response.data?.result?.userId?? 0);
           PrefUtils.setIsLoggedIn(true);
           email.clear();
           password.clear();
@@ -41,6 +46,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         print('Error en login_bloc.dart: $e $s');
         emit(LoginFailure('Error en login_bloc.dart: $e $s'));
       }
+    });
+
+     on<TogglePasswordVisibility>((event, emit) {
+      isVisible = !isVisible;
+      emit(PasswordVisibilityToggled(isVisible));
     });
   }
 }

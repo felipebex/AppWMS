@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element, avoid_print, unrelated_type_equality_checks
+// ignore_for_file: unused_element, avoid_print, unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'dart:async';
 import 'dart:convert';
@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:wms_app/src/api/dialog_loading.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
+import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -52,6 +53,7 @@ class ApiRequestService {
     required String endpoint,
     required Map<String, dynamic>? body,
     required bool isLoadinDialog,
+    required BuildContext context,
   }) async {
     // Convertir el cuerpo a JSON si no es nulo
     final bodyJson = jsonEncode(body);
@@ -81,6 +83,10 @@ class ApiRequestService {
             );
           }
 
+          //
+          print('Petición POST a $endpoint');
+          print('Cuerpo de la solicitud: $bodyJson');
+
           // Intentar hacer la solicitud HTTP
           final response = await http.post(
             Uri.http(authority, '$unencodePath/$endpoint'),
@@ -90,7 +96,19 @@ class ApiRequestService {
             },
           );
 
-            // Cerrar el diálogo de carga cuando la solicitud se haya completado
+          // List<int> intList = Preferences.getIntList;
+
+          // for (var i = 0; i < intList.length; i++) {
+          //   if (intList[i] == 1) {
+          //     print('Petición POST a $endpoint');
+          //     print("statusCode: ${response.statusCode}");
+          //    Navigator.pushNamed(context, 'home');
+          //   }else{
+
+          //   }
+          // }
+
+          // Cerrar el diálogo de carga cuando la solicitud se haya completado
           if (isLoadinDialog) {
             Get.back();
           }

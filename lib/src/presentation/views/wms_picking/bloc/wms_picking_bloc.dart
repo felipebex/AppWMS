@@ -154,8 +154,11 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
   void _onFilterBatchesBStatusEvent(
       FilterBatchesBStatusEvent event, Emitter<PickingState> emit) async {
+
+         final int userId = await PrefUtils.getUserId();
+
     if (event.status == '') {
-      final batchsFromDB = await _databas.getAllBatchs();
+      final batchsFromDB = await _databas.getAllBatchs(userId);
       filteredBatchs = batchsFromDB;
       filteredBatchs = filteredBatchs
           .where((element) => element.isSeparate == null)
@@ -176,6 +179,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
       final response = await wmsPickingRepository.resBatchs(
         event.isLoadinDialog,
+        event.context,
       );
 
       if (response != null && response is List) {
@@ -193,6 +197,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
         print('response batchs: ${response.length}');
         PrefUtils.setPickingBatchs(response.length);
+       int userId = await  PrefUtils.getUserId();
         listOfBatchs.clear();
         listOfBatchs.addAll(response);
 
@@ -206,7 +211,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
                 pickingTypeId: batch.pickingTypeId,
                 muelle: batch.muelle,
                 state: batch.state,
-                userId: batch.userId,
+                userId: userId,
                 userName: batch.userName,
                 isWave: batch.isWave.toString(),
                 countItems: batch.countItems,
@@ -251,9 +256,12 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   void _onLoadBatchsFromDBEvent(
       LoadBatchsFromDBEvent event, Emitter<PickingState> emit) async {
     try {
+
+         final int userId = await PrefUtils.getUserId();
+
       batchsDone.clear();
       emit(BatchsPickingLoadingState());
-      final batchsFromDB = await _databas.getAllBatchs();
+      final batchsFromDB = await _databas.getAllBatchs(userId);
 
       filteredBatchs = batchsFromDB;
 
@@ -276,7 +284,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   void _onSearchBacthEvent(
       SearchBatchEvent event, Emitter<PickingState> emit) async {
     final query = event.query.toLowerCase();
-    final batchsFromDB = await _databas.getAllBatchs();
+    final int userid = await PrefUtils.getUserId();
+    final batchsFromDB = await _databas.getAllBatchs(userid);
     if (event.indexMenu == 0) {
       if (query.isEmpty) {
         filteredBatchs = batchsFromDB;

@@ -16,3 +16,7 @@ final class LoginFailure extends LoginState {
   final String error;
   LoginFailure(this.error);
 }
+
+class PasswordVisibilityToggled extends LoginState {
+   PasswordVisibilityToggled(bool isVisible);
+}

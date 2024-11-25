@@ -17,7 +17,6 @@
 // }
 
 
-// class LoadUrlFromDB extends EntrepriseEvent {}
 
 
 // class ChangeMethod extends EntrepriseEvent {
@@ -34,8 +33,10 @@ sealed class EntrepriseEvent {}
 class EntrepriseButtonPressed extends EntrepriseEvent {
 
 }
+class LoadUrlFromDB extends EntrepriseEvent {}
 
 class DeleteUrl extends EntrepriseEvent {
   final int index;
-  DeleteUrl(this.index);
+  final String url;
+  DeleteUrl(this.url, this.index);
 }

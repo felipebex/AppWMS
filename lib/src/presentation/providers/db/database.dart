@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks
 
+import 'package:wms_app/src/presentation/views/global/enterprise/models/recent_url_model.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
@@ -78,6 +79,7 @@ class DataBaseSqlite {
         location_dest_id TEXT,
         quantity INTEGER,
         barcode TEXT,
+        rimoval_priority TEXT,
         barcode_location_dest TEXT,
         barcode_location TEXT,
         quantity_separate INTEGER,
@@ -226,11 +228,90 @@ class DataBaseSqlite {
     show_next_locations_in_details INTEGER
     )
     ''');
+
+    //tabla de urls recientes
+    await db.execute('''
+      CREATE TABLE tblurlsrecientes (
+        id INTEGER PRIMARY KEY,
+        url VARCHAR(255),
+        fecha VARCHAR(255)
+      )
+    ''');
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute("ALTER TABLE tblbatchs ADD COLUMN is_wave VARCHAR(255)");
+    }
+  }
+
+  //metodo para obtener todas las urls recientes
+  Future<List<RecentUrl>> getAllUrlsRecientes() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query('tblurlsrecientes');
+
+    final List<RecentUrl> urls = maps.map((map) {
+      return RecentUrl(
+        id: map['id'],
+        url: map['url'],
+        fecha: map['fecha'],
+      );
+    }).toList();
+    return urls;
+  }
+
+  //metodo para insertar una url reciente
+  Future<void> insertUrlReciente(RecentUrl url) async {
+    try {
+      final db = await database;
+
+      await db!.transaction((txn) async {
+        // Verificar si la url ya existe
+        final List<Map<String, dynamic>> existingUrl = await txn.query(
+          'tblurlsrecientes',
+          where: 'url = ?',
+          whereArgs: [url.url],
+        );
+
+        if (existingUrl.isNotEmpty) {
+          // Actualizar la url
+          await txn.update(
+            'tblurlsrecientes',
+            {
+              "url": url.url,
+              "fecha": url.fecha,
+            },
+            where: 'url = ?',
+            whereArgs: [url.url],
+          );
+        } else {
+          // Insertar nueva url
+          await txn.insert(
+            'tblurlsrecientes',
+            {
+              "url": url.url,
+              "fecha": url.fecha,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+      });
+    } catch (e) {
+      print("Error al insertar url reciente: $e");
+    }
+  }
+
+  //metdo para eliminar una url reciente
+  Future<void> deleteUrlReciente(String url) async {
+    try {
+      final db = await database;
+      await db!.delete(
+        'tblurlsrecientes',
+        where: 'url = ?',
+        whereArgs: [url],
+      );
+    } catch (e) {
+      print("Error al eliminar url reciente: $e");
     }
   }
 
@@ -673,17 +754,32 @@ class DataBaseSqlite {
   }
 
   //* Obtener todos los batchs
-  Future<List<BatchsModel>> getAllBatchs() async {
+  // Future<List<BatchsModel>> getAllBatchs() async {
+  //   try {
+  //     final db = await database;
+  //     final List<Map<String, dynamic>> maps = await db!.query('tblbatchs');
+
+  Future<List<BatchsModel>> getAllBatchs(int userId) async {
     try {
       final db = await database;
-      final List<Map<String, dynamic>> maps = await db!.query('tblbatchs');
+
+      // Agregar una condición de búsqueda por user_id
+      final List<Map<String, dynamic>> maps = await db!.query(
+        'tblbatchs',
+        where: 'user_id = ?', // Condición de búsqueda
+        whereArgs: [userId], // Argumento para el ? (el user_id que buscas)
+      );
+      // final List<Map<String, dynamic>> maps = await db!.query('tblbatchs');
 
       final List<BatchsModel> batchs = maps.map((map) {
         return BatchsModel.fromMap(map);
       }).toList();
+
+      print("getAllBatchs: $batchs");
+
       return batchs;
     } catch (e, s) {
-      print("Error getAllBatchs: $e => $s");
+      print("Error getBatchsByUserId: $e => $s");
     }
     return [];
   }
@@ -786,8 +882,10 @@ class DataBaseSqlite {
                 "id_product": productBatch.idProduct,
                 "batch_id": productBatch.batchId,
                 "location_id": productBatch.locationId?[1],
-                "lot_id": productBatch.lotId?[1],
+                "lot_id":
+                    productBatch.lotId == false ? "" : productBatch.lotId?[1],
                 "lote_id": productBatch.loteId,
+                "rimoval_priority": productBatch.rimovalPriority,
                 "id_move": productBatch.idMove,
                 "barcode_location_dest":
                     productBatch.barcodeLocationDest == false
@@ -820,7 +918,10 @@ class DataBaseSqlite {
                 "product_id":
                     productBatch.productId?[1], // Usar el valor correcto
                 "location_id": productBatch.locationId?[1],
-                "lot_id": productBatch.lotId?[1],
+                "lot_id":
+                    productBatch.lotId == false ? "" : productBatch.lotId?[1],
+                "rimoval_priority": productBatch.rimovalPriority,
+
                 "barcode_location_dest":
                     productBatch.barcodeLocationDest == false
                         ? ""

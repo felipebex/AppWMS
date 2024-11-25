@@ -50,6 +50,19 @@ static Future<void> setUserRol(String rol) async {
   await preferences.setString(PrefKeys.rol, rol);
 }
 
+//user id
+static Future<void> setUserId(int id) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setInt(PrefKeys.userId, id);
+}
+
+//obtenemos el id del usuario
+static Future<int> getUserId() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  return preferences.getInt(PrefKeys.userId) ?? 0;
+}
+
+
 //*contraseña
 static Future<void> setUserPass(String pass) async {
   SharedPreferences preferences = await SharedPreferences.getInstance();

@@ -42,7 +42,7 @@ class _DetailClientSaleState extends State<DetailClientSale> {
                 text: element,
                 textStyle: const TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 12,
                 ),
                 elevation: 0,
                 sliderRotate: false,
