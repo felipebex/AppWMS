@@ -11,6 +11,12 @@ class LoadAllProductsEvent extends PickingEvent {
 }
 
 
+//*evento para cargar todos los batchs por fecha
+class FilterBatchsByDateEvent extends PickingEvent {
+  final DateTime date;
+  final int indexMenu;
+  FilterBatchsByDateEvent(this.date, this.indexMenu);
+}
 
 
 

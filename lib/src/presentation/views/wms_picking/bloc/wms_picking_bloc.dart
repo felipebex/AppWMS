@@ -1,7 +1,6 @@
 // ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, unnecessary_import, unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:wms_app/src/presentation/providers/db/database.dart';
-import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
@@ -29,10 +28,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   final DataBaseSqlite _databas = DataBaseSqlite();
 
   WMSPickingBloc() : super(ProductspickingInitial()) {
-
-
-
-    
+    //*filtrar los batchs por fecha
+    on<FilterBatchsByDateEvent>(_onFilterBatchsByDateEvent);
 
     //*obtener todos los batchs desde odoox
     on<LoadAllBatchsEvent>(_onLoadAllBatchsEvent);
@@ -50,6 +47,49 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     on<FilterBatchesByTypeEvent>(_onFilterBatchesByTypeEvent);
   }
 
+  //*metodo para filtrar los batchs por fecha
+  void _onFilterBatchsByDateEvent(
+      FilterBatchsByDateEvent event, Emitter<PickingState> emit) async {
+    final date = event.date;
+    final int indexMenu = event.indexMenu;
+    final int userId = await PrefUtils.getUserId();
+
+    final batchsFromDB = await _databas.getAllBatchs(userId);
+    print('batchsFromDB: ${batchsFromDB.length}');
+    if (indexMenu == 0) {
+      filteredBatchs.clear();
+      print("batch en proceso");
+      //bathc en proceso
+
+      filteredBatchs = batchsFromDB
+          .where((batch) =>
+              batch.scheduleddate != null &&
+              //la fechha es un string
+              DateTime.parse(batch.scheduleddate).day == date.day &&
+              DateTime.parse(batch.scheduleddate).month == date.month &&
+              DateTime.parse(batch.scheduleddate).year == date.year)
+          .toList();
+    } else {
+      filteredBatchs.clear();
+      print("batch hechos");
+
+      //batche ne hecho guardado en bd local
+      filteredBatchs = batchsDone
+          .where((batch) =>
+              batch.scheduleddate != null &&
+              batch.isSeparate == 1 &&
+              DateTime.parse(batch.scheduleddate).day == date.day &&
+              DateTime.parse(batch.scheduleddate).month == date.month &&
+              DateTime.parse(batch.scheduleddate).year == date.year)
+          .toList();
+    }
+
+    print('filteredBatchs: ${filteredBatchs.length}');
+
+    emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
+  }
+
+  //*metodo para filtrar los batchs por tipo de batch
   void _onFilterBatchesByTypeEvent(
       FilterBatchesByTypeEvent event, Emitter<PickingState> emit) {
     String status = '';
@@ -154,8 +194,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
   void _onFilterBatchesBStatusEvent(
       FilterBatchesBStatusEvent event, Emitter<PickingState> emit) async {
-
-         final int userId = await PrefUtils.getUserId();
+    final int userId = await PrefUtils.getUserId();
 
     if (event.status == '') {
       final batchsFromDB = await _databas.getAllBatchs(userId);
@@ -185,10 +224,35 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       if (response != null && response is List) {
         // validamos que si hace la petición cada 3 minutos
         if (!event.isLoadinDialog) {
-          //obtenemos la cantidad de los batchs guardados en la pasada petición
-          int pickingBatchs = await PrefUtils.getPickingBatchs();
-          //si la cantidad de los batchs es mayor a la cantidad de los batchs actuales
-          if (response.length > pickingBatchs) {
+          final int userid = await PrefUtils.getUserId();
+          final intBacths = await DataBaseSqlite().getAllBatchs(userid);
+
+          final todayBatches = intBacths.where((batch) {
+            // Convierte `scheduleddate` a DateTime
+            final scheduledDate = DateTime.parse(batch.scheduleddate);
+
+            // Obtén la fecha actual
+            final today = DateTime.now();
+
+            // Compara día, mes y año
+            return scheduledDate.year == today.year &&
+                scheduledDate.month == today.month &&
+                scheduledDate.day == today.day;
+          }).toList();
+
+
+          final todayBatchesOdoo = response.where((batch) {
+            // Convierte `scheduleddate` a DateTime
+            final scheduledDate = DateTime.parse(batch.scheduleddate);
+            final today = DateTime.now();
+            return scheduledDate.year == today.year &&
+                scheduledDate.month == today.month &&
+                scheduledDate.day == today.day;
+          }).toList();
+
+
+
+          if (todayBatchesOdoo.length > todayBatches.length) {
             //mostramos una notificación
             LocalNotificationsService().showNotification('Nuevos batchs',
                 'Se han agregado nuevos batchs para picking', '');
@@ -197,17 +261,19 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
         print('response batchs: ${response.length}');
         PrefUtils.setPickingBatchs(response.length);
-       int userId = await  PrefUtils.getUserId();
+        int userId = await PrefUtils.getUserId();
         listOfBatchs.clear();
         listOfBatchs.addAll(response);
 
         for (var batch in listOfBatchs) {
           try {
             if (batch.id != null && batch.name != null) {
+              print(
+                  'batch.id: ${batch.id} scheduleddate: ${batch.scheduleddate}');
               await DataBaseSqlite().insertBatch(BatchsModel(
                 id: batch.id!,
                 name: batch.name ?? '',
-                scheduleddate: batch.scheduleddate ?? DateTime.now(),
+                scheduleddate: batch.scheduleddate.toString(),
                 pickingTypeId: batch.pickingTypeId,
                 muelle: batch.muelle,
                 state: batch.state,
@@ -256,8 +322,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   void _onLoadBatchsFromDBEvent(
       LoadBatchsFromDBEvent event, Emitter<PickingState> emit) async {
     try {
-
-         final int userId = await PrefUtils.getUserId();
+      final int userId = await PrefUtils.getUserId();
 
       batchsDone.clear();
       emit(BatchsPickingLoadingState());

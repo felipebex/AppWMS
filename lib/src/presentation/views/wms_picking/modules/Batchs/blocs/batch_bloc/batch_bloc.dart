@@ -1,7 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
-import 'dart:math';
-
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -133,23 +131,34 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<UpdateProductOdooEvent>(_onUpdateProductOdooEvent);
   }
 
-
-
-
   //*metodo para actualizar los datos del producto desde odoo
   void _onUpdateProductOdooEvent(
       UpdateProductOdooEvent event, Emitter<BatchState> emit) async {
-  
+    final response =
+        await repository.getBatchById(true, event.context, event.batchId);
+
+    if (response != null && response.isNotEmpty) {
+      //actualizar la informacion del batch
+      await db.updateBatch(response[0]);
+      //actualizamos el batch
+      batchWithProducts.batch == response[0];
+      //actualizamos la lista de productos
+      List<ProductsBatch> productsToInsert =
+          response.expand((batch) => batch.listItems!).toList();
+      //actualizamos la lista de productos   en la bd
+      await DataBaseSqlite().insertBatchProducts(productsToInsert);
+      //actualizamos la lista de productos
+      add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
+    } else {
+      print('No se encontró el batch con ID: ${event.batchId}');
+    }
   }
-
-
-
 
   //*evento para dejar pendiente la separacion
   void _onPickingPendingEvent(
       ProductPendingEvent event, Emitter<BatchState> emit) async {
     try {
-      if (batchWithProducts.products!.isEmpty) {
+      if (filteredProducts.isEmpty) {
         return;
       }
       print("event current product: ${event.product.toMap()}");
@@ -171,15 +180,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       //actualizamos la lista de productos
       add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
-      print(
-          'Products next selected: ${batchWithProducts.products?[index + 1].toMap()}');
+
       //seleccionamos el producto actual
       await db.setFieldTableBatchProducts(
           batchWithProducts.batch?.id ?? 0,
-          batchWithProducts.products?[index + 1].idProduct ?? 0,
+          filteredProducts[index + 1].idProduct ?? 0,
           'is_selected',
           'true',
-          batchWithProducts.products?[index + 1].idMove ?? 0);
+          filteredProducts[index + 1].idMove ?? 0);
     } catch (e, s) {
       print('Error _onPickingPendingEvent: $e, $s');
     }
@@ -206,14 +214,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     print("el tiempo total de separacion es: $secondsDifference");
     emit(PickingOkState());
-
-
-//         product?.batchId ?? 0, 'time_separate_start');
-//     DateTime dateTimeStart = DateTime.parse(starTime);
-//     // Calcular la diferencia
-//     Duration difference = dateTimeActuality.difference(dateTimeStart);
-//     // Obtener la diferencia en segundos
-//     double secondsDifference = difference.inMilliseconds / 1000.0;
   }
 
   //*metodo para cambiar la cantidad seleccionada
@@ -337,13 +337,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void getPosicions() {
     positionsOrigen.clear();
-    for (var i = 0; i < batchWithProducts.products!.length; i++) {
-      if (batchWithProducts.products![i].locationId != false) {
-        if (positionsOrigen
-            .contains(batchWithProducts.products?[i].locationId ?? '')) {
+    for (var i = 0; i < filteredProducts.length; i++) {
+      if (filteredProducts[i].locationId != false) {
+        if (positionsOrigen.contains(filteredProducts[i].locationId ?? '')) {
           continue;
         }
-        positionsOrigen.add(batchWithProducts.products?[i].locationId ?? '');
+        positionsOrigen.add(filteredProducts[i].locationId ?? '');
       }
     }
   }
@@ -362,8 +361,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     listOfProductsName.clear();
 
     // Recorremos los productos del batch
-    for (var i = 0; i < batchWithProducts.products!.length; i++) {
-      var product = batchWithProducts.products?[i];
+    for (var i = 0; i < filteredProducts.length; i++) {
+      var product = filteredProducts[i];
 
       // Aseguramos que productId no sea nulo antes de intentar agregarlo
       if (product != null && product.productId != null) {
@@ -420,7 +419,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     sendProuctOdoo();
     //validamos si es el ultimo producto
-    if (batchWithProducts.products?.length == index + 1) {
+    if (filteredProducts.length == index + 1) {
       //actualizamos el index de la lista de productos
       await db.setFieldTableBatch(
           batchWithProducts.batch?.id ?? 0, 'index_list', index);
@@ -445,7 +444,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await db.setFieldTableBatch(
           batchWithProducts.batch?.id ?? 0, 'index_list', index);
       //actualizamos el producto actual
-      currentProduct = batchWithProducts.products![index];
+      currentProduct = filteredProducts[index];
       if (currentProduct.locationId == oldLocation) {
         print('La ubicacion es igual');
         locationIsOk = true;
@@ -562,7 +561,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       ClearSearchProudctsBatchEvent event, Emitter<BatchState> emit) {
     searchController.clear();
     filteredProducts.clear();
-    filteredProducts.addAll(listOfProductsBatchDB);
+    filteredProducts.addAll(batchWithProducts.products!);
     emit(LoadProductsBatchSuccesState(listOfProductsBatch: filteredProducts));
   }
 
@@ -572,11 +571,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     if (query.isEmpty) {
       filteredProducts.clear();
-      filteredProducts =
-          listOfProductsBatchDB; // Si la búsqueda está vacía, mostrar todos los productos
+      filteredProducts = batchWithProducts
+          .products!; // Si la búsqueda está vacía, mostrar todos los productos
     } else {
-      filteredProducts = listOfProductsBatchDB.where((batch) {
-        return batch.productId?[1]?.toLowerCase().contains(query) ?? false;
+      filteredProducts = batchWithProducts.products!.where((batch) {
+        return batch.productId?.toLowerCase().contains(query) ?? false;
       }).toList();
     }
     emit(LoadProductsBatchSuccesState(
@@ -600,16 +599,18 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         return;
       }
 
+      filteredProducts.clear();
+      filteredProducts.addAll(batchWithProducts.products!);
+
       add(LoadDataInfoEvent());
 
-      sortProductsByLocationId(batchWithProducts.products!);
+      sortProductsByLocationId(filteredProducts);
       getPosicions();
       getMuelles();
 
       int indexToAccess = batchWithProducts.batch!.indexList ?? index;
-      if (indexToAccess >= 0 &&
-          indexToAccess < batchWithProducts.products!.length) {
-        currentProduct = batchWithProducts.products![indexToAccess];
+      if (indexToAccess >= 0 && indexToAccess < filteredProducts.length) {
+        currentProduct = filteredProducts[indexToAccess];
         //agregamos la lista de barcodes al producto actual
         listOfBarcodes.clear();
 
@@ -623,7 +624,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       products();
 
       emit(LoadProductsBatchSuccesStateBD(
-          listOfProductsBatch: batchWithProducts.products!));
+          listOfProductsBatch: filteredProducts));
     } else {
       batchWithProducts = BatchWithProducts();
       print('No se encontró el batch con ID: ${event.batchId}');
@@ -638,13 +639,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   // }
 
   void sortProductsByLocationId(List<ProductsBatch> products) {
-
-
     // Primero, ordenamos por rimovalPriority (prioridad alfabética y numérica)
- // Primero, ordenamos por rimovalPriority (prioridad alfabética y numérica)
-  products.sort((a, b) {
-    return compareRimovalPriority(a.rimovalPriority, b.rimovalPriority);
-  });
+    // Primero, ordenamos por rimovalPriority (prioridad alfabética y numérica)
+    products.sort((a, b) {
+      return compareRimovalPriority(a.rimovalPriority, b.rimovalPriority);
+    });
 
     // Ordenar los productos por locationId
     products.sort((a, b) {
@@ -665,36 +664,35 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     products.addAll(pendingProducts);
   }
 
-
-
 // Función para comparar rimovalPriority (alfanumérico)
-int compareRimovalPriority(String? a, String? b) {
-  if (a == null || b == null) return 0; // Si alguno es null, no los consideramos diferentes
+  int compareRimovalPriority(String? a, String? b) {
+    if (a == null || b == null)
+      return 0; // Si alguno es null, no los consideramos diferentes
 
-  // Expresión regular para separar la parte alfabética y la numérica
-  final RegExp regex = RegExp(r"([A-Za-z]+)(\d+)");
+    // Expresión regular para separar la parte alfabética y la numérica
+    final RegExp regex = RegExp(r"([A-Za-z]+)(\d+)");
 
-  final matchA = regex.firstMatch(a);
-  final matchB = regex.firstMatch(b);
+    final matchA = regex.firstMatch(a);
+    final matchB = regex.firstMatch(b);
 
-  if (matchA != null && matchB != null) {
-    final letterA = matchA.group(1);
-    final numberA = int.parse(matchA.group(2)!);
+    if (matchA != null && matchB != null) {
+      final letterA = matchA.group(1);
+      final numberA = int.parse(matchA.group(2)!);
 
-    final letterB = matchB.group(1);
-    final numberB = int.parse(matchB.group(2)!);
+      final letterB = matchB.group(1);
+      final numberB = int.parse(matchB.group(2)!);
 
-    // Primero comparamos las letras (alfabéticamente)
-    int letterComparison = letterA!.compareTo(letterB!);
-    if (letterComparison != 0) return letterComparison;
+      // Primero comparamos las letras (alfabéticamente)
+      int letterComparison = letterA!.compareTo(letterB!);
+      if (letterComparison != 0) return letterComparison;
 
-    // Si las letras son iguales, comparamos los números de manera ascendente
-    return numberA.compareTo(numberB);
+      // Si las letras son iguales, comparamos los números de manera ascendente
+      return numberA.compareTo(numberB);
+    }
+
+    // Si no se encuentra una coincidencia (por algún error en el formato), comparamos como texto.
+    return a.compareTo(b);
   }
-
-  // Si no se encuentra una coincidencia (por algún error en el formato), comparamos como texto.
-  return a.compareTo(b);
-}
 
   String calculateProgress() {
     final totalItems = batchWithProducts.products?.length ?? 0;

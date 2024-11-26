@@ -54,7 +54,7 @@ class Data {
 class BatchsModel {
   final int? id;
   final String? name;
-  final DateTime? scheduleddate;
+  final dynamic? scheduleddate;
   final String? pickingTypeId;
   final String? muelle; // es el mismo location_id
   final String? state;
@@ -76,7 +76,7 @@ class BatchsModel {
   final String? isSendOdooDate;
   final String? observation;
 
-  final List<ProductsBatch>? listItems;
+   List<ProductsBatch>? listItems;
 
   BatchsModel({
     this.id,
@@ -110,9 +110,7 @@ class BatchsModel {
   factory BatchsModel.fromMap(Map<String, dynamic> json) => BatchsModel(
         id: json['id'],
         name: json['name'].toString(),
-        scheduleddate: json["scheduleddate"] == null
-            ? null
-            : DateTime.parse(json["scheduleddate"]),
+        scheduleddate: json["scheduleddate"] ,
         pickingTypeId: json['picking_type_id'],
         muelle: json['muelle'],
         state: json['state'],
@@ -139,7 +137,7 @@ class BatchsModel {
   Map<String, dynamic> toMap() => {
         'id': id,
         'name': name,
-        'scheduleddate': scheduleddate?.toIso8601String(),
+        'scheduleddate': scheduleddate,
         'picking_type_id': pickingTypeId,
         'muelle': muelle,
         'state': state,

@@ -106,7 +106,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
         int totalTasks =
-            context.read<BatchBloc>().batchWithProducts.products?.length ?? 0;
+            context.read<BatchBloc>().filteredProducts?.length ?? 0;
 
         double progress = totalTasks > 0
             ? context.read<BatchBloc>().completedProducts / totalTasks
@@ -147,11 +147,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           );
         }
 
-        // final currentProduct =
-        //     batchBloc.batchWithProducts.products?[batchBloc.index];
-
         if (state is LoadProductsBatchSuccesStateBD ||
             state is ChangeIsOkState ||
+            state is LoadProductsBatchSuccesState ||
             state is CurrentProductChangedState ||
             state is SelectNovedadState ||
             state is QuantityChangedState ||
@@ -218,7 +216,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             ?.name ??
                                         '',
                                     style: const TextStyle(
-                                        color: Colors.white, fontSize: 18),
+                                        color: Colors.white, fontSize: 16),
                                   ),
                                 ),
                                 const Spacer(),
@@ -344,11 +342,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               ),
                                             );
                                           });
-                                    } else if (value == '3'){
-                                      print(batchBloc.batchWithProducts.batch?.toMap());
-                                      print("--------------------");  
-                                      print(currentProduct.toMap());
-
+                                    } else if (value == '3') {
+                                      batchBloc.add(UpdateProductOdooEvent(
+                                          batchBloc.batchWithProducts.batch
+                                                  ?.id ??
+                                              0,
+                                          context));
                                     }
                                     // Agrega más opciones según sea necesario
                                   },
@@ -362,7 +361,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 color: primaryColorApp,
                                                 size: 20),
                                             const SizedBox(width: 10),
-                                            const Text('Ver detalles'),
+                                            const Text('Ver detalles',
+                                                style: TextStyle(
+                                                    color: black,
+                                                    fontSize: 14)),
                                           ],
                                         ),
                                       ),
@@ -374,7 +376,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 color: primaryColorApp,
                                                 size: 20),
                                             const SizedBox(width: 10),
-                                            const Text('Actualizar Datos'),
+                                            const Text('Actualizar Datos',
+                                                style: TextStyle(
+                                                    color: black,
+                                                    fontSize: 14)),
                                           ],
                                         ),
                                       ),
@@ -391,7 +396,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   color: primaryColorApp,
                                                   size: 20),
                                               const SizedBox(width: 10),
-                                              const Text('Dejar pendiente'),
+                                              const Text('Dejar pendiente',
+                                                  style: TextStyle(
+                                                      color: black,
+                                                      fontSize: 14)),
                                             ],
                                           ),
                                         ),
@@ -544,13 +552,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 hint: Text(
                                                   'Ubicación de origen',
                                                   style: TextStyle(
-                                                      fontSize: 16,
+                                                      fontSize: 14,
                                                       color: primaryColorApp),
                                                 ),
                                                 icon: Image.asset(
                                                   "assets/icons/ubicacion.png",
                                                   color: primaryColorApp,
-                                                  width: 24,
+                                                  width: 20,
                                                 ),
                                                 value: selectedLocation,
                                                 items: batchBloc.positionsOrigen
@@ -558,7 +566,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: location,
-                                                    child: Text(location),
+                                                    child: Text(location,
+                                                        style: const TextStyle(
+                                                            color: black,
+                                                            fontSize: 14)),
                                                   );
                                                 }).toList(),
                                                 onChanged: batchBloc
@@ -643,7 +654,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   Text(
                                                     currentProduct.locationId,
                                                     style: const TextStyle(
-                                                        fontSize: 16,
+                                                        fontSize: 14,
                                                         color: black),
                                                   ),
                                                 ],
@@ -779,7 +790,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             Center(
-
                                               child: DropdownButton<String>(
                                                 // dropdownColor: primaryColorApp,
                                                 underline: Container(
@@ -792,13 +802,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 hint: Text(
                                                   'Producto',
                                                   style: TextStyle(
-                                                      fontSize: 16,
+                                                      fontSize: 14,
                                                       color: primaryColorApp),
                                                 ),
                                                 icon: Image.asset(
                                                   "assets/icons/producto.png",
                                                   color: primaryColorApp,
-                                                  width: 24,
+                                                  width: 20,
                                                 ),
                                                 value: selectedLocation,
                                                 // items: batchBloc.positions
@@ -810,10 +820,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: product,
-                                                    child: Text(product, style: const TextStyle(
-                                                      color: black,
-                                                      fontSize: 14
-                                                    )),
+                                                    child: Text(product,
+                                                        style: const TextStyle(
+                                                            color: black,
+                                                            fontSize: 14)),
                                                   );
                                                 }).toList(),
 
@@ -925,7 +935,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     currentProduct.productId
                                                         .toString(),
                                                     style: const TextStyle(
-                                                        fontSize: 16,
+                                                        fontSize: 14,
                                                         color: black),
                                                   ),
                                                   Visibility(
@@ -943,7 +953,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       textAlign:
                                                           TextAlign.start,
                                                       style: TextStyle(
-                                                          fontSize: 16,
+                                                          fontSize: 14,
                                                           color: red),
                                                     ),
                                                   ),
@@ -962,7 +972,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     child: Text(
                                                       'Lote/Numero de serie ',
                                                       style: TextStyle(
-                                                          fontSize: 16,
+                                                          fontSize: 14,
                                                           color:
                                                               primaryColorApp),
                                                     ),
@@ -974,7 +984,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       currentProduct.lotId ??
                                                           '',
                                                       style: const TextStyle(
-                                                          fontSize: 16,
+                                                          fontSize: 14,
                                                           color: black),
                                                     ),
                                                   ),
@@ -992,7 +1002,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             //Todo: MUELLE
                             //solo lo mostramos si es el ultimo producto
                             if (batchBloc.index + 1 ==
-                                batchBloc.batchWithProducts.products?.length)
+                                batchBloc.filteredProducts?.length)
                               Row(
                                 children: [
                                   Padding(
@@ -1028,6 +1038,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             if (event.logicalKey ==
                                                 LogicalKeyboardKey.enter) {
                                               if (scannedValue4.isNotEmpty) {
+                                                print("scan:   $scannedValue4");
                                                 if (scannedValue4
                                                         .toLowerCase() ==
                                                     currentProduct
@@ -1079,6 +1090,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       ValidateFieldsEvent(
                                                           field: "locationDest",
                                                           isOk: false));
+                                                  setState(() {
+                                                    scannedValue4 =
+                                                        ""; //limpiamos el valor escaneado
+                                                  });
+
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(SnackBar(
                                                     duration: const Duration(
@@ -1118,13 +1134,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   hint: Text(
                                                     'Muelle',
                                                     style: TextStyle(
-                                                        fontSize: 16,
+                                                        fontSize: 14,
                                                         color: primaryColorApp),
                                                   ),
                                                   icon: Image.asset(
                                                     "assets/icons/packing.png",
                                                     color: primaryColorApp,
-                                                    width: 24,
+                                                    width: 20,
                                                   ),
                                                   value: selectedMuelle,
                                                   // items: batchBloc.positions
@@ -1133,7 +1149,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     return DropdownMenuItem<
                                                         String>(
                                                       value: location,
-                                                      child: Text(location),
+                                                      child: Text(location,
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: black,
+                                                                  fontSize:
+                                                                      14)),
                                                     );
                                                   }).toList(),
 
@@ -1236,7 +1257,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           .toString() ??
                                                       '',
                                                   style: const TextStyle(
-                                                      fontSize: 16,
+                                                      fontSize: 14,
                                                       color: black),
                                                 ),
                                               ),
@@ -1293,19 +1314,19 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 children: [
                                   const Text('Recoger:',
                                       style: TextStyle(
-                                          color: Colors.black, fontSize: 16)),
+                                          color: Colors.black, fontSize: 14)),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10),
                                     child: Text(
                                       currentProduct.quantity?.toString() ?? "",
                                       style: TextStyle(
-                                          color: primaryColorApp, fontSize: 16),
+                                          color: primaryColorApp, fontSize: 14),
                                     ),
                                   ),
                                   Text(currentProduct.unidades ?? "",
                                       style: const TextStyle(
-                                          color: Colors.black, fontSize: 16)),
+                                          color: Colors.black, fontSize: 14)),
                                   // const Spacer(),
                                   Expanded(
                                     child: Padding(
@@ -1380,7 +1401,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 overflow: TextOverflow.ellipsis,
                                                 style: const TextStyle(
                                                   color: Colors.black,
-                                                  fontSize: 16,
+                                                  fontSize: 14,
                                                 )),
                                           )),
                                     ),
@@ -1613,7 +1634,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             child: const Text(
                               'APLICAR CANTIDAD',
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                                  TextStyle(color: Colors.white, fontSize: 14),
                             ),
                           )),
                     ],
@@ -1690,7 +1711,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
     ///cambiamos al siguiente producto
 
-    if (batchBloc.index + 1 == batchBloc.batchWithProducts.products?.length) {
+    if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
       //ultima posicion de la lista
       context
           .read<BatchBloc>()

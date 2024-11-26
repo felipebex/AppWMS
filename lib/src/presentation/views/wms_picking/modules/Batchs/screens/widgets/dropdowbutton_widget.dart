@@ -64,13 +64,13 @@ class _DialogAdvetenciaCantidadScreenState
                     text: 'La cantidad separada ',
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 16), // Color del texto normal
+                        fontSize: 14), // Color del texto normal
                   ),
                   TextSpan(
                     text: '${widget.cantidad} ',
                     style:  TextStyle(
                       color: primaryColorApp,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                     // Color rojo para quantity
@@ -79,14 +79,14 @@ class _DialogAdvetenciaCantidadScreenState
                     text: 'es menor a la cantidad a recoger ',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 16,
+                      fontSize: 14,
                     ), // Color del texto normal
                   ),
                   TextSpan(
                     text: '${widget.currentProduct.quantity}',
                     style: const TextStyle(
                       color: green,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ), // Color verde para currentProduct?.quantity
                   ),
@@ -94,7 +94,7 @@ class _DialogAdvetenciaCantidadScreenState
               ),
             ),
             const Text("Para continuar, seleccione la novedad",
-                style: TextStyle(color: Colors.black, fontSize: 16)),
+                style: TextStyle(color: Colors.black, fontSize: 14)),
             const SizedBox(height: 10),
             Card(
               color: Colors.white,
@@ -115,7 +115,7 @@ class _DialogAdvetenciaCantidadScreenState
                   hint: const Text(
                     'Seleccionar novedad',
                     style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: black), // Cambia primaryColorApp a tu color
                   ),
                   icon: Image.asset(
@@ -127,7 +127,7 @@ class _DialogAdvetenciaCantidadScreenState
                   alignment: Alignment.centerLeft,
                   style: const TextStyle(
                       color: black,
-                      fontSize: 16), // Cambia primaryColorApp a tu color
+                      fontSize: 14), // Cambia primaryColorApp a tu color
                   items: novedades.map((String novedad) {
                     return DropdownMenuItem<String>(
                       value: novedad,

@@ -7,6 +7,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
@@ -50,7 +51,6 @@ class _HomePageState extends State<HomePage> {
       },
       child: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {
-          print('STATE: $state');
           // if (state is HomeLoadedState) {
           //   context
           //       .read<WMSPickingBloc>()
@@ -63,56 +63,24 @@ class _HomePageState extends State<HomePage> {
         builder: (context, state) {
           return Scaffold(
             floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                context
-                    .read<WMSPickingBloc>()
-                    .add(LoadAllBatchsEvent(context, true));
-                // context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true, context));
+              onPressed: () async {
                 context.read<UserBloc>().add(GetConfigurations(context));
-                // DataBaseSqlite db = DataBaseSqlite();
-                // await db.deleteAll();
+
+                final String rol = await PrefUtils.getUserRol();
+
+                if (rol == 'picking') {
+                  context
+                      .read<WMSPickingBloc>()
+                      .add(LoadAllBatchsEvent(context, true));
+                } else {
+                  context
+                      .read<WmsPackingBloc>()
+                      .add(LoadAllPackingEvent(true, context));
+                }
               },
               backgroundColor: primaryColorApp,
               child: const Icon(Icons.refresh_outlined, color: white),
             ),
-
-            // floatingActionButton: Stack(
-            //   children: [
-            //     // Primer botón flotante
-            //     Positioned(
-            //       bottom: 70,
-            //       right: 0,
-            //       child: FloatingActionButton(
-            //         onPressed: () async {
-            //           context
-            //               .read<WMSPickingBloc>()
-            //               .add(LoadAllBatchsEvent(context, true));
-            //           context
-            //               .read<WmsPackingBloc>()
-            //               .add(LoadAllPackingEvent(true));
-            //           context.read<UserBloc>().add(GetConfigurations());
-            //         },
-            //         backgroundColor: primaryColorApp,
-            //         child: const Icon(Icons.refresh_outlined, color: white),
-            //       ),
-            //     ),
-
-            //     // Segundo botón flotante
-            //     Positioned(
-            //       bottom: 0,
-            //       right: 0,
-            //       child: FloatingActionButton(
-            //         onPressed: () async {
-            //           DataBaseSqlite db = DataBaseSqlite();
-            //           await db.deleteAll();
-            //         },
-            //         backgroundColor: primaryColorApp,
-            //         child: const Icon(Icons.delete, color: white),
-            //       ),
-            //     ),
-            //   ],
-            // ),
-
             body: Container(
               width: size.width,
               height: size.height,
@@ -391,11 +359,15 @@ class _HomePageState extends State<HomePage> {
                                             value: context
                                                 .read<WMSPickingBloc>()
                                                 .batchsDone
+                                                .where((element) =>
+                                                    element.scheduleddate ==
+                                                    DateTime.now()
+                                                        .toString()
+                                                        .substring(0, 10))
                                                 .length
                                                 .toString(),
                                           ),
                                         ),
-
                                         GestureDetector(
                                           onTap: () async {
                                             final String rol =
@@ -448,7 +420,6 @@ class _HomePageState extends State<HomePage> {
                                                 .toString(),
                                           ),
                                         ),
-                                       
                                       ],
                                     ));
                               },

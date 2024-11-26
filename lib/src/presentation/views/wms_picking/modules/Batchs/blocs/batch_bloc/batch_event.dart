@@ -135,8 +135,7 @@ class LoadConfigurationsUser extends BatchEvent {
 }
 
 class UpdateProductOdooEvent extends BatchEvent {
-  final int productId;
   final int batchId;
-  final int idMove;
-  UpdateProductOdooEvent(this.productId, this.batchId, this.idMove);
+  final BuildContext context;
+  UpdateProductOdooEvent( this.batchId,  this.context);
 }

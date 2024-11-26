@@ -186,12 +186,12 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             ),
                                             Padding(
                                               padding: EdgeInsets.only(
-                                                  left: size.width * 0.25),
+                                                  left: size.width * 0.27),
                                               child: const Text(
                                                 'BATCHS',
                                                 style: TextStyle(
                                                     color: white,
-                                                    fontSize: 18,
+                                                    fontSize: 16,
                                                     fontWeight:
                                                         FontWeight.bold),
                                               ),
@@ -281,66 +281,94 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           ),
                                         ),
                                       ),
+                                      
+                                      
+     
                                       Card(
                                         color: Colors.white,
                                         elevation: 3,
-                                        child: PopupMenuButton<String>(
-                                          shadowColor: Colors.white,
-                                          color: Colors.white,
-                                          icon: const Icon(Icons.more_vert,
-                                              color: grey, size: 25),
-                                          onSelected: (String value) {
-                                            switch (value) {
-                                              case '1':
-                                                context.read<WMSPickingBloc>().add(
-                                                    FilterBatchesByOperationTypeEvent(
-                                                        'Órdenes de Entrega',
-                                                        controller.index));
-                                                break;
-                                              case '2':
-                                                context.read<WMSPickingBloc>().add(
-                                                    FilterBatchesByOperationTypeEvent(
-                                                        'Recogida',
-                                                        controller.index));
-                                                break;
-                                              case '3':
-                                                context.read<WMSPickingBloc>().add(
-                                                    FilterBatchesByOperationTypeEvent(
-                                                        'Recibos',
-                                                        controller.index));
-                                                break;
-                                              case '4':
-                                                context.read<WMSPickingBloc>().add(
-                                                    FilterBatchesByOperationTypeEvent(
-                                                        'Todos',
-                                                        controller.index));
-                                                break;
-                                              default:
-                                            }
+                                        child:  IconButton(
+                                          onPressed: () {
+                                            showDatePicker(
+                                              context: context,
+                                              initialDate: DateTime.now(),
+                                              firstDate: DateTime(2000),
+                                              lastDate: DateTime.now(),
+                                            ).then((DateTime? value) {
+                                              if (value != null) {
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .add(FilterBatchsByDateEvent(
+                                                        value, controller.index));
+                                              }
+                                            });
+                                           
                                           },
-                                          itemBuilder: (BuildContext context) {
-                                            return [
-                                              const PopupMenuItem<String>(
-                                                value: '1',
-                                                child:
-                                                    Text('Órdenes de Entrega'),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: '2',
-                                                child: Text('Recogida'),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: '3',
-                                                child: Text('Recibos'),
-                                              ),
-                                              const PopupMenuItem<String>(
-                                                value: '4',
-                                                child: Text('Todos'),
-                                              ),
-                                            ];
-                                          },
+                                          icon: const Icon(Icons.calendar_month,
+                                              color: grey),
                                         ),
                                       )
+
+                                      // Card(
+                                      //   color: Colors.white,
+                                      //   elevation: 3,
+                                      //   child: PopupMenuButton<String>(
+                                      //     shadowColor: Colors.white,
+                                      //     color: Colors.white,
+                                      //     icon: const Icon(Icons.more_vert,
+                                      //         color: grey, size: 25),
+                                      //     onSelected: (String value) {
+                                      //       switch (value) {
+                                      //         case '1':
+                                      //           context.read<WMSPickingBloc>().add(
+                                      //               FilterBatchesByOperationTypeEvent(
+                                      //                   'Órdenes de Entrega',
+                                      //                   controller.index));
+                                      //           break;
+                                      //         case '2':
+                                      //           context.read<WMSPickingBloc>().add(
+                                      //               FilterBatchesByOperationTypeEvent(
+                                      //                   'Recogida',
+                                      //                   controller.index));
+                                      //           break;
+                                      //         case '3':
+                                      //           context.read<WMSPickingBloc>().add(
+                                      //               FilterBatchesByOperationTypeEvent(
+                                      //                   'Recibos',
+                                      //                   controller.index));
+                                      //           break;
+                                      //         case '4':
+                                      //           context.read<WMSPickingBloc>().add(
+                                      //               FilterBatchesByOperationTypeEvent(
+                                      //                   'Todos',
+                                      //                   controller.index));
+                                      //           break;
+                                      //         default:
+                                      //       }
+                                      //     },
+                                      //     itemBuilder: (BuildContext context) {
+                                      //       return [
+                                      //         const PopupMenuItem<String>(
+                                      //           value: '1',
+                                      //           child:
+                                      //               Text('Órdenes de Entrega'),
+                                      //         ),
+                                      //         const PopupMenuItem<String>(
+                                      //           value: '2',
+                                      //           child: Text('Recogida'),
+                                      //         ),
+                                      //         const PopupMenuItem<String>(
+                                      //           value: '3',
+                                      //           child: Text('Recibos'),
+                                      //         ),
+                                      //         const PopupMenuItem<String>(
+                                      //           value: '4',
+                                      //           child: Text('Todos'),
+                                      //         ),
+                                      //       ];
+                                      //     },
+                                      //   ),
+                                      // )
                                     ],
                                   ),
                                 ),
@@ -372,56 +400,57 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 5),
+                                          horizontal: 10, ),
                                       child: GestureDetector(
                                         onTap: () async {
-                                          context
-                                              .read<BatchBloc>()
-                                              .add(FetchBatchWithProductsEvent(
-                                                batch.id ?? 0,
-                                              ));
+                                          // context
+                                          //     .read<BatchBloc>()
+                                          //     .add(FetchBatchWithProductsEvent(
+                                          //       batch.id ?? 0,
+                                          //     ));
 
-                                          //todo navegamos a la vista de separacion de productos del batch
-                                          if (batch.isSeparate == 1) {
-                                            Navigator.pushNamed(
-                                              context,
-                                              'batch-detail',
-                                            );
-                                          } else {
-                                            // Mostrar un diálogo de carga antes de navegar a la vista "batch"
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading();
-                                                });
+                                          // //todo navegamos a la vista de separacion de productos del batch
+                                          // if (batch.isSeparate == 1) {
+                                          //   Navigator.pushNamed(
+                                          //     context,
+                                          //     'batch-detail',
+                                          //   );
+                                          // } else {
+                                          //   // Mostrar un diálogo de carga antes de navegar a la vista "batch"
+                                          //   showDialog(
+                                          //       context: context,
+                                          //       builder: (context) {
+                                          //         return const DialogLoading();
+                                          //       });
 
-                                            // Esperar 3 segundos antes de continuar
-                                            Future.delayed(
-                                                const Duration(seconds: 1), () {
-                                              // Cerrar el diálogo de carga
-                                              Navigator.of(context,
-                                                      rootNavigator: true)
-                                                  .pop();
+                                          //   // Esperar 3 segundos antes de continuar
+                                          //   Future.delayed(
+                                          //       const Duration(seconds: 1), () {
+                                          //     // Cerrar el diálogo de carga
+                                          //     Navigator.of(context,
+                                          //             rootNavigator: true)
+                                          //         .pop();
 
-                                              // Ahora navegar a la vista "batch"
-                                              Navigator.pushNamed(
-                                                context,
-                                                'batch',
-                                              );
-                                            });
-                                          }
+                                          //     // Ahora navegar a la vista "batch"
+                                          //     Navigator.pushNamed(
+                                          //       context,
+                                          //       'batch',
+                                          //     );
+                                          //   });
+                                          // }
 
-                                          DataBaseSqlite db = DataBaseSqlite();
+                                          // DataBaseSqlite db = DataBaseSqlite();
 
-                                          final response =
-                                              await db.getBacth(batch.id ?? 0);
-                                          print("batch: $response");
-                                          final responseProduct =
-                                              await db.getProductBacth(
-                                                  batch.id ?? 0, 3734);
-                                          print("product: $responseProduct");
+                                          // final response =
+                                          //     await db.getBacth(batch.id ?? 0);
+                                          // print("batch: $response");
+                                          // final responseProduct =
+                                          //     await db.getProductBacth(
+                                          //         batch.id ?? 0, 3734);
+                                          // print("product: $responseProduct");
 
                                           // }
+                                          print("filter: ${batch.toMap()}");
                                         },
                                         child: Card(
                                           color: batch.isSeparate == 1
@@ -506,8 +535,9 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                                 null
                                                             ? DateFormat(
                                                                     'dd/MM/yyyy')
-                                                                .format(batch
-                                                                    .scheduleddate!)
+                                                                .format(DateTime
+                                                                    .parse(batch
+                                                                        .scheduleddate!))
                                                             : "Sin fecha",
                                                         style: const TextStyle(
                                                             fontSize: 14),

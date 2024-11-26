@@ -43,7 +43,7 @@ class DataBaseSqlite {
       CREATE TABLE tblbatchs (
         id INTEGER PRIMARY KEY,
         name VARCHAR(255),
-        scheduled_date VARCHAR(255),
+        scheduleddate VARCHAR(255),
         picking_type_id VARCHAR(255),
         muelle VARCHAR(255),
         state VARCHAR(255),
@@ -718,7 +718,7 @@ class DataBaseSqlite {
             {
               "id": batch.id,
               "name": batch.name,
-              "scheduled_date": batch.scheduleddate.toString(),
+              "scheduleddate": batch.scheduleddate,
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
@@ -736,7 +736,7 @@ class DataBaseSqlite {
             {
               "id": batch.id,
               "name": batch.name,
-              "scheduled_date": batch.scheduleddate.toString(),
+              "scheduleddate": batch.scheduleddate,
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
@@ -753,11 +753,47 @@ class DataBaseSqlite {
     }
   }
 
+  //metodo para actualizar la info de un batch
+  Future<void> updateBatch(BatchsModel batch) async {
+    try {
+
+      print("updateBatch: ${batch.toMap()}");
+      final db = await database;
+
+      await db!.transaction((txn) async {
+        // Verificar si el batch ya existe
+        final List<Map<String, dynamic>> existingBatch = await txn.query(
+          'tblbatchs',
+          where: 'id = ?',
+          whereArgs: [batch.id],
+        );
+
+        if (existingBatch.isNotEmpty) {
+          // Actualizar el batch
+          await txn.update(
+            'tblbatchs',
+            {
+              "id": batch.id,
+              "name": batch.name,
+              "scheduled_date": batch.scheduleddate.toString(),
+              "picking_type_id": batch.pickingTypeId,
+              "state": batch.state,
+              "user_id": batch.userId,
+              "user_name": batch.userName,
+              "is_wave": batch.isWave == true ? 1 : 0,
+              'muelle': batch.muelle,
+            },
+            where: 'id = ?',
+            whereArgs: [batch.id],
+          );
+        }
+      });
+    } catch (e) {
+      print("Error al insertar batch: $e");
+    }
+  }
+
   //* Obtener todos los batchs
-  // Future<List<BatchsModel>> getAllBatchs() async {
-  //   try {
-  //     final db = await database;
-  //     final List<Map<String, dynamic>> maps = await db!.query('tblbatchs');
 
   Future<List<BatchsModel>> getAllBatchs(int userId) async {
     try {

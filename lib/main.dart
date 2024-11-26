@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages, avoid_print
+// ignore_for_file: depend_on_referenced_packages, avoid_print, use_build_context_synchronously
 
 import 'dart:io';
 
@@ -53,21 +53,20 @@ void main() async {
   // Inicializar la base de datos SQLite
   await Preferences.init();
 
-  //cron
+  // //cron
   var cron = Cron();
+  // cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+  //   try {
+  //     final result = await InternetAddress.lookup('example.com');
+  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //       final isLogin = await PrefUtils.getIsLoggedIn();
+  //       if (isLogin) {
+  //         searchProductsNoSendOdoo();
+  //       }
+  //     }
+  //   } on SocketException catch (_) {}
+  // });
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        final isLogin = await PrefUtils.getIsLoggedIn();
-        if (isLogin) {
-          print('connected');
-          searchProductsNoSendOdoo();
-        }
-      }
-    } on SocketException catch (_) {}
-  });
-  cron.schedule(Schedule.parse('*/2 * * * *'), () async {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -109,7 +108,7 @@ class AppState extends StatelessWidget {
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -232,7 +231,7 @@ void searchProductsNoSendOdoo() async {
             lote: product.lotId ?? '',
             cantidad: product.quantitySeparate ?? 0,
             novedad: product.observation ?? 'Sin novedad',
-            timeLine: double.parse(totalTime ?? '0'),
+            timeLine: double.parse(totalTime ),
           ),
         ]);
     print("response searchProductsNoSendOdoo: ${response.data?.code} ");
@@ -261,9 +260,12 @@ void searchProductsNoSendOdoo() async {
 }
 
 void refreshData(BuildContext context) async {
-  //mandamos a traer todos los batchs de picking
-  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, false));
-  // context.read<WmsPackingBloc>().add(LoadAllPackingEvent());
+  final String rol = await PrefUtils.getUserRol();
+  if (rol == 'picking') {
+    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, false));
+  } else {
+    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, context));
+  }
 }
 
 void configurations(BuildContext context) async {
