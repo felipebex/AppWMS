@@ -76,6 +76,9 @@ class BatchsModel {
   final String? isSendOdooDate;
   final String? observation;
 
+   final dynamic orderBy;
+  final dynamic orderPicking;
+
    List<ProductsBatch>? listItems;
 
   BatchsModel({
@@ -100,6 +103,8 @@ class BatchsModel {
     this.isSendOdooDate,
     this.observation,
     this.listItems,
+    this.orderBy,
+    this.orderPicking,
   });
 
   factory BatchsModel.fromJson(String str) =>
@@ -132,6 +137,8 @@ class BatchsModel {
             ? []
             : List<ProductsBatch>.from(
                 json["list_items"]!.map((x) => ProductsBatch.fromMap(x))),
+        orderBy: json["order_by"],
+        orderPicking: json["order_picking"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -158,6 +165,8 @@ class BatchsModel {
         'list_items': listItems == null
             ? []
             : List<dynamic>.from(listItems!.map((x) => x.toMap())),
+        'order_by': orderBy,
+        'order_picking': orderPicking,
       };
 }
 
@@ -181,6 +190,7 @@ class ProductsBatch {
   final dynamic locationDestId;
   final dynamic quantity; // Cambiado a double
   final List<Barcodes>? productPacking;
+  final List<Barcodes>? otherBarcode;
 
 
   final dynamic barcodeLocation;
@@ -244,6 +254,7 @@ class ProductsBatch {
     this.isSendOdoo,
     this.isSendOdooDate,
     this.weight,
+    this.otherBarcode,
   });
 
  
@@ -264,6 +275,10 @@ class ProductsBatch {
           ? []
           : List<Barcodes>.from(
               map['product_packing'].map((x) => Barcodes.fromMap(x))),
+      otherBarcode: map['other_barcode'] == null
+          ? []
+          : List<Barcodes>.from(
+              map['other_barcode'].map((x) => Barcodes.fromMap(x))),
       locationId: map['location_id'],
       locationDestId: map['location_dest_id'],
       quantity: map['quantity'],
@@ -305,6 +320,7 @@ class ProductsBatch {
       "location_dest_id": locationDestId,
       "quantity": quantity,
       "product_packing": productPacking == null ? [] : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
+      "other_barcode": otherBarcode == null ? [] : List<dynamic>.from(otherBarcode!.map((x) => x.toMap())),
       "barcode": barcode,
       "name": name,
       "weigth": weigth,
@@ -337,8 +353,8 @@ class Barcodes {
     final int? batchId;
     final int? idMove;
     final int? idProduct;
-    final dynamic? barcode;
-    final dynamic? cantidad;
+    final dynamic barcode;
+    final dynamic cantidad;
 
     Barcodes({
         this.batchId,

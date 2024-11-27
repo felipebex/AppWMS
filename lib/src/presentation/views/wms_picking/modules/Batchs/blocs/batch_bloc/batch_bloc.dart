@@ -604,7 +604,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       add(LoadDataInfoEvent());
 
-      sortProductsByLocationId(filteredProducts);
+      sortProductsByLocationId(filteredProducts, batchWithProducts.batch!);
       getPosicions();
       getMuelles();
 
@@ -631,24 +631,51 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
-  // void sortProductsByLocationId(List<ProductsBatch> products) {
-  //   products.sort((a, b) {
-  //     // Comparamos los locationId
-  //     return a.locationId[1]?.compareTo(b.locationId[1] ?? "");
-  //   });
-  // }
-
-  void sortProductsByLocationId(List<ProductsBatch> products) {
-    // Primero, ordenamos por rimovalPriority (prioridad alfabética y numérica)
-    // Primero, ordenamos por rimovalPriority (prioridad alfabética y numérica)
-    products.sort((a, b) {
-      return compareRimovalPriority(a.rimovalPriority, b.rimovalPriority);
-    });
-
-    // Ordenar los productos por locationId
-    products.sort((a, b) {
-      return a.locationId?.compareTo(b.locationId ?? "");
-    });
+//metodo para ordenar los productos por ubicacion
+  void sortProductsByLocationId(
+      List<ProductsBatch> products, BatchsModel batch) {
+    //ORDENAMOS LOS PRODUCTOS SEGUN EL ORDENAMIENTO QUE DIGA EL BATCH
+    switch (batch.orderBy) {
+      case "removal_priority":
+        {
+          if (batch.orderPicking == "asc") {
+            products.sort((a, b) {
+              return a.rimovalPriority!.compareTo(b.rimovalPriority!);
+            });
+          } else {
+            products.sort((a, b) {
+              return b.rimovalPriority!.compareTo(a.rimovalPriority!);
+            });
+          }
+        }
+        break;
+      case "location_name":
+        {
+          if (batch.orderPicking == "asc") {
+            products.sort((a, b) {
+              return a.locationId!.compareTo(b.locationId!);
+            });
+          } else {
+            products.sort((a, b) {
+              return b.locationId!.compareTo(a.locationId!);
+            });
+          }
+        }
+        break;
+      case "product_name":
+        {
+          if (batch.orderPicking == "asc") {
+            products.sort((a, b) {
+              return a.productId!.compareTo(b.productId!);
+            });
+          } else {
+            products.sort((a, b) {
+              return b.productId!.compareTo(a.productId!);
+            });
+          }
+        }
+        break;
+    }
 
     // Filtrar los productos con isPending == 1
     List<ProductsBatch> pendingProducts =
@@ -662,36 +689,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     products.clear();
     products.addAll(nonPendingProducts);
     products.addAll(pendingProducts);
-  }
-
-// Función para comparar rimovalPriority (alfanumérico)
-  int compareRimovalPriority(String? a, String? b) {
-    if (a == null || b == null)
-      return 0; // Si alguno es null, no los consideramos diferentes
-
-    // Expresión regular para separar la parte alfabética y la numérica
-    final RegExp regex = RegExp(r"([A-Za-z]+)(\d+)");
-
-    final matchA = regex.firstMatch(a);
-    final matchB = regex.firstMatch(b);
-
-    if (matchA != null && matchB != null) {
-      final letterA = matchA.group(1);
-      final numberA = int.parse(matchA.group(2)!);
-
-      final letterB = matchB.group(1);
-      final numberB = int.parse(matchB.group(2)!);
-
-      // Primero comparamos las letras (alfabéticamente)
-      int letterComparison = letterA!.compareTo(letterB!);
-      if (letterComparison != 0) return letterComparison;
-
-      // Si las letras son iguales, comparamos los números de manera ascendente
-      return numberA.compareTo(numberB);
-    }
-
-    // Si no se encuentra una coincidencia (por algún error en el formato), comparamos como texto.
-    return a.compareTo(b);
   }
 
   String calculateProgress() {
@@ -804,6 +801,4 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       return "00:00:00"; // Devolver un valor por defecto
     }
   }
-
-  //*metodo para buscar en la bd los products que no se pudieron enviar a odoo
 }

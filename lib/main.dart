@@ -55,18 +55,18 @@ void main() async {
 
   // //cron
   var cron = Cron();
-  // cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-  //   try {
-  //     final result = await InternetAddress.lookup('example.com');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       final isLogin = await PrefUtils.getIsLoggedIn();
-  //       if (isLogin) {
-  //         searchProductsNoSendOdoo();
-  //       }
-  //     }
-  //   } on SocketException catch (_) {}
-  // });
-  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+  cron.schedule(Schedule.parse('*/3 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        final isLogin = await PrefUtils.getIsLoggedIn();
+        if (isLogin) {
+          searchProductsNoSendOdoo();
+        }
+      }
+    } on SocketException catch (_) {}
+  });
+  cron.schedule(Schedule.parse('*/7 * * * *'), () async {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -268,6 +268,6 @@ void refreshData(BuildContext context) async {
   }
 }
 
-void configurations(BuildContext context) async {
-  context.read<UserBloc>().add(GetConfigurations(context));
-}
+// void configurations(BuildContext context) async {
+//   context.read<UserBloc>().add(GetConfigurations(context));
+// }

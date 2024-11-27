@@ -61,6 +61,9 @@ class DataBaseSqlite {
         time_separate_end VARCHAR(255),
         is_send_oddo INTEGER,
         is_send_oddo_date VARCHAR(255),
+        order_by TEXT,
+        order_picking TEXT,
+        count_items INTEGER,
         observation TEXT
       )
     ''');
@@ -725,6 +728,9 @@ class DataBaseSqlite {
               "user_name": batch.userName,
               "is_wave": batch.isWave,
               'muelle': batch.muelle,
+              'order_by' : batch.orderBy,
+              'order_picking' : batch.orderPicking,
+              'count_items' : batch.countItems,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -743,6 +749,9 @@ class DataBaseSqlite {
               "user_name": batch.userName,
               "is_wave": batch.isWave,
               'muelle': batch.muelle,
+              'order_by' : batch.orderBy,
+              'order_picking' : batch.orderPicking,
+              'count_items' : batch.countItems,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -782,6 +791,9 @@ class DataBaseSqlite {
               "user_name": batch.userName,
               "is_wave": batch.isWave == true ? 1 : 0,
               'muelle': batch.muelle,
+              'order_by' : batch.orderBy,
+              'order_picking' : batch.orderPicking,
+              'count_items' : batch.countItems,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -996,8 +1008,8 @@ class DataBaseSqlite {
           // Realizamos la consulta para verificar si ya existe el producto
           final List<Map<String, dynamic>> existingProduct = await txn.query(
             'tblbarcodes_packages',
-            where: 'id_product = ? AND batch_id =? AND id_move = ?',
-            whereArgs: [barcode.idProduct, barcode.batchId, barcode.idMove],
+            where: 'id_product = ? AND batch_id =? AND id_move = ? AND barcode = ?',
+            whereArgs: [barcode.idProduct, barcode.batchId, barcode.idMove, barcode.barcode],
           );
 
           if (existingProduct.isNotEmpty) {
@@ -1009,10 +1021,10 @@ class DataBaseSqlite {
                 "batch_id": barcode.batchId,
                 "id_move": barcode.idMove,
                 "barcode": barcode.barcode == false ? "" : barcode.barcode,
-                "cantidad": barcode.cantidad,
+                "cantidad": barcode.cantidad ?? "1",
               },
-              where: 'id_product = ? AND batch_id = ? AND id_move = ?',
-              whereArgs: [barcode.idProduct, barcode.batchId, barcode.idMove],
+              where: 'id_product = ? AND batch_id =? AND id_move = ? AND barcode = ?',
+            whereArgs: [barcode.idProduct, barcode.batchId, barcode.idMove, barcode.barcode],
             );
           } else {
             // Si el producto no existe, insertamos un nuevo registro
@@ -1023,7 +1035,7 @@ class DataBaseSqlite {
                 "batch_id": barcode.batchId,
                 "id_move": barcode.idMove,
                 "barcode": barcode.barcode == false ? "" : barcode.barcode,
-                "cantidad": barcode.cantidad,
+                "cantidad": barcode.cantidad ?? "1",
               },
               conflictAlgorithm: ConflictAlgorithm
                   .replace, // Reemplaza si hay conflicto en la clave primaria

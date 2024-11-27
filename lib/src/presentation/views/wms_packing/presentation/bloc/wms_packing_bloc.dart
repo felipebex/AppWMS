@@ -419,6 +419,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                 pickingTypeId: batch.pickingTypeId,
                 state: batch.state,
                 userId: batch.userId.toString(),
+                
               ));
             }
           } catch (dbError, stackTrace) {

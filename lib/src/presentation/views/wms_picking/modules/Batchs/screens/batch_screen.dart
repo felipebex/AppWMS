@@ -707,6 +707,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           if (event.logicalKey ==
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue2.isNotEmpty) {
+                                              print(
+                                                  "scan product:   $scannedValue2");
+                                              //validamos el scan con el barcoder princiapl del producto
                                               if (scannedValue2.toLowerCase() ==
                                                   currentProduct.barcode
                                                       ?.toLowerCase()) {
@@ -717,7 +720,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                                 batchBloc.add(
                                                     ChangeQuantitySeparate(
-                                                        1,
+                                                        0,
                                                         currentProduct
                                                                 .idProduct ??
                                                             0,
@@ -731,7 +734,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     batchBloc.batchWithProducts
                                                             .batch?.id ??
                                                         0,
-                                                    1,
+                                                    0,
                                                     currentProduct.idMove ??
                                                         0));
 
@@ -752,26 +755,42 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       .requestFocus(focusNode3);
                                                 });
                                               } else {
-                                                batchBloc.add(
-                                                    ValidateFieldsEvent(
-                                                        field: "product",
-                                                        isOk: false));
-                                                setState(() {
-                                                  scannedValue2 =
-                                                      ""; //limpiamos el valor escaneado
-                                                });
+                                                //validamos el scan con el barcode del paquete del producto
+                                                final isok =
+                                                    validateScannedBarcode(
+                                                        scannedValue2
+                                                            .toLowerCase(),
+                                                        batchBloc
+                                                            .currentProduct,
+                                                        batchBloc,
+                                                        true);
 
-                                                //mostramos alerta de error
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(SnackBar(
-                                                  duration: const Duration(
-                                                      milliseconds: 1000),
-                                                  content: const Text(
-                                                      'Producto erroneo'),
-                                                  backgroundColor:
-                                                      Colors.red[200],
-                                                ));
+                                                if (!isok) {
+                                                  batchBloc.add(
+                                                      ValidateFieldsEvent(
+                                                          field: "product",
+                                                          isOk: false));
+                                                  setState(() {
+                                                    scannedValue2 =
+                                                        ""; //limpiamos el valor escaneado
+                                                  });
+
+                                                  //mostramos alerta de error
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                    duration: const Duration(
+                                                        milliseconds: 1000),
+                                                    content: const Text(
+                                                        'Producto erroneo'),
+                                                    backgroundColor:
+                                                        Colors.red[200],
+                                                  ));
+                                                }
                                               }
+
+                                              // else {
+
+                                              // }
                                             }
                                             return KeyEventResult.handled;
                                           } else {
@@ -1270,17 +1289,26 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 ],
                               ),
 
-                            // ElevatedButton(
-                            //   onPressed: () {
-                            //     batchBloc.add(ValidateFieldsEvent(
-                            //         field: "quantity", isOk: true));
-                            //     batchBloc.add(AddQuantitySeparate(
-                            //         currentProduct.idProduct ?? 0,
-                            //         currentProduct.idMove ?? 0,
-                            //         1));
-                            //   },
-                            //   child: const Text('Scan'),
-                            // ),
+                            ElevatedButton(
+                              onPressed: () async {
+                               await DataBaseSqlite().getBarcodesProduct(
+                                batchBloc.batchWithProducts.batch?.id ?? 0,
+                                currentProduct.idProduct ?? 0,
+                                currentProduct.idMove ?? 0);
+
+
+
+
+                                // batchBloc.add(ValidateFieldsEvent(
+                                //     field: "quantity", isOk: true));
+                                // batchBloc.add(AddQuantitySeparate(
+                                //     currentProduct.idProduct ?? 0,
+                                //     currentProduct.idMove ?? 0,
+                                //     1));
+                                // print("barcodes: ${batchBloc.listOfBarcodes}");
+                              },
+                              child: const Text('Example'),
+                            ),
                           ],
                         ),
                       ),
@@ -1374,7 +1402,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                               .toLowerCase(),
                                                           batchBloc
                                                               .currentProduct,
-                                                          batchBloc);
+                                                          batchBloc,
+                                                          false);
 
                                                       setState(() {
                                                         scannedValue3 =
@@ -1766,8 +1795,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
   //metodo para validar el scan por paquete
 
-  void validateScannedBarcode(String scannedBarcode,
-      ProductsBatch currentProduct, BatchBloc batchBloc) {
+  bool validateScannedBarcode(String scannedBarcode,
+      ProductsBatch currentProduct, BatchBloc batchBloc, bool isProduct) {
     // Buscar el barcode que coincida con el valor escaneado
     Barcodes? matchedBarcode = context
         .read<BatchBloc>()
@@ -1780,25 +1809,51 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     if (matchedBarcode.barcode != null) {
       print("Coincidencia encontrada: Cantidad = ${matchedBarcode.cantidad}");
 
-      //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-      if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
-          currentProduct.quantity!) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(milliseconds: 1000),
-          content: const Text('Cantidad erronea'),
-          backgroundColor: Colors.red[200],
-        ));
-        return;
-      }
+      if (isProduct) {
+        batchBloc.add(ValidateFieldsEvent(field: "product", isOk: true));
 
-      batchBloc.add(AddQuantitySeparate(currentProduct.idProduct ?? 0,
-          currentProduct.idMove ?? 0, matchedBarcode.cantidad.toInt()));
+        batchBloc.add(ChangeQuantitySeparate(
+            0, currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0));
+
+        batchBloc.add(ChangeProductIsOkEvent(
+            true,
+            currentProduct.idProduct ?? 0,
+            batchBloc.batchWithProducts.batch?.id ?? 0,
+            0,
+            currentProduct.idMove ?? 0));
+
+        batchBloc.add(ChangeIsOkQuantity(
+            true,
+            currentProduct.idProduct ?? 0,
+            batchBloc.batchWithProducts.batch?.id ?? 0,
+            currentProduct.idMove ?? 0));
+
+        Future.delayed(const Duration(milliseconds: 100), () {
+          FocusScope.of(context).requestFocus(focusNode3);
+        });
+        return true;
+      } else {
+        //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
+        if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
+            currentProduct.quantity!) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            duration: const Duration(milliseconds: 1000),
+            content:  Text('Error, el codigo es para una cantidad de : ${matchedBarcode.cantidad} '),
+            backgroundColor: Colors.red[200],
+          ));
+          return false;
+        }
+        batchBloc.add(AddQuantitySeparate(currentProduct.idProduct ?? 0,
+            currentProduct.idMove ?? 0, matchedBarcode.cantidad.toInt()));
+      }
+      return false;
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         duration: const Duration(milliseconds: 1000),
         content: const Text('Codigo erroneo'),
         backgroundColor: Colors.red[200],
       ));
+      return false;
     }
   }
 }

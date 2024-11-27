@@ -403,54 +403,52 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           horizontal: 10, ),
                                       child: GestureDetector(
                                         onTap: () async {
-                                          // context
-                                          //     .read<BatchBloc>()
-                                          //     .add(FetchBatchWithProductsEvent(
-                                          //       batch.id ?? 0,
-                                          //     ));
+                                          context
+                                              .read<BatchBloc>()
+                                              .add(FetchBatchWithProductsEvent(
+                                                batch.id ?? 0,
+                                              ));
 
-                                          // //todo navegamos a la vista de separacion de productos del batch
-                                          // if (batch.isSeparate == 1) {
-                                          //   Navigator.pushNamed(
-                                          //     context,
-                                          //     'batch-detail',
-                                          //   );
-                                          // } else {
-                                          //   // Mostrar un diálogo de carga antes de navegar a la vista "batch"
-                                          //   showDialog(
-                                          //       context: context,
-                                          //       builder: (context) {
-                                          //         return const DialogLoading();
-                                          //       });
+                                          //todo navegamos a la vista de separacion de productos del batch
+                                          if (batch.isSeparate == 1) {
+                                            Navigator.pushNamed(
+                                              context,
+                                              'batch-detail',
+                                            );
+                                          } else {
+                                            // Mostrar un diálogo de carga antes de navegar a la vista "batch"
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading();
+                                                });
 
-                                          //   // Esperar 3 segundos antes de continuar
-                                          //   Future.delayed(
-                                          //       const Duration(seconds: 1), () {
-                                          //     // Cerrar el diálogo de carga
-                                          //     Navigator.of(context,
-                                          //             rootNavigator: true)
-                                          //         .pop();
+                                            // Esperar 3 segundos antes de continuar
+                                            Future.delayed(
+                                                const Duration(seconds: 1), () {
+                                              // Cerrar el diálogo de carga
+                                              Navigator.of(context,
+                                                      rootNavigator: true)
+                                                  .pop();
 
-                                          //     // Ahora navegar a la vista "batch"
-                                          //     Navigator.pushNamed(
-                                          //       context,
-                                          //       'batch',
-                                          //     );
-                                          //   });
-                                          // }
+                                              // Ahora navegar a la vista "batch"
+                                              Navigator.pushNamed(
+                                                context,
+                                                'batch',
+                                              );
+                                            });
+                                          }
 
-                                          // DataBaseSqlite db = DataBaseSqlite();
+                                          DataBaseSqlite db = DataBaseSqlite();
 
-                                          // final response =
-                                          //     await db.getBacth(batch.id ?? 0);
-                                          // print("batch: $response");
-                                          // final responseProduct =
-                                          //     await db.getProductBacth(
-                                          //         batch.id ?? 0, 3734);
-                                          // print("product: $responseProduct");
+                                          final response =
+                                              await db.getBacth(batch.id ?? 0);
+                                          print("batch: $response");
+                                          final responseProduct =
+                                              await db.getProductBacth(
+                                                  batch.id ?? 0, 3734);
+                                          print("product: $responseProduct");
 
-                                          // }
-                                          print("filter: ${batch.toMap()}");
                                         },
                                         child: Card(
                                           color: batch.isSeparate == 1
@@ -564,6 +562,42 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                               const TextStyle(
                                                                   fontSize: 14,
                                                                   color: black),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.add,
+                                                        color: primaryColorApp,
+                                                        size: 15,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      const Text(
+                                                              "Cantidad Productos: ",
+                                                          style:
+                                                              TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: black),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      Expanded(
+                                                        child: Text(
+                                                          batch.countItems.toString() ,
+                                                          style:
+                                                               TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: primaryColorApp),
                                                           maxLines: 2,
                                                           overflow: TextOverflow
                                                               .ellipsis,

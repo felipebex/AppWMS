@@ -240,7 +240,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
                 scheduledDate.day == today.day;
           }).toList();
 
-
           final todayBatchesOdoo = response.where((batch) {
             // Convierte `scheduleddate` a DateTime
             final scheduledDate = DateTime.parse(batch.scheduleddate);
@@ -249,8 +248,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
                 scheduledDate.month == today.month &&
                 scheduledDate.day == today.day;
           }).toList();
-
-
 
           if (todayBatchesOdoo.length > todayBatches.length) {
             //mostramos una notificación
@@ -281,6 +278,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
                 userName: batch.userName,
                 isWave: batch.isWave.toString(),
                 countItems: batch.countItems,
+                orderBy: batch.orderBy,
+                orderPicking: batch.orderPicking,
               ));
             }
           } catch (dbError, stackTrace) {
@@ -299,13 +298,22 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
             .expand((product) => product.productPacking!)
             .toList();
 
+        //convertir el mapap en una lsita de los otros barcodes de cada producto
+        List<Barcodes> otherBarcodesToInsert = listOfBatchs
+            .expand((batch) => batch.listItems!)
+            .expand((barcode) => barcode.otherBarcode!)
+            .toList();
+
         print('productsToInsert: ${productsToInsert.length}');
         print('barcodesToInsert: ${barcodesToInsert.length}');
+        print('otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
         // Enviar la lista agrupada a insertBatchProducts
         await DataBaseSqlite().insertBatchProducts(productsToInsert);
 
         // Enviar la lista agrupada a insertBarcodesPackageProduct
         await DataBaseSqlite().insertBarcodesPackageProduct(barcodesToInsert);
+        await DataBaseSqlite()
+            .insertBarcodesPackageProduct(otherBarcodesToInsert);
 
         //* Carga los batches desde la base de datos
         add(LoadBatchsFromDBEvent());
