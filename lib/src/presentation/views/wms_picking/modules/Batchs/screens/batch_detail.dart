@@ -1,8 +1,7 @@
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, avoid_print
 
 import 'dart:ui';
 
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -442,100 +441,7 @@ class BatchDetailScreen extends StatelessWidget {
                             ),
                           ),
 
-                          // if (context
-                          //         .read<BatchBloc>()
-                          //         .batchWithProducts
-                          //         .batch
-                          //         ?.isSeparate ==
-                          //     1)
-                          //   Padding(
-                          //     padding: const EdgeInsets.symmetric(
-                          //       horizontal: 20,
-                          //     ),
-                          //     child: Card(
-                          //       elevation: 2,
-                          //       color: primaryColorAppLigth,
-                          //       child: Center(
-                          //         child: Padding(
-                          //           padding: const EdgeInsets.all(8.0),
-                          //           child: Row(
-                          //             mainAxisAlignment:
-                          //                 MainAxisAlignment.center,
-                          //             children: [
-                          //               const Text("Picking finalizado",
-                          //                   style: TextStyle(
-                          //                       fontSize: 12, color: black)),
-                          //               const SizedBox(width: 10),
-                          //               //icono de check
-                          //               GestureDetector(
-                          //                   onTap: () async {
-                          //                     showDialog(
-                          //                       context: context,
-                          //                       builder: (context) {
-                          //                         return BackdropFilter(
-                          //                           filter: ImageFilter.blur(
-                          //                               sigmaX: 5, sigmaY: 5),
-                          //                           child: AlertDialog(
-                          //                             actionsAlignment:
-                          //                                 MainAxisAlignment
-                          //                                     .center,
-                          //                             title: Center(
-                          //                               child: Text(
-                          //                                   "Información",
-                          //                                   style: TextStyle(
-                          //                                       color:
-                          //                                           primaryColorApp,
-                          //                                       fontSize: 20)),
-                          //                             ),
-                          //                             content: const Column(
-                          //                               mainAxisSize:
-                          //                                   MainAxisSize.min,
-                          //                               children: [
-                          //                                 Text(
-                          //                                     "El picking se considera finalizado cuando se han separado todas las unidades de los productos."),
-                          //                                 SizedBox(height: 5),
-                          //                                 Text(
-                          //                                     "Para finalizar el picking, asegúrese de haber separado todas las unidades de los productos y llevarlos al área de muelle indicado por el batch."),
-                          //                               ],
-                          //                             ),
-                          //                             actions: [
-                          //                               ElevatedButton(
-                          //                                   style:
-                          //                                       ElevatedButton
-                          //                                           .styleFrom(
-                          //                                     backgroundColor:
-                          //                                         grey,
-                          //                                     shape: RoundedRectangleBorder(
-                          //                                         borderRadius:
-                          //                                             BorderRadius
-                          //                                                 .circular(
-                          //                                                     10)),
-                          //                                   ),
-                          //                                   onPressed: () {
-                          //                                     Navigator.of(
-                          //                                             context)
-                          //                                         .pop();
-                          //                                   },
-                          //                                   child: const Text(
-                          //                                       "Cerrar",
-                          //                                       style: TextStyle(
-                          //                                           color:
-                          //                                               white))),
-                          //                             ],
-                          //                           ),
-                          //                         );
-                          //                       },
-                          //                     );
-                          //                   },
-                          //                   child: Icon(Icons.check,
-                          //                       color: primaryColorApp,
-                          //                       size: 20)),
-                          //             ],
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ),
+                        
                         ],
                       ),
                     ),
@@ -547,8 +453,7 @@ class BatchDetailScreen extends StatelessWidget {
                     child: context
                                 .read<BatchBloc>()
                                 .filteredProducts
-                                .isNotEmpty ??
-                            false
+                                .isNotEmpty
                         ? ListView.builder(
                             shrinkWrap: true,
                             physics: const ScrollPhysics(),
@@ -564,7 +469,9 @@ class BatchDetailScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 5),
                                 child: GestureDetector(
-                                  onTap: () async {},
+                                  onTap: () async {
+                                    print("product detail info: ${productsBatch.toMap()}");
+                                  },
                                   child: Card(
                                       elevation: 4,
                                       child: Container(

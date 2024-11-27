@@ -171,23 +171,18 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           event.product.idMove ?? 0);
 
       //deseleccionamos el producto actual
-      await db.setFieldTableBatchProducts(
-          batchWithProducts.batch?.id ?? 0,
-          event.product.idProduct ?? 0,
-          'is_selected',
-          'false',
-          event.product.idMove ?? 0);
+      if (event.product.productIsOk == 1) {
+        await db.setFieldTableBatchProducts(
+            batchWithProducts.batch?.id ?? 0,
+            event.product.idProduct ?? 0,
+            'product_is_ok',
+            'false',
+            event.product.idMove ?? 0);
+      }
 
-      //actualizamos la lista de productos
+      //ordenamos los productos por ubicacion
+      sortProductsByLocationId();
       add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
-
-      //seleccionamos el producto actual
-      await db.setFieldTableBatchProducts(
-          batchWithProducts.batch?.id ?? 0,
-          filteredProducts[index + 1].idProduct ?? 0,
-          'is_selected',
-          'true',
-          filteredProducts[index + 1].idMove ?? 0);
     } catch (e, s) {
       print('Error _onPickingPendingEvent: $e, $s');
     }
@@ -452,13 +447,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         locationIsOk = false;
         print('La ubicacion es diferente');
       }
-      //seleccionamos el producto actual
-      await db.setFieldTableBatchProducts(
-          batchWithProducts.batch?.id ?? 0,
-          currentProduct.idProduct ?? 0,
-          'is_selected',
-          'true',
-          currentProduct.idMove ?? 0);
 
       await db.startStopwatch(
         batchWithProducts.batch?.id ?? 0,
@@ -519,10 +507,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       if (index == 0) {
         await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
       }
-      //cuando se lea la ubicacion se selecciona el batch y el producto
+      //cuando se lea la ubicacion se selecciona el batch
       await db.setFieldTableBatch(event.batchId, 'is_selected', 'true');
-      await db.setFieldTableBatchProducts(
-          event.batchId, event.productId, 'is_selected', 'true', event.idMove);
+
       locationIsOk = event.locationIsOk;
 
       emit(ChangeIsOkState(
@@ -546,6 +533,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.productIsOk) {
+      await db.setFieldTableBatchProducts(
+          event.batchId, event.productId, 'is_selected', 'true', event.idMove);
       await db.setFieldTableBatchProducts(event.batchId, event.productId,
           'product_is_ok', 'true', event.idMove);
       await db.setFieldTableBatchProducts(event.batchId, event.productId,
@@ -562,6 +551,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     searchController.clear();
     filteredProducts.clear();
     filteredProducts.addAll(batchWithProducts.products!);
+    sortProductsByLocationId();
     emit(LoadProductsBatchSuccesState(listOfProductsBatch: filteredProducts));
   }
 
@@ -573,6 +563,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       filteredProducts.clear();
       filteredProducts = batchWithProducts
           .products!; // Si la búsqueda está vacía, mostrar todos los productos
+      sortProductsByLocationId();
     } else {
       filteredProducts = batchWithProducts.products!.where((batch) {
         return batch.productId?.toLowerCase().contains(query) ?? false;
@@ -604,7 +595,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       add(LoadDataInfoEvent());
 
-      sortProductsByLocationId(filteredProducts, batchWithProducts.batch!);
+      sortProductsByLocationId();
+
+      print('Productos ordenados: ${filteredProducts.length}');
+
       getPosicions();
       getMuelles();
 
@@ -632,8 +626,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
 //metodo para ordenar los productos por ubicacion
-  void sortProductsByLocationId(
-      List<ProductsBatch> products, BatchsModel batch) {
+  List<ProductsBatch> sortProductsByLocationId() {
+    final products = filteredProducts;
+    final batch = batchWithProducts.batch!;
     //ORDENAMOS LOS PRODUCTOS SEGUN EL ORDENAMIENTO QUE DIGA EL BATCH
     switch (batch.orderBy) {
       case "removal_priority":
@@ -686,9 +681,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         products.where((product) => product.isPending != 1).toList();
 
     // Concatenar los productos no pendientes con los productos pendientes al final
-    products.clear();
-    products.addAll(nonPendingProducts);
-    products.addAll(pendingProducts);
+    filteredProducts.clear();
+    filteredProducts.addAll(nonPendingProducts);
+    filteredProducts.addAll(pendingProducts);
+
+    return filteredProducts;
   }
 
   String calculateProgress() {

@@ -728,9 +728,9 @@ class DataBaseSqlite {
               "user_name": batch.userName,
               "is_wave": batch.isWave,
               'muelle': batch.muelle,
-              'order_by' : batch.orderBy,
-              'order_picking' : batch.orderPicking,
-              'count_items' : batch.countItems,
+              'order_by': batch.orderBy,
+              'order_picking': batch.orderPicking,
+              'count_items': batch.countItems,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -749,9 +749,9 @@ class DataBaseSqlite {
               "user_name": batch.userName,
               "is_wave": batch.isWave,
               'muelle': batch.muelle,
-              'order_by' : batch.orderBy,
-              'order_picking' : batch.orderPicking,
-              'count_items' : batch.countItems,
+              'order_by': batch.orderBy,
+              'order_picking': batch.orderPicking,
+              'count_items': batch.countItems,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -765,7 +765,6 @@ class DataBaseSqlite {
   //metodo para actualizar la info de un batch
   Future<void> updateBatch(BatchsModel batch) async {
     try {
-
       print("updateBatch: ${batch.toMap()}");
       final db = await database;
 
@@ -791,9 +790,9 @@ class DataBaseSqlite {
               "user_name": batch.userName,
               "is_wave": batch.isWave == true ? 1 : 0,
               'muelle': batch.muelle,
-              'order_by' : batch.orderBy,
-              'order_picking' : batch.orderPicking,
-              'count_items' : batch.countItems,
+              'order_by': batch.orderBy,
+              'order_picking': batch.orderPicking,
+              'count_items': batch.countItems,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -1008,38 +1007,54 @@ class DataBaseSqlite {
           // Realizamos la consulta para verificar si ya existe el producto
           final List<Map<String, dynamic>> existingProduct = await txn.query(
             'tblbarcodes_packages',
-            where: 'id_product = ? AND batch_id =? AND id_move = ? AND barcode = ?',
-            whereArgs: [barcode.idProduct, barcode.batchId, barcode.idMove, barcode.barcode],
+            where:
+                'id_product = ? AND batch_id =? AND id_move = ? AND barcode = ?',
+            whereArgs: [
+              barcode.idProduct,
+              barcode.batchId,
+              barcode.idMove,
+              barcode.barcode
+            ],
           );
 
           if (existingProduct.isNotEmpty) {
             // Si el producto ya existe, lo actualizamos
-            await txn.update(
-              'tblbarcodes_packages',
-              {
-                "id_product": barcode.idProduct,
-                "batch_id": barcode.batchId,
-                "id_move": barcode.idMove,
-                "barcode": barcode.barcode == false ? "" : barcode.barcode,
-                "cantidad": barcode.cantidad ?? "1",
-              },
-              where: 'id_product = ? AND batch_id =? AND id_move = ? AND barcode = ?',
-            whereArgs: [barcode.idProduct, barcode.batchId, barcode.idMove, barcode.barcode],
-            );
+            if (barcode.barcode != false) {
+              await txn.update(
+                'tblbarcodes_packages',
+                {
+                  "id_product": barcode.idProduct,
+                  "batch_id": barcode.batchId,
+                  "id_move": barcode.idMove,
+                  "barcode": barcode.barcode == false ? "" : barcode.barcode,
+                  "cantidad": barcode.cantidad ?? "1",
+                },
+                where:
+                    'id_product = ? AND batch_id =? AND id_move = ? AND barcode = ?',
+                whereArgs: [
+                  barcode.idProduct,
+                  barcode.batchId,
+                  barcode.idMove,
+                  barcode.barcode
+                ],
+              );
+            }
           } else {
             // Si el producto no existe, insertamos un nuevo registro
-            await txn.insert(
-              'tblbarcodes_packages',
-              {
-                "id_product": barcode.idProduct,
-                "batch_id": barcode.batchId,
-                "id_move": barcode.idMove,
-                "barcode": barcode.barcode == false ? "" : barcode.barcode,
-                "cantidad": barcode.cantidad ?? "1",
-              },
-              conflictAlgorithm: ConflictAlgorithm
-                  .replace, // Reemplaza si hay conflicto en la clave primaria
-            );
+            if (barcode.barcode != false) {
+              await txn.insert(
+                'tblbarcodes_packages',
+                {
+                  "id_product": barcode.idProduct,
+                  "batch_id": barcode.batchId,
+                  "id_move": barcode.idMove,
+                  "barcode": barcode.barcode == false ? "" : barcode.barcode,
+                  "cantidad": barcode.cantidad ?? "1",
+                },
+                conflictAlgorithm: ConflictAlgorithm
+                    .replace, // Reemplaza si hay conflicto en la clave primaria
+              );
+            }
           }
         }
       });

@@ -69,7 +69,7 @@ class _HomePageState extends State<HomePage> {
             },
             child: Scaffold(
               floatingActionButton: FloatingActionButton(
-                onPressed: () async{
+                onPressed: () async {
                   await DataBaseSqlite().deleteAll();
                 },
                 child: const Icon(Icons.refresh),
@@ -363,11 +363,16 @@ class _HomePageState extends State<HomePage> {
                                               value: context
                                                   .read<WMSPickingBloc>()
                                                   .batchsDone
-                                                  .where((element) =>
-                                                      element.scheduleddate ==
-                                                      DateTime.now()
-                                                          .toString()
-                                                          .substring(0, 10))
+                                                  .where((element) {
+                                                    return DateTime.parse(element
+                                                                    .timeSeparateEnd ??
+                                                                "")
+                                                            .toString()
+                                                            .substring(0, 10) ==
+                                                        DateTime.now()
+                                                            .toString()
+                                                            .substring(0, 10);
+                                                  })
                                                   .length
                                                   .toString(),
                                             ),

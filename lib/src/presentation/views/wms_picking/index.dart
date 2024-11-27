@@ -64,11 +64,19 @@ class _PickingPageState extends State<WMSPickingPage> {
                   ));
             }
 
-            double progress =
-                context.read<WMSPickingBloc>().listOfBatchs.length > 0
-                    ? context.read<WMSPickingBloc>().batchsDone.length /
-                        context.read<WMSPickingBloc>().listOfBatchs.length
-                    : 0.0;
+            double progress = context
+                        .read<WMSPickingBloc>()
+                        .listOfBatchs
+                        .length >
+                    0
+                ? context.read<WMSPickingBloc>().batchsDone.where((element) {
+                      return DateTime.parse(element.timeSeparateEnd ?? "")
+                              .toString()
+                              .substring(0, 10) ==
+                          DateTime.now().toString().substring(0, 10);
+                    }).length /
+                    context.read<WMSPickingBloc>().listOfBatchs.length
+                : 0.0;
 
             final size = MediaQuery.sizeOf(context);
             return Scaffold(
@@ -144,7 +152,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                       context
                           .read<WMSPickingBloc>()
                           .add(LoadAllBatchsEvent(context, true));
-                     
                     },
                     child: Column(
                       children: [
@@ -204,7 +211,16 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           completed: context
                                               .read<WMSPickingBloc>()
                                               .batchsDone
-                                              .length,
+                                              .where((element) {
+                                            return DateTime.parse(element
+                                                            .timeSeparateEnd ??
+                                                        "")
+                                                    .toString()
+                                                    .substring(0, 10) ==
+                                                DateTime.now()
+                                                    .toString()
+                                                    .substring(0, 10);
+                                          }).length,
                                           total: context
                                               .read<WMSPickingBloc>()
                                               .listOfBatchs
@@ -281,13 +297,11 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           ),
                                         ),
                                       ),
-                                      
-                                      
-     
+
                                       Card(
                                         color: Colors.white,
                                         elevation: 3,
-                                        child:  IconButton(
+                                        child: IconButton(
                                           onPressed: () {
                                             showDatePicker(
                                               context: context,
@@ -298,11 +312,12 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               if (value != null) {
                                                 context
                                                     .read<WMSPickingBloc>()
-                                                    .add(FilterBatchsByDateEvent(
-                                                        value, controller.index));
+                                                    .add(
+                                                        FilterBatchsByDateEvent(
+                                                            value,
+                                                            controller.index));
                                               }
                                             });
-                                           
                                           },
                                           icon: const Icon(Icons.calendar_month,
                                               color: grey),
@@ -400,7 +415,8 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, ),
+                                        horizontal: 10,
+                                      ),
                                       child: GestureDetector(
                                         onTap: () async {
                                           context
@@ -448,7 +464,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               await db.getProductBacth(
                                                   batch.id ?? 0, 3734);
                                           print("product: $responseProduct");
-
                                         },
                                         child: Card(
                                           color: batch.isSeparate == 1
@@ -582,22 +597,22 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       ),
                                                       const SizedBox(width: 5),
                                                       const Text(
-                                                              "Cantidad Productos: ",
-                                                          style:
-                                                              TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: black),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
+                                                        "Cantidad Productos: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
                                                       Expanded(
                                                         child: Text(
-                                                          batch.countItems.toString() ,
-                                                          style:
-                                                               TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: primaryColorApp),
+                                                          batch.countItems
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                              fontSize: 14,
+                                                              color:
+                                                                  primaryColorApp),
                                                           maxLines: 2,
                                                           overflow: TextOverflow
                                                               .ellipsis,

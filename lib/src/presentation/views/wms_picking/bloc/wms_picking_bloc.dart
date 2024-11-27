@@ -67,7 +67,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
               //la fechha es un string
               DateTime.parse(batch.scheduleddate).day == date.day &&
               DateTime.parse(batch.scheduleddate).month == date.month &&
-              DateTime.parse(batch.scheduleddate).year == date.year)
+              DateTime.parse(batch.scheduleddate).year == date.year &&
+              batch.isSeparate == null)
           .toList();
     } else {
       filteredBatchs.clear();
@@ -198,14 +199,24 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
     if (event.status == '') {
       final batchsFromDB = await _databas.getAllBatchs(userId);
+
       filteredBatchs = batchsFromDB;
-      filteredBatchs = filteredBatchs
-          .where((element) => element.isSeparate == null)
-          .toList();
+      filteredBatchs = filteredBatchs.where((element) {
+        return DateTime.parse(element.scheduleddate ?? "")
+                    .toString()
+                    .substring(0, 10) ==
+                DateTime.now().toString().substring(0, 10) &&
+            element.isSeparate == null;
+      }).toList();
       emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
       return;
     } else if (event.status == 'done') {
-      filteredBatchs = batchsDone;
+      filteredBatchs = batchsDone.where((batch) {
+        return DateTime.parse(batch.timeSeparateEnd ?? "")
+                .toString()
+                .substring(0, 10) ==
+            DateTime.now().toString().substring(0, 10);
+      }).toList();
       emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
       return;
     }
@@ -290,7 +301,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         // Convertir el mapa en una lista de productos únicos con cantidades sumadas
         List<ProductsBatch> productsToInsert =
             listOfBatchs.expand((batch) => batch.listItems!).toList();
-        sortProductsByLocationId(productsToInsert);
 
         //Convertir el mapa en una lista los barcodes unicos de cada producto
         List<Barcodes> barcodesToInsert = listOfBatchs
@@ -383,10 +393,10 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
   }
 
-  void sortProductsByLocationId(List<ProductsBatch> products) {
-    products.sort((a, b) {
-      // Comparamos los locationId
-      return a.locationId?[1].compareTo(b.locationId?[1]);
-    });
-  }
+  // void sortProductsByLocationId(List<ProductsBatch> products) {
+  //   products.sort((a, b) {
+  //     // Comparamos los locationId
+  //     return a.locationId?[1].compareTo(b.locationId?[1]);
+  //   });
+  // }
 }

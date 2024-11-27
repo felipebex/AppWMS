@@ -1289,26 +1289,26 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 ],
                               ),
 
-                            ElevatedButton(
-                              onPressed: () async {
-                               await DataBaseSqlite().getBarcodesProduct(
-                                batchBloc.batchWithProducts.batch?.id ?? 0,
-                                currentProduct.idProduct ?? 0,
-                                currentProduct.idMove ?? 0);
+                            // ElevatedButton(
+                            //   onPressed: () async {
+                            //    await DataBaseSqlite().getBarcodesProduct(
+                            //     batchBloc.batchWithProducts.batch?.id ?? 0,
+                            //     currentProduct.idProduct ?? 0,
+                            //     currentProduct.idMove ?? 0);
 
 
 
 
-                                // batchBloc.add(ValidateFieldsEvent(
-                                //     field: "quantity", isOk: true));
-                                // batchBloc.add(AddQuantitySeparate(
-                                //     currentProduct.idProduct ?? 0,
-                                //     currentProduct.idMove ?? 0,
-                                //     1));
-                                // print("barcodes: ${batchBloc.listOfBarcodes}");
-                              },
-                              child: const Text('Example'),
-                            ),
+                            //     // batchBloc.add(ValidateFieldsEvent(
+                            //     //     field: "quantity", isOk: true));
+                            //     // batchBloc.add(AddQuantitySeparate(
+                            //     //     currentProduct.idProduct ?? 0,
+                            //     //     currentProduct.idMove ?? 0,
+                            //     //     1));
+                            //     // print("barcodes: ${batchBloc.listOfBarcodes}");
+                            //   },
+                            //   child: const Text('Example'),
+                            // ),
                           ],
                         ),
                       ),
@@ -1739,7 +1739,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     setState(() {});
 
     ///cambiamos al siguiente producto
+    ///
+    
+    batchBloc.sortProductsByLocationId();
 
+    print("index: ${batchBloc.index}");
+    print("length: ${batchBloc.filteredProducts.length}");
     if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
       //ultima posicion de la lista
       context
