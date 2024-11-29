@@ -73,6 +73,12 @@ class BatchDetailScreen extends StatelessWidget {
                                       context
                                           .read<BatchBloc>()
                                           .add(ClearSearchProudctsBatchEvent());
+                                      context.read<BatchBloc>().add(FetchBatchWithProductsEvent(
+                                          context
+                                              .read<BatchBloc>()
+                                              .batchWithProducts
+                                              .batch
+                                              ?.id ?? 0));
                                       Navigator.pop(context);
                                     },
                                   ),
@@ -138,7 +144,10 @@ class BatchDetailScreen extends StatelessWidget {
                                         ),
                                         child: Center(
                                           child: Text(
-                                              "Separados: ${context.read<BatchBloc>().batchWithProducts.batch?.productSeparateQty ?? 0}",
+                                            "Separados: ${
+                                              context.read<BatchBloc>().filteredProducts.where((element){
+                                                return element.isSeparate == 1;
+                                              }).length.toString()}",
                                               style: const TextStyle(
                                                   fontSize: 12, color: black)),
                                         ),
@@ -471,6 +480,7 @@ class BatchDetailScreen extends StatelessWidget {
                                 child: GestureDetector(
                                   onTap: () async {
                                     print("product detail info: ${productsBatch.toMap()}");
+                                    print("batch detail info: ${context.read<BatchBloc>().batchWithProducts.batch?.toMap()}");
                                   },
                                   child: Card(
                                       elevation: 4,

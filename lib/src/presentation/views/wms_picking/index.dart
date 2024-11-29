@@ -188,6 +188,10 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               icon: const Icon(Icons.arrow_back,
                                                   color: white),
                                               onPressed: () {
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .searchController
+                                                    .clear();
                                                 Navigator.pop(context);
                                               },
                                             ),

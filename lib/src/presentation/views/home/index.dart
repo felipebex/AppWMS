@@ -68,12 +68,12 @@ class _HomePageState extends State<HomePage> {
               }
             },
             child: Scaffold(
-              floatingActionButton: FloatingActionButton(
-                onPressed: () async {
-                  await DataBaseSqlite().deleteAll();
-                },
-                child: const Icon(Icons.refresh),
-              ),
+              // floatingActionButton: FloatingActionButton(
+              //   onPressed: () async {
+              //     await DataBaseSqlite().deleteAll();
+              //   },
+              //   child: const Icon(Icons.refresh),
+              // ),
               body: Container(
                 width: size.width,
                 height: size.height,

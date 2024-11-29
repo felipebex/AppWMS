@@ -78,15 +78,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   int index = 0;
 
   //* variable de productos del batch completados por el usuario
-  int completedProducts = 0;
+  // int completedProducts = 0;
 
   BatchBloc() : super(BatchInitial()) {
     on<LoadConfigurationsUser>((event, emit) async {
       try {
-        final int userId = await PrefUtils.getUserId();
-        print('userId: $userId');
         final response = await db.getConfiguration();
-        print('configurations: ${response?.toMap()}');
         if (response != null) {
           emit(ConfigurationLoaded(response));
           configurations = response;
@@ -142,12 +139,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await db.updateBatch(response[0]);
       //actualizamos el batch
       batchWithProducts.batch == response[0];
+
       //actualizamos la lista de productos
       List<ProductsBatch> productsToInsert =
           response.expand((batch) => batch.listItems!).toList();
       //actualizamos la lista de productos   en la bd
       await DataBaseSqlite().insertBatchProducts(productsToInsert);
       //actualizamos la lista de productos
+      await sortProductsByLocationId();
       add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
     } else {
       print('No se encontró el batch con ID: ${event.batchId}');
@@ -181,7 +180,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       }
 
       //ordenamos los productos por ubicacion
-      sortProductsByLocationId();
+      await sortProductsByLocationId();
       add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
     } catch (e, s) {
       print('Error _onPickingPendingEvent: $e, $s');
@@ -234,19 +233,27 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
 //* metodo para cargar las variables de la vista dependiendo del estado de los productos y del batch
   void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
-    isLocationOk = true;
-    isProductOk = true;
-    isLocationDestOk = true;
-    isQuantityOk = true;
-    index = 0;
+    print("entro al evento de cargar datos");
 
-    locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
-    productIsOk = currentProduct.productIsOk == 1 ? true : false;
+    currentProduct = filteredProducts[batchWithProducts.batch?.indexList ?? 0];
+
+    if (currentProduct.locationId == oldLocation) {
+      locationIsOk = true;
+    } else {
+      locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+    }
+
+    print(locationIsOk);
+
+    productIsOk = currentProduct.productIsOk == false
+        ? false
+        : currentProduct.productIsOk == 1
+            ? true
+            : false;
     locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
     quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
     index = batchWithProducts.batch?.indexList ?? 0;
     quantitySelected = currentProduct.quantitySeparate ?? 0;
-    completedProducts = batchWithProducts.batch?.productSeparateQty ?? 0;
 
     emit(LoadDataInfoState());
   }
@@ -386,6 +393,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
 
+    print("current product: ${currentProduct.toMap()}");
+
     //actualizamos el tiempo total del producto
     await db.endStopwatchProduct(
         batchWithProducts.batch?.id ?? 0,
@@ -399,7 +408,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         currentProduct.idMove ?? 0,
         "time_separate_start");
 
-    DateTime dateTimeStartProduct = DateTime.parse(starTimeProduct);
+    DateTime dateTimeStartProduct =
+        starTimeProduct == "null" || starTimeProduct.isEmpty
+            ? DateTime.parse(DateTime.now().toString())
+            : DateTime.parse(starTimeProduct);
     // Calcular la diferencia
     Duration differenceProduct =
         dateTimeActuality.difference(dateTimeStartProduct);
@@ -448,21 +460,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         print('La ubicacion es diferente');
       }
 
-      await db.startStopwatch(
+       await db.startStopwatch(
         batchWithProducts.batch?.id ?? 0,
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
         DateTime.now().toString(),
       );
-      // Emitir el nuevo estado con el producto actual
-      if (batchWithProducts.products?.length != index + 1) {
-        await db.setFieldTableBatchProducts(
-            batchWithProducts.batch?.id ?? 0,
-            currentProduct.idProduct ?? 0,
-            'is_location_is_ok',
-            'true',
-            currentProduct.idMove ?? 0);
-      }
+
 
       listOfBarcodes.clear();
 
@@ -471,10 +475,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
       );
-      print('Barcodes: $listOfBarcodes');
 
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
+      add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
       return;
     }
   }
@@ -497,13 +501,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await db.setFieldTableBatchProducts(event.batchId, event.productId,
           'is_location_is_ok', 'true', event.idMove);
 
-      //empezamos el tiempo de separacion del batch y del producto
-      await db.startStopwatch(
-        event.batchId,
-        event.productId,
-        event.idMove,
-        DateTime.now().toString(),
-      );
       if (index == 0) {
         await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
       }
@@ -533,6 +530,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.productIsOk) {
+
+      //empezamos el tiempo de separacion del batch y del producto
+      await db.startStopwatch(
+        event.batchId,
+        event.productId,
+        event.idMove,
+        DateTime.now().toString(),
+      );
       await db.setFieldTableBatchProducts(
           event.batchId, event.productId, 'is_selected', 'true', event.idMove);
       await db.setFieldTableBatchProducts(event.batchId, event.productId,
@@ -547,23 +552,23 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onClearSearchEvent(
-      ClearSearchProudctsBatchEvent event, Emitter<BatchState> emit) {
+      ClearSearchProudctsBatchEvent event, Emitter<BatchState> emit) async {
     searchController.clear();
     filteredProducts.clear();
     filteredProducts.addAll(batchWithProducts.products!);
-    sortProductsByLocationId();
+    await sortProductsByLocationId();
     emit(LoadProductsBatchSuccesState(listOfProductsBatch: filteredProducts));
   }
 
   void _onSearchBacthEvent(
-      SearchProductsBatchEvent event, Emitter<BatchState> emit) {
+      SearchProductsBatchEvent event, Emitter<BatchState> emit) async {
     final query = event.query.toLowerCase();
 
     if (query.isEmpty) {
       filteredProducts.clear();
       filteredProducts = batchWithProducts
           .products!; // Si la búsqueda está vacía, mostrar todos los productos
-      sortProductsByLocationId();
+      await sortProductsByLocationId();
     } else {
       filteredProducts = batchWithProducts.products!.where((batch) {
         return batch.productId?.toLowerCase().contains(query) ?? false;
@@ -593,11 +598,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       filteredProducts.clear();
       filteredProducts.addAll(batchWithProducts.products!);
 
+      await sortProductsByLocationId();
+
+      print('Productos cargados: ${filteredProducts.length}');
       add(LoadDataInfoEvent());
-
-      sortProductsByLocationId();
-
-      print('Productos ordenados: ${filteredProducts.length}');
 
       getPosicions();
       getMuelles();
@@ -613,7 +617,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           currentProduct.idProduct ?? 0,
           currentProduct.idMove ?? 0,
         );
-        print('Barcodes: $listOfBarcodes');
       }
       products();
 
@@ -626,14 +629,18 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
 //metodo para ordenar los productos por ubicacion
-  List<ProductsBatch> sortProductsByLocationId() {
+  Future<List<ProductsBatch>> sortProductsByLocationId() async {
     final products = filteredProducts;
     final batch = batchWithProducts.batch!;
+
+    //traemos el batch actualizado
+    final batchUpdated = await db.getBatchById(batch.id ?? 0);
+
     //ORDENAMOS LOS PRODUCTOS SEGUN EL ORDENAMIENTO QUE DIGA EL BATCH
-    switch (batch.orderBy) {
+    switch (batchUpdated?.orderBy) {
       case "removal_priority":
         {
-          if (batch.orderPicking == "asc") {
+          if (batchUpdated?.orderPicking == "asc") {
             products.sort((a, b) {
               return a.rimovalPriority!.compareTo(b.rimovalPriority!);
             });
@@ -646,7 +653,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         break;
       case "location_name":
         {
-          if (batch.orderPicking == "asc") {
+          if (batchUpdated?.orderPicking == "asc") {
             products.sort((a, b) {
               return a.locationId!.compareTo(b.locationId!);
             });
@@ -659,7 +666,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         break;
       case "product_name":
         {
-          if (batch.orderPicking == "asc") {
+          if (batchUpdated?.orderPicking == "asc") {
             products.sort((a, b) {
               return a.productId!.compareTo(b.productId!);
             });

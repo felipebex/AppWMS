@@ -804,6 +804,24 @@ class DataBaseSqlite {
     }
   }
 
+  //obtener un solo batch
+  Future<BatchsModel?> getBatchById(int batchId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblbatchs',
+      where: 'id = ?',
+      whereArgs: [batchId],
+    );
+
+    if (maps.isNotEmpty) {
+      return BatchsModel.fromMap(maps.first);
+    }
+    return null;
+  }
+
+
+
+
   //* Obtener todos los batchs
 
   Future<List<BatchsModel>> getAllBatchs(int userId) async {
@@ -1090,7 +1108,6 @@ class DataBaseSqlite {
   //* Obtener un batch con sus productos
   Future<BatchWithProducts?> getBatchWithProducts(int batchId) async {
     try {
-      print("batchId: $batchId");
       final db = await database;
       final List<Map<String, dynamic>> batchMaps = await db!.query(
         'tblbatchs',
@@ -1194,7 +1211,6 @@ class DataBaseSqlite {
     ''');
     if (res.isNotEmpty) {
       String responsefield = res[0]['${field}'].toString();
-      print("getFieldTableBtach {$field}   : $responsefield");
       return responsefield;
     }
     return "";
@@ -1210,7 +1226,6 @@ class DataBaseSqlite {
     ''');
       if (res.isNotEmpty) {
         String responsefield = res[0]['${field}'].toString();
-        print("getFieldTableBtach {$field}   : $responsefield");
         return responsefield;
       }
       return "";

@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print, unused_element, sort_child_properties_last, unrelated_type_equality_checks, unnecessary_null_comparison
 
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -50,26 +51,35 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     // Leer BatchBloc una sola vez para mejorar eficiencia
     final batchBloc = context.read<BatchBloc>();
 
-    if (!batchBloc.locationIsOk &&
-        !batchBloc.productIsOk &&
-        !batchBloc.quantityIsOk &&
-        !batchBloc.locationDestIsOk) {
+
+    print("locationIsOk: ${batchBloc.locationIsOk}");
+    print("productIsOk: ${batchBloc.productIsOk}");
+    print("quantityIsOk: ${batchBloc.quantityIsOk}");
+    print("locationDestIsOk: ${batchBloc.locationDestIsOk}");
+
+    if (!batchBloc.locationIsOk && //false
+        !batchBloc.productIsOk &&//false
+        !batchBloc.quantityIsOk &&//false
+        !batchBloc.locationDestIsOk) //false
+        {
       print("focus: ubicacion origen");
       FocusScope.of(context).requestFocus(focusNode1);
     }
 
-    if (batchBloc.locationIsOk &&
-        !batchBloc.productIsOk &&
-        !batchBloc.quantityIsOk &&
-        !batchBloc.locationDestIsOk) {
+    if (batchBloc.locationIsOk && //true
+        !batchBloc.productIsOk && //false
+        !batchBloc.quantityIsOk && //false
+        !batchBloc.locationDestIsOk)//false
+         {
       print("focus: producto");
       FocusScope.of(context).requestFocus(focusNode2);
     }
-    if (batchBloc.locationIsOk &&
-        batchBloc.productIsOk &&
-        batchBloc.quantityIsOk &&
-        !batchBloc.locationDestIsOk &&
-        !viewQuantity) {
+    if (batchBloc.locationIsOk &&//true
+        batchBloc.productIsOk &&//true
+        batchBloc.quantityIsOk &&//ttrue
+        !batchBloc.locationDestIsOk &&//false
+        !viewQuantity) //false
+        {
       print("focus: cantidad-scan");
       FocusScope.of(context).requestFocus(focusNode3);
     }
@@ -106,13 +116,17 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
         int totalTasks =
-            context.read<BatchBloc>().filteredProducts?.length ?? 0;
+            context.read<BatchBloc>().filteredProducts.length ?? 0;
 
         double progress = totalTasks > 0
-            ? context.read<BatchBloc>().completedProducts / totalTasks
+            ? context.read<BatchBloc>().filteredProducts.where((e) {
+                  return e.isSeparate == 1;
+                }).length /
+                totalTasks
             : 0.0;
 
         final batchBloc = context.read<BatchBloc>();
+        print("currentProduct: ${batchBloc.currentProduct.toMap()}");
 
         if (state is EmptyroductsBatch) {
           return Scaffold(
@@ -194,10 +208,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     context.read<BatchBloc>().index = 0;
                                     context.read<BatchBloc>().quantitySelected =
                                         0;
-                                    context
-                                        .read<BatchBloc>()
-                                        .completedProducts = 0;
+
                                     cantidadController.clear();
+                                      context
+                                        .read<BatchBloc>().oldLocation = "";
                                     context
                                         .read<WMSPickingBloc>()
                                         .add(LoadBatchsFromDBEvent());
@@ -414,7 +428,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 horizontal: 10, vertical: 5),
                             child: ProgressIndicatorWidget(
                               progress: progress,
-                              completed: batchBloc.completedProducts,
+                              completed: batchBloc.filteredProducts.where((e) {
+                                return e.isSeparate == 1;
+                              }).length,
                               total: totalTasks,
                             ),
                           ),
@@ -566,10 +582,34 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: location,
-                                                    child: Text(location,
-                                                        style: const TextStyle(
-                                                            color: black,
-                                                            fontSize: 14)),
+                                                    child: 
+                                                       Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          color: batchBloc.currentProduct.locationId
+                                                                  .toString() ==
+                                                              location
+                                                          ? Colors.green[100]
+                                                          : Colors.white),
+                                                      width: size.width * 0.9,
+                                                      height: 45,
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                        horizontal: 5,
+                                                        vertical: 3,
+                                                      ),
+                                                      child: Align(
+                                                        alignment: Alignment.centerLeft,
+                                                        child: Text(location,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
+                                                            style: const TextStyle(
+                                                                color: black,
+                                                                fontSize: 14)),
+                                                      ),
+                                                    ),
                                                   );
                                                 }).toList(),
                                                 onChanged: batchBloc
@@ -839,10 +879,30 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: product,
-                                                    child: Text(product,
-                                                        style: const TextStyle(
-                                                            color: black,
-                                                            fontSize: 14)),
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          color: batchBloc.currentProduct.productId
+                                                                  .toString() ==
+                                                              product
+                                                          ? Colors.green[100]
+                                                          : Colors.white),
+                                                      width: size.width * 0.9,
+                                                      height: 45,
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                        horizontal: 5,
+                                                        vertical: 3,
+                                                      ),
+                                                      child: Text(product,
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
+                                                          style: const TextStyle(
+                                                              color: black,
+                                                              fontSize: 14)),
+                                                    ),
                                                   );
                                                 }).toList(),
 
@@ -1099,9 +1159,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   context
                                                       .read<BatchBloc>()
                                                       .index = 0;
-                                                  context
-                                                      .read<BatchBloc>()
-                                                      .completedProducts = 0;
 
                                                   Navigator.pop(context);
                                                 } else {
@@ -1234,10 +1291,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                     .read<
                                                                         BatchBloc>()
                                                                     .index = 0;
-                                                                context
-                                                                    .read<
-                                                                        BatchBloc>()
-                                                                    .completedProducts = 0;
 
                                                                 Navigator.pop(
                                                                     context);
@@ -1295,9 +1348,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             //     batchBloc.batchWithProducts.batch?.id ?? 0,
                             //     currentProduct.idProduct ?? 0,
                             //     currentProduct.idMove ?? 0);
-
-
-
 
                             //     // batchBloc.add(ValidateFieldsEvent(
                             //     //     field: "quantity", isOk: true));
@@ -1606,7 +1656,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                                     if (cantidad == currentProduct.quantity) {
                                       batchBloc.add(ChangeQuantitySeparate(
-                                          int.parse(cantidadController.text),
+                                          cantidad,
                                           currentProduct.idProduct ?? 0,
                                           currentProduct.idMove ?? 0));
                                     } else {
@@ -1722,7 +1772,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   }
 
   void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) async {
-    batchBloc.completedProducts = batchBloc.completedProducts + 1;
     DataBaseSqlite db = DataBaseSqlite();
 
     await db.setFieldTableBatchProducts(
@@ -1738,9 +1787,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     viewQuantity = false;
     setState(() {});
 
-    ///cambiamos al siguiente producto
-    ///
-    
+
+
     batchBloc.sortProductsByLocationId();
 
     print("index: ${batchBloc.index}");
@@ -1843,7 +1891,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             currentProduct.quantity!) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             duration: const Duration(milliseconds: 1000),
-            content:  Text('Error, el codigo es para una cantidad de : ${matchedBarcode.cantidad} '),
+            content: Text(
+                'Error, el codigo es para una cantidad de : ${matchedBarcode.cantidad} '),
             backgroundColor: Colors.red[200],
           ));
           return false;
