@@ -132,19 +132,40 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     //*evento para actualizar los datos del producto desde odoo
     on<UpdateProductOdooEvent>(_onUpdateProductOdooEvent);
     //*evento para editar un producto
-    on<EditProductEvent>(_onEditProductEvent);
+    on<LoadProductEditEvent>(_onEditProductEvent);
+    //*evento para enviar un producto a odoo editado
+    on<SendProductEditOdooEvent>(_onSendProductEditOdooEvent);
+  }
+
+  //*evento para enviar un producto a odoo editado
+  void _onSendProductEditOdooEvent(
+      SendProductEditOdooEvent event, Emitter<BatchState> emit) async {
+    emit(LoadingSendProductEdit());
+    sendProuctEditOdoo(event.product);
+
+    final response = await DataBaseSqlite()
+        .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
+
+    final List<ProductsBatch> products = response!.products!
+        .where((product) => product.quantitySeparate != product.quantity)
+        .toList();
+    batchWithProducts.products = response.products;
+    filteredProducts.clear();
+    filteredProducts.addAll(products);
+    emit(ProductEditOk());
   }
 
   //*evento para editar un producto
   void _onEditProductEvent(
-      EditProductEvent event, Emitter<BatchState> emit) async {
+      LoadProductEditEvent event, Emitter<BatchState> emit) async {
     //filtramos la lista de producto para mostrar solo los productos que estan separados en cantidad incompletas
 
-    final List<ProductsBatch> products = filteredProducts
+    final response = await DataBaseSqlite()
+        .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
+
+    final List<ProductsBatch> products = response!.products!
         .where((product) => product.quantitySeparate != product.quantity)
         .toList();
-
-    print('Productos incompletos: ${products.length}');
     filteredProducts.clear();
     filteredProducts.addAll(products);
     emit(LoadProductsBatchSuccesStateBD(listOfProductsBatch: filteredProducts));
@@ -374,11 +395,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           resultProduct.idMove ?? 0,
         );
       }
-
-      //actualizamos la lista de productos
-
-      emit(LoadProductsBatchSuccesStateBD(
-          listOfProductsBatch: filteredProducts));
+      // filteredProducts = b
 
       return true;
     } else {
@@ -707,7 +724,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
-//metodo para ordenar los productos por ubicacion
+//*metodo para ordenar los productos por ubicacion
   Future<List<ProductsBatch>> sortProductsByLocationId() async {
     final products = filteredProducts;
     final batch = batchWithProducts.batch!;
@@ -808,33 +825,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     final progress = (totalSeparadas / totalCantidades) * 100;
     return progress.toStringAsFixed(1);
-  }
-
-  Future<String> calcularTiempoTotalPicking(int batchId) async {
-    final starTime =
-        await db.getFieldTableBtach(batchId, 'time_separate_start');
-    final endTime = await db.getFieldTableBtach(batchId, 'time_separate_end');
-
-    print('start time: $starTime');
-    print('end time: $endTime');
-
-    DateTime dateTimeStart = DateTime.parse(starTime);
-    DateTime dateTimeEnd = DateTime.parse(endTime);
-
-    // Calcular la diferencia
-    Duration difference = dateTimeEnd.difference(dateTimeStart);
-
-    // Obtener horas, minutos y segundos
-    int hours = difference.inHours;
-    int minutes = difference.inMinutes.remainder(60);
-    int seconds = difference.inSeconds.remainder(60);
-
-    // Formatear como 00:00:00
-    String formattedTime = '${hours.toString().padLeft(2, '0')}:'
-        '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}';
-
-    return formattedTime;
   }
 
   String formatSecondsToHHMMSS(double secondsDecimal) {

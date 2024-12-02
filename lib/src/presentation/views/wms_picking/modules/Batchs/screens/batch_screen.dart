@@ -158,6 +158,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is LoadProductsBatchSuccesState ||
             state is CurrentProductChangedState ||
             state is SelectNovedadState ||
+            state is ProductEditOk ||
             state is QuantityChangedState ||
             state is LoadDataInfoState ||
             state is ChangeQuantitySeparateState ||
@@ -1884,6 +1885,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           currentProduct.idProduct ?? 0));
       context.read<WMSPickingBloc>().add(LoadBatchsFromDBEvent());
       context.read<BatchBloc>().index = 0;
+      context.read<BatchBloc>().isSearch = true;
 
       Navigator.pop(context);
     } else {
@@ -1901,7 +1903,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                       true) {
                     //cerramos el focus
                     batchBloc.isSearch = false;
-                    batchBloc.add(EditProductEvent());
+                    batchBloc.add(LoadProductEditEvent());
 
                     Navigator.pushNamed(
                       context,

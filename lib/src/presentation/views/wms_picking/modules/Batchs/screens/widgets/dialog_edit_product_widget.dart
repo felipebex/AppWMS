@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -87,12 +86,12 @@ class DialogEditProductWidget extends StatelessWidget {
                           productsBatch.idProduct ?? 0,
                           productsBatch.idMove ?? 0));
                       //enviamos el producto a odoo
-                      await context
+                      context
                           .read<BatchBloc>()
-                          .sendProuctEditOdoo(productsBatch);
-                          
+                          .add(SendProductEditOdooEvent(productsBatch));
 
-                      Navigator.of(context).pop();
+                      Navigator.pop(context);
+
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColorApp,
@@ -101,9 +100,18 @@ class DialogEditProductWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
-                      'COMPLETAR CANTIDAD',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    child: BlocBuilder<BatchBloc, BatchState>(
+                      builder: (context, state) {
+                        if (state is LoadingSendProductEdit) {
+                          return const CircularProgressIndicator(
+                            color: Colors.white,
+                          );
+                        }
+                        return const Text(
+                          'COMPLETAR CANTIDAD',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        );
+                      },
                     ),
                   ),
                 ),

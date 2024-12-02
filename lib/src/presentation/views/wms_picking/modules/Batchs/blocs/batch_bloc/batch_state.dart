@@ -103,3 +103,7 @@ class ProductPendingState extends BatchState {
   ProductPendingState({required this.listOfProductsBatch});
 
 }
+
+class LoadingSendProductEdit extends BatchState {}
+
+class ProductEditOk extends BatchState {}

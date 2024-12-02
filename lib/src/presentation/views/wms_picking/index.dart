@@ -431,6 +431,8 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                                           //todo navegamos a la vista de separacion de productos del batch
                                           if (batch.isSeparate == 1) {
+                                            context.read<BatchBloc>().isSearch =
+                                                true;
                                             Navigator.pushNamed(
                                               context,
                                               'batch-detail',

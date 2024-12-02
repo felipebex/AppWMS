@@ -2,7 +2,6 @@
 
 import 'dart:ui';
 
-import 'package:flutter/services.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -11,7 +10,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_edit_product_widget.dart';
-import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
 import '../../../../../../utils/constans/colors.dart';
 
@@ -21,7 +19,17 @@ class BatchDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return BlocBuilder<BatchBloc, BatchState>(
+    return BlocConsumer<BatchBloc, BatchState>(
+      listener: (context, state) {
+        if (state is ProductEditOk) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Producto editado correctamente"),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      },
       builder: (context, state) {
         return Scaffold(
             backgroundColor: Colors.white,
@@ -114,52 +122,59 @@ class BatchDetailScreen extends StatelessWidget {
                                 ?.isSeparate ==
                             1
                         ? 175
-                        : 135,
+                        : context.read<BatchBloc>().isSearch == false
+                            ? 70
+                            : 135,
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Card(
-                                color: white,
-                                elevation: 3,
-                                child: SizedBox(
-                                  height: 60,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
+                              if (context.read<BatchBloc>().isSearch)
+                                Card(
+                                  color: white,
+                                  elevation: 3,
+                                  child: SizedBox(
+                                    height: 60,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                                "Items: ${context.read<BatchBloc>().batchWithProducts.products?.length ?? 0}",
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: black)),
+                                          ),
                                         ),
-                                        child: Center(
-                                          child: Text(
-                                              "Items: ${context.read<BatchBloc>().batchWithProducts.products?.length ?? 0}",
-                                              style: const TextStyle(
-                                                  fontSize: 12, color: black)),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                                "Separados: ${context.read<BatchBloc>().filteredProducts.where((element) {
+                                                      return element
+                                                              .isSeparate ==
+                                                          1;
+                                                    }).length.toString()}",
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: black)),
+                                          ),
                                         ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                              "Separados: ${context.read<BatchBloc>().filteredProducts.where((element) {
-                                                    return element.isSeparate ==
-                                                        1;
-                                                  }).length.toString()}",
-                                              style: const TextStyle(
-                                                  fontSize: 12, color: black)),
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
                               Card(
                                 color: white,
                                 elevation: 2,
@@ -366,54 +381,33 @@ class BatchDetailScreen extends StatelessWidget {
                                 color: primaryColorAppLigth,
                                 elevation: 2,
                                 child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: FutureBuilder<String>(
-                                      future: context
-                                          .read<BatchBloc>()
-                                          .calcularTiempoTotalPicking(context
-                                                  .read<BatchBloc>()
-                                                  .batchWithProducts
-                                                  .batch
-                                                  ?.id ??
-                                              0), // Asegúrate de pasar los IDs correctos
-                                      builder: (BuildContext context,
-                                          AsyncSnapshot<String> snapshot) {
-                                        if (snapshot.connectionState ==
-                                            ConnectionState.waiting) {
-                                          // Muestra un indicador de carga mientras esperas el resultado
-                                          return Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(Icons.timer,
-                                                  color: primaryColorApp,
-                                                  size: 15),
-                                              const SizedBox(width: 10),
-                                              const CircularProgressIndicator(), // O cualquier otro widget de carga
-                                            ],
-                                          );
-                                        } else {
-                                          // Cuando se tiene el resultado
-                                          String tiempoTotal = snapshot.data ??
-                                              "00:00:00"; // Valor por defecto si es nulo
-                                          return Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(Icons.timer,
-                                                  color: primaryColorApp,
-                                                  size: 15),
-                                              const SizedBox(width: 10),
-                                              Text(
-                                                  "Tiempo total del picking: $tiempoTotal",
-                                                  style: const TextStyle(
-                                                      fontSize: 13,
-                                                      color: black)),
-                                            ],
-                                          );
-                                        }
-                                      },
-                                    )),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.timer,
+                                          color: primaryColorApp, size: 15),
+                                      const SizedBox(width: 10),
+                                      const Text("Tiempo total del picking:",
+                                          style: TextStyle(
+                                              fontSize: 13, color: black)),
+                                      Text(
+                                          context
+                                              .read<BatchBloc>()
+                                              .formatSecondsToHHMMSS(context
+                                                      .read<BatchBloc>()
+                                                      .batchWithProducts
+                                                      .batch
+                                                      ?.timeSeparateTotal ??
+                                                  0.0),
+                                          style: const TextStyle(
+                                              fontSize: 13, color: black)),
+                                    ],
+                                  ),
+                                  //     }
+                                  //   },
+                                  // )),
+                                ),
                               ),
                             ),
                           //*widget de busqueda
@@ -460,27 +454,6 @@ class BatchDetailScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-
-                          Visibility(
-                              visible: !context.read<BatchBloc>().isSearch,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 30,
-                                ),
-                                child: ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryColorApp,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10)),
-                                      minimumSize: Size(size.width, 40),
-                                    ),
-                                    child: const Text(
-                                      'Enviar Picking',
-                                      style: TextStyle(color: Colors.white),
-                                    )),
-                              ))
                         ],
                       ),
                     ),
@@ -997,10 +970,16 @@ class BatchDetailScreen extends StatelessWidget {
                                     height:
                                         100), // Ajusta la altura según necesites
                                 const SizedBox(height: 10),
-                                Text('No se encontraron resultados',
+                                Text(
+                                    context.read<BatchBloc>().isSearch
+                                        ? 'No se encontraron resultados'
+                                        : 'No hay productos en la lista',
                                     style: TextStyle(
                                         fontSize: 12, color: primaryColorApp)),
-                                const Text('Intenta con otra búsqueda',
+                                Text(
+                                    context.read<BatchBloc>().isSearch
+                                        ? 'Intenta con otra búsqueda'
+                                        : 'Todos los productos han sido editados',
                                     style:
                                         TextStyle(fontSize: 12, color: grey)),
                               ],

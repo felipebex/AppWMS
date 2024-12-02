@@ -118,7 +118,7 @@ class DialogPickingIncompleted extends StatelessWidget {
                         currentProduct.idProduct ?? 0));
                     context.read<WMSPickingBloc>().add(LoadBatchsFromDBEvent());
                     context.read<BatchBloc>().index = 0;
-
+                    context.read<BatchBloc>().isSearch = true;
                     Navigator.pop(context);
                     Navigator.pushNamed(context, 'wms-picking', arguments: 1);
                   },
