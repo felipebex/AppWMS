@@ -1,9 +1,9 @@
-
 // ignore_for_file: file_names
 
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+
 
 import '../../../../../../../utils/constans/colors.dart';
 
@@ -14,6 +14,8 @@ class DialogLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // context.read<BatchBloc>().add(FetchBatchWithProductsEvent(
+    //     context.read<BatchBloc>().batchWithProducts.batch?.id ?? 0));
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: AlertDialog(
@@ -31,7 +33,7 @@ class DialogLoading extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
             ),
-             Align(
+            Align(
               alignment: Alignment.center,
               child: Text(
                 'Cargando Información...',
@@ -43,7 +45,7 @@ class DialogLoading extends StatelessWidget {
                 style: TextStyle(color: grey, fontSize: 14)),
           ],
         )),
-        content:  Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

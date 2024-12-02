@@ -68,12 +68,12 @@ class _HomePageState extends State<HomePage> {
               }
             },
             child: Scaffold(
-              // floatingActionButton: FloatingActionButton(
-              //   onPressed: () async {
-              //     await DataBaseSqlite().deleteAll();
-              //   },
-              //   child: const Icon(Icons.refresh),
-              // ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  await DataBaseSqlite().deleteAll();
+                },
+                child: const Icon(Icons.refresh),
+              ),
               body: Container(
                 width: size.width,
                 height: size.height,
@@ -425,10 +425,19 @@ class _HomePageState extends State<HomePage> {
                                                           .listOfBatchs
                                                           .length -
                                                       context
-                                                          .read<
-                                                              WMSPickingBloc>()
-                                                          .batchsDone
-                                                          .length)
+                                                  .read<WMSPickingBloc>()
+                                                  .batchsDone
+                                                  .where((element) {
+                                                    return DateTime.parse(element
+                                                                    .timeSeparateEnd ??
+                                                                "")
+                                                            .toString()
+                                                            .substring(0, 10) ==
+                                                        DateTime.now()
+                                                            .toString()
+                                                            .substring(0, 10);
+                                                  })
+                                                  .length)
                                                   .toString(),
                                             ),
                                           ),

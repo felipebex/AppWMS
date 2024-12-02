@@ -139,3 +139,6 @@ class UpdateProductOdooEvent extends BatchEvent {
   final BuildContext context;
   UpdateProductOdooEvent( this.batchId,  this.context);
 }
+
+class EditProductEvent extends BatchEvent {
+}

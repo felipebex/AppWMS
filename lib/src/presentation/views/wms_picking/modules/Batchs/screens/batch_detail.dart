@@ -2,6 +2,7 @@
 
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -9,6 +10,8 @@ import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_edit_product_widget.dart';
+import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
 import '../../../../../../utils/constans/colors.dart';
 
@@ -73,12 +76,13 @@ class BatchDetailScreen extends StatelessWidget {
                                       context
                                           .read<BatchBloc>()
                                           .add(ClearSearchProudctsBatchEvent());
-                                      context.read<BatchBloc>().add(FetchBatchWithProductsEvent(
-                                          context
-                                              .read<BatchBloc>()
-                                              .batchWithProducts
-                                              .batch
-                                              ?.id ?? 0));
+                                      context.read<BatchBloc>().add(
+                                          FetchBatchWithProductsEvent(context
+                                                  .read<BatchBloc>()
+                                                  .batchWithProducts
+                                                  .batch
+                                                  ?.id ??
+                                              0));
                                       Navigator.pop(context);
                                     },
                                   ),
@@ -144,10 +148,10 @@ class BatchDetailScreen extends StatelessWidget {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            "Separados: ${
-                                              context.read<BatchBloc>().filteredProducts.where((element){
-                                                return element.isSeparate == 1;
-                                              }).length.toString()}",
+                                              "Separados: ${context.read<BatchBloc>().filteredProducts.where((element) {
+                                                    return element.isSeparate ==
+                                                        1;
+                                                  }).length.toString()}",
                                               style: const TextStyle(
                                                   fontSize: 12, color: black)),
                                         ),
@@ -356,7 +360,8 @@ class BatchDetailScreen extends StatelessWidget {
                               1)
                             Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, ),
+                                horizontal: 20,
+                              ),
                               child: Card(
                                 color: primaryColorAppLigth,
                                 elevation: 2,
@@ -412,45 +417,70 @@ class BatchDetailScreen extends StatelessWidget {
                               ),
                             ),
                           //*widget de busqueda
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, ),
-                            child: Card(
-                              color: Colors.white,
-                              elevation: 2,
-                              child: TextFormField(
-                                focusNode: FocusNode(),
-                                textAlignVertical: TextAlignVertical.center,
-                                onChanged: (value) {
-                                  context
+
+                          Visibility(
+                            visible: context.read<BatchBloc>().isSearch,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 2,
+                                child: TextFormField(
+                                  focusNode: FocusNode(),
+                                  textAlignVertical: TextAlignVertical.center,
+                                  onChanged: (value) {
+                                    context
+                                        .read<BatchBloc>()
+                                        .add(SearchProductsBatchEvent(value));
+                                  },
+                                  controller: context
                                       .read<BatchBloc>()
-                                      .add(SearchProductsBatchEvent(value));
-                                },
-                                controller:
-                                    context.read<BatchBloc>().searchController,
-                                decoration: InputDecoration(
-                                  prefixIcon:
-                                      const Icon(Icons.search, color: grey),
-                                  suffixIcon: IconButton(
-                                      onPressed: () {
-                                        context.read<BatchBloc>().add(
-                                            ClearSearchProudctsBatchEvent());
-                                        //cerramo el teclado
-                                        FocusScope.of(context).unfocus();
-                                      },
-                                      icon:
-                                          const Icon(Icons.close, color: grey)),
-                                  disabledBorder: const OutlineInputBorder(),
-                                  hintText: "Buscar productos",
-                                  hintStyle: const TextStyle(
-                                      color: Colors.grey, fontSize: 12),
-                                  border: InputBorder.none,
+                                      .searchController,
+                                  decoration: InputDecoration(
+                                    prefixIcon:
+                                        const Icon(Icons.search, color: grey),
+                                    suffixIcon: IconButton(
+                                        onPressed: () {
+                                          context.read<BatchBloc>().add(
+                                              ClearSearchProudctsBatchEvent());
+                                          //cerramo el teclado
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                        icon: const Icon(Icons.close,
+                                            color: grey)),
+                                    disabledBorder: const OutlineInputBorder(),
+                                    hintText: "Buscar productos",
+                                    hintStyle: const TextStyle(
+                                        color: Colors.grey, fontSize: 12),
+                                    border: InputBorder.none,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
 
-                        
+                          Visibility(
+                              visible: !context.read<BatchBloc>().isSearch,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 30,
+                                ),
+                                child: ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryColorApp,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10)),
+                                      minimumSize: Size(size.width, 40),
+                                    ),
+                                    child: const Text(
+                                      'Enviar Picking',
+                                      style: TextStyle(color: Colors.white),
+                                    )),
+                              ))
                         ],
                       ),
                     ),
@@ -459,10 +489,7 @@ class BatchDetailScreen extends StatelessWidget {
                   // *Lista de productos
                   Expanded(
                     // height: size.height * 0.75,
-                    child: context
-                                .read<BatchBloc>()
-                                .filteredProducts
-                                .isNotEmpty
+                    child: context.read<BatchBloc>().filteredProducts.isNotEmpty
                         ? ListView.builder(
                             shrinkWrap: true,
                             physics: const ScrollPhysics(),
@@ -479,8 +506,10 @@ class BatchDetailScreen extends StatelessWidget {
                                     horizontal: 10, vertical: 5),
                                 child: GestureDetector(
                                   onTap: () async {
-                                    print("product detail info: ${productsBatch.toMap()}");
-                                    print("batch detail info: ${context.read<BatchBloc>().batchWithProducts.batch?.toMap()}");
+                                    print(
+                                        "product detail info: ${productsBatch.toMap()}");
+                                    print(
+                                        "batch detail info: ${context.read<BatchBloc>().batchWithProducts.batch?.toMap()}");
                                   },
                                   child: Card(
                                       elevation: 4,
@@ -503,16 +532,60 @@ class BatchDetailScreen extends StatelessWidget {
                                         child: Column(
                                           children: [
                                             Center(
-                                              child: Text(
-                                                productsBatch.productId ?? '',
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: black,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.center,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      productsBatch.productId ??
+                                                          '',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                    ),
+                                                  ),
+                                                  if (!context
+                                                          .read<BatchBloc>()
+                                                          .isSearch &&
+                                                      (productsBatch.quantity !=
+                                                          productsBatch
+                                                              .quantitySeparate))
+                                                    SizedBox(
+                                                      width: 50,
+                                                      height: 50,
+                                                      child: Card(
+                                                        elevation: 2,
+                                                        color: white,
+                                                        child: IconButton(
+                                                            onPressed: () {
+                                                              //desplegamos un modal desde el bottom
+                                                              showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return DialogEditProductWidget(
+                                                                      productsBatch:
+                                                                          productsBatch,
+                                                                    );
+                                                                  });
+                                                            },
+                                                            icon: Icon(
+                                                                Icons.edit,
+                                                                size: 20,
+                                                                color:
+                                                                    primaryColorApp)),
+                                                      ),
+                                                    ),
+                                                ],
                                               ),
                                             ),
                                             const SizedBox(height: 5),
@@ -747,96 +820,39 @@ class BatchDetailScreen extends StatelessWidget {
                                                         horizontal: 8),
                                                 child: Row(
                                                   children: [
-                                                    FutureBuilder<String>(
-                                                      future: context
-                                                          .read<BatchBloc>()
-                                                          .calcularTiempoTotalProducto(
-                                                            context
-                                                                    .read<
-                                                                        BatchBloc>()
-                                                                    .batchWithProducts
-                                                                    .batch
-                                                                    ?.id ??
-                                                                0,
-                                                            productsBatch
-                                                                    .idProduct ??
-                                                                0,
-                                                            productsBatch
-                                                                    .idMove ??
-                                                                0,
-                                                          ), // Asegúrate de pasar los IDs correctos
-                                                      builder: (BuildContext
-                                                              context,
-                                                          AsyncSnapshot<String>
-                                                              snapshot) {
-                                                        if (snapshot
-                                                                .connectionState ==
-                                                            ConnectionState
-                                                                .waiting) {
-                                                          // Muestra un indicador de carga mientras esperas el resultado
-                                                          return Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Icon(Icons.timer,
-                                                                  color:
-                                                                      primaryColorApp,
-                                                                  size: 20),
-                                                              const SizedBox(
-                                                                  width: 10),
-                                                              const CircularProgressIndicator(), // O cualquier otro widget de carga
-                                                            ],
-                                                          );
-                                                        } else {
-                                                          // Cuando se tiene el resultado
-                                                          String tiempoTotal =
-                                                              snapshot.data ??
-                                                                  "00:00:00"; // Valor por defecto si es nulo
-                                                          return Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              Icon(Icons.timer,
-                                                                  color:
-                                                                      primaryColorApp,
-                                                                  size: 15),
-                                                              const SizedBox(
-                                                                  width: 5),
-                                                              RichText(
-                                                                text: TextSpan(
-                                                                  children: [
-                                                                    const TextSpan(
-                                                                      text:
-                                                                          "Tiempo total: ",
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            black, // color del texto antes de tiempoTotal
-                                                                      ),
-                                                                    ),
-                                                                    TextSpan(
-                                                                      text:
-                                                                          tiempoTotal,
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            primaryColorApp, // color rojo para tiempoTotal
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              )
-                                                            ],
-                                                          );
-                                                        }
-                                                      },
-                                                    ),
+                                                    Icon(Icons.timer,
+                                                        color: primaryColorApp,
+                                                        size: 15),
+                                                    const SizedBox(width: 5),
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        children: [
+                                                          const TextSpan(
+                                                            text:
+                                                                "Tiempo total: ",
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  black, // color del texto antes de tiempoTotal
+                                                            ),
+                                                          ),
+                                                          TextSpan(
+                                                            text: context
+                                                                .read<
+                                                                    BatchBloc>()
+                                                                .formatSecondsToHHMMSS(
+                                                                    productsBatch
+                                                                            .timeSeparate ??
+                                                                        0.0),
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  primaryColorApp, // color rojo para tiempoTotal
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
                                                   ],
                                                 ),
                                               ),

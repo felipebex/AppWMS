@@ -10,7 +10,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'batch_event.dart';
 part 'batch_state.dart';
@@ -27,8 +26,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   bool isLocationDestOk = true;
   bool isQuantityOk = true;
 
+  //variable de apoyo
+  bool isSearch = true;
+
   //*controller para la busqueda
   TextEditingController searchController = TextEditingController();
+
+  //*controller para editarProducto
+  TextEditingController editProductController = TextEditingController();
 
   //*batch con productos
   BatchWithProducts batchWithProducts = BatchWithProducts();
@@ -126,6 +131,23 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //*evento para actualizar los datos del producto desde odoo
     on<UpdateProductOdooEvent>(_onUpdateProductOdooEvent);
+    //*evento para editar un producto
+    on<EditProductEvent>(_onEditProductEvent);
+  }
+
+  //*evento para editar un producto
+  void _onEditProductEvent(
+      EditProductEvent event, Emitter<BatchState> emit) async {
+    //filtramos la lista de producto para mostrar solo los productos que estan separados en cantidad incompletas
+
+    final List<ProductsBatch> products = filteredProducts
+        .where((product) => product.quantitySeparate != product.quantity)
+        .toList();
+
+    print('Productos incompletos: ${products.length}');
+    filteredProducts.clear();
+    filteredProducts.addAll(products);
+    emit(LoadProductsBatchSuccesStateBD(listOfProductsBatch: filteredProducts));
   }
 
   //*metodo para actualizar los datos del producto desde odoo
@@ -190,14 +212,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   ///* evento para finalizar la separacion
   void _onPickingOkEvent(PickingOkEvent event, Emitter<BatchState> emit) async {
     await db.setFieldTableBatch(event.batchId, 'is_separate', 'true');
-
     DateTime dateTimeEnd = DateTime.parse(DateTime.now().toString());
-
     await db.endStopwatchBatch(event.batchId, dateTimeEnd.toString());
-
     final starTime =
         await db.getFieldTableBtach(event.batchId, 'time_separate_start');
-
     DateTime dateTimeStart = DateTime.parse(starTime);
     // Calcular la diferencia
     Duration difference = dateTimeEnd.difference(dateTimeStart);
@@ -310,6 +328,69 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         'false',
         product?.idMove ?? 0,
       );
+    }
+  }
+
+  Future<bool> sendProuctEditOdoo(ProductsBatch productEdit) async {
+    DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+    //traemos un producto de la base de datos  ya anteriormente guardado
+    final product = await db.getProductBatch(productEdit.batchId ?? 0,
+        productEdit.idProduct ?? 0, productEdit.idMove ?? 0);
+
+    //todo: tiempor por batch
+    //tiempo de separacion del producto, lo traemos de la bd
+    final starTime = await db.getFieldTableBtach(
+        productEdit.batchId ?? 0, 'time_separate_start');
+    DateTime dateTimeStart = DateTime.parse(starTime);
+    // Calcular la diferencia
+    Duration difference = dateTimeActuality.difference(dateTimeStart);
+    // Obtener la diferencia en segundos
+    double secondsDifference = difference.inMilliseconds / 1000.0;
+
+    //enviamos el producto a odoo
+    final response = await repository.sendPicking(
+        idBatch: product?.batchId ?? 0,
+        timeTotal: secondsDifference,
+        cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
+        listItem: [
+          Item(
+            idMove: product?.idMove ?? 0,
+            productId: product?.idProduct ?? 0,
+            lote: product?.lotId ?? '',
+            cantidad: product?.quantity ?? 0,
+            novedad: 'Sin novedad',
+            timeLine: product?.timeSeparate ?? 0,
+          ),
+        ]);
+
+    if (response.data?.code == 200) {
+      //recorremos todos los resultados de la respuesta
+      for (var resultProduct in response.data!.result) {
+        await db.setFieldTableBatchProducts(
+          resultProduct.idBatch ?? 0,
+          resultProduct.idProduct ?? 0,
+          'is_send_odoo',
+          'true',
+          resultProduct.idMove ?? 0,
+        );
+      }
+
+      //actualizamos la lista de productos
+
+      emit(LoadProductsBatchSuccesStateBD(
+          listOfProductsBatch: filteredProducts));
+
+      return true;
+    } else {
+      //elementos que no se pudieron enviar a odoo
+      await db.setFieldTableBatchProducts(
+        product?.batchId ?? 0,
+        product?.idProduct ?? 0,
+        'is_send_odoo',
+        'false',
+        product?.idMove ?? 0,
+      );
+      return false;
     }
   }
 
@@ -460,13 +541,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         print('La ubicacion es diferente');
       }
 
-       await db.startStopwatch(
+      await db.startStopwatch(
         batchWithProducts.batch?.id ?? 0,
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
         DateTime.now().toString(),
       );
-
 
       listOfBarcodes.clear();
 
@@ -530,7 +610,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.productIsOk) {
-
       //empezamos el tiempo de separacion del batch y del producto
       await db.startStopwatch(
         event.batchId,
@@ -758,51 +837,20 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     return formattedTime;
   }
 
-  Future<String> calcularTiempoTotalProducto(
-      int batchId, int productId, int moveId) async {
-    // Obtener los valores de las fechas desde la base de datos
-    final starTime = await db.getFieldTableProducts(
-        batchId, productId, moveId, 'time_separate_start');
+  String formatSecondsToHHMMSS(double secondsDecimal) {
+    // Redondear a los segundos más cercanos
+    int totalSeconds = secondsDecimal.round();
 
-    final endTime = await db.getFieldTableProducts(
-        batchId, productId, moveId, 'time_separate_end');
+    // Calcular horas, minutos y segundos
+    int hours = totalSeconds ~/ 3600;
+    int minutes = (totalSeconds % 3600) ~/ 60;
+    int seconds = totalSeconds % 60;
 
-    // Verificar si las fechas son válidas o están vacías
-    if (starTime == null || starTime.isEmpty) {
-      throw const FormatException("start time is null or empty");
-    }
-    if (endTime == null || endTime.isEmpty) {
-      throw const FormatException("end time is null or empty");
-    }
+    // Formatear en 00:00:00
+    String formattedTime = '${hours.toString().padLeft(2, '0')}:'
+        '${minutes.toString().padLeft(2, '0')}:'
+        '${seconds.toString().padLeft(2, '0')}';
 
-    // Intentar analizar las fechas con el formato esperado
-    try {
-      // Definir el formato de fecha. Aquí puedes cambiar el patrón dependiendo de cómo se almacenen las fechas en la base de datos
-      DateFormat dateFormat =
-          DateFormat('yyyy-MM-dd HH:mm:ss'); // Cambia esto si es otro formato
-
-      DateTime dateTimeStart = dateFormat.parse(starTime);
-      DateTime dateTimeEnd = dateFormat.parse(endTime);
-
-      // Calcular la diferencia entre las fechas
-      Duration difference = dateTimeEnd.difference(dateTimeStart);
-
-      // Obtener las horas, minutos y segundos de la diferencia
-      int hours = difference.inHours;
-      int minutes = difference.inMinutes.remainder(60);
-      int seconds = difference.inSeconds.remainder(60);
-
-      // Formatear el tiempo en formato 00:00:00
-      String formattedTime = '${hours.toString().padLeft(2, '0')}:'
-          '${minutes.toString().padLeft(2, '0')}:'
-          '${seconds.toString().padLeft(2, '0')}';
-
-      // Imprimir y devolver el tiempo calculado
-      return formattedTime;
-    } catch (e) {
-      // Si ocurre un error al analizar las fechas, imprimir el error
-      print("Error al analizar las fechas: $e");
-      return "00:00:00"; // Devolver un valor por defecto
-    }
+    return formattedTime;
   }
 }
