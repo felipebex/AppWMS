@@ -192,6 +192,9 @@ class WmsPickingRepository {
       "list_item": listItem.map((item) => item.toJson()).toList(),
     });
 
+
+    print('Body sendPicking: $body');
+
     try {
       var response = await ApiRequestService()
           .sendPicking(endpoint: 'send_batch', body: body, headers: headers);

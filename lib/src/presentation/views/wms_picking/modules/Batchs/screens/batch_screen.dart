@@ -41,49 +41,65 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   String? selectedLocation;
   String? selectedMuelle;
 
+  bool _shouldRunDependencies = true;
+
+  String? focoLocation = 'ubicacion';
   bool viewQuantity = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    print('didChangeDependencies');
+    if (_shouldRunDependencies) {
+      print('didChangeDependencies');
+      // Leer BatchBloc una sola vez para mejorar eficiencia
+      final batchBloc = context.read<BatchBloc>();
+      if (!batchBloc.locationIsOk && //false
+          !batchBloc.productIsOk && //false
+          !batchBloc.quantityIsOk && //false
+          !batchBloc.locationDestIsOk) //false
+      {
+        setState(() {
+          focoLocation = 'ubicacion';
+        });
+        print("focus ubicacion");
 
-    // Leer BatchBloc una sola vez para mejorar eficiencia
-    final batchBloc = context.read<BatchBloc>();
+        FocusScope.of(context).requestFocus(focusNode1);
+      }
 
-    if (!batchBloc.locationIsOk && //false
-        !batchBloc.productIsOk && //false
-        !batchBloc.quantityIsOk && //false
-        !batchBloc.locationDestIsOk) //false
-    {
-      print("focus ubicacion");
-      FocusScope.of(context).requestFocus(focusNode1);
-    }
+      if (batchBloc.locationIsOk && //true
+          !batchBloc.productIsOk && //false
+          !batchBloc.quantityIsOk && //false
+          !batchBloc.locationDestIsOk) //false
+      {
+        print("focus producto");
+        setState(() {
+          focoLocation = 'producto';
+        });
+        FocusScope.of(context).requestFocus(focusNode2);
+      }
+      if (batchBloc.locationIsOk && //true
+          batchBloc.productIsOk && //true
+          batchBloc.quantityIsOk && //ttrue
+          !batchBloc.locationDestIsOk && //false
+          !viewQuantity) //false
+      {
+        print("focus cantidad");
+        setState(() {
+          focoLocation = 'cantidad';
+        });
+        FocusScope.of(context).requestFocus(focusNode3);
+      }
 
-    if (batchBloc.locationIsOk && //true
-        !batchBloc.productIsOk && //false
-        !batchBloc.quantityIsOk && //false
-        !batchBloc.locationDestIsOk) //false
-    {
-      print("focus producto");
-      FocusScope.of(context).requestFocus(focusNode2);
-    }
-    if (batchBloc.locationIsOk && //true
-        batchBloc.productIsOk && //true
-        batchBloc.quantityIsOk && //ttrue
-        !batchBloc.locationDestIsOk && //false
-        !viewQuantity) //false
-    {
-      print("focus cantidad");
-      FocusScope.of(context).requestFocus(focusNode3);
-    }
-
-    if (batchBloc.locationIsOk &&
-        batchBloc.productIsOk &&
-        !batchBloc.quantityIsOk &&
-        !batchBloc.locationDestIsOk) {
-      print("focus cantidad");
-      FocusScope.of(context).requestFocus(focusNode5);
+      if (batchBloc.locationIsOk &&
+          batchBloc.productIsOk &&
+          !batchBloc.quantityIsOk &&
+          !batchBloc.locationDestIsOk) {
+        print("focus muelle");
+        setState(() {
+          focoLocation = 'muelle';
+        });
+        FocusScope.of(context).requestFocus(focusNode5);
+      }
     }
   }
 
@@ -440,6 +456,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
+                            Text('Foco: $focoLocation'),
+
                             //todo : ubicacion de origen
                             Row(
                               children: [
@@ -1596,6 +1614,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             onPressed: batchBloc.quantityIsOk &&
                                     batchBloc.quantitySelected >= 0
                                 ? () {
+                                    //cerramos el teclado
+                                    FocusScope.of(context).unfocus();
                                     int cantidad = int.parse(cantidadController
                                             .text.isEmpty
                                         ? batchBloc.quantitySelected.toString()
@@ -1607,6 +1627,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           currentProduct.idProduct ?? 0,
                                           currentProduct.idMove ?? 0));
                                     } else {
+                                      FocusScope.of(context).unfocus();
                                       if (cantidad <
                                           (currentProduct.quantity ?? 0)
                                               .toInt()) {
@@ -1904,11 +1925,18 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                     //cerramos el focus
                     batchBloc.isSearch = false;
                     batchBloc.add(LoadProductEditEvent());
+                    setState(() {
+                      _shouldRunDependencies = false;
+                    });
 
                     Navigator.pushNamed(
                       context,
                       'batch-detail',
-                    );
+                    ).then((_) {
+                      setState(() {
+                        _shouldRunDependencies = true;
+                      });
+                    });
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(

@@ -24,7 +24,7 @@ class BatchDetailScreen extends StatelessWidget {
         if (state is ProductEditOk) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Producto editado correctamente"),
+              content: Text("Producto completado correctamente"),
               backgroundColor: Colors.green,
             ),
           );
@@ -539,12 +539,12 @@ class BatchDetailScreen extends StatelessWidget {
                                                         color: white,
                                                         child: IconButton(
                                                             onPressed: () {
-                                                              //desplegamos un modal desde el bottom
                                                               showDialog(
                                                                   context:
                                                                       context,
                                                                   builder:
                                                                       (context) {
+                                                                        context.read<BatchBloc>().editProductController.text = '';  
                                                                     return DialogEditProductWidget(
                                                                       productsBatch:
                                                                           productsBatch,
@@ -923,9 +923,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                         black)),
                                                       ],
                                                     ),
-                                                    if (productsBatch
-                                                            .observation !=
-                                                        null)
+                                                    if ( productsBatch.quantity != productsBatch.quantitySeparate )
                                                       Align(
                                                         alignment: Alignment
                                                             .centerLeft,
@@ -979,7 +977,7 @@ class BatchDetailScreen extends StatelessWidget {
                                 Text(
                                     context.read<BatchBloc>().isSearch
                                         ? 'Intenta con otra búsqueda'
-                                        : 'Todos los productos han sido editados',
+                                        : 'Todos los productos han sido completados',
                                     style:
                                         TextStyle(fontSize: 12, color: grey)),
                               ],

@@ -141,10 +141,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onSendProductEditOdooEvent(
       SendProductEditOdooEvent event, Emitter<BatchState> emit) async {
     emit(LoadingSendProductEdit());
-    sendProuctEditOdoo(event.product);
+    sendProuctEditOdoo(event.product, event.cantidad);
 
     final response = await DataBaseSqlite()
         .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
+
+    print("response: $response");
 
     final List<ProductsBatch> products = response!.products!
         .where((product) => product.quantitySeparate != product.quantity)
@@ -352,11 +354,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
-  Future<bool> sendProuctEditOdoo(ProductsBatch productEdit) async {
+  Future<bool> sendProuctEditOdoo(
+      ProductsBatch productEdit, int cantidad) async {
     DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
     //traemos un producto de la base de datos  ya anteriormente guardado
     final product = await db.getProductBatch(productEdit.batchId ?? 0,
         productEdit.idProduct ?? 0, productEdit.idMove ?? 0);
+
+
+  
 
     //todo: tiempor por batch
     //tiempo de separacion del producto, lo traemos de la bd
@@ -378,8 +384,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             idMove: product?.idMove ?? 0,
             productId: product?.idProduct ?? 0,
             lote: product?.lotId ?? '',
-            cantidad: product?.quantity ?? 0,
-            novedad: 'Sin novedad',
+            cantidad: cantidad,
+            novedad: (cantidad == product?.quantity)
+                ? 'Sin novedad'
+                : product?.observation ?? 'Sin novedad',
             timeLine: product?.timeSeparate ?? 0,
           ),
         ]);

@@ -146,5 +146,6 @@ class LoadProductEditEvent extends BatchEvent {
 
 class SendProductEditOdooEvent extends BatchEvent {
   final ProductsBatch product;
-  SendProductEditOdooEvent(  this.product);
+  final int cantidad;
+  SendProductEditOdooEvent(  this.product, this.cantidad);
 }

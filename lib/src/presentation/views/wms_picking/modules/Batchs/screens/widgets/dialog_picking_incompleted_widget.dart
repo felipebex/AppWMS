@@ -130,7 +130,7 @@ class DialogPickingIncompleted extends StatelessWidget {
                     elevation: 3,
                   ),
                   child: Text('Cerrar Batch',
-                      style: TextStyle(color: primaryColorApp, fontSize: 14))),
+                      style: TextStyle(color: primaryColorApp, fontSize: 12))),
               ElevatedButton(
                   onPressed: () async {
                     onAccepted(); // Llama al callback
@@ -143,7 +143,7 @@ class DialogPickingIncompleted extends StatelessWidget {
                     elevation: 3,
                   ),
                   child: const Text('Verificar',
-                      style: TextStyle(color: Colors.white, fontSize: 14))),
+                      style: TextStyle(color: Colors.white, fontSize: 12))),
             ],
           );
         },
