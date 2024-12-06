@@ -149,3 +149,9 @@ class SendProductEditOdooEvent extends BatchEvent {
   final int cantidad;
   SendProductEditOdooEvent(  this.product, this.cantidad);
 }
+
+class AssignSubmuelleEvent extends BatchEvent {
+  final List<ProductsBatch> productsSeparate;
+  final Muelles muelle;
+  AssignSubmuelleEvent(this.productsSeparate, this.muelle);
+}

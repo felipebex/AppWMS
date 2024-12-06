@@ -5,6 +5,7 @@ class Item {
   int cantidad;
   String novedad;
   double timeLine;
+  int muelle;
 
   Item({
     required this.idMove,
@@ -13,6 +14,7 @@ class Item {
     required this.cantidad,
     required this.novedad,
     required this.timeLine,
+    required this.muelle,
   });
 
   Map<String, dynamic> toJson() {
@@ -23,6 +25,7 @@ class Item {
       'cantidad': cantidad,
       'novedad': novedad,
       'time_line': timeLine,
+      'muelle':  muelle,
     };
   }
 }

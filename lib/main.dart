@@ -82,7 +82,6 @@ void main() async {
       }
     } on SocketException catch (_) {}
   });
-
 }
 
 class AppState extends StatelessWidget {
@@ -213,13 +212,13 @@ void searchProductsNoSendOdoo() async {
         cantItemsSeparados: 0,
         listItem: [
           Item(
-            idMove: product.idMove ?? 0,
-            productId: product.idProduct ?? 0,
-            lote: product.lotId ?? '',
-            cantidad: product.quantitySeparate ?? 0,
-            novedad: product.observation ?? 'Sin novedad',
-            timeLine: double.parse(totalTime ),
-          ),
+              idMove: product.idMove ?? 0,
+              productId: product.idProduct ?? 0,
+              lote: product.lotId ?? '',
+              cantidad: product.quantitySeparate ?? 0,
+              novedad: product.observation ?? 'Sin novedad',
+              timeLine: double.parse(totalTime),
+              muelle: product.locationDestId[0] ?? 0),
         ]);
     print("response searchProductsNoSendOdoo: ${response.data?.code} ");
     if (response.data?.code == 200) {

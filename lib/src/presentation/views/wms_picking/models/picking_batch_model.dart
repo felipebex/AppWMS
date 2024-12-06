@@ -76,10 +76,10 @@ class BatchsModel {
   final String? isSendOdooDate;
   final String? observation;
 
-   final dynamic orderBy;
+  final dynamic orderBy;
   final dynamic orderPicking;
 
-   List<ProductsBatch>? listItems;
+  List<ProductsBatch>? listItems;
 
   BatchsModel({
     this.id,
@@ -115,7 +115,7 @@ class BatchsModel {
   factory BatchsModel.fromMap(Map<String, dynamic> json) => BatchsModel(
         id: json['id'],
         name: json['name'].toString(),
-        scheduleddate: json["scheduleddate"] ,
+        scheduleddate: json["scheduleddate"],
         pickingTypeId: json['picking_type_id'],
         muelle: json['muelle'],
         state: json['state'],
@@ -149,6 +149,7 @@ class BatchsModel {
         'muelle': muelle,
         'state': state,
         'user_id': userId,
+
         'user_name': userName,
         'count_items': countItems,
         'index_list': indexList,
@@ -187,22 +188,23 @@ class ProductsBatch {
   final dynamic lotId;
   final dynamic loteId;
   final dynamic locationId;
+  final int? muelleId;
   final dynamic locationDestId;
   final dynamic quantity; // Cambiado a double
   final List<Barcodes>? productPacking;
   final List<Barcodes>? otherBarcode;
 
-
   final dynamic barcodeLocation;
   final dynamic barcodeLocationDest;
 
+  final int? isMuelle;
 
   final int? quantitySeparate;
   final dynamic isSelected;
   final int? isSeparate;
   final dynamic timeSeparate;
   final String? timeSeparateStart;
-    final String? timeSeparateEnd;
+  final String? timeSeparateEnd;
   final String? observation;
   final int? isSendOdoo;
   final int? isPending;
@@ -224,11 +226,13 @@ class ProductsBatch {
     this.batchId,
     this.idMove,
     this.rimovalPriority,
+    this.muelleId,
     // this.pickingId,
     this.barcodeLocation,
     this.idProduct,
     this.productId,
     this.lotId,
+    this.isMuelle,
     this.loteId,
     this.locationId,
     this.locationDestId,
@@ -257,7 +261,6 @@ class ProductsBatch {
     this.otherBarcode,
   });
 
- 
   factory ProductsBatch.fromMap(Map<String, dynamic> map) {
     return ProductsBatch(
       id: map['id'],
@@ -265,6 +268,7 @@ class ProductsBatch {
       batchId: map['batch_id'],
       idProduct: map['id_product'],
       productId: map['product_id'],
+      muelleId: map['muelle_id'],
       idMove: map['id_move'],
       barcodeLocation: map['barcode_location'],
       barcodeLocationDest: map['barcode_location_dest'],
@@ -294,6 +298,8 @@ class ProductsBatch {
       timeSeparateStart: map['time_separate_start'],
       timeSeparateEnd: map['time_separate_end'],
       observation: map['observation'],
+      isMuelle: map['is_muelle'],
+
       isLocationIsOk: map["is_location_is_ok"] ?? false,
       productIsOk: map["product_is_ok"] ?? false,
       locationDestIsOk: map["location_dest_is_ok"] ?? false,
@@ -311,6 +317,7 @@ class ProductsBatch {
       "id_product": idProduct,
       "batch_id": batchId,
       "id_move": idMove,
+      "muelle_id": muelleId,
       "barcode_location_dest": barcodeLocation,
       // "picking_id": pickingId,
       "product_id": productId,
@@ -319,8 +326,12 @@ class ProductsBatch {
       "location_id": locationId,
       "location_dest_id": locationDestId,
       "quantity": quantity,
-      "product_packing": productPacking == null ? [] : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
-      "other_barcode": otherBarcode == null ? [] : List<dynamic>.from(otherBarcode!.map((x) => x.toMap())),
+      "product_packing": productPacking == null
+          ? []
+          : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
+      "other_barcode": otherBarcode == null
+          ? []
+          : List<dynamic>.from(otherBarcode!.map((x) => x.toMap())),
       "barcode": barcode,
       "name": name,
       "weigth": weigth,
@@ -328,6 +339,7 @@ class ProductsBatch {
       "unidades": unidades,
       "quantity_separate": quantitySeparate,
       "is_selected": isSelected,
+      'is_muelle': isMuelle,
       "is_pending": isPending,
       "is_separate": isSeparate,
       "time_separate": timeSeparate,
@@ -343,50 +355,40 @@ class ProductsBatch {
       "weight": weight,
     };
   }
-
 }
 
-
-
 class Barcodes {
+  final int? batchId;
+  final int? idMove;
+  final int? idProduct;
+  final dynamic barcode;
+  final dynamic cantidad;
 
-    final int? batchId;
-    final int? idMove;
-    final int? idProduct;
-    final dynamic barcode;
-    final dynamic cantidad;
+  Barcodes({
+    this.batchId,
+    this.idMove,
+    this.idProduct,
+    this.barcode,
+    this.cantidad,
+  });
 
-    Barcodes({
-        this.batchId,
-        this.idMove,
-        this.idProduct,
-        this.barcode,
-        this.cantidad,
-    });
+  factory Barcodes.fromJson(String str) => Barcodes.fromMap(json.decode(str));
 
-    factory Barcodes.fromJson(String str) => Barcodes.fromMap(json.decode(str));
+  String toJson() => json.encode(toMap());
 
-    String toJson() => json.encode(toMap());
-
-    factory Barcodes.fromMap(Map<String, dynamic> json) => Barcodes(
+  factory Barcodes.fromMap(Map<String, dynamic> json) => Barcodes(
         batchId: json["batch_id"],
         idMove: json["id_move"],
         idProduct: json["id_product"],
         barcode: json["barcode"],
         cantidad: json["cantidad"],
-    );
+      );
 
-    Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() => {
         "batch_id": batchId,
         "id_move": idMove,
         "id_product": idProduct,
         "barcode": barcode,
         "cantidad": cantidad,
-    };
+      };
 }
-
-
-
-
-
-

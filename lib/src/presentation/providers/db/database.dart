@@ -9,6 +9,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 
 class DataBaseSqlite {
   static final DataBaseSqlite _instance = DataBaseSqlite._internal();
@@ -28,7 +29,7 @@ class DataBaseSqlite {
     final path = join(dbPath, 'wmsapp.db');
 
     return await openDatabase(path,
-        version: 2,
+        version: 3,
         onCreate: _createDB,
         onUpgrade: _upgradeDB,
         singleInstance: true);
@@ -97,7 +98,8 @@ class DataBaseSqlite {
         observation TEXT,
         unidades TEXT,
         weight INTEGER,
-
+        is_muelle INTEGER,
+        muelle_id INTEGER,
         is_location_is_ok INTEGER,
         product_is_ok INTEGER,
         is_quantity_is_ok INTEGER,
@@ -240,11 +242,22 @@ class DataBaseSqlite {
         fecha VARCHAR(255)
       )
     ''');
+    //tabla para submuelles (hijos)
+    await db.execute('''
+      CREATE TABLE tblsubmuelles (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        complete_name TEXT,
+        barcode TEXT,
+        location_id INTEGER
+        )
+        ''');
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute("ALTER TABLE tblbatchs ADD COLUMN is_wave VARCHAR(255)");
+    if (oldVersion < 3) {
+      await db.execute(
+          'ALTER TABLE tblbatch_products ADD COLUMN is_location_is_ok INTEGER DEFAULT 0');
     }
   }
 
@@ -261,6 +274,76 @@ class DataBaseSqlite {
       );
     }).toList();
     return urls;
+  }
+
+  //metodo para insertar todos los submuelles sin que se repitan
+  Future<void> insertSubmuelles(List<Muelles> submuelles) async {
+    try {
+      final db = await database;
+
+      await db!.transaction((txn) async {
+        for (var submuelle in submuelles) {
+          // Verificar si el submuelle ya existe
+          final List<Map<String, dynamic>> existingSubmuelle = await txn.query(
+            'tblsubmuelles',
+            where: 'id = ?',
+            whereArgs: [submuelle.id],
+          );
+
+          if (existingSubmuelle.isNotEmpty) {
+            // Actualizar el submuelle
+            await txn.update(
+              'tblsubmuelles',
+              {
+                "id": submuelle.id,
+                "name": submuelle.name,
+                "complete_name": submuelle.completeName,
+                "location_id": submuelle.locationId,
+                "barcode": submuelle.barcode,
+              },
+              where: 'id = ?',
+              whereArgs: [submuelle.id],
+            );
+          } else {
+            // Insertar nuevo submuelle
+            await txn.insert(
+              'tblsubmuelles',
+              {
+                "id": submuelle.id,
+                "name": submuelle.name,
+                "complete_name": submuelle.completeName,
+                "location_id": submuelle.locationId,
+                "barcode": submuelle.barcode,
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
+        }
+      });
+    } catch (e) {
+      print("Error al insertar submuelles: $e");
+    }
+  }
+
+  //metodo para obtener todos los muelles de ub batch por location_id
+  Future<List<Muelles>> getSubmuellesByLocationId(int batchId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblsubmuelles',
+      where: 'location_id = ?',
+      whereArgs: [batchId],
+    );
+
+    final List<Muelles> submuelles = maps.map((map) {
+      return Muelles(
+        id: map['id'],
+        name: map['name'],
+        completeName: map['complete_name'],
+        locationId: map['location_id'],
+        barcode: map['barcode'],
+      );
+    }).toList();
+    return submuelles;
   }
 
   //metodo para insertar una url reciente
@@ -819,9 +902,6 @@ class DataBaseSqlite {
     return null;
   }
 
-
-
-
   //* Obtener todos los batchs
 
   Future<List<BatchsModel>> getAllBatchs(int userId) async {
@@ -962,6 +1042,7 @@ class DataBaseSqlite {
                 "location_dest_id": productBatch.locationDestId?[1],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
+                "muelle_id": productBatch.locationDestId?[0],
                 "barcode":
                     productBatch.barcode == false ? "" : productBatch.barcode,
                 "weight": productBatch.weigth,
@@ -999,6 +1080,7 @@ class DataBaseSqlite {
                 "location_dest_id": productBatch.locationDestId?[1],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
+                "muelle_id": productBatch.locationDestId?[0],
                 "barcode":
                     productBatch.barcode == false ? "" : productBatch.barcode,
                 "weight": productBatch.weigth,
@@ -1199,6 +1281,15 @@ class DataBaseSqlite {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatch_products SET $field = $setValue WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
+    print("update tblbatch_products ($field): $resUpdate");
+
+    return resUpdate;
+  }
+  Future<int?> setFieldStringTableBatchProducts(int batchId, int productId,
+      String field, dynamic setValue, int idMove) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        " UPDATE tblbatch_products SET $field = '$setValue' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove");
     print("update tblbatch_products ($field): $resUpdate");
 
     return resUpdate;

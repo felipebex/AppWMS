@@ -28,6 +28,9 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled true
+        // ndk {
+        //     abiFilters "armeabi-v7a" // Incluye solo 32 bits
+        // }
     }
 
    flavorDimensions "app"

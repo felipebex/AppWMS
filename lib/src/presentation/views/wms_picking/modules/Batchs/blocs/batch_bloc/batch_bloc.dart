@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 
 part 'batch_event.dart';
 part 'batch_state.dart';
@@ -78,6 +79,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   //*lista de muelles
   List<String> muelles = [];
   List<String> listOfProductsName = [];
+  List<Muelles> submuelles = [];
 
   //*indice del producto actual
   int index = 0;
@@ -135,6 +137,73 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<LoadProductEditEvent>(_onEditProductEvent);
     //*evento para enviar un producto a odoo editado
     on<SendProductEditOdooEvent>(_onSendProductEditOdooEvent);
+
+    //*evento para asignar el submuelle
+    on<AssignSubmuelleEvent>(_onAssignSubmuelleEvent);
+  }
+
+//*evento para asignar el submuelle
+  void _onAssignSubmuelleEvent(
+      AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
+    for (var i = 0; i < event.productsSeparate.length; i++) {
+      //actualizamos el valor de que se le asigno un submuelle
+      await db.setFieldTableBatchProducts(
+          event.productsSeparate[i].batchId ?? 0,
+          event.productsSeparate[i].idProduct ?? 0,
+          'is_muelle',
+          'true',
+          event.productsSeparate[i].idMove ?? 0);
+
+      //actualziamos el muelle del producto
+      await db.setFieldTableBatchProducts(
+          event.productsSeparate[i].batchId ?? 0,
+          event.productsSeparate[i].idProduct ?? 0,
+          'muelle_id',
+          event.muelle.id ?? 0,
+          event.productsSeparate[i].idMove ?? 0);
+
+      //actualizamos el nombre del muelle del producto
+      await db.setFieldStringTableBatchProducts(
+          event.productsSeparate[i].batchId ?? 0,
+          event.productsSeparate[i].idProduct ?? 0,
+          'location_dest_id',
+          event.muelle.completeName ?? '',
+          event.productsSeparate[i].idMove ?? 0);
+
+      //enviamos el producto a odoo
+
+      DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+      //traemos un producto de la base de datos  ya anteriormente guardado
+
+      //todo: tiempor por batch
+      //tiempo de separacion del producto, lo traemos de la bd
+      final starTime = await db.getFieldTableBtach(
+          event.productsSeparate[i].batchId ?? 0, 'time_separate_start');
+      DateTime dateTimeStart = DateTime.parse(starTime);
+      // Calcular la diferencia
+      Duration difference = dateTimeActuality.difference(dateTimeStart);
+      // Obtener la diferencia en segundos
+      double secondsDifference = difference.inMilliseconds / 1000.0;
+
+      await repository.sendPicking(
+          idBatch: event.productsSeparate[i].batchId ?? 0,
+          timeTotal: secondsDifference,
+          cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
+          listItem: [
+            Item(
+              idMove: event.productsSeparate[i].idMove ?? 0,
+              productId: event.productsSeparate[i].idProduct ?? 0,
+              lote: event.productsSeparate[i].lotId ?? '',
+              cantidad: event.productsSeparate[i].quantitySeparate ?? 0,
+              novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
+              timeLine: event.productsSeparate[i].timeSeparate ?? 0,
+              muelle: event.muelle.id ?? 0,
+            ),
+          ]);
+
+      add(FetchBatchWithProductsEvent(event.productsSeparate[i].batchId ?? 0));
+      //emitimos el estado
+    }
   }
 
   //*evento para enviar un producto a odoo editado
@@ -328,6 +397,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             cantidad: product?.quantitySeparate ?? 0,
             novedad: product?.observation ?? 'Sin novedad',
             timeLine: product?.timeSeparate ?? 0,
+            muelle: product?.muelleId ?? 0,
           ),
         ]);
 
@@ -361,9 +431,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     final product = await db.getProductBatch(productEdit.batchId ?? 0,
         productEdit.idProduct ?? 0, productEdit.idMove ?? 0);
 
-
-  
-
     //todo: tiempor por batch
     //tiempo de separacion del producto, lo traemos de la bd
     final starTime = await db.getFieldTableBtach(
@@ -389,6 +456,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
                 ? 'Sin novedad'
                 : product?.observation ?? 'Sin novedad',
             timeLine: product?.timeSeparate ?? 0,
+            muelle: product?.muelleId ?? 0,
           ),
         ]);
 
@@ -461,6 +529,17 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       // if (positions.contains(batchWithProducts.batch?.muelle)) {
       muelles.add(batchWithProducts.batch?.muelle ?? '');
       // }
+    }
+  }
+
+  void getSubmuelles() async {
+    submuelles.clear();
+    final muellesdb = await db.getSubmuellesByLocationId(
+      // batchWithProducts.batch?.id ?? 0
+      92265,
+    );
+    if (muellesdb.isNotEmpty) {
+      submuelles.addAll(muellesdb);
     }
   }
 
@@ -706,7 +785,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       print('Productos cargados: ${filteredProducts.length}');
       add(LoadDataInfoEvent());
-
+      getSubmuelles();
       getPosicions();
       getMuelles();
 

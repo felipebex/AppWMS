@@ -10,7 +10,9 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/cant_lineas_muelle_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_picking_incompleted_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dropdowbutton_widget.dart';
@@ -456,7 +458,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            Text('Foco: $focoLocation'),
+                            // Text('Foco: $focoLocation'),
 
                             //todo : ubicacion de origen
                             Row(
@@ -1103,7 +1105,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             ),
 
                             //Todo: MUELLE
-                            //solo lo mostramos si es el ultimo producto
+                            // solo lo mostramos si es el ultimo producto
                             if (batchBloc.index + 1 ==
                                 batchBloc.filteredProducts?.length)
                               Row(
@@ -1316,6 +1318,234 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                     ),
                   ),
                 ),
+
+                Container(
+                    width: size.width,
+                    height: 55,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                    ),
+                    child: Card(
+                        color: Colors.grey[300],
+                        elevation: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                          ),
+                          child: Row(
+                            children: [
+                              CantLineasMuelle(
+                                  productsOk:
+                                      batchBloc.filteredProducts.where((e) {
+                                return e.isMuelle == null && e.isSeparate == 1;
+                              }).toList()),
+                              const Spacer(),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      ///mostramos un bottommodal con la lista de muelles
+                                      ///
+                                      showModalBottomSheet(
+                                        context: context,
+                                        builder: (context) {
+                                          // Variable para almacenar el muelle seleccionado
+                                          Muelles? selectedMuelle;
+
+                                          return StatefulBuilder(
+                                            builder: (context, setState) {
+                                              return Container(
+                                                height:
+                                                    400, // Ajusta la altura según sea necesario
+                                                padding: const EdgeInsets.all(
+                                                    16.0), // Margen interno
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .start, // Alinear a la izquierda
+                                                  children: [
+                                                    const SizedBox(height: 10),
+                                                    Text(
+                                                      'Seleccione o escanee la ubicación de destino para los productos',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                    ),
+                                                    const SizedBox(
+                                                        height:
+                                                            10), // Espacio entre el texto y la lista
+                                                    Expanded(
+                                                      child: ListView.builder(
+                                                        itemCount: batchBloc
+                                                            .submuelles.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          final muelle = batchBloc
+                                                                  .submuelles[
+                                                              index];
+                                                          bool isSelected = muelle
+                                                                  .completeName ==
+                                                              selectedMuelle;
+
+                                                          return Card(
+                                                            color: isSelected
+                                                                ? Colors
+                                                                    .green[300]
+                                                                : Colors
+                                                                    .white, // Cambia el color de la card
+                                                            elevation: 3,
+                                                            child: ListTile(
+                                                              title: Text(
+                                                                muelle.completeName ??
+                                                                    '',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: isSelected
+                                                                      ? Colors
+                                                                          .white
+                                                                      : black,
+                                                                ),
+                                                              ),
+                                                              onTap: () {
+                                                                setState(() {
+                                                                  selectedMuelle =
+                                                                      muelle; // Actualiza el muelle seleccionado
+                                                                });
+                                                              },
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    ),
+                                                    const SizedBox(
+                                                        height:
+                                                            10), // Espacio entre la lista y el texto final
+                                                    RichText(
+                                                      text: TextSpan(
+                                                        text: selectedMuelle ==
+                                                                null
+                                                            ? 'No ha seleccionado ningún muelle.'
+                                                            : '¿Está seguro de seleccionar el muelle ',
+                                                        style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: black),
+                                                        children: <TextSpan>[
+                                                          if (selectedMuelle !=
+                                                              null)
+                                                            TextSpan(
+                                                              text: selectedMuelle
+                                                                      ?.completeName ??
+                                                                  "",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      primaryColorApp), // Color verde para el muelle
+                                                            ),
+                                                          TextSpan(
+                                                            text: selectedMuelle ==
+                                                                    null
+                                                                ? '.'
+                                                                : ' para los productos?',
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    const SizedBox(
+                                                        height:
+                                                            10), // Espacio entre el texto final y el botón
+                                                    Center(
+                                                      child: ElevatedButton(
+                                                        onPressed: () async {
+                                                          if (selectedMuelle !=
+                                                              null) {
+                                                            batchBloc.add(
+                                                                AssignSubmuelleEvent(
+                                                                    batchBloc
+                                                                        .filteredProducts
+                                                                        .where(
+                                                                            (e) {
+                                                                      return e.isMuelle ==
+                                                                              null &&
+                                                                          e.isSeparate ==
+                                                                              1;
+                                                                    }).toList(),
+                                                                    selectedMuelle!));
+                                                            Navigator.pop(
+                                                                context);
+                                                          } else {
+                                                            // Puedes mostrar un mensaje de alerta si no se seleccionó un muelle
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                              const SnackBar(
+                                                                content: Text(
+                                                                    'Por favor seleccione un muelle.'),
+                                                              ),
+                                                            );
+                                                          }
+                                                        },
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              primaryColorApp,
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                          ),
+                                                        ),
+                                                        child: const Text(
+                                                          'Aceptar',
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              color: white),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        },
+                                      );
+
+                                      //SCANEO LA UBICACION O SELECCION LA LISTA DE SUBPOCISIONES
+
+                                      //EDITO LAS LINEAS ANTERIORES A CUAL MUELLE VA
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryColorAppLigth,
+                                      minimumSize: const Size(100, 40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      batchBloc.batchWithProducts.batch?.muelle
+                                              .toString() ??
+                                          '',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    )),
+                              )
+                            ],
+                          ),
+                        ))),
+
                 //todo: cantidad
 
                 SizedBox(

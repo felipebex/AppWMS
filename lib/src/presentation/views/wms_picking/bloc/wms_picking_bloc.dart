@@ -7,6 +7,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/product_templa
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 import 'package:wms_app/src/services/notification_service.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -45,6 +46,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
     //* filtrar por tipo de batch o wave
     on<FilterBatchesByTypeEvent>(_onFilterBatchesByTypeEvent);
+
+    
   }
 
   //*metodo para filtrar los batchs por fecha
@@ -314,9 +317,23 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
             .expand((barcode) => barcode.otherBarcode!)
             .toList();
 
+      
+       final List<Muelles> responseMuelles = await wmsPickingRepository.getmuelles(
+          event.isLoadinDialog,
+          event.context,
+        );
+
+        print('response muelles: ${responseMuelles.length}');
+
+        
+
         print('productsToInsert: ${productsToInsert.length}');
         print('barcodesToInsert: ${barcodesToInsert.length}');
         print('otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
+
+        await DataBaseSqlite().insertSubmuelles(responseMuelles);
+
+
         // Enviar la lista agrupada a insertBatchProducts
         await DataBaseSqlite().insertBatchProducts(productsToInsert);
 

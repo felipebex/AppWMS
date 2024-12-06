@@ -14,6 +14,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:wms_app/src/presentation/views/wms_picking/models/response_send_picking.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -166,6 +167,79 @@ class WmsPickingRepository {
     return [];
   }
 
+  //metodo para pedir los submuelles
+  Future<List<Muelles>> getmuelles(
+    bool isLoadinDialog,
+    BuildContext context,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return []; // Si no hay conexión, retornar una lista vacía
+    }
+
+    try {
+      final String urlRpc = Preferences.urlWebsite;
+      final String userEmail = await PrefUtils.getUserEmail();
+      final String pass = await PrefUtils.getUserPass();
+      final String dataBd = Preferences.nameDatabase;
+
+      var response = await ApiRequestService().post(
+          endpoint: 'muelles',
+          body: {
+            "url_rpc": urlRpc,
+            "db_rpc": dataBd,
+            "email_rpc": userEmail,
+            "clave_rpc": pass,
+          },
+          isLoadinDialog: isLoadinDialog,
+          context: context);
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result') &&
+            jsonResponse['result'] is List) {
+          List<dynamic> batches = jsonResponse['result'];
+          // Mapea los datos decodificados a una lista de BatchsModel
+          List<Muelles> products =
+              batches.map((data) => Muelles.fromMap(data)).toList();
+          return products;
+        }
+      } else {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
+          Map<String, dynamic> data = jsonResponse['data'];
+          print("data: $data");
+          //mostramos alerta del error
+          Get.snackbar(
+            'Error en getmuelles : ${data['code']}',
+            data['msg'],
+            duration: const Duration(seconds: 5),
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+
+        print('Error getmuelles: response is null');
+      }
+    } on SocketException catch (e) {
+      // Manejo de error de red
+      print('Error de red: $e');
+      return [];
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error getmuelles: $e, $s');
+    }
+    return [];
+  }
+
   Future<SendPickingResponse> sendPicking({
     required int idBatch,
     required double timeTotal,
@@ -191,7 +265,6 @@ class WmsPickingRepository {
       "cant_items_separados": cantItemsSeparados,
       "list_item": listItem.map((item) => item.toJson()).toList(),
     });
-
 
     print('Body sendPicking: $body');
 
