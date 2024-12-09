@@ -107,18 +107,19 @@ class _loginForm extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(200),
-            child: Image.asset(
-              Environment.flavor.appName == "BexPicking"
-                  ? 'assets/icons/iconBex.png'
-                  : 'assets/images/icono.jpeg',
-              width: Environment.flavor.appName == "BexPicking" ? 100 : 150,
-              height: 90,
-              fit: BoxFit.cover,
-            ),
-          ),
+          // ClipRRect(
+          //   borderRadius: BorderRadius.circular(200),
+          //   child: Image.asset(
+          //     Environment.flavor.appName == "BexPicking"
+          //         ? 'assets/icons/iconBex.png'
+          //         : 'assets/images/icono.jpeg',
+          //     width: Environment.flavor.appName == "BexPicking" ? 100 : 150,
+          //     height: 90,
+          //     fit: BoxFit.cover,
+          //   ),
+          // ),
           Container(
+            margin: const EdgeInsets.only(top: 20),
             decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),

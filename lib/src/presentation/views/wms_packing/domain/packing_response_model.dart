@@ -54,18 +54,19 @@ class Data {
 class BatchPackingModel {
   final int? id;
   final String? name;
-  final DateTime? scheduleddate;
+  final dynamic scheduleddate;
   final String? pickingTypeId;
   final String? state;
-  final dynamic? userId;
+  final dynamic userId;
   final List<PedidoPacking>? listaPedidos;
+  final int? cantidadPedidos;
 
   final int? isSeparate;
   final dynamic isSelected;
   final dynamic isPacking;
+  final String? userName;
 
   final int? pedidoSeparateQty; //cantidad que se lleva separada
-
 
   final double? timeSeparateTotal;
   final String? timeSeparateStart;
@@ -75,8 +76,10 @@ class BatchPackingModel {
     this.id,
     this.name,
     this.scheduleddate,
+    this.cantidadPedidos,
     this.state,
     this.userId,
+    this.userName,
     this.pickingTypeId,
     this.listaPedidos,
     this.isSeparate,
@@ -86,7 +89,6 @@ class BatchPackingModel {
     this.timeSeparateTotal,
     this.timeSeparateStart,
     this.timeSeparateEnd,
-
   });
 
   factory BatchPackingModel.fromJson(String str) =>
@@ -98,9 +100,9 @@ class BatchPackingModel {
       BatchPackingModel(
         id: json["id"],
         name: json["name"],
-        scheduleddate: json["scheduleddate"] == null
-            ? null
-            : DateTime.parse(json["scheduleddate"]),
+        scheduleddate: json["scheduleddate"],
+        cantidadPedidos: json["cantidad_pedidos"],
+        userName: json['user_name'],
         state: json["state"],
         userId: json["user_id"],
         pickingTypeId: json["picking_type_id"],
@@ -120,7 +122,8 @@ class BatchPackingModel {
   Map<String, dynamic> toMap() => {
         "id": id,
         "name": name,
-        "scheduleddate": scheduleddate?.toIso8601String(),
+        "scheduleddate": scheduleddate,
+        "cantidad_pedidos": cantidadPedidos,
         "state": state,
         "user_id": userId,
         "picking_type_id": pickingTypeId,
@@ -184,12 +187,12 @@ class PedidoPacking {
       batchId: json["batch_id"],
       name: json["name"],
       referencia: json["referencia"],
-     fecha: json["fecha"] == null ? DateTime.now() : DateTime.parse(json["fecha"]),
-
-
-       contacto: (json["contacto"] != null && json["contacto"].isNotEmpty) 
-        ? json["contacto"][1] 
-        : null,  // Aquí aseguramos que solo se tome el valor de la posición [1]
+      fecha: json["fecha"] == null
+          ? DateTime.now()
+          : DateTime.parse(json["fecha"]),
+      contacto: (json["contacto"] != null && json["contacto"].isNotEmpty)
+          ? json["contacto"][1]
+          : null, // Aquí aseguramos que solo se tome el valor de la posición [1]
       contactoId: json["contacto_id"],
       tipoOperacion: json["tipo_operacion"],
       cantidadProductos: json["cantidad_productos"],

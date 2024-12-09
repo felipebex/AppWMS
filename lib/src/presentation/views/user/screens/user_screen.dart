@@ -325,6 +325,34 @@ class UserScreen extends StatelessWidget {
                                                   color: primaryColorApp))
                                         ],
                                       ),
+                                      // Row(
+                                      //   children: [
+                                      //     const Text(
+                                      //         "Opcion Muelle: ",
+                                      //         style: TextStyle(
+                                      //             fontSize: 16, color: black)),
+                                      //     const Spacer(),
+                                      //     Checkbox(
+                                      //         value: config.data?.result
+                                      //                 ?.muelleOption == "simple",
+                                      //         onChanged: null),
+                                      //     IconButton(
+                                      //         onPressed: () {
+                                      //           showDialog(
+                                      //               context: context,
+                                      //               builder: (context) {
+                                      //                 return const DialogInfo(
+                                      //                   title:
+                                      //                       "Ver proximas ubicaciones",
+                                      //                   body:
+                                      //                       "Permite ver las proximas ubicaciones a las que se debe dirigir el operario para completar el picking",
+                                      //                 );
+                                      //               });
+                                      //         },
+                                      //         icon: Icon(Icons.help,
+                                      //             color: primaryColorApp))
+                                      //   ],
+                                      // ),
                                       //checkbox
                                     ],
                                   ),

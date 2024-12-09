@@ -190,6 +190,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is ValidateFieldsState) {
           final currentProduct = batchBloc.currentProduct;
 
+        print("State is: $state");
+
           return Scaffold(
             backgroundColor: Colors.white,
             body: Column(
@@ -371,11 +373,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             );
                                           });
                                     } else if (value == '3') {
-                                      batchBloc.add(UpdateProductOdooEvent(
-                                          batchBloc.batchWithProducts.batch
-                                                  ?.id ??
-                                              0,
-                                          context));
+                                      batchBloc.add(LoadConfigurationsUser());
+                                      // batchBloc.add(UpdateProductOdooEvent(
+                                      //     batchBloc.batchWithProducts.batch
+                                      //             ?.id ??
+                                      //         0,
+                                      //     context));
                                     }
                                     // Agrega más opciones según sea necesario
                                   },
@@ -1111,7 +1114,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             //Todo: MUELLE
                             // solo lo mostramos si es el ultimo producto
                             if (batchBloc.index + 1 ==
-                                batchBloc.filteredProducts?.length)
+                                batchBloc.filteredProducts.length)
                               Row(
                                 children: [
                                   Padding(
@@ -1322,390 +1325,407 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                     ),
                   ),
                 ),
+                Visibility(
+                  visible:
+                      batchBloc.configurations.data?.result?.muelleOption ==
+                          "multiple",
+                  child: Container(
+                      width: size.width,
+                      height: 55,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                      ),
+                      child: Card(
+                          color: Colors.grey[300],
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                            ),
+                            child: Row(
+                              children: [
+                                CantLineasMuelle(
+                                    productsOk:
+                                        batchBloc.filteredProducts.where((e) {
+                                  return e.isMuelle == null &&
+                                      e.isSeparate == 1;
+                                }).toList()),
+                                const Spacer(),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  child: ElevatedButton(
+                                      onPressed: batchBloc.filteredProducts
+                                              .where((e) {
+                                                return e.isMuelle == null &&
+                                                    e.isSeparate == 1;
+                                              })
+                                              .toList()
+                                              .isEmpty
+                                          ? null
+                                          : () {
+                                              //no entramos a didpchanges
 
-                Container(
-                    width: size.width,
-                    height: 55,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                    ),
-                    child: Card(
-                        color: Colors.grey[300],
-                        elevation: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                          ),
-                          child: Row(
-                            children: [
-                              CantLineasMuelle(
-                                  productsOk:
-                                      batchBloc.filteredProducts.where((e) {
-                                return e.isMuelle == null && e.isSeparate == 1;
-                              }).toList()),
-                              const Spacer(),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                                child: ElevatedButton(
-                                    onPressed: batchBloc.filteredProducts
-                                            .where((e) {
-                                              return e.isMuelle == null &&
-                                                  e.isSeparate == 1;
-                                            })
-                                            .toList()
-                                            .isEmpty
-                                        ? null
-                                        : () {
-                                            //no entramos a didpchanges
+                                              setState(() {
+                                                _shouldRunDependencies = false;
+                                                scannedValue6 = "";
+                                                alerta = "";
+                                                selectedSubMuelle = null;
+                                              });
 
-                                            setState(() {
-                                              _shouldRunDependencies = false;
-                                              scannedValue6 = "";
-                                              alerta = "";
-                                              selectedSubMuelle = null;
-                                            });
+                                              ///mostramos un bottommodal con la lista de muelles
+                                              ///
 
-                                            ///mostramos un bottommodal con la lista de muelles
-                                            ///
+                                              showModalBottomSheet(
+                                                context: context,
+                                                isDismissible: false,
+                                                enableDrag: false,
+                                                builder: (context) {
+                                                  FocusNode focusNode6 =
+                                                      FocusNode();
 
-                                            showModalBottomSheet(
-                                              context: context,
-                                              isDismissible: false,
-                                              enableDrag: false,
-                                              builder: (context) {
-                                                FocusNode focusNode6 =
-                                                    FocusNode();
+                                                  // Asegúrate de que el focusNode tenga el foco al mostrar el modal
+                                                  WidgetsBinding.instance
+                                                      .addPostFrameCallback(
+                                                          (_) {
+                                                    FocusScope.of(context)
+                                                        .requestFocus(
+                                                            focusNode6);
+                                                  });
 
-                                                // Asegúrate de que el focusNode tenga el foco al mostrar el modal
-                                                WidgetsBinding.instance
-                                                    .addPostFrameCallback((_) {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(focusNode6);
-                                                });
-
-                                                return StatefulBuilder(
-                                                  builder: (context, setState) {
-                                                    return Container(
-                                                      height: 400,
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              16.0),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          Text(
-                                                            'Seleccione o escanee la ubicación de destino para los productos',
-                                                            style: TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    primaryColorApp),
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          Expanded(
-                                                            child: ListView
-                                                                .builder(
-                                                              itemCount:
-                                                                  batchBloc
-                                                                      .submuelles
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index) {
-                                                                final muelle =
-                                                                    batchBloc
-                                                                            .submuelles[
-                                                                        index];
-                                                                bool isSelected = muelle
-                                                                        .completeName ==
-                                                                    selectedSubMuelle
-                                                                        ?.completeName;
-
-                                                                return Card(
-                                                                  color: isSelected
-                                                                      ? Colors.green[
-                                                                          300]
-                                                                      : Colors
-                                                                          .white, // Cambia el color de la card
-                                                                  elevation: 3,
-                                                                  child:
-                                                                      ListTile(
-                                                                    title: Text(
-                                                                      muelle.completeName ??
-                                                                          '',
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: isSelected
-                                                                            ? Colors.white
-                                                                            : black,
-                                                                      ),
-                                                                    ),
-                                                                    onTap: () {
-                                                                      setState(
-                                                                          () {
-                                                                        selectedSubMuelle =
-                                                                            muelle; // Actualiza el muelle seleccionado
-                                                                      });
-                                                                      print(selectedSubMuelle
-                                                                          ?.toMap());
-                                                                    },
-                                                                  ),
-                                                                );
-                                                              },
+                                                  return StatefulBuilder(
+                                                    builder:
+                                                        (context, setState) {
+                                                      return Container(
+                                                        height: 400,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(16.0),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            const SizedBox(
+                                                                height: 10),
+                                                            Text(
+                                                              'Seleccione o escanee la ubicación de destino para los productos',
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      primaryColorApp),
                                                             ),
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          Focus(
-                                                            focusNode:
-                                                                focusNode6,
-                                                            onKey:
-                                                                (FocusNode node,
-                                                                    RawKeyEvent
-                                                                        event) {
-                                                              if (event
-                                                                  is RawKeyDownEvent) {
-                                                                if (event
-                                                                        .logicalKey ==
-                                                                    LogicalKeyboardKey
-                                                                        .enter) {
-                                                                  // Al presionar enter, procesamos el código escaneado
-                                                                  if (scannedValue6
-                                                                      .isNotEmpty) {
-                                                                    bool
-                                                                        validate =
-                                                                        validateScannedSubmuelle(
-                                                                      scannedValue6
-                                                                          .toLowerCase(),
-                                                                      batchBloc,
-                                                                    );
+                                                            const SizedBox(
+                                                                height: 10),
+                                                            Expanded(
+                                                              child: ListView
+                                                                  .builder(
+                                                                itemCount:
+                                                                    batchBloc
+                                                                        .submuelles
+                                                                        .length,
+                                                                itemBuilder:
+                                                                    (context,
+                                                                        index) {
+                                                                  final muelle =
+                                                                      batchBloc
+                                                                              .submuelles[
+                                                                          index];
+                                                                  bool isSelected = muelle
+                                                                          .completeName ==
+                                                                      selectedSubMuelle
+                                                                          ?.completeName;
 
-                                                                    if (validate) {
-                                                                      showDialog(
-                                                                          context:
-                                                                              context,
-                                                                          builder:
-                                                                              (context) {
-                                                                            return const DialogLoading();
-                                                                          });
-
-                                                                      // Esperar 1 segundos y cerrar el diálogo y redirigirel focus
-                                                                      Future.delayed(
-                                                                          const Duration(
-                                                                              seconds: 1),
+                                                                  return Card(
+                                                                    color: isSelected
+                                                                        ? Colors.green[
+                                                                            300]
+                                                                        : Colors
+                                                                            .white, // Cambia el color de la card
+                                                                    elevation:
+                                                                        3,
+                                                                    child:
+                                                                        ListTile(
+                                                                      title:
+                                                                          Text(
+                                                                        muelle.completeName ??
+                                                                            '',
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          color: isSelected
+                                                                              ? Colors.white
+                                                                              : black,
+                                                                        ),
+                                                                      ),
+                                                                      onTap:
                                                                           () {
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                      });
-                                                                    } else {
+                                                                        setState(
+                                                                            () {
+                                                                          selectedSubMuelle =
+                                                                              muelle; // Actualiza el muelle seleccionado
+                                                                        });
+                                                                        print(selectedSubMuelle
+                                                                            ?.toMap());
+                                                                      },
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 10),
+                                                            Focus(
+                                                              focusNode:
+                                                                  focusNode6,
+                                                              onKey: (FocusNode
+                                                                      node,
+                                                                  RawKeyEvent
+                                                                      event) {
+                                                                if (event
+                                                                    is RawKeyDownEvent) {
+                                                                  if (event
+                                                                          .logicalKey ==
+                                                                      LogicalKeyboardKey
+                                                                          .enter) {
+                                                                    // Al presionar enter, procesamos el código escaneado
+                                                                    if (scannedValue6
+                                                                        .isNotEmpty) {
+                                                                      bool
+                                                                          validate =
+                                                                          validateScannedSubmuelle(
+                                                                        scannedValue6
+                                                                            .toLowerCase(),
+                                                                        batchBloc,
+                                                                      );
+
+                                                                      if (validate) {
+                                                                        showDialog(
+                                                                            context:
+                                                                                context,
+                                                                            builder:
+                                                                                (context) {
+                                                                              return const DialogLoading();
+                                                                            });
+
+                                                                        // Esperar 1 segundos y cerrar el diálogo y redirigirel focus
+                                                                        Future.delayed(
+                                                                            const Duration(seconds: 1),
+                                                                            () {
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                        });
+                                                                      } else {
+                                                                        setState(
+                                                                            () {
+                                                                          scannedValue6 =
+                                                                              "";
+                                                                          alerta =
+                                                                              'Código de ubicacion destino incorrecto';
+                                                                        });
+                                                                      }
+                                                                    }
+                                                                    return KeyEventResult
+                                                                        .handled;
+                                                                  } else {
+                                                                    setState(
+                                                                        () {
+                                                                      scannedValue6 += event
+                                                                          .data
+                                                                          .keyLabel;
+                                                                    });
+                                                                    return KeyEventResult
+                                                                        .handled;
+                                                                  }
+                                                                }
+                                                                return KeyEventResult
+                                                                    .ignored;
+                                                              },
+                                                              child: RichText(
+                                                                text: TextSpan(
+                                                                  text: selectedSubMuelle ==
+                                                                          null
+                                                                      ? 'No ha seleccionado ningúna ubicacion destino.'
+                                                                      : '¿Está seguro de seleccionar la ubicacion destino ',
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          black),
+                                                                  children: <TextSpan>[
+                                                                    if (selectedSubMuelle !=
+                                                                        null)
+                                                                      TextSpan(
+                                                                        text: selectedSubMuelle?.completeName ??
+                                                                            "",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          color:
+                                                                              primaryColorApp,
+                                                                        ),
+                                                                      ),
+                                                                    TextSpan(
+                                                                      text: selectedSubMuelle ==
+                                                                              null
+                                                                          ? '.'
+                                                                          : ' para los productos?',
+                                                                      style: const TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          color:
+                                                                              black),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                height: 10),
+                                                            // Mostrar el valor escaneado
+                                                            Align(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              child: Text(
+                                                                alerta,
+                                                                style:
+                                                                    const TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                        color:
+                                                                            red),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                                height:
+                                                                    10), // Espacio entre el texto y el botón
+                                                            Center(
+                                                              child: Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  ElevatedButton(
+                                                                    onPressed:
+                                                                        () async {
                                                                       setState(
                                                                           () {
-                                                                        scannedValue6 =
-                                                                            "";
-                                                                        alerta =
-                                                                            'Código de ubicacion destino incorrecto';
+                                                                        _shouldRunDependencies =
+                                                                            true;
                                                                       });
-                                                                    }
-                                                                  }
-                                                                  return KeyEventResult
-                                                                      .handled;
-                                                                } else {
-                                                                  setState(() {
-                                                                    scannedValue6 +=
-                                                                        event
-                                                                            .data
-                                                                            .keyLabel;
-                                                                  });
-                                                                  return KeyEventResult
-                                                                      .handled;
-                                                                }
-                                                              }
-                                                              return KeyEventResult
-                                                                  .ignored;
-                                                            },
-                                                            child: RichText(
-                                                              text: TextSpan(
-                                                                text: selectedSubMuelle ==
-                                                                        null
-                                                                    ? 'No ha seleccionado ningúna ubicacion destino.'
-                                                                    : '¿Está seguro de seleccionar la ubicacion destino ',
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black),
-                                                                children: <TextSpan>[
-                                                                  if (selectedSubMuelle !=
-                                                                      null)
-                                                                    TextSpan(
-                                                                      text: selectedSubMuelle
-                                                                              ?.completeName ??
-                                                                          "",
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            primaryColorApp,
+                                                                      // Cerrar el focus y salir del modal
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .unfocus();
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    },
+                                                                    style: ElevatedButton
+                                                                        .styleFrom(
+                                                                      backgroundColor:
+                                                                          grey,
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10),
                                                                       ),
                                                                     ),
-                                                                  TextSpan(
-                                                                    text: selectedSubMuelle ==
-                                                                            null
-                                                                        ? '.'
-                                                                        : ' para los productos?',
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            black),
+                                                                    child:
+                                                                        const Text(
+                                                                      'Cancelar',
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          color:
+                                                                              white),
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                      width:
+                                                                          10),
+                                                                  ElevatedButton(
+                                                                    onPressed:
+                                                                        () async {
+                                                                      if (selectedSubMuelle !=
+                                                                          null) {
+                                                                        batchBloc.add(AssignSubmuelleEvent(
+                                                                            batchBloc.filteredProducts.where((e) {
+                                                                              return e.isMuelle == null && e.isSeparate == 1;
+                                                                            }).toList(),
+                                                                            selectedSubMuelle!));
+                                                                        // Future.delayed(
+                                                                        //     const Duration(
+                                                                        //         seconds: 1),
+                                                                        //     () {
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                        //   Navigator.pop(
+                                                                        //       context);
+                                                                        // });
+                                                                      }
+                                                                    },
+                                                                    style: ElevatedButton
+                                                                        .styleFrom(
+                                                                      backgroundColor:
+                                                                          primaryColorApp,
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10),
+                                                                      ),
+                                                                    ),
+                                                                    child:
+                                                                        const Text(
+                                                                      'Aceptar',
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          color:
+                                                                              white),
+                                                                    ),
                                                                   ),
                                                                 ],
                                                               ),
                                                             ),
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          // Mostrar el valor escaneado
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            child: Text(
-                                                              alerta,
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color:
-                                                                          red),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              height:
-                                                                  10), // Espacio entre el texto y el botón
-                                                          Center(
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                ElevatedButton(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    setState(
-                                                                        () {
-                                                                      _shouldRunDependencies =
-                                                                          true;
-                                                                    });
-                                                                    // Cerrar el focus y salir del modal
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                  },
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    backgroundColor:
-                                                                        grey,
-                                                                    shape:
-                                                                        RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              10),
-                                                                    ),
-                                                                  ),
-                                                                  child:
-                                                                      const Text(
-                                                                    'Cancelar',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            white),
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 10),
-                                                                ElevatedButton(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    if (selectedSubMuelle !=
-                                                                        null) {
-                                                                      batchBloc.add(AssignSubmuelleEvent(
-                                                                          batchBloc.filteredProducts.where((e) {
-                                                                            return e.isMuelle == null &&
-                                                                                e.isSeparate == 1;
-                                                                          }).toList(),
-                                                                          selectedSubMuelle!));
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                    }
-                                                                  },
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    backgroundColor:
-                                                                        primaryColorApp,
-                                                                    shape:
-                                                                        RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              10),
-                                                                    ),
-                                                                  ),
-                                                                  child:
-                                                                      const Text(
-                                                                    'Aceptar',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            white),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            );
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                              );
 
-                                            //SCANEO LA UBICACION O SELECCION LA LISTA DE SUBPOCISIONES
+                                              //SCANEO LA UBICACION O SELECCION LA LISTA DE SUBPOCISIONES
 
-                                            //EDITO LAS LINEAS ANTERIORES A CUAL MUELLE VA
-                                          },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: primaryColorAppLigth,
-                                      minimumSize: const Size(100, 40),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                              //EDITO LAS LINEAS ANTERIORES A CUAL MUELLE VA
+                                            },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: primaryColorAppLigth,
+                                        minimumSize: const Size(100, 40),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
                                       ),
-                                    ),
-                                    child: Text(
-                                      batchBloc.batchWithProducts.batch?.muelle
-                                              .toString() ??
-                                          '',
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    )),
-                              )
-                            ],
-                          ),
-                        ))),
+                                      child: Text(
+                                        batchBloc
+                                                .batchWithProducts.batch?.muelle
+                                                .toString() ??
+                                            '',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                        ),
+                                      )),
+                                )
+                              ],
+                            ),
+                          ))),
+                ),
 
                 //todo: cantidad
 

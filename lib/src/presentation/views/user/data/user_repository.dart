@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/services/preferences.dart';
@@ -11,7 +12,7 @@ import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class UserRepository {
   Future<Configurations> configurations(
-       BuildContext context,
+    BuildContext context,
   ) async {
     try {
       var connectivityResult = await Connectivity().checkConnectivity();
@@ -21,7 +22,7 @@ class UserRepository {
         return Configurations(); // Si no hay conexión, retornar una lista vacía
       }
 
-       final String urlRpc =   Preferences.urlWebsite;
+      final String urlRpc = Preferences.urlWebsite;
       final String userEmail = await PrefUtils.getUserEmail();
       final String pass = await PrefUtils.getUserPass();
       final String dataBd = Preferences.nameDatabase;
@@ -35,14 +36,27 @@ class UserRepository {
             "clave_rpc": pass,
           },
           isLoadinDialog: false,
-          context: context
-          );
+          context: context);
 
       if (response.statusCode < 400) {
         Preferences.setIntList = [0];
         return Configurations.fromMap(jsonDecode(response.body));
       } else {
-        Preferences.setIntList = [1];
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
+          Map<String, dynamic> data = jsonResponse['data'];
+          print("data: $data");
+          //mostramos alerta del error
+          Get.snackbar(
+            'Error en configurations : ${data['code']}',
+            data['msg'],
+            duration: const Duration(seconds: 5),
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+
         return Configurations();
       }
     } catch (e, s) {

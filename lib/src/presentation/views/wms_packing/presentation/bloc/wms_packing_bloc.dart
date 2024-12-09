@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print
 
-import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -405,7 +404,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       final response = await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog, event.context);
 
       if (response != null && response is List) {
-        print('response batchs: ${response.length}');
+        print('response batchs packing: ${response.length}');
         listOfBatchs.clear();
         listOfBatchs.addAll(response);
 
@@ -415,10 +414,13 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               await DataBaseSqlite().insertBatchPacking(BatchPackingModel(
                 id: batch.id!,
                 name: batch.name ?? '',
-                scheduleddate: batch.scheduleddate ?? DateTime.now(),
+                scheduleddate: batch.scheduleddate.toString(),
                 pickingTypeId: batch.pickingTypeId,
                 state: batch.state,
                 userId: batch.userId.toString(),
+                userName: batch.userName,
+                cantidadPedidos: batch.cantidadPedidos,
+              
                 
               ));
             }

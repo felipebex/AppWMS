@@ -54,7 +54,7 @@ class Data {
 class BatchsModel {
   final int? id;
   final String? name;
-  final dynamic? scheduleddate;
+  final dynamic scheduleddate;
   final String? pickingTypeId;
   final String? muelle; // es el mismo location_id
   final String? state;

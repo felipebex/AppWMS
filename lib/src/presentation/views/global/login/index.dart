@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/constans/gaps.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,11 +23,28 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<LoginBloc, LoginState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is LoginSuccess) {
-          context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, true));
-          // context.read<WmsPackingBloc>().add(LoadAllPackingEvent(true, context));
           context.read<UserBloc>().add(GetConfigurations(context));
+
+          final String rol = await PrefUtils.getUserRol();
+
+          if (rol == 'picking') {
+            context
+                .read<WMSPickingBloc>()
+                .add(LoadAllBatchsEvent(context, true));
+          } else if (rol == 'admin') {
+            context
+                .read<WMSPickingBloc>()
+                .add(LoadAllBatchsEvent(context, true));
+            context
+                .read<WmsPackingBloc>()
+                .add(LoadAllPackingEvent(true, context));
+          } else if (rol == 'packing') {
+            context
+                .read<WmsPackingBloc>()
+                .add(LoadAllPackingEvent(true, context));
+          }
           Navigator.pushNamed(context, 'home');
         }
 
@@ -123,17 +141,17 @@ class _LoginForm extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(200),
-                child: Image.asset(
-                  Environment.flavor.appName == "BexPicking"
-                      ? 'assets/icons/iconBex.png'
-                      : 'assets/images/icono.jpeg',
-                  width: Environment.flavor.appName == "BexPicking" ? 100 : 250,
-                  height: 140,
-                  fit: BoxFit.cover,
-                ),
-              ),
+              // ClipRRect(
+              //   borderRadius: BorderRadius.circular(200),
+              //   child: Image.asset(
+              //     Environment.flavor.appName == "BexPicking"
+              //         ? 'assets/icons/iconBex.png'
+              //         : 'assets/images/icono.jpeg',
+              //     width: Environment.flavor.appName == "BexPicking" ? 100 : 250,
+              //     height: 140,
+              //     fit: BoxFit.cover,
+              //   ),
+              // ),
               Container(
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -148,7 +166,6 @@ class _LoginForm extends StatelessWidget {
                   children: [
                     TextFormField(
                         controller: context.read<LoginBloc>().email,
-                        
                         decoration: InputDecoration(
                             disabledBorder: const OutlineInputBorder(),
                             prefixIcon: Icon(
@@ -156,7 +173,6 @@ class _LoginForm extends StatelessWidget {
                               size: 20,
                               color: primaryColorApp,
                             ),
-                         
                             hintText: "Correo electronico",
                             hintStyle: const TextStyle(
                                 color: Colors.grey, fontSize: 12),
@@ -177,19 +193,19 @@ class _LoginForm extends StatelessWidget {
                             size: 20,
                             color: primaryColorApp,
                           ),
-                             suffixIcon: IconButton(
-                              onPressed: () {
-                                context
-                                    .read<LoginBloc>()
-                                    .add(TogglePasswordVisibility());
-                              },
-                              icon: Icon(
-                                context.watch<LoginBloc>().isVisible
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: primaryColorApp,
-                              ),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              context
+                                  .read<LoginBloc>()
+                                  .add(TogglePasswordVisibility());
+                            },
+                            icon: Icon(
+                              context.watch<LoginBloc>().isVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: primaryColorApp,
                             ),
+                          ),
                           hintText: "Contraseña",
                           errorStyle:
                               const TextStyle(color: Colors.red, fontSize: 12),

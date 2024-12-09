@@ -11,6 +11,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/product_templa
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'batch_event.dart';
 part 'batch_state.dart';
@@ -88,19 +89,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   // int completedProducts = 0;
 
   BatchBloc() : super(BatchInitial()) {
-    on<LoadConfigurationsUser>((event, emit) async {
-      try {
-        final response = await db.getConfiguration();
-        if (response != null) {
-          emit(ConfigurationLoaded(response));
-          configurations = response;
-        } else {
-          emit(ConfigurationError('Error al cargar configuraciones'));
-        }
-      } catch (e, s) {
-        print('Error en GetConfigurations.dart: $e =>$s');
-      }
-    });
+    on<LoadConfigurationsUser>(_onLoadConfigurationsUserEvent);
 
     // //* Buscar un producto en un lote en SQLite
     on<SearchProductsBatchEvent>(_onSearchBacthEvent);
@@ -140,6 +129,25 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //*evento para asignar el submuelle
     on<AssignSubmuelleEvent>(_onAssignSubmuelleEvent);
+  }
+
+  void _onLoadConfigurationsUserEvent(
+      LoadConfigurationsUser event, Emitter<BatchState> emit) async {
+    print('Cargando configuraciones');
+
+    try {
+      int userId = await PrefUtils.getUserId();
+      final response = await db.getConfiguration(userId);
+
+      if (response != null) {
+        emit(ConfigurationLoaded(response));
+        configurations = response;
+      } else {
+        emit(ConfigurationError('Error al cargar configuraciones'));
+      }
+    } catch (e, s) {
+      print('Error en GetConfigurations.dart: $e =>$s');
+    }
   }
 
 //*evento para asignar el submuelle
@@ -534,10 +542,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void getSubmuelles() async {
     submuelles.clear();
-    final muellesdb = await db.getSubmuellesByLocationId(
-      // batchWithProducts.batch?.id ?? 0
-      92265,
-    );
+    final muellesdb =
+        await db.getSubmuellesByLocationId(batchWithProducts.batch?.id ?? 0
+            // 92265,
+            );
     if (muellesdb.isNotEmpty) {
       submuelles.addAll(muellesdb);
     }

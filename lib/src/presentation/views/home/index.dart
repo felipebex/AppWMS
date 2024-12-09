@@ -61,7 +61,14 @@ class _HomePageState extends State<HomePage> {
                 context
                     .read<WMSPickingBloc>()
                     .add(LoadAllBatchsEvent(context, true));
-              } else {
+              } else if (rol == 'admin') {
+                context
+                    .read<WMSPickingBloc>()
+                    .add(LoadAllBatchsEvent(context, true));
+                context
+                    .read<WmsPackingBloc>()
+                    .add(LoadAllPackingEvent(true, context));
+              } else if (rol == 'packing') {
                 context
                     .read<WmsPackingBloc>()
                     .add(LoadAllPackingEvent(true, context));
@@ -127,11 +134,22 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         GestureDetector(
                                           onTap: () {
-                                            // context
-                                            //     .read<UserBloc>()
-                                            //     .add(GetConfigurations());
-                                            Navigator.pushNamed(
-                                                context, 'user');
+                                            context.read<UserBloc>().add(
+                                                GetConfigurations(context));
+
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading();
+                                                });
+
+                                            // Esperar 3 segundos antes de continuar
+                                            Future.delayed(
+                                                const Duration(seconds: 1), () {
+                                              Navigator.pop(context);
+                                              Navigator.pushNamed(
+                                                  context, 'user');
+                                            });
                                           },
                                           child: Row(
                                             children: [
@@ -425,19 +443,21 @@ class _HomePageState extends State<HomePage> {
                                                           .listOfBatchs
                                                           .length -
                                                       context
-                                                  .read<WMSPickingBloc>()
-                                                  .batchsDone
-                                                  .where((element) {
-                                                    return DateTime.parse(element
-                                                                    .timeSeparateEnd ??
-                                                                "")
-                                                            .toString()
-                                                            .substring(0, 10) ==
-                                                        DateTime.now()
-                                                            .toString()
-                                                            .substring(0, 10);
-                                                  })
-                                                  .length)
+                                                          .read<
+                                                              WMSPickingBloc>()
+                                                          .batchsDone
+                                                          .where((element) {
+                                                        return DateTime.parse(
+                                                                    element.timeSeparateEnd ??
+                                                                        "")
+                                                                .toString()
+                                                                .substring(
+                                                                    0, 10) ==
+                                                            DateTime.now()
+                                                                .toString()
+                                                                .substring(
+                                                                    0, 10);
+                                                      }).length)
                                                   .toString(),
                                             ),
                                           ),
@@ -473,7 +493,8 @@ class _HomePageState extends State<HomePage> {
                                             final String rol =
                                                 await PrefUtils.getUserRol();
 
-                                            if (rol == 'picking') {
+                                            if (rol == 'picking' ||
+                                                rol == 'admin') {
                                               context
                                                   .read<WMSPickingBloc>()
                                                   .add(LoadBatchsFromDBEvent());
@@ -516,7 +537,8 @@ class _HomePageState extends State<HomePage> {
                                             final String rol =
                                                 await PrefUtils.getUserRol();
 
-                                            if (rol == 'packing') {
+                                            if (rol == 'packing' ||
+                                                rol == 'admin') {
                                               Navigator.pushNamed(
                                                   context, 'wms-packing');
                                             } else {

@@ -410,10 +410,5 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
   }
 
-  // void sortProductsByLocationId(List<ProductsBatch> products) {
-  //   products.sort((a, b) {
-  //     // Comparamos los locationId
-  //     return a.locationId?[1].compareTo(b.locationId?[1]);
-  //   });
-  // }
+
 }

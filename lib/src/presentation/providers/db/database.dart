@@ -29,7 +29,7 @@ class DataBaseSqlite {
     final path = join(dbPath, 'wmsapp.db');
 
     return await openDatabase(path,
-        version: 3,
+        version: 4,
         onCreate: _createDB,
         onUpgrade: _upgradeDB,
         singleInstance: true);
@@ -117,10 +117,12 @@ class DataBaseSqlite {
 
         id INTEGER PRIMARY KEY,
         name VARCHAR(255),
-        scheduled_date VARCHAR(255),
+        scheduleddate VARCHAR(255),
         picking_type_id VARCHAR(255),
         state VARCHAR(255),
         user_id INTEGER,
+        user_name VARCHAR(255),
+        cantidad_pedidos INTEGER,
 
         is_separate INTEGER, 
         is_selected INTEGER, 
@@ -230,6 +232,7 @@ class DataBaseSqlite {
     manual_quantity INTEGER,
     manual_spring_selection INTEGER,
     show_detalles_picking INTEGER,
+    muelle_option TEXT,
     show_next_locations_in_details INTEGER
     )
     ''');
@@ -257,7 +260,7 @@ class DataBaseSqlite {
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 3) {
       await db.execute(
-          'ALTER TABLE tblbatch_products ADD COLUMN is_location_is_ok INTEGER DEFAULT 0');
+          'ALTER TABLE tblconfigurations ADD COLUMN muelle_option TEXT');
     }
   }
 
@@ -410,13 +413,13 @@ class DataBaseSqlite {
         final List<Map<String, dynamic>> existingConfiguration =
             await txn.query(
           'tblconfigurations',
-          where: 'user_id = ?',
+          where: 'id = ?',
           whereArgs: [userId],
         );
 
         // Convertir valores booleanos a enteros (0 o 1)
         Map<String, dynamic> configurationData = {
-          "id": configuration.data?.result?.id,
+          "id": userId,
           "name": configuration.data?.result?.name,
           "last_name": configuration.data?.result?.lastName,
           "email": configuration.data?.result?.email,
@@ -427,6 +430,7 @@ class DataBaseSqlite {
               configuration.data?.result?.manualProductSelection == true
                   ? 1
                   : 0,
+          "muelle_option": configuration.data?.result?.muelleOption,
           "manual_quantity":
               configuration.data?.result?.manualQuantity == true ? 1 : 0,
           "manual_spring_selection":
@@ -439,8 +443,12 @@ class DataBaseSqlite {
                   : 0,
         };
 
+        // Imprimir la configuración a insertar
+        print('Datos a insertar: $configurationData');
+
         if (existingConfiguration.isNotEmpty) {
           // Actualizar la configuración
+          print('Actualizando configuración existente...');
           await txn.update(
             'tblconfigurations',
             configurationData,
@@ -449,12 +457,15 @@ class DataBaseSqlite {
           );
         } else {
           // Insertar nueva configuración
+          print('Insertando nueva configuración...');
           await txn.insert(
             'tblconfigurations',
             configurationData,
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         }
+
+        print('Operación realizada con éxito');
       });
     } catch (e) {
       print("Error al insertar configuración: $e");
@@ -462,14 +473,17 @@ class DataBaseSqlite {
   }
 
 // Método para obtener la configuración del primer registro
-  Future<Configurations?> getConfiguration() async {
+  Future<Configurations?> getConfiguration(int userId) async {
     final db = await database;
 
     // Realizamos la consulta para obtener el primer registro de la tabla sin filtro
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblconfigurations',
-      limit: 1, // Limitamos la consulta a un solo registro
+      where: 'id = ?', // Cambié 'user_id' a 'id' según tu estructura
+      whereArgs: [userId],
     );
+
+    print('Resultados de la consulta: $maps');
 
     // Verificamos si la consulta retornó resultados
     if (maps.isNotEmpty) {
@@ -483,24 +497,24 @@ class DataBaseSqlite {
             email: maps[0]['email'],
             rol: maps[0]['rol'],
             id: maps[0]['id'],
-            locationPickingManual:
-                maps[0]['location_picking_manual'] == 1 ? true : false,
-            manualProductSelection:
-                maps[0]['manual_product_selection'] == 1 ? true : false,
-            manualQuantity: maps[0]['manual_quantity'] == 1 ? true : false,
-            manualSpringSelection:
-                maps[0]['manual_spring_selection'] == 1 ? true : false,
-            showDetallesPicking:
-                maps[0]['show_detalles_picking'] == 1 ? true : false,
+            locationPickingManual: maps[0]['location_picking_manual'] == 1,
+            manualProductSelection: maps[0]['manual_product_selection'] == 1,
+            manualQuantity: maps[0]['manual_quantity'] == 1,
+            manualSpringSelection: maps[0]['manual_spring_selection'] == 1,
+            showDetallesPicking: maps[0]['show_detalles_picking'] == 1,
             showNextLocationsInDetails:
-                maps[0]['show_next_locations_in_details'] == 1 ? true : false,
+                maps[0]['show_next_locations_in_details'] == 1,
+            muelleOption: maps[0]['muelle_option'],
           ),
         ),
       );
+
+      print('Configuración obtenida: $config');
       return config;
     } else {
       // Si no se encuentra ninguna configuración, retornamos null o lanzamos una excepción
-      return null; // O puedes lanzar una excepción si prefieres
+      print('No se encontró configuración para el usuario con id: $userId');
+      return null;
     }
   }
 
@@ -546,10 +560,12 @@ class DataBaseSqlite {
             {
               "id": batch.id,
               "name": batch.name,
-              "scheduled_date": batch.scheduleddate.toString(),
+              "scheduleddate": batch.scheduleddate.toString(),
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
+              'cantidad_pedidos': batch.cantidadPedidos,
+              'user_name': batch.userName,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -561,10 +577,12 @@ class DataBaseSqlite {
             {
               "id": batch.id,
               "name": batch.name,
-              "scheduled_date": batch.scheduleddate.toString(),
+              "scheduleddate": batch.scheduleddate.toString(),
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
+              'cantidad_pedidos': batch.cantidadPedidos,
+              'user_name': batch.userName,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -866,7 +884,7 @@ class DataBaseSqlite {
             {
               "id": batch.id,
               "name": batch.name,
-              "scheduled_date": batch.scheduleddate.toString(),
+              "scheduleddate": batch.scheduleddate.toString(),
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
@@ -1285,6 +1303,7 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+
   Future<int?> setFieldStringTableBatchProducts(int batchId, int productId,
       String field, dynamic setValue, int idMove) async {
     final db = await database;

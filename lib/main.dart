@@ -1,5 +1,7 @@
 // // ignore_for_file: depend_on_referenced_packages, avoid_print, use_build_context_synchronously
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:cron/cron.dart';
@@ -220,7 +222,6 @@ void searchProductsNoSendOdoo() async {
               timeLine: double.parse(totalTime),
               muelle: product.locationDestId[0] ?? 0),
         ]);
-    print("response searchProductsNoSendOdoo: ${response.data?.code} ");
     if (response.data?.code == 200) {
       //recorremos todos los resultados de la respuesta
       for (var resultProduct in response.data!.result) {
@@ -249,188 +250,10 @@ void refreshData(BuildContext context) async {
   final String rol = await PrefUtils.getUserRol();
   if (rol == 'picking') {
     context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, false));
+  } else if (rol == 'admin') {
+    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, false));
+    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, context));
   } else {
     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, context));
   }
 }
-
-// // // void configurations(BuildContext context) async {
-// // //   context.read<UserBloc>().add(GetConfigurations(context));
-// // // }
-
-// import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
-// import 'package:wms_app/src/utils/constans/colors.dart';
-
-// final internetChecker = CheckInternetConnection();
-
-// void main() {
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const MaterialApp(
-//       title: 'PDA Scanner Example',
-//       home: PDAScannerScreen(),
-//     );
-//   }
-// }
-
-// class PDAScannerScreen extends StatefulWidget {
-//   const PDAScannerScreen({super.key});
-
-//   @override
-//   _PDAScannerScreenState createState() => _PDAScannerScreenState();
-// }
-
-// class _PDAScannerScreenState extends State<PDAScannerScreen> {
-//   String scannedValue1 = '';
-//   String scannedValue2 = '';
-
-//   FocusNode focusNode1 = FocusNode();
-//   FocusNode focusNode2 = FocusNode();
-
-//   @override
-//   void didChangeDependencies() {
-//     super.didChangeDependencies();
-//     // Mover la solicitud de foco aquí
-//     FocusScope.of(context).requestFocus(focusNode1);
-//   }
-
-//   List<String> barcodeList = [
-//     "123456789012", // Código de barras EAN-13
-//     "012345678912", // Código de barras UPC-A
-//     "987654321098", // Código de barras genérico
-//     "450123456789", // Código de barras ITF-14
-//     "ABCD12345678", // Código alfanumérico
-//     "12345678", // Código de barras EAN-8
-//     "CODE12812345", // Código de barras Code 128
-//     "1234-5678-9123", // Formato personalizado
-//     "QR-2024-001", // Ejemplo para un QR (texto base)
-//     "001100110011", // Código binario
-//     "INVOICE2024001", // Código para facturas
-//     "PROD-001-2024", // Código de producto
-//   ];
-//   String? selectedMuelle;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('PDA Scanner Example'),
-//       ),
-//       body: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           Focus(
-//             focusNode: focusNode1,
-//             onKey: (FocusNode node, RawKeyEvent event) {
-//               if (event is RawKeyDownEvent) {
-//                 if (event.logicalKey == LogicalKeyboardKey.enter) {
-//                   if (scannedValue1.isNotEmpty) {
-//                     print('Escaneado 1: $scannedValue1');
-//                     FocusScope.of(context).requestFocus(focusNode2);
-//                   }
-//                   return KeyEventResult.handled;
-//                 } else {
-//                   setState(() {
-//                     scannedValue1 += event.data.keyLabel;
-//                   });
-//                   return KeyEventResult.handled;
-//                 }
-//               }
-//               return KeyEventResult.ignored;
-//             },
-//             child: Center(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Text(
-//                     'Escaneado 1: $scannedValue1',
-//                     style: const TextStyle(fontSize: 24),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//           const Divider(),
-//           Focus(
-//             focusNode: focusNode2,
-//             onKey: (FocusNode node, RawKeyEvent event) {
-//               if (event is RawKeyDownEvent) {
-//                 if (event.logicalKey == LogicalKeyboardKey.enter) {
-//                   print('Escaneado 2: $scannedValue2');
-//                   return KeyEventResult.handled;
-//                 } else {
-//                   setState(() {
-//                     scannedValue2 += event.data.keyLabel;
-//                   });
-//                   return KeyEventResult.handled;
-//                 }
-//               }
-//               return KeyEventResult.ignored;
-//             },
-//             child: Center(
-//               child: Column(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   Text(
-//                     'Escaneado 2: $scannedValue2',
-//                     style: const TextStyle(fontSize: 24),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//           Card(
-//             elevation: 3,
-//             margin: const EdgeInsets.all(10),
-//             child: Center(
-//               child: DropdownButton<String>(
-//                 underline: Container(
-//                   height: 0,
-//                 ),
-//                 borderRadius: BorderRadius.circular(10),
-//                 focusColor: Colors.white,
-//                 isExpanded: true,
-//                 hint: Text(
-//                   'codigos',
-//                   style: TextStyle(fontSize: 14, color: primaryColorApp),
-//                 ),
-//                 icon: Image.asset(
-//                   "assets/icons/packing.png",
-//                   color: primaryColorApp,
-//                   width: 20,
-//                 ),
-//                 value: selectedMuelle,
-//                 // items: batchBloc.positions
-//                 items: barcodeList.map((String value) {
-//                   return DropdownMenuItem<String>(
-//                     value: value,
-//                     child: Text(value),
-//                   );
-//                 }).toList(),
-
-//                 onChanged: (String? newValue) {
-//                   setState(() {
-//                     selectedMuelle = newValue;
-//                   });
-//                 },
-//               ),
-//             ),
-//           ),
-//           const SizedBox(height: 20),
-//           Text(
-//             'Seleccion de codigo:  $selectedMuelle',
-//             style: const TextStyle(fontSize: 24),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

@@ -67,7 +67,6 @@ class WmsPickingRepository {
           }
         }
       } else {
-        Preferences.setIntList = [1];
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
           Map<String, dynamic> data = jsonResponse['data'];

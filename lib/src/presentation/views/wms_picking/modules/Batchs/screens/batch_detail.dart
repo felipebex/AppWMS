@@ -24,7 +24,7 @@ class BatchDetailScreen extends StatelessWidget {
         if (state is ProductEditOk) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Producto completado correctamente"),
+              content: Text("Producto ajustado correctamente"),
               backgroundColor: Colors.green,
             ),
           );

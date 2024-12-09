@@ -3,6 +3,7 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -47,7 +48,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
           durationInMilliSeconds: 300,
           itemLabelStyle: const TextStyle(fontSize: 10),
           elevation: 12,
-          bottomBarItems:  [
+          bottomBarItems: [
             BottomBarItem(
               inActiveItem: Icon(
                 Icons.batch_prediction,
@@ -109,7 +110,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
               return Column(
                 children: [
                   Container(
-                    decoration:  BoxDecoration(
+                    decoration: BoxDecoration(
                       color: primaryColorApp,
                       borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(20),
@@ -161,17 +162,18 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                   ),
                                   ProgressIndicatorWidget(
                                     progress: context
-                                          .read<WmsPackingBloc>()
-                                          .listOfBatchs.isNotEmpty
-                                  ? context
-                                          .read<WmsPackingBloc>()
-                                          .listOfBatchsDoneDB
-                                          .length /
-                                      context
-                                          .read<WmsPackingBloc>()
-                                          .listOfBatchs
-                                          .length
-                                  : 0.0,
+                                            .read<WmsPackingBloc>()
+                                            .listOfBatchs
+                                            .isNotEmpty
+                                        ? context
+                                                .read<WmsPackingBloc>()
+                                                .listOfBatchsDoneDB
+                                                .length /
+                                            context
+                                                .read<WmsPackingBloc>()
+                                                .listOfBatchs
+                                                .length
+                                        : 0.0,
                                     completed: context
                                         .read<WmsPackingBloc>()
                                         .listOfBatchsDoneDB
@@ -303,14 +305,14 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                     );
                                   },
                                   child: Card(
-                                   color: batch.isSeparate == 1
-                                            ? Colors.green[100]
-                                            : batch.isSelected == 1
-                                                ? primaryColorAppLigth
-                                                : Colors.white,
+                                    color: batch.isSeparate == 1
+                                        ? Colors.green[100]
+                                        : batch.isSelected == 1
+                                            ? primaryColorAppLigth
+                                            : Colors.white,
                                     elevation: 5,
                                     child: ListTile(
-                                      trailing:  Icon(
+                                      trailing: Icon(
                                         Icons.arrow_forward_ios,
                                         color: primaryColorApp,
                                       ),
@@ -354,80 +356,50 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             alignment: Alignment.centerLeft,
                                             child: Text(
                                               batch.pickingTypeId.toString(),
-                                              style:  TextStyle(
+                                              style: TextStyle(
                                                   fontSize: 14,
                                                   color: primaryColorApp),
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          // Align(
-                                          //   alignment: Alignment.centerLeft,
-                                          //   child: Builder(
-                                          //     builder: (context) {
-                                          //       // Verifica si `scheduledDate` es false o null
-                                          //       String displayDate;
-                                          //       if (batch.scheduledDate ==
-                                          //               false ||
-                                          //           batch.scheduledDate ==
-                                          //               null) {
-                                          //         displayDate = 'sin fecha';
-                                          //       } else {
-                                          //         try {
-                                          //           DateTime dateTime =
-                                          //               DateTime.parse(batch
-                                          //                   .scheduledDate!);
-                                          //           // Formatear la fecha usando Intl
-                                          //           displayDate = DateFormat(
-                                          //                   'dd MMMM yyyy',
-                                          //                   'es_ES')
-                                          //               .format(dateTime);
-                                          //         } catch (e) {
-                                          //           displayDate =
-                                          //               'sin fecha'; // Si ocurre un error al parsear
-                                          //         }
-                                          //       }
-
-                                          //       return Row(
-                                          //         children: [
-                                          //           const Icon(
-                                          //             Icons
-                                          //                 .calendar_month_sharp,
-                                          //             color: primaryColorApp,
-                                          //             size: 15,
-                                          //           ),
-                                          //           const SizedBox(width: 5),
-                                          //           Text(
-                                          //             displayDate,
-                                          //             style: const TextStyle(
-                                          //                 fontSize: 14),
-                                          //           ),
-                                          //         ],
-                                          //       );
-                                          //     },
-                                          //   ),
-                                          // ),
-                                          Builder(builder: (context) {
-                                            dynamic nameUser = batch.userId;
-
-                                            if (batch.userId is List) {
-                                              nameUser =
-                                                  batch.userId.toString();
-                                            }
-                                            return Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Row(
-                                                children: [
-                                                   Icon(
-                                                    Icons.person,
-                                                    color: primaryColorApp,
-                                                    size: 15,
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    nameUser == false
-                                                        ? 'Sin responsable'
-                                                        : nameUser.toString(),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_month_sharp,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  batch.scheduleddate != null
+                                                      ? DateFormat('dd/MM/yyyy')
+                                                          .format(DateTime
+                                                              .parse(batch
+                                                                  .scheduleddate!))
+                                                      : "Sin fecha",
+                                                  style: const TextStyle(
+                                                      fontSize: 14),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.person,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Expanded(
+                                                  child: Text(
+                                                    batch.userName ??
+                                                        "Sin usuario",
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         color: black),
@@ -435,10 +407,43 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                   ),
-                                                ],
-                                              ),
-                                            );
-                                          }),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.add,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                const Text(
+                                                  "Cantidad pedidos: ",
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    batch.cantidadPedidos.toString(),
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: primaryColorApp),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),

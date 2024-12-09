@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/presentation/views/home/data/home_api_module.dart';
 import 'package:bloc/bloc.dart';
 part 'home_event.dart';
 part 'home_state.dart';
