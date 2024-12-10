@@ -9,7 +9,6 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
-import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class PakingListScreen extends StatelessWidget {
@@ -28,12 +27,12 @@ class PakingListScreen extends StatelessWidget {
           backgroundColor: Colors.white,
           body: SizedBox(
             width: size.width * 1,
-            height: size.height * 0.9,
+            height: size.height * 0.97,
             child: Column(
               children: [
                 //appbar
                 Container(
-                  decoration:  BoxDecoration(
+                  decoration: BoxDecoration(
                     color: primaryColorApp,
                     borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(20),
@@ -99,7 +98,7 @@ class PakingListScreen extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               batchModel?.name ?? '',
-                              style:  TextStyle(
+                              style: TextStyle(
                                   fontSize: 20,
                                   color: primaryColorApp,
                                   fontWeight: FontWeight.bold),
@@ -115,11 +114,11 @@ class PakingListScreen extends StatelessWidget {
                             Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  batchModel?.userId == false ||
-                                          batchModel?.userId == ""
+                                  batchModel?.userName == false ||
+                                          batchModel?.userName == ""
                                       ? 'Sin responsable'
-                                      : "${batchModel?.userId}",
-                                  style:  TextStyle(
+                                      : "${batchModel?.userName}",
+                                  style: TextStyle(
                                       fontSize: 14, color: primaryColorApp),
                                 )),
                           ],
@@ -136,8 +135,8 @@ class PakingListScreen extends StatelessWidget {
                             batchModel?.pickingTypeId == false
                                 ? 'Sin tipo de operación'
                                 : "${batchModel?.pickingTypeId}",
-                            style:  TextStyle(
-                                fontSize: 14, color: primaryColorApp),
+                            style:
+                                TextStyle(fontSize: 14, color: primaryColorApp),
                           ),
                         ),
                         Row(
@@ -146,7 +145,7 @@ class PakingListScreen extends StatelessWidget {
                             const Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  "Fecha de programada:",
+                                  "Fecha programada:",
                                   style: TextStyle(fontSize: 14, color: black),
                                 )),
                             const SizedBox(width: 10),
@@ -177,7 +176,7 @@ class PakingListScreen extends StatelessWidget {
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     displayDate,
-                                    style:  TextStyle(
+                                    style: TextStyle(
                                         fontSize: 14, color: primaryColorApp),
                                     textAlign: TextAlign.center,
                                   ),
@@ -253,7 +252,7 @@ class PakingListScreen extends StatelessWidget {
                           itemCount:
                               sortedPedidos.length, // Usamos la lista ordenada
                           itemBuilder: (context, index) {
-                            final packing = sortedPedidos[index];
+                            final PedidoPacking packing = sortedPedidos[index];
                             return GestureDetector(
                               onTap: () {
                                 // Limpiamos la lista de paquetes
@@ -281,7 +280,7 @@ class PakingListScreen extends StatelessWidget {
                                     children: [
                                       Row(
                                         children: [
-                                           Text("Nombre:",
+                                          Text("Nombre:",
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   color: primaryColorApp)),
@@ -297,17 +296,18 @@ class PakingListScreen extends StatelessWidget {
                                       ),
                                       Row(
                                         children: [
-                                           Text('Referencia:',
+                                          Text("Cantidad de productos:",
                                               style: TextStyle(
-                                                  color: primaryColorApp,
-                                                  fontSize: 14)),
+                                                  fontSize: 14,
+                                                  color: primaryColorApp)),
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
-                                                packing.referencia ?? '',
+                                                packing.cantidadProductos
+                                                    .toString(),
                                                 style: const TextStyle(
-                                                    color: black,
-                                                    fontSize: 14)),
+                                                    fontSize: 14,
+                                                    color: black)),
                                           ),
                                           Container(
                                             margin:
@@ -345,7 +345,23 @@ class PakingListScreen extends StatelessWidget {
                                           )
                                         ],
                                       ),
-                                       Align(
+                                      Row(
+                                        children: [
+                                          Text('Referencia:',
+                                              style: TextStyle(
+                                                  color: primaryColorApp,
+                                                  fontSize: 14)),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: Text(
+                                                packing.referencia ?? '',
+                                                style: const TextStyle(
+                                                    color: black,
+                                                    fontSize: 14)),
+                                          ),
+                                        ],
+                                      ),
+                                      Align(
                                         alignment: Alignment.centerLeft,
                                         child: Text("Tipo de operación:",
                                             style: TextStyle(
@@ -360,7 +376,7 @@ class PakingListScreen extends StatelessWidget {
                                             style: const TextStyle(
                                                 fontSize: 14, color: black)),
                                       ),
-                                       Align(
+                                      Align(
                                         alignment: Alignment.centerLeft,
                                         child: Text("Contacto:",
                                             style: TextStyle(
@@ -370,7 +386,7 @@ class PakingListScreen extends StatelessWidget {
                                       const SizedBox(width: 10),
                                       SizedBox(
                                         width: size.width * 0.9,
-                                        child: Text(packing.contacto ?? " ",
+                                        child: Text(packing.contactoName ?? " ",
                                             style: const TextStyle(
                                                 fontSize: 14, color: black)),
                                       ),

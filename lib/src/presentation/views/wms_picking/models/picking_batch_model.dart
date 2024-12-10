@@ -173,7 +173,7 @@ class BatchsModel {
 
 class ProductsBatch {
   final int? id;
-  final dynamic? barcode;
+  final dynamic barcode;
   final int? weigth;
   final String? unidades;
 

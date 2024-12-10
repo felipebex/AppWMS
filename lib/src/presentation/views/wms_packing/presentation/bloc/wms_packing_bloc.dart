@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print
 
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -8,6 +7,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repo
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 part 'wms_packing_event.dart';
 part 'wms_packing_state.dart';
@@ -79,6 +79,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     //*obtener todos los productos de un pedido
     on<LoadAllProductsFromPedidoEvent>(_onLoadAllProductsFromPedidoEvent);
 
+    //*cargamos el producto a certificar
     on<FetchProductEvent>(_onFetchProductEvent);
 
     //*buscar un batch
@@ -203,11 +204,14 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         for (var product in event.productos) {
           //verificamos si el empaquetado esta certificado
           if (!event.isCertificate) {
-            await db.setFieldTableBatchPacking(event.productos[0].batchId ?? 0,
-                 "is_selected", "true");
+            await db.setFieldTableBatchPacking(
+                event.productos[0].batchId ?? 0, "is_selected", "true");
 
-            await db.setFieldTablePedidosPacking(event.productos[0].batchId ?? 0,
-                product.pedidoId ?? 0, "is_selected", "true");
+            await db.setFieldTablePedidosPacking(
+                event.productos[0].batchId ?? 0,
+                product.pedidoId ?? 0,
+                "is_selected",
+                "true");
 
             await db.setFieldTableProductosPedidos(product.pedidoId ?? 0,
                 product.productId ?? 0, "is_separate", "true");
@@ -295,10 +299,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       currentProduct = PorductoPedido();
       currentProduct = event.pedido;
 
-      isLocationOk = true;
-      isProductOk = true;
-      isLocationDestOk = true;
-      isQuantityOk = true;
+  
 
       locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
@@ -401,7 +402,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadAllPackingEvent event, Emitter<WmsPackingState> emit) async {
     emit(WmsPackingLoading());
     try {
-      final response = await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog, event.context);
+      final response = await wmsPackingRepository.resBatchsPacking(
+          event.isLoadinDialog, event.context);
 
       if (response != null && response is List) {
         print('response batchs packing: ${response.length}');
@@ -420,8 +422,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                 userId: batch.userId.toString(),
                 userName: batch.userName,
                 cantidadPedidos: batch.cantidadPedidos,
-              
-                
               ));
             }
           } catch (dbError, stackTrace) {
@@ -433,18 +433,33 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         List<PedidoPacking> pedidosToInsert =
             listOfBatchs.expand((batch) => batch.listaPedidos!).toList();
 
-        print('pedidosToInsert: ${pedidosToInsert.length}');
+        //convertir el mapa en una lista de productos unicos del pedido para packing
+        List<PorductoPedido> productsToInsert =
+            pedidosToInsert.expand((pedido) => pedido.listaProductos!).toList();
+
+        //Convertir el mapa en una lista los barcodes unicos de cada producto
+        List<Barcodes> barcodesToInsert = productsToInsert
+            .expand((product) => product.productPacking!)
+            .toList();
+
+        //convertir el mapap en una lsita de los otros barcodes de cada producto
+        List<Barcodes> otherBarcodesToInsert = productsToInsert
+            .expand((product) => product.otherBarcode!)
+            .toList();
+
+        print('productsToInsert Packing : ${productsToInsert.length}');
+        print('barcodesToInsert Packing : ${barcodesToInsert.length}');
+        print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');
 
         // Enviar la lista agrupada de productos de un batch para packing
         await DataBaseSqlite().insertPedidosBatchPacking(pedidosToInsert);
-
-        //convertir el mapa en una lista de productos unicos del pedido para packing
-        List<ListaProducto> productsToInsert =
-            pedidosToInsert.expand((pedido) => pedido.listaProductos!).toList();
-
-        print('productsToInsert: ${productsToInsert.length}');
         // Enviar la lista agrupada de productos de un pedido para packing
         await DataBaseSqlite().insertProductosPedidos(productsToInsert);
+        // Enviar la lista agrupada de barcodes de un producto para packing
+        await DataBaseSqlite().insertBarcodesPackageProduct(barcodesToInsert);
+        // Enviar la lista agrupada de otros barcodes de un producto para packing
+        await DataBaseSqlite()
+            .insertBarcodesPackageProduct(otherBarcodesToInsert);
 
         // //* Carga los batches desde la base de datos
         add(LoadBatchPackingFromDBEvent());
@@ -465,7 +480,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       final batchsFromDB = await db.getAllBatchsPacking();
       listOfBatchsDB.clear();
       listOfBatchsDB.addAll(batchsFromDB);
-      print('batchsFromDB: ${batchsFromDB.length}');
       emit(WmsPackingLoaded());
     } catch (e, s) {
       print('Error en el  _onLoadBatchsFromDBEvent: $e, $s');
@@ -505,8 +519,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           currentProduct.batchId ?? 0, event.pedidoId, "is_selected", "true");
 
       //actualizamos el estado de seleccion de un batch
-       await db.setFieldTableBatchPacking(currentProduct.batchId ?? 0,
-                 "is_selected", "true");
+      await db.setFieldTableBatchPacking(
+          currentProduct.batchId ?? 0, "is_selected", "true");
       //actualizamos la ubicacion del producto a true
       await db.setFieldTableProductosPedidos(
           event.pedidoId, event.productId, "is_location_is_ok", "true");

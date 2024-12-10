@@ -227,6 +227,7 @@ class _loginForm extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10)),
               disabledColor: Colors.grey,
               elevation: 0,
+              minWidth: double.infinity,
               color: primaryColorApp,
               onPressed: () async {
                 FocusScope.of(context).unfocus();

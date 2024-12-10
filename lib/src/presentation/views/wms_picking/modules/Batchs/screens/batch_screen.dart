@@ -6,7 +6,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -505,6 +504,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           if (event.logicalKey ==
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue1.isNotEmpty) {
+                                              
                                               print(scannedValue1);
                                               if (scannedValue1.toLowerCase() ==
                                                   currentProduct.barcodeLocation

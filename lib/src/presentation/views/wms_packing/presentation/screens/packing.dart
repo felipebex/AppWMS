@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unused_element, avoid_print
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unused_element, avoid_print, unrelated_type_equality_checks
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,10 +24,10 @@ class _PackingScreenState extends State<PackingScreen> {
   String scannedValue2 = '';
   String scannedValue3 = '';
 
-  FocusNode focusNode1 = FocusNode();
-  FocusNode focusNode2 = FocusNode();
-  FocusNode focusNode3 = FocusNode();
-  FocusNode focusNode4 = FocusNode();
+  FocusNode focusNode1 = FocusNode(); // ubicacion  de origen
+  FocusNode focusNode2 = FocusNode(); // producto
+  FocusNode focusNode3 = FocusNode(); // cantidad por pda
+  FocusNode focusNode4 = FocusNode(); //cantidad textformfield
   FocusNode focusNode5 = FocusNode(); //cantidad textformfield
 
   String? selectedLocation;
@@ -36,23 +36,56 @@ class _PackingScreenState extends State<PackingScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!context.read<WmsPackingBloc>().locationIsOk) {
+
+    final batchBloc = context.read<WmsPackingBloc>();
+    if (!batchBloc.locationIsOk && //false
+        !batchBloc.productIsOk && //false
+        !batchBloc.quantityIsOk && //false
+        !batchBloc.locationDestIsOk) //false
+    {
+      print("focus ubicacion");
+
       FocusScope.of(context).requestFocus(focusNode1);
     }
-    if (!context.read<WmsPackingBloc>().productIsOk) {
+
+    if (batchBloc.locationIsOk && //true
+        !batchBloc.productIsOk && //false
+        !batchBloc.quantityIsOk && //false
+        !batchBloc.locationDestIsOk) //false
+    {
+      print("focus producto");
+
       FocusScope.of(context).requestFocus(focusNode2);
     }
-    if (!context.read<WmsPackingBloc>().quantityIsOk) {
+    if (batchBloc.locationIsOk && //true
+        batchBloc.productIsOk && //true
+        batchBloc.quantityIsOk && //ttrue
+        !batchBloc.locationDestIsOk && //false
+        !viewQuantity) //false
+    {
+      print("focus cantidad");
+
       FocusScope.of(context).requestFocus(focusNode3);
     }
-    if (!context.read<WmsPackingBloc>().locationDestIsOk) {
+
+    if (batchBloc.locationIsOk &&
+        batchBloc.productIsOk &&
+        !batchBloc.quantityIsOk &&
+        !batchBloc.locationDestIsOk) {
+      print("focus muelle");
+
       FocusScope.of(context).requestFocus(focusNode5);
     }
   }
 
   @override
   void dispose() {
-    focusNode4.dispose(); // Limpiar el FocusNode
+    // Limpiar todos los FocusNode
+    focusNode1.dispose();
+    focusNode2.dispose();
+    focusNode3.dispose();
+    focusNode4.dispose();
+    focusNode5.dispose();
     super.dispose();
   }
 
@@ -97,10 +130,12 @@ class _PackingScreenState extends State<PackingScreen> {
                             ),
                             const Align(
                               alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Pickin - Packing",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 18),
+                              child: Center(
+                                child: Text(
+                                  "Certificación de Packing",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 18),
+                                ),
                               ),
                             ),
                           ],
@@ -152,10 +187,11 @@ class _PackingScreenState extends State<PackingScreen> {
                                             if (event.logicalKey ==
                                                 LogicalKeyboardKey.enter) {
                                               if (scannedValue1.isNotEmpty) {
+                                                 print(scannedValue1);
                                                 if (scannedValue1
                                                         .toLowerCase() ==
                                                     packinghBloc.currentProduct
-                                                        .locationId
+                                                        .barcodeLocation
                                                         .toString()
                                                         .toLowerCase()) {
                                                   packinghBloc.add(
@@ -233,16 +269,16 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       BorderRadius.circular(10),
                                                   focusColor: Colors.white,
                                                   isExpanded: true,
-                                                  hint:  Text(
+                                                  hint: Text(
                                                     'Ubicación de origen',
                                                     style: TextStyle(
-                                                        fontSize: 16,
+                                                        fontSize: 14,
                                                         color: primaryColorApp),
                                                   ),
                                                   icon: Image.asset(
                                                     "assets/icons/ubicacion.png",
                                                     color: primaryColorApp,
-                                                    width: 24,
+                                                    width: 20,
                                                   ),
                                                   value: selectedLocation,
                                                   items: packinghBloc.positions
@@ -250,7 +286,44 @@ class _PackingScreenState extends State<PackingScreen> {
                                                     return DropdownMenuItem<
                                                         String>(
                                                       value: location,
-                                                      child: Text(location),
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            color: packinghBloc
+                                                                        .currentProduct
+                                                                        .locationId
+                                                                        .toString() ==
+                                                                    location
+                                                                ? Colors
+                                                                    .green[100]
+                                                                : Colors.white),
+                                                        width: size.width * 0.9,
+                                                        height: 45,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 5,
+                                                          vertical: 3,
+                                                        ),
+                                                        child: Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(location,
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      color:
+                                                                          black,
+                                                                      fontSize:
+                                                                          14)),
+                                                        ),
+                                                      ),
                                                     );
                                                   }).toList(),
                                                   onChanged: packinghBloc
@@ -334,7 +407,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                               .locationId ??
                                                           "",
                                                       style: const TextStyle(
-                                                          fontSize: 16,
+                                                          fontSize: 14,
                                                           color: black),
                                                     ),
                                                   ],
@@ -489,16 +562,16 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       BorderRadius.circular(10),
                                                   focusColor: Colors.white,
                                                   isExpanded: true,
-                                                  hint:  Text(
+                                                  hint: Text(
                                                     'Producto',
                                                     style: TextStyle(
-                                                        fontSize: 16,
+                                                        fontSize: 14,
                                                         color: primaryColorApp),
                                                   ),
                                                   icon: Image.asset(
                                                     "assets/icons/producto.png",
                                                     color: primaryColorApp,
-                                                    width: 24,
+                                                    width: 20,
                                                   ),
                                                   value: selectedLocation,
                                                   // items: batchBloc.positions
@@ -510,9 +583,42 @@ class _PackingScreenState extends State<PackingScreen> {
                                                         String>(
                                                       value: product.idProduct
                                                           .toString(),
-                                                      child: Text(product
-                                                          .idProduct
-                                                          .toString()),
+                                                      child: Container(
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            color: packinghBloc
+                                                                        .currentProduct
+                                                                        .idProduct ==
+                                                                    product
+                                                                        .idProduct
+                                                                ? Colors
+                                                                    .green[100]
+                                                                : Colors.white),
+                                                        width: size.width * 0.9,
+                                                        height: 45,
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 5,
+                                                          vertical: 3,
+                                                        ),
+                                                        child: Text(
+                                                            product.idProduct ??
+                                                                "",
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style:
+                                                                const TextStyle(
+                                                                    color:
+                                                                        black,
+                                                                    fontSize:
+                                                                        14)),
+                                                      ),
                                                     );
                                                   }).toList(),
 
@@ -613,44 +719,77 @@ class _PackingScreenState extends State<PackingScreen> {
                                               const SizedBox(height: 10),
                                               Align(
                                                 alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  packinghBloc
-                                                      .currentProduct.idProduct
-                                                      .toString(),
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      color: black),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .start, //alineamos el texto a la izquierda
+                                                  children: [
+                                                    Text(
+                                                      packinghBloc
+                                                          .currentProduct
+                                                          .idProduct
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: black),
+                                                    ),
+                                                    Visibility(
+                                                      visible: packinghBloc
+                                                                  .currentProduct
+                                                                  .barcode ==
+                                                              false ||
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .barcode ==
+                                                              null ||
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .barcode ==
+                                                              "",
+                                                      child: const Text(
+                                                        "Sin codigo de barras",
+                                                        textAlign:
+                                                            TextAlign.start,
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: red),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
-
                                               const SizedBox(height: 10),
-                                              // informacion del lote:
-                                              // if (batchBloc.product.tracking ==
-                                              //         'lot' ||
-                                              //     batchBloc.product.tracking ==
-                                              //         'serial')
-                                              //   const Column(
-                                              //     children: [
-                                              //       Align(
-                                              //         alignment: Alignment.centerLeft,
-                                              //         child: Text(
-                                              //           'Lote/Numero de serie ',
-                                              //           style: TextStyle(
-                                              //               fontSize: 16,
-                                              //               color: primaryColorApp),
-                                              //         ),
-                                              //       ),
-                                              //       Align(
-                                              //         alignment: Alignment.centerLeft,
-                                              //         child: Text(
-                                              //           "",
-                                              //           style: TextStyle(
-                                              //               fontSize: 16,
-                                              //               color: black),
-                                              //         ),
-                                              //       ),
-                                              //     ],
-                                              //   ),
+                                              if (packinghBloc
+                                                      .currentProduct.loteId !=
+                                                  null)
+                                                Column(
+                                                  children: [
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        'Lote/Numero de serie ',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                primaryColorApp),
+                                                      ),
+                                                    ),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .lotId ??
+                                                            '',
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                             ],
                                           ),
                                         ),
@@ -692,7 +831,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                   children: [
                                     const Text('Recoger:',
                                         style: TextStyle(
-                                            color: Colors.black, fontSize: 18)),
+                                            color: Colors.black, fontSize: 14)),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 10),
@@ -700,16 +839,16 @@ class _PackingScreenState extends State<PackingScreen> {
                                         packinghBloc.currentProduct.quantity
                                                 ?.toString() ??
                                             "",
-                                        style:  TextStyle(
+                                        style: TextStyle(
                                             color: primaryColorApp,
-                                            fontSize: 18),
+                                            fontSize: 14),
                                       ),
                                     ),
                                     Text(
                                         packinghBloc.currentProduct.unidades ??
                                             "",
                                         style: const TextStyle(
-                                            color: Colors.black, fontSize: 18)),
+                                            color: Colors.black, fontSize: 14)),
                                     const Spacer(),
                                     Expanded(
                                       child: Container(
@@ -838,7 +977,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                     .toString(),
                                                 style: const TextStyle(
                                                     color: Colors.black,
-                                                    fontSize: 18)),
+                                                    fontSize: 14)),
                                           )),
                                     ),
                                     IconButton(
@@ -851,10 +990,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 });
                                               }
                                             : null,
-                                        icon:  Icon(
-                                            Icons.edit_note_rounded,
-                                            color: primaryColorApp,
-                                            size: 30)),
+                                        icon: Icon(Icons.edit_note_rounded,
+                                            color: primaryColorApp, size: 30)),
                                   ],
                                 ),
                               ),
@@ -899,6 +1036,23 @@ class _PackingScreenState extends State<PackingScreen> {
                                     InputDecorations.authInputDecoration(
                                   hintText: 'Cantidad',
                                   labelText: 'Cantidad',
+                                  suffixIconButton: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        viewQuantity = !viewQuantity;
+                                      });
+                                      cantidadController.clear();
+
+                                      //cambiamos el foco pa leer por pda la cantidad
+                                      Future.delayed(
+                                          const Duration(milliseconds: 100),
+                                          () {
+                                        FocusScope.of(context)
+                                            .requestFocus(focusNode3);
+                                      });
+                                    },
+                                    icon: const Icon(Icons.clear),
+                                  ),
                                 ),
                                 //al dar enter
                                 onFieldSubmitted: (value) {
@@ -1207,7 +1361,7 @@ class _PackingScreenState extends State<PackingScreen> {
                               child: const Text(
                                 'APLICAR CANTIDAD',
                                 style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
+                                    color: Colors.white, fontSize: 14),
                               ),
                             )),
                       ],

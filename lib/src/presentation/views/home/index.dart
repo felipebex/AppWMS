@@ -62,9 +62,9 @@ class _HomePageState extends State<HomePage> {
                     .read<WMSPickingBloc>()
                     .add(LoadAllBatchsEvent(context, true));
               } else if (rol == 'admin') {
-                context
-                    .read<WMSPickingBloc>()
-                    .add(LoadAllBatchsEvent(context, true));
+                // context
+                //     .read<WMSPickingBloc>()
+                //     .add(LoadAllBatchsEvent(context, true));
                 context
                     .read<WmsPackingBloc>()
                     .add(LoadAllPackingEvent(true, context));
@@ -75,12 +75,12 @@ class _HomePageState extends State<HomePage> {
               }
             },
             child: Scaffold(
-              floatingActionButton: FloatingActionButton(
-                onPressed: () async {
-                  await DataBaseSqlite().deleteAll();
-                },
-                child: const Icon(Icons.refresh),
-              ),
+              // floatingActionButton: FloatingActionButton(
+              //   onPressed: () async {
+              //     await DataBaseSqlite().deleteAll();
+              //   },
+              //   child: const Icon(Icons.refresh),
+              // ),
               body: Container(
                 width: size.width,
                 height: size.height,
@@ -341,7 +341,7 @@ class _HomePageState extends State<HomePage> {
                                               final String rol =
                                                   await PrefUtils.getUserRol();
 
-                                              if (rol == 'picking') {
+                                              if (rol == 'picking' || rol == 'admin') {
                                                 context
                                                     .read<WMSPickingBloc>()
                                                     .add(
@@ -400,7 +400,8 @@ class _HomePageState extends State<HomePage> {
                                               final String rol =
                                                   await PrefUtils.getUserRol();
 
-                                              if (rol == 'picking') {
+                                              if (rol == 'picking' ||
+                                                  rol == 'admin') {
                                                 context
                                                     .read<WMSPickingBloc>()
                                                     .add(
@@ -539,8 +540,23 @@ class _HomePageState extends State<HomePage> {
 
                                             if (rol == 'packing' ||
                                                 rol == 'admin') {
-                                              Navigator.pushNamed(
-                                                  context, 'wms-packing');
+                                              context.read<WmsPackingBloc>().add(
+                                                  LoadBatchPackingFromDBEvent());
+
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogLoading();
+                                                  });
+
+                                              // Esperar 3 segundos antes de continuar
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                Navigator.pop(context);
+                                                Navigator.pushNamed(
+                                                    context, 'wms-packing');
+                                              });
                                             } else {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(

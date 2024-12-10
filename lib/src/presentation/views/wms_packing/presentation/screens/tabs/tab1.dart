@@ -191,7 +191,7 @@ class Tab1Screen extends StatelessWidget {
                         Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              packingModel?.contacto ?? '',
+                              packingModel?.contactoName ?? '',
                               style:  TextStyle(
                                   fontSize: 14, color: primaryColorApp),
                             )),
@@ -226,7 +226,7 @@ class Tab1Screen extends StatelessWidget {
                                   }
                                 }
                                 return SizedBox(
-                                  width: size.width * 0.55,
+                                  width: size.width * 0.45,
                                   child: Text(
                                     displayDate,
                                     style:  TextStyle(
@@ -323,12 +323,12 @@ class Tab1Screen extends StatelessWidget {
                             children: [
                               Image.asset('assets/images/empty.png',
                                   height:
-                                      150), // Ajusta la altura según necesites
+                                      100), // Ajusta la altura según necesites
                               const SizedBox(height: 10),
                               const Text('No hay empaques',
-                                  style: TextStyle(fontSize: 18, color: grey)),
-                              const Text('Realiza el proceso de empaque',
                                   style: TextStyle(fontSize: 14, color: grey)),
+                              const Text('Realiza el proceso de empaque',
+                                  style: TextStyle(fontSize: 12, color: grey)),
                             ],
                           ),
                         )

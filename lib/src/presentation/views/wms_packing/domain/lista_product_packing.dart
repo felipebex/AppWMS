@@ -1,14 +1,16 @@
 import 'dart:convert';
 
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+
 class PorductoPedido {
   final int? productId;
   final int? batchId;
   final int? pedidoId;
-  final String? idProduct;
-  final int? loteId;
+  final dynamic idProduct;
+  final dynamic loteId;
   final dynamic lotId;
-  final String? locationId;
-  final String? locationDestId;
+  final dynamic locationId;
+  final dynamic locationDestId;
   final dynamic quantity;
   final String? tracking;
   final dynamic barcode;
@@ -22,7 +24,11 @@ class PorductoPedido {
   final String? isSendOdooDate;
 
   //vairbales para el packing
-   final int? quantitySeparate;
+  final List<Barcodes>? productPacking;
+  final List<Barcodes>? otherBarcode;
+
+  final dynamic barcodeLocation;
+  final int? quantitySeparate;
   final dynamic isSelected;
   final dynamic isSeparate;
   final dynamic
@@ -60,6 +66,9 @@ class PorductoPedido {
     this.isCertificate,
     this.isSendOdoo,
     this.isSendOdooDate,
+    this.productPacking,
+    this.otherBarcode,
+    this.barcodeLocation,
   });
 
   factory PorductoPedido.fromJson(String str) =>
@@ -94,6 +103,15 @@ class PorductoPedido {
         isCertificate: json["is_certificate"],
         isSendOdoo: json["is_send_odoo"],
         isSendOdooDate: json["is_send_odoo_date"],
+        productPacking: json['product_packing'] == null
+            ? []
+            : List<Barcodes>.from(
+                json['product_packing'].map((x) => Barcodes.fromMap(x))),
+        otherBarcode: json['other_barcode'] == null
+            ? []
+            : List<Barcodes>.from(
+                json['other_barcode'].map((x) => Barcodes.fromMap(x))),
+        barcodeLocation: json["barcode_location"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -123,5 +141,12 @@ class PorductoPedido {
         "is_certificate": isCertificate,
         "is_send_odoo": isSendOdoo,
         "is_send_odoo_date": isSendOdooDate,
+        "product_packing": productPacking == null
+            ? []
+            : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
+        "other_barcode": otherBarcode == null
+            ? []
+            : List<dynamic>.from(otherBarcode!.map((x) => x.toMap())),
+        "barcode_location": barcodeLocation,
       };
 }

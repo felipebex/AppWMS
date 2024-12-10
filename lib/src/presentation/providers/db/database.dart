@@ -122,7 +122,7 @@ class DataBaseSqlite {
         state VARCHAR(255),
         user_id INTEGER,
         user_name VARCHAR(255),
-        cantidad_pedidos INTEGER,
+        catidad_pedidos INTEGER,
 
         is_separate INTEGER, 
         is_selected INTEGER, 
@@ -160,6 +160,7 @@ class DataBaseSqlite {
         referencia VARCHAR(255),
         fecha VARCHAR(255),
         contacto VARCHAR(255),
+        contacto_name VARCHAR(255),
         tipo_operacion VARCHAR(255),
         cantidad_productos INTEGER,
         numero_paquetes INTEGER,
@@ -194,6 +195,7 @@ class DataBaseSqlite {
       is_certificate INTEGER,
 
       is_location_is_ok INTEGER,
+      barcode_location TEXT,
       product_is_ok INTEGER,
       is_quantity_is_ok INTEGER,
       location_dest_is_ok INTEGER,
@@ -564,7 +566,7 @@ class DataBaseSqlite {
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
-              'cantidad_pedidos': batch.cantidadPedidos,
+              'catidad_pedidos': batch.cantidadPedidos,
               'user_name': batch.userName,
             },
             where: 'id = ?',
@@ -581,7 +583,7 @@ class DataBaseSqlite {
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
-              'cantidad_pedidos': batch.cantidadPedidos,
+              'catidad_pedidos': batch.cantidadPedidos,
               'user_name': batch.userName,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
@@ -628,6 +630,7 @@ class DataBaseSqlite {
                 "tipo_operacion": pedido.tipoOperacion.toString(),
                 "cantidad_productos": pedido.cantidadProductos,
                 "numero_paquetes": pedido.numeroPaquetes,
+                "contacto_name": pedido.contactoName,
               },
               where: 'id = ?',
               whereArgs: [pedido.id],
@@ -649,6 +652,7 @@ class DataBaseSqlite {
                 "tipo_operacion": pedido.tipoOperacion.toString(),
                 "cantidad_productos": pedido.cantidadProductos,
                 "numero_paquetes": pedido.numeroPaquetes,
+                "contacto_name": pedido.contactoName,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -660,7 +664,8 @@ class DataBaseSqlite {
     }
   }
 
-  Future<void> insertProductosPedidos(List<ListaProducto> productosList) async {
+  Future<void> insertProductosPedidos(
+      List<PorductoPedido> productosList) async {
     try {
       final db = await database;
 
@@ -691,6 +696,7 @@ class DataBaseSqlite {
                 "lot_id": producto.lotId == false ? "" : producto.lotId?[1],
                 "location_id": producto.locationId?[1],
                 "location_dest_id": producto.locationDestId?[1],
+                "barcode_location": producto.barcodeLocation,
                 "quantity": producto.quantity,
                 "tracking": producto.tracking == false
                     ? ""
@@ -721,6 +727,7 @@ class DataBaseSqlite {
                 "batch_id": producto.batchId,
                 "pedido_id": producto.pedidoId,
                 "id_product": producto.idProduct?[1],
+                "barcode_location": producto.barcodeLocation,
                 "lote_id": producto.loteId,
                 "lot_id": producto.lotId == false ? "" : producto.lotId?[1],
                 "location_id": producto.locationId?[1],
