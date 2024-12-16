@@ -749,6 +749,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.28.0"
+  scanwedge:
+    dependency: "direct main"
+    description:
+      name: scanwedge
+      sha256: fb16ecace793e9eca422e2fe5f42f9154252dcb2f180d386677292d469728d85
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   shared_preferences:
     dependency: "direct main"
     description:

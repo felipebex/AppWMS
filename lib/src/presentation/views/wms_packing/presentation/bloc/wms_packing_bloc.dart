@@ -211,24 +211,25 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                 event.productos[0].batchId ?? 0,
                 product.pedidoId ?? 0,
                 "is_selected",
-                "true");
+                "true",
+               );
 
             await db.setFieldTableProductosPedidos(product.pedidoId ?? 0,
-                product.productId ?? 0, "is_separate", "true");
+                product.productId ?? 0, "is_separate", "true", product.idMove ?? 0);
 
             await db.setFieldTableProductosPedidos(product.pedidoId ?? 0,
-                product.productId ?? 0, "is_certificate", "false");
+                product.productId ?? 0, "is_certificate", "false",product.idMove ?? 0);
           } else {
             await db.setFieldTableProductosPedidos(product.pedidoId ?? 0,
-                product.productId ?? 0, "is_certificate", "true");
+                product.productId ?? 0, "is_certificate", "true",product.idMove ?? 0);
           }
 
           //actualizamos el estado del producto como empacado
           await db.setFieldTableProductosPedidos(product.pedidoId ?? 0,
-              product.productId ?? 0, "is_packing", "true");
+              product.productId ?? 0, "is_packing", "true",product.idMove ?? 0);
 
           await db.setFieldTableProductosPedidos(product.pedidoId ?? 0,
-              product.productId ?? 0, "id_package", index);
+              product.productId ?? 0, "id_package", index,product.idMove ?? 0);
         }
 
         add(LoadAllProductsFromPedidoEvent(event.productos[0].pedidoId ?? 0));
@@ -236,7 +237,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         productsDone.clear();
 
         await db.setFieldTablePedidosPacking(event.productos[0].batchId ?? 0,
-            event.productos[0].pedidoId ?? 0, "is_packing", "true");
+            event.productos[0].pedidoId ?? 0, "is_packing", "true",
+            
+            
+            );
 
         emit(WmsPackingLoaded());
       }
@@ -252,7 +256,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     try {
       //actualizamos el estado del producto como separado
       await db.setFieldTableProductosPedidos(
-          event.pedidoId, event.productId, "is_separate", "true");
+          event.pedidoId, event.productId, "is_separate", "true", event.idMove );
       //actualizamos la cantidad separada
       quantitySelected = 0;
     } catch (e, s) {
@@ -268,7 +272,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     if (event.quantity > 0) {
       quantitySelected = event.quantity;
       await db.setFieldTableProductosPedidos(
-          event.pedidoId, event.productId, "quantity_separate", event.quantity);
+          event.pedidoId, event.productId, "quantity_separate", event.quantity, event.idMove);
     }
     emit(ChangeQuantitySeparateState(quantitySelected));
   }
@@ -298,8 +302,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       emit(WmsProductInfoLoading());
       currentProduct = PorductoPedido();
       currentProduct = event.pedido;
-
-  
 
       locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
@@ -492,7 +494,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     if (event.isOk) {
       //actualizamos la cantidad del producto a true
       await db.setFieldTableProductosPedidos(
-          event.pedidoId, event.productId, "is_quantity_is_ok", "true");
+          event.pedidoId, event.productId, "is_quantity_is_ok", "true", event.idMove);
     }
     quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
@@ -515,20 +517,20 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       ChangeLocationIsOkEvent event, Emitter<WmsPackingState> emit) async {
     if (event.locationIsOk) {
       //actualizamos el estado del pedido como seleccionado
-      await db.setFieldTablePedidosPacking(
-          currentProduct.batchId ?? 0, event.pedidoId, "is_selected", "true");
+      await db.setFieldTablePedidosPacking(currentProduct.batchId ?? 0,
+          event.pedidoId, "is_selected", "true",);
 
       //actualizamos el estado de seleccion de un batch
       await db.setFieldTableBatchPacking(
           currentProduct.batchId ?? 0, "is_selected", "true");
       //actualizamos la ubicacion del producto a true
       await db.setFieldTableProductosPedidos(
-          event.pedidoId, event.productId, "is_location_is_ok", "true");
+          event.pedidoId, event.productId, "is_location_is_ok", "true", currentProduct.idMove??0);
       //todo: actualiar al pedido de comenzado
 
       // actualizamo el valor de que he seleccionado el producto
       await db.setFieldTableProductosPedidos(
-          event.pedidoId, event.productId, "is_selected", "true");
+          event.pedidoId, event.productId, "is_selected", "true", currentProduct.idMove??0);
       locationIsOk = event.locationIsOk;
       emit(ChangeIsOkState(
         locationIsOk,
@@ -549,10 +551,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     if (event.productIsOk) {
       //actualizamos el producto a true
       await db.setFieldTableProductosPedidos(
-          event.pedidoId, event.productId, "product_is_ok", "true");
+          event.pedidoId, event.productId, "product_is_ok", "true", event.idMove);
       //actualizamos la cantidad separada
       await db.setFieldTableProductosPedidos(
-          event.pedidoId, event.productId, "quantity_separate", event.quantity);
+          event.pedidoId, event.productId, "quantity_separate", event.quantity, event.idMove);
     }
     productIsOk = event.productIsOk;
     emit(ChangeIsOkState(

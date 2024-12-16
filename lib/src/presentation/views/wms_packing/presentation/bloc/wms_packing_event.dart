@@ -52,7 +52,8 @@ class ChangeQuantitySeparate extends WmsPackingEvent {
   final int quantity;
   final int productId;
   final int pedidoId;
-  ChangeQuantitySeparate(this.quantity, this.productId, this.pedidoId);
+  final int idMove;
+  ChangeQuantitySeparate(this.quantity, this.productId, this.pedidoId, this.idMove);
 }
 
 //
@@ -76,15 +77,17 @@ class ChangeProductIsOkEvent extends WmsPackingEvent {
   final int productId;
   final int pedidoId;
   final int quantity;
+  final int idMove;
   ChangeProductIsOkEvent(
-      this.productIsOk, this.productId, this.pedidoId, this.quantity);
+      this.productIsOk, this.productId, this.pedidoId, this.quantity, this.idMove);
 }
 
 class ChangeIsOkQuantity extends WmsPackingEvent {
   final bool isOk;
   final int productId;
   final int pedidoId;
-  ChangeIsOkQuantity(this.isOk, this.productId, this.pedidoId);
+  final int idMove;
+  ChangeIsOkQuantity(this.isOk, this.productId, this.pedidoId, this.idMove);
 }
 
 class AddQuantitySeparate extends WmsPackingEvent {
@@ -97,8 +100,9 @@ class AddQuantitySeparate extends WmsPackingEvent {
 class SetPickingsEvent extends WmsPackingEvent {
   final int productId;
   final int pedidoId;
+  final int idMove;
 
-  SetPickingsEvent(this.productId, this.pedidoId);
+  SetPickingsEvent(this.productId, this.pedidoId, this.idMove);
 }
 
 

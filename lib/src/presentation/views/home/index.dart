@@ -75,12 +75,12 @@ class _HomePageState extends State<HomePage> {
               }
             },
             child: Scaffold(
-              // floatingActionButton: FloatingActionButton(
-              //   onPressed: () async {
-              //     await DataBaseSqlite().deleteAll();
-              //   },
-              //   child: const Icon(Icons.refresh),
-              // ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  await DataBaseSqlite().deleteAll();
+                },
+                child: const Icon(Icons.refresh),
+              ),
               body: Container(
                 width: size.width,
                 height: size.height,
@@ -668,7 +668,7 @@ class _ImteModule extends StatelessWidget {
       elevation: 6,
       child: SizedBox(
         width: 140,
-        height: 160,
+        height: 150,
         child: Column(
           children: [
             Container(

@@ -170,7 +170,7 @@ class MyApp extends StatelessWidget {
             'home': (_) => const HomePage(),
             'ventor': (_) => const VentorHome(),
             'user': (_) => const UserScreen(),
-            'example': (_) => const ExampleScreen(),
+            'example': (_) => const PDAScannerScreen(),
           },
           theme: ThemeData.light().copyWith(
             scaffoldBackgroundColor: Colors.grey[300],

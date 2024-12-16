@@ -188,7 +188,7 @@ class DataBaseSqlite {
       barcode TEXT,
       weight INTEGER,
       unidades TEXT,
-
+      id_move INTEGER,
       is_selected INTEGER,
       is_separate INTEGER,
       quantity_separate INTEGER,
@@ -675,11 +675,12 @@ class DataBaseSqlite {
           // Verificar si el producto ya existe
           final List<Map<String, dynamic>> existingProducto = await txn.query(
             'tblproductos_pedidos',
-            where: 'product_id = ? AND batch_id = ? AND pedido_id = ?',
+            where: 'product_id = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
             whereArgs: [
               producto.productId,
               producto.batchId,
-              producto.pedidoId
+              producto.pedidoId,
+              producto.idMove
             ],
           );
 
@@ -695,6 +696,7 @@ class DataBaseSqlite {
                 "lote_id": producto.loteId,
                 "lot_id": producto.lotId == false ? "" : producto.lotId?[1],
                 "location_id": producto.locationId?[1],
+                "id_move": producto.idMove,
                 "location_dest_id": producto.locationDestId?[1],
                 "barcode_location": producto.barcodeLocation,
                 "quantity": producto.quantity,
@@ -711,11 +713,12 @@ class DataBaseSqlite {
                     ? ""
                     : producto.unidades, // Si unidades es false, poner ""
               },
-              where: 'id = ? AND batch_id = ? AND pedido_id = ?',
+              where: 'id = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
               whereArgs: [
                 producto.productId,
                 producto.batchId,
-                producto.pedidoId
+                producto.pedidoId,
+                producto.idMove
               ],
             );
           } else {
@@ -726,6 +729,7 @@ class DataBaseSqlite {
                 "product_id": producto.productId,
                 "batch_id": producto.batchId,
                 "pedido_id": producto.pedidoId,
+                "id_move": producto.idMove,
                 "id_product": producto.idProduct?[1],
                 "barcode_location": producto.barcodeLocation,
                 "lote_id": producto.loteId,
@@ -1258,10 +1262,10 @@ class DataBaseSqlite {
 
   //*metodo para actualizar la tabla de productos de un pedido
   Future<int?> setFieldTableProductosPedidos(
-      int pedidoId, int productId, String field, dynamic setValue) async {
+      int pedidoId, int productId, String field, dynamic setValue, int idMove) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE product_id = $productId AND pedido_id = $pedidoId');
+        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE product_id = $productId AND pedido_id = $pedidoId AND id_move = $idMove');
     print("update tblproductos_pedidos ($field): $resUpdate");
 
     return resUpdate;
@@ -1272,7 +1276,7 @@ class DataBaseSqlite {
       int batchId, int pedidoId, String field, dynamic setValue) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId');
+        ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId' );
     print("update tblpedidos_packing ($field): $resUpdate");
 
     return resUpdate;

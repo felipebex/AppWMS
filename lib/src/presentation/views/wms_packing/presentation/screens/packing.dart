@@ -187,7 +187,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                             if (event.logicalKey ==
                                                 LogicalKeyboardKey.enter) {
                                               if (scannedValue1.isNotEmpty) {
-                                                 print(scannedValue1);
+                                                print(scannedValue1);
                                                 if (scannedValue1
                                                         .toLowerCase() ==
                                                     packinghBloc.currentProduct
@@ -479,6 +479,9 @@ class _PackingScreenState extends State<PackingScreen> {
                                                     packinghBloc.currentProduct
                                                             .pedidoId ??
                                                         0,
+                                                    packinghBloc.currentProduct
+                                                            .idMove ??
+                                                        0,
                                                   ));
 
                                                   packinghBloc.add(
@@ -491,6 +494,9 @@ class _PackingScreenState extends State<PackingScreen> {
                                                             .pedidoId ??
                                                         0,
                                                     1,
+                                                    packinghBloc.currentProduct
+                                                            .idMove ??
+                                                        0,
                                                   ));
 
                                                   packinghBloc
@@ -501,6 +507,9 @@ class _PackingScreenState extends State<PackingScreen> {
                                                         0,
                                                     packinghBloc.currentProduct
                                                             .pedidoId ??
+                                                        0,
+                                                    packinghBloc.currentProduct
+                                                            .idMove ??
                                                         0,
                                                   ));
 
@@ -589,11 +598,16 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                 BorderRadius
                                                                     .circular(
                                                                         10),
-                                                            color: packinghBloc
-                                                                        .currentProduct
-                                                                        .idProduct ==
-                                                                    product
-                                                                        .idProduct
+                                                            color: (packinghBloc
+                                                                            .currentProduct
+                                                                            .idProduct ==
+                                                                        product
+                                                                            .idProduct &&
+                                                                    packinghBloc
+                                                                            .currentProduct
+                                                                            .idMove ==
+                                                                        product
+                                                                            .idMove)
                                                                 ? Colors
                                                                     .green[100]
                                                                 : Colors.white),
@@ -650,6 +664,10 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                       .currentProduct
                                                                       .pedidoId ??
                                                                   0,
+                                                              packinghBloc
+                                                                      .currentProduct
+                                                                      .idMove ??
+                                                                  0,
                                                             ));
 
                                                             packinghBloc.add(
@@ -664,6 +682,10 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                       .pedidoId ??
                                                                   0,
                                                               0,
+                                                              packinghBloc
+                                                                      .currentProduct
+                                                                      .idMove ??
+                                                                  0,
                                                             ));
 
                                                             packinghBloc.add(
@@ -676,6 +698,10 @@ class _PackingScreenState extends State<PackingScreen> {
                                                               packinghBloc
                                                                       .currentProduct
                                                                       .pedidoId ??
+                                                                  0,
+                                                              packinghBloc
+                                                                      .currentProduct
+                                                                      .idMove ??
                                                                   0,
                                                             ));
 
@@ -911,17 +937,27 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                   .currentProduct
                                                                   .productId ??
                                                               0,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .idMove ??
+                                                              0,
                                                         ));
 
-                                                        packinghBloc.add(SetPickingsEvent(
-                                                            packinghBloc
-                                                                    .currentProduct
-                                                                    .productId ??
-                                                                0,
-                                                            packinghBloc
-                                                                    .currentProduct
-                                                                    .pedidoId ??
-                                                                0));
+                                                        packinghBloc.add(
+                                                            SetPickingsEvent(
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .productId ??
+                                                              0,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .pedidoId ??
+                                                              0,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .idMove ??
+                                                              0,
+                                                        ));
 
                                                         cantidadController
                                                             .clear();
@@ -1096,15 +1132,22 @@ class _PackingScreenState extends State<PackingScreen> {
                                             packinghBloc
                                                     .currentProduct.pedidoId ??
                                                 0,
+                                            packinghBloc
+                                                    .currentProduct.idMove ??
+                                                0,
                                           ));
 
                                           packinghBloc.add(SetPickingsEvent(
-                                              packinghBloc.currentProduct
-                                                      .productId ??
-                                                  0,
-                                              packinghBloc.currentProduct
-                                                      .pedidoId ??
-                                                  0));
+                                            packinghBloc
+                                                    .currentProduct.productId ??
+                                                0,
+                                            packinghBloc
+                                                    .currentProduct.pedidoId ??
+                                                0,
+                                            packinghBloc
+                                                    .currentProduct.idMove ??
+                                                0,
+                                          ));
 
                                           cantidadController.clear();
                                           setState(() {
@@ -1154,17 +1197,27 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                 .currentProduct
                                                                 .pedidoId ??
                                                             0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .idMove ??
+                                                            0,
                                                       ));
 
-                                                      packinghBloc.add(SetPickingsEvent(
-                                                          packinghBloc
-                                                                  .currentProduct
-                                                                  .productId ??
-                                                              0,
-                                                          packinghBloc
-                                                                  .currentProduct
-                                                                  .pedidoId ??
-                                                              0));
+                                                      packinghBloc
+                                                          .add(SetPickingsEvent(
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .productId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .pedidoId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .idMove ??
+                                                            0,
+                                                      ));
 
                                                       cantidadController
                                                           .clear();
@@ -1231,15 +1284,20 @@ class _PackingScreenState extends State<PackingScreen> {
                                           packinghBloc
                                                   .currentProduct.pedidoId ??
                                               0,
+                                          packinghBloc.currentProduct.idMove ??
+                                              0,
                                         ));
 
                                         packinghBloc.add(SetPickingsEvent(
-                                            packinghBloc
-                                                    .currentProduct.productId ??
-                                                0,
-                                            packinghBloc
-                                                    .currentProduct.pedidoId ??
-                                                0));
+                                          packinghBloc
+                                                  .currentProduct.productId ??
+                                              0,
+                                          packinghBloc
+                                                  .currentProduct.pedidoId ??
+                                              0,
+                                          packinghBloc.currentProduct.idMove ??
+                                              0,
+                                        ));
 
                                         cantidadController.clear();
                                         setState(() {
@@ -1298,17 +1356,27 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                 .currentProduct
                                                                 .pedidoId ??
                                                             0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .idMove ??
+                                                            0,
                                                       ));
 
-                                                      packinghBloc.add(SetPickingsEvent(
-                                                          packinghBloc
-                                                                  .currentProduct
-                                                                  .productId ??
-                                                              0,
-                                                          packinghBloc
-                                                                  .currentProduct
-                                                                  .pedidoId ??
-                                                              0));
+                                                      packinghBloc
+                                                          .add(SetPickingsEvent(
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .productId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .pedidoId ??
+                                                            0,
+                                                        packinghBloc
+                                                                .currentProduct
+                                                                .idMove ??
+                                                            0,
+                                                      ));
 
                                                       cantidadController
                                                           .clear();

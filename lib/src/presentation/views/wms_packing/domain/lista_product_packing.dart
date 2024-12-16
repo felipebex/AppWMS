@@ -6,6 +6,7 @@ class PorductoPedido {
   final int? productId;
   final int? batchId;
   final int? pedidoId;
+  final int? idMove;
   final dynamic idProduct;
   final dynamic loteId;
   final dynamic lotId;
@@ -45,6 +46,7 @@ class PorductoPedido {
     this.pedidoId,
     this.idProduct,
     this.loteId,
+    this.idMove,
     this.lotId,
     this.locationId,
     this.locationDestId,
@@ -82,6 +84,7 @@ class PorductoPedido {
         pedidoId: json["pedido_id"],
         idProduct: json["id_product"],
         loteId: json["lote_id"],
+        idMove: json["id_move"],
         lotId: json["lot_id"],
         locationId: json["location_id"],
         locationDestId: json["location_dest_id"],
@@ -121,6 +124,7 @@ class PorductoPedido {
         "id_product": idProduct,
         "lote_id": loteId,
         "lot_id": lotId,
+        "id_move": idMove,
         "location_id": locationId,
         "location_dest_id": locationDestId,
         "quantity": quantity,

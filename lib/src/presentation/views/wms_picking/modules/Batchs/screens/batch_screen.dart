@@ -505,7 +505,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               LogicalKeyboardKey.enter) {
                                             if (scannedValue1.isNotEmpty) {
                                               
-                                              print(scannedValue1);
+                                              print("scannedValue1 :$scannedValue1");
                                               if (scannedValue1.toLowerCase() ==
                                                   currentProduct.barcodeLocation
                                                       .toString()
