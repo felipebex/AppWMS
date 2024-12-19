@@ -11,3 +11,6 @@ final class GetConfigurations extends UserEvent {
 }
 
 final class GetConfigurationsFromDB extends UserEvent {}
+
+
+final class LoadInfoDeviceEventUser extends UserEvent {}

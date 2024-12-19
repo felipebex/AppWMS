@@ -18,3 +18,8 @@ final class ConfigurationError extends UserState {
 }
 
 final class ConfigurationLoading extends UserState {}
+
+
+final class LoadInfoDeviceStateUser extends UserState {
+
+}

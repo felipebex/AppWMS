@@ -572,12 +572,6 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "scanwedge",
-      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/scanwedge-1.0.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.0"
-    },
-    {
       "name": "shared_preferences",
       "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/shared_preferences-2.3.3",
       "packageUri": "lib/",
@@ -854,7 +848,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2024-12-16T15:51:57.764836Z",
+  "generated": "2024-12-19T16:10:02.597794Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/estebanrodriguezmarles/Documents/flutter",

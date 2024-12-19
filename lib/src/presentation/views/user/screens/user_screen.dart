@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/views/home/index.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class UserScreen extends StatelessWidget {
@@ -69,12 +70,12 @@ class UserScreen extends StatelessWidget {
                                         const SizedBox(width: 10),
                                         Text("Bienvenido a,  ",
                                             style: TextStyle(
-                                                fontSize: 18,
+                                                fontSize: 14,
                                                 color: primaryColorApp)),
                                         // Text('WMS',
                                         Text(Environment.flavor.appName,
                                             style: const TextStyle(
-                                                fontSize: 18, color: black))
+                                                fontSize: 14, color: black))
                                       ],
                                     ),
                                   ],
@@ -93,48 +94,107 @@ class UserScreen extends StatelessWidget {
                                       children: [
                                         Text("Nombre: ",
                                             style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: 14,
                                                 color: primaryColorApp)),
                                         // Text('WMS',
                                         Text(config.data?.result?.name ?? '',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
-                                                fontSize: 16, color: black))
+                                                fontSize: 14, color: black))
                                       ],
                                     ),
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text("Correo: ",
                                           style: TextStyle(
-                                              fontSize: 16,
+                                              fontSize: 14,
                                               color: primaryColorApp)),
                                     ),
                                     SizedBox(
-                                      width: size.width*0.9 ,
+                                      width: size.width * 0.9,
                                       child: Text(
                                           config.data?.result?.email ?? '',
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
-                                              fontSize: 16, color: black)),
+                                              fontSize: 14, color: black)),
                                     ),
                                     Row(
                                       children: [
                                         Text("Rol: ",
                                             style: TextStyle(
-                                                fontSize: 16,
+                                                fontSize: 14,
                                                 color: primaryColorApp)),
                                         // Text('WMS',
                                         Text(config.data?.result?.rol ?? '',
                                             style: const TextStyle(
-                                                fontSize: 16, color: black))
+                                                fontSize: 14, color: black))
                                       ],
                                     ),
                                   ],
                                 ),
                               ),
                             ),
+                            Card(
+                                color: white,
+                                elevation: 2,
+                                child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+
+                                        Center(
+                                          child: Text("Informacion PDA:",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: primaryColorApp)),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text("Modelo: ",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: primaryColorApp)),
+                                            // Text('WMS',
+                                            Text(
+                                                context.read<UserBloc>().modelo,
+                                                style: const TextStyle(
+                                                    fontSize: 14, color: black))
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text("Version: ",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: primaryColorApp)),
+                                            // Text('WMS',
+                                            Text(
+                                                context
+                                                    .read<UserBloc>()
+                                                    .version,
+                                                style: const TextStyle(
+                                                    fontSize: 14, color: black))
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text("Fabricante: ",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: primaryColorApp)),
+                                            // Text('WMS',
+                                            Text(
+                                                context
+                                                    .read<UserBloc>()
+                                                    .fabricante,
+                                                style: const TextStyle(
+                                                    fontSize: 14, color: black))
+                                          ],
+                                        ),
+                                      ],
+                                    ))),
                             const SizedBox(height: 20),
                             Card(
                               elevation: 2,
@@ -146,14 +206,15 @@ class UserScreen extends StatelessWidget {
                                   height: 350,
                                   child: SingleChildScrollView(
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
                                         Center(
                                           child: Text("Permisos:",
                                               style: TextStyle(
-                                                  fontSize: 18,
+                                                  fontSize: 14,
                                                   color: primaryColorApp)),
                                         ),
                                         const SizedBox(height: 10),
@@ -161,7 +222,8 @@ class UserScreen extends StatelessWidget {
                                           children: [
                                             const Text("Ubicacion de origen: ",
                                                 style: TextStyle(
-                                                    fontSize: 16, color: black)),
+                                                    fontSize: 14,
+                                                    color: black)),
                                             const Spacer(),
                                             Checkbox(
                                                 value: config.data?.result
@@ -189,7 +251,8 @@ class UserScreen extends StatelessWidget {
                                           children: [
                                             const Text("Seleccionar Producto: ",
                                                 style: TextStyle(
-                                                    fontSize: 16, color: black)),
+                                                    fontSize: 14,
+                                                    color: black)),
                                             const Spacer(),
                                             Checkbox(
                                                 value: config.data?.result
@@ -217,7 +280,8 @@ class UserScreen extends StatelessWidget {
                                           children: [
                                             const Text("Seleccionar Cantidad: ",
                                                 style: TextStyle(
-                                                    fontSize: 16, color: black)),
+                                                    fontSize: 14,
+                                                    color: black)),
                                             const Spacer(),
                                             Checkbox(
                                                 value: config.data?.result
@@ -245,7 +309,8 @@ class UserScreen extends StatelessWidget {
                                           children: [
                                             const Text("Seleccionar Muelle: ",
                                                 style: TextStyle(
-                                                    fontSize: 16, color: black)),
+                                                    fontSize: 14,
+                                                    color: black)),
                                             const Spacer(),
                                             Checkbox(
                                                 value: config.data?.result
@@ -273,7 +338,8 @@ class UserScreen extends StatelessWidget {
                                           children: [
                                             const Text("Ver detalles picking: ",
                                                 style: TextStyle(
-                                                    fontSize: 16, color: black)),
+                                                    fontSize: 14,
+                                                    color: black)),
                                             const Spacer(),
                                             Checkbox(
                                                 value: config.data?.result
@@ -302,7 +368,8 @@ class UserScreen extends StatelessWidget {
                                             const Text(
                                                 "Ver proximas ubicaciones: ",
                                                 style: TextStyle(
-                                                    fontSize: 16, color: black)),
+                                                    fontSize: 14,
+                                                    color: black)),
                                             const Spacer(),
                                             Checkbox(
                                                 value: config.data?.result

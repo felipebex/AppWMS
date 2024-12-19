@@ -83,6 +83,7 @@ class LocationDropdownWidget extends StatelessWidget {
                 : batchBloc.locationIsOk
                     ? null
                     : (String? newValue) {
+                        print("🇸🇦 newValue :$newValue");
                         if (newValue == currentProduct.locationId.toString()) {
                           batchBloc.add(ValidateFieldsEvent(
                               field: "location", isOk: true));

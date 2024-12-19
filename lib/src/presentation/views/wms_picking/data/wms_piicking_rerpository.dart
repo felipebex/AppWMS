@@ -3,6 +3,8 @@
 // ignore_for_file: unrelated_type_equality_checks, avoid_print, use_build_context_synchronously
 
 // import 'package:wms_app/src/api/api_request_service.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
@@ -274,7 +276,7 @@ class WmsPickingRepository {
       print('Response sendPicking: ${response.statusCode}');
       if (response.statusCode == 200) {
         print('Picking enviado correctamente');
-        print("Response sendPicking: ${response.body}");
+        log("Response sendPicking: ${response.body}");
         //actualizamos el estado de envio de odoo de los productos
         return SendPickingResponse.fromJson(response.body);
 

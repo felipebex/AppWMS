@@ -302,7 +302,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           ),
                                         ),
                                       ),
-
                                       Card(
                                         color: Colors.white,
                                         elevation: 3,
@@ -328,67 +327,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               color: grey),
                                         ),
                                       )
-
-                                      // Card(
-                                      //   color: Colors.white,
-                                      //   elevation: 3,
-                                      //   child: PopupMenuButton<String>(
-                                      //     shadowColor: Colors.white,
-                                      //     color: Colors.white,
-                                      //     icon: const Icon(Icons.more_vert,
-                                      //         color: grey, size: 25),
-                                      //     onSelected: (String value) {
-                                      //       switch (value) {
-                                      //         case '1':
-                                      //           context.read<WMSPickingBloc>().add(
-                                      //               FilterBatchesByOperationTypeEvent(
-                                      //                   'Órdenes de Entrega',
-                                      //                   controller.index));
-                                      //           break;
-                                      //         case '2':
-                                      //           context.read<WMSPickingBloc>().add(
-                                      //               FilterBatchesByOperationTypeEvent(
-                                      //                   'Recogida',
-                                      //                   controller.index));
-                                      //           break;
-                                      //         case '3':
-                                      //           context.read<WMSPickingBloc>().add(
-                                      //               FilterBatchesByOperationTypeEvent(
-                                      //                   'Recibos',
-                                      //                   controller.index));
-                                      //           break;
-                                      //         case '4':
-                                      //           context.read<WMSPickingBloc>().add(
-                                      //               FilterBatchesByOperationTypeEvent(
-                                      //                   'Todos',
-                                      //                   controller.index));
-                                      //           break;
-                                      //         default:
-                                      //       }
-                                      //     },
-                                      //     itemBuilder: (BuildContext context) {
-                                      //       return [
-                                      //         const PopupMenuItem<String>(
-                                      //           value: '1',
-                                      //           child:
-                                      //               Text('Órdenes de Entrega'),
-                                      //         ),
-                                      //         const PopupMenuItem<String>(
-                                      //           value: '2',
-                                      //           child: Text('Recogida'),
-                                      //         ),
-                                      //         const PopupMenuItem<String>(
-                                      //           value: '3',
-                                      //           child: Text('Recibos'),
-                                      //         ),
-                                      //         const PopupMenuItem<String>(
-                                      //           value: '4',
-                                      //           child: Text('Todos'),
-                                      //         ),
-                                      //       ];
-                                      //     },
-                                      //   ),
-                                      // )
                                     ],
                                   ),
                                 ),
@@ -430,6 +368,10 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 batch.id ?? 0,
                                               ));
 
+                                          context
+                                              .read<BatchBloc>()
+                                              .add(LoadInfoDeviceEvent());
+
                                           //todo navegamos a la vista de separacion de productos del batch
                                           if (batch.isSeparate == 1) {
                                             context.read<BatchBloc>().isSearch =
@@ -464,11 +406,10 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                                           DataBaseSqlite db = DataBaseSqlite();
 
-                                        
-                                              await db.getBacth(batch.id ?? 0);
-                                        
-                                              await db.getProductBacth(
-                                                  batch.id ?? 0, 3734);
+                                          await db.getBacth(batch.id ?? 0);
+
+                                          await db.getProductBacth(
+                                              batch.id ?? 0, 3734);
                                         },
                                         child: Card(
                                           color: batch.isSeparate == 1

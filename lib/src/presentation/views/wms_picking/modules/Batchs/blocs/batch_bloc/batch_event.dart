@@ -159,3 +159,6 @@ class AssignSubmuelleEvent extends BatchEvent {
 
 class ScanBarcodeEvent extends BatchEvent {
 }
+
+class LoadInfoDeviceEvent extends BatchEvent {
+}

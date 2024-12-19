@@ -1,7 +1,7 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks
 
 import 'dart:async';
-import 'dart:ui';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +21,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/popunButton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/screen_error_picking.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/product_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
@@ -65,6 +64,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     if (shouldRunDependencies) {
       final batchBloc = context.read<BatchBloc>();
       if (!batchBloc.locationIsOk && //false
@@ -120,7 +120,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     super.dispose();
   }
 
-  void validateLocation(String scannedValue1) {
+  void validateLocation(String barcode) {
+    setState(() {
+      scannedValue1 = barcode.toLowerCase();
+    });
     _controllerLocation.text = "";
     final batchBloc = context.read<BatchBloc>();
     final currentProduct = batchBloc.currentProduct;
@@ -137,6 +140,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       });
     } else {
       batchBloc.add(ValidateFieldsEvent(field: "location", isOk: false));
+      setState(() {
+        scannedValue1 = "";
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         duration: const Duration(milliseconds: 1000),
         content: const Text('Ubicación errónea'),
@@ -145,7 +152,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     }
   }
 
-  void validateProduct(String scannedValue2) {
+  void validateProduct(String barcode) {
+    setState(() {
+      scannedValue2 = barcode.toLowerCase();
+    });
+
     _controllerProduct.text = "";
     final batchBloc = context.read<BatchBloc>();
     final currentProduct = batchBloc.currentProduct;
@@ -191,7 +202,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     }
   }
 
-  void validateQuantity(String scannedValue3) {
+  void validateQuantity(String barcode) {
+    setState(() {
+      scannedValue3 = barcode.toLowerCase();
+    });
+
     _controllerQuantity.text = "";
     final batchBloc = context.read<BatchBloc>();
     final currentProduct = batchBloc.currentProduct;
@@ -210,13 +225,15 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       });
     }
     if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
-      print("🇦🇫 ***");
       batchBloc.add(FetchBatchWithProductsEvent(
           batchBloc.batchWithProducts.batch?.id ?? 0));
     }
   }
 
-  void validateMuelle(String scannedValue4) {
+  void validateMuelle(String barcode) {
+    setState(() {
+      scannedValue4 = barcode.toLowerCase();
+    });
     _controllerMuelle.text = "";
     final batchBloc = context.read<BatchBloc>();
     final currentProduct = batchBloc.currentProduct;
@@ -246,6 +263,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
         int totalTasks = context.read<BatchBloc>().filteredProducts.length;
+        print('state: $state');
+        log("focoLocation: $focoLocation");
 
         double progress = totalTasks > 0
             ? context.read<BatchBloc>().filteredProducts.where((e) {
@@ -256,332 +275,447 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
         final batchBloc = context.read<BatchBloc>();
 
-        if (state is LoadProductsBatchSuccesStateBD ||
-            state is ChangeIsOkState ||
-            state is LoadProductsBatchSuccesState ||
-            state is CurrentProductChangedState ||
-            state is SelectNovedadState ||
-            state is ProductEditOk ||
-            state is QuantityChangedState ||
-            state is LoadDataInfoState ||
-            state is ChangeQuantitySeparateState ||
-            state is PickingOkState ||
-            state is ProductPendingState ||
-            state is ConfigurationLoaded ||
-            state is ValidateFieldsState) {
-          final currentProduct = batchBloc.currentProduct;
+        final currentProduct = batchBloc.currentProduct;
 
-          return Scaffold(
-            backgroundColor: Colors.white,
-            body: Column(
-              children: [
-                //todo: barra info
-                Container(
-                  width: size.width,
-                  color: primaryColorApp,
-                  child: BlocProvider(
-                    create: (context) => ConnectionStatusCubit(),
-                    child: BlocConsumer<BatchBloc, BatchState>(
-                        listener: (context, state) {
-                      print('state: $state');
-                      // Validamos solo después de que el estado haya cambiado
-                      if (state is ChangeQuantitySeparateState) {
-                        if (state.quantity == currentProduct.quantity.toInt()) {
-                          _nextProduct(currentProduct, batchBloc);
-                        }
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: Column(
+            children: [
+              //todo: barra info
+              Container(
+                width: size.width,
+                color: primaryColorApp,
+                child: BlocProvider(
+                  create: (context) => ConnectionStatusCubit(),
+                  child: BlocConsumer<BatchBloc, BatchState>(
+                      listener: (context, state) {
+                    // Validamos solo después de que el estado haya cambiado
+                    if (state is ChangeQuantitySeparateState) {
+                      if (state.quantity == currentProduct.quantity.toInt()) {
+                        _nextProduct(currentProduct, batchBloc);
                       }
-                    }, builder: (context, status) {
-                      return Column(
-                        children: [
-                          const WarningWidgetCubit(),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 25),
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    batchBloc.index = 0;
-                                    batchBloc.quantitySelected =
-                                        0;
-                                    cantidadController.clear();
-                                    batchBloc.oldLocation = "";
-                                    context
-                                        .read<WMSPickingBloc>()
-                                        .add(LoadBatchsFromDBEvent());
-                                    Navigator.pop(context);
-                                  },
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: Colors.white, size: 30),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    batchBloc.batchWithProducts.batch?.name ??
-                                        '',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 16),
-                                  ),
-                                ),
-                                const Spacer(),
-                                PopupMenuButtonWidget(
-                                    batchBloc: batchBloc,
-                                    currentProduct: currentProduct),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            child: ProgressIndicatorWidget(
-                              progress: progress,
-                              completed: batchBloc.filteredProducts.where((e) {
-                                return e.isSeparate == 1;
-                              }).length,
-                              total: totalTasks,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                      );
-                    }),
-                  ),
-                ),
-
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          // Text('Foco: $focoLocation'),
-
-                          //todo : ubicacion de origen
-                          Row(
+                    }
+                  }, builder: (context, status) {
+                    return Column(
+                      children: [
+                        const WarningWidgetCubit(),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 25),
+                          child: Row(
                             children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        batchBloc.locationIsOk ? green : yellow,
-                                    shape: BoxShape.circle,
-                                  ),
+                              IconButton(
+                                onPressed: () {
+                                  batchBloc.index = 0;
+                                  batchBloc.quantitySelected = 0;
+                                  cantidadController.clear();
+                                  batchBloc.oldLocation = "";
+                                  context
+                                      .read<WMSPickingBloc>()
+                                      .add(LoadBatchsFromDBEvent());
+                                  Navigator.pop(context);
+                                },
+                                icon: const Icon(Icons.arrow_back,
+                                    color: Colors.white, size: 30),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  batchBloc.batchWithProducts.batch?.name ?? '',
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 16),
                                 ),
                               ),
-                              Card(
-                                color: batchBloc.isLocationOk
-                                    ? batchBloc.locationIsOk
-                                        ? Colors.green[100]
-                                        : Colors.grey[300]
-                                    : Colors.red[200],
-                                elevation: 5,
-                                child: Container(
-                                  width: size.width * 0.85,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 10),
-                                  child: true
-                                      ? Column(
-                                          children: [
-                                            LocationDropdownWidget(
-                                                isPDA: false,
-                                                selectedLocation:
-                                                    selectedLocation,
-                                                positionsOrigen:
-                                                    batchBloc.positionsOrigen,
-                                                currentLocationId: batchBloc
+                              const Spacer(),
+                              PopupMenuButtonWidget(
+                                  batchBloc: batchBloc,
+                                  currentProduct: currentProduct),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          child: ProgressIndicatorWidget(
+                            progress: progress,
+                            completed: batchBloc.filteredProducts.where((e) {
+                              return e.isSeparate == 1;
+                            }).length,
+                            total: totalTasks,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        // Text('Foco: $focoLocation'),
+
+                        //todo : ubicacion de origen
+                        Row(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color:
+                                      batchBloc.locationIsOk ? green : yellow,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                            Card(
+                              color: batchBloc.isLocationOk
+                                  ? batchBloc.locationIsOk
+                                      ? Colors.green[100]
+                                      : Colors.grey[300]
+                                  : Colors.red[200],
+                              elevation: 5,
+                              child: Container(
+                                width: size.width * 0.85,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 10),
+                                child: batchBloc.isPdaZebra
+                                    ? Column(
+                                        children: [
+                                          LocationDropdownWidget(
+                                              isPDA: false,
+                                              selectedLocation:
+                                                  selectedLocation,
+                                              positionsOrigen:
+                                                  batchBloc.positionsOrigen,
+                                              currentLocationId: batchBloc
+                                                  .currentProduct.locationId
+                                                  .toString(),
+                                              batchBloc: batchBloc,
+                                              currentProduct: currentProduct,
+                                              onAccepted: () => Future.delayed(
+                                                      const Duration(
+                                                          seconds: 1), () {
+                                                    FocusScope.of(context)
+                                                        .requestFocus(
+                                                            focusNode2);
+                                                  })),
+                                          Container(
+                                            height: 15,
+                                            margin: const EdgeInsets.only(
+                                                bottom: 5),
+                                            child: TextFormField(
+                                              controller:
+                                                  _controllerLocation, // Asignamos el controlador
+                                              enabled: !batchBloc
+                                                      .locationIsOk && // false
+                                                  !batchBloc
+                                                      .productIsOk && // false
+                                                  !batchBloc
+                                                      .quantityIsOk && // false
+                                                  !batchBloc.locationDestIsOk,
+
+                                              focusNode: focusNode1,
+                                              onChanged: (value) {
+                                                // Llamamos a la validación al cambiar el texto
+                                                validateLocation(value);
+                                              },
+                                              decoration: InputDecoration(
+                                                hintText: batchBloc
                                                     .currentProduct.locationId
                                                     .toString(),
-                                                batchBloc: batchBloc,
-                                                currentProduct: currentProduct,
-                                                onAccepted: () =>
-                                                    Future.delayed(
-                                                        const Duration(
-                                                            seconds: 1), () {
-                                                      FocusScope.of(context)
-                                                          .requestFocus(
-                                                              focusNode2);
-                                                    })),
-                                            Container(
-                                              height: 15,
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 5),
-                                              child: TextFormField(
-                                                controller:
-                                                    _controllerLocation, // Asignamos el controlador
-                                                enabled: !batchBloc
-                                                        .locationIsOk && // false
-                                                    !batchBloc
-                                                        .productIsOk && // false
-                                                    !batchBloc
-                                                        .quantityIsOk && // false
-                                                    !batchBloc.locationDestIsOk,
-
-                                                focusNode: focusNode1,
-                                                onChanged: (value) {
-                                                  // Llamamos a la validación al cambiar el texto
-                                                  validateLocation(value);
-                                                },
-                                                decoration: InputDecoration(
-                                                  hintText: batchBloc
-                                                      .currentProduct.locationId
-                                                      .toString(),
-                                                  disabledBorder:
-                                                      InputBorder.none,
-                                                  hintStyle: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: black),
-                                                  border: InputBorder.none,
-                                                ),
+                                                disabledBorder:
+                                                    InputBorder.none,
+                                                hintStyle: const TextStyle(
+                                                    fontSize: 14, color: black),
+                                                border: InputBorder.none,
                                               ),
                                             ),
-                                          ],
-                                        )
-                                      : Focus(
-                                          focusNode: focusNode1,
-                                          onKey: (FocusNode node,
-                                              RawKeyEvent event) {
-                                            print(scannedValue1);
-                                            if (event is RawKeyDownEvent) {
-                                              if (event.logicalKey ==
-                                                  LogicalKeyboardKey.enter) {
-                                                if (scannedValue1.isNotEmpty) {
-                                                  validateLocation(
-                                                      scannedValue1);
-                                                }
-
-                                                return KeyEventResult.handled;
-                                              } else {
-                                                setState(() {
-                                                  scannedValue1 +=
-                                                      event.data.keyLabel;
-                                                });
-                                                return KeyEventResult.handled;
+                                          ),
+                                        ],
+                                      )
+                                    : Focus(
+                                        focusNode: focusNode1,
+                                        onKey: (FocusNode node,
+                                            RawKeyEvent event) {
+                                          if (event is RawKeyDownEvent) {
+                                            if (event.logicalKey ==
+                                                LogicalKeyboardKey.enter) {
+                                              if (scannedValue1.isNotEmpty) {
+                                                validateLocation(scannedValue1);
                                               }
+
+                                              return KeyEventResult.handled;
+                                            } else {
+                                              setState(() {
+                                                scannedValue1 +=
+                                                    event.data.keyLabel;
+                                              });
+                                              return KeyEventResult.handled;
                                             }
-                                            return KeyEventResult.ignored;
-                                          },
-                                          child: Center(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Center(
-                                                  child: DropdownButton<String>(
-                                                    underline: Container(
-                                                      height: 0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    focusColor: Colors.white,
-                                                    isExpanded: true,
-                                                    hint: Text(
-                                                      'Ubicación de origen',
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color:
-                                                              primaryColorApp),
-                                                    ),
-                                                    icon: Image.asset(
-                                                      "assets/icons/ubicacion.png",
-                                                      color: primaryColorApp,
-                                                      width: 20,
-                                                    ),
-                                                    value: selectedLocation,
-                                                    items: batchBloc
-                                                        .positionsOrigen
-                                                        .map((String location) {
-                                                      return DropdownMenuItem<
-                                                          String>(
-                                                        value: location,
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                              color: batchBloc
-                                                                          .currentProduct
-                                                                          .locationId
-                                                                          .toString() ==
-                                                                      location
-                                                                  ? Colors.green[
-                                                                      100]
-                                                                  : Colors
-                                                                      .white),
-                                                          width:
-                                                              size.width * 0.9,
-                                                          height: 45,
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                            horizontal: 5,
-                                                            vertical: 3,
-                                                          ),
-                                                          child: Align(
-                                                            alignment: Alignment
-                                                                .centerLeft,
-                                                            child: Text(
-                                                                location,
-                                                                maxLines: 2,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style: const TextStyle(
-                                                                    color:
-                                                                        black,
-                                                                    fontSize:
-                                                                        14)),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    }).toList(),
-                                                    onChanged: batchBloc
-                                                                .configurations
-                                                                .data
-                                                                ?.result
-                                                                ?.locationPickingManual ==
-                                                            false
-                                                        ? null
-                                                        : batchBloc.locationIsOk
-                                                            ? null
-                                                            : (String?
-                                                                newValue) {
-                                                                validateLocation(
-                                                                    newValue!);
-                                                              },
-                                                  ),
+                                          }
+                                          return KeyEventResult.ignored;
+                                        },
+                                        child: LocationDropdownWidget(
+                                            isPDA: true,
+                                            selectedLocation: selectedLocation,
+                                            positionsOrigen:
+                                                batchBloc.positionsOrigen,
+                                            currentLocationId: batchBloc
+                                                .currentProduct.locationId
+                                                .toString(),
+                                            batchBloc: batchBloc,
+                                            currentProduct: currentProduct,
+                                            onAccepted: () => Future.delayed(
+                                                    const Duration(seconds: 1),
+                                                    () {
+                                                  FocusScope.of(context)
+                                                      .requestFocus(focusNode2);
+                                                })),
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        // todo: Producto
+
+                        Row(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: batchBloc.productIsOk ? green : yellow,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                            Card(
+                              color: batchBloc.isProductOk
+                                  ? batchBloc.productIsOk
+                                      ? Colors.green[100]
+                                      : Colors.grey[300]
+                                  : Colors.red[200],
+                              elevation: 5,
+                              child: Container(
+                                width: size.width * 0.85,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 10),
+                                child: batchBloc.isPdaZebra
+                                    ? Column(
+                                        children: [
+                                          ProductDropdownWidget(
+                                              selectedProduct: selectedLocation,
+                                              listOfProductsName:
+                                                  batchBloc.listOfProductsName,
+                                              currentProductId: batchBloc
+                                                  .currentProduct.productId
+                                                  .toString(),
+                                              batchBloc: batchBloc,
+                                              currentProduct: currentProduct,
+                                              isPDA: false,
+                                              onAccepted: () => Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 100),
+                                                      () {
+                                                    FocusScope.of(context)
+                                                        .requestFocus(
+                                                            focusNode3);
+                                                  })),
+                                          Container(
+                                            height: 15,
+                                            margin: const EdgeInsets.only(
+                                                bottom: 5),
+                                            child: TextFormField(
+                                              enabled: batchBloc
+                                                      .locationIsOk && //true
+                                                  !batchBloc
+                                                      .productIsOk && //false
+                                                  !batchBloc
+                                                      .quantityIsOk && //false
+                                                  !batchBloc.locationDestIsOk,
+
+                                              controller:
+                                                  _controllerProduct, // Controlador que maneja el texto
+                                              focusNode: focusNode2,
+                                              onChanged: (value) {
+                                                validateProduct(value);
+                                              },
+                                              decoration: InputDecoration(
+                                                hintText: batchBloc
+                                                    .currentProduct.productId
+                                                    .toString(),
+                                                disabledBorder:
+                                                    InputBorder.none,
+                                                hintStyle: const TextStyle(
+                                                    fontSize: 14, color: black),
+                                                border: InputBorder.none,
+                                              ),
+                                            ),
+                                          ),
+                                          // Lote/Numero de serie
+                                          Column(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  'Lote/Numero de serie',
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp),
                                                 ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      Text(
-                                                        currentProduct
-                                                            .locationId,
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  currentProduct.lotId ?? '',
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                    : Focus(
+                                        focusNode: focusNode2,
+                                        onKey: (FocusNode node,
+                                            RawKeyEvent event) {
+                                          if (event is RawKeyDownEvent) {
+                                            if (event.logicalKey ==
+                                                LogicalKeyboardKey.enter) {
+                                              if (scannedValue2.isNotEmpty) {
+                                                validateProduct(scannedValue2);
+                                              }
+                                              return KeyEventResult.handled;
+                                            } else {
+                                              setState(() {
+                                                scannedValue2 +=
+                                                    event.data.keyLabel;
+                                              });
+                                              return KeyEventResult.handled;
+                                            }
+                                          }
+                                          return KeyEventResult.ignored;
+                                        },
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              ProductDropdownWidget(
+                                                  selectedProduct:
+                                                      selectedLocation,
+                                                  listOfProductsName: batchBloc
+                                                      .listOfProductsName,
+                                                  currentProductId: batchBloc
+                                                      .currentProduct.productId
+                                                      .toString(),
+                                                  batchBloc: batchBloc,
+                                                  currentProduct:
+                                                      currentProduct,
+                                                  isPDA: false,
+                                                  onAccepted: () =>
+                                                      Future.delayed(
+                                                          const Duration(
+                                                              milliseconds:
+                                                                  100), () {
+                                                        FocusScope.of(context)
+                                                            .requestFocus(
+                                                                focusNode3);
+                                                      })),
+                                              const SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .start, //alineamos el texto a la izquierda
+                                                  children: [
+                                                    Text(
+                                                      currentProduct.productId
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: black),
+                                                    ),
+                                                    Visibility(
+                                                      visible:
+                                                          currentProduct
+                                                                      .barcode ==
+                                                                  false ||
+                                                              currentProduct
+                                                                      .barcode ==
+                                                                  null ||
+                                                              currentProduct
+                                                                      .barcode ==
+                                                                  "",
+                                                      child: const Text(
+                                                        "Sin codigo de barras",
+                                                        textAlign:
+                                                            TextAlign.start,
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: red),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+                                              const SizedBox(height: 10),
+                                              //informacion del lote:
+                                              if (currentProduct.loteId != null)
+                                                Column(
+                                                  children: [
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        'Lote/Numero de serie ',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                primaryColorApp),
+                                                      ),
+                                                    ),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        currentProduct.lotId ??
+                                                            '',
                                                         style: const TextStyle(
                                                             fontSize: 14,
                                                             color: black),
                                                       ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                const SizedBox(height: 5),
-                                              ],
-                                            ),
+                                            ],
                                           ),
                                         ),
-                                ),
+                                      ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
 
-                          // todo: Producto
+                        //Todo: MUELLE
 
+                        if (batchBloc.index + 1 ==
+                            batchBloc.filteredProducts.length)
                           Row(
                             children: [
                               Padding(
@@ -591,15 +725,16 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   width: 10,
                                   height: 10,
                                   decoration: BoxDecoration(
-                                    color:
-                                        batchBloc.productIsOk ? green : yellow,
+                                    color: batchBloc.locationDestIsOk
+                                        ? green
+                                        : yellow,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
                               ),
                               Card(
-                                color: batchBloc.isProductOk
-                                    ? batchBloc.productIsOk
+                                color: batchBloc.isLocationDestOk
+                                    ? batchBloc.locationDestIsOk
                                         ? Colors.green[100]
                                         : Colors.grey[300]
                                     : Colors.red[200],
@@ -608,52 +743,40 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   width: size.width * 0.85,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 10),
-                                  child: true
+                                  child: batchBloc.isPdaZebra
                                       ? Column(
                                           children: [
-                                            ProductDropdownWidget(
-                                                selectedProduct:
-                                                    selectedLocation,
-                                                listOfProductsName: batchBloc
-                                                    .listOfProductsName,
-                                                currentProductId: batchBloc
-                                                    .currentProduct.productId
-                                                    .toString(),
-                                                batchBloc: batchBloc,
-                                                currentProduct: currentProduct,
-                                                isPDA: false,
-                                                onAccepted: () =>
-                                                    Future.delayed(
-                                                        const Duration(
-                                                            milliseconds: 100),
-                                                        () {
-                                                      FocusScope.of(context)
-                                                          .requestFocus(
-                                                              focusNode3);
-                                                    })),
+                                            MuelleDropdownWidget(
+                                              selectedMuelle: selectedMuelle,
+                                              batchBloc: batchBloc,
+                                              currentProduct: currentProduct,
+                                              shouldRunDependencies:
+                                                  shouldRunDependencies,
+                                              isPda: false,
+                                            ),
                                             Container(
                                               height: 15,
                                               margin: const EdgeInsets.only(
                                                   bottom: 5),
                                               child: TextFormField(
                                                 enabled: batchBloc
-                                                        .locationIsOk && //true
-                                                    !batchBloc
-                                                        .productIsOk && //false
-                                                    !batchBloc
-                                                        .quantityIsOk && //false
+                                                        .locationIsOk &&
+                                                    batchBloc.productIsOk &&
+                                                    !batchBloc.quantityIsOk &&
                                                     !batchBloc.locationDestIsOk,
-
                                                 controller:
-                                                    _controllerProduct, // Controlador que maneja el texto
-                                                focusNode: focusNode2,
+                                                    _controllerMuelle, // Controlador que maneja el texto
+                                                focusNode: focusNode5,
                                                 onChanged: (value) {
-                                                  validateProduct(value);
+                                                  validateMuelle(value);
                                                 },
                                                 decoration: InputDecoration(
                                                   hintText: batchBloc
-                                                      .currentProduct.productId
-                                                      .toString(),
+                                                          .batchWithProducts
+                                                          .batch
+                                                          ?.muelle
+                                                          .toString() ??
+                                                      '',
                                                   disabledBorder:
                                                       InputBorder.none,
                                                   hintStyle: const TextStyle(
@@ -663,48 +786,22 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 ),
                                               ),
                                             ),
-                                            // Lote/Numero de serie
-                                            Column(
-                                              children: [
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    'Lote/Numero de serie',
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: primaryColorApp),
-                                                  ),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    currentProduct.lotId ?? '',
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
                                           ],
                                         )
                                       : Focus(
-                                          focusNode: focusNode2,
+                                          focusNode: focusNode5,
                                           onKey: (FocusNode node,
                                               RawKeyEvent event) {
                                             if (event is RawKeyDownEvent) {
                                               if (event.logicalKey ==
                                                   LogicalKeyboardKey.enter) {
-                                                if (scannedValue2.isNotEmpty) {
-                                                  validateProduct(
-                                                      scannedValue2);
+                                                if (scannedValue4.isNotEmpty) {
+                                                  validateMuelle(scannedValue4);
                                                 }
                                                 return KeyEventResult.handled;
                                               } else {
                                                 setState(() {
-                                                  scannedValue2 +=
+                                                  scannedValue4 +=
                                                       event.data.keyLabel;
                                                 });
                                                 return KeyEventResult.handled;
@@ -712,1063 +809,765 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             }
                                             return KeyEventResult.ignored;
                                           },
-                                          child: Center(
-                                            child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Center(
-                                                  child: DropdownButton<String>(
-                                                    // dropdownColor: primaryColorApp,
-                                                    underline: Container(
-                                                      height: 0,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    focusColor: Colors.white,
-                                                    isExpanded: true,
-                                                    hint: Text(
-                                                      'Producto',
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color:
-                                                              primaryColorApp),
-                                                    ),
-                                                    icon: Image.asset(
-                                                      "assets/icons/producto.png",
-                                                      color: primaryColorApp,
-                                                      width: 20,
-                                                    ),
-                                                    value: selectedLocation,
-                                                    // items: batchBloc.positions
-                                                    // items:
-
-                                                    items: batchBloc
-                                                        .listOfProductsName
-                                                        .map((String product) {
-                                                      return DropdownMenuItem<
-                                                          String>(
-                                                        value: product,
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10),
-                                                              color: batchBloc
-                                                                          .currentProduct
-                                                                          .productId
-                                                                          .toString() ==
-                                                                      product
-                                                                  ? Colors.green[
-                                                                      100]
-                                                                  : Colors
-                                                                      .white),
-                                                          width:
-                                                              size.width * 0.9,
-                                                          height: 45,
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                            horizontal: 5,
-                                                            vertical: 3,
-                                                          ),
-                                                          child: Text(product,
-                                                              maxLines: 2,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style:
-                                                                  const TextStyle(
-                                                                      color:
-                                                                          black,
-                                                                      fontSize:
-                                                                          14)),
-                                                        ),
-                                                      );
-                                                    }).toList(),
-
-                                                    onChanged: batchBloc
-                                                                .configurations
-                                                                .data
-                                                                ?.result
-                                                                ?.manualProductSelection ==
-                                                            false
-                                                        ? null
-                                                        : batchBloc.locationIsOk &&
-                                                                !batchBloc
-                                                                    .productIsOk
-                                                            ? (String?
-                                                                newValue) {
-                                                                validateProduct(
-                                                                    newValue!);
-                                                              }
-                                                            : null,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 10),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start, //alineamos el texto a la izquierda
-                                                    children: [
-                                                      Text(
-                                                        currentProduct.productId
-                                                            .toString(),
-                                                        style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color: black),
-                                                      ),
-                                                      Visibility(
-                                                        visible: currentProduct
-                                                                    .barcode ==
-                                                                false ||
-                                                            currentProduct
-                                                                    .barcode ==
-                                                                null ||
-                                                            currentProduct
-                                                                    .barcode ==
-                                                                "",
-                                                        child: const Text(
-                                                          "Sin codigo de barras",
-                                                          textAlign:
-                                                              TextAlign.start,
-                                                          style: TextStyle(
-                                                              fontSize: 14,
-                                                              color: red),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-
-                                                const SizedBox(height: 10),
-                                                //informacion del lote:
-                                                if (currentProduct.loteId !=
-                                                    null)
-                                                  Column(
-                                                    children: [
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'Lote/Numero de serie ',
-                                                          style: TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  primaryColorApp),
-                                                        ),
-                                                      ),
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          currentProduct
-                                                                  .lotId ??
-                                                              '',
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: black),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                                          child: MuelleDropdownWidget(
+                                            selectedMuelle: selectedMuelle,
+                                            batchBloc: batchBloc,
+                                            currentProduct: currentProduct,
+                                            shouldRunDependencies:
+                                                shouldRunDependencies,
+                                            isPda: true,
+                                          )),
                                 ),
                               ),
                             ],
                           ),
-
-                          //Todo: MUELLE
-                          // solo lo mostramos si es el ultimo producto
-                          if (batchBloc.index + 1 ==
-                              batchBloc.filteredProducts.length)
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: batchBloc.locationDestIsOk
-                                          ? green
-                                          : yellow,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                                Card(
-                                  color: batchBloc.isLocationDestOk
-                                      ? batchBloc.locationDestIsOk
-                                          ? Colors.green[100]
-                                          : Colors.grey[300]
-                                      : Colors.red[200],
-                                  elevation: 5,
-                                  child: Container(
-                                    width: size.width * 0.85,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 10),
-                                    child: true
-                                        ? Container(
-                                            child: Column(
-                                            children: [
-                                              MuelleDropdownWidget(
-                                                selectedMuelle: selectedMuelle,
-                                                batchBloc: batchBloc,
-                                                currentProduct: currentProduct,
-                                                shouldRunDependencies:
-                                                    shouldRunDependencies,
-                                                isPda: false,
-                                              ),
-                                              Container(
-                                                height: 15,
-                                                margin: const EdgeInsets.only(
-                                                    bottom: 5),
-                                                child: TextFormField(
-                                                  enabled: batchBloc
-                                                          .locationIsOk &&
-                                                      batchBloc.productIsOk &&
-                                                      !batchBloc.quantityIsOk &&
-                                                      !batchBloc
-                                                          .locationDestIsOk,
-                                                  controller:
-                                                      _controllerMuelle, // Controlador que maneja el texto
-                                                  focusNode: focusNode5,
-                                                  onChanged: (value) {
-                                                    validateMuelle(value);
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    hintText: batchBloc
-                                                            .batchWithProducts
-                                                            .batch
-                                                            ?.muelle
-                                                            .toString() ??
-                                                        '',
-                                                    disabledBorder:
-                                                        InputBorder.none,
-                                                    hintStyle: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
-                                                    border: InputBorder.none,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ))
-                                        : Focus(
-                                            focusNode: focusNode5,
-                                            onKey: (FocusNode node,
-                                                RawKeyEvent event) {
-                                              if (event is RawKeyDownEvent) {
-                                                if (event.logicalKey ==
-                                                    LogicalKeyboardKey.enter) {
-                                                  if (scannedValue4
-                                                      .isNotEmpty) {
-                                                    validateMuelle(
-                                                        scannedValue4);
-                                                  }
-                                                  return KeyEventResult.handled;
-                                                } else {
-                                                  setState(() {
-                                                    scannedValue4 +=
-                                                        event.data.keyLabel;
-                                                  });
-                                                  return KeyEventResult.handled;
-                                                }
-                                              }
-                                              return KeyEventResult.ignored;
-                                            },
-                                            child: MuelleDropdownWidget(
-                                              selectedMuelle: selectedMuelle,
-                                              batchBloc: batchBloc,
-                                              currentProduct: currentProduct,
-                                              shouldRunDependencies:
-                                                  shouldRunDependencies,
-                                              isPda: true,
-                                            )),
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 ),
-                Visibility(
-                  visible:
-                      batchBloc.configurations.data?.result?.muelleOption ==
-                          "multiple",
-                  child: Container(
-                      width: size.width,
-                      height: 55,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                      ),
-                      child: Card(
-                          color: Colors.grey[300],
-                          elevation: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                            ),
-                            child: Row(
-                              children: [
-                                CantLineasMuelle(
-                                    productsOk:
-                                        batchBloc.filteredProducts.where((e) {
-                                  return e.isMuelle == null &&
-                                      e.isSeparate == 1;
-                                }).toList()),
-                                const Spacer(),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8),
-                                  child: ElevatedButton(
-                                      onPressed: batchBloc.filteredProducts
-                                              .where((e) {
-                                                return e.isMuelle == null &&
-                                                    e.isSeparate == 1;
-                                              })
-                                              .toList()
-                                              .isEmpty
-                                          ? null
-                                          : () {
-                                              //no entramos a didpchanges
+              ),
+              Visibility(
+                visible: batchBloc.configurations.data?.result?.muelleOption ==
+                    "multiple",
+                child: Container(
+                    width: size.width,
+                    height: 55,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                    ),
+                    child: Card(
+                        color: Colors.grey[300],
+                        elevation: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                          ),
+                          child: Row(
+                            children: [
+                              CantLineasMuelle(
+                                  productsOk:
+                                      batchBloc.filteredProducts.where((e) {
+                                return e.isMuelle == null && e.isSeparate == 1;
+                              }).toList()),
+                              const Spacer(),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: ElevatedButton(
+                                    onPressed: batchBloc.filteredProducts
+                                            .where((e) {
+                                              return e.isMuelle == null &&
+                                                  e.isSeparate == 1;
+                                            })
+                                            .toList()
+                                            .isEmpty
+                                        ? null
+                                        : () {
+                                            //no entramos a didpchanges
 
-                                              setState(() {
-                                                shouldRunDependencies = false;
-                                                scannedValue6 = "";
-                                                alerta = "";
-                                                selectedSubMuelle = null;
-                                              });
+                                            setState(() {
+                                              shouldRunDependencies = false;
+                                              scannedValue6 = "";
+                                              alerta = "";
+                                              selectedSubMuelle = null;
+                                            });
 
-                                              ///mostramos un bottommodal con la lista de muelles
-                                              ///
+                                            ///mostramos un bottommodal con la lista de muelles
+                                            ///
 
-                                              showModalBottomSheet(
-                                                context: context,
-                                                isDismissible: false,
-                                                enableDrag: false,
-                                                builder: (context) {
-                                                  FocusNode focusNode6 =
-                                                      FocusNode();
+                                            showModalBottomSheet(
+                                              context: context,
+                                              isDismissible: false,
+                                              enableDrag: false,
+                                              builder: (context) {
+                                                FocusNode focusNode6 =
+                                                    FocusNode();
 
-                                                  // Asegúrate de que el focusNode tenga el foco al mostrar el modal
-                                                  WidgetsBinding.instance
-                                                      .addPostFrameCallback(
-                                                          (_) {
-                                                    FocusScope.of(context)
-                                                        .requestFocus(
-                                                            focusNode6);
-                                                  });
+                                                // Asegúrate de que el focusNode tenga el foco al mostrar el modal
+                                                WidgetsBinding.instance
+                                                    .addPostFrameCallback((_) {
+                                                  FocusScope.of(context)
+                                                      .requestFocus(focusNode6);
+                                                });
 
-                                                  return StatefulBuilder(
-                                                    builder:
-                                                        (context, setState) {
-                                                      return Container(
-                                                        height: 400,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(16.0),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            Text(
-                                                              'Seleccione o escanee la ubicación de destino para los productos',
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                      primaryColorApp),
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            Expanded(
-                                                              child: ListView
-                                                                  .builder(
-                                                                itemCount:
+                                                return StatefulBuilder(
+                                                  builder: (context, setState) {
+                                                    return Container(
+                                                      height: 400,
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              16.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          const SizedBox(
+                                                              height: 10),
+                                                          Text(
+                                                            'Seleccione o escanee la ubicación de destino para los productos',
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    primaryColorApp),
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 10),
+                                                          Expanded(
+                                                            child: ListView
+                                                                .builder(
+                                                              itemCount:
+                                                                  batchBloc
+                                                                      .submuelles
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (context,
+                                                                      index) {
+                                                                final muelle =
                                                                     batchBloc
-                                                                        .submuelles
-                                                                        .length,
-                                                                itemBuilder:
-                                                                    (context,
-                                                                        index) {
-                                                                  final muelle =
-                                                                      batchBloc
-                                                                              .submuelles[
-                                                                          index];
-                                                                  bool isSelected = muelle
-                                                                          .completeName ==
-                                                                      selectedSubMuelle
-                                                                          ?.completeName;
+                                                                            .submuelles[
+                                                                        index];
+                                                                bool isSelected = muelle
+                                                                        .completeName ==
+                                                                    selectedSubMuelle
+                                                                        ?.completeName;
 
-                                                                  return Card(
-                                                                    color: isSelected
-                                                                        ? Colors.green[
-                                                                            300]
-                                                                        : Colors
-                                                                            .white, // Cambia el color de la card
-                                                                    elevation:
-                                                                        3,
-                                                                    child:
-                                                                        ListTile(
-                                                                      title:
-                                                                          Text(
-                                                                        muelle.completeName ??
-                                                                            '',
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color: isSelected
-                                                                              ? Colors.white
-                                                                              : black,
-                                                                        ),
-                                                                      ),
-                                                                      onTap:
-                                                                          () {
-                                                                        setState(
-                                                                            () {
-                                                                          selectedSubMuelle =
-                                                                              muelle; // Actualiza el muelle seleccionado
-                                                                        });
-                                                                        print(selectedSubMuelle
-                                                                            ?.toMap());
-                                                                      },
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            Focus(
-                                                              focusNode:
-                                                                  focusNode6,
-                                                              onKey: (FocusNode
-                                                                      node,
-                                                                  RawKeyEvent
-                                                                      event) {
-                                                                if (event
-                                                                    is RawKeyDownEvent) {
-                                                                  if (event
-                                                                          .logicalKey ==
-                                                                      LogicalKeyboardKey
-                                                                          .enter) {
-                                                                    // Al presionar enter, procesamos el código escaneado
-                                                                    if (scannedValue6
-                                                                        .isNotEmpty) {
-                                                                      bool
-                                                                          validate =
-                                                                          validateScannedSubmuelle(
-                                                                        scannedValue6
-                                                                            .toLowerCase(),
-                                                                        batchBloc,
-                                                                      );
-
-                                                                      if (validate) {
-                                                                        showDialog(
-                                                                            context:
-                                                                                context,
-                                                                            builder:
-                                                                                (context) {
-                                                                              return const DialogLoading();
-                                                                            });
-
-                                                                        // Esperar 1 segundos y cerrar el diálogo y redirigirel focus
-                                                                        Future.delayed(
-                                                                            const Duration(seconds: 1),
-                                                                            () {
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                        });
-                                                                      } else {
-                                                                        setState(
-                                                                            () {
-                                                                          scannedValue6 =
-                                                                              "";
-                                                                          alerta =
-                                                                              'Código de ubicacion destino incorrecto';
-                                                                        });
-                                                                      }
-                                                                    }
-                                                                    return KeyEventResult
-                                                                        .handled;
-                                                                  } else {
-                                                                    setState(
-                                                                        () {
-                                                                      scannedValue6 += event
-                                                                          .data
-                                                                          .keyLabel;
-                                                                    });
-                                                                    return KeyEventResult
-                                                                        .handled;
-                                                                  }
-                                                                }
-                                                                return KeyEventResult
-                                                                    .ignored;
-                                                              },
-                                                              child: RichText(
-                                                                text: TextSpan(
-                                                                  text: selectedSubMuelle ==
-                                                                          null
-                                                                      ? 'No ha seleccionado ningúna ubicacion destino.'
-                                                                      : '¿Está seguro de seleccionar la ubicacion destino ',
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          black),
-                                                                  children: <TextSpan>[
-                                                                    if (selectedSubMuelle !=
-                                                                        null)
-                                                                      TextSpan(
-                                                                        text: selectedSubMuelle?.completeName ??
-                                                                            "",
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              primaryColorApp,
-                                                                        ),
-                                                                      ),
-                                                                    TextSpan(
-                                                                      text: selectedSubMuelle ==
-                                                                              null
-                                                                          ? '.'
-                                                                          : ' para los productos?',
-                                                                      style: const TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              black),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            // Mostrar el valor escaneado
-                                                            Align(
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
-                                                              child: Text(
-                                                                alerta,
-                                                                style:
-                                                                    const TextStyle(
+                                                                return Card(
+                                                                  color: isSelected
+                                                                      ? Colors.green[
+                                                                          300]
+                                                                      : Colors
+                                                                          .white, // Cambia el color de la card
+                                                                  elevation: 3,
+                                                                  child:
+                                                                      ListTile(
+                                                                    title: Text(
+                                                                      muelle.completeName ??
+                                                                          '',
+                                                                      style:
+                                                                          TextStyle(
                                                                         fontSize:
-                                                                            14,
-                                                                        color:
-                                                                            red),
-                                                              ),
-                                                            ),
-                                                            const SizedBox(
-                                                                height:
-                                                                    10), // Espacio entre el texto y el botón
-                                                            Center(
-                                                              child: Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  ElevatedButton(
-                                                                    onPressed:
-                                                                        () async {
+                                                                            12,
+                                                                        color: isSelected
+                                                                            ? Colors.white
+                                                                            : black,
+                                                                      ),
+                                                                    ),
+                                                                    onTap: () {
                                                                       setState(
                                                                           () {
-                                                                        shouldRunDependencies =
-                                                                            true;
+                                                                        selectedSubMuelle =
+                                                                            muelle; // Actualiza el muelle seleccionado
                                                                       });
-                                                                      // Cerrar el focus y salir del modal
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .unfocus();
-                                                                      Navigator.pop(
-                                                                          context);
+                                                                      print(selectedSubMuelle
+                                                                          ?.toMap());
                                                                     },
-                                                                    style: ElevatedButton
-                                                                        .styleFrom(
-                                                                      backgroundColor:
-                                                                          grey,
-                                                                      shape:
-                                                                          RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                      ),
-                                                                    ),
-                                                                    child:
-                                                                        const Text(
-                                                                      'Cancelar',
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              white),
-                                                                    ),
                                                                   ),
-                                                                  const SizedBox(
-                                                                      width:
-                                                                          10),
-                                                                  ElevatedButton(
-                                                                    onPressed:
-                                                                        () async {
-                                                                      if (selectedSubMuelle !=
-                                                                          null) {
-                                                                        batchBloc.add(AssignSubmuelleEvent(
-                                                                            batchBloc.filteredProducts.where((e) {
-                                                                              return e.isMuelle == null && e.isSeparate == 1;
-                                                                            }).toList(),
-                                                                            selectedSubMuelle!));
-                                                                        // Future.delayed(
-                                                                        //     const Duration(
-                                                                        //         seconds: 1),
-                                                                        //     () {
+                                                                );
+                                                              },
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 10),
+                                                          Focus(
+                                                            focusNode:
+                                                                focusNode6,
+                                                            onKey:
+                                                                (FocusNode node,
+                                                                    RawKeyEvent
+                                                                        event) {
+                                                              if (event
+                                                                  is RawKeyDownEvent) {
+                                                                if (event
+                                                                        .logicalKey ==
+                                                                    LogicalKeyboardKey
+                                                                        .enter) {
+                                                                  // Al presionar enter, procesamos el código escaneado
+                                                                  if (scannedValue6
+                                                                      .isNotEmpty) {
+                                                                    bool
+                                                                        validate =
+                                                                        validateScannedSubmuelle(
+                                                                      scannedValue6
+                                                                          .toLowerCase(),
+                                                                      batchBloc,
+                                                                    );
+
+                                                                    if (validate) {
+                                                                      showDialog(
+                                                                          context:
+                                                                              context,
+                                                                          builder:
+                                                                              (context) {
+                                                                            return const DialogLoading();
+                                                                          });
+
+                                                                      // Esperar 1 segundos y cerrar el diálogo y redirigirel focus
+                                                                      Future.delayed(
+                                                                          const Duration(
+                                                                              seconds: 1),
+                                                                          () {
                                                                         Navigator.pop(
                                                                             context);
-                                                                        //   Navigator.pop(
-                                                                        //       context);
-                                                                        // });
-                                                                      }
-                                                                    },
-                                                                    style: ElevatedButton
-                                                                        .styleFrom(
-                                                                      backgroundColor:
-                                                                          primaryColorApp,
-                                                                      shape:
-                                                                          RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
+                                                                        Navigator.pop(
+                                                                            context);
+                                                                      });
+                                                                    } else {
+                                                                      setState(
+                                                                          () {
+                                                                        scannedValue6 =
+                                                                            "";
+                                                                        alerta =
+                                                                            'Código de ubicacion destino incorrecto';
+                                                                      });
+                                                                    }
+                                                                  }
+                                                                  return KeyEventResult
+                                                                      .handled;
+                                                                } else {
+                                                                  setState(() {
+                                                                    scannedValue6 +=
+                                                                        event
+                                                                            .data
+                                                                            .keyLabel;
+                                                                  });
+                                                                  return KeyEventResult
+                                                                      .handled;
+                                                                }
+                                                              }
+                                                              return KeyEventResult
+                                                                  .ignored;
+                                                            },
+                                                            child: RichText(
+                                                              text: TextSpan(
+                                                                text: selectedSubMuelle ==
+                                                                        null
+                                                                    ? 'No ha seleccionado ningúna ubicacion destino.'
+                                                                    : '¿Está seguro de seleccionar la ubicacion destino ',
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black),
+                                                                children: <TextSpan>[
+                                                                  if (selectedSubMuelle !=
+                                                                      null)
+                                                                    TextSpan(
+                                                                      text: selectedSubMuelle
+                                                                              ?.completeName ??
+                                                                          "",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color:
+                                                                            primaryColorApp,
                                                                       ),
                                                                     ),
-                                                                    child:
-                                                                        const Text(
-                                                                      'Aceptar',
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              white),
-                                                                    ),
+                                                                  TextSpan(
+                                                                    text: selectedSubMuelle ==
+                                                                            null
+                                                                        ? '.'
+                                                                        : ' para los productos?',
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color:
+                                                                            black),
                                                                   ),
                                                                 ],
                                                               ),
                                                             ),
-                                                          ],
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              );
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 10),
+                                                          // Mostrar el valor escaneado
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            child: Text(
+                                                              alerta,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          14,
+                                                                      color:
+                                                                          red),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              height:
+                                                                  10), // Espacio entre el texto y el botón
+                                                          Center(
+                                                            child: Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .center,
+                                                              children: [
+                                                                ElevatedButton(
+                                                                  onPressed:
+                                                                      () async {
+                                                                    setState(
+                                                                        () {
+                                                                      shouldRunDependencies =
+                                                                          true;
+                                                                    });
+                                                                    // Cerrar el focus y salir del modal
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .unfocus();
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  },
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    backgroundColor:
+                                                                        grey,
+                                                                    shape:
+                                                                        RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                    ),
+                                                                  ),
+                                                                  child:
+                                                                      const Text(
+                                                                    'Cancelar',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color:
+                                                                            white),
+                                                                  ),
+                                                                ),
+                                                                const SizedBox(
+                                                                    width: 10),
+                                                                ElevatedButton(
+                                                                  onPressed:
+                                                                      () async {
+                                                                    if (selectedSubMuelle !=
+                                                                        null) {
+                                                                      batchBloc.add(AssignSubmuelleEvent(
+                                                                          batchBloc.filteredProducts.where((e) {
+                                                                            return e.isMuelle == null &&
+                                                                                e.isSeparate == 1;
+                                                                          }).toList(),
+                                                                          selectedSubMuelle!));
+                                                                      // Future.delayed(
+                                                                      //     const Duration(
+                                                                      //         seconds: 1),
+                                                                      //     () {
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                      //   Navigator.pop(
+                                                                      //       context);
+                                                                      // });
+                                                                    }
+                                                                  },
+                                                                  style: ElevatedButton
+                                                                      .styleFrom(
+                                                                    backgroundColor:
+                                                                        primaryColorApp,
+                                                                    shape:
+                                                                        RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              10),
+                                                                    ),
+                                                                  ),
+                                                                  child:
+                                                                      const Text(
+                                                                    'Aceptar',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color:
+                                                                            white),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            );
 
-                                              //SCANEO LA UBICACION O SELECCION LA LISTA DE SUBPOCISIONES
+                                            //SCANEO LA UBICACION O SELECCION LA LISTA DE SUBPOCISIONES
 
-                                              //EDITO LAS LINEAS ANTERIORES A CUAL MUELLE VA
-                                            },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: primaryColorAppLigth,
-                                        minimumSize: const Size(100, 40),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
+                                            //EDITO LAS LINEAS ANTERIORES A CUAL MUELLE VA
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryColorAppLigth,
+                                      minimumSize: const Size(100, 40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
                                       ),
-                                      child: Text(
-                                        batchBloc
-                                                .batchWithProducts.batch?.muelle
-                                                .toString() ??
-                                            '',
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                        ),
-                                      )),
-                                )
-                              ],
-                            ),
-                          ))),
-                ),
-
-                //todo: cantidad
-
-                SizedBox(
-                  width: size.width,
-                  height: viewQuantity ? 150 : 110,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
-                        child: Card(
-                          color: batchBloc.isQuantityOk
-                              ? batchBloc.quantityIsOk
-                                  ? white
-                                  : Colors.grey[300]
-                              : Colors.red[200],
-                          elevation: 5,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            child: Center(
-                              child: Row(
-                                children: [
-                                  const Text('Recoger:',
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 14)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
+                                    ),
                                     child: Text(
-                                      currentProduct.quantity?.toString() ?? "",
-                                      style: TextStyle(
-                                          color: primaryColorApp, fontSize: 14),
-                                    ),
-                                  ),
-                                  Text(currentProduct.unidades ?? "",
+                                      batchBloc.batchWithProducts.batch?.muelle
+                                              .toString() ??
+                                          '',
                                       style: const TextStyle(
-                                          color: Colors.black, fontSize: 14)),
-                                  // const Spacer(),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      child: Container(
-                                          alignment: Alignment.center,
-                                          child: true
-                                              ? TextFormField(
-                                                  textAlign: TextAlign.center,
-                                                  enabled: batchBloc
-                                                          .locationIsOk && //true
-                                                      batchBloc
-                                                          .productIsOk && //true
-                                                      batchBloc
-                                                          .quantityIsOk && //true
-
-                                                      !batchBloc
-                                                          .locationDestIsOk,
-                                                  // showCursor: false,
-                                                  controller:
-                                                      _controllerQuantity, // Controlador que maneja el texto
-                                                  focusNode: focusNode3,
-                                                  onChanged: (value) {
-                                                    validateQuantity(value);
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    hintText: batchBloc
-                                                        .quantitySelected
-                                                        .toString(),
-                                                    disabledBorder:
-                                                        InputBorder.none,
-                                                    hintStyle: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
-                                                    border: InputBorder.none,
-                                                  ),
-                                                )
-                                              : Focus(
-                                                  focusNode: focusNode3,
-                                                  onKey: (FocusNode node,
-                                                      RawKeyEvent event) {
-                                                    if (event
-                                                        is RawKeyDownEvent) {
-                                                      if (event.logicalKey ==
-                                                          LogicalKeyboardKey
-                                                              .enter) {
-                                                        if (scannedValue3
-                                                            .isNotEmpty) {
-                                                          validateQuantity(
-                                                              scannedValue3);
-                                                        }
-                                                        return KeyEventResult
-                                                            .handled;
-                                                      } else {
-                                                        setState(() {
-                                                          scannedValue3 += event
-                                                              .data.keyLabel;
-                                                        });
-                                                        return KeyEventResult
-                                                            .handled;
-                                                      }
-                                                    }
-                                                    return KeyEventResult
-                                                        .ignored;
-                                                  },
-                                                  child: Text(
-                                                      batchBloc.quantitySelected
-                                                          .toString(),
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: const TextStyle(
-                                                        color: Colors.black,
-                                                        fontSize: 14,
-                                                      )),
-                                                )),
-                                    ),
-                                  ),
-                                  IconButton(
-                                      onPressed: batchBloc.configurations.data
-                                                  ?.result?.manualQuantity ==
-                                              false
-                                          ? null
-                                          : batchBloc.quantityIsOk &&
-                                                  batchBloc.quantitySelected >=
-                                                      0
-                                              ? () {
-                                                  setState(() {
-                                                    viewQuantity =
-                                                        !viewQuantity;
-                                                  });
-                                                  Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 100),
-                                                      () {
-                                                    FocusScope.of(context)
-                                                        .requestFocus(
-                                                            focusNode4);
-                                                  });
-                                                }
-                                              : null,
-                                      icon: Icon(Icons.edit_note_rounded,
-                                          color: primaryColorApp, size: 30)),
-                                ],
-                              ),
-                            ),
+                                        fontSize: 12,
+                                      ),
+                                    )),
+                              )
+                            ],
                           ),
-                        ),
+                        ))),
+              ),
+
+              //todo: cantidad
+
+              SizedBox(
+                width: size.width,
+                height: viewQuantity ? 150 : 110,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
                       ),
-                      Visibility(
-                        visible: viewQuantity,
+                      child: Card(
+                        color: batchBloc.isQuantityOk
+                            ? batchBloc.quantityIsOk
+                                ? white
+                                : Colors.grey[300]
+                            : Colors.red[200],
+                        elevation: 5,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 2),
-                          child: SizedBox(
-                            height: 40,
-                            child: TextFormField(
-                              //tmano del campo
-
-                              focusNode: focusNode4,
-                              inputFormatters: [
-                                FilteringTextInputFormatter
-                                    .digitsOnly, // Solo permite dígitos
-                              ],
-                              onChanged: (value) {
-                                // Verifica si el valor no está vacío y si es un número válido
-                                if (value.isNotEmpty) {
-                                  try {
-                                    batchBloc.quantitySelected =
-                                        int.parse(value);
-                                  } catch (e) {
-                                    // Manejo de errores si la conversión falla
-                                    print('Error al convertir a entero: $e');
-                                    // Aquí puedes mostrar un mensaje al usuario o manejar el error de otra forma
-                                  }
-                                } else {
-                                  // Si el valor está vacío, puedes establecer un valor por defecto
-                                  batchBloc.quantitySelected =
-                                      0; // O cualquier valor que consideres adecuado
-                                }
-                              },
-                              controller: cantidadController,
-                              keyboardType: TextInputType.number,
-                              maxLines: 1,
-                              decoration: InputDecorations.authInputDecoration(
-                                hintText: 'Cantidad',
-                                labelText: 'Cantidad',
-                                suffixIconButton: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      viewQuantity = !viewQuantity;
-                                    });
-                                    cantidadController.clear();
-
-                                    //cambiamos el foco pa leer por pda la cantidad
-                                    Future.delayed(
-                                        const Duration(milliseconds: 100), () {
-                                      FocusScope.of(context)
-                                          .requestFocus(focusNode3);
-                                    });
-                                  },
-                                  icon: const Icon(Icons.clear),
-                                ),
-                              ),
-                              //al dar enter
-                              onFieldSubmitted: (value) {
-                                setState(() {
-                                  //validamos que el texto no este vacio
-                                  if (value.isNotEmpty) {
-                                    if (int.parse(value) >
-                                        (currentProduct.quantity ?? 0)
-                                            .toInt()) {
-                                      //todo: cantidad fuera del rango
-                                      batchBloc.add(ValidateFieldsEvent(
-                                          field: "quantity", isOk: false));
-                                      cantidadController.clear();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        duration: const Duration(seconds: 1),
-                                        content:
-                                            const Text('Cantidad incorrecta'),
-                                        backgroundColor: Colors.red[200],
-                                      ));
-                                    } else {
-                                      //todo: cantidad dentro del rango
-                                      if (int.parse(value) ==
-                                          currentProduct.quantity) {
-                                        //*cantidad correcta
-                                        //guardamos la cantidad en la bd
-                                        batchBloc.add(ChangeQuantitySeparate(
-                                            int.parse(value),
-                                            currentProduct.idProduct ?? 0,
-                                            currentProduct.idMove ?? 0));
-                                      } else {
-                                        //todo cantidad menor a la cantidad pedida
-                                        //preguntar si estamos en la ultima posicion
-
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return DialogAdvetenciaCantidadScreen(
-                                                  currentProduct:
-                                                      currentProduct,
-                                                  cantidad: batchBloc
-                                                      .quantitySelected,
-                                                  batchId: batchBloc
-                                                          .batchWithProducts
-                                                          .batch
-                                                          ?.id ??
-                                                      0,
-                                                  onAccepted: () {
-                                                    batchBloc.add(
-                                                        ChangeQuantitySeparate(
-                                                            int.parse(value),
-                                                            currentProduct
-                                                                    .idProduct ??
-                                                                0,
-                                                            currentProduct
-                                                                    .idMove ??
-                                                                0));
-                                                    _nextProduct(currentProduct,
-                                                        batchBloc);
-                                                  });
-                                            });
-                                      }
-                                    }
-                                  }
-                                  viewQuantity = false;
-                                });
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
                           ),
-                          child: ElevatedButton(
-                            onPressed: batchBloc.quantityIsOk &&
-                                    batchBloc.quantitySelected >= 0
-                                ? () {
-                                    //cerramos el teclado
-                                    FocusScope.of(context).unfocus();
-                                    int cantidad = int.parse(cantidadController
-                                            .text.isEmpty
-                                        ? batchBloc.quantitySelected.toString()
-                                        : cantidadController.text);
+                          child: Center(
+                            child: Row(
+                              children: [
+                                const Text('Recoger:',
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 14)),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: Text(
+                                    currentProduct.quantity?.toString() ?? "",
+                                    style: TextStyle(
+                                        color: primaryColorApp, fontSize: 14),
+                                  ),
+                                ),
+                                Text(currentProduct.unidades ?? "",
+                                    style: const TextStyle(
+                                        color: Colors.black, fontSize: 14)),
+                                // const Spacer(),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Container(
+                                        alignment: Alignment.center,
+                                        child: batchBloc.isPdaZebra
+                                            ? TextFormField(
+                                                textAlign: TextAlign.center,
+                                                enabled: batchBloc
+                                                        .locationIsOk && //true
+                                                    batchBloc
+                                                        .productIsOk && //true
+                                                    batchBloc
+                                                        .quantityIsOk && //true
 
-                                    if (cantidad == currentProduct.quantity) {
+                                                    !batchBloc.locationDestIsOk,
+                                                // showCursor: false,
+                                                controller:
+                                                    _controllerQuantity, // Controlador que maneja el texto
+                                                focusNode: focusNode3,
+                                                onChanged: (value) {
+                                                  validateQuantity(value);
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: batchBloc
+                                                      .quantitySelected
+                                                      .toString(),
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  border: InputBorder.none,
+                                                ),
+                                              )
+                                            : Focus(
+                                                focusNode: focusNode3,
+                                                onKey: (FocusNode node,
+                                                    RawKeyEvent event) {
+                                                  if (event
+                                                      is RawKeyDownEvent) {
+                                                    if (event.logicalKey ==
+                                                        LogicalKeyboardKey
+                                                            .enter) {
+                                                      if (scannedValue3
+                                                          .isNotEmpty) {
+                                                        validateQuantity(
+                                                            scannedValue3);
+                                                      }
+                                                      return KeyEventResult
+                                                          .handled;
+                                                    } else {
+                                                      setState(() {
+                                                        scannedValue3 +=
+                                                            event.data.keyLabel;
+                                                      });
+                                                      return KeyEventResult
+                                                          .handled;
+                                                    }
+                                                  }
+                                                  return KeyEventResult.ignored;
+                                                },
+                                                child: Text(
+                                                    batchBloc.quantitySelected
+                                                        .toString(),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 14,
+                                                    )),
+                                              )),
+                                  ),
+                                ),
+                                IconButton(
+                                    onPressed: batchBloc.configurations.data
+                                                ?.result?.manualQuantity ==
+                                            false
+                                        ? null
+                                        : batchBloc.quantityIsOk &&
+                                                batchBloc.quantitySelected >= 0
+                                            ? () {
+                                                setState(() {
+                                                  viewQuantity = !viewQuantity;
+                                                });
+                                                Future.delayed(
+                                                    const Duration(
+                                                        milliseconds: 100), () {
+                                                  FocusScope.of(context)
+                                                      .requestFocus(focusNode4);
+                                                });
+                                              }
+                                            : null,
+                                    icon: Icon(Icons.edit_note_rounded,
+                                        color: primaryColorApp, size: 30)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Visibility(
+                      visible: viewQuantity,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 2),
+                        child: SizedBox(
+                          height: 40,
+                          child: TextFormField(
+                            //tmano del campo
+
+                            focusNode: focusNode4,
+                            inputFormatters: [
+                              FilteringTextInputFormatter
+                                  .digitsOnly, // Solo permite dígitos
+                            ],
+                            onChanged: (value) {
+                              // Verifica si el valor no está vacío y si es un número válido
+                              if (value.isNotEmpty) {
+                                try {
+                                  batchBloc.quantitySelected = int.parse(value);
+                                } catch (e) {
+                                  // Manejo de errores si la conversión falla
+                                  print('Error al convertir a entero: $e');
+                                  // Aquí puedes mostrar un mensaje al usuario o manejar el error de otra forma
+                                }
+                              } else {
+                                // Si el valor está vacío, puedes establecer un valor por defecto
+                                batchBloc.quantitySelected =
+                                    0; // O cualquier valor que consideres adecuado
+                              }
+                            },
+                            controller: cantidadController,
+                            keyboardType: TextInputType.number,
+                            maxLines: 1,
+                            decoration: InputDecorations.authInputDecoration(
+                              hintText: 'Cantidad',
+                              labelText: 'Cantidad',
+                              suffixIconButton: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    viewQuantity = !viewQuantity;
+                                  });
+                                  cantidadController.clear();
+
+                                  //cambiamos el foco pa leer por pda la cantidad
+                                  Future.delayed(
+                                      const Duration(milliseconds: 100), () {
+                                    FocusScope.of(context)
+                                        .requestFocus(focusNode3);
+                                  });
+                                },
+                                icon: const Icon(Icons.clear),
+                              ),
+                            ),
+                            //al dar enter
+                            onFieldSubmitted: (value) {
+                              setState(() {
+                                //validamos que el texto no este vacio
+                                if (value.isNotEmpty) {
+                                  if (int.parse(value) >
+                                      (currentProduct.quantity ?? 0).toInt()) {
+                                    //todo: cantidad fuera del rango
+                                    batchBloc.add(ValidateFieldsEvent(
+                                        field: "quantity", isOk: false));
+                                    cantidadController.clear();
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      duration: const Duration(seconds: 1),
+                                      content:
+                                          const Text('Cantidad incorrecta'),
+                                      backgroundColor: Colors.red[200],
+                                    ));
+                                  } else {
+                                    //todo: cantidad dentro del rango
+                                    if (int.parse(value) ==
+                                        currentProduct.quantity) {
+                                      //*cantidad correcta
+                                      //guardamos la cantidad en la bd
                                       batchBloc.add(ChangeQuantitySeparate(
-                                          cantidad,
+                                          int.parse(value),
                                           currentProduct.idProduct ?? 0,
                                           currentProduct.idMove ?? 0));
                                     } else {
-                                      FocusScope.of(context).unfocus();
-                                      if (cantidad <
-                                          (currentProduct.quantity ?? 0)
-                                              .toInt()) {
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return DialogAdvetenciaCantidadScreen(
-                                                  currentProduct:
-                                                      currentProduct,
-                                                  cantidad: cantidad,
-                                                  batchId: batchBloc
-                                                          .batchWithProducts
-                                                          .batch
-                                                          ?.id ??
-                                                      0,
-                                                  onAccepted: () async {
-                                                    batchBloc.add(
-                                                        ChangeQuantitySeparate(
-                                                            cantidad,
-                                                            currentProduct
-                                                                    .idProduct ??
-                                                                0,
-                                                            currentProduct
-                                                                    .idMove ??
-                                                                0));
-                                                    _nextProduct(currentProduct,
-                                                        batchBloc);
-                                                    cantidadController.clear();
-                                                  });
-                                            });
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          duration: const Duration(
-                                              milliseconds: 1000),
-                                          content:
-                                              const Text('Cantidad erronea'),
-                                          backgroundColor: Colors.red[200],
-                                        ));
-                                      }
+                                      //todo cantidad menor a la cantidad pedida
+                                      //preguntar si estamos en la ultima posicion
+
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return DialogAdvetenciaCantidadScreen(
+                                                currentProduct: currentProduct,
+                                                cantidad:
+                                                    batchBloc.quantitySelected,
+                                                batchId: batchBloc
+                                                        .batchWithProducts
+                                                        .batch
+                                                        ?.id ??
+                                                    0,
+                                                onAccepted: () {
+                                                  batchBloc.add(
+                                                      ChangeQuantitySeparate(
+                                                          int.parse(value),
+                                                          currentProduct
+                                                                  .idProduct ??
+                                                              0,
+                                                          currentProduct
+                                                                  .idMove ??
+                                                              0));
+                                                  _nextProduct(currentProduct,
+                                                      batchBloc);
+                                                });
+                                          });
                                     }
                                   }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColorApp,
-                              minimumSize: Size(size.width * 0.93, 35),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            child: const Text(
-                              'APLICAR CANTIDAD',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 14),
-                            ),
-                          )),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
+                                }
+                                viewQuantity = false;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        child: ElevatedButton(
+                          onPressed: batchBloc.quantityIsOk &&
+                                  batchBloc.quantitySelected >= 0
+                              ? () {
+                                  //cerramos el teclado
+                                  FocusScope.of(context).unfocus();
+                                  int cantidad = int.parse(cantidadController
+                                          .text.isEmpty
+                                      ? batchBloc.quantitySelected.toString()
+                                      : cantidadController.text);
 
-        return ErrorPicking(size: size);
+                                  if (cantidad == currentProduct.quantity) {
+                                    batchBloc.add(ChangeQuantitySeparate(
+                                        cantidad,
+                                        currentProduct.idProduct ?? 0,
+                                        currentProduct.idMove ?? 0));
+                                  } else {
+                                    FocusScope.of(context).unfocus();
+                                    if (cantidad <
+                                        (currentProduct.quantity ?? 0)
+                                            .toInt()) {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return DialogAdvetenciaCantidadScreen(
+                                                currentProduct: currentProduct,
+                                                cantidad: cantidad,
+                                                batchId: batchBloc
+                                                        .batchWithProducts
+                                                        .batch
+                                                        ?.id ??
+                                                    0,
+                                                onAccepted: () async {
+                                                  batchBloc.add(
+                                                      ChangeQuantitySeparate(
+                                                          cantidad,
+                                                          currentProduct
+                                                                  .idProduct ??
+                                                              0,
+                                                          currentProduct
+                                                                  .idMove ??
+                                                              0));
+                                                  _nextProduct(currentProduct,
+                                                      batchBloc);
+                                                  cantidadController.clear();
+                                                });
+                                          });
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        duration:
+                                            const Duration(milliseconds: 1000),
+                                        content: const Text('Cantidad erronea'),
+                                        backgroundColor: Colors.red[200],
+                                      ));
+                                    }
+                                  }
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColorApp,
+                            minimumSize: Size(size.width * 0.93, 35),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'APLICAR CANTIDAD',
+                            style: TextStyle(color: Colors.white, fontSize: 14),
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
       }),
     );
   }
@@ -1910,14 +1709,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             false));
       }
       return false;
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 1000),
-        content: const Text('Codigo erroneo'),
-        backgroundColor: Colors.red[200],
-      ));
-      return false;
     }
+    return false;
   }
 
   bool validateScannedSubmuelle(

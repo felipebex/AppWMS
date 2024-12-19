@@ -512,8 +512,6 @@ class DataBaseSqlite {
 
       return config;
     } else {
-      // Si no se encuentra ninguna configuración, retornamos null o lanzamos una excepción
-      print('No se encontró configuración para el usuario con id: $userId');
       return null;
     }
   }

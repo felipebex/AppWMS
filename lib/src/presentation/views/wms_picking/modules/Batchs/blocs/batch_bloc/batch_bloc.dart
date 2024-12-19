@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -82,6 +83,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<String> listOfProductsName = [];
   List<Muelles> submuelles = [];
 
+  bool isPdaZebra = false;
+
   //*indice del producto actual
   int index = 0;
 
@@ -129,11 +132,33 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //*evento para asignar el submuelle
     on<AssignSubmuelleEvent>(_onAssignSubmuelleEvent);
+
+    on<LoadInfoDeviceEvent>(_onLoadInfoDevicesEvent);
+  }
+
+  void _onLoadInfoDevicesEvent(
+      LoadInfoDeviceEvent event, Emitter<BatchState> emit) async {
+    emit(BatchInitial());
+    try {
+      String info = '';
+
+      //cargamos la informacion del dispositivo
+      DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
+      info = '''
+        Modelo: ${androidInfo.model}
+        Versión: ${androidInfo.version.release}
+        Fabricante: ${androidInfo.manufacturer}
+      ''';
+      isPdaZebra = androidInfo.manufacturer.contains('Zebra');
+      print("info device: $info");
+    } catch (e, s) {
+      print('Error en GetConfigurations.dart: $e =>$s');
+    }
   }
 
   void _onLoadConfigurationsUserEvent(
       LoadConfigurationsUser event, Emitter<BatchState> emit) async {
-    print('Cargando configuraciones');
 
     try {
       int userId = await PrefUtils.getUserId();
@@ -510,7 +535,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         isQuantityOk = event.isOk;
         break;
     }
-    print('Location: $isLocationOk, Product: $isProductOk, LocationDest: $isLocationDestOk, Quantity: $isQuantityOk');
+    print(
+        'Location: $isLocationOk, Product: $isProductOk, LocationDest: $isLocationDestOk, Quantity: $isQuantityOk');
     emit(ValidateFieldsState(event.isOk));
   }
 
@@ -628,11 +654,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
       if (currentProduct.locationId == oldLocation) {
-        print('La ubicacion es igual');
         locationIsOk = true;
       } else {
         locationIsOk = false;
-        print('La ubicacion es diferente');
       }
       return;
     } else {
@@ -939,6 +963,4 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     return formattedTime;
   }
-
-  
 }

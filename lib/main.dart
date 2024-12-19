@@ -55,7 +55,7 @@ void main() async {
   // Inicializar la base de datos SQLite
   await Preferences.init();
 
-  // //cron
+  //cron
   // var cron = Cron();
   // cron.schedule(Schedule.parse('*/3 * * * *'), () async {
   //   try {
