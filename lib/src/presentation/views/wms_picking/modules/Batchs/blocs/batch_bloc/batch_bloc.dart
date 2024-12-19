@@ -939,4 +939,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     return formattedTime;
   }
+
+  
 }

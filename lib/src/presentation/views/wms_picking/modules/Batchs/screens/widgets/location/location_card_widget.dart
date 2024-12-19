@@ -63,7 +63,7 @@ class LocationDropdownWidget extends StatelessWidget {
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: 45,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 0),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
