@@ -5,7 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 
-import '../../../../../../../utils/constans/colors.dart';
+import '../../../../../../../../utils/constans/colors.dart';
 
 class DialogLoading extends StatelessWidget {
   const DialogLoading({

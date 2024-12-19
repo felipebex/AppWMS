@@ -485,7 +485,6 @@ class DataBaseSqlite {
       whereArgs: [userId],
     );
 
-    print('Resultados de la consulta: $maps');
 
     // Verificamos si la consulta retornó resultados
     if (maps.isNotEmpty) {
@@ -511,7 +510,6 @@ class DataBaseSqlite {
         ),
       );
 
-      print('Configuración obtenida: $config');
       return config;
     } else {
       // Si no se encuentra ninguna configuración, retornamos null o lanzamos una excepción
@@ -949,7 +947,6 @@ class DataBaseSqlite {
         return BatchsModel.fromMap(map);
       }).toList();
 
-      print("getAllBatchs: $batchs");
 
       return batchs;
     } catch (e, s) {
@@ -1313,6 +1310,12 @@ class DataBaseSqlite {
     print("update tblbatch_products ($field): $resUpdate");
 
     return resUpdate;
+  }
+
+  //metodo para cerrar la bd
+  Future<void> close() async {
+    final db = await database;
+    db!.close();
   }
 
   Future<int?> setFieldStringTableBatchProducts(int batchId, int productId,

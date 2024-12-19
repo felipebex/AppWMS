@@ -8,11 +8,12 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class WMSPickingPage extends StatefulWidget {
   const WMSPickingPage({Key? key, required this.indexSelected})
@@ -463,13 +464,11 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                                           DataBaseSqlite db = DataBaseSqlite();
 
-                                          final response =
+                                        
                                               await db.getBacth(batch.id ?? 0);
-                                          print("batch: $response");
-                                          final responseProduct =
+                                        
                                               await db.getProductBacth(
                                                   batch.id ?? 0, 3734);
-                                          print("product: $responseProduct");
                                         },
                                         child: Card(
                                           color: batch.isSeparate == 1

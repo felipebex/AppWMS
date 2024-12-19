@@ -510,6 +510,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         isQuantityOk = event.isOk;
         break;
     }
+    print('Location: $isLocationOk, Product: $isProductOk, LocationDest: $isLocationDestOk, Quantity: $isQuantityOk');
     emit(ValidateFieldsState(event.isOk));
   }
 
@@ -689,7 +690,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async {
-    if (event.locationIsOk) {
+    if (isLocationOk) {
       await db.setFieldTableBatchProducts(event.batchId, event.productId,
           'is_location_is_ok', 'true', event.idMove);
 
@@ -699,7 +700,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       //cuando se lea la ubicacion se selecciona el batch
       await db.setFieldTableBatch(event.batchId, 'is_selected', 'true');
 
-      locationIsOk = event.locationIsOk;
+      locationIsOk = true;
 
       emit(ChangeIsOkState(
         locationIsOk,

@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print, unused_element, sort_child_properties_last, unrelated_type_equality_checks, unnecessary_null_comparison
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print
 
 import 'dart:async';
 import 'dart:ui';
@@ -13,11 +13,13 @@ import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/cant_lineas_muelle_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dialog_picking_incompleted_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/dropdowbutton_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/progressIndicatos_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/location/location_card_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/cant_lineas_muelle_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_picking_incompleted_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dropdowbutton_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/product_widget.dart';
 import 'package:wms_app/src/presentation/widgets/appbar.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
@@ -41,7 +43,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   FocusNode focusNode2 = FocusNode(); // producto
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
   FocusNode focusNode4 = FocusNode(); //cantidad textformfield
-  FocusNode focusNode5 = FocusNode(); //cantidad textformfield
+  FocusNode focusNode5 = FocusNode(); //cantidad muelle
 
   String? selectedLocation;
   String? selectedMuelle;
@@ -50,6 +52,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
   String? focoLocation = 'ubicacion';
   bool viewQuantity = false;
+
+  //controller
+  final TextEditingController _controllerLocation = TextEditingController();
+  final TextEditingController _controllerProduct = TextEditingController();
+  final TextEditingController _controllerQuantity = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -119,6 +126,129 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     super.dispose();
   }
 
+  void validateLocation(String scannedValue1) {
+    // Limpiar el texto del controlador para que no se muestre nada en el campo
+    _controllerLocation.text = "";
+    final batchBloc = context.read<BatchBloc>();
+    final currentProduct = batchBloc.currentProduct;
+
+    if (scannedValue1.toLowerCase() ==
+        currentProduct.barcodeLocation.toString().toLowerCase()) {
+      // Validación correcta
+      batchBloc.add(ValidateFieldsEvent(field: "location", isOk: true));
+      batchBloc.add(ChangeLocationIsOkEvent(
+          currentProduct.idProduct ?? 0,
+          batchBloc.batchWithProducts.batch?.id ?? 0,
+          currentProduct.idMove ?? 0));
+      batchBloc.oldLocation = currentProduct.locationId.toString();
+      Future.delayed(const Duration(seconds: 1), () {
+        FocusScope.of(context).requestFocus(focusNode2);
+      });
+    } else {
+      // Validación incorrecta
+      batchBloc.add(ValidateFieldsEvent(field: "location", isOk: false));
+      // Mostrar mensaje de error
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(milliseconds: 1000),
+        content: const Text('Ubicación errónea'),
+        backgroundColor: Colors.red[200],
+      ));
+    }
+  }
+
+  void validateProduct(String scannedValue2) {
+    // Limpiar el texto del controlador para que no se muestre nada en el campo
+    _controllerProduct.text = "";
+    final batchBloc = context.read<BatchBloc>();
+    final currentProduct = batchBloc.currentProduct;
+
+    if (scannedValue2.toLowerCase() == currentProduct.barcode?.toLowerCase()) {
+      batchBloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+
+      batchBloc.add(ChangeQuantitySeparate(
+          0, currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0));
+
+      batchBloc.add(ChangeProductIsOkEvent(
+          true,
+          currentProduct.idProduct ?? 0,
+          batchBloc.batchWithProducts.batch?.id ?? 0,
+          0,
+          currentProduct.idMove ?? 0));
+
+      batchBloc.add(ChangeIsOkQuantity(
+          true,
+          currentProduct.idProduct ?? 0,
+          batchBloc.batchWithProducts.batch?.id ?? 0,
+          currentProduct.idMove ?? 0));
+
+      
+
+       Future.delayed(const Duration(seconds: 1), () {
+        FocusScope.of(context).requestFocus(focusNode3);
+      });
+    } else {
+      //validamos el scan con el barcode del paquete del producto
+      final isok = validateScannedBarcode(scannedValue2.toLowerCase(),
+          batchBloc.currentProduct, batchBloc, true);
+
+      if (!isok) {
+        batchBloc.add(ValidateFieldsEvent(field: "product", isOk: false));
+        setState(() {
+          scannedValue2 = ""; //limpiamos el valor escaneado
+        });
+
+        //mostramos alerta de error
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(milliseconds: 1000),
+          content: const Text('Producto erroneo'),
+          backgroundColor: Colors.red[200],
+        ));
+      } else {
+        Future.delayed(const Duration(milliseconds: 100), () {
+          FocusScope.of(context).requestFocus(focusNode3);
+        });
+        setState(() {
+          focoLocation = 'cantidad';
+        });
+      }
+    }
+  }
+
+  void validateQuantity(String scannedValue3) {
+    // Limpiar el texto del controlador para que no se muestre nada en el campo
+    _controllerQuantity.text = "";
+    final batchBloc = context.read<BatchBloc>();
+    final currentProduct = batchBloc.currentProduct;
+
+    print("🇦🇫 $scannedValue3");
+
+    if (scannedValue3.toLowerCase() == currentProduct.barcode?.toLowerCase()) {
+      print("🇦🇫 *");
+      batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
+
+      batchBloc.add(AddQuantitySeparate(
+          currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0, 1, false));
+      setState(() {
+        scannedValue3 = ""; //limpiamos el valor escaneado
+      });
+    } else {
+      print("🇦🇫 **");
+      validateScannedBarcode(scannedValue3.toLowerCase(),
+          batchBloc.currentProduct, batchBloc, false);
+      setState(() {
+        scannedValue3 = ""; //limpiamos el valor escaneado
+      });
+    }
+    //validamos que sea el ultimo item de la lista
+    if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
+      print("🇦🇫 ***");
+      batchBloc.add(FetchBatchWithProductsEvent(
+          batchBloc.batchWithProducts.batch?.id ?? 0));
+    }
+  }
+
+  void validateMuelle() {}
+
   TextEditingController cantidadController = TextEditingController();
 
   @override
@@ -130,7 +260,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         return false;
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
-        int totalTasks = context.read<BatchBloc>().filteredProducts.length ?? 0;
+        int totalTasks = context.read<BatchBloc>().filteredProducts.length;
 
         double progress = totalTasks > 0
             ? context.read<BatchBloc>().filteredProducts.where((e) {
@@ -140,39 +270,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             : 0.0;
 
         final batchBloc = context.read<BatchBloc>();
-
-        if (state is EmptyroductsBatch) {
-          return Scaffold(
-            appBar:
-                AppBarGlobal(tittle: 'Detalle de Batch', actions: Container()),
-            backgroundColor: Colors.white,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset('assets/images/empty.png',
-                      height: 150), // Ajusta la altura según necesites
-                  const SizedBox(height: 10),
-                  const Text('No se encontraron resultados',
-                      style: TextStyle(fontSize: 18, color: grey)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                          'El Batch  ${context.read<BatchBloc>().batchWithProducts.batch?.name} no tiene productos',
-                          style:
-                              TextStyle(fontSize: 18, color: primaryColorApp),
-                          textAlign: TextAlign.center),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-          );
-        }
 
         if (state is LoadProductsBatchSuccesStateBD ||
             state is ChangeIsOkState ||
@@ -188,8 +285,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             state is ConfigurationLoaded ||
             state is ValidateFieldsState) {
           final currentProduct = batchBloc.currentProduct;
-
-        print("State is: $state");
 
           return Scaffold(
             backgroundColor: Colors.white,
@@ -457,16 +552,552 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   ),
                 ),
 
+                Text("Foco: $focoLocation"),
+
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Form(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            // Text('Foco: $focoLocation'),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          // Text('Foco: $focoLocation'),
 
-                            //todo : ubicacion de origen
+                          //todo : ubicacion de origen
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        batchBloc.locationIsOk ? green : yellow,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Card(
+                                color: batchBloc.isLocationOk
+                                    ? batchBloc.locationIsOk
+                                        ? Colors.green[100]
+                                        : Colors.grey[300]
+                                    : Colors.red[200],
+                                elevation: 5,
+                                child: Container(
+                                  width: size.width * 0.85,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 10),
+                                  child: true
+                                      ? Column(
+                                          children: [
+                                            LocationDropdownWidget(
+                                                isPDA: false,
+                                                selectedLocation:
+                                                    selectedLocation,
+                                                positionsOrigen:
+                                                    batchBloc.positionsOrigen,
+                                                currentLocationId: batchBloc
+                                                    .currentProduct.locationId
+                                                    .toString(),
+                                                batchBloc: batchBloc,
+                                                currentProduct: currentProduct,
+                                                onAccepted: () =>
+                                                    Future.delayed(
+                                                        const Duration(
+                                                            seconds: 1), () {
+                                                      FocusScope.of(context)
+                                                          .requestFocus(
+                                                              focusNode2);
+                                                    })),
+                                            Container(
+                                              height: 15,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 5),
+                                              child: TextFormField(
+                                                controller:
+                                                    _controllerLocation, // Asignamos el controlador
+                                                enabled: !batchBloc
+                                                        .locationIsOk && // false
+                                                    !batchBloc
+                                                        .productIsOk && // false
+                                                    !batchBloc
+                                                        .quantityIsOk && // false
+                                                    !batchBloc.locationDestIsOk,
+                                                
+                                                focusNode: focusNode1,
+                                                onChanged: (value) {
+                                                  // Llamamos a la validación al cambiar el texto
+                                                  validateLocation(value);
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: batchBloc
+                                                      .currentProduct.locationId
+                                                      .toString(),
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  border: InputBorder.none,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Focus(
+                                          focusNode: focusNode1,
+                                          onKey: (FocusNode node,
+                                              RawKeyEvent event) {
+                                            print(scannedValue1);
+                                            if (event is RawKeyDownEvent) {
+                                              if (event.logicalKey ==
+                                                  LogicalKeyboardKey.enter) {
+                                                if (scannedValue1.isNotEmpty) {
+                                                  validateLocation(
+                                                      scannedValue1);
+                                                }
+
+                                                return KeyEventResult.handled;
+                                              } else {
+                                                setState(() {
+                                                  scannedValue1 +=
+                                                      event.data.keyLabel;
+                                                });
+                                                return KeyEventResult.handled;
+                                              }
+                                            }
+                                            return KeyEventResult.ignored;
+                                          },
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Center(
+                                                  child: DropdownButton<String>(
+                                                    underline: Container(
+                                                      height: 0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    focusColor: Colors.white,
+                                                    isExpanded: true,
+                                                    hint: Text(
+                                                      'Ubicación de origen',
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              primaryColorApp),
+                                                    ),
+                                                    icon: Image.asset(
+                                                      "assets/icons/ubicacion.png",
+                                                      color: primaryColorApp,
+                                                      width: 20,
+                                                    ),
+                                                    value: selectedLocation,
+                                                    items: batchBloc
+                                                        .positionsOrigen
+                                                        .map((String location) {
+                                                      return DropdownMenuItem<
+                                                          String>(
+                                                        value: location,
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              color: batchBloc
+                                                                          .currentProduct
+                                                                          .locationId
+                                                                          .toString() ==
+                                                                      location
+                                                                  ? Colors.green[
+                                                                      100]
+                                                                  : Colors
+                                                                      .white),
+                                                          width:
+                                                              size.width * 0.9,
+                                                          height: 45,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 5,
+                                                            vertical: 3,
+                                                          ),
+                                                          child: Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                                location,
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: const TextStyle(
+                                                                    color:
+                                                                        black,
+                                                                    fontSize:
+                                                                        14)),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged: batchBloc
+                                                                .configurations
+                                                                .data
+                                                                ?.result
+                                                                ?.locationPickingManual ==
+                                                            false
+                                                        ? null
+                                                        : batchBloc.locationIsOk
+                                                            ? null
+                                                            : (String?
+                                                                newValue) {
+                                                                validateLocation(
+                                                                    newValue!);
+                                                              },
+                                                  ),
+                                                ),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        currentProduct
+                                                            .locationId,
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 5),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // todo: Producto
+
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        batchBloc.productIsOk ? green : yellow,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Card(
+                                color: batchBloc.isProductOk
+                                    ? batchBloc.productIsOk
+                                        ? Colors.green[100]
+                                        : Colors.grey[300]
+                                    : Colors.red[200],
+                                elevation: 5,
+                                child: Container(
+                                  width: size.width * 0.85,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 10),
+                                  child: true
+                                      ? Column(
+                                          children: [
+                                            ProductDropdownWidget(
+                                                selectedProduct:
+                                                    selectedLocation,
+                                                listOfProductsName: batchBloc
+                                                    .listOfProductsName,
+                                                currentProductId: batchBloc
+                                                    .currentProduct.productId
+                                                    .toString(),
+                                                batchBloc: batchBloc,
+                                                currentProduct: currentProduct,
+                                                isPDA: false,
+                                                onAccepted: () =>
+                                                    Future.delayed(
+                                                        const Duration(
+                                                            milliseconds: 100),
+                                                        () {
+                                                      FocusScope.of(context)
+                                                          .requestFocus(
+                                                              focusNode3);
+                                                    })),
+                                            Container(
+                                              height: 15,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 5),
+                                              child: TextFormField(
+                                                enabled: batchBloc
+                                                        .locationIsOk && //true
+                                                    !batchBloc
+                                                        .productIsOk && //false
+                                                    !batchBloc
+                                                        .quantityIsOk && //false
+                                                    !batchBloc.locationDestIsOk,
+                                                
+                                                controller:
+                                                    _controllerProduct, // Controlador que maneja el texto
+                                                focusNode: focusNode2,
+                                                onChanged: (value) {
+                                                  validateProduct(value);
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: batchBloc
+                                                      .currentProduct.productId
+                                                      .toString(),
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  border: InputBorder.none,
+                                                ),
+                                              ),
+                                            ),
+                                            // Lote/Numero de serie
+                                            Column(
+                                              children: [
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    'Lote/Numero de serie',
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: primaryColorApp),
+                                                  ),
+                                                ),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    currentProduct.lotId ?? '',
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        color: black),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        )
+                                      : Focus(
+                                          focusNode: focusNode2,
+                                          onKey: (FocusNode node,
+                                              RawKeyEvent event) {
+                                            if (event is RawKeyDownEvent) {
+                                              if (event.logicalKey ==
+                                                  LogicalKeyboardKey.enter) {
+                                                if (scannedValue2.isNotEmpty) {
+                                                  validateProduct(
+                                                      scannedValue2);
+                                                }
+                                                return KeyEventResult.handled;
+                                              } else {
+                                                setState(() {
+                                                  scannedValue2 +=
+                                                      event.data.keyLabel;
+                                                });
+                                                return KeyEventResult.handled;
+                                              }
+                                            }
+                                            return KeyEventResult.ignored;
+                                          },
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Center(
+                                                  child: DropdownButton<String>(
+                                                    // dropdownColor: primaryColorApp,
+                                                    underline: Container(
+                                                      height: 0,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    focusColor: Colors.white,
+                                                    isExpanded: true,
+                                                    hint: Text(
+                                                      'Producto',
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              primaryColorApp),
+                                                    ),
+                                                    icon: Image.asset(
+                                                      "assets/icons/producto.png",
+                                                      color: primaryColorApp,
+                                                      width: 20,
+                                                    ),
+                                                    value: selectedLocation,
+                                                    // items: batchBloc.positions
+                                                    // items:
+
+                                                    items: batchBloc
+                                                        .listOfProductsName
+                                                        .map((String product) {
+                                                      return DropdownMenuItem<
+                                                          String>(
+                                                        value: product,
+                                                        child: Container(
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              color: batchBloc
+                                                                          .currentProduct
+                                                                          .productId
+                                                                          .toString() ==
+                                                                      product
+                                                                  ? Colors.green[
+                                                                      100]
+                                                                  : Colors
+                                                                      .white),
+                                                          width:
+                                                              size.width * 0.9,
+                                                          height: 45,
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
+                                                            horizontal: 5,
+                                                            vertical: 3,
+                                                          ),
+                                                          child: Text(product,
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      color:
+                                                                          black,
+                                                                      fontSize:
+                                                                          14)),
+                                                        ),
+                                                      );
+                                                    }).toList(),
+
+                                                    onChanged: batchBloc
+                                                                .configurations
+                                                                .data
+                                                                ?.result
+                                                                ?.manualProductSelection ==
+                                                            false
+                                                        ? null
+                                                        : batchBloc.locationIsOk &&
+                                                                !batchBloc
+                                                                    .productIsOk
+                                                            ? (String?
+                                                                newValue) {
+                                                                validateProduct(
+                                                                    newValue!);
+                                                              }
+                                                            : null,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start, //alineamos el texto a la izquierda
+                                                    children: [
+                                                      Text(
+                                                        currentProduct.productId
+                                                            .toString(),
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                      ),
+                                                      Visibility(
+                                                        visible: currentProduct
+                                                                    .barcode ==
+                                                                false ||
+                                                            currentProduct
+                                                                    .barcode ==
+                                                                null ||
+                                                            currentProduct
+                                                                    .barcode ==
+                                                                "",
+                                                        child: const Text(
+                                                          "Sin codigo de barras",
+                                                          textAlign:
+                                                              TextAlign.start,
+                                                          style: TextStyle(
+                                                              fontSize: 14,
+                                                              color: red),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                const SizedBox(height: 10),
+                                                //informacion del lote:
+                                                if (currentProduct.loteId !=
+                                                    null)
+                                                  Column(
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                          'Lote/Numero de serie ',
+                                                          style: TextStyle(
+                                                              fontSize: 14,
+                                                              color:
+                                                                  primaryColorApp),
+                                                        ),
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                          currentProduct
+                                                                  .lotId ??
+                                                              '',
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: black),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          //Todo: MUELLE
+                          // solo lo mostramos si es el ultimo producto
+                          if (batchBloc.index + 1 ==
+                              batchBloc.filteredProducts.length)
                             Row(
                               children: [
                                 Padding(
@@ -476,7 +1107,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     width: 10,
                                     height: 10,
                                     decoration: BoxDecoration(
-                                      color: batchBloc.locationIsOk
+                                      color: batchBloc.locationDestIsOk
                                           ? green
                                           : yellow,
                                       shape: BoxShape.circle,
@@ -484,8 +1115,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                 ),
                                 Card(
-                                  color: batchBloc.isLocationOk
-                                      ? batchBloc.locationIsOk
+                                  color: batchBloc.isLocationDestOk
+                                      ? batchBloc.locationDestIsOk
                                           ? Colors.green[100]
                                           : Colors.grey[300]
                                       : Colors.red[200],
@@ -495,74 +1126,45 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 10),
                                     child: Focus(
-                                      focusNode: focusNode1,
+                                      focusNode: focusNode5,
                                       onKey:
                                           (FocusNode node, RawKeyEvent event) {
-                                        print(scannedValue1);
                                         if (event is RawKeyDownEvent) {
-                                          print(scannedValue1);
                                           if (event.logicalKey ==
                                               LogicalKeyboardKey.enter) {
-                                            if (scannedValue1.isNotEmpty) {
-                                              
-                                              print("scannedValue1 :$scannedValue1");
-                                              if (scannedValue1.toLowerCase() ==
-                                                  currentProduct.barcodeLocation
-                                                      .toString()
-                                                      .toLowerCase()) {
-                                                batchBloc.add(
-                                                    ValidateFieldsEvent(
-                                                        field: "location",
-                                                        isOk: true));
-
-                                                batchBloc.add(
-                                                    ChangeLocationIsOkEvent(
-                                                        true,
-                                                        currentProduct.idProduct ??
-                                                            0,
-                                                        batchBloc
-                                                                .batchWithProducts
-                                                                .batch
-                                                                ?.id ??
-                                                            0,
-                                                        currentProduct.idMove ??
-                                                            0));
-
-                                                batchBloc.oldLocation =
-                                                    currentProduct.locationId
-                                                        .toString();
-
-                                                Future.delayed(
-                                                    const Duration(seconds: 1),
-                                                    () {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(focusNode2);
-                                                });
+                                            if (scannedValue4.isNotEmpty) {
+                                              print("scan:   $scannedValue4");
+                                              if (scannedValue4.toLowerCase() ==
+                                                  currentProduct
+                                                      .barcodeLocationDest
+                                                      ?.toLowerCase()) {
+                                                validatePicking(batchBloc,
+                                                    context, currentProduct);
                                               } else {
                                                 batchBloc.add(
                                                     ValidateFieldsEvent(
-                                                        field: "location",
+                                                        field: "locationDest",
                                                         isOk: false));
                                                 setState(() {
-                                                  scannedValue1 =
+                                                  scannedValue4 =
                                                       ""; //limpiamos el valor escaneado
                                                 });
+
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(SnackBar(
                                                   duration: const Duration(
                                                       milliseconds: 1000),
                                                   content: const Text(
-                                                      'Ubicacion erronea'),
+                                                      'Muelle erroneo'),
                                                   backgroundColor:
                                                       Colors.red[200],
                                                 ));
                                               }
                                             }
-
                                             return KeyEventResult.handled;
                                           } else {
                                             setState(() {
-                                              scannedValue1 +=
+                                              scannedValue4 +=
                                                   event.data.keyLabel;
                                             });
                                             return KeyEventResult.handled;
@@ -585,357 +1187,27 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 focusColor: Colors.white,
                                                 isExpanded: true,
                                                 hint: Text(
-                                                  'Ubicación de origen',
+                                                  'Muelle',
                                                   style: TextStyle(
                                                       fontSize: 14,
                                                       color: primaryColorApp),
                                                 ),
                                                 icon: Image.asset(
-                                                  "assets/icons/ubicacion.png",
+                                                  "assets/icons/packing.png",
                                                   color: primaryColorApp,
                                                   width: 20,
                                                 ),
-                                                value: selectedLocation,
-                                                items: batchBloc.positionsOrigen
+                                                value: selectedMuelle,
+                                                // items: batchBloc.positions
+                                                items: batchBloc.muelles
                                                     .map((String location) {
                                                   return DropdownMenuItem<
                                                       String>(
                                                     value: location,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          color: batchBloc
-                                                                      .currentProduct
-                                                                      .locationId
-                                                                      .toString() ==
-                                                                  location
-                                                              ? Colors
-                                                                  .green[100]
-                                                              : Colors.white),
-                                                      width: size.width * 0.9,
-                                                      height: 45,
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                        horizontal: 5,
-                                                        vertical: 3,
-                                                      ),
-                                                      child: Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(location,
-                                                            maxLines: 2,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style:
-                                                                const TextStyle(
-                                                                    color:
-                                                                        black,
-                                                                    fontSize:
-                                                                        14)),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                                onChanged: batchBloc
-                                                            .configurations
-                                                            .data
-                                                            ?.result
-                                                            ?.locationPickingManual ==
-                                                        false
-                                                    ? null
-                                                    : batchBloc.locationIsOk
-                                                        ? null
-                                                        : (String? newValue) {
-                                                            if (newValue ==
-                                                                currentProduct
-                                                                    .locationId
-                                                                    .toString()) {
-                                                              batchBloc.add(
-                                                                  ValidateFieldsEvent(
-                                                                      field:
-                                                                          "location",
-                                                                      isOk:
-                                                                          true));
-                                                              batchBloc.add(ChangeLocationIsOkEvent(
-                                                                  true,
-                                                                  currentProduct
-                                                                          .idProduct ??
-                                                                      0,
-                                                                  batchBloc
-                                                                          .batchWithProducts
-                                                                          .batch
-                                                                          ?.id ??
-                                                                      0,
-                                                                  currentProduct
-                                                                          .idMove ??
-                                                                      0));
-
-                                                              batchBloc
-                                                                      .oldLocation =
-                                                                  currentProduct
-                                                                      .locationId
-                                                                      .toString();
-
-                                                              Future.delayed(
-                                                                  const Duration(
-                                                                      seconds:
-                                                                          1),
-                                                                  () {
-                                                                FocusScope.of(
-                                                                        context)
-                                                                    .requestFocus(
-                                                                        focusNode2);
-                                                              });
-                                                            } else {
-                                                              batchBloc.add(
-                                                                  ValidateFieldsEvent(
-                                                                      field:
-                                                                          "location",
-                                                                      isOk:
-                                                                          false));
-                                                              ScaffoldMessenger
-                                                                      .of(
-                                                                          context)
-                                                                  .showSnackBar(
-                                                                      SnackBar(
-                                                                duration: const Duration(
-                                                                    milliseconds:
-                                                                        1000),
-                                                                content: const Text(
-                                                                    'Ubicacion erronea'),
-                                                                backgroundColor:
-                                                                    Colors.red[
-                                                                        200],
-                                                              ));
-                                                            }
-                                                          },
-                                              ),
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    currentProduct.locationId,
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            // todo: Producto
-
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: batchBloc.productIsOk
-                                          ? green
-                                          : yellow,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                                Card(
-                                  color: batchBloc.isProductOk
-                                      ? batchBloc.productIsOk
-                                          ? Colors.green[100]
-                                          : Colors.grey[300]
-                                      : Colors.red[200],
-                                  elevation: 5,
-                                  child: Container(
-                                    width: size.width * 0.85,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 10),
-                                    child: Focus(
-                                      focusNode: focusNode2,
-                                      onKey:
-                                          (FocusNode node, RawKeyEvent event) {
-                                        if (event is RawKeyDownEvent) {
-                                          if (event.logicalKey ==
-                                              LogicalKeyboardKey.enter) {
-                                            if (scannedValue2.isNotEmpty) {
-                                              print(
-                                                  "scan product:   $scannedValue2");
-                                              //validamos el scan con el barcoder princiapl del producto
-                                              if (scannedValue2.toLowerCase() ==
-                                                  currentProduct.barcode
-                                                      ?.toLowerCase()) {
-                                                batchBloc.add(
-                                                    ValidateFieldsEvent(
-                                                        field: "product",
-                                                        isOk: true));
-
-                                                batchBloc.add(
-                                                    ChangeQuantitySeparate(
-                                                        0,
-                                                        currentProduct
-                                                                .idProduct ??
-                                                            0,
-                                                        currentProduct.idMove ??
-                                                            0));
-
-                                                batchBloc.add(ChangeProductIsOkEvent(
-                                                    true,
-                                                    currentProduct.idProduct ??
-                                                        0,
-                                                    batchBloc.batchWithProducts
-                                                            .batch?.id ??
-                                                        0,
-                                                    0,
-                                                    currentProduct.idMove ??
-                                                        0));
-
-                                                batchBloc.add(ChangeIsOkQuantity(
-                                                    true,
-                                                    currentProduct.idProduct ??
-                                                        0,
-                                                    batchBloc.batchWithProducts
-                                                            .batch?.id ??
-                                                        0,
-                                                    currentProduct.idMove ??
-                                                        0));
-
-                                                Future.delayed(
-                                                    const Duration(
-                                                        milliseconds: 100), () {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(focusNode3);
-                                                });
-                                              } else {
-                                                //validamos el scan con el barcode del paquete del producto
-                                                final isok =
-                                                    validateScannedBarcode(
-                                                        scannedValue2
-                                                            .toLowerCase(),
-                                                        batchBloc
-                                                            .currentProduct,
-                                                        batchBloc,
-                                                        true);
-
-                                                if (!isok) {
-                                                  batchBloc.add(
-                                                      ValidateFieldsEvent(
-                                                          field: "product",
-                                                          isOk: false));
-                                                  setState(() {
-                                                    scannedValue2 =
-                                                        ""; //limpiamos el valor escaneado
-                                                  });
-
-                                                  //mostramos alerta de error
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(SnackBar(
-                                                    duration: const Duration(
-                                                        milliseconds: 1000),
-                                                    content: const Text(
-                                                        'Producto erroneo'),
-                                                    backgroundColor:
-                                                        Colors.red[200],
-                                                  ));
-                                                }
-                                              }
-
-                                              // else {
-
-                                              // }
-                                            }
-                                            return KeyEventResult.handled;
-                                          } else {
-                                            setState(() {
-                                              scannedValue2 +=
-                                                  event.data.keyLabel;
-                                            });
-                                            return KeyEventResult.handled;
-                                          }
-                                        }
-                                        return KeyEventResult.ignored;
-                                      },
-                                      child: Center(
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Center(
-                                              child: DropdownButton<String>(
-                                                // dropdownColor: primaryColorApp,
-                                                underline: Container(
-                                                  height: 0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                focusColor: Colors.white,
-                                                isExpanded: true,
-                                                hint: Text(
-                                                  'Producto',
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: primaryColorApp),
-                                                ),
-                                                icon: Image.asset(
-                                                  "assets/icons/producto.png",
-                                                  color: primaryColorApp,
-                                                  width: 20,
-                                                ),
-                                                value: selectedLocation,
-                                                // items: batchBloc.positions
-                                                // items:
-
-                                                items: batchBloc
-                                                    .listOfProductsName
-                                                    .map((String product) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: product,
-                                                    child: Container(
-                                                      decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          color: batchBloc
-                                                                      .currentProduct
-                                                                      .productId
-                                                                      .toString() ==
-                                                                  product
-                                                              ? Colors
-                                                                  .green[100]
-                                                              : Colors.white),
-                                                      width: size.width * 0.9,
-                                                      height: 45,
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                        horizontal: 5,
-                                                        vertical: 3,
-                                                      ),
-                                                      child: Text(product,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style:
-                                                              const TextStyle(
-                                                                  color: black,
-                                                                  fontSize:
-                                                                      14)),
-                                                    ),
+                                                    child: Text(location,
+                                                        style: const TextStyle(
+                                                            color: black,
+                                                            fontSize: 14)),
                                                   );
                                                 }).toList(),
 
@@ -943,77 +1215,29 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             .configurations
                                                             .data
                                                             ?.result
-                                                            ?.manualProductSelection ==
+                                                            ?.manualSpringSelection ==
                                                         false
                                                     ? null
-                                                    : batchBloc.locationIsOk &&
+                                                    : !batchBloc.quantityIsOk &&
                                                             !batchBloc
+                                                                .locationDestIsOk &&
+                                                            batchBloc
                                                                 .productIsOk
                                                         ? (String? newValue) {
                                                             if (newValue ==
-                                                                currentProduct
-                                                                    .productId
-                                                                    .toString()) {
-                                                              batchBloc.add(
-                                                                  ValidateFieldsEvent(
-                                                                      field:
-                                                                          "product",
-                                                                      isOk:
-                                                                          true));
-
-                                                              batchBloc.add(ChangeQuantitySeparate(
-                                                                  0,
-                                                                  currentProduct
-                                                                          .idProduct ??
-                                                                      0,
-                                                                  currentProduct
-                                                                          .idMove ??
-                                                                      0));
-
-                                                              batchBloc.add(ChangeProductIsOkEvent(
-                                                                  true,
-                                                                  currentProduct
-                                                                          .idProduct ??
-                                                                      0,
-                                                                  batchBloc
-                                                                          .batchWithProducts
-                                                                          .batch
-                                                                          ?.id ??
-                                                                      0,
-                                                                  0,
-                                                                  currentProduct
-                                                                          .idMove ??
-                                                                      0));
-
-                                                              batchBloc.add(ChangeIsOkQuantity(
-                                                                  true,
-                                                                  currentProduct
-                                                                          .idProduct ??
-                                                                      0,
-                                                                  batchBloc
-                                                                          .batchWithProducts
-                                                                          .batch
-                                                                          ?.id ??
-                                                                      0,
-                                                                  currentProduct
-                                                                          .idMove ??
-                                                                      0));
-
-                                                              Future.delayed(
-                                                                  const Duration(
-                                                                      milliseconds:
-                                                                          100),
-                                                                  () {
-                                                                FocusScope.of(
-                                                                        context)
-                                                                    .requestFocus(
-                                                                        focusNode3);
-                                                              });
+                                                                batchBloc
+                                                                    .batchWithProducts
+                                                                    .batch
+                                                                    ?.muelle) {
+                                                              validatePicking(
+                                                                  batchBloc,
+                                                                  context,
+                                                                  currentProduct);
                                                             } else {
                                                               batchBloc.add(
                                                                   ValidateFieldsEvent(
                                                                       field:
-                                                                          "product",
+                                                                          "locationDest",
                                                                       isOk:
                                                                           false));
                                                               ScaffoldMessenger
@@ -1025,7 +1249,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                     milliseconds:
                                                                         1000),
                                                                 content: const Text(
-                                                                    'Producto erroneo'),
+                                                                    'Muelle erroneo'),
                                                                 backgroundColor:
                                                                     Colors.red[
                                                                         200],
@@ -1038,70 +1262,15 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             const SizedBox(height: 10),
                                             Align(
                                               alignment: Alignment.centerLeft,
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment
-                                                        .start, //alineamos el texto a la izquierda
-                                                children: [
-                                                  Text(
-                                                    currentProduct.productId
-                                                        .toString(),
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
-                                                  ),
-                                                  Visibility(
-                                                    visible: currentProduct
-                                                                .barcode ==
-                                                            false ||
-                                                        currentProduct
-                                                                .barcode ==
-                                                            null ||
-                                                        currentProduct
-                                                                .barcode ==
-                                                            "",
-                                                    child: const Text(
-                                                      "Sin codigo de barras",
-                                                      textAlign:
-                                                          TextAlign.start,
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: red),
-                                                    ),
-                                                  ),
-                                                ],
+                                              child: Text(
+                                                batchBloc.batchWithProducts
+                                                        .batch?.muelle
+                                                        .toString() ??
+                                                    '',
+                                                style: const TextStyle(
+                                                    fontSize: 14, color: black),
                                               ),
                                             ),
-
-                                            const SizedBox(height: 10),
-                                            //informacion del lote:
-                                            if (currentProduct.loteId != null)
-                                              Column(
-                                                children: [
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Text(
-                                                      'Lote/Numero de serie ',
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color:
-                                                              primaryColorApp),
-                                                    ),
-                                                  ),
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Text(
-                                                      currentProduct.lotId ??
-                                                          '',
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: black),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
                                           ],
                                         ),
                                       ),
@@ -1110,217 +1279,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 ),
                               ],
                             ),
-
-                            //Todo: MUELLE
-                            // solo lo mostramos si es el ultimo producto
-                            if (batchBloc.index + 1 ==
-                                batchBloc.filteredProducts.length)
-                              Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: Container(
-                                      width: 10,
-                                      height: 10,
-                                      decoration: BoxDecoration(
-                                        color: batchBloc.locationDestIsOk
-                                            ? green
-                                            : yellow,
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                  ),
-                                  Card(
-                                    color: batchBloc.isLocationDestOk
-                                        ? batchBloc.locationDestIsOk
-                                            ? Colors.green[100]
-                                            : Colors.grey[300]
-                                        : Colors.red[200],
-                                    elevation: 5,
-                                    child: Container(
-                                      width: size.width * 0.85,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 10),
-                                      child: Focus(
-                                        focusNode: focusNode5,
-                                        onKey: (FocusNode node,
-                                            RawKeyEvent event) {
-                                          if (event is RawKeyDownEvent) {
-                                            if (event.logicalKey ==
-                                                LogicalKeyboardKey.enter) {
-                                              if (scannedValue4.isNotEmpty) {
-                                                print("scan:   $scannedValue4");
-                                                if (scannedValue4
-                                                        .toLowerCase() ==
-                                                    currentProduct
-                                                        .barcodeLocationDest
-                                                        ?.toLowerCase()) {
-                                                  validatePicking(batchBloc,
-                                                      context, currentProduct);
-                                                } else {
-                                                  batchBloc.add(
-                                                      ValidateFieldsEvent(
-                                                          field: "locationDest",
-                                                          isOk: false));
-                                                  setState(() {
-                                                    scannedValue4 =
-                                                        ""; //limpiamos el valor escaneado
-                                                  });
-
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(SnackBar(
-                                                    duration: const Duration(
-                                                        milliseconds: 1000),
-                                                    content: const Text(
-                                                        'Muelle erroneo'),
-                                                    backgroundColor:
-                                                        Colors.red[200],
-                                                  ));
-                                                }
-                                              }
-                                              return KeyEventResult.handled;
-                                            } else {
-                                              setState(() {
-                                                scannedValue4 +=
-                                                    event.data.keyLabel;
-                                              });
-                                              return KeyEventResult.handled;
-                                            }
-                                          }
-                                          return KeyEventResult.ignored;
-                                        },
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Center(
-                                                child: DropdownButton<String>(
-                                                  underline: Container(
-                                                    height: 0,
-                                                  ),
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  focusColor: Colors.white,
-                                                  isExpanded: true,
-                                                  hint: Text(
-                                                    'Muelle',
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: primaryColorApp),
-                                                  ),
-                                                  icon: Image.asset(
-                                                    "assets/icons/packing.png",
-                                                    color: primaryColorApp,
-                                                    width: 20,
-                                                  ),
-                                                  value: selectedMuelle,
-                                                  // items: batchBloc.positions
-                                                  items: batchBloc.muelles
-                                                      .map((String location) {
-                                                    return DropdownMenuItem<
-                                                        String>(
-                                                      value: location,
-                                                      child: Text(location,
-                                                          style:
-                                                              const TextStyle(
-                                                                  color: black,
-                                                                  fontSize:
-                                                                      14)),
-                                                    );
-                                                  }).toList(),
-
-                                                  onChanged: batchBloc
-                                                              .configurations
-                                                              .data
-                                                              ?.result
-                                                              ?.manualSpringSelection ==
-                                                          false
-                                                      ? null
-                                                      : !batchBloc.quantityIsOk &&
-                                                              !batchBloc
-                                                                  .locationDestIsOk &&
-                                                              batchBloc
-                                                                  .productIsOk
-                                                          ? (String? newValue) {
-                                                              if (newValue ==
-                                                                  batchBloc
-                                                                      .batchWithProducts
-                                                                      .batch
-                                                                      ?.muelle) {
-                                                                validatePicking(
-                                                                    batchBloc,
-                                                                    context,
-                                                                    currentProduct);
-                                                              } else {
-                                                                batchBloc.add(
-                                                                    ValidateFieldsEvent(
-                                                                        field:
-                                                                            "locationDest",
-                                                                        isOk:
-                                                                            false));
-                                                                ScaffoldMessenger.of(
-                                                                        context)
-                                                                    .showSnackBar(
-                                                                        SnackBar(
-                                                                  duration: const Duration(
-                                                                      milliseconds:
-                                                                          1000),
-                                                                  content:
-                                                                      const Text(
-                                                                          'Muelle erroneo'),
-                                                                  backgroundColor:
-                                                                      Colors.red[
-                                                                          200],
-                                                                ));
-                                                              }
-                                                            }
-                                                          : null,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  batchBloc.batchWithProducts
-                                                          .batch?.muelle
-                                                          .toString() ??
-                                                      '',
-                                                  style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: black),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-
-                            // ElevatedButton(
-                            //   onPressed: () async {
-                            //     //  await DataBaseSqlite().getBarcodesProduct(
-                            //     //   batchBloc.batchWithProducts.batch?.id ?? 0,
-                            //     //   currentProduct.idProduct ?? 0,
-                            //     //   currentProduct.idMove ?? 0);
-                            //     validatePicking(batchBloc, context);
-
-                            //     // batchBloc.add(ValidateFieldsEvent(
-                            //     //     field: "quantity", isOk: true));
-                            //     // batchBloc.add(AddQuantitySeparate(
-                            //     //     currentProduct.idProduct ?? 0,
-                            //     //     currentProduct.idMove ?? 0,
-                            //     //     1));
-                            //     // print("barcodes: ${batchBloc.listOfBarcodes}");
-                            //   },
-                            //   child: const Text('Example'),
-                            // ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),
@@ -1774,91 +1733,77 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           horizontal: 10),
                                       child: Container(
                                           alignment: Alignment.center,
-                                          child: Focus(
-                                            focusNode: focusNode3,
-                                            onKey: (FocusNode node,
-                                                RawKeyEvent event) {
-                                              if (event is RawKeyDownEvent) {
-                                                if (event.logicalKey ==
-                                                    LogicalKeyboardKey.enter) {
-                                                  if (scannedValue3
-                                                      .isNotEmpty) {
-//*validamos el barcode del producto aumentaod +1 a la cantidad
-                                                    if (scannedValue3
-                                                            .toLowerCase() ==
-                                                        currentProduct.barcode
-                                                            ?.toLowerCase()) {
-                                                      batchBloc.add(
-                                                          ValidateFieldsEvent(
-                                                              field: "quantity",
-                                                              isOk: true));
-
-                                                      batchBloc.add(
-                                                          AddQuantitySeparate(
-                                                              currentProduct
-                                                                      .idProduct ??
-                                                                  0,
-                                                              currentProduct
-                                                                      .idMove ??
-                                                                  0,
-                                                              1));
-
-                                                      setState(() {
-                                                        scannedValue3 =
-                                                            ""; //limpiamos el valor escaneado
-                                                      });
-                                                    } else {
-//*validamos el barcode del paquete del producto y sumamaos la cantidad segun el barcode
-                                                      validateScannedBarcode(
-                                                          scannedValue3
-                                                              .toLowerCase(),
-                                                          batchBloc
-                                                              .currentProduct,
-                                                          batchBloc,
-                                                          false);
-
-                                                      setState(() {
-                                                        scannedValue3 =
-                                                            ""; //limpiamos el valor escaneado
-                                                      });
+                                          child: true
+                                              ? TextFormField(
+                                                  textAlign: TextAlign.center,
+                                                  enabled: batchBloc
+                                                          .locationIsOk && //true
+                                                      batchBloc
+                                                          .productIsOk && //true
+                                                      batchBloc
+                                                          .quantityIsOk && //true
+                                                     
+                                                      !batchBloc
+                                                          .locationDestIsOk 
+                                                        ,
+                                                  // showCursor: false,
+                                                  controller:
+                                                      _controllerQuantity, // Controlador que maneja el texto
+                                                  focusNode: focusNode3,
+                                                  onChanged: (value) {
+                                                    validateQuantity(value);
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    hintText: batchBloc
+                                                        .quantitySelected
+                                                        .toString(),
+                                                    disabledBorder:
+                                                        InputBorder.none,
+                                                    hintStyle: const TextStyle(
+                                                        fontSize: 14,
+                                                        color: black),
+                                                    border: InputBorder.none,
+                                                  ),
+                                                )
+                                              : Focus(
+                                                  focusNode: focusNode3,
+                                                  onKey: (FocusNode node,
+                                                      RawKeyEvent event) {
+                                                    if (event
+                                                        is RawKeyDownEvent) {
+                                                      if (event.logicalKey ==
+                                                          LogicalKeyboardKey
+                                                              .enter) {
+                                                        if (scannedValue3
+                                                            .isNotEmpty) {
+                                                          validateQuantity(
+                                                              scannedValue3);
+                                                        }
+                                                        return KeyEventResult
+                                                            .handled;
+                                                      } else {
+                                                        setState(() {
+                                                          scannedValue3 += event
+                                                              .data.keyLabel;
+                                                        });
+                                                        return KeyEventResult
+                                                            .handled;
+                                                      }
                                                     }
-
-                                                    //validamos que sea el ultimo item de la lista
-                                                    if (batchBloc.index + 1 ==
-                                                        batchBloc
-                                                            .filteredProducts
-                                                            .length) {
-                                                      batchBloc.add(
-                                                          FetchBatchWithProductsEvent(
-                                                              batchBloc
-                                                                      .batchWithProducts
-                                                                      .batch
-                                                                      ?.id ??
-                                                                  0));
-                                                    }
-                                                  }
-
-                                                  return KeyEventResult.handled;
-                                                } else {
-                                                  setState(() {
-                                                    scannedValue3 +=
-                                                        event.data.keyLabel;
-                                                  });
-                                                  return KeyEventResult.handled;
-                                                }
-                                              }
-                                              return KeyEventResult.ignored;
-                                            },
-                                            child: Text(
-                                                batchBloc.quantitySelected
-                                                    .toString(),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 14,
+                                                    return KeyEventResult
+                                                        .ignored;
+                                                  },
+                                                  child: Text(
+                                                      batchBloc.quantitySelected
+                                                          .toString(),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                      )),
                                                 )),
-                                          )),
                                     ),
                                   ),
                                   IconButton(
@@ -2103,49 +2048,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           );
         }
 
-        return Scaffold(
-          backgroundColor: Colors.white,
-          body: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 100,
-                  width: 200,
-                  child: Image.asset(
-                    "assets/images/logo.jpeg",
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  "Error al cargar los datos...",
-                  style: TextStyle(fontSize: 18, color: black),
-                ),
-                const Text(
-                  "Comprueba tu conexión a internet",
-                  style: TextStyle(fontSize: 16, color: black),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      minimumSize: Size(size.width * 0.6, 40),
-                    ),
-                    child: const Text(
-                      "Atras",
-                      style: TextStyle(color: white, fontSize: 16),
-                    ))
-              ],
-            ),
-          ),
-        );
+        return ErrorPicking(size: size);
       }),
     );
   }
@@ -2282,8 +2185,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           ));
           return false;
         }
-        batchBloc.add(AddQuantitySeparate(currentProduct.idProduct ?? 0,
-            currentProduct.idMove ?? 0, matchedBarcode.cantidad.toInt()));
+        batchBloc.add(AddQuantitySeparate(
+            currentProduct.idProduct ?? 0,
+            currentProduct.idMove ?? 0,
+            matchedBarcode.cantidad.toInt(),
+            false));
       }
       return false;
     } else {
@@ -2389,5 +2295,61 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                 });
           });
     }
+  }
+}
+
+class ErrorPicking extends StatelessWidget {
+  const ErrorPicking({
+    super.key,
+    required this.size,
+  });
+
+  final Size size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 100,
+              width: 200,
+              child: Image.asset(
+                "assets/images/logo.jpeg",
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Error al cargar los datos...",
+              style: TextStyle(fontSize: 18, color: black),
+            ),
+            const Text(
+              "Comprueba tu conexión a internet",
+              style: TextStyle(fontSize: 16, color: black),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  minimumSize: Size(size.width * 0.6, 40),
+                ),
+                child: const Text(
+                  "Atras",
+                  style: TextStyle(color: white, fontSize: 16),
+                ))
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -107,3 +107,9 @@ class ProductPendingState extends BatchState {
 class LoadingSendProductEdit extends BatchState {}
 
 class ProductEditOk extends BatchState {}
+
+
+class ScanBarcodeState extends BatchState {
+  final String barcode;
+  ScanBarcodeState(this.barcode);
+}

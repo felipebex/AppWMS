@@ -4,6 +4,7 @@ part of 'batch_bloc.dart';
 
 @immutable
 sealed class BatchEvent {}
+class  InitialStateEvent extends BatchEvent {}
 
 class LoadAllProductsBatchsEvent extends BatchEvent {
   int batchId;
@@ -41,11 +42,10 @@ class GetProductById extends BatchEvent {
 
 //* CAMBIAR VALORES DE VARIABLES
 class ChangeLocationIsOkEvent extends BatchEvent {
-  final bool locationIsOk;
   final int productId;
   final int batchId;
   final int idMove;
-  ChangeLocationIsOkEvent(this.locationIsOk, this.productId, this.batchId, this.idMove);
+  ChangeLocationIsOkEvent( this.productId, this.batchId, this.idMove);
 }
 
 class ChangeLocationDestIsOkEvent extends BatchEvent {
@@ -110,7 +110,8 @@ class AddQuantitySeparate extends BatchEvent {
   final int productId;
   final int idMove;
   final int quantity;
-  AddQuantitySeparate(this.productId, this.idMove, this.quantity);
+  final bool isOk;
+  AddQuantitySeparate(this.productId, this.idMove, this.quantity, this.isOk);
 }
 
 
@@ -154,4 +155,7 @@ class AssignSubmuelleEvent extends BatchEvent {
   final List<ProductsBatch> productsSeparate;
   final Muelles muelle;
   AssignSubmuelleEvent(this.productsSeparate, this.muelle);
+}
+
+class ScanBarcodeEvent extends BatchEvent {
 }

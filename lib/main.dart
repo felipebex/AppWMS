@@ -26,7 +26,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_r
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/example_screen.dart';
 import 'package:wms_app/src/services/notification_service.dart';
 
 import 'package:wms_app/src/services/preferences.dart';
@@ -170,7 +169,6 @@ class MyApp extends StatelessWidget {
             'home': (_) => const HomePage(),
             'ventor': (_) => const VentorHome(),
             'user': (_) => const UserScreen(),
-            'example': (_) => const PDAScannerScreen(),
           },
           theme: ThemeData.light().copyWith(
             scaffoldBackgroundColor: Colors.grey[300],
@@ -257,3 +255,5 @@ void refreshData(BuildContext context) async {
     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, context));
   }
 }
+
+
