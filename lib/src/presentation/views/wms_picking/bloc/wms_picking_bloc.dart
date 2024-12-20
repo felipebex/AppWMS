@@ -20,6 +20,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   List<BatchsModel> filteredBatchs = []; // Lista para los productos filtrados
   List<BatchsModel> batchsDone = []; // Lista para los productos filtrados
 
+  bool isKeyboardVisible = false;
+
   WmsPickingRepository wmsPickingRepository = WmsPickingRepository();
 
   //*controller para la busqueda
@@ -47,7 +49,14 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     //* filtrar por tipo de batch o wave
     on<FilterBatchesByTypeEvent>(_onFilterBatchesByTypeEvent);
 
-    
+    //evento para mostrar el teclado
+    on<ShowKeyboardEvent>(_onShowKeyboardEvent);
+  }
+
+  void _onShowKeyboardEvent(
+      ShowKeyboardEvent event, Emitter<PickingState> emit) {
+    isKeyboardVisible = event.showKeyboard;
+    emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
   }
 
   //*metodo para filtrar los batchs por fecha
@@ -317,22 +326,19 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
             .expand((barcode) => barcode.otherBarcode!)
             .toList();
 
-      
-       final List<Muelles> responseMuelles = await wmsPickingRepository.getmuelles(
+        final List<Muelles> responseMuelles =
+            await wmsPickingRepository.getmuelles(
           event.isLoadinDialog,
           event.context,
         );
 
         print('response muelles: ${responseMuelles.length}');
 
-        
-
         print('productsToInsert: ${productsToInsert.length}');
         print('barcodesToInsert: ${barcodesToInsert.length}');
         print('otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
 
         await DataBaseSqlite().insertSubmuelles(responseMuelles);
-
 
         // Enviar la lista agrupada a insertBatchProducts
         await DataBaseSqlite().insertBatchProducts(productsToInsert);
@@ -383,6 +389,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
   void _onSearchBacthEvent(
       SearchBatchEvent event, Emitter<PickingState> emit) async {
+    print('event._onSearchBacthEvent: ${event.query}');
     final query = event.query.toLowerCase();
     final int userid = await PrefUtils.getUserId();
     final batchsFromDB = await _databas.getAllBatchs(userid);
@@ -409,6 +416,4 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     }
     emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
   }
-
-
 }

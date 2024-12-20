@@ -53,26 +53,26 @@ class _HomePageState extends State<HomePage> {
         builder: (context, state) {
           return RefreshIndicator(
             onRefresh: () async {
-              // //peticion para la configuracion
-              // context.read<UserBloc>().add(GetConfigurations(context));
-              // final String rol = await PrefUtils.getUserRol();
-              // //peticion segun el rol del usuario
-              // if (rol == 'picking') {
+              //peticion para la configuracion
+              context.read<UserBloc>().add(GetConfigurations(context));
+              final String rol = await PrefUtils.getUserRol();
+              //peticion segun el rol del usuario
+              if (rol == 'picking') {
                 context
                     .read<WMSPickingBloc>()
                     .add(LoadAllBatchsEvent(context, true));
-              // } else if (rol == 'admin') {
-              //   // context
-              //   //     .read<WMSPickingBloc>()
-              //   //     .add(LoadAllBatchsEvent(context, true));
-              //   context
-              //       .read<WmsPackingBloc>()
-              //       .add(LoadAllPackingEvent(true, context));
-              // } else if (rol == 'packing') {
-              //   context
-              //       .read<WmsPackingBloc>()
-              //       .add(LoadAllPackingEvent(true, context));
-              // }
+              } else if (rol == 'admin') {
+                // context
+                //     .read<WMSPickingBloc>()
+                //     .add(LoadAllBatchsEvent(context, true));
+                context
+                    .read<WmsPackingBloc>()
+                    .add(LoadAllPackingEvent(true, context));
+              } else if (rol == 'packing') {
+                context
+                    .read<WmsPackingBloc>()
+                    .add(LoadAllPackingEvent(true, context));
+              }
             },
             child: Scaffold(
               floatingActionButton: FloatingActionButton(

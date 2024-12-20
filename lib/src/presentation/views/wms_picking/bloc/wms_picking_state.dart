@@ -34,4 +34,8 @@ final class LoadBatchsSuccesState extends PickingState {
 }
 
 
+class ShowKeyboardState extends PickingState {
+  final bool showKeyboard;
+  ShowKeyboardState({required this.showKeyboard});
+}
 

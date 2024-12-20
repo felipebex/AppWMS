@@ -23,6 +23,14 @@ final class LoadProductsBatchSuccesStateBD extends BatchState {
 
 
 
+class ShowKeyboardState extends BatchState {
+  final bool showKeyboard;
+  ShowKeyboardState({required this.showKeyboard});
+}
+
+
+
+
 final class BatchErrorState extends BatchState {
   final String error;
   BatchErrorState(this.error);

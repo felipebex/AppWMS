@@ -8,6 +8,7 @@ import 'package:cron/cron.dart';
 import 'package:flutter/services.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
+import 'package:wms_app/src/presentation/blocs/bloc/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
@@ -56,33 +57,33 @@ void main() async {
   await Preferences.init();
 
   //cron
-  // var cron = Cron();
-  // cron.schedule(Schedule.parse('*/3 * * * *'), () async {
-  //   try {
-  //     final result = await InternetAddress.lookup('example.com');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       final isLogin = await PrefUtils.getIsLoggedIn();
-  //       if (isLogin) {
-  //         searchProductsNoSendOdoo();
-  //       }
-  //     }
-  //   } on SocketException catch (_) {}
-  // });
-  // cron.schedule(Schedule.parse('*/5 * * * *'), () async {
-  //   try {
-  //     final result = await InternetAddress.lookup('example.com');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       // Acceder al contexto global para llamar a refreshData
-  //       if (navigatorKey.currentContext != null) {
-  //         final isLogin = await PrefUtils.getIsLoggedIn();
-  //         if (isLogin) {
-  //           print('connected 2');
-  //           refreshData(navigatorKey.currentContext!);
-  //         }
-  //       }
-  //     }
-  //   } on SocketException catch (_) {}
-  // });
+  var cron = Cron();
+  cron.schedule(Schedule.parse('*/3 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        final isLogin = await PrefUtils.getIsLoggedIn();
+        if (isLogin) {
+          searchProductsNoSendOdoo();
+        }
+      }
+    } on SocketException catch (_) {}
+  });
+  cron.schedule(Schedule.parse('*/5 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        // Acceder al contexto global para llamar a refreshData
+        if (navigatorKey.currentContext != null) {
+          final isLogin = await PrefUtils.getIsLoggedIn();
+          if (isLogin) {
+            print('connected 2');
+            refreshData(navigatorKey.currentContext!);
+          }
+        }
+      }
+    } on SocketException catch (_) {}
+  });
 }
 
 class AppState extends StatelessWidget {
@@ -124,6 +125,11 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => WmsPackingBloc(),
         ),
+
+        BlocProvider(
+          create: (_) => KeyboardBloc(
+          ),
+        )
       ],
       child: GetMaterialApp(
           navigatorKey: navigatorKey, // Usa el navigatorKey aquí
@@ -255,5 +261,3 @@ void refreshData(BuildContext context) async {
     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, context));
   }
 }
-
-

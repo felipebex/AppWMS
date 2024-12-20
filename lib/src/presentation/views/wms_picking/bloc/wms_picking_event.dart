@@ -93,3 +93,9 @@ class FilterBatchesByTypeEvent extends PickingEvent {
 }
 
 
+
+class ShowKeyboardEvent extends PickingEvent {
+  final bool showKeyboard;
+
+  ShowKeyboardEvent( this.showKeyboard);
+}

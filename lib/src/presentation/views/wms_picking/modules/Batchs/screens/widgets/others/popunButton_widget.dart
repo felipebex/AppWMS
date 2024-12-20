@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -22,42 +21,34 @@ class PopupMenuButtonWidget extends StatelessWidget {
     return PopupMenuButton<String>(
       shadowColor: Colors.white,
       color: Colors.white,
-      icon: const Icon(Icons.more_vert,
-          color: Colors.white, size: 30),
+      icon: const Icon(Icons.more_vert, color: Colors.white, size: 30),
       onSelected: (String value) {
         // Manejar la selección de opciones aquí
         if (value == '1') {
           //verficamos si tenemos permisos
-          if (batchBloc.configurations.data?.result
-                  ?.showDetallesPicking ==
+          if (batchBloc.configurations.data?.result?.showDetallesPicking ==
               true) {
             //cerramos el focus
             FocusScope.of(context).unfocus();
             batchBloc.isSearch = true;
-            batchBloc
-                .add(FetchBatchWithProductsEvent(
-              batchBloc.batchWithProducts.batch
-                      ?.id ??
-                  0,
+            batchBloc.add(FetchBatchWithProductsEvent(
+              batchBloc.batchWithProducts.batch?.id ?? 0,
             ));
-    
+
             Navigator.pushNamed(
               context,
               'batch-detail',
             );
           } else {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                duration: const Duration(
-                    milliseconds: 1000),
-                content: const Text(
-                    'No tienes permisos para ver detalles'),
+                duration: const Duration(milliseconds: 1000),
+                content: const Text('No tienes permisos para ver detalles'),
                 backgroundColor: Colors.red[200],
               ),
             );
           }
-    
+
           // Acción para opción 1
         } else if (value == '2') {
           // Acción para opción 2
@@ -65,21 +56,15 @@ class PopupMenuButtonWidget extends StatelessWidget {
               context: context,
               builder: (context) {
                 return BackdropFilter(
-                  filter: ImageFilter.blur(
-                      sigmaX: 5, sigmaY: 5),
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: AlertDialog(
                     backgroundColor: Colors.white,
-                    actionsAlignment:
-                        MainAxisAlignment.center,
+                    actionsAlignment: MainAxisAlignment.center,
                     title: Center(
-                        child: Text(
-                            'Dejar pendiente',
-                            style: TextStyle(
-                                color:
-                                    primaryColorApp))),
+                        child: Text('Dejar pendiente',
+                            style: TextStyle(color: primaryColorApp))),
                     content: const Column(
-                      mainAxisSize:
-                          MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Center(
                           child: Text(
@@ -92,48 +77,29 @@ class PopupMenuButtonWidget extends StatelessWidget {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          style: ElevatedButton
-                              .styleFrom(
-                                  backgroundColor:
-                                      Colors.white,
-                                  shape:
-                                      RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius
-                                            .circular(
-                                                10),
-                                  ),
-                                  elevation: 3),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              elevation: 3),
                           child: Text('Cancelar',
-                              style: TextStyle(
-                                  color:
-                                      primaryColorApp))),
+                              style: TextStyle(color: primaryColorApp))),
                       ElevatedButton(
                           onPressed: () {
-                            batchBloc.add(
-                                ProductPendingEvent(
-                                    batchBloc
-                                            .batchWithProducts
-                                            .batch
-                                            ?.id ??
-                                        0,
-                                    currentProduct));
+                            batchBloc.add(ProductPendingEvent(
+                                batchBloc.batchWithProducts.batch?.id ?? 0,
+                                currentProduct));
                             Navigator.pop(context);
                           },
-                          style: ElevatedButton
-                              .styleFrom(
-                            backgroundColor:
-                                primaryColorApp,
-                            shape:
-                                RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius
-                                      .circular(10),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColorApp,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
                             elevation: 3,
                           ),
-                          child: const Text(
-                              'Aceptar',
+                          child: const Text('Aceptar',
                               style: TextStyle(
                                 color: Colors.white,
                               ))),
@@ -143,6 +109,8 @@ class PopupMenuButtonWidget extends StatelessWidget {
               });
         } else if (value == '3') {
           batchBloc.add(LoadConfigurationsUser());
+          batchBloc.add(UpdateProductOdooEvent(
+              batchBloc.batchWithProducts.batch?.id ?? 0, context));
         }
       },
       itemBuilder: (BuildContext context) {
@@ -151,14 +119,10 @@ class PopupMenuButtonWidget extends StatelessWidget {
             value: '1',
             child: Row(
               children: [
-                Icon(Icons.info,
-                    color: primaryColorApp,
-                    size: 20),
+                Icon(Icons.info, color: primaryColorApp, size: 20),
                 const SizedBox(width: 10),
                 const Text('Ver detalles',
-                    style: TextStyle(
-                        color: black,
-                        fontSize: 14)),
+                    style: TextStyle(color: black, fontSize: 14)),
               ],
             ),
           ),
@@ -166,34 +130,26 @@ class PopupMenuButtonWidget extends StatelessWidget {
             value: '3',
             child: Row(
               children: [
-                Icon(Icons.refresh,
-                    color: primaryColorApp,
-                    size: 20),
+                Icon(Icons.refresh, color: primaryColorApp, size: 20),
                 const SizedBox(width: 10),
                 const Text('Actualizar Datos',
-                    style: TextStyle(
-                        color: black,
-                        fontSize: 14)),
+                    style: TextStyle(color: black, fontSize: 14)),
               ],
             ),
           ),
           if (batchBloc.locationIsOk == true &&
               batchBloc.index + 1 <
-                  batchBloc.batchWithProducts
-                      .products!.length &&
+                  batchBloc.batchWithProducts.products!.length &&
               currentProduct.isPending != 1)
             PopupMenuItem<String>(
               value: '2',
               child: Row(
                 children: [
                   Icon(Icons.timelapse_rounded,
-                      color: primaryColorApp,
-                      size: 20),
+                      color: primaryColorApp, size: 20),
                   const SizedBox(width: 10),
                   const Text('Dejar pendiente',
-                      style: TextStyle(
-                          color: black,
-                          fontSize: 14)),
+                      style: TextStyle(color: black, fontSize: 14)),
                 ],
               ),
             ),

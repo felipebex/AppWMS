@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, unused_element, unnecessary_null_comparison, avoid_print, must_be_immutable
+// ignore_for_file: use_build_context_synchronously, unused_element, unnecessary_null_comparison, avoid_print, must_be_immutable, prefer_final_fields
 
 import 'dart:io';
 
@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/constans/gaps.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
@@ -65,10 +66,11 @@ class LoginPage extends StatelessWidget {
               children: <Widget>[
                 const WarningWidgetCubit(),
                 const SizedBox(
-                  height: 80,
+                  height: 20,
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding: const EdgeInsets.only(
+                      top: 25, left: 20, right: 20, bottom: 5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -96,19 +98,14 @@ class LoginPage extends StatelessWidget {
                     decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(60),
-                            topRight: Radius.circular(60))),
+                            topLeft: Radius.circular(40),
+                            topRight: Radius.circular(40))),
                     child: SingleChildScrollView(
-                      child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 30,
-                            right: 30,
-                          ),
-                          child: BlocBuilder<LoginBloc, LoginState>(
-                            builder: (context, state) {
-                              return _LoginForm();
-                            },
-                          )),
+                      child: BlocBuilder<LoginBloc, LoginState>(
+                        builder: (context, state) {
+                          return _LoginForm();
+                        },
+                      ),
                     ),
                   ),
                 )
@@ -121,38 +118,48 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class _LoginForm extends StatelessWidget {
-  _LoginForm({
+class _LoginForm extends StatefulWidget {
+  const _LoginForm({
     super.key,
   });
 
+  @override
+  State<_LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<_LoginForm> {
+  FocusNode _focusNodeEmail = FocusNode();
+  FocusNode _focusNodePassword = FocusNode();
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    // No olvides liberar los FocusNode al finalizar el formulario
+    _focusNodeEmail.dispose();
+    _focusNodePassword.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+
+    // Establecer el controlador según el foco activo
+    TextEditingController activeController = _focusNodeEmail.hasFocus
+        ? context.read<LoginBloc>().email
+        : context.read<LoginBloc>().password;
+
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
+        print("hasFocus: ${_focusNodeEmail.hasFocus}");
         return Form(
           key: formkey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             children: [
-              const SizedBox(
-                height: 20,
-              ),
-              // ClipRRect(
-              //   borderRadius: BorderRadius.circular(200),
-              //   child: Image.asset(
-              //     Environment.flavor.appName == "BexPicking"
-              //         ? 'assets/icons/iconBex.png'
-              //         : 'assets/images/icono.jpeg',
-              //     width: Environment.flavor.appName == "BexPicking" ? 100 : 250,
-              //     height: 140,
-              //     fit: BoxFit.cover,
-              //   ),
-              // ),
+              const SizedBox(height: 10),
               Container(
+                margin: const EdgeInsets.only(left: 30, right: 30),
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
@@ -165,128 +172,172 @@ class _LoginForm extends StatelessWidget {
                 child: Column(
                   children: [
                     TextFormField(
-                        controller: context.read<LoginBloc>().email,
-                        decoration: InputDecoration(
-                            disabledBorder: const OutlineInputBorder(),
-                            prefixIcon: Icon(
-                              Icons.email,
-                              size: 20,
-                              color: primaryColorApp,
-                            ),
-                            hintText: "Correo electronico",
-                            hintStyle: const TextStyle(
-                                color: Colors.grey, fontSize: 12),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.all(10),
-                            errorStyle: const TextStyle(
-                                color: Colors.red, fontSize: 12)),
-                        validator: (value) => Validator.email(value, context)),
+                      focusNode: _focusNodeEmail,
+                      controller: context.read<LoginBloc>().email,
+                      onTap:
+                          !context.read<UserBloc>().fabricante.contains("Zebra")
+                              ? null
+                              : () {
+                                  setState(() {
+                                    FocusScope.of(context).requestFocus(
+                                        _focusNodeEmail); // Solicitar foco inmediatamente
+                                  });
+                                },
+                      style: const TextStyle(fontSize: 13),
+                      decoration: InputDecoration(
+                        disabledBorder: const OutlineInputBorder(),
+                        prefixIcon: Icon(
+                          Icons.email,
+                          size: 15,
+                          color: primaryColorApp,
+                        ),
+                        hintText: "Correo electrónico",
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.all(10),
+                        errorStyle:
+                            const TextStyle(color: Colors.red, fontSize: 10),
+                      ),
+                      validator: (value) => Validator.email(value, context),
+                    ),
                     TextFormField(
                       controller: context.read<LoginBloc>().password,
                       autocorrect: false,
                       obscureText: context.watch<LoginBloc>().isVisible,
+                      focusNode: _focusNodePassword,
+                      style: const TextStyle(fontSize: 13),
+                      onTap:
+                          !context.read<UserBloc>().fabricante.contains("Zebra")
+                              ? null
+                              : () {
+                                  setState(() {
+                                    FocusScope.of(context).requestFocus(
+                                        _focusNodePassword); // Solicitar foco inmediatamente
+                                  });
+                                },
                       decoration: InputDecoration(
-                          disabledBorder: const OutlineInputBorder(),
-                          contentPadding: const EdgeInsets.all(10),
-                          prefixIcon: Icon(
-                            Icons.lock,
-                            size: 20,
+                        disabledBorder: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.all(10),
+                        prefixIcon: Icon(
+                          Icons.lock,
+                          size: 15,
+                          color: primaryColorApp,
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            context
+                                .read<LoginBloc>()
+                                .add(TogglePasswordVisibility());
+                          },
+                          icon: Icon(
+                            context.watch<LoginBloc>().isVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            size: 15,
                             color: primaryColorApp,
                           ),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              context
-                                  .read<LoginBloc>()
-                                  .add(TogglePasswordVisibility());
-                            },
-                            icon: Icon(
-                              context.watch<LoginBloc>().isVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: primaryColorApp,
-                            ),
-                          ),
-                          hintText: "Contraseña",
-                          errorStyle:
-                              const TextStyle(color: Colors.red, fontSize: 12),
-                          hintStyle:
-                              const TextStyle(color: Colors.grey, fontSize: 12),
-                          border: InputBorder.none),
+                        ),
+                        hintText: "Contraseña",
+                        errorStyle:
+                            const TextStyle(color: Colors.red, fontSize: 10),
+                        hintStyle:
+                            const TextStyle(color: Colors.grey, fontSize: 12),
+                        border: InputBorder.none,
+                      ),
                       validator: (value) => Validator.password(value, context),
                     ),
                     const SizedBox(height: 5),
                   ],
                 ),
               ),
-              gapH20,
-              MaterialButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  disabledColor: Colors.grey,
-                  elevation: 0,
-                  color: primaryColorApp,
-                  onPressed: () async {
-                    //cerramos el teclado
-                    FocusScope.of(context).unfocus();
-
-                    if (!formkey.currentState!.validate()) return;
-
-                    try {
-                      final result =
-                          await InternetAddress.lookup('example.com');
-                      if (result.isNotEmpty &&
-                          result[0].rawAddress.isNotEmpty) {
-                        context
-                            .read<LoginBloc>()
-                            .add(LoginButtonPressed(context));
-                      }
-                    } catch (e, s) {
-                      print("Error en login: $e $s");
-                      Navigator.of(context).pop();
-                      showModalDialog(context, 'No tiene conexión a internet');
-                    }
-                  },
-                  child: Container(
-                    width: size.width * 0.9,
-                    height: 20,
-                    alignment: Alignment.center,
-                    child: BlocBuilder<LoginBloc, LoginState>(
-                      builder: (context, state) {
-                        if (state is LoginLoading) {
-                          return const Center(
-                            child: Text(
-                              "Cargando...",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }
-                        return const Text(
-                          "Iniciar Sesión",
-                          style: TextStyle(color: Colors.white),
-                        );
-                      },
-                    ),
-                  )),
-              ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
+              gapH10,
+              Padding(
+                padding: const EdgeInsets.only(left: 30, right: 30),
+                child: MaterialButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
+                    disabledColor: Colors.grey,
                     elevation: 0,
-                    minimumSize: Size(size.width * 0.9, 20),
-                  ),
-                  onPressed: () {
-                    Navigator.pushNamed(context, 'enterprice');
-                  },
-                  child: Container(
-                    width: 220,
-                    height: 30,
-                    alignment: Alignment.center,
-                    child: const Text(
-                      "Atras",
-                      style: TextStyle(color: Colors.white),
+                    color: primaryColorApp,
+                    onPressed: () async {
+                      if (!context
+                          .read<UserBloc>()
+                          .fabricante
+                          .contains("Zebra")) {
+                        FocusScope.of(context).unfocus();
+                      }
+                      if (!formkey.currentState!.validate()) return;
+                      try {
+                        final result =
+                            await InternetAddress.lookup('example.com');
+                        if (result.isNotEmpty &&
+                            result[0].rawAddress.isNotEmpty) {
+                          context
+                              .read<LoginBloc>()
+                              .add(LoginButtonPressed(context));
+                        }
+                      } catch (e, s) {
+                        print("Error en login: $e $s");
+                        Navigator.of(context).pop();
+                        showModalDialog(
+                            context, 'No tiene conexión a internet');
+                      }
+                    },
+                    child: Container(
+                      width: size.width * 0.9,
+                      alignment: Alignment.center,
+                      child: BlocBuilder<LoginBloc, LoginState>(
+                        builder: (context, state) {
+                          if (state is LoginLoading) {
+                            return const Center(
+                              child: Text(
+                                "Cargando...",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }
+                          return const Text(
+                            "Iniciar Sesión",
+                            style: TextStyle(color: Colors.white),
+                          );
+                        },
+                      ),
+                    )),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 30, right: 30),
+                child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      elevation: 0,
+                      minimumSize: Size(size.width * 0.9, 20),
                     ),
-                  ))
+                    onPressed: () {
+                      // Limpiamos los campos
+                      context.read<LoginBloc>().email.clear();
+                      context.read<LoginBloc>().password.clear();
+                      Navigator.pushNamed(context, 'enterprice');
+                    },
+                    child: Container(
+                      width: 220,
+                      height: 30,
+                      alignment: Alignment.center,
+                      child: const Text(
+                        "Atras",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )),
+              ),
+              Visibility(
+                visible: context.read<UserBloc>().fabricante.contains("Zebra"),
+                child: CustomKeyboard(
+                    controller:
+                        activeController, // Cambia el controlador activamente
+                    onchanged: () {}),
+              ),
             ],
           ),
         );

@@ -6,9 +6,12 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
+import 'package:wms_app/src/presentation/widgets/jeyboard_numbers_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,70 +84,85 @@ class _PickingPageState extends State<WMSPickingPage> {
 
             final size = MediaQuery.sizeOf(context);
             return Scaffold(
-                bottomNavigationBar: AnimatedNotchBottomBar(
-                  /// Provide NotchBottomBarController
-                  notchBottomBarController: controller,
-                  color: Colors.white,
-                  showLabel: true,
-                  textOverflow: TextOverflow.visible,
-                  maxLine: 1,
-                  shadowElevation: 3,
-                  kBottomRadius: 8.0,
-                  notchColor: primaryColorApp,
-                  removeMargins: false,
-                  showShadow: false,
-                  durationInMilliSeconds: 300,
-                  itemLabelStyle: const TextStyle(fontSize: 10),
-                  elevation: 12,
-                  bottomBarItems: [
-                    BottomBarItem(
-                      inActiveItem: Icon(
-                        Icons.batch_prediction,
-                        color: primaryColorApp,
-                      ),
-                      activeItem: const Icon(
-                        Icons.batch_prediction,
-                        color: white,
-                      ),
-                      itemLabel: 'En Proceso',
-                    ),
-                    const BottomBarItem(
-                      inActiveItem: Icon(
-                        Icons.batch_prediction,
-                        color: green,
-                      ),
-                      activeItem: Icon(
-                        Icons.batch_prediction,
-                        color: white,
-                      ),
-                      itemLabel: 'Hechos',
-                    ),
-                  ],
-                  onTap: (index) {
-                    setState(() {
-                      controller.index = index;
-                    });
-                    switch (index) {
-                      case 0:
-                        context
-                            .read<WMSPickingBloc>()
-                            .add(FilterBatchesBStatusEvent(
-                              '',
-                            ));
-                        break;
-                      case 1:
-                        context
-                            .read<WMSPickingBloc>()
-                            .add(FilterBatchesBStatusEvent(
-                              'done',
-                            ));
-                        break;
+                bottomNavigationBar: context
+                        .read<WMSPickingBloc>()
+                        .isKeyboardVisible
+                    ? CustomKeyboard(
+                        controller:
+                            context.read<WMSPickingBloc>().searchController,
+                        onchanged: () {
+                          context.read<WMSPickingBloc>().add(SearchBatchEvent(
+                              context
+                                  .read<WMSPickingBloc>()
+                                  .searchController
+                                  .text,
+                              controller.index));
+                        },
+                      )
+                    : AnimatedNotchBottomBar(
+                        /// Provide NotchBottomBarController
+                        notchBottomBarController: controller,
+                        color: Colors.white,
+                        showLabel: true,
+                        textOverflow: TextOverflow.visible,
+                        maxLine: 1,
+                        shadowElevation: 3,
+                        kBottomRadius: 8.0,
+                        notchColor: primaryColorApp,
+                        removeMargins: false,
+                        showShadow: false,
+                        durationInMilliSeconds: 300,
+                        itemLabelStyle: const TextStyle(fontSize: 10),
+                        elevation: 12,
+                        bottomBarItems: [
+                          BottomBarItem(
+                            inActiveItem: Icon(
+                              Icons.batch_prediction,
+                              color: primaryColorApp,
+                            ),
+                            activeItem: const Icon(
+                              Icons.batch_prediction,
+                              color: white,
+                            ),
+                            itemLabel: 'En Proceso',
+                          ),
+                          const BottomBarItem(
+                            inActiveItem: Icon(
+                              Icons.batch_prediction,
+                              color: green,
+                            ),
+                            activeItem: Icon(
+                              Icons.batch_prediction,
+                              color: white,
+                            ),
+                            itemLabel: 'Hechos',
+                          ),
+                        ],
+                        onTap: (index) {
+                          setState(() {
+                            controller.index = index;
+                          });
+                          switch (index) {
+                            case 0:
+                              context
+                                  .read<WMSPickingBloc>()
+                                  .add(FilterBatchesBStatusEvent(
+                                    '',
+                                  ));
+                              break;
+                            case 1:
+                              context
+                                  .read<WMSPickingBloc>()
+                                  .add(FilterBatchesBStatusEvent(
+                                    'done',
+                                  ));
+                              break;
 
-                      default:
-                    }
-                  },
-                  kIconSize: 24.0,
-                ),
+                            default:
+                          }
+                        },
+                        kIconSize: 24.0,
+                      ),
                 body: SizedBox(
                   width: size.width * 1,
                   height: size.height * 0.87,
@@ -244,13 +262,13 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                         SizedBox(
                             // color: Colors.amber,
-                            height: 70, //120
+                            height: 75, //120
                             width: size.width * 1,
                             child: Column(
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 10, right: 10, top: 5),
+                                      left: 10, right: 10, top: 2),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -260,46 +278,77 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           color: Colors.white,
                                           elevation: 3,
                                           child: TextFormField(
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            controller: context
-                                                .read<WMSPickingBloc>()
-                                                .searchController,
-                                            decoration: InputDecoration(
-                                              prefixIcon: const Icon(
-                                                  Icons.search,
-                                                  color: grey),
-                                              suffixIcon: IconButton(
-                                                  onPressed: () {
-                                                    context
-                                                        .read<WMSPickingBloc>()
-                                                        .searchController
-                                                        .clear();
-                                                    context
-                                                        .read<WMSPickingBloc>()
-                                                        .add(SearchBatchEvent(
-                                                            '',
-                                                            controller.index));
-                                                    FocusScope.of(context)
-                                                        .unfocus();
-                                                  },
-                                                  icon: const Icon(Icons.close,
-                                                      color: grey)),
-                                              disabledBorder:
-                                                  const OutlineInputBorder(),
-                                              hintText: "Buscar batch",
-                                              hintStyle: const TextStyle(
-                                                  color: Colors.grey,
-                                                  fontSize: 14),
-                                              border: InputBorder.none,
-                                            ),
-                                            onChanged: (value) {
-                                              context
+                                              textAlignVertical:
+                                                  TextAlignVertical.center,
+                                              controller: context
                                                   .read<WMSPickingBloc>()
-                                                  .add(SearchBatchEvent(
-                                                      value, controller.index));
-                                            },
-                                          ),
+                                                  .searchController,
+                                              decoration: InputDecoration(
+                                                prefixIcon: const Icon(
+                                                    Icons.search,
+                                                    color: grey),
+                                                suffixIcon: IconButton(
+                                                    onPressed: () {
+                                                      context
+                                                          .read<
+                                                              WMSPickingBloc>()
+                                                          .searchController
+                                                          .clear();
+                                                      context
+                                                          .read<
+                                                              WMSPickingBloc>()
+                                                          .add(SearchBatchEvent(
+                                                              '',
+                                                              controller
+                                                                  .index));
+                                                      FocusScope.of(context)
+                                                          .unfocus();
+                                                    },
+                                                    icon: IconButton(
+                                                      onPressed: () {
+                                                        context
+                                                            .read<
+                                                                WMSPickingBloc>()
+                                                            .add(
+                                                                ShowKeyboardEvent(
+                                                                    false));
+                                                        context
+                                                            .read<
+                                                                WMSPickingBloc>()
+                                                            .searchController
+                                                            .clear();
+                                                      },
+                                                      icon: const Icon(
+                                                          Icons.close,
+                                                          color: grey),
+                                                    )),
+                                                disabledBorder:
+                                                    const OutlineInputBorder(),
+                                                hintText: "Buscar batch",
+                                                hintStyle: const TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14),
+                                                border: InputBorder.none,
+                                              ),
+                                              onChanged: (value) {
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .add(SearchBatchEvent(value,
+                                                        controller.index));
+                                              },
+                                              onTap: !context
+                                                      .read<UserBloc>()
+                                                      .fabricante
+                                                      .contains("Zebra")
+                                                  ? null
+                                                  : () {
+                                                      context
+                                                          .read<
+                                                              WMSPickingBloc>()
+                                                          .add(
+                                                              ShowKeyboardEvent(
+                                                                  true));
+                                                    }),
                                         ),
                                       ),
                                       Card(
@@ -579,9 +628,12 @@ class _PickingPageState extends State<WMSPickingPage> {
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Image.asset('assets/images/empty.png',
-                                          height:
-                                              150), // Ajusta la altura según necesites
+                                      if (!context
+                                          .read<WMSPickingBloc>()
+                                          .isKeyboardVisible)
+                                        Image.asset('assets/images/empty.png',
+                                            height:
+                                                150), // Ajusta la altura según necesites
                                       const SizedBox(height: 10),
                                       const Text('No se encontraron resultados',
                                           style: TextStyle(

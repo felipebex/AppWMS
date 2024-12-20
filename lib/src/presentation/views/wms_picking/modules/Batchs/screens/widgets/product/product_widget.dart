@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ProductDropdownWidget extends StatelessWidget {
@@ -26,6 +27,7 @@ class ProductDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -111,20 +113,22 @@ class ProductDropdownWidget extends StatelessWidget {
           ),
 
           // Información del producto
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Visibility(
-              visible: currentProductId.isEmpty,
-              child: const Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Text(
-                  "Sin código de barras",
-                  textAlign: TextAlign.start,
-                  style: TextStyle(fontSize: 14, color: Colors.red),
+
+          if (isPDA)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Visibility(
+                visible: currentProductId.isEmpty,
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Text(
+                    "Sin código de barras",
+                    textAlign: TextAlign.start,
+                    style: TextStyle(fontSize: 14, color: Colors.red),
+                  ),
                 ),
               ),
             ),
-          ),
 
           // Lote/Numero de serie
           if (isPDA)
@@ -147,6 +151,7 @@ class ProductDropdownWidget extends StatelessWidget {
                         style: const TextStyle(fontSize: 14, color: black),
                       ),
                     ),
+                   
                   ],
                 ),
               ),

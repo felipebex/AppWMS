@@ -5,6 +5,8 @@ import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/widgets/list_database.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,10 @@ class SelectEnterpricePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<EntrepriseBloc, EntrepriseState>(
       listener: (context, state) {
+        if (state is EntrepriseInitial) {
+          context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+        }
+
         //estado de error
         if (state is EntrepriseFailure) {
           showModalDialog(context, state.error);
@@ -48,7 +54,7 @@ class SelectEnterpricePage extends StatelessWidget {
                   height: 10,
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(55),
+                  padding: const EdgeInsets.all(25),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -72,6 +78,7 @@ class SelectEnterpricePage extends StatelessWidget {
                 ),
                 Expanded(
                   child: Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.only(top: 15),
                     decoration: const BoxDecoration(
                         color: Colors.white,
@@ -79,12 +86,28 @@ class SelectEnterpricePage extends StatelessWidget {
                             topLeft: Radius.circular(60),
                             topRight: Radius.circular(60))),
                     child: SingleChildScrollView(
-                      child: Padding(
-                          padding: const EdgeInsets.only(left: 30, right: 30),
-                          child: _loginForm()),
+                      child: Column(
+                        children: [
+                          Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 30, right: 30),
+                              child: _loginForm()),
+                          Visibility(
+                            visible: context
+                                .read<UserBloc>()
+                                .fabricante
+                                .contains("Zebra"),
+                            child: CustomKeyboard(
+                                controller: context
+                                    .read<EntrepriseBloc>()
+                                    .entrepriceController,
+                                onchanged: () {}),
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -107,17 +130,7 @@ class _loginForm extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
-          // ClipRRect(
-          //   borderRadius: BorderRadius.circular(200),
-          //   child: Image.asset(
-          //     Environment.flavor.appName == "BexPicking"
-          //         ? 'assets/icons/iconBex.png'
-          //         : 'assets/images/icono.jpeg',
-          //     width: Environment.flavor.appName == "BexPicking" ? 100 : 150,
-          //     height: 90,
-          //     fit: BoxFit.cover,
-          //   ),
-          // ),
+       
           Container(
             margin: const EdgeInsets.only(top: 20),
             decoration: BoxDecoration(
@@ -163,22 +176,15 @@ class _loginForm extends StatelessWidget {
               ],
             ),
           ),
-          if (context.read<EntrepriseBloc>().recentUrls.isNotEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 15, bottom: 5),
-              child: Text(
-                'URLs recientes',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          SizedBox(
-            width: double.infinity,
+
+
+          Container(
+            margin: const EdgeInsets.only(top: 5),
             height: context.read<EntrepriseBloc>().recentUrls.isEmpty
-                ? 100
-                : 230, // Altura de la lista de URLs recientes
+                ? 90
+                : context.read<UserBloc>().fabricante.contains("Zebra")
+                    ? 100
+                    : 150, // Altura de la lista de URLs recientes
             child: ListView.builder(
               padding: const EdgeInsets.all(0),
               itemCount: context.read<EntrepriseBloc>().recentUrls.length,
@@ -251,7 +257,6 @@ class _loginForm extends StatelessWidget {
                     return const Center(
                       child: CircularProgressIndicator(
                         color: Colors.white,
-                        
                       ),
                     );
                   }

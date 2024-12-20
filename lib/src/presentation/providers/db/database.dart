@@ -74,6 +74,7 @@ class DataBaseSqlite {
         id INTEGER PRIMARY KEY,
         id_product INTEGER,
         batch_id INTEGER,
+        expire_date VARCHAR(255),
         product_id INTEGER,
         picking_id TEXT,
         lot_id TEXT,
@@ -1051,6 +1052,7 @@ class DataBaseSqlite {
                 "id_product": productBatch.idProduct,
                 "batch_id": productBatch.batchId,
                 "location_id": productBatch.locationId?[1],
+                "expire_date": productBatch.expireDate,
                 "lot_id":
                     productBatch.lotId == false ? "" : productBatch.lotId?[1],
                 "lote_id": productBatch.loteId,
@@ -1085,6 +1087,7 @@ class DataBaseSqlite {
               {
                 "id_product": productBatch.idProduct,
                 "batch_id": productBatch.batchId,
+                "expire_date": productBatch.expireDate,
                 "product_id":
                     productBatch.productId?[1], // Usar el valor correcto
                 "location_id": productBatch.locationId?[1],

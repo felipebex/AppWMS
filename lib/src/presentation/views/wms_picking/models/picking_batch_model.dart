@@ -210,6 +210,7 @@ class ProductsBatch {
   final int? isPending;
   final String? isSendOdooDate;
   final double? weight;
+  final dynamic expireDate;
 
   // Variables para el picking
   late dynamic
@@ -227,6 +228,7 @@ class ProductsBatch {
     this.idMove,
     this.rimovalPriority,
     this.muelleId,
+    this.expireDate,
     // this.pickingId,
     this.barcodeLocation,
     this.idProduct,
@@ -265,6 +267,7 @@ class ProductsBatch {
     return ProductsBatch(
       id: map['id'],
       rimovalPriority: map['rimoval_priority'],
+      expireDate: map['expire_date'],
       batchId: map['batch_id'],
       idProduct: map['id_product'],
       productId: map['product_id'],
@@ -313,6 +316,7 @@ class ProductsBatch {
   Map<String, dynamic> toMap() {
     return {
       "id": id,
+      "expire_date": expireDate,
       "rimoval_priority": rimovalPriority,
       "id_product": idProduct,
       "batch_id": batchId,

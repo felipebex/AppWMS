@@ -5,11 +5,14 @@ import 'dart:ui';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_edit_product_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 import '../../../../../../utils/constans/colors.dart';
 
@@ -37,7 +40,7 @@ class BatchDetailScreen extends StatelessWidget {
             //     tittle: 'Picking Detail', actions: const SizedBox()),
             body: SizedBox(
               width: size.width,
-              height: size.height * 0.96,
+              height: size.height * 1,
               child: Column(
                 ///apbar
 
@@ -429,6 +432,16 @@ class BatchDetailScreen extends StatelessWidget {
                                         .read<BatchBloc>()
                                         .add(SearchProductsBatchEvent(value));
                                   },
+                                  onTap: !context
+                                          .read<UserBloc>()
+                                          .fabricante
+                                          .contains("Zebra")
+                                      ? null
+                                      : () {
+                                          context
+                                              .read<BatchBloc>()
+                                              .add(ShowKeyboard(true));
+                                        },
                                   controller: context
                                       .read<BatchBloc>()
                                       .searchController,
@@ -441,6 +454,9 @@ class BatchDetailScreen extends StatelessWidget {
                                               ClearSearchProudctsBatchEvent());
                                           //cerramo el teclado
                                           FocusScope.of(context).unfocus();
+                                          context
+                                              .read<BatchBloc>()
+                                              .add(ShowKeyboard(false));
                                         },
                                         icon: const Icon(Icons.close,
                                             color: grey)),
@@ -544,7 +560,11 @@ class BatchDetailScreen extends StatelessWidget {
                                                                       context,
                                                                   builder:
                                                                       (context) {
-                                                                        context.read<BatchBloc>().editProductController.text = '';  
+                                                                    context
+                                                                        .read<
+                                                                            BatchBloc>()
+                                                                        .editProductController
+                                                                        .text = '';
                                                                     return DialogEditProductWidget(
                                                                       productsBatch:
                                                                           productsBatch,
@@ -642,38 +662,38 @@ class BatchDetailScreen extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 8),
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.priority_high,
-                                                    color: primaryColorApp,
-                                                    size: 15,
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  const Text("priority:",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: black)),
-                                                  const SizedBox(width: 5),
-                                                  SizedBox(
-                                                    width: size.width * 0.6,
-                                                    child: Text(
-                                                        productsBatch
-                                                                .rimovalPriority
-                                                                .toString() ??
-                                                            '',
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp)),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+                                            // Padding(
+                                            //   padding:
+                                            //       const EdgeInsets.symmetric(
+                                            //           horizontal: 8),
+                                            //   child: Row(
+                                            //     children: [
+                                            //       Icon(
+                                            //         Icons.priority_high,
+                                            //         color: primaryColorApp,
+                                            //         size: 15,
+                                            //       ),
+                                            //       const SizedBox(width: 5),
+                                            //       const Text("priority:",
+                                            //           style: TextStyle(
+                                            //               fontSize: 12,
+                                            //               color: black)),
+                                            //       const SizedBox(width: 5),
+                                            //       SizedBox(
+                                            //         width: size.width * 0.6,
+                                            //         child: Text(
+                                            //             productsBatch
+                                            //                     .rimovalPriority
+                                            //                     .toString() ??
+                                            //                 '',
+                                            //             style: TextStyle(
+                                            //                 fontSize: 12,
+                                            //                 color:
+                                            //                     primaryColorApp)),
+                                            //       ),
+                                            //     ],
+                                            //   ),
+                                            // ),
                                             Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -705,6 +725,13 @@ class BatchDetailScreen extends StatelessWidget {
                                                   ),
                                                 ],
                                               ),
+                                            ),
+                                            ExpiryDateWidget(
+                                              expireDate: DateTime.parse(
+                                                  productsBatch.expireDate ??
+                                                      ''),
+                                              size: size,
+                                              isDetaild: true,
                                             ),
                                             Padding(
                                               padding:
@@ -923,7 +950,10 @@ class BatchDetailScreen extends StatelessWidget {
                                                                         black)),
                                                       ],
                                                     ),
-                                                    if ( productsBatch.quantity != productsBatch.quantitySeparate )
+                                                    if (productsBatch
+                                                            .quantity !=
+                                                        productsBatch
+                                                            .quantitySeparate)
                                                       Align(
                                                         alignment: Alignment
                                                             .centerLeft,
@@ -964,9 +994,10 @@ class BatchDetailScreen extends StatelessWidget {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset('assets/images/empty.png',
-                                    height:
-                                        100), // Ajusta la altura según necesites
+                                if (!context.read<BatchBloc>().isPdaZebra)
+                                  Image.asset('assets/images/empty.png',
+                                      height:
+                                          100), // Ajusta la altura según necesites
                                 const SizedBox(height: 10),
                                 Text(
                                     context.read<BatchBloc>().isSearch
@@ -984,6 +1015,18 @@ class BatchDetailScreen extends StatelessWidget {
                             ),
                           ),
                   ),
+
+                  Visibility(
+                    visible: context.read<BatchBloc>().isKeyboardVisible &&
+                        context.read<UserBloc>().fabricante.contains("Zebra"),
+                    child: CustomKeyboard(
+                      controller: context.read<BatchBloc>().searchController,
+                      onchanged: () {
+                        context.read<BatchBloc>().add(SearchProductsBatchEvent(
+                            context.read<BatchBloc>().searchController.text));
+                      },
+                    ),
+                  )
                 ],
               ),
             ));

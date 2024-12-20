@@ -162,3 +162,9 @@ class ScanBarcodeEvent extends BatchEvent {
 
 class LoadInfoDeviceEvent extends BatchEvent {
 }
+
+class ShowKeyboard extends BatchEvent {
+  final bool showKeyboard;
+
+  ShowKeyboard( this.showKeyboard);
+}

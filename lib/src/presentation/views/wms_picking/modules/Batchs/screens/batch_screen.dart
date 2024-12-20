@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
@@ -19,9 +20,11 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_picking_incompleted_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dropdowbutton_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/popunButton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/product_widget.dart';
+import 'package:wms_app/src/presentation/widgets/jeyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
@@ -411,6 +414,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             margin: const EdgeInsets.only(
                                                 bottom: 5),
                                             child: TextFormField(
+                                              showCursor: false,
                                               controller:
                                                   _controllerLocation, // Asignamos el controlador
                                               enabled: !batchBloc
@@ -537,6 +541,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             margin: const EdgeInsets.only(
                                                 bottom: 5),
                                             child: TextFormField(
+                                              showCursor: false,
                                               enabled: batchBloc
                                                       .locationIsOk && //true
                                                   !batchBloc
@@ -566,6 +571,38 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           // Lote/Numero de serie
                                           Column(
                                             children: [
+                                              ExpiryDateWidget(
+                                                expireDate: DateTime.parse(
+                                                  currentProduct.expireDate ??
+                                                      '',
+                                                ),
+                                                size: size,
+                                                isDetaild: false,
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Visibility(
+                                                  visible: currentProduct
+                                                              .barcode ==
+                                                          false ||
+                                                      currentProduct.barcode ==
+                                                          null ||
+                                                      currentProduct.barcode ==
+                                                          "",
+                                                  child: const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 10),
+                                                    child: Text(
+                                                      "Sin código de barras",
+                                                      textAlign:
+                                                          TextAlign.start,
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.red),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
                                               Align(
                                                 alignment: Alignment.centerLeft,
                                                 child: Text(
@@ -703,6 +740,14 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     ),
                                                   ],
                                                 ),
+                                              ExpiryDateWidget(
+                                                expireDate: DateTime.parse(
+                                                  currentProduct.expireDate ??
+                                                      '',
+                                                ),
+                                                size: size,
+                                                isDetaild: false,
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -759,6 +804,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               margin: const EdgeInsets.only(
                                                   bottom: 5),
                                               child: TextFormField(
+                                                showCursor: false,
                                                 enabled: batchBloc
                                                         .locationIsOk &&
                                                     batchBloc.productIsOk &&
@@ -1225,7 +1271,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
               SizedBox(
                 width: size.width,
-                height: viewQuantity ? 150 : 110,
+                height: viewQuantity == true &&
+                        context.read<UserBloc>().fabricante.contains("Zebra")
+                    ? 345
+                    : !viewQuantity
+                        ? 110
+                        : 150,
                 child: Column(
                   children: [
                     Padding(
@@ -1270,6 +1321,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                         alignment: Alignment.center,
                                         child: batchBloc.isPdaZebra
                                             ? TextFormField(
+                                                showCursor: false,
                                                 textAlign: TextAlign.center,
                                                 enabled: batchBloc
                                                         .locationIsOk && //true
@@ -1497,57 +1549,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               ? () {
                                   //cerramos el teclado
                                   FocusScope.of(context).unfocus();
-                                  int cantidad = int.parse(cantidadController
-                                          .text.isEmpty
-                                      ? batchBloc.quantitySelected.toString()
-                                      : cantidadController.text);
-
-                                  if (cantidad == currentProduct.quantity) {
-                                    batchBloc.add(ChangeQuantitySeparate(
-                                        cantidad,
-                                        currentProduct.idProduct ?? 0,
-                                        currentProduct.idMove ?? 0));
-                                  } else {
-                                    FocusScope.of(context).unfocus();
-                                    if (cantidad <
-                                        (currentProduct.quantity ?? 0)
-                                            .toInt()) {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return DialogAdvetenciaCantidadScreen(
-                                                currentProduct: currentProduct,
-                                                cantidad: cantidad,
-                                                batchId: batchBloc
-                                                        .batchWithProducts
-                                                        .batch
-                                                        ?.id ??
-                                                    0,
-                                                onAccepted: () async {
-                                                  batchBloc.add(
-                                                      ChangeQuantitySeparate(
-                                                          cantidad,
-                                                          currentProduct
-                                                                  .idProduct ??
-                                                              0,
-                                                          currentProduct
-                                                                  .idMove ??
-                                                              0));
-                                                  _nextProduct(currentProduct,
-                                                      batchBloc);
-                                                  cantidadController.clear();
-                                                });
-                                          });
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        duration:
-                                            const Duration(milliseconds: 1000),
-                                        content: const Text('Cantidad erronea'),
-                                        backgroundColor: Colors.red[200],
-                                      ));
-                                    }
-                                  }
+                                  _validatebuttonquantity();
                                 }
                               : null,
                           style: ElevatedButton.styleFrom(
@@ -1562,6 +1564,17 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             style: TextStyle(color: Colors.white, fontSize: 14),
                           ),
                         )),
+                    //teclado de la app
+                    Visibility(
+                      visible: viewQuantity &&
+                          context.read<UserBloc>().fabricante.contains("Zebra"),
+                      child: CustomKeyboardNumber(
+                        controller: cantidadController,
+                        onchanged: () {
+                          _validatebuttonquantity();
+                        },
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -1570,6 +1583,46 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         );
       }),
     );
+  }
+
+  void _validatebuttonquantity() {
+    final batchBloc = context.read<BatchBloc>();
+    final currentProduct = batchBloc.currentProduct;
+
+    int cantidad = int.parse(cantidadController.text.isEmpty
+        ? batchBloc.quantitySelected.toString()
+        : cantidadController.text);
+
+    if (cantidad == currentProduct.quantity) {
+      batchBloc.add(ChangeQuantitySeparate(
+          cantidad, currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0));
+    } else {
+      FocusScope.of(context).unfocus();
+      if (cantidad < (currentProduct.quantity ?? 0).toInt()) {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return DialogAdvetenciaCantidadScreen(
+                  currentProduct: currentProduct,
+                  cantidad: cantidad,
+                  batchId: batchBloc.batchWithProducts.batch?.id ?? 0,
+                  onAccepted: () async {
+                    batchBloc.add(ChangeQuantitySeparate(
+                        cantidad,
+                        currentProduct.idProduct ?? 0,
+                        currentProduct.idMove ?? 0));
+                    _nextProduct(currentProduct, batchBloc);
+                    cantidadController.clear();
+                  });
+            });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(milliseconds: 1000),
+          content: const Text('Cantidad erronea'),
+          backgroundColor: Colors.red[200],
+        ));
+      }
+    }
   }
 
   void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) async {
@@ -1590,8 +1643,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
     batchBloc.sortProductsByLocationId();
 
-    print("index: ${batchBloc.index}");
-    print("length: ${batchBloc.filteredProducts.length}");
     if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
       //ultima posicion de la lista
       context

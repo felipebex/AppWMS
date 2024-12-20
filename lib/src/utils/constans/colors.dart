@@ -22,7 +22,7 @@ const Color mainFontColor = Color.fromARGB(255, 78, 119, 237);
 const Color arrowbgColor = Color(0xffe4e9f7);
 Color primaryColorApp = Environment.flavor.appName == 'BexPicking'
     ? const Color.fromARGB(255, 237, 131, 78)
-    : const Color.fromARGB(255, 78, 119, 237);
+    : const Color.fromARGB(255, 19, 46, 129);
 
 Color primaryColorAppLigth = Environment.flavor.appName == 'BexPicking'
     ? const Color.fromARGB(255, 250, 212, 186)

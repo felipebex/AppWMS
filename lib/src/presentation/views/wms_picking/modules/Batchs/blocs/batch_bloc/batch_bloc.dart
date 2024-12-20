@@ -1,7 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
@@ -84,6 +83,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<Muelles> submuelles = [];
 
   bool isPdaZebra = false;
+  bool isKeyboardVisible = false;
 
   //*indice del producto actual
   int index = 0;
@@ -134,6 +134,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<AssignSubmuelleEvent>(_onAssignSubmuelleEvent);
 
     on<LoadInfoDeviceEvent>(_onLoadInfoDevicesEvent);
+
+    on<ShowKeyboard>(_onShowKeyboardEvent);
+  }
+
+  void _onShowKeyboardEvent(ShowKeyboard event, Emitter<BatchState> emit) {
+    isKeyboardVisible = event.showKeyboard;
+    emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
   }
 
   void _onLoadInfoDevicesEvent(
@@ -159,7 +166,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void _onLoadConfigurationsUserEvent(
       LoadConfigurationsUser event, Emitter<BatchState> emit) async {
-
     try {
       int userId = await PrefUtils.getUserId();
       final response = await db.getConfiguration(userId);
