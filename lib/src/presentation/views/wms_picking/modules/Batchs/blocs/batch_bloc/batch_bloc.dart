@@ -84,6 +84,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   bool isPdaZebra = false;
   bool isKeyboardVisible = false;
+  bool shouldRunDependencies = true;
 
   //*indice del producto actual
   int index = 0;
@@ -136,6 +137,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<LoadInfoDeviceEvent>(_onLoadInfoDevicesEvent);
 
     on<ShowKeyboard>(_onShowKeyboardEvent);
+
+    on<IsShouldRunDependencies>(_onIsShouldRunDependenciesEvent);
+  }
+
+
+  void _onIsShouldRunDependenciesEvent(
+      IsShouldRunDependencies event, Emitter<BatchState> emit) {
+    shouldRunDependencies = event.shouldRunDependencies;
+    emit(ShouldRunDependenciesState(shouldRunDependencies: shouldRunDependencies));
   }
 
   void _onShowKeyboardEvent(ShowKeyboard event, Emitter<BatchState> emit) {

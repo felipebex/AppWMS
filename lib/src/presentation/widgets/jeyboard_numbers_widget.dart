@@ -8,11 +8,13 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 class CustomKeyboardNumber extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onchanged;
+  final bool isDialog;
 
   const CustomKeyboardNumber({
     super.key,
     required this.controller,
     required this.onchanged,
+    this.isDialog = false,
   });
 
   @override
@@ -26,13 +28,17 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
   Widget build(BuildContext context) {
     return BlocListener<KeyboardBloc, KeyboardState>(
       listener: (context, state) {
-        // if (state is KeyboardUpdatedState) {
-        //   widget.onchanged();
-        // }
+        if (state is KeyboardUpdatedState && widget.isDialog) {
+          widget.onchanged();
+        }
       },
       child: Container(
-        color: lightGrey,
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+        decoration: BoxDecoration(
+          color: lightGrey,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding:  EdgeInsets.symmetric(horizontal: 
+        widget.isDialog ? 10 : 20.0, vertical:  10.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -69,8 +75,10 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
             .add(KeyPressedEvent(key, widget.controller));
       },
       child: Container(
-        width: 100, // Tamaño ajustado
-        height: 40, // Tamaño ajustado
+        width:
+        widget.isDialog ? 64 :
+         100, // Tamaño ajustado
+        height: 40, // Tamaño 5justado
         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 3),
         decoration: BoxDecoration(
           color: white, // Color blanco de fondo
@@ -94,7 +102,9 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
         widget.onchanged();
       },
       child: Container(
-        width: 100, // Tamaño ajustado
+        width: 
+        widget.isDialog ? 64 :
+        100, // Tamaño ajustado
         height: 40, // Tamaño ajustado
         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
         decoration: BoxDecoration(
@@ -120,7 +130,9 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
             .add(BackspacePressedEvent(widget.controller));
       },
       child: Container(
-        width: 100, // Tamaño ajustado
+        width: 
+        widget.isDialog ? 64 :
+        100, // Tamaño ajustado
         height: 40,
         decoration: BoxDecoration(
           color: primaryColorApp,

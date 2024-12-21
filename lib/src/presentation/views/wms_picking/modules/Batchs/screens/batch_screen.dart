@@ -52,7 +52,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   FocusNode focusNode4 = FocusNode(); //cantidad textformfield
   FocusNode focusNode5 = FocusNode(); //cantidad muelle
 
-  bool shouldRunDependencies = true;
   bool viewQuantity = false;
 
   Muelles? selectedSubMuelle;
@@ -68,7 +67,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (shouldRunDependencies) {
+    if (context.read<BatchBloc>().shouldRunDependencies) {
+      log('shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
       final batchBloc = context.read<BatchBloc>();
       if (!batchBloc.locationIsOk && //false
           !batchBloc.productIsOk && //false
@@ -267,7 +267,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
         int totalTasks = context.read<BatchBloc>().filteredProducts.length;
         print('state: $state');
-        log("focoLocation: $focoLocation");
+        // log("focoLocation: $focoLocation");
 
         double progress = totalTasks > 0
             ? context.read<BatchBloc>().filteredProducts.where((e) {
@@ -795,8 +795,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               selectedMuelle: selectedMuelle,
                                               batchBloc: batchBloc,
                                               currentProduct: currentProduct,
-                                              shouldRunDependencies:
-                                                  shouldRunDependencies,
+                                            
                                               isPda: false,
                                             ),
                                             Container(
@@ -859,8 +858,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             selectedMuelle: selectedMuelle,
                                             batchBloc: batchBloc,
                                             currentProduct: currentProduct,
-                                            shouldRunDependencies:
-                                                shouldRunDependencies,
+                                          
                                             isPda: true,
                                           )),
                                 ),
@@ -910,9 +908,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                         ? null
                                         : () {
                                             //no entramos a didpchanges
+                                              batchBloc.add(IsShouldRunDependencies(false));
 
                                             setState(() {
-                                              shouldRunDependencies = false;
                                               scannedValue6 = "";
                                               alerta = "";
                                               selectedSubMuelle = null;
@@ -1153,11 +1151,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 ElevatedButton(
                                                                   onPressed:
                                                                       () async {
-                                                                    setState(
-                                                                        () {
-                                                                      shouldRunDependencies =
-                                                                          true;
-                                                                    });
+                                                                    context
+                                                                        .read<
+                                                                            BatchBloc>()
+                                                                        .add(
+                                                                            IsShouldRunDependencies(true));
+
+                                                                    
                                                                     // Cerrar el focus y salir del modal
                                                                     FocusScope.of(
                                                                             context)
@@ -1831,17 +1831,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                     //cerramos el focus
                     batchBloc.isSearch = false;
                     batchBloc.add(LoadProductEditEvent());
-                    setState(() {
-                      shouldRunDependencies = false;
-                    });
-
+                    batchBloc.add(IsShouldRunDependencies(true));
                     Navigator.pushNamed(
                       context,
                       'batch-detail',
                     ).then((_) {
-                      setState(() {
-                        shouldRunDependencies = true;
-                      });
+                      batchBloc.add(IsShouldRunDependencies(true));
                     });
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

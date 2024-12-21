@@ -28,6 +28,11 @@ class ShowKeyboardState extends BatchState {
   ShowKeyboardState({required this.showKeyboard});
 }
 
+class ShouldRunDependenciesState extends BatchState {
+  final bool shouldRunDependencies;
+  ShouldRunDependenciesState({required this.shouldRunDependencies});
+}
+
 
 
 

@@ -168,3 +168,8 @@ class ShowKeyboard extends BatchEvent {
 
   ShowKeyboard( this.showKeyboard);
 }
+class IsShouldRunDependencies extends BatchEvent {
+  final bool shouldRunDependencies;
+
+  IsShouldRunDependencies( this.shouldRunDependencies);
+}

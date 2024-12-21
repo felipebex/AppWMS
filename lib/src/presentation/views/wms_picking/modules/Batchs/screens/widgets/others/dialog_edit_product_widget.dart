@@ -4,9 +4,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/jeyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
@@ -64,7 +66,6 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
           ),
           const SizedBox(height: 10),
           SizedBox(
-            width: size.width,
             child: Column(
               children: [
                 RichText(
@@ -84,6 +85,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
+                  controller: context.read<BatchBloc>().editProductController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [
                     FilteringTextInputFormatter
@@ -103,31 +105,42 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                       ),
                     ),
                   ),
-                  onChanged: (value) {
-                    context.read<BatchBloc>().editProductController.text =
-                        value;
-                    if (value.isNotEmpty) {
-                      int cantidad = int.parse(value);
-                      if (cantidad == 0) {
-                        context.read<BatchBloc>().editProductController.clear();
-                        setState(() {
-                          alerta = "La cantidad no puede ser 0";
-                        });
-                      } else if (cantidad >
-                          (widget.productsBatch.quantity -
-                              widget.productsBatch.quantitySeparate)) {
-                        context.read<BatchBloc>().editProductController.clear();
-                        setState(() {
-                          alerta =
-                              "La cantidad no puede ser mayor a la cantidad restante";
-                        });
-                      } else {
-                        setState(() {
-                          alerta = "";
-                        });
-                      }
-                    }
-                  },
+                  onChanged: context
+                          .read<UserBloc>()
+                          .fabricante
+                          .contains("Zebra")
+                      ? null
+                      : (value) {
+                          context.read<BatchBloc>().editProductController.text =
+                              value;
+                          if (value.isNotEmpty) {
+                            int cantidad = int.parse(value);
+                            if (cantidad == 0) {
+                              context
+                                  .read<BatchBloc>()
+                                  .editProductController
+                                  .clear();
+                              setState(() {
+                                alerta = "La cantidad no puede ser 0";
+                              });
+                            } else if (cantidad >
+                                (widget.productsBatch.quantity -
+                                    widget.productsBatch.quantitySeparate)) {
+                              context
+                                  .read<BatchBloc>()
+                                  .editProductController
+                                  .clear();
+                              setState(() {
+                                alerta =
+                                    "La cantidad no puede ser mayor a la cantidad restante";
+                              });
+                            } else {
+                              setState(() {
+                                alerta = "";
+                              });
+                            }
+                          }
+                        },
                 ),
                 Align(
                     alignment: Alignment.centerLeft,
@@ -213,6 +226,33 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                     ),
                   ),
                 ),
+                CustomKeyboardNumber(
+                  controller: context.read<BatchBloc>().editProductController,
+                  onchanged: () {
+                    final value =
+                        context.read<BatchBloc>().editProductController.text;
+                    if (value.isNotEmpty) {
+                      int cantidad = int.parse(value);
+                      if (cantidad == 0) {
+                        setState(() {
+                          alerta = "La cantidad no puede ser 0";
+                        });
+                      } else if (cantidad >
+                          (widget.productsBatch.quantity -
+                              widget.productsBatch.quantitySeparate)) {
+                        setState(() {
+                          alerta =
+                              "La cantidad no puede ser mayor a la cantidad restante";
+                        });
+                      } else {
+                        setState(() {
+                          alerta = "";
+                        });
+                      }
+                    }
+                  },
+                  isDialog: true,
+                )
               ],
             ),
           ),

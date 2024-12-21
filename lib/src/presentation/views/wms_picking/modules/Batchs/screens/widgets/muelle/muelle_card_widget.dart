@@ -10,15 +10,13 @@ class MuelleDropdownWidget extends StatefulWidget {
   final String? selectedMuelle;
   final BatchBloc batchBloc;
   final ProductsBatch currentProduct;
-  final bool shouldRunDependencies;
-  final bool isPda;
+  final bool isPda; 
 
   const MuelleDropdownWidget({
     super.key,
     required this.selectedMuelle,
     required this.batchBloc,
     required this.currentProduct,
-    required this.shouldRunDependencies,
     required this.isPda,
   });
 
@@ -73,7 +71,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                         if (newValue ==
                             widget.batchBloc.batchWithProducts.batch?.muelle) {
                           // Validación correcta
-                          validatePicking(widget.batchBloc, context, widget.currentProduct, widget.shouldRunDependencies);
+                          validatePicking(widget.batchBloc, context, widget.currentProduct, );
                         } else {
                           // Si la validación falla
                           widget.batchBloc.add(ValidateFieldsEvent(
@@ -103,70 +101,75 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
     );
   }
 
-  void validatePicking(
-      BatchBloc batchBloc, BuildContext context, ProductsBatch currentProduct, bool shouldRunDependencies) {
-    batchBloc.add(FetchBatchWithProductsEvent(
-        batchBloc.batchWithProducts.batch?.id ?? 0));
+void validatePicking(
+    BatchBloc batchBloc, BuildContext context, ProductsBatch currentProduct, ) {
+  
+  batchBloc.add(FetchBatchWithProductsEvent(
+      batchBloc.batchWithProducts.batch?.id ?? 0));
 
-    //validamos que la cantidad de productos separados sea igual a la cantidad de productos pedidos
-//validamos el 100 de las unidades separadas
-    final double unidadesSeparadas =
-        double.parse(batchBloc.calcularUnidadesSeparadas());
-    if (unidadesSeparadas == "100.0" || unidadesSeparadas == 100.0) {
-      batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
-      batchBloc.add(ChangeLocationDestIsOkEvent(
-          true,
-          currentProduct.idProduct ?? 0,
-          batchBloc.batchWithProducts.batch?.id ?? 0,
-          currentProduct.idMove ?? 0));
+  // Validamos que la cantidad de productos separados sea igual a la cantidad de productos pedidos
+  final double unidadesSeparadas =
+      double.parse(batchBloc.calcularUnidadesSeparadas());
+  
+  if (unidadesSeparadas == "100.0" || unidadesSeparadas == 100.0) {
+    batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+    batchBloc.add(ChangeLocationDestIsOkEvent(
+        true,
+        currentProduct.idProduct ?? 0,
+        batchBloc.batchWithProducts.batch?.id ?? 0,
+        currentProduct.idMove ?? 0));
 
-      batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
-          currentProduct.idProduct ?? 0));
-      context.read<WMSPickingBloc>().add(LoadBatchsFromDBEvent());
-      context.read<BatchBloc>().index = 0;
-      context.read<BatchBloc>().isSearch = true;
+    batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
+        currentProduct.idProduct ?? 0));
+    context.read<WMSPickingBloc>().add(LoadBatchsFromDBEvent());
+    context.read<BatchBloc>().index = 0;
+    context.read<BatchBloc>().isSearch = true;
 
-      Navigator.pop(context);
-    } else {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return DialogPickingIncompleted(
-                currentProduct: batchBloc.currentProduct,
-                cantidad: unidadesSeparadas,
-                batchBloc: batchBloc,
-                onAccepted: () {
-                  Navigator.pop(context);
-                  if (batchBloc
-                          .configurations.data?.result?.showDetallesPicking ==
-                      true) {
-                    //cerramos el focus
-                    batchBloc.isSearch = false;
-                    batchBloc.add(LoadProductEditEvent());
-                    setState(() {
-                      shouldRunDependencies = false;
-                    });
-
-                    Navigator.pushNamed(
-                      context,
-                      'batch-detail',
-                    ).then((_) {
-                      setState(() {
-                        shouldRunDependencies = true;
-                      });
-                    });
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        duration: const Duration(milliseconds: 1000),
-                        content:
-                            const Text('No tienes permisos para ver detalles'),
-                        backgroundColor: Colors.red[200],
-                      ),
-                    );
+    Navigator.pop(context);
+  } else {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return DialogPickingIncompleted(
+              currentProduct: batchBloc.currentProduct,
+              cantidad: unidadesSeparadas,
+              batchBloc: batchBloc,
+              onAccepted: () {
+                Navigator.pop(context);
+                if (batchBloc
+                        .configurations.data?.result?.showDetallesPicking ==
+                    true) {
+                  // Cerramos el foco
+                  batchBloc.isSearch = false;
+                  batchBloc.add(LoadProductEditEvent());
+                  
+                  // Comprobamos si el widget aún está montado antes de hacer setState
+                  if (mounted) {
+                   
+                     batchBloc.add(IsShouldRunDependencies(false));
                   }
-                });
-          });
-    }
+
+                  Navigator.pushNamed(
+                    context,
+                    'batch-detail',
+                  ).then((_) {
+                    // Solo volvemos a cambiar el estado si el widget sigue montado
+                    if (mounted) {
+                      batchBloc.add(IsShouldRunDependencies(true));
+                    }
+                  });
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: const Duration(milliseconds: 1000),
+                      content: const Text('No tienes permisos para ver detalles'),
+                      backgroundColor: Colors.red[200],
+                    ),
+                  );
+                }
+              });
+        });
   }
+}
+
 }
