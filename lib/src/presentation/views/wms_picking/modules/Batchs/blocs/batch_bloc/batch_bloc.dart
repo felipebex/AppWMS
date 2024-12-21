@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
@@ -55,17 +56,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   WmsPickingRepository repository = WmsPickingRepository();
 
   //*lista de novedades de separacion
-  List<String> novedades = [
-    'Producto dañado',
-    'Producto vencido',
-    'Producto en mal estado',
-    'Producto no corresponde',
-    'Producto no solicitado',
-    'Producto no encontrado',
-    'Producto no existe',
-    'Producto no registrado',
-    'Producto sin existencia',
-  ];
 
   String selectedNovedad = '';
 
@@ -81,6 +71,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<String> muelles = [];
   List<String> listOfProductsName = [];
   List<Muelles> submuelles = [];
+
+  //*lista de novedades
+  List<Novedad> novedades = [];
 
   bool isPdaZebra = false;
   bool isKeyboardVisible = false;
@@ -139,13 +132,31 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<ShowKeyboard>(_onShowKeyboardEvent);
 
     on<IsShouldRunDependencies>(_onIsShouldRunDependenciesEvent);
+
+    on<LoadAllNovedadesEvent>(_onLoadAllNovedadesEvent);
+    add(LoadAllNovedadesEvent());
   }
 
+  void _onLoadAllNovedadesEvent(
+      LoadAllNovedadesEvent event, Emitter<BatchState> emit) async {
+    try {
+      final response = await db.getAllNovedades();
+      novedades.clear();
+      if (response != null) {
+        novedades = response;
+        print("novedades: ${novedades.length}");
+      }
+    } catch (e, s) {
+      print("Error en __onLoadAllNovedadesEvent: $e, $s");
+    }
+    emit(NovedadesLoadedState(listOfNovedades: novedades));
+  }
 
   void _onIsShouldRunDependenciesEvent(
       IsShouldRunDependencies event, Emitter<BatchState> emit) {
     shouldRunDependencies = event.shouldRunDependencies;
-    emit(ShouldRunDependenciesState(shouldRunDependencies: shouldRunDependencies));
+    emit(ShouldRunDependenciesState(
+        shouldRunDependencies: shouldRunDependencies));
   }
 
   void _onShowKeyboardEvent(ShowKeyboard event, Emitter<BatchState> emit) {

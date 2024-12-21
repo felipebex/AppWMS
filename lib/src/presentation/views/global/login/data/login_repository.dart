@@ -8,6 +8,8 @@ import 'package:wms_app/src/presentation/views/global/login/models/user_model_re
 import 'package:wms_app/src/services/preferences.dart';
 
 class LoginRepository {
+
+
   Future<UserModelResponse> login(
     String email,
     String password,
@@ -47,4 +49,5 @@ class LoginRepository {
     }
     return UserModelResponse();
   }
+  
 }

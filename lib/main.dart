@@ -169,7 +169,6 @@ class MyApp extends StatelessWidget {
                     as PedidoPacking?),
 
             //*others
-            'confirmation': (_) => const ConfirmationPage(),
             'yms': (_) => const YMSPage(),
             'counter': (_) => const CounterPage(),
             'home': (_) => const HomePage(),

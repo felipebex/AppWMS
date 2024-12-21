@@ -173,3 +173,6 @@ class IsShouldRunDependencies extends BatchEvent {
 
   IsShouldRunDependencies( this.shouldRunDependencies);
 }
+
+class LoadAllNovedadesEvent extends BatchEvent {
+}

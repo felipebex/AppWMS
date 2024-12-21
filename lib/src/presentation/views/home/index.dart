@@ -338,10 +338,13 @@ class _HomePageState extends State<HomePage> {
                                         children: [
                                           GestureDetector(
                                             onTap: () async {
+                                              context.read<UserBloc>().add(
+                                                  LoadInfoDeviceEventUser());
                                               final String rol =
                                                   await PrefUtils.getUserRol();
 
-                                              if (rol == 'picking' || rol == 'admin') {
+                                              if (rol == 'picking' ||
+                                                  rol == 'admin') {
                                                 context
                                                     .read<WMSPickingBloc>()
                                                     .add(
@@ -397,6 +400,8 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                           GestureDetector(
                                             onTap: () async {
+                                              context.read<UserBloc>().add(
+                                                  LoadInfoDeviceEventUser());
                                               final String rol =
                                                   await PrefUtils.getUserRol();
 
@@ -490,6 +495,9 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
+                                            context
+                                                .read<UserBloc>()
+                                                .add(LoadInfoDeviceEventUser());
                                             //verficamos que rol tiene el usuario
                                             final String rol =
                                                 await PrefUtils.getUserRol();
@@ -535,6 +543,9 @@ class _HomePageState extends State<HomePage> {
                                         const SizedBox(width: 5),
                                         GestureDetector(
                                           onTap: () async {
+                                            context
+                                                .read<UserBloc>()
+                                                .add(LoadInfoDeviceEventUser());
                                             final String rol =
                                                 await PrefUtils.getUserRol();
 

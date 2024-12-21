@@ -226,32 +226,40 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                     ),
                   ),
                 ),
-                CustomKeyboardNumber(
-                  controller: context.read<BatchBloc>().editProductController,
-                  onchanged: () {
-                    final value =
-                        context.read<BatchBloc>().editProductController.text;
-                    if (value.isNotEmpty) {
-                      int cantidad = int.parse(value);
-                      if (cantidad == 0) {
-                        setState(() {
-                          alerta = "La cantidad no puede ser 0";
-                        });
-                      } else if (cantidad >
-                          (widget.productsBatch.quantity -
-                              widget.productsBatch.quantitySeparate)) {
-                        setState(() {
-                          alerta =
-                              "La cantidad no puede ser mayor a la cantidad restante";
-                        });
-                      } else {
-                        setState(() {
-                          alerta = "";
-                        });
+                
+                
+                Visibility(
+                  visible: context
+                      .read<UserBloc>()
+                      .fabricante
+                      .contains("Zebra"),
+                  child: CustomKeyboardNumber(
+                    controller: context.read<BatchBloc>().editProductController,
+                    onchanged: () {
+                      final value =
+                          context.read<BatchBloc>().editProductController.text;
+                      if (value.isNotEmpty) {
+                        int cantidad = int.parse(value);
+                        if (cantidad == 0) {
+                          setState(() {
+                            alerta = "La cantidad no puede ser 0";
+                          });
+                        } else if (cantidad >
+                            (widget.productsBatch.quantity -
+                                widget.productsBatch.quantitySeparate)) {
+                          setState(() {
+                            alerta =
+                                "La cantidad no puede ser mayor a la cantidad restante";
+                          });
+                        } else {
+                          setState(() {
+                            alerta = "";
+                          });
+                        }
                       }
-                    }
-                  },
-                  isDialog: true,
+                    },
+                    isDialog: true,
+                  ),
                 )
               ],
             ),

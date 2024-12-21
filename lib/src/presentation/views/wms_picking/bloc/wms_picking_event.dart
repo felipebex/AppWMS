@@ -99,3 +99,8 @@ class ShowKeyboardEvent extends PickingEvent {
 
   ShowKeyboardEvent( this.showKeyboard);
 }
+
+class LoadAllNovedades extends PickingEvent {
+ final  BuildContext context;
+  LoadAllNovedades(this.context);
+}

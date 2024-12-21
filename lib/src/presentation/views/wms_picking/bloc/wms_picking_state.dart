@@ -39,3 +39,9 @@ class ShowKeyboardState extends PickingState {
   ShowKeyboardState({required this.showKeyboard});
 }
 
+
+
+class LoadSuccessNovedadesState extends PickingState {
+  final List<Novedad> listOfNovedades;
+  LoadSuccessNovedadesState({required this.listOfNovedades});
+}

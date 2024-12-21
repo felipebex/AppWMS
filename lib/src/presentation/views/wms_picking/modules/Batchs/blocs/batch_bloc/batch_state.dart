@@ -126,3 +126,9 @@ class ScanBarcodeState extends BatchState {
   final String barcode;
   ScanBarcodeState(this.barcode);
 }
+
+
+class NovedadesLoadedState  extends BatchState {
+  final List<Novedad> listOfNovedades;
+  NovedadesLoadedState({required this.listOfNovedades});
+}

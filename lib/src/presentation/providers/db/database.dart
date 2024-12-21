@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks
 
+import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/models/recent_url_model.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
@@ -258,6 +259,15 @@ class DataBaseSqlite {
         location_id INTEGER
         )
         ''');
+
+    //tabla para novedades
+    await db.execute('''
+      CREATE TABLE tblnovedades (
+        id INTEGER PRIMARY KEY,
+        name TEXT,
+        code TEXT
+      )
+    ''');
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -266,6 +276,68 @@ class DataBaseSqlite {
           'ALTER TABLE tblconfigurations ADD COLUMN muelle_option TEXT');
     }
   }
+
+
+
+  //metodo para insertar una novedad
+  Future<void> insertNovedad(Novedad novedad) async {
+    try {
+      final db = await database;
+
+      await db!.transaction((txn) async {
+        // Verificar si la novedad ya existe
+        final List<Map<String, dynamic>> existingNovedad = await txn.query(
+          'tblnovedades',
+          where: 'id = ?',
+          whereArgs: [novedad.id],
+        );
+
+        if (existingNovedad.isNotEmpty) {
+          // Actualizar la novedad
+          await txn.update(
+            'tblnovedades',
+            {
+              "id": novedad.id,
+              "name": novedad.name,
+              "code": novedad.code,
+            },
+            where: 'id = ?',
+            whereArgs: [novedad.id],
+          );
+        } else {
+          // Insertar nueva novedad
+          await txn.insert(
+            'tblnovedades',
+            {
+              "id": novedad.id,
+              "name": novedad.name,
+              "code": novedad.code,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+        }
+      });
+    } catch (e) {
+      print("Error al insertar novedad: $e");
+    }
+  }
+
+
+  //metodo para obtener todas las novedades
+  Future<List<Novedad>> getAllNovedades() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query('tblnovedades');
+
+    final List<Novedad> novedades = maps.map((map) {
+      return Novedad(
+        id: map['id'],
+        name: map['name'],
+        code: map['code'],
+      );
+    }).toList();
+    return novedades;
+  }
+
 
   //metodo para obtener todas las urls recientes
   Future<List<RecentUrl>> getAllUrlsRecientes() async {

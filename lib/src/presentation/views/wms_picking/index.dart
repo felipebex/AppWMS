@@ -268,7 +268,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 10, right: 10, top: 2),
+                                      left: 10, right: 10,),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -286,7 +286,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               decoration: InputDecoration(
                                                 prefixIcon: const Icon(
                                                     Icons.search,
-                                                    color: grey),
+                                                    color: grey, size: 20),
                                                 suffixIcon: IconButton(
                                                     onPressed: () {
                                                       context
@@ -320,7 +320,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       },
                                                       icon: const Icon(
                                                           Icons.close,
-                                                          color: grey),
+                                                          color: grey, size:20),
                                                     )),
                                                 disabledBorder:
                                                     const OutlineInputBorder(),
@@ -373,7 +373,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             });
                                           },
                                           icon: const Icon(Icons.calendar_month,
-                                              color: grey),
+                                              color: grey, size: 20,),
                                         ),
                                       )
                                     ],

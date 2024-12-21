@@ -27,6 +27,8 @@ class LoginPage extends StatelessWidget {
       listener: (context, state) async {
         if (state is LoginSuccess) {
           context.read<UserBloc>().add(GetConfigurations(context));
+          context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
+
 
           final String rol = await PrefUtils.getUserRol();
 

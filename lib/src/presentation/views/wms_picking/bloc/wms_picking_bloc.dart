@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, unnecessary_import, unrelated_type_equality_checks, use_build_context_synchronously
 
+import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -20,6 +21,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   List<BatchsModel> filteredBatchs = []; // Lista para los productos filtrados
   List<BatchsModel> batchsDone = []; // Lista para los productos filtrados
 
+  List<Novedad> listOfNovedades = [];
   bool isKeyboardVisible = false;
 
   WmsPickingRepository wmsPickingRepository = WmsPickingRepository();
@@ -51,6 +53,39 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
     //evento para mostrar el teclado
     on<ShowKeyboardEvent>(_onShowKeyboardEvent);
+
+    //evento para obtener todas las novedades desde odoo
+    on<LoadAllNovedades>(_onLoadAllNovedadesEvent);
+  }
+
+  //*metodo para cargar todas las novedades
+  void _onLoadAllNovedadesEvent(
+      LoadAllNovedades event, Emitter<PickingState> emit) async {
+    try {
+      final novedadeslist =
+          await wmsPickingRepository.getnovedades(false, event.context);
+      listOfNovedades.clear();
+      listOfNovedades.addAll(novedadeslist);
+
+      //agrgegar las novedades a la base de datos
+      for (var novedad in listOfNovedades) {
+        try {
+          if (novedad.id != null && novedad.name != null) {
+            await DataBaseSqlite().insertNovedad(Novedad(
+              id: novedad.id,
+              name: novedad.name,
+              code: novedad.code,
+            ));
+          }
+        } catch (dbError, stackTrace) {
+          print('Error inserting novedades: $dbError  $stackTrace');
+        }
+      }
+
+      emit(LoadSuccessNovedadesState(listOfNovedades: listOfNovedades));
+    } catch (e, s) {
+      print('Error LoadAllNovedadesEvent: $e, $s');
+    }
   }
 
   void _onShowKeyboardEvent(
