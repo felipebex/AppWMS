@@ -128,3 +128,17 @@ class FilterBatchPackingStatusEvent extends WmsPackingEvent {
 
   FilterBatchPackingStatusEvent(this.status);
 }
+
+class SearchProductPackingEvent extends WmsPackingEvent {
+  final String query;
+
+  SearchProductPackingEvent(this.query, );
+}
+
+
+
+class ShowKeyboardEvent extends WmsPackingEvent {
+  final bool showKeyboard;
+
+  ShowKeyboardEvent( this.showKeyboard);
+}

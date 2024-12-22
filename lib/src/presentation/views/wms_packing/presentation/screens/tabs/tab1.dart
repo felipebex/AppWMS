@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -68,7 +69,7 @@ class Tab1Screen extends StatelessWidget {
                       child: AlertDialog(
                         backgroundColor: Colors.white,
                         actionsAlignment: MainAxisAlignment.center,
-                        title:  Text(
+                        title: Text(
                           'Confirmar pedido',
                           style:
                               TextStyle(color: primaryColorApp, fontSize: 16),
@@ -150,20 +151,12 @@ class Tab1Screen extends StatelessWidget {
           ),
           body: Column(
             children: [
-              const SizedBox(
-                height: 10,
-              ),
               const WarningWidgetCubit(),
-              const Text(
-                "Detalles del pedido",
-                style: TextStyle(
-                    fontSize: 18, color: black, fontWeight: FontWeight.bold),
-              ),
 
               //detalles del batch
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 width: double.infinity,
                 child: Card(
                   color: Colors.white,
@@ -177,8 +170,8 @@ class Tab1Screen extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               packingModel?.name ?? '',
-                              style:  TextStyle(
-                                  fontSize: 18,
+                              style: TextStyle(
+                                  fontSize: 14,
                                   color: primaryColorApp,
                                   fontWeight: FontWeight.bold),
                             )),
@@ -192,7 +185,7 @@ class Tab1Screen extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               packingModel?.contactoName ?? '',
-                              style:  TextStyle(
+                              style: TextStyle(
                                   fontSize: 14, color: primaryColorApp),
                             )),
                         Row(
@@ -229,7 +222,7 @@ class Tab1Screen extends StatelessWidget {
                                   width: size.width * 0.45,
                                   child: Text(
                                     displayDate,
-                                    style:  TextStyle(
+                                    style: TextStyle(
                                         fontSize: 14, color: primaryColorApp),
                                     textAlign: TextAlign.left,
                                   ),
@@ -254,7 +247,7 @@ class Tab1Screen extends StatelessWidget {
                                       .listOfProductos
                                       .length
                                       .toString(),
-                                  style:  TextStyle(
+                                  style: TextStyle(
                                       fontSize: 14, color: primaryColorApp),
                                 )),
                           ],
@@ -269,7 +262,7 @@ class Tab1Screen extends StatelessWidget {
                             alignment: Alignment.centerLeft,
                             child: Text(
                               packingModel?.tipoOperacion ?? "",
-                              style:  TextStyle(
+                              style: TextStyle(
                                   fontSize: 14, color: primaryColorApp),
                             )),
                         Row(
@@ -288,7 +281,7 @@ class Tab1Screen extends StatelessWidget {
                                       .packages
                                       .length
                                       .toString(),
-                                  style:  TextStyle(
+                                  style: TextStyle(
                                       fontSize: 14, color: primaryColorApp),
                                 )),
                           ],
@@ -298,7 +291,7 @@ class Tab1Screen extends StatelessWidget {
                   ),
                 ),
               ),
-               Text("Listado de empaques",
+              Text("Listado de empaques",
                   style: TextStyle(
                       fontSize: 16,
                       color: primaryColorApp,
@@ -321,9 +314,13 @@ class Tab1Screen extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Image.asset('assets/images/empty.png',
-                                  height:
-                                      100), // Ajusta la altura según necesites
+                              if (!context
+                                  .read<UserBloc>()
+                                  .fabricante
+                                  .contains("Zebra"))
+                                Image.asset('assets/images/empty.png',
+                                    height:
+                                        100), // Ajusta la altura según necesites
                               const SizedBox(height: 10),
                               const Text('No hay empaques',
                                   style: TextStyle(fontSize: 14, color: grey)),
@@ -357,7 +354,7 @@ class Tab1Screen extends StatelessWidget {
                                   children: [
                                     Text(
                                       "${package.name}",
-                                      style:  TextStyle(
+                                      style: TextStyle(
                                           fontSize: 14, color: primaryColorApp),
                                     ),
                                     Row(
@@ -371,7 +368,7 @@ class Tab1Screen extends StatelessWidget {
                                         if (package.isSticker == true)
                                           IconButton(
                                               onPressed: () {},
-                                              icon:  Icon(
+                                              icon: Icon(
                                                 Icons.print,
                                                 color: primaryColorApp,
                                                 size: 20,
@@ -428,7 +425,7 @@ class Tab1Screen extends StatelessWidget {
                                                             TextSpan(
                                                               text:
                                                                   "${product.quantitySeparate}", // La cantidad en color rojo
-                                                              style:  TextStyle(
+                                                              style: TextStyle(
                                                                   color:
                                                                       primaryColorApp,
                                                                   fontSize:
@@ -489,7 +486,7 @@ class Tab1Screen extends StatelessWidget {
                                                           TextSpan(
                                                             text:
                                                                 "${product.unidades}", // La cantidad en color rojo
-                                                            style:  TextStyle(
+                                                            style: TextStyle(
                                                                 color:
                                                                     primaryColorApp,
                                                                 fontSize:
@@ -521,7 +518,7 @@ class Tab1Screen extends StatelessWidget {
                                                           TextSpan(
                                                             text:
                                                                 "${product.quantity}", // La cantidad en color rojo
-                                                            style:  TextStyle(
+                                                            style: TextStyle(
                                                                 color:
                                                                     primaryColorApp,
                                                                 fontSize:
@@ -549,7 +546,7 @@ class Tab1Screen extends StatelessWidget {
                                                           TextSpan(
                                                             text:
                                                                 "${product.weight}", // La cantidad en color rojo
-                                                            style:  TextStyle(
+                                                            style: TextStyle(
                                                                 color:
                                                                     primaryColorApp,
                                                                 fontSize:

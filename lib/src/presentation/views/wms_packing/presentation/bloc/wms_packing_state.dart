@@ -47,3 +47,9 @@ class ChangeStickerState extends WmsPackingState {
   final bool isSticker;
   ChangeStickerState(this.isSticker);
 }
+
+
+class ShowKeyboardState extends WmsPackingState {
+  final bool showKeyboard;
+  ShowKeyboardState({required this.showKeyboard});
+}

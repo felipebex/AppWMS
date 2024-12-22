@@ -272,6 +272,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
+                                      
+                                      
                                       SizedBox(
                                         width: size.width * 0.75,
                                         child: Card(
@@ -351,6 +353,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                     }),
                                         ),
                                       ),
+                                      
                                       Card(
                                         color: Colors.white,
                                         elevation: 3,
@@ -376,6 +379,9 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               color: grey, size: 20,),
                                         ),
                                       )
+                                    
+
+                                    
                                     ],
                                   ),
                                 ),

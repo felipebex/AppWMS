@@ -51,7 +51,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                   },
                 ),
                 title: const Text('PACKING - DETAIL',
-                    style: TextStyle(color: white, fontSize: 18)),
+                    style: TextStyle(color: white, fontSize: 16)),
                 bottom: const TabBar(
                   indicatorWeight: 3,
                   indicatorPadding: EdgeInsets.symmetric(vertical: 5),
