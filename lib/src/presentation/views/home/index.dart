@@ -62,9 +62,9 @@ class _HomePageState extends State<HomePage> {
                     .read<WMSPickingBloc>()
                     .add(LoadAllBatchsEvent(context, true));
               } else if (rol == 'admin') {
-                // context
-                //     .read<WMSPickingBloc>()
-                //     .add(LoadAllBatchsEvent(context, true));
+                context
+                    .read<WMSPickingBloc>()
+                    .add(LoadAllBatchsEvent(context, true));
                 context
                     .read<WmsPackingBloc>()
                     .add(LoadAllPackingEvent(true, context));

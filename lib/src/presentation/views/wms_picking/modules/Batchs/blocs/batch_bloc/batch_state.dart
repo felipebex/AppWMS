@@ -55,6 +55,14 @@ class ChangeIsOkState extends BatchState {
   final bool isOk;
   ChangeIsOkState(this.isOk);
 }
+class ChangeProductIsOkState extends BatchState {
+  final bool isOk;
+  ChangeProductIsOkState(this.isOk);
+}
+class ChangeLocationIsOkState extends BatchState {
+  final bool isOk;
+  ChangeLocationIsOkState(this.isOk);
+}
 
 
 final class CurrentProductChangedState extends BatchState {

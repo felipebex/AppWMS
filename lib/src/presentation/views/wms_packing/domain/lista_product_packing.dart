@@ -23,6 +23,7 @@ class PorductoPedido {
   final int? isCertificate;
   final int? isSendOdoo;
   final String? isSendOdooDate;
+  final dynamic expireDate;
 
   //vairbales para el packing
   final List<Barcodes>? productPacking;
@@ -39,6 +40,7 @@ class PorductoPedido {
   final dynamic
       locationDestIsOk; // Variable para si la ubicación destino está leída
   final dynamic isQuantityIsOk; // V
+  
 
   PorductoPedido({
     this.productId,
@@ -71,6 +73,7 @@ class PorductoPedido {
     this.productPacking,
     this.otherBarcode,
     this.barcodeLocation,
+    this.expireDate,
   });
 
   factory PorductoPedido.fromJson(String str) =>
@@ -101,6 +104,7 @@ class PorductoPedido {
         locationDestIsOk: json["location_dest_is_ok"] ?? false,
         isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
         observation: json["observation"],
+        expireDate: json["expire_date"],
         isPacking: json["is_packing"],
         idPackage: json["id_package"],
         isCertificate: json["is_certificate"],
@@ -144,6 +148,7 @@ class PorductoPedido {
         "id_package": idPackage,
         "is_certificate": isCertificate,
         "is_send_odoo": isSendOdoo,
+        "expire_date": expireDate,
         "is_send_odoo_date": isSendOdooDate,
         "product_packing": productPacking == null
             ? []

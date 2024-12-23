@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class ProductDropdownWidget extends StatelessWidget {
+class ProductDropdownPackingWidget extends StatelessWidget {
   final String? selectedProduct;
-  final List<String> listOfProductsName;
+  final List<PorductoPedido> listOfProductsName;
   final String currentProductId;
-  final BatchBloc batchBloc;
-  final ProductsBatch currentProduct;
+  final WmsPackingBloc batchBloc;
+  final PorductoPedido currentProduct;
 
   final bool isPDA;
 
-  const ProductDropdownWidget({
+  const ProductDropdownPackingWidget({
     super.key,
     required this.selectedProduct,
     required this.listOfProductsName,
@@ -24,7 +24,6 @@ class ProductDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -45,59 +44,72 @@ class ProductDropdownWidget extends StatelessWidget {
               width: 20,
             ),
             value: selectedProduct,
-            items: listOfProductsName.map((String product) {
+            items: 
+            listOfProductsName.map((PorductoPedido product) {
               return DropdownMenuItem<String>(
-                value: product,
+                value: product.productId.toString(),
                 child: Container(
+                   padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: currentProductId == product
+                    color: currentProduct.idMove == product.idMove
                         ? Colors.green[100]
                         : Colors.white,
                   ),
                   width: MediaQuery.of(context).size.width * 0.9,
-                  height: 45,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
                   child: Text(
-                    product,
+                    product.idProduct.toString(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: black, fontSize: 14),
+                    style: const TextStyle(
+                      
+                      fontSize: 14,
+                      color: black,
+                    ),
                   ),
                 ),
               );
             }).toList(),
-            onChanged: batchBloc
-                        .configurations.data?.result?.manualProductSelection ==
-                    false
-                ? null
-                : batchBloc.locationIsOk && !batchBloc.productIsOk
+
+            
+            onChanged: 
+            
+            // batchBloc
+            //             .configurations.data?.result?.manualProductSelection ==
+            //         false
+            //     ? null
+                // : 
+                batchBloc.locationIsOk && !batchBloc.productIsOk
                     ? (String? newValue) {
                         if (newValue == currentProduct.productId.toString()) {
-                          batchBloc.add(ValidateFieldsEvent(
+                          batchBloc.add(ValidateFieldsPackingEvent(
                               field: "product", isOk: true));
 
                           batchBloc.add(ChangeQuantitySeparate(
                               0,
-                              currentProduct.idProduct ?? 0,
+                              currentProduct.productId ?? 0,
+                              currentProduct.pedidoId ?? 0,
                               currentProduct.idMove ?? 0));
 
                           batchBloc.add(ChangeProductIsOkEvent(
                               true,
-                              currentProduct.idProduct ?? 0,
-                              batchBloc.batchWithProducts.batch?.id ?? 0,
+                              currentProduct.productId ?? 0,
+                              currentProduct.pedidoId ?? 0,
                               0,
                               currentProduct.idMove ?? 0));
 
                           batchBloc.add(ChangeIsOkQuantity(
                               true,
-                              currentProduct.idProduct ?? 0,
-                              batchBloc.batchWithProducts.batch?.id ?? 0,
+                              currentProduct.productId ?? 0,
+                             currentProduct.pedidoId ?? 0,
                               currentProduct.idMove ?? 0));
                         } else {
-                          batchBloc.add(ValidateFieldsEvent(
+
+                          batchBloc.add(ValidateFieldsPackingEvent(
                               field: "product", isOk: false));
+
+
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             duration: const Duration(milliseconds: 1000),
                             content: const Text('Producto erroneo'),

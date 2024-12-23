@@ -742,8 +742,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async {
     if (isLocationOk) {
-      await db.setFieldTableBatchProducts(event.batchId, event.productId,
-          'is_location_is_ok', 'true', event.idMove);
+      await db.setFieldTableBatchProducts(
+        event.batchId,
+        event.productId,
+        'is_location_is_ok',
+        'true',
+        event.idMove,
+      );
 
       if (index == 0) {
         await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
@@ -753,7 +758,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       locationIsOk = true;
 
-      emit(ChangeIsOkState(
+      emit(ChangeLocationIsOkState(
         locationIsOk,
       ));
     }
@@ -789,7 +794,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           'quantity_separate', event.quantity, event.idMove);
     }
     productIsOk = event.productIsOk;
-    emit(ChangeIsOkState(
+    emit(ChangeProductIsOkState(
       productIsOk,
     ));
   }

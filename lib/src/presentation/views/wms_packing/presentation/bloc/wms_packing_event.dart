@@ -61,10 +61,10 @@ class AddProductPackingEvent extends WmsPackingEvent {}
 
 //* CAMBIAR VALORES DE VARIABLES
 class ChangeLocationIsOkEvent extends WmsPackingEvent {
-  final bool locationIsOk;
   final int productId;
   final int pedidoId;
-  ChangeLocationIsOkEvent(this.locationIsOk, this.productId, this.pedidoId);
+  final int idMove;
+  ChangeLocationIsOkEvent( this.productId, this.pedidoId, this.idMove);
 }
 
 class ChangeLocationDestIsOkEvent extends WmsPackingEvent {
@@ -91,10 +91,11 @@ class ChangeIsOkQuantity extends WmsPackingEvent {
 }
 
 class AddQuantitySeparate extends WmsPackingEvent {
-  final int quantity;
   final int productId;
+  final int idMove;
+  final int quantity;
   final int pedidoId;
-  AddQuantitySeparate(this.quantity, this.productId, this.pedidoId);
+  AddQuantitySeparate(this.quantity, this.idMove, this.productId, this.pedidoId);
 }
 
 class SetPickingsEvent extends WmsPackingEvent {

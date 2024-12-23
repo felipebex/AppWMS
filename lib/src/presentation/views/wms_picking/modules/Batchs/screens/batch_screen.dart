@@ -138,9 +138,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           batchBloc.batchWithProducts.batch?.id ?? 0,
           currentProduct.idMove ?? 0));
       batchBloc.oldLocation = currentProduct.locationId.toString();
-      Future.delayed(const Duration(seconds: 1), () {
-        FocusScope.of(context).requestFocus(focusNode2);
-      });
     } else {
       batchBloc.add(ValidateFieldsEvent(field: "location", isOk: false));
       setState(() {
@@ -178,9 +175,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           currentProduct.idProduct ?? 0,
           batchBloc.batchWithProducts.batch?.id ?? 0,
           currentProduct.idMove ?? 0));
-      Future.delayed(const Duration(seconds: 1), () {
-        FocusScope.of(context).requestFocus(focusNode3);
-      });
     } else {
       final isok = validateScannedBarcode(scannedValue2.toLowerCase(),
           batchBloc.currentProduct, batchBloc, true);
@@ -194,13 +188,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           content: const Text('Producto erroneo'),
           backgroundColor: Colors.red[200],
         ));
-      } else {
-        Future.delayed(const Duration(milliseconds: 100), () {
-          FocusScope.of(context).requestFocus(focusNode3);
-        });
-        setState(() {
-          focoLocation = 'cantidad';
-        });
       }
     }
   }
@@ -266,8 +253,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
         int totalTasks = context.read<BatchBloc>().filteredProducts.length;
-        print('state: $state');
-        // log("focoLocation: $focoLocation");
+        log("focoLocation: $focoLocation");
 
         double progress = totalTasks > 0
             ? context.read<BatchBloc>().filteredProducts.where((e) {
@@ -298,6 +284,27 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         _nextProduct(currentProduct, batchBloc);
                       }
                     }
+                    if (state is ChangeLocationIsOkState) {
+                      setState(() {
+                        focoLocation = 'producto';
+                      });
+                      Future.delayed(const Duration(seconds: 1), () {
+                        FocusScope.of(context).requestFocus(focusNode2);
+                      });
+                    }
+
+                    if (state is ChangeProductIsOkState) {
+                      setState(() {
+                        focoLocation = 'cantidad';
+                      });
+                      Future.delayed(const Duration(seconds: 1), () {
+                        FocusScope.of(context).requestFocus(focusNode3);
+                      });
+                    }
+
+                    
+
+
                   }, builder: (context, status) {
                     return Column(
                       children: [
@@ -392,23 +399,16 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     ? Column(
                                         children: [
                                           LocationDropdownWidget(
-                                              isPDA: false,
-                                              selectedLocation:
-                                                  selectedLocation,
-                                              positionsOrigen:
-                                                  batchBloc.positionsOrigen,
-                                              currentLocationId: batchBloc
-                                                  .currentProduct.locationId
-                                                  .toString(),
-                                              batchBloc: batchBloc,
-                                              currentProduct: currentProduct,
-                                              onAccepted: () => Future.delayed(
-                                                      const Duration(
-                                                          seconds: 1), () {
-                                                    FocusScope.of(context)
-                                                        .requestFocus(
-                                                            focusNode2);
-                                                  })),
+                                            isPDA: false,
+                                            selectedLocation: selectedLocation,
+                                            positionsOrigen:
+                                                batchBloc.positionsOrigen,
+                                            currentLocationId: batchBloc
+                                                .currentProduct.locationId
+                                                .toString(),
+                                            batchBloc: batchBloc,
+                                            currentProduct: currentProduct,
+                                          ),
                                           Container(
                                             height: 15,
                                             margin: const EdgeInsets.only(
@@ -467,21 +467,16 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           return KeyEventResult.ignored;
                                         },
                                         child: LocationDropdownWidget(
-                                            isPDA: true,
-                                            selectedLocation: selectedLocation,
-                                            positionsOrigen:
-                                                batchBloc.positionsOrigen,
-                                            currentLocationId: batchBloc
-                                                .currentProduct.locationId
-                                                .toString(),
-                                            batchBloc: batchBloc,
-                                            currentProduct: currentProduct,
-                                            onAccepted: () => Future.delayed(
-                                                    const Duration(seconds: 1),
-                                                    () {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(focusNode2);
-                                                })),
+                                          isPDA: true,
+                                          selectedLocation: selectedLocation,
+                                          positionsOrigen:
+                                              batchBloc.positionsOrigen,
+                                          currentLocationId: batchBloc
+                                              .currentProduct.locationId
+                                              .toString(),
+                                          batchBloc: batchBloc,
+                                          currentProduct: currentProduct,
+                                        ),
                                       ),
                               ),
                             ),
@@ -519,23 +514,17 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                     ? Column(
                                         children: [
                                           ProductDropdownWidget(
-                                              selectedProduct: selectedLocation,
-                                              listOfProductsName:
-                                                  batchBloc.listOfProductsName,
-                                              currentProductId: batchBloc
-                                                  .currentProduct.productId
-                                                  .toString(),
-                                              batchBloc: batchBloc,
-                                              currentProduct: currentProduct,
-                                              isPDA: false,
-                                              onAccepted: () => Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 100),
-                                                      () {
-                                                    FocusScope.of(context)
-                                                        .requestFocus(
-                                                            focusNode3);
-                                                  })),
+                                            selectedProduct: selectedLocation,
+                                            listOfProductsName:
+                                                batchBloc.listOfProductsName,
+                                            currentProductId: batchBloc
+                                                .currentProduct.productId
+                                                .toString(),
+                                            batchBloc: batchBloc,
+                                            currentProduct: currentProduct,
+                                            isPDA: false,
+                                           
+                                          ),
                                           Container(
                                             height: 15,
                                             margin: const EdgeInsets.only(
@@ -663,15 +652,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   currentProduct:
                                                       currentProduct,
                                                   isPDA: false,
-                                                  onAccepted: () =>
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              milliseconds:
-                                                                  100), () {
-                                                        FocusScope.of(context)
-                                                            .requestFocus(
-                                                                focusNode3);
-                                                      })),
+                                               ),
                                               const SizedBox(height: 10),
                                               Align(
                                                 alignment: Alignment.centerLeft,
@@ -795,7 +776,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               selectedMuelle: selectedMuelle,
                                               batchBloc: batchBloc,
                                               currentProduct: currentProduct,
-                                            
                                               isPda: false,
                                             ),
                                             Container(
@@ -858,7 +838,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             selectedMuelle: selectedMuelle,
                                             batchBloc: batchBloc,
                                             currentProduct: currentProduct,
-                                          
                                             isPda: true,
                                           )),
                                 ),
@@ -908,7 +887,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                         ? null
                                         : () {
                                             //no entramos a didpchanges
-                                              batchBloc.add(IsShouldRunDependencies(false));
+                                            batchBloc.add(
+                                                IsShouldRunDependencies(false));
 
                                             setState(() {
                                               scannedValue6 = "";
@@ -1154,10 +1134,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                     context
                                                                         .read<
                                                                             BatchBloc>()
-                                                                        .add(
-                                                                            IsShouldRunDependencies(true));
+                                                                        .add(IsShouldRunDependencies(
+                                                                            true));
 
-                                                                    
                                                                     // Cerrar el focus y salir del modal
                                                                     FocusScope.of(
                                                                             context)
@@ -1737,9 +1716,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             batchBloc.batchWithProducts.batch?.id ?? 0,
             currentProduct.idMove ?? 0));
 
-        Future.delayed(const Duration(milliseconds: 100), () {
-          FocusScope.of(context).requestFocus(focusNode3);
-        });
         return true;
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide

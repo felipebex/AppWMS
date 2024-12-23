@@ -18,30 +18,34 @@ class Tab2Screen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton: FloatingActionButton(
-            onPressed:
-                context.read<WmsPackingBloc>().listOfProductosProgress.isEmpty
-                    ? null
-                    : () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return DialogConfirmatedPacking(
-                                productos: context
-                                    .read<WmsPackingBloc>()
-                                    .listOfProductosProgress,
-                                isCertificate: false,
-                              );
-                            });
-                      },
-            backgroundColor: primaryColorApp,
-            child: Image.asset(
-              'assets/icons/packing.png',
-              width: 30,
-              height: 30,
-              color: Colors.white,
-            ),
-          ),
+          floatingActionButton: context.read<WmsPackingBloc>().isKeyboardVisible
+              ? null
+              : FloatingActionButton(
+                  onPressed: context
+                          .read<WmsPackingBloc>()
+                          .listOfProductosProgress
+                          .isEmpty
+                      ? null
+                      : () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return DialogConfirmatedPacking(
+                                  productos: context
+                                      .read<WmsPackingBloc>()
+                                      .listOfProductosProgress,
+                                  isCertificate: false,
+                                );
+                              });
+                        },
+                  backgroundColor: primaryColorApp,
+                  child: Image.asset(
+                    'assets/icons/packing.png',
+                    width: 30,
+                    height: 30,
+                    color: Colors.white,
+                  ),
+                ),
           body: Container(
               margin: const EdgeInsets.only(top: 5),
               width: double.infinity,
@@ -109,19 +113,28 @@ class Tab2Screen extends StatelessWidget {
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
                             children: [
                               if (!context
                                   .read<UserBloc>()
                                   .fabricante
                                   .contains("Zebra"))
                                 Image.asset('assets/images/empty.png',
-                                    height:
-                                        100), // Ajusta la altura según necesites
-                              const SizedBox(height: 10),
-                              const Text('No hay empaques',
+                                    height: 100),
+                              const SizedBox(height: 50),
+                              const Text('No hay productos',
                                   style: TextStyle(fontSize: 14, color: grey)),
-                              const Text('Realiza el proceso de empaque',
+                              const Text('Intente buscar otro producto',
                                   style: TextStyle(fontSize: 12, color: grey)),
+                              Visibility(
+                                visible: context
+                                    .read<UserBloc>()
+                                    .fabricante
+                                    .contains("Zebra"),
+                                child: Container(
+                                  height: 60,
+                                ),
+                              ),
                             ],
                           ),
                         )
@@ -263,16 +276,18 @@ class Tab2Screen extends StatelessWidget {
                               }),
                         ),
                   Visibility(
-                    visible:
-                        // context.read<BatchBloc>().isKeyboardVisible &&
+                    visible: context.read<WmsPackingBloc>().isKeyboardVisible &&
                         context.read<UserBloc>().fabricante.contains("Zebra"),
                     child: CustomKeyboard(
                       controller: context
                           .read<WmsPackingBloc>()
                           .searchControllerProduct,
                       onchanged: () {
-                        // context.read<BatchBloc>().add(SearchProductsBatchEvent(
-                        //     context.read<BatchBloc>().searchController.text));
+                        context.read<WmsPackingBloc>().add(
+                            SearchProductPackingEvent(context
+                                .read<WmsPackingBloc>()
+                                .searchControllerProduct
+                                .text));
                       },
                     ),
                   )

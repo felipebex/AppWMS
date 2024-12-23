@@ -119,7 +119,10 @@ class Tab1Screen extends StatelessWidget {
                                       packingModel?.batchId ?? 0,
                                       packingModel?.id ?? 0,
                                       "is_terminate",
-                                      "true");
+                                      "true",
+                                      
+                                      
+                                      );
 
                               context
                                   .read<WmsPackingBloc>()

@@ -225,11 +225,6 @@ class PakingListScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text("Listado de pedidos",
-                    style: TextStyle(
-                        fontSize: 18,
-                        color: black,
-                        fontWeight: FontWeight.bold)),
 
                 BlocBuilder<WmsPackingBloc, WmsPackingState>(
                   builder: (context, state) {
@@ -265,6 +260,7 @@ class PakingListScreen extends StatelessWidget {
                                 // Viajamos a la vista de detalle de un pedido
                                 Navigator.pushNamed(context, 'packing-detail',
                                     arguments: packing);
+                                print('Packing: ${packing.toMap()}');
                               },
                               child: Card(
                                 elevation: 5,

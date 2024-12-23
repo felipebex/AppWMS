@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class LocationDropdownWidget extends StatelessWidget {
+class LocationPackingDropdownWidget extends StatelessWidget {
   final String? selectedLocation;
-  final List<String> positionsOrigen;
+  final String positionsOrigen;
   final String currentLocationId;
-  final BatchBloc batchBloc;
-  final ProductsBatch currentProduct;
+  final WmsPackingBloc batchBloc;
+  final PorductoPedido currentProduct;
   final bool isPDA;
 
 
-  const LocationDropdownWidget({
+  const LocationPackingDropdownWidget({
     super.key,
     required this.selectedLocation,
     required this.positionsOrigen,
@@ -48,13 +48,13 @@ class LocationDropdownWidget extends StatelessWidget {
               width: 20,
             ),
             value: selectedLocation,
-            items: positionsOrigen.map((String location) {
-              return DropdownMenuItem<String>(
-                value: location,
+            items: [
+              DropdownMenuItem<String>(
+                value: positionsOrigen,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: currentLocationId == location
+                    color: currentLocationId == positionsOrigen
                         ? Colors.green[100]
                         : Colors.white,
                   ),
@@ -65,35 +65,44 @@ class LocationDropdownWidget extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      location,
+                      positionsOrigen,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: black, fontSize: 14),
                     ),
                   ),
                 ),
-              );
-            }).toList(),
-            onChanged: batchBloc
-                        .configurations.data?.result?.locationPickingManual ==
-                    false
-                ? null
-                : batchBloc.locationIsOk
+              )
+            ],
+            onChanged:
+
+                //permiso para valdiar la ubicacion actual manual
+                // batchBloc
+                //             .configurations.data?.result?.locationPickingManual ==
+                //         false
+                //     ? null
+                //     :
+
+                batchBloc.locationIsOk
                     ? null
                     : (String? newValue) {
-                        print("🇸🇦 newValue :$newValue");
+
+
                         if (newValue == currentProduct.locationId.toString()) {
-                          batchBloc.add(ValidateFieldsEvent(
+                          batchBloc.add(ValidateFieldsPackingEvent(
                               field: "location", isOk: true));
+
                           batchBloc.add(ChangeLocationIsOkEvent(
-                              currentProduct.idProduct ?? 0,
-                              batchBloc.batchWithProducts.batch?.id ?? 0,
+                              currentProduct.productId ?? 0,
+                              currentProduct.pedidoId ?? 0,
                               currentProduct.idMove ?? 0));
 
                           batchBloc.oldLocation =
                               currentProduct.locationId.toString();
+
+
                         } else {
-                          batchBloc.add(ValidateFieldsEvent(
+                          batchBloc.add(ValidateFieldsPackingEvent(
                               field: "location", isOk: false));
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             duration: const Duration(milliseconds: 1000),
@@ -103,6 +112,8 @@ class LocationDropdownWidget extends StatelessWidget {
                         }
                       },
           ),
+
+          // Mostrar ubicación actual
 
           Visibility(
             visible: currentProduct.barcodeLocation == false ||
@@ -117,8 +128,6 @@ class LocationDropdownWidget extends StatelessWidget {
               ),
             ),
           ),
-
-          // Mostrar ubicación actual
 
           Visibility(
             visible: isPDA,

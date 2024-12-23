@@ -195,7 +195,7 @@ class DataBaseSqlite {
       is_separate INTEGER,
       quantity_separate INTEGER,
       is_certificate INTEGER,
-
+      expire_date VARCHAR(255),
       is_location_is_ok INTEGER,
       barcode_location TEXT,
       product_is_ok INTEGER,
@@ -769,6 +769,7 @@ class DataBaseSqlite {
                 "location_dest_id": producto.locationDestId?[1],
                 "barcode_location": producto.barcodeLocation,
                 "quantity": producto.quantity,
+                "expire_date": producto.expireDate,
                 "tracking": producto.tracking == false
                     ? ""
                     : producto.tracking, // Si tracking es false, poner ""
@@ -806,6 +807,7 @@ class DataBaseSqlite {
                 "location_id": producto.locationId?[1],
                 "location_dest_id": producto.locationDestId?[1],
                 "quantity": producto.quantity,
+                "expire_date": producto.expireDate,
                 "tracking": producto.tracking == false
                     ? ""
                     : producto.tracking, // Si tracking es false, poner ""
@@ -1346,7 +1348,7 @@ class DataBaseSqlite {
       int batchId, int pedidoId, String field, dynamic setValue) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId' );
+        ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId ' );
     print("update tblpedidos_packing ($field): $resUpdate");
 
     return resUpdate;
@@ -1587,36 +1589,37 @@ class DataBaseSqlite {
   }
 
   Future<int?> incremenQtytProductSeparatePacking(
-      int pedidoId, int productId) async {
-    final db = await database;
-    return await db!.transaction((txn) async {
-      // Primero, obtenemos el valor actual de product_separate_qty
-      final result = await txn.query(
+    int pedidoId, int productId, int idMove, int quantity) async {
+  final db = await database;
+  return await db!.transaction((txn) async {
+    // Primero, obtenemos el valor actual de quantity_separate
+    final result = await txn.query(
+      'tblproductos_pedidos',
+      columns: ['quantity_separate'],
+      where: 'pedido_id = ? AND product_id = ? AND id_move = ?', // Usamos ? como marcadores de posición
+      whereArgs: [pedidoId, productId, idMove], // Los valores se pasan aquí
+    );
+
+    if (result.isNotEmpty) {
+      // Extraemos el valor actual
+      int currentQty = (result.first['quantity_separate'] as int?) ?? 0;
+
+      // Incrementamos la cantidad
+      int newQty = currentQty + quantity;
+
+      // Actualizamos la tabla con la nueva cantidad
+      return await txn.update(
         'tblproductos_pedidos',
-        columns: ['quantity_separate'],
-        where: 'pedido_id = $pedidoId AND product_id = $productId',
-        whereArgs: [pedidoId, productId],
+        {'quantity_separate': newQty},
+        where: 'pedido_id = ? AND product_id = ? AND id_move = ?', // Usamos ? en la cláusula WHERE
+        whereArgs: [pedidoId, productId, idMove], // Los valores se pasan aquí también
       );
+    }
 
-      if (result.isNotEmpty) {
-        // Extraemos el valor actual
-        int currentQty = (result.first['quantity_separate'] as int?) ?? 0;
+    return null; // No se encontró el batch con el batchId proporcionado
+  });
+}
 
-        // Incrementamos la cantidad
-        int newQty = currentQty + 1;
-
-        // Actualizamos la tabla
-        return await txn.update(
-          'tblproductos_pedidos',
-          {'quantity_separate': newQty},
-          where: 'pedido_id = $pedidoId AND product_id = $productId',
-          whereArgs: [pedidoId, productId],
-        );
-      }
-
-      return null; // No se encontró el batch con el batchId proporcionado
-    });
-  }
 
   //actualozar el index de la lista de productos
 

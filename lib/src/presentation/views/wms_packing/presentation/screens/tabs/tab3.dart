@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -41,25 +42,29 @@ class Tab3Screen extends StatelessWidget {
           body: Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                margin: const EdgeInsets.only(top:5, bottom: 10),
                 width: double.infinity,
-                height: size.height * 0.75,
+                height: size.height * 0.7,
                 child: (context.read<WmsPackingBloc>().productsDone.isEmpty)
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset('assets/images/empty.png',
-                                height:
-                                    150), // Ajusta la altura según necesites
-                            const SizedBox(height: 10),
-                            const Text('No hay productos por empacar',
-                                style: TextStyle(fontSize: 18, color: grey)),
-                            const Text('Selecciona otro pedido',
-                                style: TextStyle(fontSize: 14, color: grey)),
-                          ],
-                        ),
-                      )
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (!context
+                                  .read<UserBloc>()
+                                  .fabricante
+                                  .contains("Zebra"))
+                                Image.asset('assets/images/empty.png',
+                                    height:
+                                        100), // Ajusta la altura según necesites
+                              const SizedBox(height: 10),
+                              const Text('No hay productos listos',
+                                  style: TextStyle(fontSize: 14, color: grey)),
+                              const Text('Intente con otro pedido o batch',
+                                  style: TextStyle(fontSize: 12, color: grey)),
+                            ],
+                          ),
+                        )
                     : ListView.builder(
                         itemCount:
                             context.read<WmsPackingBloc>().productsDone.length,
