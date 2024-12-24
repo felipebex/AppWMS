@@ -1128,7 +1128,7 @@ class DataBaseSqlite {
                 "location_id": productBatch.locationId?[1],
                 "expire_date": productBatch.expireDate,
                 "lot_id":
-                    productBatch.lotId == false ? "" : productBatch.lotId?[1],
+                    productBatch.lotId == "" ? "" : productBatch.lotId?[1],
                 "lote_id": productBatch.loteId,
                 "rimoval_priority": productBatch.rimovalPriority,
                 "id_move": productBatch.idMove,
@@ -1166,7 +1166,7 @@ class DataBaseSqlite {
                     productBatch.productId?[1], // Usar el valor correcto
                 "location_id": productBatch.locationId?[1],
                 "lot_id":
-                    productBatch.lotId == false ? "" : productBatch.lotId?[1],
+                    productBatch.lotId == "" ? "" : productBatch.lotId?[1],
                 "rimoval_priority": productBatch.rimovalPriority,
 
                 "barcode_location_dest":

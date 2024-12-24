@@ -100,11 +100,13 @@ class Tab3Screen extends StatelessWidget {
                                                 ),
                                               ),
                                               SizedBox(
-                                                width: size.width * 0.7,
+                                                width: size.width * 0.65,
                                                 child: Align(
                                                     alignment:
                                                         Alignment.centerLeft,
                                                     child: Text(
+                                                      maxLines: 2,
+                                                      overflow: TextOverflow.ellipsis,
                                                         " ${product.idProduct}",
                                                         style: const TextStyle(
                                                             fontSize: 14,
@@ -176,9 +178,12 @@ class Tab3Screen extends StatelessWidget {
                                                         ),
                                                       ),
                                                       SizedBox(
-                                                        width: size.width * 0.6,
+                                                        width: size.width * 0.55,
                                                         child: Text(
+
                                                             "${product.observation}",
+                                                            maxLines: 2,
+                                                            overflow: TextOverflow.ellipsis,
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:

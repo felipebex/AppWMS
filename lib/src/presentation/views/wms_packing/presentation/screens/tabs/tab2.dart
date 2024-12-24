@@ -1,10 +1,11 @@
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_confirmated_packing_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -153,19 +154,30 @@ class Tab2Screen extends StatelessWidget {
                                       const EdgeInsets.symmetric(horizontal: 8),
                                   child: GestureDetector(
                                     onTap: () {
-                                      //actualizamos el currentProduct
-
                                       context
                                           .read<WmsPackingBloc>()
                                           .add(FetchProductEvent(product));
 
-                                      Navigator.pushNamed(
-                                        context,
-                                        'Packing',
-                                      );
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return const DialogLoading();
+                                          });
 
-                                      print(
-                                          "Producto seleccionado: ${product.toJson()}");
+                                      // Esperar 3 segundos antes de continuar
+                                      Future.delayed(const Duration(seconds: 1),
+                                          () {
+                                        // Cerrar el diálogo de carga
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop();
+
+                                        // Ahora navegar a la vista "batch"
+                                        Navigator.pushNamed(
+                                          context,
+                                          'Packing',
+                                        );
+                                      });
                                     },
                                     child: Card(
                                         color: product.isSelected == 1
