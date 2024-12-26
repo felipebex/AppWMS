@@ -2,40 +2,28 @@
 
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  int countBatchDone = 0;
-  int countBatchInProgress = 0;
-  int countBatchAll = 0;
+  String userName = "";
+  String userEmail = "";
+  String userImage = "";
+  String userRol = "";
 
-  final BuildContext context;
-  HomeBloc(
-    this.context,
-  ) : super(HomeInitial()) {
-    on<HomeLoadEvent>(_onHomeLoadEvent);
-    add(HomeLoadEvent(
-      context,
-    ));
-  }
-
-  void _onHomeLoadEvent(HomeLoadEvent event, Emitter<HomeState> emit) async {
-    try {
-      // emit(HomeLoadingState());
-      // countBatchDone = await HomeApiModule.countBatchDone(
-      //   event.context,
-      // );
-      // countBatchInProgress = await HomeApiModule.countBatchInProgress(
-      //   event.context,
-      // );
-      // countBatchAll = await HomeApiModule.countAllBatch(
-      //   event.context,
-      // );  
-      emit(HomeLoadedState());
-    } catch (e, s) {
-      print('Error _onHomeLoadEvent: $e, $s');
-      emit(HomeLoadErrorState());
-    }
+  HomeBloc() : super(HomeInitial()) {
+    on<HomeLoadData>((event, emit) async {
+      emit(HomeLoadingState());
+      try {
+        userName = await PrefUtils.getUserName();
+        userEmail = await PrefUtils.getUserEmail();
+        userRol = await PrefUtils.getUserRol();
+        emit(HomeLoadedState());
+      } catch (e) {
+        emit(HomeLoadErrorState());
+      }
+    });
+    add(HomeLoadData());
   }
 }

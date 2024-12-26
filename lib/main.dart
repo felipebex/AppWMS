@@ -6,27 +6,18 @@ import 'dart:io';
 
 import 'package:cron/cron.dart';
 import 'package:flutter/services.dart';
+import 'package:wms_app/routes/app_router.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
-import 'package:wms_app/src/presentation/blocs/bloc/keyboard_bloc.dart';
+import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
-import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
-import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
-import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
-import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing_list.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
 import 'package:wms_app/src/services/notification_service.dart';
 
 import 'package:wms_app/src/services/preferences.dart';
@@ -37,7 +28,6 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
-import 'src/presentation/views/wms_packing/presentation/screens/packing_detail.dart';
 
 final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -101,80 +91,38 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        //bloc de network
-        BlocProvider(
-          create: (_) => LoginBloc(),
-        ),
+       
         BlocProvider(
           create: (_) => UserBloc(),
         ),
-        BlocProvider(
-          create: (_) => EntrepriseBloc(),
-        ),
+       
         BlocProvider(
           create: (_) => WMSPickingBloc(),
         ),
         BlocProvider(
           create: (_) => BatchBloc(),
         ),
-        BlocProvider(
-          create: (context) => HomeBloc(
-            context,
-          ),
-        ),
+        
         BlocProvider(
           create: (_) => WmsPackingBloc(),
         ),
 
         BlocProvider(
-          create: (_) => KeyboardBloc(
-          ),
+          create: (_) => KeyboardBloc(),
         )
       ],
       child: GetMaterialApp(
           navigatorKey: navigatorKey, // Usa el navigatorKey aquí
           debugShowCheckedModeBanner: false,
-          initialRoute: 'checkout',
+          initialRoute: AppRoutes.checkout, // Usa la constante de ruta
+
           supportedLocales: const [Locale('es', 'ES')],
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          routes: {
-            //* Global
-            'enterprice': (_) => const SelectEnterpricePage(),
-            'auth': (_) => const LoginPage(),
-            'checkout': (_) => const CheckAuthPage(),
-
-            //* wms Picking
-            'wms-picking': (context) => WMSPickingPage(
-                  indexSelected:
-                      ModalRoute.of(context)!.settings.arguments as int,
-                ),
-            'batch': (_) => const BatchScreen(),
-            'batch-detail': (_) => const BatchDetailScreen(),
-
-            //*wms Packing
-            'wms-packing': (_) => const WmsPackingScreen(),
-
-            'packing-list': (context) => PakingListScreen(
-                batchModel: ModalRoute.of(context)!.settings.arguments
-                    as BatchPackingModel?),
-
-            'Packing': (_) => const PackingScreen(),
-
-            'packing-detail': (context) => PackingDetailScreen(
-                packingModel: ModalRoute.of(context)!.settings.arguments
-                    as PedidoPacking?),
-
-            //*others
-            'yms': (_) => const YMSPage(),
-            'counter': (_) => const CounterPage(),
-            'home': (_) => const HomePage(),
-            'ventor': (_) => const VentorHome(),
-            'user': (_) => const UserScreen(),
-          },
+          routes: AppRoutes.routes, // Usa el mapa de rutas
           theme: ThemeData.light().copyWith(
             scaffoldBackgroundColor: Colors.grey[300],
             appBarTheme: AppBarTheme(elevation: 0, color: primaryColorApp),

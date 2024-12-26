@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unused_element, avoid_print, unrelated_type_equality_checks
-
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -16,7 +14,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/product/product_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
-import 'package:wms_app/src/presentation/widgets/jeyboard_numbers_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';

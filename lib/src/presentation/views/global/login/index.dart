@@ -10,7 +10,6 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
-import 'package:wms_app/src/utils/constans/gaps.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
@@ -23,99 +22,101 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<LoginBloc, LoginState>(
-      listener: (context, state) async {
-        if (state is LoginSuccess) {
-          context.read<UserBloc>().add(GetConfigurations(context));
-          context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
+    return BlocProvider(
+      create: (context) => LoginBloc(),
+      child: BlocConsumer<LoginBloc, LoginState>(
+        listener: (context, state) async {
+          if (state is LoginSuccess) {
+            context.read<UserBloc>().add(GetConfigurations(context));
+            context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
 
+            final String rol = await PrefUtils.getUserRol();
 
-          final String rol = await PrefUtils.getUserRol();
-
-          if (rol == 'picking') {
-            context
-                .read<WMSPickingBloc>()
-                .add(LoadAllBatchsEvent(context, true));
-          } else if (rol == 'admin') {
-            context
-                .read<WMSPickingBloc>()
-                .add(LoadAllBatchsEvent(context, true));
-            context
-                .read<WmsPackingBloc>()
-                .add(LoadAllPackingEvent(true, context));
-          } else if (rol == 'packing') {
-            context
-                .read<WmsPackingBloc>()
-                .add(LoadAllPackingEvent(true, context));
+            if (rol == 'picking') {
+              context
+                  .read<WMSPickingBloc>()
+                  .add(LoadAllBatchsEvent(context, true));
+            } else if (rol == 'admin') {
+              context
+                  .read<WMSPickingBloc>()
+                  .add(LoadAllBatchsEvent(context, true));
+              context
+                  .read<WmsPackingBloc>()
+                  .add(LoadAllPackingEvent(true, context));
+            } else if (rol == 'packing') {
+              context
+                  .read<WmsPackingBloc>()
+                  .add(LoadAllPackingEvent(true, context));
+            }
+            Navigator.pushNamed(context, 'home');
           }
-          Navigator.pushNamed(context, 'home');
-        }
 
-        if (state is LoginFailure) {
-          showModalDialog(context, state.error);
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          body: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    colors: [primaryColorApp, secondary, primaryColorApp])),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const WarningWidgetCubit(),
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                      top: 25, left: 20, right: 20, bottom: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                          child: Text(
-                        "Bienvenido a ${Environment.flavor.appName ?? 'WMS'} ",
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 22),
-                      )),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Center(
-                        child: Text("Version: 1.0.0",
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 10)),
-                      )
-                      //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
-                    ],
+          if (state is LoginFailure) {
+            showModalDialog(context, state.error);
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            body: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      colors: [primaryColorApp, secondary, primaryColorApp])),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const WarningWidgetCubit(),
+                  const SizedBox(
+                    height: 20,
                   ),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.only(top: 15),
-                    decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(40),
-                            topRight: Radius.circular(40))),
-                    child: SingleChildScrollView(
-                      child: BlocBuilder<LoginBloc, LoginState>(
-                        builder: (context, state) {
-                          return _LoginForm();
-                        },
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        top: 25, left: 20, right: 20, bottom: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                            child: Text(
+                          "Bienvenido a ${Environment.flavor.appName } ",
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 22),
+                        )),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Center(
+                          child: Text("Version: 1.0.0",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 10)),
+                        )
+                        //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
+                      ],
                     ),
                   ),
-                )
-              ],
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 15),
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(40),
+                              topRight: Radius.circular(40))),
+                      child: SingleChildScrollView(
+                        child: BlocBuilder<LoginBloc, LoginState>(
+                          builder: (context, state) {
+                            return const _LoginForm();
+                          },
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -253,9 +254,9 @@ class _LoginFormState extends State<_LoginForm> {
                   ],
                 ),
               ),
-              gapH10,
+              
               Padding(
-                padding: const EdgeInsets.only(left: 30, right: 30),
+                padding: const EdgeInsets.only(left: 30, right: 30, top :10),
                 child: MaterialButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),

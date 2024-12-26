@@ -292,7 +292,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
             final packingRequest = PackingRequest(
               idBatch: event.productos[0].batchId ??
                   0, // Usamos el ID del paquete recién creado
-              idPaquete: packageId, // Suponemos que es el mismo ID
+              idPaquete: packageId, // Suponemos que es el mismo ID 
               isPackage: true, // Puede variar según tu lógica
               pesoTotalPaquete: 34.0, // Calcular el peso total de los productos
               listItem: listItems, // Lista de productos a empaquetar

@@ -8,14 +8,14 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/presentation/widgets/jeyboard_numbers_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
 class DialogEditProductWidget extends StatefulWidget {
   final ProductsBatch productsBatch;
 
-  DialogEditProductWidget({
+  const DialogEditProductWidget({
     super.key,
     required this.productsBatch,
   });

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:animate_do/animate_do.dart';
 import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
@@ -19,100 +18,103 @@ class SelectEnterpricePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<EntrepriseBloc, EntrepriseState>(
-      listener: (context, state) {
-        if (state is EntrepriseInitial) {
-          context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-        }
+    return BlocProvider(
+      create: (context) => EntrepriseBloc(),
+      child: BlocConsumer<EntrepriseBloc, EntrepriseState>(
+        listener: (context, state) {
+          if (state is EntrepriseInitial) {
+            context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+          }
 
-        //estado de error
-        if (state is EntrepriseFailure) {
-          showModalDialog(context, state.error);
-        }
+          //estado de error
+          if (state is EntrepriseFailure) {
+            showModalDialog(context, state.error);
+          }
 
-        if (state is EntrepriseSuccess) {
-          showModalBottomSheet(
-              context: context,
-              builder: (c) => DetailClientSale(
-                    listDB: context.read<EntrepriseBloc>().entrepriceList,
-                  ));
-        }
-      },
-      builder: (context, state) {
-        return Scaffold(
-          body: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    colors: [primaryColorApp, secondary, primaryColorApp])),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                const WarningWidgetCubit(),
-                const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(25),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                          child: Text(
-                        "Bienvenido a ${Environment.flavor.appName ?? 'WMS'} ",
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 22),
-                      )),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Center(
-                        child: Text("Version: 1.0.0",
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 10)),
-                      )
-                      //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
-                    ],
+          if (state is EntrepriseSuccess) {
+            showModalBottomSheet(
+                context: context,
+                builder: (c) => DetailClientSale(
+                      listDB: context.read<EntrepriseBloc>().entrepriceList,
+                    ));
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            body: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      colors: [primaryColorApp, secondary, primaryColorApp])),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const WarningWidgetCubit(),
+                  const SizedBox(
+                    height: 10,
                   ),
-                ),
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.only(top: 15),
-                    decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(60),
-                            topRight: Radius.circular(60))),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 30, right: 30),
-                              child: _loginForm()),
-                          Visibility(
-                            visible: context
-                                .read<UserBloc>()
-                                .fabricante
-                                .contains("Zebra"),
-                            child: CustomKeyboard(
-                                controller: context
-                                    .read<EntrepriseBloc>()
-                                    .entrepriceController,
-                                onchanged: () {}),
-                          )
-                        ],
+                  Padding(
+                    padding: const EdgeInsets.all(25),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                            child: Text(
+                          "Bienvenido a ${Environment.flavor.appName } ",
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 22),
+                        )),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Center(
+                          child: Text("Version: 1.0.0",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 10)),
+                        )
+                        //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(top: 15),
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(60),
+                              topRight: Radius.circular(60))),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 30, right: 30),
+                                child: _loginForm()),
+                            Visibility(
+                              visible: context
+                                  .read<UserBloc>()
+                                  .fabricante
+                                  .contains("Zebra"),
+                              child: CustomKeyboard(
+                                  controller: context
+                                      .read<EntrepriseBloc>()
+                                      .entrepriceController,
+                                  onchanged: () {}),
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -130,7 +132,6 @@ class _loginForm extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         children: [
-       
           Container(
             margin: const EdgeInsets.only(top: 20),
             decoration: BoxDecoration(
@@ -176,8 +177,6 @@ class _loginForm extends StatelessWidget {
               ],
             ),
           ),
-
-
           Container(
             margin: const EdgeInsets.only(top: 5),
             height: context.read<EntrepriseBloc>().recentUrls.isEmpty

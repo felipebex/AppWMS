@@ -1,4 +1,3 @@
-// ignore_for_file: use_super_parameters, unrelated_type_equality_checks, deprecated_member_use, prefer_is_empty, avoid_print, use_build_context_synchronously
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:intl/intl.dart';
@@ -10,7 +9,6 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
-import 'package:wms_app/src/presentation/widgets/jeyboard_numbers_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +17,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class WMSPickingPage extends StatefulWidget {
-  const WMSPickingPage({Key? key, required this.indexSelected})
-      : super(key: key);
+  const WMSPickingPage({super.key, required this.indexSelected});
   final int indexSelected;
 
   @override

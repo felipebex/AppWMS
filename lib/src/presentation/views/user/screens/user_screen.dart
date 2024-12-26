@@ -1,15 +1,14 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/environment/environment.dart';
-import 'package:wms_app/src/presentation/views/home/index.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class UserScreen extends StatelessWidget {
-  const UserScreen({Key? key}) : super(key: key);
+  const UserScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +142,6 @@ class UserScreen extends StatelessWidget {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
                                       children: [
-
                                         Center(
                                           child: Text("Informacion PDA:",
                                               style: TextStyle(
@@ -393,35 +391,6 @@ class UserScreen extends StatelessWidget {
                                                     color: primaryColorApp))
                                           ],
                                         ),
-                                        // Row(
-                                        //   children: [
-                                        //     const Text(
-                                        //         "Opcion Muelle: ",
-                                        //         style: TextStyle(
-                                        //             fontSize: 16, color: black)),
-                                        //     const Spacer(),
-                                        //     Checkbox(
-                                        //         value: config.data?.result
-                                        //                 ?.muelleOption == "simple",
-                                        //         onChanged: null),
-                                        //     IconButton(
-                                        //         onPressed: () {
-                                        //           showDialog(
-                                        //               context: context,
-                                        //               builder: (context) {
-                                        //                 return const DialogInfo(
-                                        //                   title:
-                                        //                       "Ver proximas ubicaciones",
-                                        //                   body:
-                                        //                       "Permite ver las proximas ubicaciones a las que se debe dirigir el operario para completar el picking",
-                                        //                 );
-                                        //               });
-                                        //         },
-                                        //         icon: Icon(Icons.help,
-                                        //             color: primaryColorApp))
-                                        //   ],
-                                        // ),
-                                        //checkbox
                                       ],
                                     ),
                                   ),
@@ -437,43 +406,6 @@ class UserScreen extends StatelessWidget {
               ),
             ],
           )),
-    );
-  }
-}
-
-class DialogInfo extends StatelessWidget {
-  const DialogInfo({
-    super.key,
-    required this.title,
-    required this.body,
-  });
-
-  final String title;
-  final String body;
-
-  @override
-  Widget build(BuildContext context) {
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-      child: AlertDialog(
-        title: Center(
-            child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: primaryColorApp, fontSize: 20),
-        )),
-        content: Text(
-          body,
-          style: const TextStyle(color: black, fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Aceptar"))
-        ],
-      ),
     );
   }
 }

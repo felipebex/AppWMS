@@ -8,9 +8,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:wms_app/src/api/dialog_loading.dart';
+import 'package:wms_app/src/utils/widgets/dialog_loading.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
-import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -96,18 +95,6 @@ class ApiRequestService {
             },
           );
 
-          // List<int> intList = Preferences.getIntList;
-
-          // for (var i = 0; i < intList.length; i++) {
-          //   if (intList[i] == 1) {
-          //     print('Petición POST a $endpoint');
-          //     print("statusCode: ${response.statusCode}");
-          //    Navigator.pushNamed(context, 'home');
-          //   }else{
-
-          //   }
-          // }
-
           // Cerrar el diálogo de carga cuando la solicitud se haya completado
           if (isLoadinDialog) {
             Get.back();
@@ -188,13 +175,7 @@ class ApiRequestService {
     try {
       final String url = Uri.http(baseUrl, 'api/database').toString();
 
-      print("--------------------");
-      print("url: $url");
-      print("data: $queryParameters");
-      print("baseUrl: $baseUrl");
-      print("enterprice: $enterprice");
-      print("--------------------");
-
+    
       // Realiza la solicitud POST usando el paquete http
       final responseFuture = http.post(
         Uri.parse(url),

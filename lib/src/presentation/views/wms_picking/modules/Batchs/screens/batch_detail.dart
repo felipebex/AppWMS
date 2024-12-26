@@ -6,7 +6,7 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
+import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -662,38 +662,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
-                                            // Padding(
-                                            //   padding:
-                                            //       const EdgeInsets.symmetric(
-                                            //           horizontal: 8),
-                                            //   child: Row(
-                                            //     children: [
-                                            //       Icon(
-                                            //         Icons.priority_high,
-                                            //         color: primaryColorApp,
-                                            //         size: 15,
-                                            //       ),
-                                            //       const SizedBox(width: 5),
-                                            //       const Text("priority:",
-                                            //           style: TextStyle(
-                                            //               fontSize: 12,
-                                            //               color: black)),
-                                            //       const SizedBox(width: 5),
-                                            //       SizedBox(
-                                            //         width: size.width * 0.6,
-                                            //         child: Text(
-                                            //             productsBatch
-                                            //                     .rimovalPriority
-                                            //                     .toString() ??
-                                            //                 '',
-                                            //             style: TextStyle(
-                                            //                 fontSize: 12,
-                                            //                 color:
-                                            //                     primaryColorApp)),
-                                            //       ),
-                                            //     ],
-                                            //   ),
-                                            // ),
+                                          
                                             Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -1010,7 +979,7 @@ class BatchDetailScreen extends StatelessWidget {
                                         ? 'Intenta con otra búsqueda'
                                         : 'Todos los productos han sido completados',
                                     style:
-                                        TextStyle(fontSize: 12, color: grey)),
+                                        const TextStyle(fontSize: 12, color: grey)),
                               ],
                             ),
                           ),

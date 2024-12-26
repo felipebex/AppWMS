@@ -26,6 +26,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   String fabricante = '';
 
   UserBloc() : super(UserInitial()) {
+    //*evento para obtener la configuracion de odoo para el usuario y la app
     on<GetConfigurations>((event, emit) async {
       try {
         emit(ConfigurationLoading());
@@ -49,6 +50,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         print('Error en GetConfigurations.dart: $e =>$s');
       }
     });
+    //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEventUser>(_onLoadInfoDeviceEventUser);
     add(LoadInfoDeviceEventUser());
   }
@@ -57,22 +59,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       LoadInfoDeviceEventUser event, Emitter<UserState> emit) async {
     emit(UserInitial());
     try {
-      String info = '';
-
       //cargamos la informacion del dispositivo
       DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-      info = '''
-        Modelo: ${androidInfo.model}
-        Versión: ${androidInfo.version.release}
-        Fabricante: ${androidInfo.manufacturer}
-      ''';
-
       modelo = androidInfo.model;
       version = androidInfo.version.release;
       fabricante = androidInfo.manufacturer;
-
-      print("info device: $info");
       emit(LoadInfoDeviceStateUser());
     } catch (e, s) {
       print('Error en GetConfigurations.dart: $e =>$s');
