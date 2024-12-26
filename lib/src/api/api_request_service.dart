@@ -273,4 +273,28 @@ class ApiRequestService {
       print('Error en la petición: $e');
     }
   }
+  Future<dynamic> sendPacking({
+    required Map<String, String> headers,
+    required String body,
+    required String endpoint,
+  }) async {
+    try {
+      var request = http.post(
+        Uri.http(authority, '$unencodePath/$endpoint'),
+        body: body,
+        headers: headers,
+      );
+      print("body: $body");
+      print('Petición enviada: $request');
+
+      return request;
+    } catch (e) {
+      print('Error en la petición: $e');
+    }
+  }
+
+
+
+
+
 }

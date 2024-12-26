@@ -15,37 +15,93 @@ class Tab2Screen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return BlocBuilder<WmsPackingBloc, WmsPackingState>(
+    return BlocConsumer<WmsPackingBloc, WmsPackingState>(
+      listener: (context, state) {
+        if (state is WmsPackingErrorState) {
+          //mostramos el error
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(state.message),
+            backgroundColor: Colors.red,
+          ));
+        }
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton: context.read<WmsPackingBloc>().isKeyboardVisible
+          floatingActionButton: context.read<WmsPackingBloc>().isKeyboardVisible ||
+                  context.read<WmsPackingBloc>().listOfProductosProgress.isEmpty
               ? null
-              : FloatingActionButton(
-                  onPressed: context
-                          .read<WmsPackingBloc>()
-                          .listOfProductosProgress
-                          .isEmpty
-                      ? null
-                      : () {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return DialogConfirmatedPacking(
-                                  productos: context
-                                      .read<WmsPackingBloc>()
-                                      .listOfProductosProgress,
-                                  isCertificate: false,
-                                );
-                              });
-                        },
-                  backgroundColor: primaryColorApp,
-                  child: Image.asset(
-                    'assets/icons/packing.png',
-                    width: 30,
-                    height: 30,
-                    color: Colors.white,
-                  ),
+              :
+
+              Stack(
+                  children: [
+                    // El FloatingActionButton
+                    Positioned(
+                      bottom:
+                          0.0, // Ajusta según sea necesario para colocar en la parte inferior
+                      right:
+                          0.0, // Ajusta según sea necesario para colocar en la parte derecha
+                      child: FloatingActionButton(
+                        onPressed: context
+                                .read<WmsPackingBloc>()
+                                .listOfProductosProgress
+                                .isEmpty
+                            ? null
+                            : () {
+                                //cerramos el teclado
+                                FocusScope.of(context).unfocus();
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return DialogConfirmatedPacking(
+                                        productos: context
+                                            .read<WmsPackingBloc>()
+                                            .listOfProductsForPacking,
+                                        isCertificate: false,
+                                      );
+                                    });
+                              },
+                        backgroundColor: primaryColorApp,
+                        child: Image.asset(
+                          'assets/icons/packing.png',
+                          width: 30,
+                          height: 30,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    // El número de productos seleccionados
+                    Positioned(
+                      bottom: 40.0, // Posición hacia arriba
+                      right: 0.0, // Posición hacia la derecha
+                      child: context
+                              .read<WmsPackingBloc>()
+                              .listOfProductsForPacking
+                              .isNotEmpty
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                context
+                                    .read<WmsPackingBloc>()
+                                    .listOfProductsForPacking
+                                    .length
+                                    .toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            )
+                          : SizedBox
+                              .shrink(), // No mostrar el número si no hay productos seleccionados
+                    ),
+                  ],
                 ),
           body: Container(
               margin: const EdgeInsets.only(top: 5),
@@ -111,181 +167,208 @@ class Tab2Screen extends StatelessWidget {
                           .read<WmsPackingBloc>()
                           .listOfProductosProgress
                           .isEmpty)
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              if (!context
+                      ? Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            const Text('No hay productos',
+                                style:
+                                    TextStyle(fontSize: 14, color: grey)),
+                            const Text('Intente buscar otro producto',
+                                style: TextStyle(fontSize: 12, color: grey)),
+                            Visibility(
+                              visible: context
                                   .read<UserBloc>()
                                   .fabricante
-                                  .contains("Zebra"))
-                                Image.asset('assets/images/empty.png',
-                                    height: 100),
-                              const SizedBox(height: 50),
-                              const Text('No hay productos',
-                                  style: TextStyle(fontSize: 14, color: grey)),
-                              const Text('Intente buscar otro producto',
-                                  style: TextStyle(fontSize: 12, color: grey)),
-                              Visibility(
-                                visible: context
-                                    .read<UserBloc>()
-                                    .fabricante
-                                    .contains("Zebra"),
-                                child: Container(
-                                  height: 60,
-                                ),
+                                  .contains("Zebra"),
+                              child: Container(
+                                height: 60,
                               ),
-                            ],
-                          ),
-                        )
+                            ),
+                          ],
+                        ),
+                      )
                       : Expanded(
                           child: ListView.builder(
-                              itemCount: context
+                            itemCount: context
+                                .read<WmsPackingBloc>()
+                                .listOfProductosProgress
+                                .length,
+                            itemBuilder: (context, index) {
+                              final product = context
                                   .read<WmsPackingBloc>()
-                                  .listOfProductosProgress
-                                  .length,
-                              itemBuilder: (context, index) {
-                                final product = context
-                                    .read<WmsPackingBloc>()
-                                    .listOfProductosProgress[index];
-                                return Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      context
+                                  .listOfProductosProgress[index];
+
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                child: Card(
+                                  // Cambia el color de la tarjeta si el producto está seleccionado
+                                  color: context
                                           .read<WmsPackingBloc>()
-                                          .add(FetchProductEvent(product));
+                                          .listOfProductsForPacking
+                                          .contains(product)
+                                      ? primaryColorAppLigth // Color amarillo si está seleccionado
+                                      : Colors
+                                          .white, // Color blanco si no está seleccionado
+                                  elevation: 5,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 10),
+                                    child: Row(
+                                      children: [
+                                        // Checkbox para seleccionar o deseleccionar el producto
+                                        Checkbox(
+                                          value: context
+                                              .read<WmsPackingBloc>()
+                                              .listOfProductsForPacking
+                                              .contains(product),
+                                          onChanged: (bool? selected) {
+                                            if (selected == true) {
+                                              // Seleccionar producto
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(
+                                                      SelectProductPackingEvent(
+                                                          product));
+                                            } else {
+                                              // Deseleccionar producto
+                                              context.read<WmsPackingBloc>().add(
+                                                  UnSelectProductPackingEvent(
+                                                      product));
+                                            }
+                                          },
+                                        ),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              // Mantener el comportamiento actual al tocar un producto
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(FetchProductEvent(
+                                                      product));
 
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return const DialogLoading();
-                                          });
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading();
+                                                },
+                                              );
 
-                                      // Esperar 3 segundos antes de continuar
-                                      Future.delayed(const Duration(seconds: 1),
-                                          () {
-                                        // Cerrar el diálogo de carga
-                                        Navigator.of(context,
-                                                rootNavigator: true)
-                                            .pop();
+                                              // Esperar 3 segundos antes de continuar
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                // Cerrar el diálogo de carga
+                                                Navigator.of(context,
+                                                        rootNavigator: true)
+                                                    .pop();
 
-                                        // Ahora navegar a la vista "batch"
-                                        Navigator.pushNamed(
-                                          context,
-                                          'Packing',
-                                        );
-                                      });
-                                    },
-                                    child: Card(
-                                        color: product.isSelected == 1
-                                            ? primaryColorAppLigth
-                                            : Colors.white,
-                                        elevation: 5,
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 10),
-                                          child: Column(
-                                            children: [
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  "Producto:",
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: primaryColorApp,
-                                                  ),
-                                                ),
-                                              ),
-                                              Align(
+                                                // Ahora navegar a la vista "batch"
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  'Packing',
+                                                );
+                                              });
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Align(
                                                   alignment:
                                                       Alignment.centerLeft,
                                                   child: Text(
-                                                      " ${product.idProduct}",
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: black))),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    "pedido: ",
+                                                    "Producto:",
                                                     style: TextStyle(
                                                       fontSize: 14,
                                                       color: primaryColorApp,
                                                     ),
                                                   ),
-                                                  Text("${product.pedidoId}",
-                                                      style: const TextStyle(
-                                                          fontSize: 16,
-                                                          color: black)),
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    "Cantidad: ",
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: primaryColorApp,
-                                                    ),
+                                                ),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    " ${product.idProduct}",
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        color: black),
                                                   ),
-                                                  Text("${product.quantity}",
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Text(
-                                                    "Unidad de medida: ",
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: primaryColorApp,
-                                                    ),
-                                                  ),
-                                                  Text("${product.unidades}",
-                                                      style: const TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                ],
-                                              ),
-                                              if (product.tracking != false)
+                                                ),
                                                 Row(
                                                   children: [
                                                     Text(
-                                                      "Numero de serie/lote: ",
+                                                      "Pedido: ",
                                                       style: TextStyle(
                                                         fontSize: 14,
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-                                                    Text("${product.lotId}",
+                                                    Text("${product.pedidoId}",
+                                                        style: const TextStyle(
+                                                            fontSize: 16,
+                                                            color: black)),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Cantidad: ",
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: primaryColorApp,
+                                                      ),
+                                                    ),
+                                                    Text("${product.quantity}",
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Text(
+                                                      "Unidad de medida: ",
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: primaryColorApp,
+                                                      ),
+                                                    ),
+                                                    Text("${product.unidades}",
                                                         style: const TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
                                                   ],
                                                 ),
-                                              // if (product.expirationDate != false)
-                                              //   Row(
-                                              //     children: [
-                                              //       const Text(
-                                              //         "Fecha de caducidad: ",
-                                              //         style: TextStyle(
-                                              //           fontSize: 16,
-                                              //           color: primaryColorApp,
-                                              //         ),
-                                              //       ),
-                                              //       Text("${product.expirationDate}",
-                                              //           style: const TextStyle(
-                                              //               fontSize: 16, color: black)),
-                                              //     ],
-                                              //   )
-                                            ],
+                                                if (product.tracking != false)
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "Número de serie/lote: ",
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              primaryColorApp,
+                                                        ),
+                                                      ),
+                                                      Text("${product.lotId}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color:
+                                                                      black)),
+                                                    ],
+                                                  ),
+                                              ],
+                                            ),
                                           ),
-                                        )),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                );
-                              }),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                   Visibility(
                     visible: context.read<WmsPackingBloc>().isKeyboardVisible &&

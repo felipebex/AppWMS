@@ -313,21 +313,13 @@ class Tab1Screen extends StatelessWidget {
                     ),
                   ),
                   child: (context.read<WmsPackingBloc>().packages.isEmpty)
-                      ? Center(
+                      ? const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (!context
-                                  .read<UserBloc>()
-                                  .fabricante
-                                  .contains("Zebra"))
-                                Image.asset('assets/images/empty.png',
-                                    height:
-                                        100), // Ajusta la altura según necesites
-                              const SizedBox(height: 10),
-                              const Text('No hay empaques',
+                              Text('No hay empaques',
                                   style: TextStyle(fontSize: 14, color: grey)),
-                              const Text('Realiza el proceso de empaque',
+                              Text('Realiza el proceso de empaque',
                                   style: TextStyle(fontSize: 12, color: grey)),
                             ],
                           ),

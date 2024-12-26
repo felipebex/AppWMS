@@ -55,3 +55,23 @@ class ShowKeyboardState extends WmsPackingState {
   final bool showKeyboard;
   ShowKeyboardState({required this.showKeyboard});
 }
+
+
+class ListOfProductsForPackingState extends WmsPackingState {
+  final List<PorductoPedido> productos;
+  ListOfProductsForPackingState(this.productos);
+}
+
+//estado de carga mientras se hace el packing
+class WmsPackingLoadingState extends WmsPackingState {}
+
+
+ class WmsPackingSuccessState extends WmsPackingState {
+  final String message;
+  WmsPackingSuccessState(this.message);
+}
+
+class WmsPackingErrorState extends WmsPackingState {
+  final String message;
+  WmsPackingErrorState(this.message);
+}

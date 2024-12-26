@@ -17,54 +17,93 @@ class Tab3Screen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton: FloatingActionButton(
-            onPressed: context.read<WmsPackingBloc>().productsDone.isEmpty
-                ? null
-                : () {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return DialogConfirmatedPacking(
-                            productos:
-                                context.read<WmsPackingBloc>().productsDone,
-                            isCertificate: true,
-                          );
-                        });
-                  },
-            backgroundColor: primaryColorApp,
-            child: Image.asset(
-              'assets/icons/packing.png',
-              width: 30,
-              height: 30,
-              color: Colors.white,
-            ),
-          ),
+          floatingActionButton: context
+                  .read<WmsPackingBloc>()
+                  .productsDone
+                  .isEmpty
+              ? null
+              : Stack(
+                  children: [
+                    Positioned(
+                      bottom:
+                          0.0, // Ajusta según sea necesario para colocar en la parte inferior
+                      right:
+                          0.0, // Ajusta según sea necesario para colocar en la parte derecha
+                      child: FloatingActionButton(
+                        onPressed:
+                            context.read<WmsPackingBloc>().productsDone.isEmpty
+                                ? null
+                                : () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return DialogConfirmatedPacking(
+                                            productos: context
+                                                .read<WmsPackingBloc>()
+                                                .productsDone,
+                                            isCertificate: true,
+                                          );
+                                        });
+                                  },
+                        backgroundColor: primaryColorApp,
+                        child: Image.asset(
+                          'assets/icons/packing.png',
+                          width: 30,
+                          height: 30,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 40.0, // Posición hacia arriba
+                      right: 0.0, // Posición hacia la derecha
+                      child: context
+                              .read<WmsPackingBloc>()
+                              .productsDone
+                              .isNotEmpty
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                context
+                                    .read<WmsPackingBloc>()
+                                    .productsDone
+                                    .length
+                                    .toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            )
+                          : const SizedBox
+                              .shrink(), // No mostrar el número si no hay productos seleccionados
+                    ),
+                  ],
+                ),
           body: Column(
             children: [
               Container(
-                margin: const EdgeInsets.only(top:5, bottom: 10),
+                margin: const EdgeInsets.only(top: 5, bottom: 10),
                 width: double.infinity,
                 height: size.height * 0.7,
                 child: (context.read<WmsPackingBloc>().productsDone.isEmpty)
-                    ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (!context
-                                  .read<UserBloc>()
-                                  .fabricante
-                                  .contains("Zebra"))
-                                Image.asset('assets/images/empty.png',
-                                    height:
-                                        100), // Ajusta la altura según necesites
-                              const SizedBox(height: 10),
-                              const Text('No hay productos listos',
-                                  style: TextStyle(fontSize: 14, color: grey)),
-                              const Text('Intente con otro pedido o batch',
-                                  style: TextStyle(fontSize: 12, color: grey)),
-                            ],
-                          ),
-                        )
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('No hay productos listos',
+                                style: TextStyle(fontSize: 14, color: grey)),
+                            Text('Intente con otro pedido o batch',
+                                style: TextStyle(fontSize: 12, color: grey)),
+                          ],
+                        ),
+                      )
                     : ListView.builder(
                         itemCount:
                             context.read<WmsPackingBloc>().productsDone.length,
@@ -92,7 +131,7 @@ class Tab3Screen extends StatelessWidget {
                                           alignment: Alignment.centerLeft,
                                           child: Row(
                                             children: [
-                                               Text(
+                                              Text(
                                                 "Producto:",
                                                 style: TextStyle(
                                                   fontSize: 14,
@@ -105,8 +144,9 @@ class Tab3Screen extends StatelessWidget {
                                                     alignment:
                                                         Alignment.centerLeft,
                                                     child: Text(
-                                                      maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                         " ${product.idProduct}",
                                                         style: const TextStyle(
                                                             fontSize: 14,
@@ -125,7 +165,7 @@ class Tab3Screen extends StatelessWidget {
                                               children: [
                                                 Row(
                                                   children: [
-                                                     Text(
+                                                    Text(
                                                       "Cantidad: ",
                                                       style: TextStyle(
                                                         fontSize: 14,
@@ -137,7 +177,7 @@ class Tab3Screen extends StatelessWidget {
                                                             fontSize: 14,
                                                             color: black)),
                                                     const Spacer(),
-                                                     Text(
+                                                    Text(
                                                       "Unidades: ",
                                                       style: TextStyle(
                                                         fontSize: 14,
@@ -152,7 +192,7 @@ class Tab3Screen extends StatelessWidget {
                                                 ),
                                                 Row(
                                                   children: [
-                                                     Text(
+                                                    Text(
                                                       "Cantidades Separadas : ",
                                                       style: TextStyle(
                                                         fontSize: 14,
@@ -169,7 +209,7 @@ class Tab3Screen extends StatelessWidget {
                                                 if (product.observation != null)
                                                   Row(
                                                     children: [
-                                                       Text(
+                                                      Text(
                                                         "Novedades : ",
                                                         style: TextStyle(
                                                           fontSize: 14,
@@ -178,12 +218,14 @@ class Tab3Screen extends StatelessWidget {
                                                         ),
                                                       ),
                                                       SizedBox(
-                                                        width: size.width * 0.55,
+                                                        width:
+                                                            size.width * 0.55,
                                                         child: Text(
-
                                                             "${product.observation}",
                                                             maxLines: 2,
-                                                            overflow: TextOverflow.ellipsis,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
@@ -201,7 +243,7 @@ class Tab3Screen extends StatelessWidget {
                                         if (product.tracking != false)
                                           Row(
                                             children: [
-                                               Text(
+                                              Text(
                                                 "Numero de serie/lote: ",
                                                 style: TextStyle(
                                                   fontSize: 14,
@@ -217,7 +259,7 @@ class Tab3Screen extends StatelessWidget {
 
                                         Row(
                                           children: [
-                                             Text(
+                                            Text(
                                               "Peso: ",
                                               style: TextStyle(
                                                 fontSize: 14,

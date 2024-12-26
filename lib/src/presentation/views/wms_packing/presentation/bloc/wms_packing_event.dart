@@ -111,8 +111,9 @@ class SetPackingsEvent extends WmsPackingEvent {
   final List<PorductoPedido> productos;
   final bool isSticker;
   final bool isCertificate;
+  final BuildContext context;
 
-  SetPackingsEvent( this.productos, this.isSticker, this.isCertificate);
+  SetPackingsEvent( this.productos, this.isSticker, this.isCertificate, this.context);
 
 
 }
@@ -143,3 +144,15 @@ class ShowKeyboardEvent extends WmsPackingEvent {
 
   ShowKeyboardEvent( this.showKeyboard);
 }
+
+class SelectProductPackingEvent extends WmsPackingEvent {
+  final PorductoPedido producto;
+  SelectProductPackingEvent(this.producto);
+}
+
+class UnSelectProductPackingEvent extends WmsPackingEvent {
+  final PorductoPedido producto;
+  UnSelectProductPackingEvent(this.producto);
+}
+
+

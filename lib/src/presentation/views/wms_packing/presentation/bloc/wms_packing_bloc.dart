@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, collection_methods_unrelated_type
+// ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, collection_methods_unrelated_type, use_build_context_synchronously
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +6,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/sen_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
@@ -22,15 +23,23 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   List<PedidoPacking> listOfPedidos = [];
 
   //*lista de productos de un pedido
-  List<PorductoPedido> listOfProductos = [];
-  List<PorductoPedido> listOfProductosProgress = [];
-  List<PorductoPedido> productsDone = [];
+  List<PorductoPedido> listOfProductos = []; //lista de productos de un pedido
+  List<PorductoPedido> listOfProductosProgress =
+      []; //lista de productos sin certificar
+  List<PorductoPedido> productsDone = []; //lista de productos ya certificados
+  List<PorductoPedido> listOfProductsForPacking =
+      []; //lista de productos sin certificar seleccionados para empacar
+
   //*lista de todos los productos a empacar
   List<PorductoPedido> productsPacking = [];
+  //*lista de productos de un pedido
+  List<PorductoPedido> listOfProductsName = [];
+
   //*lista de paquetes
   List<Paquete> packages = [];
+  //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
-
+  //*producto actual
   PorductoPedido currentProduct = PorductoPedido();
 
   //*lista de todas las pocisiones de los productos del batchs
@@ -39,37 +48,32 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   //*controller para la busqueda
   TextEditingController searchController = TextEditingController();
   TextEditingController searchControllerProduct = TextEditingController();
-
+  //*repositorio
   WmsPackingRepository wmsPackingRepository = WmsPackingRepository();
 
   //*isSticker
   bool isSticker = false;
-
   // //*validaciones de campos del estado de la vista
   bool isLocationOk = true;
   bool isProductOk = true;
   bool isLocationDestOk = true;
   bool isQuantityOk = true;
-
-  String oldLocation = '';
-
   //*variables para validar
   bool locationIsOk = false;
   bool productIsOk = false;
   bool locationDestIsOk = false;
   bool quantityIsOk = false;
-
   bool isKeyboardVisible = false;
 
+  //* ultima ubicacion
+  String oldLocation = '';
+
   int completedProducts = 0;
-  List<PorductoPedido> listOfProductsName = [];
-
   int quantitySelected = 0;
-
   //*numero de paquetes
-
   int index = 0;
 
+//*base de datos
   DataBaseSqlite db = DataBaseSqlite();
 
   //*batch con productos
@@ -102,6 +106,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     //*agregar un producto a nuevo empaque
     on<AddProductPackingEvent>(_onAddProductPackingEvent);
 
+    //*evento para validar los campos de la vista
     on<ValidateFieldsPackingEvent>(_onValidateFieldsPacking);
 
     //*evento para cambiar la cantidad seleccionada
@@ -124,6 +129,44 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //evento para mostrar el teclado
     on<ShowKeyboardEvent>(_onShowKeyboardEvent);
+    //*evento para seleccionar productos sin certificar
+    on<SelectProductPackingEvent>(_onSelectProductPackingEvent);
+    //*evento para desseleccionar productos sin certificar
+    on<UnSelectProductPackingEvent>(_onUnSelectProductPackingEvent);
+  }
+
+  //*metodo para seleccionar un producto sin certificar
+  void _onSelectProductPackingEvent(
+      SelectProductPackingEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      // Verificar si el producto ya está en la lista de productos seleccionados
+      if (!listOfProductsForPacking.contains(event.producto)) {
+        // Agregar el producto a la lista si no está ya presente
+        listOfProductsForPacking.add(event.producto);
+        // Emitir un nuevo estado con la lista actualizada
+        emit(ListOfProductsForPackingState(listOfProductsForPacking));
+      }
+    } catch (e, s) {
+      print('Error en el _onSelectProductPackingEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
+  }
+
+  //*metodo para deseleccionar un producto sin certificar
+  void _onUnSelectProductPackingEvent(
+      UnSelectProductPackingEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      // Verificar si el producto está en la lista antes de intentar eliminarlo
+      if (listOfProductsForPacking.contains(event.producto)) {
+        // Eliminar el producto de la lista
+        listOfProductsForPacking.remove(event.producto);
+        // Emitir un nuevo estado con la lista actualizada
+        emit(ListOfProductsForPackingState(listOfProductsForPacking));
+      }
+    } catch (e, s) {
+      print('Error en el _onUnSelectProductPackingEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
   }
 
   void _onShowKeyboardEvent(
@@ -205,102 +248,182 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     emit(ChangeStickerState(isSticker));
   }
 
-  //*metodo para realizar el empacado
   void _onSetPackingsEvent(
       SetPackingsEvent event, Emitter<WmsPackingState> emit) async {
     try {
-      print('event.productos: ${event.productos.length}');
+      // Verificar que haya productos para empaquetar
       if (event.productos.isNotEmpty) {
-        //creamos un numero de paquete con la cantidad de productos y fecha actual
-        int index = packages.length + DateTime.now().millisecondsSinceEpoch;
-
-        print('index: $index');
-
-        //creamos un paquete
-        packages.add(Paquete(
-          id: index,
-          name: 'PACK-$index',
-          batchId: event.productos[0].batchId,
-          pedidoId: event.productos[0].pedidoId,
-          cantidadProductos: event.productos.length,
-          listaProductos: event.productos,
-          isSticker: event.isSticker,
-        ));
-
-        await db.insertPackage(Paquete(
-          id: index,
-          name: 'PACK-$index',
-          batchId: event.productos[0].batchId,
-          pedidoId: event.productos[0].pedidoId,
-          cantidadProductos: event.productos.length,
-          isSticker: event.isSticker,
-        ));
-
-        for (var product in event.productos) {
-          //verificamos si el empaquetado esta certificado
-          if (!event.isCertificate) {
-            await db.setFieldTableBatchPacking(
-                event.productos[0].batchId ?? 0, "is_selected", "true");
-
-            await db.setFieldTablePedidosPacking(
-              event.productos[0].batchId ?? 0,
-              product.pedidoId ?? 0,
-              "is_selected",
-              "true",
-            );
-
-            await db.setFieldTableProductosPedidos(
-                product.pedidoId ?? 0,
-                product.productId ?? 0,
-                "is_separate",
-                "true",
-                product.idMove ?? 0);
-
-            await db.setFieldTableProductosPedidos(
-                product.pedidoId ?? 0,
-                product.productId ?? 0,
-                "is_certificate",
-                "false",
-                product.idMove ?? 0);
-          } else {
-            await db.setFieldTableProductosPedidos(
-                product.pedidoId ?? 0,
-                product.productId ?? 0,
-                "is_certificate",
-                "true",
-                product.idMove ?? 0);
-          }
-
-          //actualizamos el estado del producto como empacado
-          await db.setFieldTableProductosPedidos(
-              product.pedidoId ?? 0,
-              product.productId ?? 0,
-              "is_packing",
-              "true",
-              product.idMove ?? 0);
-
-          await db.setFieldTableProductosPedidos(product.pedidoId ?? 0,
-              product.productId ?? 0, "id_package", index, product.idMove ?? 0);
-        }
-
-        add(LoadAllProductsFromPedidoEvent(event.productos[0].pedidoId ?? 0));
-
-        productsDone.clear();
-
-        await db.setFieldTablePedidosPacking(
-          event.productos[0].batchId ?? 0,
-          event.productos[0].pedidoId ?? 0,
-          "is_packing",
-          "true",
+        // 1. Intentar crear el paquete
+        emit(
+            WmsPackingLoadingState()); // Estado de carga mientras creas el paquete
+        final newPackageResponse = await wmsPackingRepository.newPackage(
+          true, // Muestra un diálogo de carga si es necesario
+          event.context, // Pasar el contexto si es necesario para la UI
         );
 
-        emit(WmsPackingLoaded());
+        // 2. Si la creación del paquete fue exitosa
+        if (newPackageResponse.data?.code == 200) {
+          // Obtener el ID del paquete recién creado
+          final packageId = newPackageResponse.data?.packaging?.first.id;
+
+          if (packageId != null) {
+            // 3. Empaquetar los productos en el paquete recién creado
+            // Crear la lista de ListItem a partir de los productos
+            List<ListItem> listItems = event.productos.map((producto) {
+              return ListItem(
+                idMove: producto.idMove ??
+                    0, // O el campo correspondiente en tu producto
+                productId: producto.idProduct ??
+                    0, // Suponiendo que `id` es el ID del producto
+                lote: producto
+                    .loteId, // Suponiendo que `loteId` es el lote del producto
+                locationId:
+                    producto.locationId, // Asegúrate de tener este campo
+                cantidadSeparada: producto.quantitySeparate ??
+                    0, // La cantidad separada del producto
+                observacion: producto.observation ??
+                    '', // Observación del producto (si existe)
+                unidadMedida:
+                    producto.unidades ?? '', // La unidad de medida del producto
+              );
+            }).toList();
+
+            // 4. Crear el PackingRequest
+            final packingRequest = PackingRequest(
+              idBatch: event.productos[0].batchId ??
+                  0, // Usamos el ID del paquete recién creado
+              idPaquete: packageId, // Suponemos que es el mismo ID
+              isPackage: true, // Puede variar según tu lógica
+              pesoTotalPaquete: 34.0, // Calcular el peso total de los productos
+              listItem: listItems, // Lista de productos a empaquetar
+            );
+
+            // Llamamos al servicio para enviar el empaquetado
+            await wmsPackingRepository.sendPackingRequest(
+              packingRequest,
+              true, // Muestra un diálogo de carga si es necesario
+              event.context,
+            );
+
+            // Si todo salió bien, podemos notificar a la UI que el empaquetado fue exitoso
+            emit(WmsPackingSuccessState('Empaquetado exitoso'));
+          } else {
+            // Si no se obtuvo un ID válido, mostrar un error
+            emit(WmsPackingErrorState('Error: No se pudo crear el paquete'));
+          }
+        } else {
+          // Si la creación del paquete falla, mostrar un mensaje de error
+          final errorMessage =
+              newPackageResponse.data?.msg ?? 'Error desconocido';
+          emit(
+              WmsPackingErrorState('Error al crear el paquete: $errorMessage'));
+        }
+      } else {
+        // Si no hay productos seleccionados
+        emit(WmsPackingErrorState(
+            'No se seleccionaron productos para empaquetar'));
       }
     } catch (e, s) {
-      print('Error en el  _onSetPackingsEvent: $e, $s');
-      emit(WmsPackingError(e.toString()));
+      // Manejo de excepciones genéricas
+      print('Error en _onSetPackingsEvent: $e, $s');
+      emit(WmsPackingErrorState('Ocurrió un error inesperado'));
     }
   }
+
+  // //*metodo para realizar el empacado
+  // void _onSetPackingsEvent(
+  //     SetPackingsEvent event, Emitter<WmsPackingState> emit) async {
+  //   try {
+  //     print('event.productos: ${event.productos.length}');
+  //     if (event.productos.isNotEmpty) {
+
+  //creamos un numero de paquete con la cantidad de productos y fecha actual
+
+  // //creamos un paquete
+  // packages.add(Paquete(
+  //   id: index,
+  //   name: 'PACK-$index',
+  //   batchId: event.productos[0].batchId,
+  //   pedidoId: event.productos[0].pedidoId,
+  //   cantidadProductos: event.productos.length,
+  //   listaProductos: event.productos,
+  //   isSticker: event.isSticker,
+  // ));
+
+  // await db.insertPackage(Paquete(
+  //   id: index,
+  //   name: 'PACK-$index',
+  //   batchId: event.productos[0].batchId,
+  //   pedidoId: event.productos[0].pedidoId,
+  //   cantidadProductos: event.productos.length,
+  //   isSticker: event.isSticker,
+  // ));
+
+  // for (var product in event.productos) {
+  //   //verificamos si el empaquetado esta certificado
+  //   if (!event.isCertificate) {
+  //     await db.setFieldTableBatchPacking(
+  //         event.productos[0].batchId ?? 0, "is_selected", "true");
+
+  //     await db.setFieldTablePedidosPacking(
+  //       event.productos[0].batchId ?? 0,
+  //       product.pedidoId ?? 0,
+  //       "is_selected",
+  //       "true",
+  //     );
+
+  //     await db.setFieldTableProductosPedidos(
+  //         product.pedidoId ?? 0,
+  //         product.productId ?? 0,
+  //         "is_separate",
+  //         "true",
+  //         product.idMove ?? 0);
+
+  //     await db.setFieldTableProductosPedidos(
+  //         product.pedidoId ?? 0,
+  //         product.productId ?? 0,
+  //         "is_certificate",
+  //         "false",
+  //         product.idMove ?? 0);
+  //   } else {
+  //     await db.setFieldTableProductosPedidos(
+  //         product.pedidoId ?? 0,
+  //         product.productId ?? 0,
+  //         "is_certificate",
+  //         "true",
+  //         product.idMove ?? 0);
+  //   }
+
+  //   //actualizamos el estado del producto como empacado
+  //   await db.setFieldTableProductosPedidos(
+  //       product.pedidoId ?? 0,
+  //       product.productId ?? 0,
+  //       "is_packing",
+  //       "true",
+  //       product.idMove ?? 0);
+
+  //   await db.setFieldTableProductosPedidos(product.pedidoId ?? 0,
+  //       product.productId ?? 0, "id_package", index, product.idMove ?? 0);
+  // }
+
+  // add(LoadAllProductsFromPedidoEvent(event.productos[0].pedidoId ?? 0));
+
+  // productsDone.clear();
+
+  // await db.setFieldTablePedidosPacking(
+  //   event.productos[0].batchId ?? 0,
+  //   event.productos[0].pedidoId ?? 0,
+  //   "is_packing",
+  //   "true",
+  // );
+
+  //       emit(WmsPackingLoaded());
+  //     }
+  //   } catch (e, s) {
+  //     print('Error en el  _onSetPackingsEvent: $e, $s');
+  //     emit(WmsPackingError(e.toString()));
+  //   }
+  // }
 
   //*metodo que se encarga de hacer el picking
   void _onSetPickingsEvent(

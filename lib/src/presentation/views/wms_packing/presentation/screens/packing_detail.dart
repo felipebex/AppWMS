@@ -44,6 +44,9 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                   onPressed: () {
                     context
                         .read<WmsPackingBloc>()
+                        .listOfProductsForPacking.clear();
+                    context
+                        .read<WmsPackingBloc>()
                         .add(LoadAllPedidosFromBatchEvent(
                           widget.packingModel?.batchId ?? 0,
                         ));
