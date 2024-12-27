@@ -6,6 +6,7 @@ class Item {
   String novedad;
   double timeLine;
   int muelle;
+  int idOperario;
 
   Item({
     required this.idMove,
@@ -15,6 +16,7 @@ class Item {
     required this.novedad,
     required this.timeLine,
     required this.muelle,
+    required this.idOperario,
   });
 
   Map<String, dynamic> toJson() {
@@ -26,6 +28,7 @@ class Item {
       'novedad': novedad,
       'time_line': timeLine,
       'muelle':  muelle,
+      'id_operario': idOperario,
     };
   }
 }

@@ -11,7 +11,9 @@ class PorductoPedido {
   final dynamic loteId;
   final dynamic lotId;
   final dynamic locationId;
+  final dynamic idLocation;
   final dynamic locationDestId;
+  final dynamic idLocationDest;
   final dynamic quantity;
   final String? tracking;
   final dynamic barcode;
@@ -51,7 +53,9 @@ class PorductoPedido {
     this.idMove,
     this.lotId,
     this.locationId,
+    this.idLocation,
     this.locationDestId,
+    this.idLocationDest,
     this.quantity,
     this.tracking,
     this.barcode,
@@ -90,7 +94,9 @@ class PorductoPedido {
         idMove: json["id_move"],
         lotId: json["lot_id"],
         locationId: json["location_id"],
+        idLocation: json["id_location"],
         locationDestId: json["location_dest_id"],
+        idLocationDest: json["id_location_dest"],
         quantity: json["quantity"],
         tracking: json["tracking"],
         barcode: json["barcode"],
@@ -130,7 +136,9 @@ class PorductoPedido {
         "lot_id": lotId,
         "id_move": idMove,
         "location_id": locationId,
+        "id_location": idLocation,
         "location_dest_id": locationDestId,
+        "id_location_dest": idLocationDest,
         "quantity": quantity,
         "tracking": tracking,
         "barcode": barcode,

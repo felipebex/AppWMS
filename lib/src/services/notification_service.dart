@@ -41,7 +41,6 @@ static Future<void> reqyestPermissionsLocalNotifications() async {
     // Aquí puedes navegar a la vista deseada, pasando un payload si es necesario
     final String? payload = details.payload;
     if (payload != null) {
-      print("Notificación seleccionada: $payload");
       // Aquí puedes navegar a la vista "batch_picking" o a donde necesites
       // Navigator.pushNamed(context, '/batch_picking');
     }

@@ -116,7 +116,7 @@ class BatchDetailScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 5),
-                  SizedBox(
+                  Container(
                     width: size.width,
                     height: context
                                 .read<BatchBloc>()
@@ -124,60 +124,60 @@ class BatchDetailScreen extends StatelessWidget {
                                 .batch
                                 ?.isSeparate ==
                             1
-                        ? 175
+                        ? 140
                         : context.read<BatchBloc>().isSearch == false
                             ? 70
-                            : 135,
+                            : 100,
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (context.read<BatchBloc>().isSearch)
-                                Card(
-                                  color: white,
-                                  elevation: 3,
-                                  child: SizedBox(
-                                    height: 60,
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                                "Items: ${context.read<BatchBloc>().batchWithProducts.products?.length ?? 0}",
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: black)),
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                                "Separados: ${context.read<BatchBloc>().filteredProducts.where((element) {
-                                                      return element
-                                                              .isSeparate ==
-                                                          1;
-                                                    }).length.toString()}",
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: black)),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                              // if (context.read<BatchBloc>().isSearch)
+                              //   Card(
+                              //     color: white,
+                              //     elevation: 3,
+                              //     child: SizedBox(
+                              //       height: 60,
+                              //       child: Column(
+                              //         mainAxisAlignment:
+                              //             MainAxisAlignment.center,
+                              //         crossAxisAlignment:
+                              //             CrossAxisAlignment.start,
+                              //         children: [
+                              //           Container(
+                              //             padding: const EdgeInsets.symmetric(
+                              //               horizontal: 10,
+                              //             ),
+                              //             child: Center(
+                              //               child: Text(
+                              //                   "Items: ${context.read<BatchBloc>().batchWithProducts.products?.length ?? 0}",
+                              //                   style: const TextStyle(
+                              //                       fontSize: 12,
+                              //                       color: black)),
+                              //             ),
+                              //           ),
+                              //           Container(
+                              //             padding: const EdgeInsets.symmetric(
+                              //               horizontal: 10,
+                              //             ),
+                              //             child: Center(
+                              //               child: Text(
+                              //                   "Separados: ${context.read<BatchBloc>().filteredProducts.where((element) {
+                              //                         return element
+                              //                                 .isSeparate ==
+                              //                             1;
+                              //                       }).length.toString()}",
+                              //                   style: const TextStyle(
+                              //                       fontSize: 12,
+                              //                       color: black)),
+                              //             ),
+                              //           ),
+                              //         ],
+                              //       ),
+                              //     ),
+                              //   ),
                               Card(
                                 color: white,
                                 elevation: 2,
@@ -185,97 +185,97 @@ class BatchDetailScreen extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      width: size.width * 0.6,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 5),
-                                      child: Center(
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              "Ejecucion: ${context.read<BatchBloc>().calculateProgress()}%",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: getColorForPercentage(
-                                                    double.parse(context
-                                                        .read<BatchBloc>()
-                                                        .calculateProgress())), // Convertir a double
-                                              ),
-                                            ),
-                                            const Spacer(),
-                                            //icono de ayuda
-                                            GestureDetector(
-                                                onTap: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return BackdropFilter(
-                                                        filter:
-                                                            ImageFilter.blur(
-                                                                sigmaX: 5,
-                                                                sigmaY: 5),
-                                                        child: AlertDialog(
-                                                          actionsAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          title: Center(
-                                                            child: Text(
-                                                                "Información",
-                                                                style: TextStyle(
-                                                                    color:
-                                                                        primaryColorApp,
-                                                                    fontSize:
-                                                                        20)),
-                                                          ),
-                                                          content: const Column(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Text(
-                                                                  "El porcentaje de ejecución se calcula de la siguiente manera:"),
-                                                              SizedBox(
-                                                                  height: 5),
-                                                              Text(
-                                                                  "Porcentaje de ejecución = (Unidades separadas / Unidades totales) * 100"),
-                                                              SizedBox(
-                                                                  height: 5),
-                                                            ],
-                                                          ),
-                                                          actions: [
-                                                            ElevatedButton(
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                  backgroundColor:
-                                                                      grey,
-                                                                  shape: RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              10)),
-                                                                ),
-                                                                onPressed: () {
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop();
-                                                                },
-                                                                child: const Text(
-                                                                    "Cerrar",
-                                                                    style: TextStyle(
-                                                                        color:
-                                                                            white))),
-                                                          ],
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                                child: Icon(Icons.help,
-                                                    color: primaryColorApp,
-                                                    size: 15)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                    // Container(
+                                    //   width: size.width * 0.8,
+                                    //   padding: const EdgeInsets.symmetric(
+                                    //       horizontal: 10, vertical: 5),
+                                    //   child: Center(
+                                    //     child: Row(
+                                    //       children: [
+                                    //         Text(
+                                    //           "Ejecucion: ${context.read<BatchBloc>().calculateProgress()}%",
+                                    //           style: TextStyle(
+                                    //             fontSize: 12,
+                                    //             color: getColorForPercentage(
+                                    //                 double.parse(context
+                                    //                     .read<BatchBloc>()
+                                    //                     .calculateProgress())), // Convertir a double
+                                    //           ),
+                                    //         ),
+                                    //         const Spacer(),
+                                    //         //icono de ayuda
+                                    //         GestureDetector(
+                                    //             onTap: () {
+                                    //               showDialog(
+                                    //                 context: context,
+                                    //                 builder: (context) {
+                                    //                   return BackdropFilter(
+                                    //                     filter:
+                                    //                         ImageFilter.blur(
+                                    //                             sigmaX: 5,
+                                    //                             sigmaY: 5),
+                                    //                     child: AlertDialog(
+                                    //                       actionsAlignment:
+                                    //                           MainAxisAlignment
+                                    //                               .center,
+                                    //                       title: Center(
+                                    //                         child: Text(
+                                    //                             "Información",
+                                    //                             style: TextStyle(
+                                    //                                 color:
+                                    //                                     primaryColorApp,
+                                    //                                 fontSize:
+                                    //                                     20)),
+                                    //                       ),
+                                    //                       content: const Column(
+                                    //                         mainAxisSize:
+                                    //                             MainAxisSize
+                                    //                                 .min,
+                                    //                         children: [
+                                    //                           Text(
+                                    //                               "El porcentaje de ejecución se calcula de la siguiente manera:"),
+                                    //                           SizedBox(
+                                    //                               height: 5),
+                                    //                           Text(
+                                    //                               "Porcentaje de ejecución = (Unidades separadas / Unidades totales) * 100"),
+                                    //                           SizedBox(
+                                    //                               height: 5),
+                                    //                         ],
+                                    //                       ),
+                                    //                       actions: [
+                                    //                         ElevatedButton(
+                                    //                             style: ElevatedButton
+                                    //                                 .styleFrom(
+                                    //                               backgroundColor:
+                                    //                                   grey,
+                                    //                               shape: RoundedRectangleBorder(
+                                    //                                   borderRadius:
+                                    //                                       BorderRadius.circular(
+                                    //                                           10)),
+                                    //                             ),
+                                    //                             onPressed: () {
+                                    //                               Navigator.of(
+                                    //                                       context)
+                                    //                                   .pop();
+                                    //                             },
+                                    //                             child: const Text(
+                                    //                                 "Cerrar",
+                                    //                                 style: TextStyle(
+                                    //                                     color:
+                                    //                                         white))),
+                                    //                       ],
+                                    //                     ),
+                                    //                   );
+                                    //                 },
+                                    //               );
+                                    //             },
+                                    //             child: Icon(Icons.help,
+                                    //                 color: primaryColorApp,
+                                    //                 size: 15)),
+                                    //       ],
+                                    //     ),
+                                    //   ),
+                                    // ),
                                     Container(
                                       width: size.width * 0.6,
                                       padding: const EdgeInsets.symmetric(
@@ -662,7 +662,6 @@ class BatchDetailScreen extends StatelessWidget {
                                                 ),
                                               ),
                                             ),
-                                          
                                             Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -685,8 +684,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     child: Text(
                                                         productsBatch
                                                                 .locationDestId
-                                                                .toString() ??
-                                                            '',
+                                                                .toString(),
                                                         style: TextStyle(
                                                             fontSize: 12,
                                                             color:
@@ -696,8 +694,15 @@ class BatchDetailScreen extends StatelessWidget {
                                               ),
                                             ),
                                             ExpiryDateWidget(
-                                              expireDate: DateTime.parse(
-                                                  productsBatch.expireDate ??
+                                              expireDate: productsBatch
+                                                              .expireDate ==
+                                                          null ||
+                                                      productsBatch
+                                                              .expireDate ==
+                                                          '0'
+                                                  ? DateTime.now()
+                                                  : DateTime.parse(productsBatch
+                                                          .expireDate ??
                                                       ''),
                                               size: size,
                                               isDetaild: true,
@@ -723,8 +728,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     width: size.width * 0.55,
                                                     child: Text(
                                                         productsBatch.lotId
-                                                                .toString() ??
-                                                            '',
+                                                                .toString() ,
                                                         style: TextStyle(
                                                             fontSize: 12,
                                                             color:
@@ -862,8 +866,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                         Text(
                                                             productsBatch
                                                                     .quantity
-                                                                    .toString() ??
-                                                                "",
+                                                                    .toString() ,
                                                             style: TextStyle(
                                                                 fontSize: 12,
                                                                 color:
@@ -890,8 +893,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                 ? "0"
                                                                 : productsBatch
                                                                         .quantitySeparate
-                                                                        .toString() ??
-                                                                    "",
+                                                                        .toString() ,
                                                             style: TextStyle(
                                                                 fontSize: 12,
                                                                 color:
@@ -978,8 +980,8 @@ class BatchDetailScreen extends StatelessWidget {
                                     context.read<BatchBloc>().isSearch
                                         ? 'Intenta con otra búsqueda'
                                         : 'Todos los productos han sido completados',
-                                    style:
-                                        const TextStyle(fontSize: 12, color: grey)),
+                                    style: const TextStyle(
+                                        fontSize: 12, color: grey)),
                               ],
                             ),
                           ),

@@ -266,6 +266,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           // Obtener el ID del paquete recién creado
           final packageId = newPackageResponse.data?.packaging?.first.id;
 
+          print("mostramos la info del paquete: ${newPackageResponse.data?.msg}");
+
           if (packageId != null) {
             // 3. Empaquetar los productos en el paquete recién creado
             // Crear la lista de ListItem a partir de los productos
@@ -273,12 +275,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               return ListItem(
                 idMove: producto.idMove ??
                     0, // O el campo correspondiente en tu producto
-                productId: producto.idProduct ??
+                productId: producto.productId ??
                     0, // Suponiendo que `id` es el ID del producto
                 lote: producto
-                    .loteId, // Suponiendo que `loteId` es el lote del producto
+                    .loteId.toString(), // Suponiendo que `loteId` es el lote del producto
                 locationId:
-                    producto.locationId, // Asegúrate de tener este campo
+                    producto.idLocation, // Asegúrate de tener este campo
                 cantidadSeparada: producto.quantitySeparate ??
                     0, // La cantidad separada del producto
                 observacion: producto.observation ??

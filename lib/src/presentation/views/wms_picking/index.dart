@@ -1,4 +1,6 @@
 
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -29,7 +31,6 @@ class _PickingPageState extends State<WMSPickingPage> {
 
   @override
   void initState() {
-    print("indexSelected: ${widget.indexSelected}");
     controller.index = widget.indexSelected;
     super.initState();
   }
@@ -67,9 +68,7 @@ class _PickingPageState extends State<WMSPickingPage> {
 
             double progress = context
                         .read<WMSPickingBloc>()
-                        .listOfBatchs
-                        .length >
-                    0
+                        .listOfBatchs.isNotEmpty
                 ? context.read<WMSPickingBloc>().batchsDone.where((element) {
                       return DateTime.parse(element.timeSeparateEnd ?? "")
                               .toString()
@@ -627,21 +626,15 @@ class _PickingPageState extends State<WMSPickingPage> {
                                     );
                                   },
                                 )
-                              : Center(
+                              : const Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      if (!context
-                                          .read<WMSPickingBloc>()
-                                          .isKeyboardVisible)
-                                        Image.asset('assets/images/empty.png',
-                                            height:
-                                                150), // Ajusta la altura según necesites
-                                      const SizedBox(height: 10),
-                                      const Text('No se encontraron resultados',
+                                      SizedBox(height: 10),
+                                      Text('No se encontraron resultados',
                                           style: TextStyle(
                                               fontSize: 18, color: grey)),
-                                      const Text('Intenta con otra búsqueda',
+                                      Text('Intenta con otra búsqueda',
                                           style: TextStyle(
                                               fontSize: 14, color: grey)),
                                     ],

@@ -24,7 +24,6 @@ class ProductDropdownWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

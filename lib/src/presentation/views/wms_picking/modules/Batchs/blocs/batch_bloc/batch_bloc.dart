@@ -245,6 +245,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       // Obtener la diferencia en segundos
       double secondsDifference = difference.inMilliseconds / 1000.0;
 
+      final userid = await PrefUtils.getUserId();
+
       await repository.sendPicking(
           idBatch: event.productsSeparate[i].batchId ?? 0,
           timeTotal: secondsDifference,
@@ -257,7 +259,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
               cantidad: event.productsSeparate[i].quantitySeparate ?? 0,
               novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
-              muelle: event.muelle.id ?? 0,
+              muelle: event.productsSeparate[0].idLocationDest ?? 0,
+              idOperario: userid,
             ),
           ]);
 
@@ -444,6 +447,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     // Obtener la diferencia en segundos
     double secondsDifference = difference.inMilliseconds / 1000.0;
 
+     final userid = await PrefUtils.getUserId();
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
         idBatch: product?.batchId ?? 0,
@@ -458,6 +462,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             novedad: product?.observation ?? 'Sin novedad',
             timeLine: product?.timeSeparate ?? 0,
             muelle: product?.muelleId ?? 0,
+            idOperario: userid
           ),
         ]);
 
@@ -500,6 +505,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     Duration difference = dateTimeActuality.difference(dateTimeStart);
     // Obtener la diferencia en segundos
     double secondsDifference = difference.inMilliseconds / 1000.0;
+     final userid = await PrefUtils.getUserId();
 
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
@@ -517,6 +523,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
                 : product?.observation ?? 'Sin novedad',
             timeLine: product?.timeSeparate ?? 0,
             muelle: product?.muelleId ?? 0,
+            idOperario: userid
           ),
         ]);
 

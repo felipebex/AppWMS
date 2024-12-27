@@ -28,7 +28,6 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
-
 final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -47,33 +46,33 @@ void main() async {
   await Preferences.init();
 
   // //cron
-  // var cron = Cron();
-  // cron.schedule(Schedule.parse('*/3 * * * *'), () async {
-  //   try {
-  //     final result = await InternetAddress.lookup('example.com');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       final isLogin = await PrefUtils.getIsLoggedIn();
-  //       if (isLogin) {
-  //         searchProductsNoSendOdoo();
-  //       }
-  //     }
-  //   } on SocketException catch (_) {}
-  // });
-  // cron.schedule(Schedule.parse('*/5 * * * *'), () async {
-  //   try {
-  //     final result = await InternetAddress.lookup('example.com');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       // Acceder al contexto global para llamar a refreshData
-  //       if (navigatorKey.currentContext != null) {
-  //         final isLogin = await PrefUtils.getIsLoggedIn();
-  //         if (isLogin) {
-  //           print('connected 2');
-  //           refreshData(navigatorKey.currentContext!);
-  //         }
-  //       }
-  //     }
-  //   } on SocketException catch (_) {}
-  // });
+  var cron = Cron();
+  cron.schedule(Schedule.parse('*/3 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        final isLogin = await PrefUtils.getIsLoggedIn();
+        if (isLogin) {
+          searchProductsNoSendOdoo();
+        }
+      }
+    } on SocketException catch (_) {}
+  });
+  cron.schedule(Schedule.parse('*/5 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        // Acceder al contexto global para llamar a refreshData
+        if (navigatorKey.currentContext != null) {
+          final isLogin = await PrefUtils.getIsLoggedIn();
+          if (isLogin) {
+            print('connected 2');
+            refreshData(navigatorKey.currentContext!);
+          }
+        }
+      }
+    } on SocketException catch (_) {}
+  });
 }
 
 class AppState extends StatelessWidget {
@@ -91,22 +90,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-       
         BlocProvider(
           create: (_) => UserBloc(),
         ),
-       
         BlocProvider(
           create: (_) => WMSPickingBloc(),
         ),
         BlocProvider(
           create: (_) => BatchBloc(),
         ),
-        
         BlocProvider(
           create: (_) => WmsPackingBloc(),
         ),
-
         BlocProvider(
           create: (_) => KeyboardBloc(),
         )
@@ -157,6 +152,8 @@ void searchProductsNoSendOdoo() async {
     //TIEMPO DE INICIO DEL PRODUCTO
     final totalTime = await db.getFieldTableProducts(product.batchId ?? 0,
         product.idProduct ?? 0, product.idMove ?? 0, 'time_separate');
+    
+    final userId = await PrefUtils.getUserId();
 
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
@@ -165,13 +162,15 @@ void searchProductsNoSendOdoo() async {
         cantItemsSeparados: 0,
         listItem: [
           Item(
-              idMove: product.idMove ?? 0,
-              productId: product.idProduct ?? 0,
-              lote: product.lotId ?? '',
-              cantidad: product.quantitySeparate ?? 0,
-              novedad: product.observation ?? 'Sin novedad',
-              timeLine: double.parse(totalTime),
-              muelle: product.locationDestId[0] ?? 0),
+            idMove: product.idMove ?? 0,
+            productId: product.idProduct ?? 0,
+            lote: product.lotId ?? '',
+            cantidad: product.quantitySeparate ?? 0,
+            novedad: product.observation ?? 'Sin novedad',
+            timeLine: double.parse(totalTime),
+            muelle: product.idLocationDest ?? 0,
+            idOperario: userId
+          ),
         ]);
     if (response.data?.code == 200) {
       //recorremos todos los resultados de la respuesta

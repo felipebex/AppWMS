@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print
+
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -49,7 +51,7 @@ class _PackingScreenState extends State<PackingScreen> {
   final TextEditingController _controllerLocation = TextEditingController();
   final TextEditingController _controllerProduct = TextEditingController();
   final TextEditingController _controllerQuantity = TextEditingController();
-  final TextEditingController _controllerMuelle = TextEditingController();
+  // final TextEditingController _controllerMuelle = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
 
   @override
@@ -110,15 +112,12 @@ class _PackingScreenState extends State<PackingScreen> {
   }
 
   void validateLocation(String barcode) {
-    print("barcode: $barcode");
     setState(() {
       scannedValue1 = barcode.toLowerCase();
     });
     _controllerLocation.text = "";
     final batchBloc = context.read<WmsPackingBloc>();
     final currentProduct = batchBloc.currentProduct;
-    print(
-        "currentProduct: ${currentProduct.barcodeLocation.toString().toLowerCase()}");
     if (scannedValue1.toLowerCase() ==
         currentProduct.barcodeLocation.toString().toLowerCase()) {
       batchBloc.add(ValidateFieldsPackingEvent(field: "location", isOk: true));
@@ -174,7 +173,6 @@ class _PackingScreenState extends State<PackingScreen> {
   }
 
   void validateQuantity(String barcode) {
-    print("barcode: $barcode");
     setState(() {
       scannedValue3 = barcode.toLowerCase();
     });
@@ -183,7 +181,6 @@ class _PackingScreenState extends State<PackingScreen> {
     final batchBloc = context.read<WmsPackingBloc>();
     final currentProduct = batchBloc.currentProduct;
     if (scannedValue3.toLowerCase() == currentProduct.barcode?.toLowerCase()) {
-      print("*");
       batchBloc.add(ValidateFieldsPackingEvent(field: "quantity", isOk: true));
       batchBloc.add(AddQuantitySeparate(1, currentProduct.idMove ?? 0,
           currentProduct.productId ?? 0, currentProduct.pedidoId ?? 0));
@@ -191,7 +188,6 @@ class _PackingScreenState extends State<PackingScreen> {
         scannedValue3 = ""; //limpiamos el valor escaneado
       });
     } else {
-      print("**");
       validateScannedBarcode(scannedValue3.toLowerCase(),
           batchBloc.currentProduct, batchBloc, false);
       setState(() {
@@ -212,7 +208,6 @@ class _PackingScreenState extends State<PackingScreen> {
                 Barcodes() // Si no se encuentra ningún match, devuelve null
             );
     if (matchedBarcode.barcode != null) {
-      print("Coincidencia encontrada: Cantidad : ${matchedBarcode.cantidad}");
 
       if (isProduct) {
         batchBloc.add(ValidateFieldsPackingEvent(field: "product", isOk: true));
@@ -232,11 +227,9 @@ class _PackingScreenState extends State<PackingScreen> {
 
         return true;
       } else {
-        print("-*");
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
             currentProduct.quantity!) {
-          print("--*");
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             duration: const Duration(milliseconds: 1000),
             content: Text(
@@ -287,7 +280,6 @@ class _PackingScreenState extends State<PackingScreen> {
                       child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
                         listener: (context, state) {
                           if (state is ChangeQuantitySeparateState) {
-                            print("state.quantity: ${state.quantity}");
 
                             if (state.quantity ==
                                 packinghBloc.currentProduct.quantity.toInt()) {
@@ -1066,7 +1058,6 @@ class _PackingScreenState extends State<PackingScreen> {
                                             packinghBloc
                                                 .currentProduct.quantity) {
                                           //*cantidad correcta
-                                          print("cantidad correcta");
 
                                           //guardamos la cantidad en la bd
                                           packinghBloc

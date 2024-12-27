@@ -149,7 +149,6 @@ class BatchsModel {
         'muelle': muelle,
         'state': state,
         'user_id': userId,
-
         'user_name': userName,
         'count_items': countItems,
         'index_list': indexList,
@@ -184,12 +183,12 @@ class ProductsBatch {
   final int? batchId;
   final String? name;
   final String? rimovalPriority;
-  // final dynamic pickingId;
   final dynamic lotId;
   final dynamic loteId;
   final dynamic locationId;
   final int? muelleId;
   final dynamic locationDestId;
+  final dynamic idLocationDest;
   final dynamic quantity; // Cambiado a double
   final List<Barcodes>? productPacking;
   final List<Barcodes>? otherBarcode;
@@ -238,6 +237,7 @@ class ProductsBatch {
     this.loteId,
     this.locationId,
     this.locationDestId,
+    this.idLocationDest,
     this.barcodeLocationDest,
     this.quantity,
     this.productPacking,
@@ -288,6 +288,7 @@ class ProductsBatch {
               map['other_barcode'].map((x) => Barcodes.fromMap(x))),
       locationId: map['location_id'],
       locationDestId: map['location_dest_id'],
+      idLocationDest: map['id_location_dest'],
       quantity: map['quantity'],
       barcode: map['barcode'],
       name: map['name'],
@@ -329,6 +330,7 @@ class ProductsBatch {
       "lote_id": loteId,
       "location_id": locationId,
       "location_dest_id": locationDestId,
+      "id_location_dest": idLocationDest,
       "quantity": quantity,
       "product_packing": productPacking == null
           ? []

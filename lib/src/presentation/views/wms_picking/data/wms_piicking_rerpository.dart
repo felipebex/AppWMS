@@ -268,7 +268,7 @@ class WmsPickingRepository {
       "clave_rpc": pass,
       "id_batch": idBatch,
       "time_total": timeTotal,
-      "id_operario": userId,
+      
       "cant_items_separados": cantItemsSeparados,
       "list_item": listItem.map((item) => item.toJson()).toList(),
     });

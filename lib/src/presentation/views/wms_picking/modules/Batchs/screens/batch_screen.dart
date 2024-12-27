@@ -301,10 +301,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         FocusScope.of(context).requestFocus(focusNode3);
                       });
                     }
-
-                    
-
-
                   }, builder: (context, status) {
                     return Column(
                       children: [
@@ -523,7 +519,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             batchBloc: batchBloc,
                                             currentProduct: currentProduct,
                                             isPDA: false,
-                                           
                                           ),
                                           Container(
                                             height: 15,
@@ -641,18 +636,17 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 MainAxisAlignment.center,
                                             children: [
                                               ProductDropdownWidget(
-                                                  selectedProduct:
-                                                      selectedLocation,
-                                                  listOfProductsName: batchBloc
-                                                      .listOfProductsName,
-                                                  currentProductId: batchBloc
-                                                      .currentProduct.productId
-                                                      .toString(),
-                                                  batchBloc: batchBloc,
-                                                  currentProduct:
-                                                      currentProduct,
-                                                  isPDA: false,
-                                               ),
+                                                selectedProduct:
+                                                    selectedLocation,
+                                                listOfProductsName: batchBloc
+                                                    .listOfProductsName,
+                                                currentProductId: batchBloc
+                                                    .currentProduct.productId
+                                                    .toString(),
+                                                batchBloc: batchBloc,
+                                                currentProduct: currentProduct,
+                                                isPDA: false,
+                                              ),
                                               const SizedBox(height: 10),
                                               Align(
                                                 alignment: Alignment.centerLeft,
@@ -797,9 +791,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 },
                                                 decoration: InputDecoration(
                                                   hintText: batchBloc
-                                                          .batchWithProducts
-                                                          .batch
-                                                          ?.muelle
+                                                          .currentProduct
+                                                          .locationDestId
                                                           .toString() ??
                                                       '',
                                                   disabledBorder:

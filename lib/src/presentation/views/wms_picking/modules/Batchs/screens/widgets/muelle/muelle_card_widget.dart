@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -51,15 +53,15 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
               width: 20,
             ),
             value: widget.selectedMuelle,
-            items: widget.batchBloc.muelles.map((String muelle) {
-              return DropdownMenuItem<String>(
-                value: muelle,
+            items:[
+              DropdownMenuItem(
+                value: widget.batchBloc.currentProduct.barcodeLocationDest,
                 child: Text(
-                  muelle,
-                  style: const TextStyle(color: black, fontSize: 14),
+                 widget.batchBloc.currentProduct.locationDestId,
+                  style: const TextStyle(fontSize: 14, color: black),
                 ),
-              );
-            }).toList(),
+              ),
+            ],
             onChanged: widget.batchBloc
                         .configurations.data?.result?.manualSpringSelection ==
                     false
@@ -68,8 +70,9 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                         !widget.batchBloc.locationDestIsOk &&
                         widget.batchBloc.productIsOk
                     ? (String? newValue) {
+                      print("Muelle seleccionado: $newValue");
                         if (newValue ==
-                            widget.batchBloc.batchWithProducts.batch?.muelle) {
+                            widget.batchBloc.currentProduct.barcodeLocationDest) {
                           // Validación correcta
                           validatePicking(widget.batchBloc, context, widget.currentProduct, );
                         } else {
@@ -91,7 +94,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                widget.batchBloc.batchWithProducts.batch?.muelle.toString() ?? '',
+                widget.batchBloc.currentProduct.locationDestId ??"",
                 style: const TextStyle(fontSize: 14, color: black),
               ),
             ),

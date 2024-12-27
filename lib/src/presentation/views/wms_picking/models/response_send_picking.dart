@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:convert';
 
 class SendPickingResponse {
@@ -46,7 +48,7 @@ class Data {
         "code": code,
         "result": result == null
             ? []
-            : List<dynamic>.from(result!.map((x) => x.toMap())),
+            : List<dynamic>.from(result.map((x) => x.toMap())),
       };
 }
 

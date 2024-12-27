@@ -39,7 +39,7 @@ class DataBaseSqlite {
   Future<void> _createDB(Database db, int version) async {
     // Crear tablas
 
-    //todo PICKING
+    //* tabla de batchs de picking
 
     await db.execute('''
       CREATE TABLE tblbatchs (
@@ -70,6 +70,8 @@ class DataBaseSqlite {
       )
     ''');
 
+    //* tabla de productos de un batch picking
+
     await db.execute('''
       CREATE TABLE tblbatch_products (
         id INTEGER PRIMARY KEY,
@@ -83,6 +85,7 @@ class DataBaseSqlite {
         id_move INTEGER,
         location_id TEXT,
         location_dest_id TEXT,
+        id_location_dest INTEGER,
         quantity INTEGER,
         barcode TEXT,
         rimoval_priority TEXT,
@@ -112,8 +115,7 @@ class DataBaseSqlite {
       )
     ''');
 
-    //todo PACKING
-
+    //* tabla de batchs de packing
     await db.execute('''
       CREATE TABLE tblbatchs_packing (
 
@@ -139,8 +141,7 @@ class DataBaseSqlite {
       )
     ''');
 
-    //todo tabla de empaque
-
+//* tabla de paquetes de packing
     await db.execute('''
       CREATE TABLE tblpackages (
         id INTEGER PRIMARY KEY,
@@ -153,9 +154,9 @@ class DataBaseSqlite {
       )
     ''');
 
+    //* tabla de pedidos de packing
     await db.execute('''
       CREATE TABLE tblpedidos_packing (
-
         id INTEGER PRIMARY KEY,
         batch_id INTEGER,
         name VARCHAR(255),
@@ -173,6 +174,7 @@ class DataBaseSqlite {
       )
     ''');
 
+    //*tabla de productos de un pedido de packing
     await db.execute('''
     CREATE TABLE tblproductos_pedidos (
 
@@ -184,7 +186,9 @@ class DataBaseSqlite {
       lote_id INTEGER,
       lot_id TEXT,
       location_id TEXT,
+      id_location INTEGER,
       location_dest_id TEXT,
+      id_location_dest INTEGER,
       quantity INTEGER,
       tracking TEXT,
       barcode TEXT,
@@ -277,8 +281,6 @@ class DataBaseSqlite {
     }
   }
 
-
-
   //metodo para insertar una novedad
   Future<void> insertNovedad(Novedad novedad) async {
     try {
@@ -322,7 +324,6 @@ class DataBaseSqlite {
     }
   }
 
-
   //metodo para obtener todas las novedades
   Future<List<Novedad>> getAllNovedades() async {
     final db = await database;
@@ -337,7 +338,6 @@ class DataBaseSqlite {
     }).toList();
     return novedades;
   }
-
 
   //metodo para obtener todas las urls recientes
   Future<List<RecentUrl>> getAllUrlsRecientes() async {
@@ -558,7 +558,6 @@ class DataBaseSqlite {
       whereArgs: [userId],
     );
 
-
     // Verificamos si la consulta retornó resultados
     if (maps.isNotEmpty) {
       // Si hay resultados, devolvemos el primer registro en el formato esperado
@@ -744,7 +743,8 @@ class DataBaseSqlite {
           // Verificar si el producto ya existe
           final List<Map<String, dynamic>> existingProducto = await txn.query(
             'tblproductos_pedidos',
-            where: 'product_id = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
+            where:
+                'product_id = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
             whereArgs: [
               producto.productId,
               producto.batchId,
@@ -765,8 +765,10 @@ class DataBaseSqlite {
                 "lote_id": producto.loteId,
                 "lot_id": producto.lotId == "" ? "" : producto.lotId?[1],
                 "location_id": producto.locationId?[1],
+                "id_location": producto.locationId?[0],
                 "id_move": producto.idMove,
                 "location_dest_id": producto.locationDestId?[1],
+                "id_location_dest": producto.locationDestId?[0],
                 "barcode_location": producto.barcodeLocation,
                 "quantity": producto.quantity,
                 "expire_date": producto.expireDate,
@@ -783,7 +785,8 @@ class DataBaseSqlite {
                     ? ""
                     : producto.unidades, // Si unidades es false, poner ""
               },
-              where: 'id = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
+              where:
+                  'id = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
               whereArgs: [
                 producto.productId,
                 producto.batchId,
@@ -801,11 +804,14 @@ class DataBaseSqlite {
                 "pedido_id": producto.pedidoId,
                 "id_move": producto.idMove,
                 "id_product": producto.idProduct?[1],
+
                 "barcode_location": producto.barcodeLocation,
                 "lote_id": producto.loteId,
                 "lot_id": producto.lotId == "" ? "" : producto.lotId?[1],
                 "location_id": producto.locationId?[1],
+                "id_location": producto.locationId?[0],
                 "location_dest_id": producto.locationDestId?[1],
+                "id_location_dest": producto.locationDestId?[0],
                 "quantity": producto.quantity,
                 "expire_date": producto.expireDate,
                 "tracking": producto.tracking == false
@@ -1020,7 +1026,6 @@ class DataBaseSqlite {
         return BatchsModel.fromMap(map);
       }).toList();
 
-
       return batchs;
     } catch (e, s) {
       print("Error getBatchsByUserId: $e => $s");
@@ -1140,6 +1145,7 @@ class DataBaseSqlite {
                     ? ""
                     : productBatch.barcodeLocation,
                 "location_dest_id": productBatch.locationDestId?[1],
+                "id_location_dest": productBatch.locationDestId?[0],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
                 "muelle_id": productBatch.locationDestId?[0],
@@ -1179,6 +1185,7 @@ class DataBaseSqlite {
                 "lote_id": productBatch.loteId,
                 "id_move": productBatch.idMove,
                 "location_dest_id": productBatch.locationDestId?[1],
+                "id_location_dest": productBatch.locationDestId?[0],
                 "quantity": productBatch.quantity,
                 "unidades": productBatch.unidades,
                 "muelle_id": productBatch.locationDestId?[0],
@@ -1333,8 +1340,8 @@ class DataBaseSqlite {
   //todo: Metodos para actualizar los campos de las tablas
 
   //*metodo para actualizar la tabla de productos de un pedido
-  Future<int?> setFieldTableProductosPedidos(
-      int pedidoId, int productId, String field, dynamic setValue, int idMove) async {
+  Future<int?> setFieldTableProductosPedidos(int pedidoId, int productId,
+      String field, dynamic setValue, int idMove) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE product_id = $productId AND pedido_id = $pedidoId AND id_move = $idMove');
@@ -1348,7 +1355,7 @@ class DataBaseSqlite {
       int batchId, int pedidoId, String field, dynamic setValue) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId ' );
+        ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId ');
     print("update tblpedidos_packing ($field): $resUpdate");
 
     return resUpdate;
@@ -1589,37 +1596,42 @@ class DataBaseSqlite {
   }
 
   Future<int?> incremenQtytProductSeparatePacking(
-    int pedidoId, int productId, int idMove, int quantity) async {
-  final db = await database;
-  return await db!.transaction((txn) async {
-    // Primero, obtenemos el valor actual de quantity_separate
-    final result = await txn.query(
-      'tblproductos_pedidos',
-      columns: ['quantity_separate'],
-      where: 'pedido_id = ? AND product_id = ? AND id_move = ?', // Usamos ? como marcadores de posición
-      whereArgs: [pedidoId, productId, idMove], // Los valores se pasan aquí
-    );
-
-    if (result.isNotEmpty) {
-      // Extraemos el valor actual
-      int currentQty = (result.first['quantity_separate'] as int?) ?? 0;
-
-      // Incrementamos la cantidad
-      int newQty = currentQty + quantity;
-
-      // Actualizamos la tabla con la nueva cantidad
-      return await txn.update(
+      int pedidoId, int productId, int idMove, int quantity) async {
+    final db = await database;
+    return await db!.transaction((txn) async {
+      // Primero, obtenemos el valor actual de quantity_separate
+      final result = await txn.query(
         'tblproductos_pedidos',
-        {'quantity_separate': newQty},
-        where: 'pedido_id = ? AND product_id = ? AND id_move = ?', // Usamos ? en la cláusula WHERE
-        whereArgs: [pedidoId, productId, idMove], // Los valores se pasan aquí también
+        columns: ['quantity_separate'],
+        where:
+            'pedido_id = ? AND product_id = ? AND id_move = ?', // Usamos ? como marcadores de posición
+        whereArgs: [pedidoId, productId, idMove], // Los valores se pasan aquí
       );
-    }
 
-    return null; // No se encontró el batch con el batchId proporcionado
-  });
-}
+      if (result.isNotEmpty) {
+        // Extraemos el valor actual
+        int currentQty = (result.first['quantity_separate'] as int?) ?? 0;
 
+        // Incrementamos la cantidad
+        int newQty = currentQty + quantity;
+
+        // Actualizamos la tabla con la nueva cantidad
+        return await txn.update(
+          'tblproductos_pedidos',
+          {'quantity_separate': newQty},
+          where:
+              'pedido_id = ? AND product_id = ? AND id_move = ?', // Usamos ? en la cláusula WHERE
+          whereArgs: [
+            pedidoId,
+            productId,
+            idMove
+          ], // Los valores se pasan aquí también
+        );
+      }
+
+      return null; // No se encontró el batch con el batchId proporcionado
+    });
+  }
 
   //actualozar el index de la lista de productos
 

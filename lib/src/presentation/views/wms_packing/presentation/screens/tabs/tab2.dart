@@ -98,7 +98,7 @@ class Tab2Screen extends StatelessWidget {
                                 ),
                               ),
                             )
-                          : SizedBox
+                          : const SizedBox
                               .shrink(), // No mostrar el número si no hay productos seleccionados
                     ),
                   ],
@@ -244,33 +244,34 @@ class Tab2Screen extends StatelessWidget {
                                           child: GestureDetector(
                                             onTap: () {
                                               // Mantener el comportamiento actual al tocar un producto
-                                              context
-                                                  .read<WmsPackingBloc>()
-                                                  .add(FetchProductEvent(
-                                                      product));
+                                              // context
+                                              //     .read<WmsPackingBloc>()
+                                              //     .add(FetchProductEvent(
+                                              //         product));
 
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading();
-                                                },
-                                              );
+                                              // showDialog(
+                                              //   context: context,
+                                              //   builder: (context) {
+                                              //     return const DialogLoading();
+                                              //   },
+                                              // );
 
-                                              // Esperar 3 segundos antes de continuar
-                                              Future.delayed(
-                                                  const Duration(seconds: 1),
-                                                  () {
-                                                // Cerrar el diálogo de carga
-                                                Navigator.of(context,
-                                                        rootNavigator: true)
-                                                    .pop();
+                                              // // Esperar 3 segundos antes de continuar
+                                              // Future.delayed(
+                                              //     const Duration(seconds: 1),
+                                              //     () {
+                                              //   // Cerrar el diálogo de carga
+                                              //   Navigator.of(context,
+                                              //           rootNavigator: true)
+                                              //       .pop();
 
-                                                // Ahora navegar a la vista "batch"
-                                                Navigator.pushNamed(
-                                                  context,
-                                                  'Packing',
-                                                );
-                                              });
+                                              //   // Ahora navegar a la vista "batch"
+                                              //   Navigator.pushNamed(
+                                              //     context,
+                                              //     'Packing',
+                                              //   );
+                                              // });
+                                              print("Producto: ${product.toMap()}");
                                             },
                                             child: Column(
                                               crossAxisAlignment:

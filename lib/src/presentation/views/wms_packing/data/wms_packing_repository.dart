@@ -188,7 +188,7 @@ class WmsPackingRepository {
     final String userEmail = await PrefUtils.getUserEmail();
     final String pass = await PrefUtils.getUserPass();
     final String dataBd = Preferences.nameDatabase;
-    final int userId = await PrefUtils.getUserId();
+    // final int userId = await PrefUtils.getUserId();
 
     try {
       var headers = {
