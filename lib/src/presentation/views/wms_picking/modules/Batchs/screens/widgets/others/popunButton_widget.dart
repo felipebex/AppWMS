@@ -26,7 +26,7 @@ class PopupMenuButtonWidget extends StatelessWidget {
         // Manejar la selección de opciones aquí
         if (value == '1') {
           //verficamos si tenemos permisos
-          if (batchBloc.configurations.data?.result?.showDetallesPicking ==
+          if (batchBloc.configurations.result?.result?.showDetallesPicking ==
               true) {
             //cerramos el focus
             FocusScope.of(context).unfocus();

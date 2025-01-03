@@ -1,10 +1,13 @@
-
 import 'dart:convert';
 
 class MuellesResponse {
-    final List<Muelles>? result;
+    final String? jsonrpc;
+    final dynamic id;
+    final MuellesResponseResult? result;
 
     MuellesResponse({
+        this.jsonrpc,
+        this.id,
         this.result,
     });
 
@@ -13,10 +16,38 @@ class MuellesResponse {
     String toJson() => json.encode(toMap());
 
     factory MuellesResponse.fromMap(Map<String, dynamic> json) => MuellesResponse(
+        jsonrpc: json["jsonrpc"],
+        id: json["id"],
+        result: json["result"] == null ? null : MuellesResponseResult.fromMap(json["result"]),
+    );
+
+    Map<String, dynamic> toMap() => {
+        "jsonrpc": jsonrpc,
+        "id": id,
+        "result": result?.toMap(),
+    };
+}
+
+class MuellesResponseResult {
+    final int? code;
+    final List<Muelles>? result;
+
+    MuellesResponseResult({
+        this.code,
+        this.result,
+    });
+
+    factory MuellesResponseResult.fromJson(String str) => MuellesResponseResult.fromMap(json.decode(str));
+
+    String toJson() => json.encode(toMap());
+
+    factory MuellesResponseResult.fromMap(Map<String, dynamic> json) => MuellesResponseResult(
+        code: json["code"],
         result: json["result"] == null ? [] : List<Muelles>.from(json["result"]!.map((x) => Muelles.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
+        "code": code,
         "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toMap())),
     };
 }

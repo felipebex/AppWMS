@@ -1,41 +1,47 @@
 import 'dart:convert';
 
 class BatchModelResponse {
-  final Data? data;
+    final String? jsonrpc;
+    final dynamic id;
+    final DataBatch? result;
 
-  BatchModelResponse({
-    this.data,
-  });
+    BatchModelResponse({
+        this.jsonrpc,
+        this.id,
+        this.result,
+    });
 
-  factory BatchModelResponse.fromJson(String str) =>
-      BatchModelResponse.fromMap(json.decode(str));
+    factory BatchModelResponse.fromJson(String str) => BatchModelResponse.fromMap(json.decode(str));
 
-  String toJson() => json.encode(toMap());
+    String toJson() => json.encode(toMap());
 
-  factory BatchModelResponse.fromMap(Map<String, dynamic> json) =>
-      BatchModelResponse(
-        data: json["data"] == null ? null : Data.fromMap(json["data"]),
-      );
+    factory BatchModelResponse.fromMap(Map<String, dynamic> json) => BatchModelResponse(
+        jsonrpc: json["jsonrpc"],
+        id: json["id"],
+        result: json["result"] == null ? null : DataBatch.fromMap(json["result"]),
+    );
 
-  Map<String, dynamic> toMap() => {
-        "data": data?.toMap(),
-      };
+    Map<String, dynamic> toMap() => {
+        "jsonrpc": jsonrpc,
+        "id": id,
+        "result": result?.toMap(),
+    };
 }
 
-class Data {
+class DataBatch {
   final int? code;
   final List<BatchsModel>? result;
 
-  Data({
+  DataBatch({
     this.code,
     this.result,
   });
 
-  factory Data.fromJson(String str) => Data.fromMap(json.decode(str));
+  factory DataBatch.fromJson(String str) => DataBatch.fromMap(json.decode(str));
 
   String toJson() => json.encode(toMap());
 
-  factory Data.fromMap(Map<String, dynamic> json) => Data(
+  factory DataBatch.fromMap(Map<String, dynamic> json) => DataBatch(
         code: json["code"],
         result: json["result"] == null
             ? []
@@ -55,7 +61,7 @@ class BatchsModel {
   final int? id;
   final String? name;
   final dynamic scheduleddate;
-  final String? pickingTypeId;
+  final dynamic? pickingTypeId;
   final String? muelle; // es el mismo location_id
   final String? state;
   final dynamic userId;

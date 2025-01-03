@@ -63,7 +63,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
               ),
             ],
             onChanged: widget.batchBloc
-                        .configurations.data?.result?.manualSpringSelection ==
+                        .configurations.result?.result?.manualSpringSelection ==
                     false
                 ? null
                 : !widget.batchBloc.quantityIsOk &&
@@ -140,7 +140,7 @@ void validatePicking(
               onAccepted: () {
                 Navigator.pop(context);
                 if (batchBloc
-                        .configurations.data?.result?.showDetallesPicking ==
+                        .configurations.result?.result?.showDetallesPicking ==
                     true) {
                   // Cerramos el foco
                   batchBloc.isSearch = false;

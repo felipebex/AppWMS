@@ -497,8 +497,8 @@ class BatchDetailScreen extends StatelessWidget {
                                   onTap: () async {
                                     print(
                                         "product detail info: ${productsBatch.toMap()}");
-                                    print(
-                                        "batch detail info: ${context.read<BatchBloc>().batchWithProducts.batch?.toMap()}");
+                                    // print(
+                                    //     "batch detail info: ${context.read<BatchBloc>().batchWithProducts.batch?.toMap()}");
                                   },
                                   child: Card(
                                       elevation: 4,
@@ -586,7 +586,7 @@ class BatchDetailScreen extends StatelessWidget {
                                               visible: context
                                                       .read<BatchBloc>()
                                                       .configurations
-                                                      .data
+                                                      .result
                                                       ?.result
                                                       ?.showNextLocationsInDetails ==
                                                   true,

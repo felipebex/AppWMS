@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
-import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class UserRepository {
   Future<Configurations> configurations(
@@ -22,24 +20,14 @@ class UserRepository {
         return Configurations(); // Si no hay conexión, retornar una lista vacía
       }
 
-      final String urlRpc = Preferences.urlWebsite;
-      final String userEmail = await PrefUtils.getUserEmail();
-      final String pass = await PrefUtils.getUserPass();
-      final String dataBd = Preferences.nameDatabase;
-
-      var response = await ApiRequestService().post(
+      var response = await ApiRequestService().get(
           endpoint: 'configurations',
-          body: {
-            "url_rpc": urlRpc,
-            "db_rpc": dataBd,
-            "email_rpc": userEmail,
-            "clave_rpc": pass,
-          },
+          isunecodePath: true,
           isLoadinDialog: false,
           context: context);
 
       if (response.statusCode < 400) {
-        Preferences.setIntList = [0];
+        
         return Configurations.fromMap(jsonDecode(response.body));
       } else {
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);

@@ -8,32 +8,29 @@ import 'package:wms_app/src/presentation/views/global/login/models/user_model_re
 import 'package:wms_app/src/services/preferences.dart';
 
 class LoginRepository {
-
-
   Future<UserModelResponse> login(
     String email,
     String password,
     BuildContext context,
   ) async {
     try {
-      final String urlRpc = Preferences.urlWebsite;
-
       final String dataBd = Preferences.nameDatabase;
 
       var response = await ApiRequestService().post(
-          endpoint: 'login',
+          endpoint: 'web/session/authenticate',
+          isunecodePath: false,
           body: {
-            "url_rpc": urlRpc,
-            "db_rpc": dataBd,
-            "email_rpc": email,
-            "clave_rpc": password,
+            "params": {"login": email, "password": password, "db": dataBd}
           },
           isLoadinDialog: true,
           context: context);
 
+      print('Response status code: ${response.statusCode}');
       if (response.statusCode < 400) {
+
         return UserModelResponse.fromMap(jsonDecode(response.body));
       } else {
+        print(response.body);
         if (response.body.contains('jsonrpc')) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -49,5 +46,4 @@ class LoginRepository {
     }
     return UserModelResponse();
   }
-  
 }

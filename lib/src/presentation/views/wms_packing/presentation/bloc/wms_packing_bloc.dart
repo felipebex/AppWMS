@@ -266,7 +266,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           // Obtener el ID del paquete recién creado
           final packageId = newPackageResponse.data?.packaging?.first.id;
 
-          print("mostramos la info del paquete: ${newPackageResponse.data?.msg}");
+          print("mostramos la info del paquete: ${newPackageResponse.data?.packaging?.first.toMap()}");
 
           if (packageId != null) {
             // 3. Empaquetar los productos en el paquete recién creado
@@ -281,7 +281,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                     .loteId.toString(), // Suponiendo que `loteId` es el lote del producto
                 locationId:
                     producto.idLocation, // Asegúrate de tener este campo
-                cantidadSeparada: producto.quantitySeparate ??
+                cantidadSeparada: producto.quantity ??
                     0, // La cantidad separada del producto
                 observacion: producto.observation ??
                     '', // Observación del producto (si existe)
@@ -301,11 +301,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
             );
 
             // Llamamos al servicio para enviar el empaquetado
-            await wmsPackingRepository.sendPackingRequest(
+         await wmsPackingRepository.sendPackingRequest(
               packingRequest,
               true, // Muestra un diálogo de carga si es necesario
               event.context,
             );
+
 
             // Si todo salió bien, podemos notificar a la UI que el empaquetado fue exitoso
             emit(WmsPackingSuccessState('Empaquetado exitoso'));

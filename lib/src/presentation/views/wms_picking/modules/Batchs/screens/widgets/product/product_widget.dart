@@ -68,7 +68,7 @@ class ProductDropdownWidget extends StatelessWidget {
               );
             }).toList(),
             onChanged: batchBloc
-                        .configurations.data?.result?.manualProductSelection ==
+                        .configurations.result?.result?.manualProductSelection ==
                     false
                 ? null
                 : batchBloc.locationIsOk && !batchBloc.productIsOk

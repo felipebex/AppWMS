@@ -22,7 +22,6 @@ import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class WmsPickingRepository {
-
   //metodo para pedir los batchs
   Future<List<BatchsModel>> resBatchs(
     bool isLoadinDialog,
@@ -37,39 +36,24 @@ class WmsPickingRepository {
     }
 
     try {
-      final String urlRpc = Preferences.urlWebsite;
-      final String userEmail = await PrefUtils.getUserEmail();
-      final String pass = await PrefUtils.getUserPass();
-      final String dataBd = Preferences.nameDatabase;
-
-      var response = await ApiRequestService().post(
+      var response = await ApiRequestService().get(
           endpoint: 'batchs',
-          body: {
-            "url_rpc": urlRpc,
-            "db_rpc": dataBd,
-            "email_rpc": userEmail,
-            "clave_rpc": pass,
-          },
+          isunecodePath: true,
           isLoadinDialog: isLoadinDialog,
           context: context);
 
       if (response.statusCode < 400) {
-        //gardamos la respuesta de la peticion en el arreglo
-        Preferences.setIntList = [0];
-
         // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         // Accede a la clave "data" y luego a "result"
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          // Asegúrate de que 'result' exista y sea una lista
-          if (data.containsKey('result') && data['result'] is List) {
-            List<dynamic> batches = data['result'];
-            // Mapea los datos decodificados a una lista de BatchsModel
-            List<BatchsModel> products =
-                batches.map((data) => BatchsModel.fromMap(data)).toList();
-            return products;
-          }
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          List<dynamic> batches = jsonResponse['result']['result'];
+          // Mapea los datos decodificados a una lista de BatchsModel
+          List<BatchsModel> products =
+              batches.map((data) => BatchsModel.fromMap(data)).toList();
+          return products;
         }
       } else {
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
@@ -99,7 +83,7 @@ class WmsPickingRepository {
     }
     return [];
   }
-  
+
   //metodo para pedir los batchs por id
   Future<List<BatchsModel>> getBatchById(
       bool isLoadinDialog, BuildContext context, int batchId) async {
@@ -119,6 +103,7 @@ class WmsPickingRepository {
 
       var response = await ApiRequestService().post(
           endpoint: 'batch/$batchId',
+          isunecodePath: true,
           body: {
             "url_rpc": urlRpc,
             "db_rpc": dataBd,
@@ -186,19 +171,9 @@ class WmsPickingRepository {
     }
 
     try {
-      final String urlRpc = Preferences.urlWebsite;
-      final String userEmail = await PrefUtils.getUserEmail();
-      final String pass = await PrefUtils.getUserPass();
-      final String dataBd = Preferences.nameDatabase;
-
-      var response = await ApiRequestService().post(
+      var response = await ApiRequestService().get(
           endpoint: 'muelles',
-          body: {
-            "url_rpc": urlRpc,
-            "db_rpc": dataBd,
-            "email_rpc": userEmail,
-            "clave_rpc": pass,
-          },
+          isunecodePath: true,
           isLoadinDialog: isLoadinDialog,
           context: context);
 
@@ -208,13 +183,12 @@ class WmsPickingRepository {
         // Accede a la clave "data" y luego a "result"
 
         // Asegúrate de que 'result' exista y sea una lista
-        if (jsonResponse.containsKey('result') &&
-            jsonResponse['result'] is List) {
-          List<dynamic> batches = jsonResponse['result'];
+        if (jsonResponse.containsKey('result')) {
+          List<dynamic> batches = jsonResponse['result']['result'];
           // Mapea los datos decodificados a una lista de BatchsModel
-          List<Muelles> products =
+          List<Muelles> muelles =
               batches.map((data) => Muelles.fromMap(data)).toList();
-          return products;
+          return muelles;
         }
       } else {
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
@@ -268,7 +242,6 @@ class WmsPickingRepository {
       "clave_rpc": pass,
       "id_batch": idBatch,
       "time_total": timeTotal,
-      
       "cant_items_separados": cantItemsSeparados,
       "list_item": listItem.map((item) => item.toJson()).toList(),
     });
@@ -314,9 +287,7 @@ class WmsPickingRepository {
     return SendPickingResponse();
   }
 
-
-
-  //metod para obtener las novedades: 
+  //metod para obtener las novedades:
   Future<List<Novedad>> getnovedades(
     bool isLoadinDialog,
     BuildContext context,
@@ -330,19 +301,9 @@ class WmsPickingRepository {
     }
 
     try {
-      final String urlRpc = Preferences.urlWebsite;
-      final String userEmail = await PrefUtils.getUserEmail();
-      final String pass = await PrefUtils.getUserPass();
-      final String dataBd = Preferences.nameDatabase;
-
-      var response = await ApiRequestService().post(
+      var response = await ApiRequestService().get(
           endpoint: 'picking_novelties',
-          body: {
-            "url_rpc": urlRpc,
-            "db_rpc": dataBd,
-            "email_rpc": userEmail,
-            "clave_rpc": pass,
-          },
+          isunecodePath: true,
           isLoadinDialog: isLoadinDialog,
           context: context);
 
@@ -388,5 +349,4 @@ class WmsPickingRepository {
     }
     return [];
   }
-
 }

@@ -96,7 +96,7 @@ class UserScreen extends StatelessWidget {
                                                 fontSize: 14,
                                                 color: primaryColorApp)),
                                         // Text('WMS',
-                                        Text(config.data?.result?.name ?? '',
+                                        Text(config.result?.result?.name ?? '',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
@@ -113,7 +113,7 @@ class UserScreen extends StatelessWidget {
                                     SizedBox(
                                       width: size.width * 0.9,
                                       child: Text(
-                                          config.data?.result?.email ?? '',
+                                          config.result?.result?.email ?? '',
                                           maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
@@ -126,7 +126,7 @@ class UserScreen extends StatelessWidget {
                                                 fontSize: 14,
                                                 color: primaryColorApp)),
                                         // Text('WMS',
-                                        Text(config.data?.result?.rol ?? '',
+                                        Text(config.result?.result?.rol ?? '',
                                             style: const TextStyle(
                                                 fontSize: 14, color: black))
                                       ],
@@ -224,7 +224,7 @@ class UserScreen extends StatelessWidget {
                                                     color: black)),
                                             const Spacer(),
                                             Checkbox(
-                                                value: config.data?.result
+                                                value: config.result?.result
                                                         ?.locationPickingManual ??
                                                     false,
                                                 onChanged: null),
@@ -253,7 +253,7 @@ class UserScreen extends StatelessWidget {
                                                     color: black)),
                                             const Spacer(),
                                             Checkbox(
-                                                value: config.data?.result
+                                                value: config.result?.result
                                                         ?.manualProductSelection ??
                                                     false,
                                                 onChanged: null),
@@ -282,7 +282,7 @@ class UserScreen extends StatelessWidget {
                                                     color: black)),
                                             const Spacer(),
                                             Checkbox(
-                                                value: config.data?.result
+                                                value: config.result?.result
                                                         ?.manualQuantity ??
                                                     false,
                                                 onChanged: null),
@@ -311,7 +311,7 @@ class UserScreen extends StatelessWidget {
                                                     color: black)),
                                             const Spacer(),
                                             Checkbox(
-                                                value: config.data?.result
+                                                value: config.result?.result
                                                         ?.manualSpringSelection ??
                                                     false,
                                                 onChanged: null),
@@ -340,7 +340,7 @@ class UserScreen extends StatelessWidget {
                                                     color: black)),
                                             const Spacer(),
                                             Checkbox(
-                                                value: config.data?.result
+                                                value: config.result?.result
                                                         ?.showDetallesPicking ??
                                                     false,
                                                 onChanged: null),
@@ -370,7 +370,7 @@ class UserScreen extends StatelessWidget {
                                                     color: black)),
                                             const Spacer(),
                                             Checkbox(
-                                                value: config.data?.result
+                                                value: config.result?.result
                                                         ?.showNextLocationsInDetails ??
                                                     false,
                                                 onChanged: null),

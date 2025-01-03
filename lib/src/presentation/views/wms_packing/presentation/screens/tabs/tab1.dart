@@ -190,49 +190,49 @@ class Tab1Screen extends StatelessWidget {
                               style: TextStyle(
                                   fontSize: 14, color: primaryColorApp),
                             )),
-                        Row(
-                          children: [
-                            const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Fecha programada:",
-                                  style: TextStyle(fontSize: 14, color: black),
-                                )),
-                            const SizedBox(width: 10),
-                            Builder(
-                              builder: (context) {
-                                // Verifica si `scheduledDate` es false o null
-                                String displayDate;
-                                if (packingModel?.fecha == false ||
-                                    packingModel?.fecha == null) {
-                                  displayDate = 'sin fecha';
-                                } else {
-                                  try {
-                                    DateTime dateTime = DateTime.parse(
-                                      packingModel?.fecha.toString() ?? '',
-                                    ); // Parsear la fecha
-                                    // Formatear la fecha usando Intl
-                                    displayDate =
-                                        DateFormat('dd MMMM yyyy', 'es_ES')
-                                            .format(dateTime);
-                                  } catch (e) {
-                                    displayDate =
-                                        'sin fecha'; // Si ocurre un error al parsear
-                                  }
-                                }
-                                return SizedBox(
-                                  width: size.width * 0.45,
-                                  child: Text(
-                                    displayDate,
-                                    style: TextStyle(
-                                        fontSize: 14, color: primaryColorApp),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                        // Row(
+                        //   children: [
+                        //     const Align(
+                        //         alignment: Alignment.centerLeft,
+                        //         child: Text(
+                        //           "Fecha programada:",
+                        //           style: TextStyle(fontSize: 14, color: black),
+                        //         )),
+                        //     const SizedBox(width: 10),
+                        //     Builder(
+                        //       builder: (context) {
+                        //         // Verifica si `scheduledDate` es false o null
+                        //         String displayDate;
+                        //         if (packingModel?.fecha == false ||
+                        //             packingModel?.fecha == null) {
+                        //           displayDate = 'sin fecha';
+                        //         } else {
+                        //           try {
+                        //             DateTime dateTime = DateTime.parse(
+                        //               packingModel?.fecha.toString() ?? '',
+                        //             ); // Parsear la fecha
+                        //             // Formatear la fecha usando Intl
+                        //             displayDate =
+                        //                 DateFormat('dd MMMM yyyy', 'es_ES')
+                        //                     .format(dateTime);
+                        //           } catch (e) {
+                        //             displayDate =
+                        //                 'sin fecha'; // Si ocurre un error al parsear
+                        //           }
+                        //         }
+                        //         return SizedBox(
+                        //           width: size.width * 0.45,
+                        //           child: Text(
+                        //             displayDate,
+                        //             style: TextStyle(
+                        //                 fontSize: 14, color: primaryColorApp),
+                        //             textAlign: TextAlign.left,
+                        //           ),
+                        //         );
+                        //       },
+                        //     ),
+                        //   ],
+                        // ),
                         Row(
                           children: [
                             const Align(

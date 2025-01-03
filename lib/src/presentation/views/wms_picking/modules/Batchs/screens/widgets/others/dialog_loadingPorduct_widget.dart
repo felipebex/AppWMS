@@ -45,17 +45,17 @@ class DialogLoading extends StatelessWidget {
                 style: TextStyle(color: grey, fontSize: 14)),
           ],
         )),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: CircularProgressIndicator(
-                color: primaryColorApp,
-              ),
-            ),
-          ],
-        ),
+        // content: Column(
+        //   mainAxisSize: MainAxisSize.min,
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: [
+        //     Center(
+        //       child: CircularProgressIndicator(
+        //         color: primaryColorApp,
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ),
     );
   }

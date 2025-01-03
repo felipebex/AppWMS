@@ -36,12 +36,13 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         final Configurations? responsebd = await db.getConfiguration(userId);
 
         if (response != null) {
+          PrefUtils.setUserRol(response.result?.result?.rol ?? '');
           configurations = Configurations();
           configurations = responsebd ?? response;
           int userId = await PrefUtils.getUserId();
           await db.insertConfiguration(configurations, userId);
           await db.getConfiguration(userId);
-          await PrefUtils.setUserRol(responsebd?.data?.result?.rol ?? '');
+          await PrefUtils.setUserRol(responsebd?.result?.result?.rol ?? '');
           emit(ConfigurationLoaded(responsebd ?? configurations));
         } else {
           emit(ConfigurationError('Error al cargar configuraciones'));

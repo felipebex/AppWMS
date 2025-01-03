@@ -127,7 +127,7 @@ class _DialogAdvetenciaCantidadScreenState
                       .novedades
                       .map((Novedad item) {
                     return DropdownMenuItem<String>(
-                      value: item.code,
+                      value: item.name,
                       child: Text(item.name ?? ''),
                     );
                   }).toList(),

@@ -6,11 +6,9 @@ import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,27 +25,11 @@ class LoginPage extends StatelessWidget {
       child: BlocConsumer<LoginBloc, LoginState>(
         listener: (context, state) async {
           if (state is LoginSuccess) {
+            // llamamos la configuracion de la empresa y el usuario logueado
             context.read<UserBloc>().add(GetConfigurations(context));
+            //llamamos las novedades de la empresa
             context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
 
-            final String rol = await PrefUtils.getUserRol();
-
-            if (rol == 'picking') {
-              context
-                  .read<WMSPickingBloc>()
-                  .add(LoadAllBatchsEvent(context, true));
-            } else if (rol == 'admin') {
-              context
-                  .read<WMSPickingBloc>()
-                  .add(LoadAllBatchsEvent(context, true));
-              context
-                  .read<WmsPackingBloc>()
-                  .add(LoadAllPackingEvent(true, context));
-            } else if (rol == 'packing') {
-              context
-                  .read<WmsPackingBloc>()
-                  .add(LoadAllPackingEvent(true, context));
-            }
             Navigator.pushNamed(context, 'home');
           }
 
@@ -78,7 +60,7 @@ class LoginPage extends StatelessWidget {
                       children: [
                         Center(
                             child: Text(
-                          "Bienvenido a ${Environment.flavor.appName } ",
+                          "Bienvenido a ${Environment.flavor.appName} ",
                           style: const TextStyle(
                               color: Colors.white, fontSize: 22),
                         )),
@@ -254,9 +236,8 @@ class _LoginFormState extends State<_LoginForm> {
                   ],
                 ),
               ),
-              
               Padding(
-                padding: const EdgeInsets.only(left: 30, right: 30, top :10),
+                padding: const EdgeInsets.only(left: 30, right: 30, top: 10),
                 child: MaterialButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),

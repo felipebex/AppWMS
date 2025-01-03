@@ -75,7 +75,7 @@ class LocationDropdownWidget extends StatelessWidget {
               );
             }).toList(),
             onChanged: batchBloc
-                        .configurations.data?.result?.locationPickingManual ==
+                        .configurations.result?.result?.locationPickingManual ==
                     false
                 ? null
                 : batchBloc.locationIsOk

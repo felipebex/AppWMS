@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/new_package_response.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/response_sedn_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/sen_packing_request.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
@@ -34,6 +35,7 @@ class WmsPackingRepository {
 
       var response = await ApiRequestService().post(
           endpoint: 'batch_packing',
+          isunecodePath: true,
           body: {
             "url_rpc": urlRpc,
             "db_rpc": dataBd,
@@ -108,6 +110,7 @@ class WmsPackingRepository {
 
       var response = await ApiRequestService().post(
         endpoint: 'create_packaing', // Endpoint actualizado
+        isunecodePath: true,
         body: {
           "url_rpc": urlRpc,
           "db_rpc": dataBd,
@@ -175,14 +178,14 @@ class WmsPackingRepository {
     return NewPackageResponse(); // Retornamos un objeto vacío si no hay resultados
   }
 
-  Future<void> sendPackingRequest(PackingRequest packingRequest,
+  Future<ResponseSendPacking> sendPackingRequest(PackingRequest packingRequest,
       bool isLoadingDialog, BuildContext context) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return; // Si no hay conexión, terminamos la ejecución
+      return ResponseSendPacking(); // Si no hay conexión, terminamos la ejecución
     }
     final String urlRpc = Preferences.urlWebsite;
     final String userEmail = await PrefUtils.getUserEmail();
@@ -209,15 +212,20 @@ class WmsPackingRepository {
               packingRequest.listItem.map((item) => item.toMap()).toList(),
         },
       );
-
-      print('Body sendPicking: $body');
+      print("=====================================");
+      print("body: $body");
+      print("=====================================");
+      print("list_item: ${packingRequest.listItem.map((item) => item.toMap()).toList()}");
+      print("list_item_length: ${packingRequest.listItem.length}");
+      print("=====================================");
 
       var response = await ApiRequestService().sendPacking(
         headers: headers,
         endpoint:
-            'create_packaing', // Cambiado para que sea el endpoint correspondiente
+            'send_packing', // Cambiado para que sea el endpoint correspondiente
         body: body,
       );
+      print("response.statusCode: ${response}");
       if (response.statusCode < 400) {
         // Si la respuesta es exitosa, procesamos los datos
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
@@ -226,13 +234,8 @@ class WmsPackingRepository {
 
           // Verificamos si la respuesta contiene 'code' y si es un éxito (por ejemplo, código 200)
           if (data['code'] == 200) {
-            Get.snackbar(
-              'Éxito',
-              data['msg'],
-              duration: const Duration(seconds: 5),
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.green,
-              colorText: Colors.white,
+            return ResponseSendPacking(
+              data: DataResponsePacking.fromMap(data),
             );
           } else {
             // Si no es un éxito, mostramos el mensaje de error
@@ -244,6 +247,8 @@ class WmsPackingRepository {
               backgroundColor: Colors.red,
               colorText: Colors.white,
             );
+
+            return ResponseSendPacking();
           }
         }
       } else {
@@ -253,22 +258,26 @@ class WmsPackingRepository {
           print("data: $data");
 
           Get.snackbar(
-            'Error en create_packaing : ${data['code']}',
+            'Error en sendPackingRequest : ${data['code']}',
             data['msg'],
             duration: const Duration(seconds: 5),
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red,
             colorText: Colors.white,
           );
+          return ResponseSendPacking();
         }
-        print('Error en create_packaing: respuesta errónea');
+        print('Error en sendPackingRequest: respuesta errónea');
+        return ResponseSendPacking();
       }
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return;
+      return ResponseSendPacking(); // Retornamos un objeto vacío en caso de error de red
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error en create_packaing: $e, $s');
+      print('Error en sendPackingRequest: $e, $s');
+      return ResponseSendPacking(); // Retornamos un objeto vacío en caso de error de red
     }
+    return ResponseSendPacking(); // Retornamos un objeto vacío en caso de error de red
   }
 }

@@ -495,35 +495,36 @@ class DataBaseSqlite {
         // Convertir valores booleanos a enteros (0 o 1)
         Map<String, dynamic> configurationData = {
           "id": userId,
-          "name": configuration.data?.result?.name,
-          "last_name": configuration.data?.result?.lastName,
-          "email": configuration.data?.result?.email,
-          "rol": configuration.data?.result?.rol,
+          "name": configuration.result?.result?.name,
+          "last_name": configuration.result?.result?.lastName,
+          "email": configuration.result?.result?.email,
+          "rol": configuration.result?.result?.rol,
           "location_picking_manual":
-              configuration.data?.result?.locationPickingManual == true ? 1 : 0,
-          "manual_product_selection":
-              configuration.data?.result?.manualProductSelection == true
+              configuration.result?.result?.locationPickingManual == true
                   ? 1
                   : 0,
-          "muelle_option": configuration.data?.result?.muelleOption,
+          "manual_product_selection":
+              configuration.result?.result?.manualProductSelection == true
+                  ? 1
+                  : 0,
+          "muelle_option": configuration.result?.result?.muelleOption,
           "manual_quantity":
-              configuration.data?.result?.manualQuantity == true ? 1 : 0,
+              configuration.result?.result?.manualQuantity == true ? 1 : 0,
           "manual_spring_selection":
-              configuration.data?.result?.manualSpringSelection == true ? 1 : 0,
+              configuration.result?.result?.manualSpringSelection == true
+                  ? 1
+                  : 0,
           "show_detalles_picking":
-              configuration.data?.result?.showDetallesPicking == true ? 1 : 0,
+              configuration.result?.result?.showDetallesPicking == true ? 1 : 0,
           "show_next_locations_in_details":
-              configuration.data?.result?.showNextLocationsInDetails == true
+              configuration.result?.result?.showNextLocationsInDetails == true
                   ? 1
                   : 0,
         };
 
-        // Imprimir la configuración a insertar
-        print('Datos a insertar: $configurationData');
 
         if (existingConfiguration.isNotEmpty) {
           // Actualizar la configuración
-          print('Actualizando configuración existente...');
           await txn.update(
             'tblconfigurations',
             configurationData,
@@ -532,15 +533,12 @@ class DataBaseSqlite {
           );
         } else {
           // Insertar nueva configuración
-          print('Insertando nueva configuración...');
           await txn.insert(
             'tblconfigurations',
             configurationData,
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         }
-
-        print('Operación realizada con éxito');
       });
     } catch (e) {
       print("Error al insertar configuración: $e");
@@ -562,9 +560,11 @@ class DataBaseSqlite {
     if (maps.isNotEmpty) {
       // Si hay resultados, devolvemos el primer registro en el formato esperado
       final config = Configurations(
-        data: DataConfig(
+        jsonrpc: '2.0',
+        id: 1,
+        result: ConfigurationsResult(
           code: 200,
-          result: Result(
+          result: DataConfig(
             name: maps[0]['name'],
             lastName: maps[0]['last_name'],
             email: maps[0]['email'],

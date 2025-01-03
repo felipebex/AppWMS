@@ -13,5 +13,5 @@ class PrefKeys {
   static const String enterprise = "enterprise";
   static const String urlWebsite = "urlWebsite";
 
-  
+  static const String cookie = "cookie";
 }

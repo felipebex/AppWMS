@@ -33,6 +33,19 @@ class PrefUtils {
   }
 
 
+//guardamos la cookie de la ultima petición
+static Future<void> setCookie(String cookie) async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.setString(PrefKeys.cookie, cookie);
+}
+
+//obtenemos la cookie de la ultima petición
+static Future<String> getCookie() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  return preferences.getString(PrefKeys.cookie) ?? "";
+}
+
+
 //todo guardamos los datos del usuario
 //*nombre
 static Future<void> setUserName(String name) async {

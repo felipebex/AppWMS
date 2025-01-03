@@ -210,6 +210,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     } else {
       validateScannedBarcode(scannedValue3.toLowerCase(),
           batchBloc.currentProduct, batchBloc, false);
+
       setState(() {
         scannedValue3 = ""; //limpiamos el valor escaneado
       });
@@ -843,7 +844,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                 ),
               ),
               Visibility(
-                visible: batchBloc.configurations.data?.result?.muelleOption ==
+                visible: batchBloc.configurations.result?.result?.muelleOption ==
                     "multiple",
                 child: Container(
                     width: size.width,
@@ -1269,18 +1270,46 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                           child: Center(
                             child: Row(
                               children: [
-                                const Text('Recoger:',
+                                const Text('Cant:',
                                     style: TextStyle(
                                         color: Colors.black, fontSize: 14)),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 5),
                                   child: Text(
                                     currentProduct.quantity?.toString() ?? "",
                                     style: TextStyle(
                                         color: primaryColorApp, fontSize: 14),
                                   ),
                                 ),
+                                Visibility(
+                                  visible: currentProduct.quantity -
+                                          batchBloc.quantitySelected !=
+                                      0,
+                                  child: const Text('Pdte:',
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 14)),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 5),
+                                  child: currentProduct.quantity -
+                                              batchBloc.quantitySelected ==
+                                          0
+                                      ? Container() // Ocultamos el widget si la diferencia es 0
+                                      : Text(
+                                          (currentProduct.quantity -
+                                                  batchBloc.quantitySelected)
+                                              .toString(),
+                                          style: TextStyle(
+                                            color: _getColorForDifference(
+                                                currentProduct.quantity -
+                                                    batchBloc.quantitySelected),
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                ),
+
                                 Text(currentProduct.unidades ?? "",
                                     style: const TextStyle(
                                         color: Colors.black, fontSize: 14)),
@@ -1363,7 +1392,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                 ),
                                 IconButton(
-                                    onPressed: batchBloc.configurations.data
+                                    onPressed: batchBloc.configurations.result
                                                 ?.result?.manualQuantity ==
                                             false
                                         ? null
@@ -1557,6 +1586,22 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     );
   }
 
+  // Función que devuelve el color basado en la diferencia
+  Color _getColorForDifference(int difference) {
+    if (difference == 0) {
+      return Colors.transparent; // Ocultar el texto cuando la diferencia es 0
+    } else if (difference > 10) {
+      // Si la diferencia es mayor a 10
+      return Colors.red; // Rojo para una gran diferencia
+    } else if (difference > 5) {
+      // Si la diferencia es mayor a 5 pero menor o igual a 10
+      return Colors.orange; // Naranja para una diferencia moderada
+    } else {
+      // Si la diferencia es 5 o menos
+      return Colors.green; // Verde cuando esté cerca de la cantidad pedida
+    }
+  }
+
   void _validatebuttonquantity() {
     final batchBloc = context.read<BatchBloc>();
     final currentProduct = batchBloc.currentProduct;
@@ -1599,7 +1644,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
   void _nextProduct(ProductsBatch currentProduct, BatchBloc batchBloc) async {
     DataBaseSqlite db = DataBaseSqlite();
-
+    print("currentProduct ${currentProduct.productId}");
     await db.setFieldTableBatchProducts(
         batchBloc.batchWithProducts.batch?.id ?? 0,
         currentProduct.idProduct ?? 0,
@@ -1716,12 +1761,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             currentProduct.quantity!) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             duration: const Duration(milliseconds: 1000),
-            content: Text(
-                'Error, el codigo es para una cantidad de : ${matchedBarcode.cantidad} '),
+            content: const Text('Codigo erroneo'),
             backgroundColor: Colors.red[200],
           ));
           return false;
         }
+
         batchBloc.add(AddQuantitySeparate(
             currentProduct.idProduct ?? 0,
             currentProduct.idMove ?? 0,
@@ -1729,6 +1774,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             false));
       }
       return false;
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(milliseconds: 1000),
+        content: const Text('Codigo erroneo'),
+        backgroundColor: Colors.red[200],
+      ));
     }
     return false;
   }
@@ -1795,7 +1846,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                 onAccepted: () {
                   Navigator.pop(context);
                   if (batchBloc
-                          .configurations.data?.result?.showDetallesPicking ==
+                          .configurations.result?.result?.showDetallesPicking ==
                       true) {
                     //cerramos el focus
                     batchBloc.isSearch = false;

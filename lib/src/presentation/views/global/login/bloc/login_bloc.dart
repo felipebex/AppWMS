@@ -27,14 +27,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
         final response = await loginRepository.login(email.text, password.text, event.context);
         print("Response: $response");
-        if (response.data == null) {
+        if (response.result == null) {
           emit(LoginFailure('Autenticación fallida.'));
         } else {
-          PrefUtils.setUserName(response.data?.result?.name?? 'No-name');
-          PrefUtils.setUserEmail(response.data?.result?.email?? 'No-email');
-          PrefUtils.setUserRol(response.data?.result?.rol?? 'No-rol');
+          PrefUtils.setUserName(response.result?.name?? 'No-name');
+          PrefUtils.setUserEmail(response.result?.username?? 'No-email');
           PrefUtils.setUserPass(password.text);
-          PrefUtils.setUserId(response.data?.result?.userId?? 0);
+          PrefUtils.setUserId(response.result?.uid?? 0);
           PrefUtils.setIsLoggedIn(true);
           email.clear();
           password.clear();
