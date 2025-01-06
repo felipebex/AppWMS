@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty
+// ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
@@ -248,6 +248,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       final userid = await PrefUtils.getUserId();
 
       await repository.sendPicking(
+          context: event.context,
           idBatch: event.productsSeparate[i].batchId ?? 0,
           timeTotal: secondsDifference,
           cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
@@ -255,7 +256,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             Item(
               idMove: event.productsSeparate[i].idMove ?? 0,
               productId: event.productsSeparate[i].idProduct ?? 0,
-              lote: event.productsSeparate[i].lotId ?? '',
+              lote: event.productsSeparate[i].loteId ?? '',
               cantidad: event.productsSeparate[i].quantitySeparate ?? 0,
               novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
@@ -273,7 +274,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onSendProductEditOdooEvent(
       SendProductEditOdooEvent event, Emitter<BatchState> emit) async {
     emit(LoadingSendProductEdit());
-    sendProuctEditOdoo(event.product, event.cantidad);
+    sendProuctEditOdoo(event.product, event.cantidad, event.context);
 
     final response = await DataBaseSqlite()
         .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
@@ -431,7 +432,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     emit(LoadDataInfoState());
   }
 
-  void sendProuctOdoo() async {
+  void sendProuctOdoo(BuildContext context) async {
     DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
     //traemos un producto de la base de datos  ya anteriormente guardado
     final product = await db.getProductBatch(batchWithProducts.batch?.id ?? 0,
@@ -447,28 +448,28 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     // Obtener la diferencia en segundos
     double secondsDifference = difference.inMilliseconds / 1000.0;
 
-     final userid = await PrefUtils.getUserId();
+    final userid = await PrefUtils.getUserId();
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
+        context: context,
         idBatch: product?.batchId ?? 0,
         timeTotal: secondsDifference,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
         listItem: [
           Item(
-            idMove: product?.idMove ?? 0,
-            productId: product?.idProduct ?? 0,
-            lote: product?.lotId ?? '',
-            cantidad: product?.quantitySeparate ?? 0,
-            novedad: product?.observation ?? 'Sin novedad',
-            timeLine: product?.timeSeparate ?? 0,
-            muelle: product?.muelleId ?? 0,
-            idOperario: userid
-          ),
+              idMove: product?.idMove ?? 0,
+              productId: product?.idProduct ?? 0,
+              lote: product?.lotId ?? '',
+              cantidad: product?.quantitySeparate ?? 0,
+              novedad: product?.observation ?? 'Sin novedad',
+              timeLine: product?.timeSeparate ?? 0,
+              muelle: product?.muelleId ?? 0,
+              idOperario: userid),
         ]);
 
-    if (response.data?.code == 200) {
+    if (response.result?.code == 200) {
       //recorremos todos los resultados de la respuesta
-      for (var resultProduct in response.data!.result) {
+      for (var resultProduct in response.result!.result!) {
         await db.setFieldTableBatchProducts(
           resultProduct.idBatch ?? 0,
           resultProduct.idProduct ?? 0,
@@ -490,7 +491,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   Future<bool> sendProuctEditOdoo(
-      ProductsBatch productEdit, int cantidad) async {
+      ProductsBatch productEdit, int cantidad, BuildContext context) async {
     DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
     //traemos un producto de la base de datos  ya anteriormente guardado
     final product = await db.getProductBatch(productEdit.batchId ?? 0,
@@ -505,31 +506,31 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     Duration difference = dateTimeActuality.difference(dateTimeStart);
     // Obtener la diferencia en segundos
     double secondsDifference = difference.inMilliseconds / 1000.0;
-     final userid = await PrefUtils.getUserId();
+    final userid = await PrefUtils.getUserId();
 
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
+        context: context,
         idBatch: product?.batchId ?? 0,
         timeTotal: secondsDifference,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
         listItem: [
           Item(
-            idMove: product?.idMove ?? 0,
-            productId: product?.idProduct ?? 0,
-            lote: product?.lotId ?? '',
-            cantidad: cantidad,
-            novedad: (cantidad == product?.quantity)
-                ? 'Sin novedad'
-                : product?.observation ?? 'Sin novedad',
-            timeLine: product?.timeSeparate ?? 0,
-            muelle: product?.muelleId ?? 0,
-            idOperario: userid
-          ),
+              idMove: product?.idMove ?? 0,
+              productId: product?.idProduct ?? 0,
+              lote: product?.lotId ?? '',
+              cantidad: cantidad,
+              novedad: (cantidad == product?.quantity)
+                  ? 'Sin novedad'
+                  : product?.observation ?? 'Sin novedad',
+              timeLine: product?.timeSeparate ?? 0,
+              muelle: product?.muelleId ?? 0,
+              idOperario: userid),
         ]);
 
-    if (response.data?.code == 200) {
+    if (response.result?.code == 200) {
       //recorremos todos los resultados de la respuesta
-      for (var resultProduct in response.data!.result) {
+      for (var resultProduct in response.result!.result!) {
         await db.setFieldTableBatchProducts(
           resultProduct.idBatch ?? 0,
           resultProduct.idProduct ?? 0,
@@ -678,7 +679,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         currentProduct.idMove ?? 0,
         secondsDifferenceProduct);
 
-    sendProuctOdoo();
+    sendProuctOdoo(event.context);
     //validamos si es el ultimo producto
     if (filteredProducts.length == index + 1) {
       //actualizamos el index de la lista de productos

@@ -436,12 +436,15 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             showDialog(
                                                 context: context,
                                                 builder: (context) {
-                                                  return const DialogLoading();
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando productos...'
+                                                  );
                                                 });
 
                                             // Esperar 3 segundos antes de continuar
                                             Future.delayed(
-                                                const Duration(seconds: 1), () {
+                                                const Duration(milliseconds: 800), () {
                                               // Cerrar el diálogo de carga
                                               Navigator.of(context,
                                                       rootNavigator: true)

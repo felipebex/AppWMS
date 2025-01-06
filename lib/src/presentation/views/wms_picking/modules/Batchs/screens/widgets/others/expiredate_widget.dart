@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -5,12 +7,14 @@ class ExpiryDateWidget extends StatelessWidget {
   final DateTime? expireDate;
   final Size size;
   final bool isDetaild;
+  final bool isNoExpireDate;
 
   const ExpiryDateWidget({
     super.key,
     required this.expireDate,
     required this.size,
     required this.isDetaild,
+    required this.isNoExpireDate,
   });
 
   @override
@@ -58,15 +62,31 @@ class ExpiryDateWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 5),
-          SizedBox(
-            width: size.width * 0.4,
-            child: Text(
-              expireDate != null
-                  ? "${expireDate!.toString().split(" ")[0]} (${daysLeft > 0 ? "$daysLeft días" : "Vencido"})"
-                  : '',
-              style: TextStyle(
-                fontSize: isDetaild ? 12 : 14,
-                color: textColor,
+          Visibility(
+            visible: !isNoExpireDate,
+            child: SizedBox(
+              width: size.width * 0.4,
+              child: Text(
+                expireDate != null
+                    ? "${expireDate!.toString().split(" ")[0]} (${daysLeft > 0 ? "$daysLeft días" : "Vencido"})"
+                    : '',
+                style: TextStyle(
+                  fontSize: isDetaild ? 12 : 14,
+                  color: textColor,
+                ),
+              ),
+            ),
+          ),
+          Visibility(
+            visible: isNoExpireDate,
+            child: SizedBox(
+              width: size.width * 0.4,
+              child: Text(
+                'Sin fecha de expiración',
+                style: TextStyle(
+                  fontSize: isDetaild ? 12 : 14,
+                  color: red,
+                ),
               ),
             ),
           )

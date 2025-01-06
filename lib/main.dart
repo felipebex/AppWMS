@@ -47,13 +47,13 @@ void main() async {
 
   // //cron
   // var cron = Cron();
-  // cron.schedule(Schedule.parse('*/3 * * * *'), () async {
+  // cron.schedule(Schedule.parse('*/1 * * * *'), () async {
   //   try {
   //     final result = await InternetAddress.lookup('example.com');
   //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
   //       final isLogin = await PrefUtils.getIsLoggedIn();
   //       if (isLogin) {
-  //         searchProductsNoSendOdoo();
+  //         searchProductsNoSendOdoo(navigatorKey.currentContext!);
   //       }
   //     }
   //   } on SocketException catch (_) {}
@@ -139,7 +139,7 @@ class MyApp extends StatelessWidget {
 }
 
 ///metodo el cual se encarga de verificar que productos estan con estado no enviado para enviarlos a odoo
-void searchProductsNoSendOdoo() async {
+void searchProductsNoSendOdoo( BuildContext context) async {
   DataBaseSqlite db = DataBaseSqlite();
   WmsPickingRepository repository = WmsPickingRepository();
   //traemos todos los productos
@@ -158,13 +158,14 @@ void searchProductsNoSendOdoo() async {
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
         idBatch: product.batchId ?? 0,
+        context: context,
         timeTotal: 0,
         cantItemsSeparados: 0,
         listItem: [
           Item(
             idMove: product.idMove ?? 0,
             productId: product.idProduct ?? 0,
-            lote: product.lotId ?? '',
+            lote: product.loteId.toString() ,
             cantidad: product.quantitySeparate ?? 0,
             novedad: product.observation ?? 'Sin novedad',
             timeLine: double.parse(totalTime),
@@ -172,9 +173,9 @@ void searchProductsNoSendOdoo() async {
             idOperario: userId
           ),
         ]);
-    if (response.data?.code == 200) {
+    if (response.result?.code == 200) {
       //recorremos todos los resultados de la respuesta
-      for (var resultProduct in response.data!.result) {
+      for (var resultProduct in response.result!.result!) {
         await db.setFieldTableBatchProducts(
           resultProduct.idBatch ?? 0,
           resultProduct.idProduct ?? 0,

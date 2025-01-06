@@ -1,85 +1,85 @@
-// ignore_for_file: unnecessary_null_comparison
-
 import 'dart:convert';
 
 class SendPickingResponse {
-  final Data? data;
+    final String? jsonrpc;
+    final dynamic id;
+    final Data? result;
 
-  SendPickingResponse({
-    this.data,
-  });
+    SendPickingResponse({
+        this.jsonrpc,
+        this.id,
+        this.result,
+    });
 
-  factory SendPickingResponse.fromJson(String str) =>
-      SendPickingResponse.fromMap(json.decode(str));
+    factory SendPickingResponse.fromJson(String str) => SendPickingResponse.fromMap(json.decode(str));
 
-  String toJson() => json.encode(toMap());
+    String toJson() => json.encode(toMap());
 
-  factory SendPickingResponse.fromMap(Map<String, dynamic> json) =>
-      SendPickingResponse(
-        data: json["data"] == null ? null : Data.fromMap(json["data"]),
-      );
+    factory SendPickingResponse.fromMap(Map<String, dynamic> json) => SendPickingResponse(
+        jsonrpc: json["jsonrpc"],
+        id: json["id"],
+        result: json["result"] == null ? null : Data.fromMap(json["result"]),
+    );
 
-  Map<String, dynamic> toMap() => {
-        "data": data?.toMap(),
-      };
+    Map<String, dynamic> toMap() => {
+        "jsonrpc": jsonrpc,
+        "id": id,
+        "result": result?.toMap(),
+    };
 }
 
 class Data {
-  final int? code;
-  final List<Result> result;
+    final int? code;
+    final List<ResultElement>? result;
 
-  Data({
-    this.code,
-    required this.result,
-  });
+    Data({
+        this.code,
+        this.result,
+    });
 
-  factory Data.fromJson(String str) => Data.fromMap(json.decode(str));
+    factory Data.fromJson(String str) => Data.fromMap(json.decode(str));
 
-  String toJson() => json.encode(toMap());
+    String toJson() => json.encode(toMap());
 
-  factory Data.fromMap(Map<String, dynamic> json) => Data(
+    factory Data.fromMap(Map<String, dynamic> json) => Data(
         code: json["code"],
-        result: json["result"] == null
-            ? []
-            : List<Result>.from(json["result"]!.map((x) => Result.fromMap(x))),
-      );
+        result: json["result"] == null ? [] : List<ResultElement>.from(json["result"]!.map((x) => ResultElement.fromMap(x))),
+    );
 
-  Map<String, dynamic> toMap() => {
+    Map<String, dynamic> toMap() => {
         "code": code,
-        "result": result == null
-            ? []
-            : List<dynamic>.from(result.map((x) => x.toMap())),
-      };
+        "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toMap())),
+    };
 }
 
-class Result {
-  final String? complete;
-  final int? idBatch;
-  final int? idProduct;
-  final int? idMove;
+class ResultElement {
+    final int? idMove;
+    final int? idBatch;
+    final int? idProduct;
+    final String? complete;
 
-  Result({
-    this.complete,
-    this.idBatch,
-    this.idProduct,
-    this.idMove,
-  });
+    ResultElement({
+        this.idMove,
+        this.idBatch,
+        this.idProduct,
+        this.complete,
+    });
 
-  factory Result.fromJson(String str) => Result.fromMap(json.decode(str));
+    factory ResultElement.fromJson(String str) => ResultElement.fromMap(json.decode(str));
 
-  String toJson() => json.encode(toMap());
+    String toJson() => json.encode(toMap());
 
-  factory Result.fromMap(Map<String, dynamic> json) => Result(
-        complete: json["complete"],
+    factory ResultElement.fromMap(Map<String, dynamic> json) => ResultElement(
+        idMove: json["id_move"],
         idBatch: json["id_batch"],
         idProduct: json["id_product"],
-        idMove: json["id_move"],
-      );
+        complete: json["complete"],
+    );
 
-  Map<String, dynamic> toMap() => {
-        "complete": complete,
+    Map<String, dynamic> toMap() => {
+        "id_move": idMove,
         "id_batch": idBatch,
         "id_product": idProduct,
-        "id_move": idMove,
-      };
+        "complete": complete,
+    };
 }

@@ -334,7 +334,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               ),
                               const Spacer(),
                               PopupMenuButtonWidget(
-                                  batchBloc: batchBloc,
                                   currentProduct: currentProduct),
                             ],
                           ),
@@ -557,13 +556,20 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           Column(
                                             children: [
                                               ExpiryDateWidget(
-                                                expireDate: DateTime.parse(
-                                                  currentProduct.expireDate ??
-                                                      '',
-                                                ),
-                                                size: size,
-                                                isDetaild: false,
-                                              ),
+                                                  expireDate: currentProduct
+                                                              .expireDate ==
+                                                          ""
+                                                      ? DateTime.now()
+                                                      : DateTime.parse(
+                                                          currentProduct
+                                                              .expireDate),
+                                                  size: size,
+                                                  isDetaild: false,
+                                                  isNoExpireDate: currentProduct
+                                                              .expireDate ==
+                                                          ""
+                                                      ? true
+                                                      : false),
                                               Align(
                                                 alignment: Alignment.centerLeft,
                                                 child: Visibility(
@@ -716,14 +722,21 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     ),
                                                   ],
                                                 ),
-                                              ExpiryDateWidget(
-                                                expireDate: DateTime.parse(
-                                                  currentProduct.expireDate ??
-                                                      '',
-                                                ),
-                                                size: size,
-                                                isDetaild: false,
-                                              ),
+                                                  ExpiryDateWidget(
+                                                  expireDate: currentProduct
+                                                              .expireDate ==
+                                                          ""
+                                                      ? DateTime.now()
+                                                      : DateTime.parse(
+                                                          currentProduct
+                                                              .expireDate),
+                                                  size: size,
+                                                  isDetaild: false,
+                                                  isNoExpireDate: currentProduct
+                                                              .expireDate ==
+                                                          ""
+                                                      ? true
+                                                      : false),
                                             ],
                                           ),
                                         ),
@@ -844,8 +857,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                 ),
               ),
               Visibility(
-                visible: batchBloc.configurations.result?.result?.muelleOption ==
-                    "multiple",
+                visible:
+                    batchBloc.configurations.result?.result?.muelleOption ==
+                        "multiple",
                 child: Container(
                     width: size.width,
                     height: 55,
@@ -1171,7 +1185,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                             return e.isMuelle == null &&
                                                                                 e.isSeparate == 1;
                                                                           }).toList(),
-                                                                          selectedSubMuelle!));
+                                                                          selectedSubMuelle!,
+                                                                          context));
                                                                       // Future.delayed(
                                                                       //     const Duration(
                                                                       //         seconds: 1),
@@ -1662,9 +1677,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
     if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
       //ultima posicion de la lista
-      context
-          .read<BatchBloc>()
-          .add(ChangeCurrentProduct(currentProduct: currentProduct));
+      context.read<BatchBloc>().add(ChangeCurrentProduct(
+          currentProduct: currentProduct, context: context));
 
       batchBloc.add(ChangeIsOkQuantity(
           false,
@@ -1695,9 +1709,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
       return;
     } else {
-      context
-          .read<BatchBloc>()
-          .add(ChangeCurrentProduct(currentProduct: currentProduct));
+      context.read<BatchBloc>().add(ChangeCurrentProduct(
+          currentProduct: currentProduct, context: context));
       batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
       batchBloc.quantitySelected = 0;
       cantidadController.clear();
@@ -1802,7 +1815,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           batchBloc.filteredProducts.where((e) {
             return e.isMuelle == null && e.isSeparate == 1;
           }).toList(),
-          matchedSubmuelle));
+          matchedSubmuelle,
+          context));
 
       return true;
     } else {

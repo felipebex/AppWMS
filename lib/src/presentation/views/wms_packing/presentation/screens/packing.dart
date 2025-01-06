@@ -208,7 +208,6 @@ class _PackingScreenState extends State<PackingScreen> {
                 Barcodes() // Si no se encuentra ningún match, devuelve null
             );
     if (matchedBarcode.barcode != null) {
-
       if (isProduct) {
         batchBloc.add(ValidateFieldsPackingEvent(field: "product", isOk: true));
 
@@ -280,7 +279,6 @@ class _PackingScreenState extends State<PackingScreen> {
                       child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
                         listener: (context, state) {
                           if (state is ChangeQuantitySeparateState) {
-
                             if (state.quantity ==
                                 packinghBloc.currentProduct.quantity.toInt()) {
                               _finichPackingProduct(context);
@@ -584,16 +582,23 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 Column(
                                                   children: [
                                                     ExpiryDateWidget(
-                                                      expireDate:
-                                                          DateTime.parse(
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .expireDate ??
-                                                            '',
-                                                      ),
-                                                      size: size,
-                                                      isDetaild: false,
-                                                    ),
+                                                        expireDate: packinghBloc
+                                                                    .currentProduct
+                                                                    .expireDate ==
+                                                                ""
+                                                            ? DateTime.now()
+                                                            : DateTime.parse(
+                                                                packinghBloc
+                                                                    .currentProduct
+                                                                    .expireDate),
+                                                        size: size,
+                                                        isDetaild: false,
+                                                        isNoExpireDate: packinghBloc
+                                                                    .currentProduct
+                                                                    .expireDate ==
+                                                                ""
+                                                            ? true
+                                                            : false),
                                                     Align(
                                                       alignment:
                                                           Alignment.centerLeft,
@@ -788,20 +793,25 @@ class _PackingScreenState extends State<PackingScreen> {
                                                         ],
                                                       ),
                                                     ExpiryDateWidget(
-                                                      expireDate: packinghBloc
-                                                                  .currentProduct
-                                                                  .expireDate ==
-                                                              ""
-                                                          ? DateTime.now()
-                                                          : DateTime.parse(
-                                                              packinghBloc
-                                                                      .currentProduct
-                                                                      .expireDate ??
-                                                                  '',
-                                                            ),
-                                                      size: size,
-                                                      isDetaild: false,
-                                                    ),
+                                                        expireDate: packinghBloc
+                                                                    .currentProduct
+                                                                    .expireDate ==
+                                                                ""
+                                                            ? DateTime.now()
+                                                            : DateTime.parse(
+                                                                packinghBloc
+                                                                        .currentProduct
+                                                                        .expireDate ??
+                                                                    '',
+                                                              ),
+                                                        size: size,
+                                                        isDetaild: false,
+                                                        isNoExpireDate: packinghBloc
+                                                                    .currentProduct
+                                                                    .expireDate ==
+                                                                ""
+                                                            ? true
+                                                            : false),
                                                   ],
                                                 ),
                                               ),
@@ -1244,21 +1254,17 @@ class _PackingScreenState extends State<PackingScreen> {
   }
 
   void _finichPackingProduct(BuildContext context) {
-
-    
     //marcamos el producto como terminado
     final batchBloc = context.read<WmsPackingBloc>();
     batchBloc.add(SetPickingsEvent(
         batchBloc.currentProduct.productId ?? 0,
         batchBloc.currentProduct.pedidoId ?? 0,
         batchBloc.currentProduct.idMove ?? 0));
-    
-    //cerramos el dialogo de carga
-      batchBloc.add(LoadAllProductsFromPedidoEvent(
-          batchBloc.currentProduct.pedidoId ?? 0));
-      Navigator.pop(context);
 
-    
+    //cerramos el dialogo de carga
+    batchBloc.add(
+        LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
+    Navigator.pop(context);
   }
 
   void _validatebuttonquantity() {
@@ -1292,7 +1298,6 @@ class _PackingScreenState extends State<PackingScreen> {
                         currentProduct.idMove ?? 0));
                     cantidadController.clear();
                     _finichPackingProduct(context);
-                    
                   });
             });
       } else {

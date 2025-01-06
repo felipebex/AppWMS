@@ -6,9 +6,11 @@ import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,82 +24,110 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => LoginBloc(),
-      child: BlocConsumer<LoginBloc, LoginState>(
-        listener: (context, state) async {
-          if (state is LoginSuccess) {
-            // llamamos la configuracion de la empresa y el usuario logueado
-            context.read<UserBloc>().add(GetConfigurations(context));
-            //llamamos las novedades de la empresa
-            context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<LoginBloc, LoginState>(
+            listener: (context, state) {
+              if (state is LoginSuccess) {
+                // llamamos la configuracion de la empresa y el usuario logueado
+                context.read<UserBloc>().add(GetConfigurations(context));
+                context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
+              }
+              if (state is LoginFailure) {
+                showModalDialog(context, state.error);
+              }
+            },
+          ),
+          BlocListener<UserBloc, UserState>(
+            listener: (context, state) async {
+              if (state is ConfigurationLoaded) {
+                final rol = await PrefUtils.getUserRol();
+                print("Rol: $rol");
+                if (rol == 'picking') {
+                  context
+                      .read<WMSPickingBloc>()
+                      .add(LoadAllBatchsEvent(context, true));
+                } else if (rol == 'admin') {
+                  context
+                      .read<WMSPickingBloc>()
+                      .add(LoadAllBatchsEvent(context, true));
+                  context
+                      .read<WmsPackingBloc>()
+                      .add(LoadAllPackingEvent(false, context));
+                } else if (rol == 'packing') {
+                  context
+                      .read<WmsPackingBloc>()
+                      .add(LoadAllPackingEvent(true, context));
+                }
 
-            Navigator.pushNamed(context, 'home');
-          }
-
-          if (state is LoginFailure) {
-            showModalDialog(context, state.error);
-          }
-        },
-        builder: (context, state) {
-          return Scaffold(
-            body: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      colors: [primaryColorApp, secondary, primaryColorApp])),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const WarningWidgetCubit(),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        top: 25, left: 20, right: 20, bottom: 5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                            child: Text(
-                          "Bienvenido a ${Environment.flavor.appName} ",
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 22),
-                        )),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Center(
-                          child: Text("Version: 1.0.0",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 10)),
-                        )
-                        //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
-                      ],
+                Navigator.pushNamed(context, 'home');
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<LoginBloc, LoginState>(
+          builder: (context, state) {
+            return Scaffold(
+              body: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        colors: [primaryColorApp, secondary, primaryColorApp])),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const WarningWidgetCubit(),
+                    const SizedBox(
+                      height: 20,
                     ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.only(top: 15),
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(40),
-                              topRight: Radius.circular(40))),
-                      child: SingleChildScrollView(
-                        child: BlocBuilder<LoginBloc, LoginState>(
-                          builder: (context, state) {
-                            return const _LoginForm();
-                          },
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          top: 25, left: 20, right: 20, bottom: 5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                              child: Text(
+                            "Bienvenido a ${Environment.flavor.appName} ",
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 22),
+                          )),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          const Center(
+                            child: Text("Version: 1.0.0",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 10)),
+                          )
+                          //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
+                        ],
                       ),
                     ),
-                  )
-                ],
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(top: 15),
+                        decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(40),
+                                topRight: Radius.circular(40))),
+                        child: SingleChildScrollView(
+                          child: BlocBuilder<LoginBloc, LoginState>(
+                            builder: (context, state) {
+                              return const _LoginForm();
+                            },
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -136,7 +166,6 @@ class _LoginFormState extends State<_LoginForm> {
 
     return BlocBuilder<LoginBloc, LoginState>(
       builder: (context, state) {
-        print("hasFocus: ${_focusNodeEmail.hasFocus}");
         return Form(
           key: formkey,
           autovalidateMode: AutovalidateMode.onUserInteraction,

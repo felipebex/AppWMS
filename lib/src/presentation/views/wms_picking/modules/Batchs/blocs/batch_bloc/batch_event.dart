@@ -76,7 +76,8 @@ class ChangeIsOkQuantity extends BatchEvent {
 
 class ChangeCurrentProduct extends BatchEvent {
   final ProductsBatch currentProduct;
-  ChangeCurrentProduct({required this.currentProduct});
+  final BuildContext context;
+  ChangeCurrentProduct({required this.currentProduct, required this.context});
 }
 
 class QuantityChanged extends BatchEvent {
@@ -148,13 +149,15 @@ class LoadProductEditEvent extends BatchEvent {
 class SendProductEditOdooEvent extends BatchEvent {
   final ProductsBatch product;
   final int cantidad;
-  SendProductEditOdooEvent(  this.product, this.cantidad);
+  final BuildContext context;
+  SendProductEditOdooEvent(  this.product, this.cantidad, this.context);
 }
 
 class AssignSubmuelleEvent extends BatchEvent {
   final List<ProductsBatch> productsSeparate;
   final Muelles muelle;
-  AssignSubmuelleEvent(this.productsSeparate, this.muelle);
+  final BuildContext context;
+  AssignSubmuelleEvent(this.productsSeparate, this.muelle, this.context);
 }
 
 class ScanBarcodeEvent extends BatchEvent {

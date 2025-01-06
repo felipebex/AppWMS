@@ -64,6 +64,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     try {
       final novedadeslist =
           await wmsPickingRepository.getnovedades(false, event.context);
+
+
       listOfNovedades.clear();
       listOfNovedades.addAll(novedadeslist);
 
@@ -314,7 +316,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           }
         }
 
-        print('response batchs: ${response.length}');
         PrefUtils.setPickingBatchs(response.length);
         int userId = await PrefUtils.getUserId();
         listOfBatchs.clear();
@@ -323,8 +324,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         for (var batch in listOfBatchs) {
           try {
             if (batch.id != null && batch.name != null) {
-              print(
-                  'batch.id: ${batch.id} scheduleddate: ${batch.scheduleddate}');
               await DataBaseSqlite().insertBatch(BatchsModel(
                 id: batch.id!,
                 name: batch.name ?? '',
@@ -363,12 +362,11 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
         final List<Muelles> responseMuelles =
             await wmsPickingRepository.getmuelles(
-          event.isLoadinDialog,
+          false,
           event.context,
         );
 
         print('response muelles: ${responseMuelles.length}');
-
         print('productsToInsert: ${productsToInsert.length}');
         print('barcodesToInsert: ${barcodesToInsert.length}');
         print('otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
@@ -413,7 +411,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           .where((element) => element.isSeparate == null)
           .toList();
 
-      print('batchsDone: ${batchsDone.length}');
 
       emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
     } catch (e) {

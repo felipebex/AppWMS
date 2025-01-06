@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:wms_app/environment/environment.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
@@ -28,25 +29,6 @@ class HomePage extends StatelessWidget {
         create: (context) => HomeBloc(),
         child: BlocConsumer<HomeBloc, HomeState>(
           listener: (context, state) {
-            //todo cambiar todo eso al home despues de tener el rol
-            // final String rol = await PrefUtils.getUserRol();
-
-            // if (rol == 'picking') {
-            //   context
-            //       .read<WMSPickingBloc>()
-            //       .add(LoadAllBatchsEvent(context, true));
-            // } else if (rol == 'admin') {
-            //   context
-            //       .read<WMSPickingBloc>()
-            //       .add(LoadAllBatchsEvent(context, true));
-            //   context
-            //       .read<WmsPackingBloc>()
-            //       .add(LoadAllPackingEvent(true, context));
-            // } else if (rol == 'packing') {
-            //   context
-            //       .read<WmsPackingBloc>()
-            //       .add(LoadAllPackingEvent(true, context));
-            // }
 
             if (state is HomeLoadErrorState) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -63,32 +45,39 @@ class HomePage extends StatelessWidget {
               onRefresh: () async {
                 //peticion para la configuracion
                 context.read<UserBloc>().add(GetConfigurations(context));
-                // final String rol = await PrefUtils.getUserRol();
-                // //peticion segun el rol del usuario
-                // if (rol == 'picking') {
+                // context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
+
+                //esperamos 1 segundo y luego hacemos la peticion de los batchs
+                await Future.delayed(const Duration(seconds: 1));
+                
+
+
+                final String rol = await PrefUtils.getUserRol();
+                //peticion segun el rol del usuario
+                if (rol == 'picking') {
                   context
                       .read<WMSPickingBloc>()
                       .add(LoadAllBatchsEvent(context, true));
-                // } else if (rol == 'admin') {
-                //   // context
-                //   //     .read<WMSPickingBloc>()
-                //   //     .add(LoadAllBatchsEvent(context, true));
-                //   context
-                //       .read<WmsPackingBloc>()
-                //       .add(LoadAllPackingEvent(true, context));
-                // } else if (rol == 'packing') {
-                //   context
-                //       .read<WmsPackingBloc>()
-                //       .add(LoadAllPackingEvent(true, context));
-                // }
+                } else if (rol == 'admin') {
+                  context
+                      .read<WMSPickingBloc>()
+                      .add(LoadAllBatchsEvent(context, true));
+                  context
+                      .read<WmsPackingBloc>()
+                      .add(LoadAllPackingEvent(true, context));
+                } else if (rol == 'packing') {
+                  context
+                      .read<WmsPackingBloc>()
+                      .add(LoadAllPackingEvent(true, context));
+                }
               },
               child: Scaffold(
-                // floatingActionButton: FloatingActionButton(
-                //   onPressed: () async {
-                //     await DataBaseSqlite().deleteAll();
-                //   },
-                //   child: const Icon(Icons.refresh),
-                // ),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () async {
+                    await DataBaseSqlite().deleteAll();
+                  },
+                  child: const Icon(Icons.refresh),
+                ),
                 body: Container(
                   width: size.width,
                   height: size.height,
@@ -149,12 +138,14 @@ class HomePage extends StatelessWidget {
                                               showDialog(
                                                   context: context,
                                                   builder: (context) {
-                                                    return const DialogLoading();
+                                                    return const DialogLoading(
+                                                      message: 'Cargando información del usuario...',
+                                                    );
                                                   });
 
                                               // Esperar 3 segundos antes de continuar
                                               Future.delayed(
-                                                  const Duration(seconds: 1),
+                                                  const Duration(milliseconds: 300),
                                                   () {
                                                 Navigator.pop(context);
                                                 Navigator.pushNamed(
@@ -279,13 +270,16 @@ class HomePage extends StatelessWidget {
                                                   showDialog(
                                                       context: context,
                                                       builder: (context) {
-                                                        return const DialogLoading();
+                                                        return const DialogLoading(
+                                                            message:
+                                                                'Cargando batchs...'
+                                                        );
                                                       });
 
                                                   // Esperar 3 segundos antes de continuar
                                                   Future.delayed(
                                                       const Duration(
-                                                          seconds: 1), () {
+                                                          milliseconds: 300), () {
                                                     Navigator.pop(context);
                                                     Navigator.pushNamed(
                                                         context, 'wms-picking',
@@ -343,13 +337,15 @@ class HomePage extends StatelessWidget {
                                                   showDialog(
                                                       context: context,
                                                       builder: (context) {
-                                                        return const DialogLoading();
+                                                        return const DialogLoading(
+                                                          message: 'Cargando batchs...',
+                                                        );
                                                       });
 
                                                   // Esperar 3 segundos antes de continuar
                                                   Future.delayed(
                                                       const Duration(
-                                                          seconds: 1), () {
+                                                          milliseconds: 300), () {
                                                     Navigator.pop(context);
                                                     Navigator.pushNamed(
                                                         context, 'wms-picking',
@@ -439,13 +435,15 @@ class HomePage extends StatelessWidget {
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
-                                                      return const DialogLoading();
+                                                      return const DialogLoading(
+                                                          message:
+                                                              'Cargando batchs...');
                                                     });
 
                                                 // Esperar 3 segundos antes de continuar
                                                 Future.delayed(
-                                                    const Duration(milliseconds: 300),
-                                                    () {
+                                                    const Duration(
+                                                        milliseconds: 300), () {
                                                   Navigator.pop(context);
                                                   Navigator.pushNamed(
                                                       context, 'wms-picking',
@@ -484,7 +482,10 @@ class HomePage extends StatelessWidget {
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
-                                                      return const DialogLoading();
+                                                      return const DialogLoading(
+                                                          message:
+                                                              'Cargando packing...'
+                                                      );
                                                     });
 
                                                 // Esperar 3 segundos antes de continuar

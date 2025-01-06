@@ -683,8 +683,8 @@ class BatchDetailScreen extends StatelessWidget {
                                                     width: size.width * 0.7,
                                                     child: Text(
                                                         productsBatch
-                                                                .locationDestId
-                                                                .toString(),
+                                                            .locationDestId
+                                                            .toString(),
                                                         style: TextStyle(
                                                             fontSize: 12,
                                                             color:
@@ -695,17 +695,16 @@ class BatchDetailScreen extends StatelessWidget {
                                             ),
                                             ExpiryDateWidget(
                                               expireDate: productsBatch
-                                                              .expireDate ==
-                                                          null ||
-                                                      productsBatch
-                                                              .expireDate ==
-                                                          '0'
+                                                          .expireDate ==
+                                                      ""
                                                   ? DateTime.now()
-                                                  : DateTime.parse(productsBatch
-                                                          .expireDate ??
-                                                      ''),
+                                                  : DateTime.parse(
+                                                      productsBatch.expireDate),
                                               size: size,
                                               isDetaild: true,
+                                              isNoExpireDate: productsBatch
+                                                          .expireDate ==
+                                                      "" ? true: false
                                             ),
                                             Padding(
                                               padding:
@@ -728,7 +727,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                     width: size.width * 0.55,
                                                     child: Text(
                                                         productsBatch.lotId
-                                                                .toString() ,
+                                                            .toString(),
                                                         style: TextStyle(
                                                             fontSize: 12,
                                                             color:
@@ -865,8 +864,8 @@ class BatchDetailScreen extends StatelessWidget {
                                                             width: 5),
                                                         Text(
                                                             productsBatch
-                                                                    .quantity
-                                                                    .toString() ,
+                                                                .quantity
+                                                                .toString(),
                                                             style: TextStyle(
                                                                 fontSize: 12,
                                                                 color:
@@ -892,8 +891,8 @@ class BatchDetailScreen extends StatelessWidget {
                                                                     null
                                                                 ? "0"
                                                                 : productsBatch
-                                                                        .quantitySeparate
-                                                                        .toString() ,
+                                                                    .quantitySeparate
+                                                                    .toString(),
                                                             style: TextStyle(
                                                                 fontSize: 12,
                                                                 color:

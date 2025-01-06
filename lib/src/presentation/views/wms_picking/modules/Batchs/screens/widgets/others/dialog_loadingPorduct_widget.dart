@@ -8,14 +8,14 @@ import 'package:flutter/material.dart';
 import '../../../../../../../../utils/constans/colors.dart';
 
 class DialogLoading extends StatelessWidget {
-  const DialogLoading({
-    super.key,
+   const DialogLoading({
+    super.key,  this.message = 'Pasando al siguiente producto...'
+
   });
 
+   final String message ;
   @override
   Widget build(BuildContext context) {
-    // context.read<BatchBloc>().add(FetchBatchWithProductsEvent(
-    //     context.read<BatchBloc>().batchWithProducts.batch?.id ?? 0));
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: AlertDialog(
@@ -41,21 +41,11 @@ class DialogLoading extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            const Text('Pasando al siguiente producto...',
-                style: TextStyle(color: grey, fontSize: 14)),
+             Text(message,
+                style: const TextStyle(color: grey, fontSize: 14)),
           ],
         )),
-        // content: Column(
-        //   mainAxisSize: MainAxisSize.min,
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: [
-        //     Center(
-        //       child: CircularProgressIndicator(
-        //         color: primaryColorApp,
-        //       ),
-        //     ),
-        //   ],
-        // ),
+       
       ),
     );
   }
