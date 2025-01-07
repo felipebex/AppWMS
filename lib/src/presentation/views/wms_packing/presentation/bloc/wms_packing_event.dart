@@ -4,7 +4,7 @@ part of 'wms_packing_bloc.dart';
 sealed class WmsPackingEvent {}
 
 class LoadAllPackingEvent extends WmsPackingEvent {
-  final  BuildContext context;
+  final BuildContext context;
   final bool isLoadinDialog;
   LoadAllPackingEvent(this.isLoadinDialog, this.context);
 }
@@ -41,7 +41,6 @@ class SearchBatchPackingEvent extends WmsPackingEvent {
   SearchBatchPackingEvent(this.query, this.indexMenu);
 }
 
-
 class ValidateFieldsPackingEvent extends WmsPackingEvent {
   final String field;
   final bool isOk;
@@ -53,7 +52,8 @@ class ChangeQuantitySeparate extends WmsPackingEvent {
   final int productId;
   final int pedidoId;
   final int idMove;
-  ChangeQuantitySeparate(this.quantity, this.productId, this.pedidoId, this.idMove);
+  ChangeQuantitySeparate(
+      this.quantity, this.productId, this.pedidoId, this.idMove);
 }
 
 //
@@ -64,7 +64,7 @@ class ChangeLocationIsOkEvent extends WmsPackingEvent {
   final int productId;
   final int pedidoId;
   final int idMove;
-  ChangeLocationIsOkEvent( this.productId, this.pedidoId, this.idMove);
+  ChangeLocationIsOkEvent(this.productId, this.pedidoId, this.idMove);
 }
 
 class ChangeLocationDestIsOkEvent extends WmsPackingEvent {
@@ -78,8 +78,8 @@ class ChangeProductIsOkEvent extends WmsPackingEvent {
   final int pedidoId;
   final int quantity;
   final int idMove;
-  ChangeProductIsOkEvent(
-      this.productIsOk, this.productId, this.pedidoId, this.quantity, this.idMove);
+  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.pedidoId,
+      this.quantity, this.idMove);
 }
 
 class ChangeIsOkQuantity extends WmsPackingEvent {
@@ -95,7 +95,8 @@ class AddQuantitySeparate extends WmsPackingEvent {
   final int idMove;
   final int quantity;
   final int pedidoId;
-  AddQuantitySeparate(this.quantity, this.idMove, this.productId, this.pedidoId);
+  AddQuantitySeparate(
+      this.quantity, this.idMove, this.productId, this.pedidoId);
 }
 
 class SetPickingsEvent extends WmsPackingEvent {
@@ -106,24 +107,20 @@ class SetPickingsEvent extends WmsPackingEvent {
   SetPickingsEvent(this.productId, this.pedidoId, this.idMove);
 }
 
-
 class SetPackingsEvent extends WmsPackingEvent {
   final List<PorductoPedido> productos;
   final bool isSticker;
   final bool isCertificate;
   final BuildContext context;
 
-  SetPackingsEvent( this.productos, this.isSticker, this.isCertificate, this.context);
-
-
+  SetPackingsEvent(
+      this.productos, this.isSticker, this.isCertificate, this.context);
 }
-
 
 class ChangeStickerEvent extends WmsPackingEvent {
   final bool isSticker;
   ChangeStickerEvent(this.isSticker);
 }
-
 
 class FilterBatchPackingStatusEvent extends WmsPackingEvent {
   final String status;
@@ -134,15 +131,15 @@ class FilterBatchPackingStatusEvent extends WmsPackingEvent {
 class SearchProductPackingEvent extends WmsPackingEvent {
   final String query;
 
-  SearchProductPackingEvent(this.query, );
+  SearchProductPackingEvent(
+    this.query,
+  );
 }
-
-
 
 class ShowKeyboardEvent extends WmsPackingEvent {
   final bool showKeyboard;
 
-  ShowKeyboardEvent( this.showKeyboard);
+  ShowKeyboardEvent(this.showKeyboard);
 }
 
 class SelectProductPackingEvent extends WmsPackingEvent {
@@ -155,4 +152,4 @@ class UnSelectProductPackingEvent extends WmsPackingEvent {
   UnSelectProductPackingEvent(this.producto);
 }
 
-
+class LoadAllNovedadesPackingEvent extends WmsPackingEvent {}

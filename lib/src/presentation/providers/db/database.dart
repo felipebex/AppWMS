@@ -762,7 +762,7 @@ class DataBaseSqlite {
                 "pedido_id": producto.pedidoId,
                 "id_product": producto.idProduct,
                 "lote_id": producto.loteId,
-                "lot_id": producto.lotId == "" ? "" : producto.lotId?[1],
+                "lot_id": producto.lotId == [] ? "" : producto.lotId?[1],
                 "location_id": producto.locationId?[1],
                 "id_location": producto.locationId?[0],
                 "id_move": producto.idMove,
@@ -811,7 +811,7 @@ class DataBaseSqlite {
                     ""
                     : producto.barcodeLocation,
                 "lote_id": producto.loteId,
-                "lot_id": producto.lotId == "" ? "" : producto.lotId?[1],
+                "lot_id": producto.lotId == [] ? "" : producto.lotId?[1],
                 "location_id": producto.locationId?[1],
                 "id_location": producto.locationId?[0],
                 "location_dest_id": producto.locationDestId?[1],

@@ -75,3 +75,9 @@ class WmsPackingErrorState extends WmsPackingState {
   final String message;
   WmsPackingErrorState(this.message);
 }
+
+
+class NovedadesPackingLoadedState  extends WmsPackingState {
+  final List<Novedad> listOfNovedades;
+  NovedadesPackingLoadedState({required this.listOfNovedades});
+}

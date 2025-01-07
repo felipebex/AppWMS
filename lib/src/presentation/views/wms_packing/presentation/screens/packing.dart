@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -1252,13 +1253,23 @@ class _PackingScreenState extends State<PackingScreen> {
     );
   }
 
-  void _finichPackingProduct(BuildContext context) {
+  void _finichPackingProduct(BuildContext context) async {
+    final DataBaseSqlite db = DataBaseSqlite();
     //marcamos el producto como terminado
     final batchBloc = context.read<WmsPackingBloc>();
     batchBloc.add(SetPickingsEvent(
         batchBloc.currentProduct.idProduct ?? 0,
         batchBloc.currentProduct.pedidoId ?? 0,
         batchBloc.currentProduct.idMove ?? 0));
+
+    // actualizamos el estado del producto como certificado
+    await db.setFieldTableProductosPedidos(
+        batchBloc.currentProduct.pedidoId ?? 0,
+        batchBloc.currentProduct.idProduct ?? 0,
+        "is_certificate",
+        "true",
+        batchBloc.currentProduct.idMove ?? 0);
+   
 
     //cerramos el dialogo de carga
     batchBloc.add(

@@ -3,8 +3,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogPackingAdvetenciaCantidadScreen extends StatefulWidget {
@@ -29,18 +32,6 @@ class DialogPackingAdvetenciaCantidadScreen extends StatefulWidget {
 class _DialogAdvetenciaCantidadScreenState
     extends State<DialogPackingAdvetenciaCantidadScreen> {
   String? selectedNovedad; // Variable para almacenar la opción seleccionada
-  //*lista de novedades de separacion
-  List<String> novedades = [
-    'Producto dañado',
-    'Producto vencido',
-    'Producto en mal estado',
-    'Producto no corresponde',
-    'Producto no solicitado',
-    'Producto no encontrado',
-    'Producto no existe',
-    'Producto no registrado',
-    'Producto sin existencia',
-  ]; // Ejemplo de opciones
 
   @override
   Widget build(BuildContext context) {
@@ -102,8 +93,11 @@ class _DialogAdvetenciaCantidadScreenState
                 child: DropdownButton<String>(
                   underline: Container(height: 0),
                   selectedItemBuilder: (BuildContext context) {
-                    return novedades.map<Widget>((String item) {
-                      return Text(item);
+                    return context
+                        .read<WmsPackingBloc>()
+                        .novedades
+                        .map<Widget>((Novedad item) {
+                      return Text(item.name ?? '');
                     }).toList();
                   },
                   borderRadius: BorderRadius.circular(10),
@@ -113,7 +107,7 @@ class _DialogAdvetenciaCantidadScreenState
                   hint: const Text(
                     'Seleccionar novedad',
                     style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         color: black), // Cambia primaryColorApp a tu color
                   ),
                   icon: Image.asset(
@@ -125,11 +119,14 @@ class _DialogAdvetenciaCantidadScreenState
                   alignment: Alignment.centerLeft,
                   style: const TextStyle(
                       color: black,
-                      fontSize: 16), // Cambia primaryColorApp a tu color
-                  items: novedades.map((String novedad) {
+                      fontSize: 14), // Cambia primaryColorApp a tu color
+                  items: context
+                      .read<WmsPackingBloc>()
+                      .novedades
+                      .map((Novedad item) {
                     return DropdownMenuItem<String>(
-                      value: novedad,
-                      child: Text(novedad),
+                      value: item.name,
+                      child: Text(item.name ?? ''),
                     );
                   }).toList(),
                   onChanged: (String? newValue) {

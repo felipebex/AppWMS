@@ -2,6 +2,7 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
@@ -80,6 +81,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   //*batch con productos
   BatchWithProducts batchWithProducts = BatchWithProducts();
 
+  //*lista de novedades
+  List<Novedad> novedades = [];
+
   WmsPackingBloc() : super(WmsPackingInitial()) {
     //*obtener todos los batchs para packing de odoo
     on<LoadAllPackingEvent>(_onLoadAllPackingEvent);
@@ -134,6 +138,24 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<SelectProductPackingEvent>(_onSelectProductPackingEvent);
     //*evento para desseleccionar productos sin certificar
     on<UnSelectProductPackingEvent>(_onUnSelectProductPackingEvent);
+    //*evento para obtener las novedades
+    on<LoadAllNovedadesPackingEvent>(_onLoadAllNovedadesEvent);
+    add(LoadAllNovedadesPackingEvent());
+  }
+
+  void _onLoadAllNovedadesEvent(
+      LoadAllNovedadesPackingEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      final response = await db.getAllNovedades();
+      novedades.clear();
+      if (response != null) {
+        novedades = response;
+        print("novedades: ${novedades.length}");
+      }
+    } catch (e, s) {
+      print("Error en __onLoadAllNovedadesEvent: $e, $s");
+    }
+    emit(NovedadesPackingLoadedState(listOfNovedades: novedades));
   }
 
   //*metodo para seleccionar un producto sin certificar
@@ -304,10 +326,11 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                       .toString(), // Suponiendo que `loteId` es el lote del producto
                   locationId:
                       producto.idLocation, // Asegúrate de tener este campo
-                  cantidadSeparada: producto.quantity ??
-                      0, // La cantidad separada del producto
+                  cantidadSeparada: event.isCertificate
+                      ? producto.quantitySeparate ?? 0
+                      : producto.quantity ?? 0, // Cantidad a empaquetar
                   observacion: producto.observation ??
-                      '', // Observación del producto (si existe)
+                      'Sin novedad', // Observación del producto (si existe)
                   unidadMedida: producto.unidades ??
                       '', // La unidad de medida del producto
                   idOperario: idOperario);
@@ -359,15 +382,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                     product.idMove ?? 0);
 
                 //actualizamos el estado del producto como no certificado
-                if (event.isCertificate) {
-                  // actualizamos el estado del producto como certificado
-                  await db.setFieldTableProductosPedidos(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "is_certificate",
-                      "true",
-                      product.idMove ?? 0);
-                } else {
+                if (!event.isCertificate) {
                   await db.setFieldTableProductosPedidos(
                       product.pedidoId ?? 0,
                       product.idProduct ?? 0,

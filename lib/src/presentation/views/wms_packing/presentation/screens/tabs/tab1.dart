@@ -114,13 +114,11 @@ class Tab1Screen extends StatelessWidget {
                             onPressed: () async {
                               await DataBaseSqlite()
                                   .setFieldTablePedidosPacking(
-                                      packingModel?.batchId ?? 0,
-                                      packingModel?.id ?? 0,
-                                      "is_terminate",
-                                      "true",
-                                      
-                                      
-                                      );
+                                packingModel?.batchId ?? 0,
+                                packingModel?.id ?? 0,
+                                "is_terminate",
+                                "true",
+                              );
 
                               context
                                   .read<WmsPackingBloc>()
@@ -381,10 +379,12 @@ class Tab1Screen extends StatelessWidget {
                                       itemBuilder: (context, index) {
                                         final product = filteredProducts[index];
                                         return Card(
-                                          color: product.quantity ==
-                                                  product.quantitySeparate
+                                          color: product.isCertificate == 0
                                               ? white
-                                              : Colors.amber[100],
+                                              : product.quantity ==
+                                                      product.quantitySeparate
+                                                  ? white
+                                                  : Colors.amber[100],
                                           elevation: 2,
                                           child: ListTile(
                                             title: Text(product.productId ?? "",
@@ -452,7 +452,7 @@ class Tab1Screen extends StatelessWidget {
 
                                                             TextSpan(
                                                               text:
-                                                                  "no certificado", // La cantidad en color rojo
+                                                                  "No certificado", // La cantidad en color rojo
                                                               style: TextStyle(
                                                                   color: Colors
                                                                       .red,
@@ -462,6 +462,30 @@ class Tab1Screen extends StatelessWidget {
                                                           ],
                                                         ),
                                                       ),
+                                                    const SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                    //icono de check
+
+                                                    Visibility(
+                                                      visible: product
+                                                              .isCertificate ==
+                                                          0,
+                                                      child: const Icon(
+                                                          Icons.warning,
+                                                          color: Colors.amber,
+                                                          size: 15),
+                                                    ),
+                                                    //icono de check
+                                                    Visibility(
+                                                      visible: product
+                                                              .isCertificate ==
+                                                          1,
+                                                      child: const Icon(
+                                                          Icons.check,
+                                                          color: green,
+                                                          size: 15),
+                                                    ),
                                                     const Spacer(),
                                                     RichText(
                                                       text: TextSpan(
@@ -554,67 +578,46 @@ class Tab1Screen extends StatelessWidget {
                                                   ],
                                                 ),
                                                 Visibility(
-                                                  visible: product.quantitySeparate !=
-                                                      product.quantity,
-                                                  child: Row(
-                                                    children: [
-                                                      RichText(
-                                                        text: TextSpan(
-                                                          style: const TextStyle(
-                                                            fontSize:
-                                                                14, // Tamaño del texto
-                                                            color: Colors
-                                                                .black, // Color del texto por defecto (puedes cambiarlo aquí)
-                                                          ),
-                                                          children: <TextSpan>[
-                                                            const TextSpan(
+                                                  visible: product.quantity !=
+                                                      product.quantitySeparate,
+                                                  child: Visibility(
+                                                    visible:
+                                                        product.isCertificate ==
+                                                            1,
+                                                    child: Row(
+                                                      children: [
+                                                        RichText(
+                                                          text: TextSpan(
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize:
+                                                                  14, // Tamaño del texto
+                                                              color: Colors
+                                                                  .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                            ),
+                                                            children: <TextSpan>[
+                                                              const TextSpan(
+                                                                  text:
+                                                                      "Novedad: ",
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          black)), // Parte del texto en color negro (o el color que prefieras)
+                                                              TextSpan(
                                                                 text:
-                                                                    "Novedad: ",
+                                                                    "${product.observation}", // La cantidad en color rojo
                                                                 style: TextStyle(
-                                                                    fontSize: 12,
                                                                     color:
-                                                                        black)), // Parte del texto en color negro (o el color que prefieras)
-                                                            TextSpan(
-                                                              text:
-                                                                  "${product.observation}", // La cantidad en color rojo
-                                                              style: TextStyle(
-                                                                  color:
-                                                                      primaryColorApp,
-                                                                  fontSize:
-                                                                      12), // Estilo solo para la cantidad
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      const Spacer(),
-                                                      RichText(
-                                                        text: TextSpan(
-                                                          style: const TextStyle(
-                                                            fontSize:
-                                                                14, // Tamaño del texto
-                                                            color: Colors
-                                                                .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                                        primaryColorApp,
+                                                                    fontSize:
+                                                                        12), // Estilo solo para la cantidad
+                                                              ),
+                                                            ],
                                                           ),
-                                                          children: <TextSpan>[
-                                                            const TextSpan(
-                                                                text: "Peso: ",
-                                                                style: TextStyle(
-                                                                    fontSize: 12,
-                                                                    color:
-                                                                        black)), // Parte del texto en color negro (o el color que prefieras)
-                                                            TextSpan(
-                                                              text:
-                                                                  "${product.weight}", // La cantidad en color rojo
-                                                              style: TextStyle(
-                                                                  color:
-                                                                      primaryColorApp,
-                                                                  fontSize:
-                                                                      12), // Estilo solo para la cantidad
-                                                            ),
-                                                          ],
                                                         ),
-                                                      ),
-                                                    ],
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               ],
