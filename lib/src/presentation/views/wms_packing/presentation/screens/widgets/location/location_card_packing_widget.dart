@@ -93,7 +93,7 @@ class LocationPackingDropdownWidget extends StatelessWidget {
                               field: "location", isOk: true));
 
                           batchBloc.add(ChangeLocationIsOkEvent(
-                              currentProduct.productId ?? 0,
+                              currentProduct.idProduct ?? 0,
                               currentProduct.pedidoId ?? 0,
                               currentProduct.idMove ?? 0));
 

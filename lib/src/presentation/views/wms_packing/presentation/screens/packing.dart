@@ -121,7 +121,7 @@ class _PackingScreenState extends State<PackingScreen> {
     if (scannedValue1.toLowerCase() ==
         currentProduct.barcodeLocation.toString().toLowerCase()) {
       batchBloc.add(ValidateFieldsPackingEvent(field: "location", isOk: true));
-      batchBloc.add(ChangeLocationIsOkEvent(currentProduct.productId ?? 0,
+      batchBloc.add(ChangeLocationIsOkEvent(currentProduct.idProduct ?? 0,
           currentProduct.pedidoId ?? 0, currentProduct.idMove ?? 0));
     } else {
       batchBloc.add(ValidateFieldsPackingEvent(field: "location", isOk: false));
@@ -148,11 +148,11 @@ class _PackingScreenState extends State<PackingScreen> {
     if (scannedValue2.toLowerCase() == currentProduct.barcode?.toLowerCase()) {
       batchBloc.add(ValidateFieldsPackingEvent(field: "product", isOk: true));
 
-      batchBloc.add(ChangeQuantitySeparate(0, currentProduct.productId ?? 0,
+      batchBloc.add(ChangeQuantitySeparate(0, currentProduct.idProduct ?? 0,
           currentProduct.pedidoId ?? 0, currentProduct.idMove ?? 0));
-      batchBloc.add(ChangeProductIsOkEvent(true, currentProduct.productId ?? 0,
+      batchBloc.add(ChangeProductIsOkEvent(true, currentProduct.idProduct ?? 0,
           currentProduct.pedidoId ?? 0, 0, currentProduct.idMove ?? 0));
-      batchBloc.add(ChangeIsOkQuantity(true, currentProduct.productId ?? 0,
+      batchBloc.add(ChangeIsOkQuantity(true, currentProduct.idProduct ?? 0,
           currentProduct.pedidoId ?? 0, currentProduct.idMove ?? 0));
     } else {
       final isok = validateScannedBarcode(scannedValue2.toLowerCase(),
@@ -183,7 +183,7 @@ class _PackingScreenState extends State<PackingScreen> {
     if (scannedValue3.toLowerCase() == currentProduct.barcode?.toLowerCase()) {
       batchBloc.add(ValidateFieldsPackingEvent(field: "quantity", isOk: true));
       batchBloc.add(AddQuantitySeparate(1, currentProduct.idMove ?? 0,
-          currentProduct.productId ?? 0, currentProduct.pedidoId ?? 0));
+          currentProduct.idProduct ?? 0, currentProduct.pedidoId ?? 0));
       setState(() {
         scannedValue3 = ""; //limpiamos el valor escaneado
       });
@@ -211,17 +211,17 @@ class _PackingScreenState extends State<PackingScreen> {
       if (isProduct) {
         batchBloc.add(ValidateFieldsPackingEvent(field: "product", isOk: true));
 
-        batchBloc.add(ChangeQuantitySeparate(0, currentProduct.productId ?? 0,
+        batchBloc.add(ChangeQuantitySeparate(0, currentProduct.idProduct ?? 0,
             currentProduct.pedidoId ?? 0, currentProduct.idMove ?? 0));
 
         batchBloc.add(ChangeProductIsOkEvent(
             true,
-            currentProduct.productId ?? 0,
+            currentProduct.idProduct ?? 0,
             currentProduct.pedidoId ?? 0,
             0,
             currentProduct.idMove ?? 0));
 
-        batchBloc.add(ChangeIsOkQuantity(true, currentProduct.productId ?? 0,
+        batchBloc.add(ChangeIsOkQuantity(true, currentProduct.idProduct ?? 0,
             currentProduct.pedidoId ?? 0, currentProduct.idMove ?? 0));
 
         return true;
@@ -240,7 +240,7 @@ class _PackingScreenState extends State<PackingScreen> {
         batchBloc.add(AddQuantitySeparate(
             matchedBarcode.cantidad.toInt(),
             currentProduct.idMove ?? 0,
-            currentProduct.productId ?? 0,
+            currentProduct.idProduct ?? 0,
             currentProduct.pedidoId ?? 0));
       }
       return false;
@@ -534,7 +534,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       packinghBloc
                                                           .listOfProductsName,
                                                   currentProductId: packinghBloc
-                                                      .currentProduct.productId
+                                                      .currentProduct.idProduct
                                                       .toString(),
                                                   batchBloc: packinghBloc,
                                                   currentProduct: packinghBloc
@@ -698,7 +698,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       currentProductId:
                                                           packinghBloc
                                                               .currentProduct
-                                                              .productId
+                                                              .idProduct
                                                               .toString(),
                                                       batchBloc: packinghBloc,
                                                       currentProduct:
@@ -718,7 +718,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                           Text(
                                                             packinghBloc
                                                                 .currentProduct
-                                                                .idProduct
+                                                                .productId
                                                                 .toString(),
                                                             style:
                                                                 const TextStyle(
@@ -1073,7 +1073,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                               .add(ChangeQuantitySeparate(
                                             int.parse(value),
                                             packinghBloc
-                                                    .currentProduct.productId ??
+                                                    .currentProduct.idProduct ??
                                                 0,
                                             packinghBloc
                                                     .currentProduct.pedidoId ??
@@ -1085,7 +1085,7 @@ class _PackingScreenState extends State<PackingScreen> {
 
                                           packinghBloc.add(SetPickingsEvent(
                                             packinghBloc
-                                                    .currentProduct.productId ??
+                                                    .currentProduct.idProduct ??
                                                 0,
                                             packinghBloc
                                                     .currentProduct.pedidoId ??
@@ -1137,7 +1137,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                         int.parse(value),
                                                         packinghBloc
                                                                 .currentProduct
-                                                                .productId ??
+                                                                .idProduct ??
                                                             0,
                                                         packinghBloc
                                                                 .currentProduct
@@ -1153,7 +1153,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                           .add(SetPickingsEvent(
                                                         packinghBloc
                                                                 .currentProduct
-                                                                .productId ??
+                                                                .idProduct ??
                                                             0,
                                                         packinghBloc
                                                                 .currentProduct
@@ -1256,7 +1256,7 @@ class _PackingScreenState extends State<PackingScreen> {
     //marcamos el producto como terminado
     final batchBloc = context.read<WmsPackingBloc>();
     batchBloc.add(SetPickingsEvent(
-        batchBloc.currentProduct.productId ?? 0,
+        batchBloc.currentProduct.idProduct ?? 0,
         batchBloc.currentProduct.pedidoId ?? 0,
         batchBloc.currentProduct.idMove ?? 0));
 
@@ -1277,7 +1277,7 @@ class _PackingScreenState extends State<PackingScreen> {
     if (cantidad == currentProduct.quantity) {
       batchBloc.add(ChangeQuantitySeparate(
           cantidad,
-          currentProduct.productId ?? 0,
+          currentProduct.idProduct ?? 0,
           currentProduct.pedidoId ?? 0,
           currentProduct.idMove ?? 0));
     } else {
@@ -1292,7 +1292,7 @@ class _PackingScreenState extends State<PackingScreen> {
                   onAccepted: () async {
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
-                        currentProduct.productId ?? 0,
+                        currentProduct.idProduct ?? 0,
                         currentProduct.pedidoId ?? 0,
                         currentProduct.idMove ?? 0));
                     cantidadController.clear();

@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 class ResponseSendPacking {
-    final DataResponsePacking? data;
+    final String? jsonrpc;
+    final dynamic id;
+    final ResponseSendPackingResult? result;
 
     ResponseSendPacking({
-        this.data,
+        this.jsonrpc,
+        this.id,
+        this.result,
     });
 
     factory ResponseSendPacking.fromJson(String str) => ResponseSendPacking.fromMap(json.decode(str));
@@ -12,30 +16,34 @@ class ResponseSendPacking {
     String toJson() => json.encode(toMap());
 
     factory ResponseSendPacking.fromMap(Map<String, dynamic> json) => ResponseSendPacking(
-        data: json["data"] == null ? null : DataResponsePacking.fromMap(json["data"]),
+        jsonrpc: json["jsonrpc"],
+        id: json["id"],
+        result: json["result"] == null ? null : ResponseSendPackingResult.fromMap(json["result"]),
     );
 
     Map<String, dynamic> toMap() => {
-        "data": data?.toMap(),
+        "jsonrpc": jsonrpc,
+        "id": id,
+        "result": result?.toMap(),
     };
 }
 
-class DataResponsePacking {
+class ResponseSendPackingResult {
     final int? code;
-    final List<ResultPacking>? result;
+    final List<ResultElement>? result;
 
-    DataResponsePacking({
+    ResponseSendPackingResult({
         this.code,
         this.result,
     });
 
-    factory DataResponsePacking.fromJson(String str) => DataResponsePacking.fromMap(json.decode(str));
+    factory ResponseSendPackingResult.fromJson(String str) => ResponseSendPackingResult.fromMap(json.decode(str));
 
     String toJson() => json.encode(toMap());
 
-    factory DataResponsePacking.fromMap(Map<String, dynamic> json) => DataResponsePacking(
+    factory ResponseSendPackingResult.fromMap(Map<String, dynamic> json) => ResponseSendPackingResult(
         code: json["code"],
-        result: json["result"] == null ? [] : List<ResultPacking>.from(json["result"]!.map((x) => ResultPacking.fromMap(x))),
+        result: json["result"] == null ? [] : List<ResultElement>.from(json["result"]!.map((x) => ResultElement.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
@@ -44,35 +52,38 @@ class DataResponsePacking {
     };
 }
 
-class ResultPacking {
+class ResultElement {
     final int? idPaquete;
     final String? namePaquete;
     final int? idBatch;
     final int? cantidadProductosEnElPaquete;
-    final bool? isStickrer;
+    final bool? isSticker;
+    final bool? isCertificate;
     final dynamic? peso;
     final List<ListItem>? listItem;
 
-    ResultPacking({
+    ResultElement({
         this.idPaquete,
         this.namePaquete,
         this.idBatch,
         this.cantidadProductosEnElPaquete,
-        this.isStickrer,
+        this.isSticker,
+        this.isCertificate,
         this.peso,
         this.listItem,
     });
 
-    factory ResultPacking.fromJson(String str) => ResultPacking.fromMap(json.decode(str));
+    factory ResultElement.fromJson(String str) => ResultElement.fromMap(json.decode(str));
 
     String toJson() => json.encode(toMap());
 
-    factory ResultPacking.fromMap(Map<String, dynamic> json) => ResultPacking(
+    factory ResultElement.fromMap(Map<String, dynamic> json) => ResultElement(
         idPaquete: json["id_paquete"],
         namePaquete: json["name_paquete"],
         idBatch: json["id_batch"],
         cantidadProductosEnElPaquete: json["cantidad_productos_en_el_paquete"],
-        isStickrer: json["is_stickrer"],
+        isSticker: json["is_sticker"],
+        isCertificate: json["is_certificate"],
         peso: json["peso"],
         listItem: json["list_item"] == null ? [] : List<ListItem>.from(json["list_item"]!.map((x) => ListItem.fromMap(x))),
     );
@@ -82,7 +93,8 @@ class ResultPacking {
         "name_paquete": namePaquete,
         "id_batch": idBatch,
         "cantidad_productos_en_el_paquete": cantidadProductosEnElPaquete,
-        "is_stickrer": isStickrer,
+        "is_sticker": isSticker,
+        "is_certificate": isCertificate,
         "peso": peso,
         "list_item": listItem == null ? [] : List<dynamic>.from(listItem!.map((x) => x.toMap())),
     };
@@ -93,9 +105,10 @@ class ListItem {
     final int? productId;
     final String? lote;
     final int? locationId;
-    final dynamic? cantidadSeparada;
-    final String? unidadMedida;
+    final int? cantidadSeparada;
     final String? observacion;
+    final String? unidadMedida;
+    final int? idOperario;
 
     ListItem({
         this.idMove,
@@ -103,8 +116,9 @@ class ListItem {
         this.lote,
         this.locationId,
         this.cantidadSeparada,
-        this.unidadMedida,
         this.observacion,
+        this.unidadMedida,
+        this.idOperario,
     });
 
     factory ListItem.fromJson(String str) => ListItem.fromMap(json.decode(str));
@@ -117,8 +131,9 @@ class ListItem {
         lote: json["lote"],
         locationId: json["location_id"],
         cantidadSeparada: json["cantidad_separada"],
-        unidadMedida: json["unidad_medida"],
         observacion: json["observacion"],
+        unidadMedida: json["unidad_medida"],
+        idOperario: json["id_operario"],
     );
 
     Map<String, dynamic> toMap() => {
@@ -127,7 +142,8 @@ class ListItem {
         "lote": lote,
         "location_id": locationId,
         "cantidad_separada": cantidadSeparada,
-        "unidad_medida": unidadMedida,
         "observacion": observacion,
+        "unidad_medida": unidadMedida,
+        "id_operario": idOperario,
     };
 }

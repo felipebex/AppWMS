@@ -146,7 +146,7 @@ class Tab3Screen extends StatelessWidget {
                                                         maxLines: 2,
                                                         overflow: TextOverflow
                                                             .ellipsis,
-                                                        " ${product.idProduct}",
+                                                        " ${product.productId}",
                                                         style: const TextStyle(
                                                             fontSize: 14,
                                                             color: black))),
@@ -157,7 +157,9 @@ class Tab3Screen extends StatelessWidget {
 
                                         Card(
                                           elevation: 3,
-                                          color: Colors.white,
+                                          color: product.quantity == product.quantitySeparate
+                                              ? white
+                                              : Colors.amber[100],
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Column(
@@ -249,7 +251,7 @@ class Tab3Screen extends StatelessWidget {
                                                   color: primaryColorApp,
                                                 ),
                                               ),
-                                              Text("${product.tracking}",
+                                              Text("${product.tracking} / ${product.lotId}",
                                                   style: const TextStyle(
                                                       fontSize: 14,
                                                       color: black)),

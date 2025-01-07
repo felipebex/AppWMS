@@ -154,7 +154,7 @@ class PedidoPacking {
   final DateTime? fecha;
   final int? isSelected;
   final int? isPacking;
-  final dynamic? contacto;
+  final dynamic contacto;
   final String? tipoOperacion;
   final String? contactoName;
   final int? isTerminate;

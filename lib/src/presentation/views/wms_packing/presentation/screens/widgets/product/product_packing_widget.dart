@@ -59,7 +59,7 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                   ),
                   width: MediaQuery.of(context).size.width * 0.9,
                   child: Text(
-                    product.idProduct.toString(),
+                    product.productId.toString(),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -88,20 +88,20 @@ class ProductDropdownPackingWidget extends StatelessWidget {
 
                           batchBloc.add(ChangeQuantitySeparate(
                               0,
-                              currentProduct.productId ?? 0,
+                              currentProduct.idProduct ?? 0,
                               currentProduct.pedidoId ?? 0,
                               currentProduct.idMove ?? 0));
 
                           batchBloc.add(ChangeProductIsOkEvent(
                               true,
-                              currentProduct.productId ?? 0,
+                              currentProduct.idProduct ?? 0,
                               currentProduct.pedidoId ?? 0,
                               0,
                               currentProduct.idMove ?? 0));
 
                           batchBloc.add(ChangeIsOkQuantity(
                               true,
-                              currentProduct.productId ?? 0,
+                              currentProduct.idProduct ?? 0,
                              currentProduct.pedidoId ?? 0,
                               currentProduct.idMove ?? 0));
                         } else {

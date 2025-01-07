@@ -28,12 +28,12 @@ class Tab2Screen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton: context.read<WmsPackingBloc>().isKeyboardVisible ||
+          floatingActionButton: context
+                      .read<WmsPackingBloc>()
+                      .isKeyboardVisible ||
                   context.read<WmsPackingBloc>().listOfProductosProgress.isEmpty
               ? null
-              :
-
-              Stack(
+              : Stack(
                   children: [
                     // El FloatingActionButton
                     Positioned(
@@ -168,27 +168,26 @@ class Tab2Screen extends StatelessWidget {
                           .listOfProductosProgress
                           .isEmpty)
                       ? Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            const Text('No hay productos',
-                                style:
-                                    TextStyle(fontSize: 14, color: grey)),
-                            const Text('Intente buscar otro producto',
-                                style: TextStyle(fontSize: 12, color: grey)),
-                            Visibility(
-                              visible: context
-                                  .read<UserBloc>()
-                                  .fabricante
-                                  .contains("Zebra"),
-                              child: Container(
-                                height: 60,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const Text('No hay productos',
+                                  style: TextStyle(fontSize: 14, color: grey)),
+                              const Text('Intente buscar otro producto',
+                                  style: TextStyle(fontSize: 12, color: grey)),
+                              Visibility(
+                                visible: context
+                                    .read<UserBloc>()
+                                    .fabricante
+                                    .contains("Zebra"),
+                                child: Container(
+                                  height: 60,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      )
+                            ],
+                          ),
+                        )
                       : Expanded(
                           child: ListView.builder(
                             itemCount: context
@@ -210,8 +209,10 @@ class Tab2Screen extends StatelessWidget {
                                           .listOfProductsForPacking
                                           .contains(product)
                                       ? primaryColorAppLigth // Color amarillo si está seleccionado
-                                      : Colors
-                                          .white, // Color blanco si no está seleccionado
+                                      : product.isSelected == 1
+                                          ? primaryColorAppLigth// Color verde si está seleccionado
+                                          : Colors
+                                              .white, // Color blanco si no está seleccionado
                                   elevation: 5,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -244,34 +245,38 @@ class Tab2Screen extends StatelessWidget {
                                           child: GestureDetector(
                                             onTap: () {
                                               // Mantener el comportamiento actual al tocar un producto
-                                              // context
-                                              //     .read<WmsPackingBloc>()
-                                              //     .add(FetchProductEvent(
-                                              //         product));
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(FetchProductEvent(
+                                                      product));
 
-                                              // showDialog(
-                                              //   context: context,
-                                              //   builder: (context) {
-                                              //     return const DialogLoading();
-                                              //   },
-                                              // );
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                    message:
+                                                        'Cargando información del producto...',
+                                                  );
+                                                },
+                                              );
 
-                                              // // Esperar 3 segundos antes de continuar
-                                              // Future.delayed(
-                                              //     const Duration(seconds: 1),
-                                              //     () {
-                                              //   // Cerrar el diálogo de carga
-                                              //   Navigator.of(context,
-                                              //           rootNavigator: true)
-                                              //       .pop();
+                                              // Esperar 3 segundos antes de continuar
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                // Cerrar el diálogo de carga
+                                                Navigator.of(context,
+                                                        rootNavigator: true)
+                                                    .pop();
 
-                                              //   // Ahora navegar a la vista "batch"
-                                              //   Navigator.pushNamed(
-                                              //     context,
-                                              //     'Packing',
-                                              //   );
-                                              // });
-                                              print("Producto: ${product.toMap()}");
+                                                // Ahora navegar a la vista "batch"
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  'Packing',
+                                                );
+                                              });
+                                              print(
+                                                  "Producto: ${product.toMap()}");
                                             },
                                             child: Column(
                                               crossAxisAlignment:
@@ -292,7 +297,7 @@ class Tab2Screen extends StatelessWidget {
                                                   alignment:
                                                       Alignment.centerLeft,
                                                   child: Text(
-                                                    " ${product.idProduct}",
+                                                    " ${product.productId}",
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         color: black),

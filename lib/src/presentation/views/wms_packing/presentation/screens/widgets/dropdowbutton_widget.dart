@@ -165,7 +165,7 @@ class _DialogAdvetenciaCantidadScreenState
 
                   await db.updateNovedadPacking(
                       widget.currentProduct.pedidoId ?? 0,
-                      widget.currentProduct.productId ?? 0,
+                      widget.currentProduct.idProduct ?? 0,
                       selectedNovedad ?? '');
 
                   Navigator.pop(context); // Cierra el diálogo

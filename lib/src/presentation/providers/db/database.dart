@@ -182,7 +182,7 @@ class DataBaseSqlite {
       product_id INTEGER,
       batch_id INTEGER,
       pedido_id INTEGER,
-      id_product TEXT,
+      id_product INTEGER,
       lote_id INTEGER,
       lot_id TEXT,
       location_id TEXT,
@@ -743,7 +743,7 @@ class DataBaseSqlite {
           final List<Map<String, dynamic>> existingProducto = await txn.query(
             'tblproductos_pedidos',
             where:
-                'product_id = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
+                'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
             whereArgs: [
               producto.idProduct,
               producto.batchId,
@@ -768,26 +768,28 @@ class DataBaseSqlite {
                 "id_move": producto.idMove,
                 "location_dest_id": producto.locationDestId?[1],
                 "id_location_dest": producto.locationDestId?[0],
-                "barcode_location": producto.barcodeLocation,
+                "barcode_location": producto.barcodeLocation == false ?
+                    ""
+                    : producto.barcodeLocation,
                 "quantity": producto.quantity,
                 "expire_date": producto.expireDate,
                 "tracking": producto.tracking == false
                     ? ""
-                    : producto.tracking, // Si tracking es false, poner ""
+                    : producto.tracking.toString(), // Convertir a String
                 "barcode": producto.barcode == false
                     ? ""
-                    : producto.barcode == ""
+                    : (producto.barcode == ""
                         ? ""
-                        : producto.barcode,
+                        : producto.barcode), // Asegurar que no sea bool
                 "weight": producto.weight == false
                     ? 0
-                    : producto.weight, // Si weight es false, poner 0
+                    : producto.weight.toDouble(), // Convertir a num (double)
                 "unidades": producto.unidades == false
                     ? ""
-                    : producto.unidades, // Si unidades es false, poner ""
+                    : producto.unidades.toString(), // Convertir a String
               },
               where:
-                  'id = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
+                  'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
               whereArgs: [
                 producto.idProduct,
                 producto.batchId,
@@ -805,8 +807,9 @@ class DataBaseSqlite {
                 "pedido_id": producto.pedidoId,
                 "id_move": producto.idMove,
                 "id_product": producto.idProduct,
-
-                "barcode_location": producto.barcodeLocation,
+                "barcode_location": producto.barcodeLocation == false ?
+                    ""
+                    : producto.barcodeLocation,
                 "lote_id": producto.loteId,
                 "lot_id": producto.lotId == "" ? "" : producto.lotId?[1],
                 "location_id": producto.locationId?[1],
@@ -817,18 +820,18 @@ class DataBaseSqlite {
                 "expire_date": producto.expireDate,
                 "tracking": producto.tracking == false
                     ? ""
-                    : producto.tracking, // Si tracking es false, poner ""
+                    : producto.tracking.toString(), // Convertir a String
                 "barcode": producto.barcode == false
                     ? ""
-                    : producto.barcode == ""
+                    : (producto.barcode == ""
                         ? ""
-                        : producto.barcode, // Si barcode es false, poner ""
+                        : producto.barcode), // Asegurar que no sea bool
                 "weight": producto.weight == false
                     ? 0
-                    : producto.weight, // Si weight es false, poner 0
+                    : producto.weight.toDouble(), // Convertir a num (double)
                 "unidades": producto.unidades == false
                     ? ""
-                    : producto.unidades, // Si unidades es false, poner ""
+                    : producto.unidades.toString(), // Convertir a String
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -1354,7 +1357,7 @@ class DataBaseSqlite {
       String field, dynamic setValue, int idMove) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE product_id = $productId AND pedido_id = $pedidoId AND id_move = $idMove');
+        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove');
     print("update tblproductos_pedidos ($field): $resUpdate");
 
     return resUpdate;
@@ -1525,7 +1528,7 @@ class DataBaseSqlite {
   ) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        " UPDATE tblproductos_pedidos SET observation = '$novedad' WHERE product_id = $productId AND pedido_id = $pedidoId");
+        " UPDATE tblproductos_pedidos SET observation = '$novedad' WHERE id_product = $productId AND pedido_id = $pedidoId");
     print("updateNovedad: $resUpdate");
     return resUpdate;
   }
@@ -1614,7 +1617,7 @@ class DataBaseSqlite {
         'tblproductos_pedidos',
         columns: ['quantity_separate'],
         where:
-            'pedido_id = ? AND product_id = ? AND id_move = ?', // Usamos ? como marcadores de posición
+            'pedido_id = ? AND id_product = ? AND id_move = ?', // Usamos ? como marcadores de posición
         whereArgs: [pedidoId, productId, idMove], // Los valores se pasan aquí
       );
 
@@ -1630,7 +1633,7 @@ class DataBaseSqlite {
           'tblproductos_pedidos',
           {'quantity_separate': newQty},
           where:
-              'pedido_id = ? AND product_id = ? AND id_move = ?', // Usamos ? en la cláusula WHERE
+              'pedido_id = ? AND id_product = ? AND id_move = ?', // Usamos ? en la cláusula WHERE
           whereArgs: [
             pedidoId,
             productId,

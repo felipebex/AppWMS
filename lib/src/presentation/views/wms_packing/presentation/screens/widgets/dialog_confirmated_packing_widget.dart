@@ -117,7 +117,7 @@ class DialogConfirmatedPacking extends StatelessWidget {
               context.read<WmsPackingBloc>().add(SetPackingsEvent(
                     productos,
                     context.read<WmsPackingBloc>().isSticker,
-                    isCertificate,
+                    false,
                     context
                   ));
 

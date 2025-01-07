@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
@@ -382,10 +381,13 @@ class Tab1Screen extends StatelessWidget {
                                       itemBuilder: (context, index) {
                                         final product = filteredProducts[index];
                                         return Card(
-                                          color: white,
+                                          color: product.quantity ==
+                                                  product.quantitySeparate
+                                              ? white
+                                              : Colors.amber[100],
                                           elevation: 2,
                                           child: ListTile(
-                                            title: Text(product.idProduct ?? "",
+                                            title: Text(product.productId ?? "",
                                                 style: const TextStyle(
                                                     fontSize: 12,
                                                     color:
@@ -450,7 +452,7 @@ class Tab1Screen extends StatelessWidget {
 
                                                             TextSpan(
                                                               text:
-                                                                  "cantidad no certificada", // La cantidad en color rojo
+                                                                  "no certificado", // La cantidad en color rojo
                                                               style: TextStyle(
                                                                   color: Colors
                                                                       .red,
@@ -550,6 +552,70 @@ class Tab1Screen extends StatelessWidget {
                                                       ),
                                                     ),
                                                   ],
+                                                ),
+                                                Visibility(
+                                                  visible: product.quantitySeparate !=
+                                                      product.quantity,
+                                                  child: Row(
+                                                    children: [
+                                                      RichText(
+                                                        text: TextSpan(
+                                                          style: const TextStyle(
+                                                            fontSize:
+                                                                14, // Tamaño del texto
+                                                            color: Colors
+                                                                .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                          ),
+                                                          children: <TextSpan>[
+                                                            const TextSpan(
+                                                                text:
+                                                                    "Novedad: ",
+                                                                style: TextStyle(
+                                                                    fontSize: 12,
+                                                                    color:
+                                                                        black)), // Parte del texto en color negro (o el color que prefieras)
+                                                            TextSpan(
+                                                              text:
+                                                                  "${product.observation}", // La cantidad en color rojo
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      primaryColorApp,
+                                                                  fontSize:
+                                                                      12), // Estilo solo para la cantidad
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      RichText(
+                                                        text: TextSpan(
+                                                          style: const TextStyle(
+                                                            fontSize:
+                                                                14, // Tamaño del texto
+                                                            color: Colors
+                                                                .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                          ),
+                                                          children: <TextSpan>[
+                                                            const TextSpan(
+                                                                text: "Peso: ",
+                                                                style: TextStyle(
+                                                                    fontSize: 12,
+                                                                    color:
+                                                                        black)), // Parte del texto en color negro (o el color que prefieras)
+                                                            TextSpan(
+                                                              text:
+                                                                  "${product.weight}", // La cantidad en color rojo
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      primaryColorApp,
+                                                                  fontSize:
+                                                                      12), // Estilo solo para la cantidad
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ],
                                             ), // Muestra la cantidad

@@ -11,10 +11,9 @@ import 'package:wms_app/src/presentation/views/wms_packing/domain/new_package_re
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/response_sedn_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/sen_packing_request.dart';
-import 'package:wms_app/src/services/preferences.dart';
-import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class WmsPackingRepository {
+  //endpoint para obtener todos los batch de packing con sus pedidos y productos
   Future<List<BatchPackingModel>> resBatchsPacking(
     bool isLoadinDialog,
     BuildContext context,
@@ -36,8 +35,7 @@ class WmsPackingRepository {
       );
 
       if (response.statusCode < 400) {
-
-          // Decodifica la respuesta JSON a un mapa
+        // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         // Accede a la clave "data" y luego a "result"
 
@@ -49,10 +47,7 @@ class WmsPackingRepository {
               batches.map((data) => BatchPackingModel.fromMap(data)).toList();
           return batchs;
         }
-       
-      } else {
-        
-      }
+      } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
       return [];
@@ -77,70 +72,34 @@ class WmsPackingRepository {
     }
 
     try {
-      final String urlRpc = Preferences.urlWebsite;
-      final String userEmail = await PrefUtils.getUserEmail();
-      final String pass = await PrefUtils.getUserPass();
-      final String dataBd = Preferences.nameDatabase;
-
-      var response = await ApiRequestService().post(
-        endpoint: 'create_packaing', // Endpoint actualizado
-        isunecodePath: true,
-        body: {
-          "url_rpc": urlRpc,
-          "db_rpc": dataBd,
-          "email_rpc": userEmail,
-          "clave_rpc": pass,
-        },
+      var response = await ApiRequestService().postPacking(
+        endpoint: 'create_package', // Endpoint actualizado
+        body: {"params": {}},
         isLoadinDialog: isLoadinDialog,
         context: context,
       );
 
       if (response.statusCode < 400) {
-        Preferences.setIntList = [0];
-        // Decodificamos la respuesta JSON
+        // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
 
-        // Verificamos que la respuesta contiene la clave 'data' y que 'data' es un mapa
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-
-          // Si contiene la clave 'packaging' y es una lista
-          if (data.containsKey('packaging') && data['packaging'] is List) {
-            List<dynamic> packagingList = data['packaging'];
-
-            // Mapeamos los datos de la lista a objetos NewPackaging
-            List<NewPackage> packaging =
-                packagingList.map((item) => NewPackage.fromMap(item)).toList();
-
-            // Retornamos el modelo NewPackage con la información
-            return NewPackageResponse(
-              data: DataPackage(
-                code: data['code'],
-                msg: data['msg'],
-                packaging: packaging,
-              ),
-            );
-          }
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          Map<String, dynamic> package = jsonResponse['result']['packaging'];
+          print(package);
+          return NewPackageResponse(
+              result: DataPackage(
+                  code: jsonResponse['result']['code'],
+                  msg: jsonResponse['result']['msg'],
+                  packaging: NewPackage(
+                    id: package['id'],
+                    name: package['name'],
+                    createDate: DateTime.parse(package['create_date']),
+                    writeDate: DateTime.parse(package['write_date']),
+                  )));
         }
-      } else {
-        Preferences.setIntList = [1];
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          print("data: $data");
-
-          // Mostramos alerta del error
-          Get.snackbar(
-            'Error en create_packaing : ${data['code']}',
-            data['msg'],
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-        print('Error en create_packaing: respuesta errónea');
-      }
+      } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
       return NewPackageResponse(); // Retornamos un objeto vacío en caso de error de red
@@ -152,6 +111,7 @@ class WmsPackingRepository {
     return NewPackageResponse(); // Retornamos un objeto vacío si no hay resultados
   }
 
+  //endpoint para enviar los productos dentro del paquete anteriormente creado
   Future<ResponseSendPacking> sendPackingRequest(PackingRequest packingRequest,
       bool isLoadingDialog, BuildContext context) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -161,89 +121,48 @@ class WmsPackingRepository {
       print("Error: No hay conexión a Internet.");
       return ResponseSendPacking(); // Si no hay conexión, terminamos la ejecución
     }
-    final String urlRpc = Preferences.urlWebsite;
-    final String userEmail = await PrefUtils.getUserEmail();
-    final String pass = await PrefUtils.getUserPass();
-    final String dataBd = Preferences.nameDatabase;
-    // final int userId = await PrefUtils.getUserId();
 
     try {
-      var headers = {
-        'Content-Type': 'application/json',
-      };
-
-      var body = json.encode(
-        {
-          "url_rpc": urlRpc,
-          "db_rpc": dataBd,
-          "email_rpc": userEmail,
-          "clave_rpc": pass,
-          "id_batch": packingRequest.idBatch,
-          "id_paquete": packingRequest.idPaquete,
-          "is_package": packingRequest.isPackage,
-          "peso_total_paquete": packingRequest.pesoTotalPaquete,
-          "list_item":
-              packingRequest.listItem.map((item) => item.toMap()).toList(),
-        },
-      );
-      print("=====================================");
-      print("body: $body");
-      print("=====================================");
-      print(
-          "list_item: ${packingRequest.listItem.map((item) => item.toMap()).toList()}");
-      print("list_item_length: ${packingRequest.listItem.length}");
-      print("=====================================");
-
-      var response = await ApiRequestService().sendPacking(
-        headers: headers,
+      var response = await ApiRequestService().postPacking(
         endpoint:
             'send_packing', // Cambiado para que sea el endpoint correspondiente
-        body: body,
+        body: {
+          "params": {
+            "id_batch": packingRequest.idBatch,
+            "id_paquete": packingRequest.idPaquete,
+            "is_sticker": packingRequest.isCertificate,
+            "is_certificate": packingRequest.isCertificate,
+            "peso_total_paquete": packingRequest.pesoTotalPaquete,
+            "list_item":
+                packingRequest.listItem.map((item) => item.toMap()).toList(),
+          },
+        },
+        isLoadinDialog: true,
+        context: context,
       );
-      print("response.statusCode: ${response}");
       if (response.statusCode < 400) {
-        // Si la respuesta es exitosa, procesamos los datos
+        // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
 
-          // Verificamos si la respuesta contiene 'code' y si es un éxito (por ejemplo, código 200)
-          if (data['code'] == 200) {
-            return ResponseSendPacking(
-              data: DataResponsePacking.fromMap(data),
-            );
-          } else {
-            // Si no es un éxito, mostramos el mensaje de error
-            Get.snackbar(
-              'Error',
-              data['msg'],
-              duration: const Duration(seconds: 5),
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-            );
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
+        var resultData = jsonResponse['result'];
 
-            return ResponseSendPacking();
-          }
-        }
+        return ResponseSendPacking(
+          jsonrpc: jsonResponse['jsonrpc'],
+          id: jsonResponse['id'],
+          result: resultData != null
+              ? ResponseSendPackingResult(
+                  code: resultData['code'],
+                  result: resultData['result'] != null
+                      ? List<ResultElement>.from(resultData['result']
+                          .map((x) => ResultElement.fromMap(x)))
+                      : [], // Si no hay elementos en 'result', se retorna una lista vacía
+                )
+              : null, // Si 'result' no existe, asigna null a 'result'
+        );
       } else {
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          print("data: $data");
-
-          Get.snackbar(
-            'Error en sendPackingRequest : ${data['code']}',
-            data['msg'],
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-          return ResponseSendPacking();
-        }
-        print('Error en sendPackingRequest: respuesta errónea');
-        return ResponseSendPacking();
+        // Manejo de error si la respuesta no es exitosa
+        // ...
       }
     } on SocketException catch (e) {
       print('Error de red: $e');

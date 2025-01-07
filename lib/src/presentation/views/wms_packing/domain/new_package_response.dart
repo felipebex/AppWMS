@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 class NewPackageResponse {
-    final DataPackage? data;
+    final String? jsonrpc;
+    final dynamic id;
+    final DataPackage? result;
 
     NewPackageResponse({
-        this.data,
+        this.jsonrpc,
+        this.id,
+        this.result,
     });
 
     factory NewPackageResponse.fromJson(String str) => NewPackageResponse.fromMap(json.decode(str));
@@ -12,18 +16,22 @@ class NewPackageResponse {
     String toJson() => json.encode(toMap());
 
     factory NewPackageResponse.fromMap(Map<String, dynamic> json) => NewPackageResponse(
-        data: json["data"] == null ? null : DataPackage.fromMap(json["data"]),
+        jsonrpc: json["jsonrpc"],
+        id: json["id"],
+        result: json["result"] == null ? null : DataPackage.fromMap(json["result"]),
     );
 
     Map<String, dynamic> toMap() => {
-        "data": data?.toMap(),
+        "jsonrpc": jsonrpc,
+        "id": id,
+        "result": result?.toMap(),
     };
 }
 
 class DataPackage {
     final int? code;
     final String? msg;
-    final List<NewPackage>? packaging;
+    final NewPackage? packaging;
 
     DataPackage({
         this.code,
@@ -38,23 +46,27 @@ class DataPackage {
     factory DataPackage.fromMap(Map<String, dynamic> json) => DataPackage(
         code: json["code"],
         msg: json["msg"],
-        packaging: json["packaging"] == null ? [] : List<NewPackage>.from(json["packaging"]!.map((x) => NewPackage.fromMap(x))),
+        packaging: json["packaging"] == null ? null : NewPackage.fromMap(json["packaging"]),
     );
 
     Map<String, dynamic> toMap() => {
         "code": code,
         "msg": msg,
-        "packaging": packaging == null ? [] : List<dynamic>.from(packaging!.map((x) => x.toMap())),
+        "packaging": packaging?.toMap(),
     };
 }
 
 class NewPackage {
     final int? id;
     final String? name;
+    final DateTime? createDate;
+    final DateTime? writeDate;
 
     NewPackage({
         this.id,
         this.name,
+        this.createDate,
+        this.writeDate,
     });
 
     factory NewPackage.fromJson(String str) => NewPackage.fromMap(json.decode(str));
@@ -64,10 +76,14 @@ class NewPackage {
     factory NewPackage.fromMap(Map<String, dynamic> json) => NewPackage(
         id: json["id"],
         name: json["name"],
+        createDate: json["create_date"] == null ? null : DateTime.parse(json["create_date"]),
+        writeDate: json["write_date"] == null ? null : DateTime.parse(json["write_date"]),
     );
 
     Map<String, dynamic> toMap() => {
         "id": id,
         "name": name,
+        "create_date": createDate?.toIso8601String(),
+        "write_date": writeDate?.toIso8601String(),
     };
 }
