@@ -28,56 +28,30 @@ class WmsPackingRepository {
     }
 
     try {
-      final String urlRpc = Preferences.urlWebsite;
-      final String userEmail = await PrefUtils.getUserEmail();
-      final String pass = await PrefUtils.getUserPass();
-      final String dataBd = Preferences.nameDatabase;
-
-      var response = await ApiRequestService().post(
-          endpoint: 'batch_packing',
-          isunecodePath: true,
-          body: {
-            "url_rpc": urlRpc,
-            "db_rpc": dataBd,
-            "email_rpc": userEmail,
-            "clave_rpc": pass,
-          },
-          isLoadinDialog: isLoadinDialog,
-          context: context);
+      var response = await ApiRequestService().get(
+        endpoint: 'batch_packing',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+        context: context,
+      );
 
       if (response.statusCode < 400) {
-        Preferences.setIntList = [0];
-        // Decodifica la respuesta JSON a un mapa
+
+          // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         // Accede a la clave "data" y luego a "result"
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          // Asegúrate de que 'result' exista y sea una lista
-          if (data.containsKey('result') && data['result'] is List) {
-            List<dynamic> batchs = data['result'];
-            // Mapea los datos decodificados a una lista de BatchsModel
-            List<BatchPackingModel> batch =
-                batchs.map((data) => BatchPackingModel.fromMap(data)).toList();
-            return batch;
-          }
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          List<dynamic> batches = jsonResponse['result']['result'];
+          // Mapea los datos decodificados a una lista de BatchsModel
+          List<BatchPackingModel> batchs =
+              batches.map((data) => BatchPackingModel.fromMap(data)).toList();
+          return batchs;
         }
+       
       } else {
-        Preferences.setIntList = [1];
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          print("data: $data");
-          //mostramos alerta del error
-          Get.snackbar(
-            'Error en batch_packing : ${data['code']}',
-            data['msg'],
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-        print('Error resBatchsPacking: response is null');
+        
       }
     } on SocketException catch (e) {
       print('Error de red: $e');
@@ -215,7 +189,8 @@ class WmsPackingRepository {
       print("=====================================");
       print("body: $body");
       print("=====================================");
-      print("list_item: ${packingRequest.listItem.map((item) => item.toMap()).toList()}");
+      print(
+          "list_item: ${packingRequest.listItem.map((item) => item.toMap()).toList()}");
       print("list_item_length: ${packingRequest.listItem.length}");
       print("=====================================");
 

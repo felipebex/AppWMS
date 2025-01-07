@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 class PorductoPedido {
-  final int? productId;
+  final dynamic productId;
   final int? batchId;
   final int? pedidoId;
   final int? idMove;

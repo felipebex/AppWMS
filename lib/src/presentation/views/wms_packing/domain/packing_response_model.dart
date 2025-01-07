@@ -3,61 +3,65 @@ import 'dart:convert';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 
 class PackingModelResponse {
-  final Data? data;
+    final String? jsonrpc;
+    final dynamic id;
+    final PackingModelResponseResult? result;
 
-  PackingModelResponse({
-    this.data,
-  });
+    PackingModelResponse({
+        this.jsonrpc,
+        this.id,
+        this.result,
+    });
 
-  factory PackingModelResponse.fromJson(String str) =>
-      PackingModelResponse.fromMap(json.decode(str));
+    factory PackingModelResponse.fromJson(String str) => PackingModelResponse.fromMap(json.decode(str));
 
-  String toJson() => json.encode(toMap());
+    String toJson() => json.encode(toMap());
 
-  factory PackingModelResponse.fromMap(Map<String, dynamic> json) =>
-      PackingModelResponse(
-        data: json["data"] == null ? null : Data.fromMap(json["data"]),
-      );
+    factory PackingModelResponse.fromMap(Map<String, dynamic> json) => PackingModelResponse(
+        jsonrpc: json["jsonrpc"],
+        id: json["id"],
+        result: json["result"] == null ? null : PackingModelResponseResult.fromMap(json["result"]),
+    );
 
-  Map<String, dynamic> toMap() => {
-        "data": data?.toMap(),
-      };
+    Map<String, dynamic> toMap() => {
+        "jsonrpc": jsonrpc,
+        "id": id,
+        "result": result?.toMap(),
+    };
 }
 
-class Data {
-  final int? code;
-  final List<BatchPackingModel>? result;
+class PackingModelResponseResult {
+    final int? code;
+    final List<BatchPackingModel>? result;
 
-  Data({
-    this.code,
-    this.result,
-  });
+    PackingModelResponseResult({
+        this.code,
+        this.result,
+    });
 
-  factory Data.fromJson(String str) => Data.fromMap(json.decode(str));
+    factory PackingModelResponseResult.fromJson(String str) => PackingModelResponseResult.fromMap(json.decode(str));
 
-  String toJson() => json.encode(toMap());
+    String toJson() => json.encode(toMap());
 
-  factory Data.fromMap(Map<String, dynamic> json) => Data(
+    factory PackingModelResponseResult.fromMap(Map<String, dynamic> json) => PackingModelResponseResult(
         code: json["code"],
-        result: json["result"] == null
-            ? []
-            : List<BatchPackingModel>.from(
-                json["result"]!.map((x) => BatchPackingModel.fromMap(x))),
-      );
+        result: json["result"] == null ? [] : List<BatchPackingModel>.from(json["result"]!.map((x) => BatchPackingModel.fromMap(x))),
+    );
 
-  Map<String, dynamic> toMap() => {
+    Map<String, dynamic> toMap() => {
         "code": code,
-        "result": result == null
-            ? []
-            : List<dynamic>.from(result!.map((x) => x.toMap())),
-      };
+        "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toMap())),
+    };
 }
+
+
+
 
 class BatchPackingModel {
   final int? id;
   final String? name;
   final dynamic scheduleddate;
-  final String? pickingTypeId;
+  final dynamic pickingTypeId;
   final String? state;
   final dynamic userId;
   final List<PedidoPacking>? listaPedidos;
@@ -150,8 +154,7 @@ class PedidoPacking {
   final DateTime? fecha;
   final int? isSelected;
   final int? isPacking;
-  final String? contacto;
-  final int? contactoId;
+  final dynamic? contacto;
   final String? tipoOperacion;
   final String? contactoName;
   final int? isTerminate;
@@ -169,7 +172,6 @@ class PedidoPacking {
     this.referencia,
     this.fecha,
     this.contacto,
-    this.contactoId,
     this.tipoOperacion,
     this.cantidadProductos,
     this.numeroPaquetes,
@@ -194,10 +196,8 @@ class PedidoPacking {
         fecha: json["fecha"] == null
             ? DateTime.now()
             : DateTime.parse(json["fecha"]),
-        contacto: (json["contacto"] != null && json["contacto"].isNotEmpty)
-            ? json["contacto"][1]
-            : null, // Aquí aseguramos que solo se tome el valor de la posición [1]
-        contactoId: json["contacto_id"],
+        contacto: json["contacto"],
+        contactoName: json["contacto_name"],
         tipoOperacion: json["tipo_operacion"],
         cantidadProductos: json["cantidad_productos"],
         numeroPaquetes: json["numero paquetes"],
@@ -210,7 +210,6 @@ class PedidoPacking {
             : List<Paquete>.from(
                 json["lista_paquetes"]!.map((x) => Paquete.fromMap(x))),
         isTerminate: json["is_terminate"],
-        contactoName: json["contacto_name"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -222,7 +221,7 @@ class PedidoPacking {
         "referencia": referencia,
         "fecha": fecha?.toIso8601String(),
         "contacto": contacto,
-        "contacto_id": contactoId,
+        "contacto_name": contactoName,
         "tipo_operacion": tipoOperacion,
         "cantidad_productos": cantidadProductos,
         "numero paquetes": numeroPaquetes,
@@ -233,7 +232,6 @@ class PedidoPacking {
             ? []
             : List<dynamic>.from(listaPaquetes!.map((x) => x.toMap())),
         "is_terminate": isTerminate,
-        "contacto_name": contactoName,
       };
 }
 

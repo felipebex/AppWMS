@@ -54,22 +54,7 @@ class WmsPickingRepository {
           return products;
         }
       } else {
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          print("data: $data");
-          //mostramos alerta del error
-          Get.snackbar(
-            'Error en batchs : ${data['code']}',
-            data['msg'],
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-
-        print('Error resBatchs: response is null');
+       
       }
     } on SocketException catch (e) {
       // Manejo de error de red
@@ -114,22 +99,7 @@ class WmsPickingRepository {
           return products;
         }
       } else {
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          print("data: $data");
-          //mostramos alerta del error
-          Get.snackbar(
-            'Error en getBatchById : ${data['code']}',
-            data['msg'],
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-
-        print('Error getBatchById: response is null');
+       
       }
     } on SocketException catch (e) {
       // Manejo de error de red
@@ -176,22 +146,7 @@ class WmsPickingRepository {
           return muelles;
         }
       } else {
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          print("data: $data");
-          //mostramos alerta del error
-          Get.snackbar(
-            'Error en getmuelles : ${data['code']}',
-            data['msg'],
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-
-        print('Error getmuelles: response is null');
+       
       }
     } on SocketException catch (e) {
       // Manejo de error de red

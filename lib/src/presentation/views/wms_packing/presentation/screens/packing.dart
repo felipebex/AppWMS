@@ -347,7 +347,6 @@ class _PackingScreenState extends State<PackingScreen> {
                       ),
                     ),
                   ),
-                  //* todo ubicacion
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),

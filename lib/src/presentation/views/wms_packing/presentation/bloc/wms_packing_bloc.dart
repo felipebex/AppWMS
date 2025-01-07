@@ -666,7 +666,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         List<Barcodes> otherBarcodesToInsert = productsToInsert
             .expand((product) => product.otherBarcode!)
             .toList();
-
+        print('pedidosToInsert Packing : ${pedidosToInsert.length}');
         print('productsToInsert Packing : ${productsToInsert.length}');
         print('barcodesToInsert Packing : ${barcodesToInsert.length}');
         print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');

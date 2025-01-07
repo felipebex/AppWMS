@@ -61,7 +61,7 @@ class BatchsModel {
   final int? id;
   final String? name;
   final dynamic scheduleddate;
-  final dynamic? pickingTypeId;
+  final dynamic pickingTypeId;
   final String? muelle; // es el mismo location_id
   final String? state;
   final dynamic userId;
