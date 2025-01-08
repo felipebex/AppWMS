@@ -210,7 +210,7 @@ class UserScreen extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Center(
-                                          child: Text("Permisos:",
+                                          child: Text("Permisos Picking:",
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   color: primaryColorApp)),
@@ -391,6 +391,133 @@ class UserScreen extends StatelessWidget {
                                                     color: primaryColorApp))
                                           ],
                                         ),
+                                        const SizedBox(height: 10),
+                                         Center(
+                                          child: Text("Permisos Packing:",
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: primaryColorApp)),
+                                        ),
+                                        const SizedBox(height: 10),
+                                          Row(
+                                          children: [
+                                            const Text("Ubicacion de origen: ",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: black)),
+                                            const Spacer(),
+                                            Checkbox(
+                                                value: config.result?.result
+                                                        ?.locationPackManual ??
+                                                    false,
+                                                onChanged: null),
+                                            IconButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return const DialogInfo(
+                                                          title:
+                                                              "Ubicacion de origen manual",
+                                                          body:
+                                                              "Permite seleccionar la ubicacion de origen en el proceso del packing de forma manual",
+                                                        );
+                                                      });
+                                                },
+                                                icon: Icon(Icons.help,
+                                                    color: primaryColorApp))
+                                          ],
+                                        ),
+                                           Row(
+                                          children: [
+                                            const Text("Seleccionar Producto: ",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: black)),
+                                            const Spacer(),
+                                            Checkbox(
+                                                value: config.result?.result
+                                                        ?.manualProductSelectionPack ??
+                                                    false,
+                                                onChanged: null),
+                                            IconButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return const DialogInfo(
+                                                          title:
+                                                              "Seleccionar Producto manual",
+                                                          body:
+                                                              "Permite seleccionar el producto en el proceso del packing de forma manual",
+                                                        );
+                                                      });
+                                                },
+                                                icon: Icon(Icons.help,
+                                                    color: primaryColorApp))
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Text("Seleccionar Cantidad: ",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: black)),
+                                            const Spacer(),
+                                            Checkbox(
+                                                value: config.result?.result
+                                                        ?.manualQuantityPack ??
+                                                    false,
+                                                onChanged: null),
+                                            IconButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return const DialogInfo(
+                                                          title:
+                                                              "Seleccionar Cantidad manual",
+                                                          body:
+                                                              "Permite seleccionar la cantidad en el proceso del packing de forma manual",
+                                                        );
+                                                      });
+                                                },
+                                                icon: Icon(Icons.help,
+                                                    color: primaryColorApp))
+                                          ],
+                                        ),
+                                      
+                                      
+                                       Row(
+                                          children: [
+                                            const Text("Seleccionar Muelle: ",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: black)),
+                                            const Spacer(),
+                                            Checkbox(
+                                                value: config.result?.result
+                                                        ?.manualSpringSelectionPack ??
+                                                    false,
+                                                onChanged: null),
+                                            IconButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return const DialogInfo(
+                                                          title:
+                                                              "Seleccionar Muelle manual",
+                                                          body:
+                                                              "Permite seleccionar el muelle en el proceso del packing de forma manual",
+                                                        );
+                                                      });
+                                                },
+                                                icon: Icon(Icons.help,
+                                                    color: primaryColorApp))
+                                          ],
+                                        ),
+                                      
                                       ],
                                     ),
                                   ),

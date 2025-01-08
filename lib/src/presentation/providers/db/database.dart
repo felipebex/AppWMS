@@ -229,19 +229,25 @@ class DataBaseSqlite {
     //tabla de configuracion del usuario
     await db.execute('''
     CREATE TABLE tblconfigurations(
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER,
-    name TEXT,
-    last_name TEXT,
-    email TEXT,
-    rol TEXT,
-    location_picking_manual INTEGER,
-    manual_product_selection INTEGER,
-    manual_quantity INTEGER,
-    manual_spring_selection INTEGER,
-    show_detalles_picking INTEGER,
-    muelle_option TEXT,
-    show_next_locations_in_details INTEGER
+      id INTEGER PRIMARY KEY,
+      name TEXT,
+      user_id INTEGER,
+      last_name TEXT,
+      email TEXT,
+      rol TEXT,
+      muelle_option TEXT,
+      location_picking_manual INTEGER,
+      manual_product_selection INTEGER,
+      manual_quantity INTEGER,
+      manual_spring_selection INTEGER,
+      show_detalles_picking INTEGER,
+      show_next_locations_in_details INTEGER,
+      location_pack_manual INTEGER,
+      show_detalles_pack INTEGER,
+      show_next_locations_in_details_pack INTEGER,
+      manual_product_selection_pack INTEGER,
+      manual_quantity_pack INTEGER,
+      manual_spring_selection_pack INTEGER
     )
     ''');
 
@@ -499,6 +505,7 @@ class DataBaseSqlite {
           "last_name": configuration.result?.result?.lastName,
           "email": configuration.result?.result?.email,
           "rol": configuration.result?.result?.rol,
+          "muelle_option": configuration.result?.result?.muelleOption,
           "location_picking_manual":
               configuration.result?.result?.locationPickingManual == true
                   ? 1
@@ -507,7 +514,6 @@ class DataBaseSqlite {
               configuration.result?.result?.manualProductSelection == true
                   ? 1
                   : 0,
-          "muelle_option": configuration.result?.result?.muelleOption,
           "manual_quantity":
               configuration.result?.result?.manualQuantity == true ? 1 : 0,
           "manual_spring_selection":
@@ -518,6 +524,26 @@ class DataBaseSqlite {
               configuration.result?.result?.showDetallesPicking == true ? 1 : 0,
           "show_next_locations_in_details":
               configuration.result?.result?.showNextLocationsInDetails == true
+                  ? 1
+                  : 0,
+          // Nuevos campos faltantes:
+          "location_pack_manual":
+              configuration.result?.result?.locationPackManual == true ? 1 : 0,
+          "show_detalles_pack":
+              configuration.result?.result?.showDetallesPack == true ? 1 : 0,
+          "show_next_locations_in_details_pack":
+              configuration.result?.result?.showNextLocationsInDetailsPack ==
+                      true
+                  ? 1
+                  : 0,
+          "manual_product_selection_pack":
+              configuration.result?.result?.manualProductSelectionPack == true
+                  ? 1
+                  : 0,
+          "manual_quantity_pack":
+              configuration.result?.result?.manualQuantityPack == true ? 1 : 0,
+          "manual_spring_selection_pack":
+              configuration.result?.result?.manualSpringSelectionPack == true
                   ? 1
                   : 0,
         };
@@ -768,8 +794,8 @@ class DataBaseSqlite {
                 "id_move": producto.idMove,
                 "location_dest_id": producto.locationDestId?[1],
                 "id_location_dest": producto.locationDestId?[0],
-                "barcode_location": producto.barcodeLocation == false ?
-                    ""
+                "barcode_location": producto.barcodeLocation == false
+                    ? ""
                     : producto.barcodeLocation,
                 "quantity": producto.quantity,
                 "expire_date": producto.expireDate,
@@ -807,8 +833,8 @@ class DataBaseSqlite {
                 "pedido_id": producto.pedidoId,
                 "id_move": producto.idMove,
                 "id_product": producto.idProduct,
-                "barcode_location": producto.barcodeLocation == false ?
-                    ""
+                "barcode_location": producto.barcodeLocation == false
+                    ? ""
                     : producto.barcodeLocation,
                 "lote_id": producto.loteId,
                 "lot_id": producto.lotId == [] ? "" : producto.lotId?[1],

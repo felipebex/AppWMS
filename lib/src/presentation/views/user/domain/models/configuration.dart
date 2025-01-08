@@ -65,6 +65,12 @@ class DataConfig {
     final bool? manualSpringSelection;
     final bool? showDetallesPicking;
     final bool? showNextLocationsInDetails;
+    final bool? locationPackManual;
+    final bool? showDetallesPack;
+    final bool? showNextLocationsInDetailsPack;
+    final bool? manualProductSelectionPack;
+    final bool? manualQuantityPack;
+    final bool? manualSpringSelectionPack;
 
     DataConfig({
         this.name,
@@ -79,6 +85,12 @@ class DataConfig {
         this.manualSpringSelection,
         this.showDetallesPicking,
         this.showNextLocationsInDetails,
+        this.locationPackManual,
+        this.showDetallesPack,
+        this.showNextLocationsInDetailsPack,
+        this.manualProductSelectionPack,
+        this.manualQuantityPack,
+        this.manualSpringSelectionPack,
     });
 
     factory DataConfig.fromJson(String str) => DataConfig.fromMap(json.decode(str));
@@ -98,6 +110,12 @@ class DataConfig {
         manualSpringSelection: json["manual_spring_selection"],
         showDetallesPicking: json["show_detalles_picking"],
         showNextLocationsInDetails: json["show_next_locations_in_details"],
+        locationPackManual: json["location_pack_manual"],
+        showDetallesPack: json["show_detalles_pack"],
+        showNextLocationsInDetailsPack: json["show_next_locations_in_details_pack"],
+        manualProductSelectionPack: json["manual_product_selection_pack"],
+        manualQuantityPack: json["manual_quantity_pack"],
+        manualSpringSelectionPack: json["manual_spring_selection_pack"],
     );
 
     Map<String, dynamic> toMap() => {
@@ -113,5 +131,11 @@ class DataConfig {
         "manual_spring_selection": manualSpringSelection,
         "show_detalles_picking": showDetallesPicking,
         "show_next_locations_in_details": showNextLocationsInDetails,
+        "location_pack_manual": locationPackManual,
+        "show_detalles_pack": showDetallesPack,
+        "show_next_locations_in_details_pack": showNextLocationsInDetailsPack,
+        "manual_product_selection_pack": manualProductSelectionPack,
+        "manual_quantity_pack": manualQuantityPack,
+        "manual_spring_selection_pack": manualSpringSelectionPack,
     };
 }
