@@ -1,31 +1,34 @@
 import 'dart:convert';
 
 class BatchModelResponse {
-    final String? jsonrpc;
-    final dynamic id;
-    final DataBatch? result;
+  final String? jsonrpc;
+  final dynamic id;
+  final DataBatch? result;
 
-    BatchModelResponse({
-        this.jsonrpc,
-        this.id,
-        this.result,
-    });
+  BatchModelResponse({
+    this.jsonrpc,
+    this.id,
+    this.result,
+  });
 
-    factory BatchModelResponse.fromJson(String str) => BatchModelResponse.fromMap(json.decode(str));
+  factory BatchModelResponse.fromJson(String str) =>
+      BatchModelResponse.fromMap(json.decode(str));
 
-    String toJson() => json.encode(toMap());
+  String toJson() => json.encode(toMap());
 
-    factory BatchModelResponse.fromMap(Map<String, dynamic> json) => BatchModelResponse(
+  factory BatchModelResponse.fromMap(Map<String, dynamic> json) =>
+      BatchModelResponse(
         jsonrpc: json["jsonrpc"],
         id: json["id"],
-        result: json["result"] == null ? null : DataBatch.fromMap(json["result"]),
-    );
+        result:
+            json["result"] == null ? null : DataBatch.fromMap(json["result"]),
+      );
 
-    Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() => {
         "jsonrpc": jsonrpc,
         "id": id,
         "result": result?.toMap(),
-    };
+      };
 }
 
 class DataBatch {
@@ -68,7 +71,7 @@ class BatchsModel {
   final String? userName;
   final int? countItems;
 
-  final int? indexList;
+  int? indexList;
   final dynamic isWave;
   final int? isSeparate;
   final dynamic isSelected;

@@ -31,6 +31,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       try {
         emit(ConfigurationLoading());
         final response = await userRepository.configurations(event.context);
+        print('Response: $response');
         int userId = await PrefUtils.getUserId();
         await db.insertConfiguration(response, userId);
         final Configurations? responsebd = await db.getConfiguration(userId);

@@ -959,21 +959,32 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 )),
                                     ),
                                     IconButton(
-                                        onPressed: packinghBloc.quantityIsOk &&
-                                                packinghBloc.quantitySelected >=
-                                                    0
-                                            ? () {
-                                                setState(() {
-                                                  viewQuantity = !viewQuantity;
-                                                });
-                                                Future.delayed(
-                                                    const Duration(
-                                                        milliseconds: 100), () {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(focusNode4);
-                                                });
-                                              }
-                                            : null,
+                                        onPressed: packinghBloc
+                                                    .configurations
+                                                    .result
+                                                    ?.result
+                                                    ?.manualQuantityPack ==
+                                                false
+                                            ? null
+                                            : packinghBloc.quantityIsOk &&
+                                                    packinghBloc
+                                                            .quantitySelected >=
+                                                        0
+                                                ? () {
+                                                    setState(() {
+                                                      viewQuantity =
+                                                          !viewQuantity;
+                                                    });
+                                                    Future.delayed(
+                                                        const Duration(
+                                                            milliseconds: 100),
+                                                        () {
+                                                      FocusScope.of(context)
+                                                          .requestFocus(
+                                                              focusNode4);
+                                                    });
+                                                  }
+                                                : null,
                                         icon: Icon(Icons.edit_note_rounded,
                                             color: primaryColorApp, size: 30)),
                                   ],
@@ -1192,6 +1203,27 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       Navigator.pop(context);
                                                       Navigator.pop(context);
                                                       return;
+                                                    },
+                                                    onSplit: () {
+                                                      packinghBloc.add(ChangeQuantitySeparate(
+                                                          int.parse(value),
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .idProduct ??
+                                                              0,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .pedidoId ??
+                                                              0,
+                                                          packinghBloc
+                                                                  .currentProduct
+                                                                  .idMove ??
+                                                              0));
+                                                      cantidadController
+                                                          .clear();
+                                                      _finichPackingProductSplit(
+                                                          context,
+                                                          int.parse(value));
                                                     });
                                               });
                                         }
@@ -1269,7 +1301,24 @@ class _PackingScreenState extends State<PackingScreen> {
         "is_certificate",
         "true",
         batchBloc.currentProduct.idMove ?? 0);
-   
+
+    //cerramos el dialogo de carga
+    batchBloc.add(
+        LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
+    Navigator.pop(context);
+  }
+
+  void _finichPackingProductSplit(BuildContext context, int cantidad) async {
+    final DataBaseSqlite db = DataBaseSqlite();
+    //marcamos el producto como terminado
+    final batchBloc = context.read<WmsPackingBloc>();
+
+    batchBloc.add(SetPickingSplitEvent(
+      batchBloc.currentProduct.idMove ?? 0,
+      cantidad,
+      batchBloc.currentProduct.idProduct ?? 0,
+      batchBloc.currentProduct.pedidoId ?? 0,
+    ));
 
     //cerramos el dialogo de carga
     batchBloc.add(
@@ -1308,6 +1357,15 @@ class _PackingScreenState extends State<PackingScreen> {
                         currentProduct.idMove ?? 0));
                     cantidadController.clear();
                     _finichPackingProduct(context);
+                  },
+                  onSplit: () {
+                    batchBloc.add(ChangeQuantitySeparate(
+                        cantidad,
+                        currentProduct.idProduct ?? 0,
+                        currentProduct.pedidoId ?? 0,
+                        currentProduct.idMove ?? 0));
+                    cantidadController.clear();
+                    _finichPackingProductSplit(context, cantidad);
                   });
             });
       } else {

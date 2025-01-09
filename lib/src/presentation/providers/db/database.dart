@@ -201,6 +201,7 @@ class DataBaseSqlite {
       is_certificate INTEGER,
       expire_date VARCHAR(255),
       is_location_is_ok INTEGER,
+      is_product_split INTEGER,
       barcode_location TEXT,
       product_is_ok INTEGER,
       is_quantity_is_ok INTEGER,

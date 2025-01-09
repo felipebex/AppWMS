@@ -16,11 +16,13 @@ class DialogPackingAdvetenciaCantidadScreen extends StatefulWidget {
     required this.cantidad,
     required this.currentProduct,
     required this.onAccepted,
+    required this.onSplit,
   });
 
   final int cantidad; // Variable para almacenar la cantidad
   final PorductoPedido currentProduct;
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
+  final VoidCallback onSplit; // Callback para la acción a split
 
   // Variable para almacenar el producto actual
 
@@ -35,6 +37,7 @@ class _DialogAdvetenciaCantidadScreenState
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: AlertDialog(
@@ -53,13 +56,13 @@ class _DialogAdvetenciaCantidadScreenState
                     text: 'La cantidad separada ',
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 16), // Color del texto normal
+                        fontSize: 14), // Color del texto normal
                   ),
                   TextSpan(
                     text: '${widget.cantidad} ',
-                    style:  TextStyle(
+                    style: TextStyle(
                       color: primaryColorApp,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                     // Color rojo para quantity
@@ -68,22 +71,23 @@ class _DialogAdvetenciaCantidadScreenState
                     text: 'es menor a la cantidad a recoger ',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 16,
+                      fontSize: 14,
                     ), // Color del texto normal
                   ),
                   TextSpan(
                     text: '${widget.currentProduct.quantity}',
                     style: const TextStyle(
                       color: green,
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ), // Color verde para currentProduct?.quantity
                   ),
                 ],
               ),
             ),
-            const Text("Para continuar, seleccione la novedad",
-                style: TextStyle(color: Colors.black, fontSize: 16)),
+            const Text(
+                "Para continuar, seleccione la novedad o divida la cantidad del producto",
+                style: TextStyle(color: Colors.black, fontSize: 14)),
             const SizedBox(height: 10),
             Card(
               color: Colors.white,
@@ -138,6 +142,21 @@ class _DialogAdvetenciaCantidadScreenState
                 ),
               ),
             ),
+            ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context); // Cierra el diálogo
+                  widget.onAccepted(); // L
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: grey,
+                  minimumSize: Size(size.width * 0.6, 30),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 3,
+                ),
+                child: Text('Dividir Cantidad',
+                    style: const TextStyle(color: Colors.white))),
           ],
         ),
         actions: [
@@ -146,14 +165,15 @@ class _DialogAdvetenciaCantidadScreenState
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
+                minimumSize: Size(size.width * 0.3, 30),
                 backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 elevation: 3,
               ),
-              child:  Text('Cancelar',
-                  style: TextStyle(color: primaryColorApp))),
+              child:
+                  Text('Cancelar', style: TextStyle(color: primaryColorApp))),
           ElevatedButton(
               onPressed: () async {
                 // Validamos que tenga una novedad seleccionada
@@ -171,6 +191,7 @@ class _DialogAdvetenciaCantidadScreenState
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColorApp,
+                minimumSize: Size(size.width * 0.3, 30),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

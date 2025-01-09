@@ -495,10 +495,13 @@ class BatchDetailScreen extends StatelessWidget {
                                     horizontal: 10, vertical: 5),
                                 child: GestureDetector(
                                   onTap: () async {
+                                    print("----------------");
                                     print(
                                         "product detail info: ${productsBatch.toMap()}");
-                                    // print(
-                                    //     "batch detail info: ${context.read<BatchBloc>().batchWithProducts.batch?.toMap()}");
+                                    print("----------------");
+                                    print(
+                                        "batch detail info: ${context.read<BatchBloc>().batchWithProducts.batch?.toMap()}");
+                                    print("----------------");
                                   },
                                   child: Card(
                                       elevation: 4,
@@ -694,18 +697,20 @@ class BatchDetailScreen extends StatelessWidget {
                                               ),
                                             ),
                                             ExpiryDateWidget(
-                                              expireDate: productsBatch
-                                                          .expireDate ==
-                                                      ""
-                                                  ? DateTime.now()
-                                                  : DateTime.parse(
-                                                      productsBatch.expireDate),
-                                              size: size,
-                                              isDetaild: true,
-                                              isNoExpireDate: productsBatch
-                                                          .expireDate ==
-                                                      "" ? true: false
-                                            ),
+                                                expireDate:
+                                                    productsBatch.expireDate ==
+                                                            ""
+                                                        ? DateTime.now()
+                                                        : DateTime.parse(
+                                                            productsBatch
+                                                                .expireDate),
+                                                size: size,
+                                                isDetaild: true,
+                                                isNoExpireDate:
+                                                    productsBatch.expireDate ==
+                                                            ""
+                                                        ? true
+                                                        : false),
                                             Padding(
                                               padding:
                                                   const EdgeInsets.symmetric(

@@ -44,12 +44,11 @@ class ProductDropdownPackingWidget extends StatelessWidget {
               width: 20,
             ),
             value: selectedProduct,
-            items: 
-            listOfProductsName.map((PorductoPedido product) {
+            items: listOfProductsName.map((PorductoPedido product) {
               return DropdownMenuItem<String>(
                 value: product.productId.toString(),
                 child: Container(
-                   padding:
+                  padding:
                       const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
@@ -63,7 +62,6 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      
                       fontSize: 14,
                       color: black,
                     ),
@@ -71,16 +69,11 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                 ),
               );
             }).toList(),
-
-            
-            onChanged: 
-            
-            // batchBloc
-            //             .configurations.data?.result?.manualProductSelection ==
-            //         false
-            //     ? null
-                // : 
-                batchBloc.locationIsOk && !batchBloc.productIsOk
+            onChanged: batchBloc.configurations.result?.result
+                        ?.manualProductSelectionPack ==
+                    false
+                ? null
+                : batchBloc.locationIsOk && !batchBloc.productIsOk
                     ? (String? newValue) {
                         if (newValue == currentProduct.productId.toString()) {
                           batchBloc.add(ValidateFieldsPackingEvent(
@@ -102,13 +95,11 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                           batchBloc.add(ChangeIsOkQuantity(
                               true,
                               currentProduct.idProduct ?? 0,
-                             currentProduct.pedidoId ?? 0,
+                              currentProduct.pedidoId ?? 0,
                               currentProduct.idMove ?? 0));
                         } else {
-
                           batchBloc.add(ValidateFieldsPackingEvent(
                               field: "product", isOk: false));
-
 
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             duration: const Duration(milliseconds: 1000),
@@ -159,7 +150,6 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                         style: const TextStyle(fontSize: 14, color: black),
                       ),
                     ),
-                   
                   ],
                 ),
               ),

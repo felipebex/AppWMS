@@ -99,13 +99,6 @@ class AddQuantitySeparate extends WmsPackingEvent {
       this.quantity, this.idMove, this.productId, this.pedidoId);
 }
 
-class SetPickingsEvent extends WmsPackingEvent {
-  final int productId;
-  final int pedidoId;
-  final int idMove;
-
-  SetPickingsEvent(this.productId, this.pedidoId, this.idMove);
-}
 
 class SetPackingsEvent extends WmsPackingEvent {
   final List<PorductoPedido> productos;
@@ -153,3 +146,25 @@ class UnSelectProductPackingEvent extends WmsPackingEvent {
 }
 
 class LoadAllNovedadesPackingEvent extends WmsPackingEvent {}
+
+
+class LoadConfigurationsUserPack extends WmsPackingEvent {
+  LoadConfigurationsUserPack();
+}
+
+class SetPickingSplitEvent extends WmsPackingEvent {
+  final int idMove;
+  final int quantity;
+  final int productId;
+  final int pedidoId;
+  SetPickingSplitEvent(this.idMove, this.quantity, this.productId, this.pedidoId);
+}
+
+
+class SetPickingsEvent extends WmsPackingEvent {
+  final int productId;
+  final int pedidoId;
+  final int idMove;
+
+  SetPickingsEvent(this.productId, this.pedidoId, this.idMove);
+}

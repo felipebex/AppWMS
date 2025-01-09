@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:get/get.dart';
 import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
@@ -14,6 +15,7 @@ import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/utils/widgets/dialog_loading.dart';
 
 import '../../../widgets/message_modal.dart';
 
@@ -28,12 +30,20 @@ class LoginPage extends StatelessWidget {
         listeners: [
           BlocListener<LoginBloc, LoginState>(
             listener: (context, state) {
+              if (state is LoginLoading) {
+                Get.dialog(
+                  const DialogLoadingNetwork(),
+                  barrierDismissible:
+                      false, // No permitir cerrar tocando fuera del diálogo
+                );
+              }
               if (state is LoginSuccess) {
                 // llamamos la configuracion de la empresa y el usuario logueado
                 context.read<UserBloc>().add(GetConfigurations(context));
                 context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
               }
               if (state is LoginFailure) {
+                Get.back();
                 showModalDialog(context, state.error);
               }
             },
@@ -59,7 +69,9 @@ class LoginPage extends StatelessWidget {
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(true, context));
                 }
-
+                context.read<LoginBloc>().email.clear();
+                context.read<LoginBloc>().password.clear();
+                Get.back();
                 Navigator.pushNamed(context, 'home');
               }
             },

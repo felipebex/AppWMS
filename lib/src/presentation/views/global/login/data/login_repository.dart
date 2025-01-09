@@ -22,7 +22,7 @@ class LoginRepository {
           body: {
             "params": {"login": email, "password": password, "db": dataBd}
           },
-          isLoadinDialog: true,
+          isLoadinDialog: false,
           context: context);
 
       print('Response status code: ${response.statusCode}');

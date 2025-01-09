@@ -24,6 +24,7 @@ class PorductoPedido {
   final int? idPackage;
   final int? isCertificate;
   final int? isSendOdoo;
+  final int? isProductSplit;
   final String? isSendOdooDate;
   final dynamic expireDate;
 
@@ -73,6 +74,7 @@ class PorductoPedido {
     this.idPackage,
     this.isCertificate,
     this.isSendOdoo,
+    this.isProductSplit,
     this.isSendOdooDate,
     this.productPacking,
     this.otherBarcode,
@@ -115,6 +117,7 @@ class PorductoPedido {
         idPackage: json["id_package"],
         isCertificate: json["is_certificate"],
         isSendOdoo: json["is_send_odoo"],
+        isProductSplit: json["is_product_split"],
         isSendOdooDate: json["is_send_odoo_date"],
         productPacking: json['product_packing'] == null
             ? []
@@ -155,6 +158,7 @@ class PorductoPedido {
         "is_packing": isPacking,
         "id_package": idPackage,
         "is_certificate": isCertificate,
+        "is_product_split": isProductSplit,
         "is_send_odoo": isSendOdoo,
         "expire_date": expireDate,
         "is_send_odoo_date": isSendOdooDate,

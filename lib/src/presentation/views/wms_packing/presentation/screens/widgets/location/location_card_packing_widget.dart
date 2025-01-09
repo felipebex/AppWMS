@@ -11,7 +11,6 @@ class LocationPackingDropdownWidget extends StatelessWidget {
   final PorductoPedido currentProduct;
   final bool isPDA;
 
-
   const LocationPackingDropdownWidget({
     super.key,
     required this.selectedLocation,
@@ -77,40 +76,36 @@ class LocationPackingDropdownWidget extends StatelessWidget {
             onChanged:
 
                 //permiso para valdiar la ubicacion actual manual
-                // batchBloc
-                //             .configurations.data?.result?.locationPickingManual ==
-                //         false
-                //     ? null
-                //     :
-
-                batchBloc.locationIsOk
+                batchBloc.configurations.result?.result
+                            ?.locationPackManual ==
+                        false
                     ? null
-                    : (String? newValue) {
+                    : batchBloc.locationIsOk
+                        ? null
+                        : (String? newValue) {
+                            if (newValue ==
+                                currentProduct.locationId.toString()) {
+                              batchBloc.add(ValidateFieldsPackingEvent(
+                                  field: "location", isOk: true));
 
+                              batchBloc.add(ChangeLocationIsOkEvent(
+                                  currentProduct.idProduct ?? 0,
+                                  currentProduct.pedidoId ?? 0,
+                                  currentProduct.idMove ?? 0));
 
-                        if (newValue == currentProduct.locationId.toString()) {
-                          batchBloc.add(ValidateFieldsPackingEvent(
-                              field: "location", isOk: true));
-
-                          batchBloc.add(ChangeLocationIsOkEvent(
-                              currentProduct.idProduct ?? 0,
-                              currentProduct.pedidoId ?? 0,
-                              currentProduct.idMove ?? 0));
-
-                          batchBloc.oldLocation =
-                              currentProduct.locationId.toString();
-
-
-                        } else {
-                          batchBloc.add(ValidateFieldsPackingEvent(
-                              field: "location", isOk: false));
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            duration: const Duration(milliseconds: 1000),
-                            content: const Text('Ubicacion erronea'),
-                            backgroundColor: Colors.red[200],
-                          ));
-                        }
-                      },
+                              batchBloc.oldLocation =
+                                  currentProduct.locationId.toString();
+                            } else {
+                              batchBloc.add(ValidateFieldsPackingEvent(
+                                  field: "location", isOk: false));
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                duration: const Duration(milliseconds: 1000),
+                                content: const Text('Ubicacion erronea'),
+                                backgroundColor: Colors.red[200],
+                              ));
+                            }
+                          },
           ),
 
           // Mostrar ubicación actual

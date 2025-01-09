@@ -67,8 +67,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
+    log('shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
     if (context.read<BatchBloc>().shouldRunDependencies) {
-      log('shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
       final batchBloc = context.read<BatchBloc>();
       if (!batchBloc.locationIsOk && //false
           !batchBloc.productIsOk && //false
@@ -722,7 +722,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     ),
                                                   ],
                                                 ),
-                                                  ExpiryDateWidget(
+                                              ExpiryDateWidget(
                                                   expireDate: currentProduct
                                                               .expireDate ==
                                                           ""
@@ -748,8 +748,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
                         //Todo: MUELLE
 
-                        if (batchBloc.index + 1 ==
-                            batchBloc.filteredProducts.length)
+                        if (batchBloc.batchWithProducts.batch?.indexList ==
+                            (batchBloc.filteredProducts.length) - 1)
                           Row(
                             children: [
                               Padding(
@@ -1306,24 +1306,33 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           color: Colors.black, fontSize: 14)),
                                 ),
                                 Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 5),
-                                  child: currentProduct.quantity -
-                                              batchBloc.quantitySelected ==
-                                          0
-                                      ? Container() // Ocultamos el widget si la diferencia es 0
-                                      : Text(
-                                          (currentProduct.quantity -
-                                                  batchBloc.quantitySelected)
-                                              .toString(),
-                                          style: TextStyle(
-                                            color: _getColorForDifference(
-                                                currentProduct.quantity -
-                                                    batchBloc.quantitySelected),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 5),
+                                    child: currentProduct.quantity -
+                                                batchBloc.quantitySelected ==
+                                            0
+                                        ? Container() // Ocultamos el widget si la diferencia es 0
+
+                                        : Text(
+                                            (batchBloc.quantitySelected <=
+                                                    currentProduct.quantity
+                                                ? (currentProduct.quantity -
+                                                        batchBloc
+                                                            .quantitySelected)
+                                                    .toString()
+                                                : '0'), // Aquí puedes definir qué mostrar si la condición no se cumple
+                                            style: TextStyle(
+                                              color: _getColorForDifference(
+                                                batchBloc.quantitySelected <=
+                                                        currentProduct.quantity
+                                                    ? (currentProduct.quantity -
+                                                        batchBloc
+                                                            .quantitySelected)
+                                                    : 0, // Si no cumple, el color será para diferencia 0
+                                              ),
+                                              fontSize: 14,
+                                            ),
+                                          )),
 
                                 Text(currentProduct.unidades ?? "",
                                     style: const TextStyle(
@@ -1639,6 +1648,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   cantidad: cantidad,
                   batchId: batchBloc.batchWithProducts.batch?.id ?? 0,
                   onAccepted: () async {
+                    batchBloc.add(IsShouldRunDependencies(
+                      false
+                    ));
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
                         currentProduct.idProduct ?? 0,

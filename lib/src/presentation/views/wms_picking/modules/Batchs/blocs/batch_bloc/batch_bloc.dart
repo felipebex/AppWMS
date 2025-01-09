@@ -155,6 +155,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onIsShouldRunDependenciesEvent(
       IsShouldRunDependencies event, Emitter<BatchState> emit) {
     shouldRunDependencies = event.shouldRunDependencies;
+    print('shouldRunDependencies: $shouldRunDependencies');
     emit(ShouldRunDependenciesState(
         shouldRunDependencies: shouldRunDependencies));
   }
@@ -409,7 +410,19 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
     print("entro al evento de cargar datos");
 
-    currentProduct = filteredProducts[batchWithProducts.batch?.indexList ?? 0];
+    //*validamso que el indice no este fuera de rango, si lo esta restamos 1
+    // if (batchWithProducts.batch?.indexList == null) {
+      currentProduct =
+          filteredProducts[batchWithProducts.batch?.indexList ?? 0];
+    // } else {
+    //   if (batchWithProducts.batch!.indexList! > filteredProducts.length - 1) {
+    //     currentProduct =
+    //         filteredProducts[(batchWithProducts.batch?.indexList ?? 0) - 1];
+    //   } else {
+    //     currentProduct =
+    //         filteredProducts[batchWithProducts.batch?.indexList ?? 0];
+    //   }
+    // }
 
     if (currentProduct.locationId == oldLocation) {
       locationIsOk = true;
@@ -426,8 +439,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             : false;
     locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
     quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
-    index = batchWithProducts.batch?.indexList ?? 0;
+    index = 
+    (batchWithProducts.batch?.indexList ?? 0);
     quantitySelected = currentProduct.quantitySeparate ?? 0;
+
+
+    print("🎽current product: ${currentProduct.toMap()}");
+    print("🎽index: $index");
+    print("🎽batchWithProducts.batch${batchWithProducts.batch?.toMap()}");
+    print("🎽filteredProducts: ${filteredProducts.length}");
 
     emit(LoadDataInfoState());
   }
@@ -704,7 +724,17 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       await db.setFieldTableBatch(
           batchWithProducts.batch?.id ?? 0, 'index_list', index);
       //actualizamos el producto actual
-      currentProduct = filteredProducts[index];
+      //*validamso que el indice no este fuera de rango, si lo esta restamos 1
+      // if (batchWithProducts.batch?.indexList == null) {
+      //   currentProduct = filteredProducts[index];
+      // } else {
+      //   if (batchWithProducts.batch!.indexList! > filteredProducts.length - 1) {
+      //     currentProduct = filteredProducts[(index) - 1];
+      //   } else {
+          currentProduct = filteredProducts[index];
+        // }
+      // }
+
       if (currentProduct.locationId == oldLocation) {
         print('La ubicacion es igual');
         locationIsOk = true;

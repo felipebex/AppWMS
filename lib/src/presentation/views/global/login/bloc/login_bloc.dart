@@ -35,8 +35,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           PrefUtils.setUserPass(password.text);
           PrefUtils.setUserId(response.result?.uid?? 0);
           PrefUtils.setIsLoggedIn(true);
-          email.clear();
-          password.clear();
           emit(LoginSuccess());
         }
       

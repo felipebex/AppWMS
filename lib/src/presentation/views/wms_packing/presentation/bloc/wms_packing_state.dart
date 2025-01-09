@@ -81,3 +81,18 @@ class NovedadesPackingLoadedState  extends WmsPackingState {
   final List<Novedad> listOfNovedades;
   NovedadesPackingLoadedState({required this.listOfNovedades});
 }
+
+
+class ConfigurationLoadingPack extends WmsPackingState {}
+
+class ConfigurationLoadedPack extends WmsPackingState {
+  final Configurations configurations;
+
+  ConfigurationLoadedPack(this.configurations);
+}
+
+class ConfigurationErrorPack extends WmsPackingState {
+  final String error;
+
+  ConfigurationErrorPack(this.error);
+}

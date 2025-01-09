@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
@@ -81,10 +82,15 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   //*batch con productos
   BatchWithProducts batchWithProducts = BatchWithProducts();
 
+  //configuracion del usuario //permisos
+  Configurations configurations = Configurations();
+
   //*lista de novedades
   List<Novedad> novedades = [];
 
   WmsPackingBloc() : super(WmsPackingInitial()) {
+    //obtener las configuraciones y permisos del usuario desde la bd
+    on<LoadConfigurationsUserPack>(_onLoadConfigurationsUserEvent);
     //*obtener todos los batchs para packing de odoo
     on<LoadAllPackingEvent>(_onLoadAllPackingEvent);
     //*obtener todos los batchs para packing de la base de datos
@@ -141,6 +147,65 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     //*evento para obtener las novedades
     on<LoadAllNovedadesPackingEvent>(_onLoadAllNovedadesEvent);
     add(LoadAllNovedadesPackingEvent());
+    add(LoadConfigurationsUserPack());
+
+    //*metodo para dividir el producto en varios paquetes
+    on<SetPickingSplitEvent>(_onSetPickingsSplitEvent);
+  }
+
+  void _onSetPickingsSplitEvent(
+      SetPickingSplitEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      //actualizamos el estado del producto como separado
+      await db.setFieldTableProductosPedidos(
+          event.pedidoId, event.productId, "is_separate", "true", event.idMove);
+
+      // actualizamos el estado del producto como certificado
+      await db.setFieldTableProductosPedidos(
+        event.pedidoId,
+        event.productId,
+        "is_certificate",
+        "true",
+        event.idMove,
+      );
+      //actualizamso el estado de producto como split
+      await db.setFieldTableProductosPedidos(
+        event.pedidoId,
+        event.productId,
+        "is_product_split",
+        "true",
+        event.idMove,
+      );
+
+      //actualizamos la cantidad separada
+      quantitySelected = 0;
+
+      //duplicamos el producto con la cantidad pendiete de separar
+
+      //eleiminamso el producto ya enviado a listo
+
+      //actualizamos la lista de productos en progreso
+    } catch (e, s) {
+      print('Error en el  _onSetPickingsSplitEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
+  }
+
+  void _onLoadConfigurationsUserEvent(
+      LoadConfigurationsUserPack event, Emitter<WmsPackingState> emit) async {
+    try {
+      int userId = await PrefUtils.getUserId();
+      final response = await db.getConfiguration(userId);
+
+      if (response != null) {
+        emit(ConfigurationLoadedPack(response));
+        configurations = response;
+      } else {
+        emit(ConfigurationErrorPack('Error al cargar configuraciones'));
+      }
+    } catch (e, s) {
+      print('Error en GetConfigurations.dart: $e =>$s');
+    }
   }
 
   void _onLoadAllNovedadesEvent(
@@ -418,8 +483,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                 "true",
               );
 
-              //limpiamos la lista de productos seleccionados
-              listOfProductosProgress.clear();
               emit(WmsPackingLoaded());
 
               // Si todo salió bien, podemos notificar a la UI que el empaquetado fue exitoso
@@ -557,9 +620,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
             .toList();
 
         //filtramos y creamos la lista de productos listo a separar para empaque
-        listOfProductosProgress = listOfProductos
-            .where((product) => product.isSeparate == null)
-            .toList();
+        listOfProductosProgress = listOfProductos.where((product) {
+          return (product.isSeparate == null &&
+              (product.isProductSplit == 1 || product.isPacking == null));
+        }).toList();
 
         //traemos todos los paquetes de la base de datos del pedido en cuesiton
         final packagesDB = await db.getPackagesPedido(event.pedidoId);
