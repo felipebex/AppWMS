@@ -180,6 +180,8 @@ class WmsPickingRepository {
           },
           isLoadinDialog: false,
           context: context);
+      //mostramos el body
+      print('Response sendPicking: ${response.body}');
 
       print('Response sendPicking: ${response.statusCode}');
       if (response.statusCode < 400) {

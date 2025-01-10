@@ -991,6 +991,21 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                             : black,
                                                                       ),
                                                                     ),
+                                                                    subtitle:
+                                                                        Text(
+                                                                      muelle.barcode ==
+                                                                              ""
+                                                                          ? "Sin codigo de barras"
+                                                                          : '',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: isSelected
+                                                                            ? Colors.white
+                                                                            : red,
+                                                                      ),
+                                                                    ),
                                                                     onTap: () {
                                                                       setState(
                                                                           () {

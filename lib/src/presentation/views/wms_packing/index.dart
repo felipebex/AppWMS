@@ -329,7 +329,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             batch.id ?? 0,
                                           ));
 
-                                      //viajamos a la vista de detalles del batch con sus pedidos
+                                      // viajamos a la vista de detalles del batch con sus pedidos
                                       Navigator.pushNamed(
                                         context,
                                         'packing-list',

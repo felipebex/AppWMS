@@ -257,11 +257,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             Item(
               idMove: event.productsSeparate[i].idMove ?? 0,
               productId: event.productsSeparate[i].idProduct ?? 0,
-              lote: event.productsSeparate[i].loteId ?? '',
+              lote: event.productsSeparate[i].lotId ?? '',
               cantidad: event.productsSeparate[i].quantitySeparate ?? 0,
               novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
-              muelle: event.productsSeparate[0].idLocationDest ?? 0,
+              muelle:  event.muelle.id ?? 0,
               idOperario: userid,
             ),
           ]);
@@ -623,10 +623,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void getSubmuelles() async {
+    print("id del muelle ${batchWithProducts.batch?.idMuelle}");
     submuelles.clear();
     final muellesdb =
     //todo cambiar al id de idMuelle
-        await db.getSubmuellesByLocationId(batchWithProducts.batch?.id ?? 0
+        await db.getSubmuellesByLocationId(batchWithProducts.batch?.idMuelle ?? 0
             // 92265,
             );
     if (muellesdb.isNotEmpty) {

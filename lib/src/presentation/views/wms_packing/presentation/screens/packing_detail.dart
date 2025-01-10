@@ -84,7 +84,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                           size: 20,
                         )),
                     Tab(
-                        text: 'Listo',
+                        text: 'Preparado',
                         icon: Icon(
                           Icons.done,
                           color: Colors.white,

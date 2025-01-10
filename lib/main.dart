@@ -170,9 +170,14 @@ void searchProductsNoSendOdoo( BuildContext context) async {
             novedad: product.observation ?? 'Sin novedad',
             timeLine: double.parse(totalTime),
             muelle: product.idLocationDest ?? 0,
-            idOperario: userId
+            idOperario: userId,
+            
           ),
         ]);
+
+
+
+
     if (response.result?.code == 200) {
       //recorremos todos los resultados de la respuesta
       for (var resultProduct in response.result!.result!) {

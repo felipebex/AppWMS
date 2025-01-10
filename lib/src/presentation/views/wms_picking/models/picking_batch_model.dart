@@ -66,6 +66,7 @@ class BatchsModel {
   final dynamic scheduleddate;
   final dynamic pickingTypeId;
   final String? muelle; // es el mismo location_id
+  final int? idMuelle;
   final String? state;
   final dynamic userId;
   final String? userName;
@@ -96,6 +97,7 @@ class BatchsModel {
     this.scheduleddate,
     this.pickingTypeId,
     this.muelle,
+    this.idMuelle,
     this.state,
     this.userId,
     this.userName,
@@ -127,6 +129,7 @@ class BatchsModel {
         scheduleddate: json["scheduleddate"],
         pickingTypeId: json['picking_type_id'],
         muelle: json['muelle'],
+        idMuelle: json['id_muelle'],
         state: json['state'],
         userId: json['user_id'],
         userName: json['user_name'],
@@ -156,6 +159,7 @@ class BatchsModel {
         'scheduleddate': scheduleddate,
         'picking_type_id': pickingTypeId,
         'muelle': muelle,
+        'id_muelle': idMuelle,
         'state': state,
         'user_id': userId,
         'user_name': userName,

@@ -173,6 +173,8 @@ class ApiRequestService {
       }
     }
 
+    print("body: $body");
+
     var headers = {
       'Content-Type': 'application/json',
       'Cookie': '$sessionId',

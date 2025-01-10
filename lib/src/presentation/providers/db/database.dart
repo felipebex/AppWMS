@@ -30,7 +30,7 @@ class DataBaseSqlite {
     final path = join(dbPath, 'wmsapp.db');
 
     return await openDatabase(path,
-        version: 4,
+        version: 5,
         onCreate: _createDB,
         onUpgrade: _upgradeDB,
         singleInstance: true);
@@ -48,6 +48,7 @@ class DataBaseSqlite {
         scheduleddate VARCHAR(255),
         picking_type_id VARCHAR(255),
         muelle VARCHAR(255),
+        id_muelle INTEGER,
         state VARCHAR(255),
         user_id VARCHAR(255),
         user_name VARCHAR(255),
@@ -126,11 +127,10 @@ class DataBaseSqlite {
         state VARCHAR(255),
         user_id INTEGER,
         user_name VARCHAR(255),
-        catidad_pedidos INTEGER,
+        cantidad_pedidos INTEGER,
 
         is_separate INTEGER, 
         is_selected INTEGER, 
-        is_packing INTEGER,
         pedido_separate_qty INTEGER,
         index_list INTEGER,
 
@@ -168,7 +168,6 @@ class DataBaseSqlite {
         cantidad_productos INTEGER,
         numero_paquetes INTEGER,
         is_selected INTEGER,
-        is_packing INTEGER,
         is_terminate INTEGER,
         FOREIGN KEY (batch_id) REFERENCES tblbatchs_packing (id)
       )
@@ -283,9 +282,10 @@ class DataBaseSqlite {
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 3) {
+    if (oldVersion < 6) {
       await db.execute(
-          'ALTER TABLE tblconfigurations ADD COLUMN muelle_option TEXT');
+          // 'ALTER TABLE tblconfigurations ADD COLUMN muelle_option TEXT');
+          'ALTER TABLE tblbatchs ADD COLUMN id_muelle INTEGER');
     }
   }
 
@@ -661,8 +661,7 @@ class DataBaseSqlite {
         //variables de packing
         "is_selected": 0,
         // "is_separate": 0,
-        "is_product_split":1,
-        // "is_packing":0
+        "is_product_split": 1,
       };
 
       // Insertar el nuevo producto duplicado
@@ -726,7 +725,7 @@ class DataBaseSqlite {
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
-              'catidad_pedidos': batch.cantidadPedidos,
+              'cantidad_pedidos': batch.cantidadPedidos,
               'user_name': batch.userName,
             },
             where: 'id = ?',
@@ -743,7 +742,7 @@ class DataBaseSqlite {
               "picking_type_id": batch.pickingTypeId,
               "state": batch.state,
               "user_id": batch.userId,
-              'catidad_pedidos': batch.cantidadPedidos,
+              'cantidad_pedidos': batch.cantidadPedidos,
               'user_name': batch.userName,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
@@ -1016,6 +1015,7 @@ class DataBaseSqlite {
               "user_name": batch.userName,
               "is_wave": batch.isWave,
               'muelle': batch.muelle,
+              'id_muelle': batch.idMuelle,
               'order_by': batch.orderBy,
               'order_picking': batch.orderPicking,
               'count_items': batch.countItems,
@@ -1037,6 +1037,7 @@ class DataBaseSqlite {
               "user_name": batch.userName,
               "is_wave": batch.isWave,
               'muelle': batch.muelle,
+              'id_muelle': batch.idMuelle,
               'order_by': batch.orderBy,
               'order_picking': batch.orderPicking,
               'count_items': batch.countItems,
@@ -1347,7 +1348,7 @@ class DataBaseSqlite {
                 "id_product": barcode.idProduct,
                 "batch_id": barcode.batchId,
                 "id_move": barcode.idMove,
-                "barcode": barcodeValue,
+                "barcode": barcodeValue == false ? "" : barcodeValue,
                 "cantidad": cantidadValue,
               },
               where:
@@ -1367,7 +1368,7 @@ class DataBaseSqlite {
                 "id_product": barcode.idProduct,
                 "batch_id": barcode.batchId,
                 "id_move": barcode.idMove,
-                "barcode": barcodeValue,
+                "barcode": barcodeValue == false ? "" : barcodeValue,
                 "cantidad": cantidadValue,
               },
               conflictAlgorithm: ConflictAlgorithm
@@ -1455,16 +1456,19 @@ class DataBaseSqlite {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate IS NULL');
-    print("update3 tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
+    print(
+        "update3 tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
 
     return resUpdate;
   }
+
   Future<int?> setFieldTableProductosPedidos2(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate = 1 AND is_package = 0');
-    print("update2 tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
+    print(
+        "update2 tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
 
     return resUpdate;
   }
@@ -1475,7 +1479,8 @@ class DataBaseSqlite {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove ');
-    print("update tblproductos_pedidos (idProduct ----($productId)) -------($field): $resUpdate");
+    print(
+        "update tblproductos_pedidos (idProduct ----($productId)) -------($field): $resUpdate");
 
     return resUpdate;
   }
