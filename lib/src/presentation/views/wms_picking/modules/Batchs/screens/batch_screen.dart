@@ -362,7 +362,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        // Text('Foco: $focoLocation'),
+                        Text('Foco: $focoLocation',
+                            style: const TextStyle(fontSize: 10, color: black)),
+                        Text('Ubicacion: $scannedValue1',
+                            style: const TextStyle(fontSize: 10, color: black)),
+                        Text('producto: $scannedValue2',
+                            style: const TextStyle(fontSize: 10, color: black)),
+                        // Text('Ubicacion: $scannedValue1', style: const TextStyle(fontSize: 10, color: black)),
 
                         //todo : ubicacion de origen
                         Row(
@@ -1648,9 +1654,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   cantidad: cantidad,
                   batchId: batchBloc.batchWithProducts.batch?.id ?? 0,
                   onAccepted: () async {
-                    batchBloc.add(IsShouldRunDependencies(
-                      false
-                    ));
+                    batchBloc.add(IsShouldRunDependencies(false));
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
                         currentProduct.idProduct ?? 0,
@@ -1757,6 +1761,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             orElse: () =>
                 Barcodes() // Si no se encuentra ningún match, devuelve null
             );
+    print(context.read<BatchBloc>().listOfBarcodes);
     if (matchedBarcode.barcode != null) {
       print("Coincidencia encontrada: Cantidad = ${matchedBarcode.cantidad}");
 

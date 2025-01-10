@@ -153,11 +153,12 @@ class LoadConfigurationsUserPack extends WmsPackingEvent {
 }
 
 class SetPickingSplitEvent extends WmsPackingEvent {
+  final PorductoPedido producto;
   final int idMove;
   final int quantity;
   final int productId;
   final int pedidoId;
-  SetPickingSplitEvent(this.idMove, this.quantity, this.productId, this.pedidoId);
+  SetPickingSplitEvent(this.producto,this.idMove, this.quantity, this.productId, this.pedidoId);
 }
 
 

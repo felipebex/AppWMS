@@ -157,7 +157,8 @@ class Tab3Screen extends StatelessWidget {
 
                                         Card(
                                           elevation: 3,
-                                          color: product.quantity == product.quantitySeparate
+                                          color: product.quantity ==
+                                                  product.quantitySeparate
                                               ? white
                                               : Colors.amber[100],
                                           child: Padding(
@@ -194,7 +195,7 @@ class Tab3Screen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     Text(
-                                                      "Cantidades Separadas : ",
+                                                      "Cantidades empaquetadas: ",
                                                       style: TextStyle(
                                                         fontSize: 14,
                                                         color: primaryColorApp,
@@ -236,6 +237,26 @@ class Tab3Screen extends StatelessWidget {
                                                       ),
                                                     ],
                                                   ),
+                                                if (product.isProductSplit == 1)
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "Novedades : ",
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              primaryColorApp,
+                                                        ),
+                                                      ),
+                                                      const Text(
+                                                        "Producto dividido",
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: black,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                               ],
                                             ),
                                           ),
@@ -251,7 +272,8 @@ class Tab3Screen extends StatelessWidget {
                                                   color: primaryColorApp,
                                                 ),
                                               ),
-                                              Text("${product.tracking} / ${product.lotId}",
+                                              Text(
+                                                  "${product.tracking} / ${product.lotId}",
                                                   style: const TextStyle(
                                                       fontSize: 14,
                                                       color: black)),

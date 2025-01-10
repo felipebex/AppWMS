@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
@@ -209,10 +210,8 @@ class Tab2Screen extends StatelessWidget {
                                           .listOfProductsForPacking
                                           .contains(product)
                                       ? primaryColorAppLigth // Color amarillo si está seleccionado
-                                      : product.isSelected == 1
-                                          ? primaryColorAppLigth// Color verde si está seleccionado
-                                          : Colors
-                                              .white, // Color blanco si no está seleccionado
+                                      : Colors
+                                          .white, // Color blanco si no está seleccionado
                                   elevation: 5,
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -244,6 +243,8 @@ class Tab2Screen extends StatelessWidget {
                                         Expanded(
                                           child: GestureDetector(
                                             onTap: () {
+                                              //validamos
+
                                               // Mantener el comportamiento actual al tocar un producto
                                               context
                                                   .read<WmsPackingBloc>()
@@ -289,7 +290,8 @@ class Tab2Screen extends StatelessWidget {
                                                     "Producto:",
                                                     style: TextStyle(
                                                       fontSize: 14,
-                                                      color: primaryColorApp,
+                                                      color:
+                                                          primaryColorApp,
                                                     ),
                                                   ),
                                                 ),
@@ -327,7 +329,13 @@ class Tab2Screen extends StatelessWidget {
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-                                                    Text("${product.quantity}",
+                                                    Text(
+                                                        product.isProductSplit ==
+                                                                    1 &&
+                                                                product.isSeparate ==
+                                                                    1
+                                                            ? "${product.pendingQuantity}"
+                                                            : "${product.quantity}",
                                                         style: const TextStyle(
                                                             fontSize: 14,
                                                             color: black)),

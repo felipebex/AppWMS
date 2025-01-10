@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -19,6 +18,7 @@ class DialogInfo extends StatelessWidget {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: AlertDialog(
+        actionsAlignment: MainAxisAlignment.center,
         title: Center(
             child: Text(
           title,
@@ -30,11 +30,18 @@ class DialogInfo extends StatelessWidget {
           style: const TextStyle(color: black, fontSize: 16),
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("Aceptar"))
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10))),
+              child: const Text(
+                'Aceptar',
+                style: TextStyle(color: white),
+              ))
         ],
       ),
     );

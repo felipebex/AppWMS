@@ -15,6 +15,7 @@ class PorductoPedido {
   final dynamic locationDestId;
   final dynamic idLocationDest;
   final dynamic quantity;
+  final int? pendingQuantity;
   final String? tracking;
   final dynamic barcode;
   final dynamic weight;
@@ -22,9 +23,10 @@ class PorductoPedido {
   final String? observation;
   final int? isPacking;
   final int? idPackage;
-  final int? isCertificate;
+  final int? isPackage;
+  final dynamic? isCertificate;
   final int? isSendOdoo;
-  final int? isProductSplit;
+  final dynamic? isProductSplit;
   final String? isSendOdooDate;
   final dynamic expireDate;
 
@@ -58,6 +60,7 @@ class PorductoPedido {
     this.locationDestId,
     this.idLocationDest,
     this.quantity,
+    this.pendingQuantity,
     this.tracking,
     this.barcode,
     this.weight,
@@ -72,6 +75,7 @@ class PorductoPedido {
     this.isQuantityIsOk,
     this.observation,
     this.idPackage,
+    this.isPackage,
     this.isCertificate,
     this.isSendOdoo,
     this.isProductSplit,
@@ -100,6 +104,7 @@ class PorductoPedido {
         locationDestId: json["location_dest_id"],
         idLocationDest: json["id_location_dest"],
         quantity: json["quantity"],
+        pendingQuantity: json["pending_quantity"],
         tracking: json["tracking"],
         barcode: json["barcode"],
         weight: json["weight"],
@@ -115,6 +120,7 @@ class PorductoPedido {
         expireDate: json["expire_date"],
         isPacking: json["is_packing"],
         idPackage: json["id_package"],
+        isPackage: json["is_package"],
         isCertificate: json["is_certificate"],
         isSendOdoo: json["is_send_odoo"],
         isProductSplit: json["is_product_split"],
@@ -143,6 +149,7 @@ class PorductoPedido {
         "location_dest_id": locationDestId,
         "id_location_dest": idLocationDest,
         "quantity": quantity,
+        "pending_quantity" : pendingQuantity,
         "tracking": tracking,
         "barcode": barcode,
         "weight": weight,
@@ -157,6 +164,7 @@ class PorductoPedido {
         "observation": observation,
         "is_packing": isPacking,
         "id_package": idPackage,
+        "is_package": isPackage,
         "is_certificate": isCertificate,
         "is_product_split": isProductSplit,
         "is_send_odoo": isSendOdoo,

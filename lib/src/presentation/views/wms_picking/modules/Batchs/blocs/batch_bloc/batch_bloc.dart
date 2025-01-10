@@ -625,6 +625,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void getSubmuelles() async {
     submuelles.clear();
     final muellesdb =
+    //todo cambiar al id de idMuelle
         await db.getSubmuellesByLocationId(batchWithProducts.batch?.id ?? 0
             // 92265,
             );
@@ -757,6 +758,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
       );
+
+      
 
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));

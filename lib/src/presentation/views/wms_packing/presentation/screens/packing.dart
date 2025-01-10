@@ -228,8 +228,8 @@ class _PackingScreenState extends State<PackingScreen> {
         return true;
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-        if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
-            currentProduct.quantity!) {
+        if ((matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected) >
+             currentProduct.quantity!) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             duration: const Duration(milliseconds: 1000),
             content: Text(
@@ -280,10 +280,13 @@ class _PackingScreenState extends State<PackingScreen> {
                       child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
                         listener: (context, state) {
                           if (state is ChangeQuantitySeparateState) {
+
                             if (state.quantity ==
-                                packinghBloc.currentProduct.quantity.toInt()) {
+                               packinghBloc.currentProduct.quantity
+                                        .toInt()) {
                               _finichPackingProduct(context);
                             }
+                            print("hola");
                           }
 
                           if (state is ChangeLocationPackingIsOkState) {
@@ -863,17 +866,19 @@ class _PackingScreenState extends State<PackingScreen> {
                                         style: TextStyle(
                                             color: Colors.black, fontSize: 14)),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      child: Text(
-                                        packinghBloc.currentProduct.quantity
-                                                ?.toString() ??
-                                            "",
-                                        style: TextStyle(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        child: Text(
+                                          packinghBloc
+                                                          .currentProduct
+                                                          .quantity
+                                                  ?.toString() ??
+                                              "",
+                                          style: TextStyle(
                                             color: primaryColorApp,
-                                            fontSize: 14),
-                                      ),
-                                    ),
+                                            fontSize: 14,
+                                          ),
+                                        )),
                                     Text(
                                         packinghBloc.currentProduct.unidades ??
                                             "",
@@ -1049,189 +1054,189 @@ class _PackingScreenState extends State<PackingScreen> {
                                     icon: const Icon(Icons.clear),
                                   ),
                                 ),
-                                //al dar enter
-                                onFieldSubmitted: (value) {
-                                  setState(() {
-                                    //validamos que el texto no este vacio
-                                    if (value.isNotEmpty) {
-                                      if (int.parse(value) >
-                                          (packinghBloc.currentProduct
-                                                      .quantity ??
-                                                  0)
-                                              .toInt()) {
-                                        //todo: cantidad fuera del rango
-                                        packinghBloc.add(
-                                            ValidateFieldsPackingEvent(
-                                                field: "quantity",
-                                                isOk: false));
-                                        cantidadController.clear();
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          duration: const Duration(seconds: 1),
-                                          content:
-                                              const Text('Cantidad incorrecta'),
-                                          backgroundColor: Colors.red[200],
-                                        ));
-                                      } else {
-                                        //todo: cantidad dentro del rango
+                                // //al dar enter
+                                // onFieldSubmitted: (value) {
+                                //   setState(() {
+                                //     //validamos que el texto no este vacio
+                                //     if (value.isNotEmpty) {
+                                //       if (int.parse(value) >
+                                //           (packinghBloc.currentProduct
+                                //                       .quantity ??
+                                //                   0)
+                                //               .toInt()) {
+                                //         //todo: cantidad fuera del rango
+                                //         packinghBloc.add(
+                                //             ValidateFieldsPackingEvent(
+                                //                 field: "quantity",
+                                //                 isOk: false));
+                                //         cantidadController.clear();
+                                //         ScaffoldMessenger.of(context)
+                                //             .showSnackBar(SnackBar(
+                                //           duration: const Duration(seconds: 1),
+                                //           content:
+                                //               const Text('Cantidad incorrecta'),
+                                //           backgroundColor: Colors.red[200],
+                                //         ));
+                                //       } else {
+                                //         //todo: cantidad dentro del rango
 
-                                        if (int.parse(value) ==
-                                            packinghBloc
-                                                .currentProduct.quantity) {
-                                          //*cantidad correcta
+                                //         if (int.parse(value) ==
+                                //            packinghBloc
+                                //                     .currentProduct.quantity) {
+                                //           //*cantidad correcta
 
-                                          //guardamos la cantidad en la bd
-                                          packinghBloc
-                                              .add(ChangeQuantitySeparate(
-                                            int.parse(value),
-                                            packinghBloc
-                                                    .currentProduct.idProduct ??
-                                                0,
-                                            packinghBloc
-                                                    .currentProduct.pedidoId ??
-                                                0,
-                                            packinghBloc
-                                                    .currentProduct.idMove ??
-                                                0,
-                                          ));
+                                //           //guardamos la cantidad en la bd
+                                //           packinghBloc
+                                //               .add(ChangeQuantitySeparate(
+                                //             int.parse(value),
+                                //             packinghBloc
+                                //                     .currentProduct.idProduct ??
+                                //                 0,
+                                //             packinghBloc
+                                //                     .currentProduct.pedidoId ??
+                                //                 0,
+                                //             packinghBloc
+                                //                     .currentProduct.idMove ??
+                                //                 0,
+                                //           ));
 
-                                          packinghBloc.add(SetPickingsEvent(
-                                            packinghBloc
-                                                    .currentProduct.idProduct ??
-                                                0,
-                                            packinghBloc
-                                                    .currentProduct.pedidoId ??
-                                                0,
-                                            packinghBloc
-                                                    .currentProduct.idMove ??
-                                                0,
-                                          ));
+                                //           packinghBloc.add(SetPickingsEvent(
+                                //             packinghBloc
+                                //                     .currentProduct.idProduct ??
+                                //                 0,
+                                //             packinghBloc
+                                //                     .currentProduct.pedidoId ??
+                                //                 0,
+                                //             packinghBloc
+                                //                     .currentProduct.idMove ??
+                                //                 0,
+                                //           ));
 
-                                          cantidadController.clear();
-                                          setState(() {
-                                            viewQuantity = false;
-                                          });
+                                //           cantidadController.clear();
+                                //           setState(() {
+                                //             viewQuantity = false;
+                                //           });
 
-                                          showDialog(
-                                              barrierDismissible: false,
-                                              context: context,
-                                              builder: (context) {
-                                                return const DialogLoadingPacking();
-                                              });
-                                          Future.delayed(
-                                              const Duration(seconds: 1), () {
-                                            Navigator.pop(context);
-                                            Navigator.pop(context);
-                                            packinghBloc.add(
-                                                LoadAllProductsFromPedidoEvent(
-                                                    packinghBloc.currentProduct
-                                                            .pedidoId ??
-                                                        0));
-                                          });
-                                          return;
+                                //           showDialog(
+                                //               barrierDismissible: false,
+                                //               context: context,
+                                //               builder: (context) {
+                                //                 return const DialogLoadingPacking();
+                                //               });
+                                //           Future.delayed(
+                                //               const Duration(seconds: 1), () {
+                                //             Navigator.pop(context);
+                                //             Navigator.pop(context);
+                                //             packinghBloc.add(
+                                //                 LoadAllProductsFromPedidoEvent(
+                                //                     packinghBloc.currentProduct
+                                //                             .pedidoId ??
+                                //                         0));
+                                //           });
+                                //           return;
 
-                                          // _nextProduct(currentProduct, batchBloc);
-                                        } else {
-                                          //todo cantidad menor a la cantidad pedida
+                                //           // _nextProduct(currentProduct, batchBloc);
+                                //         } else {
+                                //           //todo cantidad menor a la cantidad pedida
 
-                                          showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return DialogPackingAdvetenciaCantidadScreen(
-                                                    currentProduct: packinghBloc
-                                                        .currentProduct,
-                                                    cantidad: int.parse(
-                                                        cantidadController
-                                                            .text),
-                                                    onAccepted: () {
-                                                      packinghBloc.add(
-                                                          ChangeQuantitySeparate(
-                                                        int.parse(value),
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .idProduct ??
-                                                            0,
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .pedidoId ??
-                                                            0,
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .idMove ??
-                                                            0,
-                                                      ));
+                                //           showDialog(
+                                //               context: context,
+                                //               builder: (context) {
+                                //                 return DialogPackingAdvetenciaCantidadScreen(
+                                //                     currentProduct: packinghBloc
+                                //                         .currentProduct,
+                                //                     cantidad: int.parse(
+                                //                         cantidadController
+                                //                             .text),
+                                //                     onAccepted: () {
+                                //                       packinghBloc.add(
+                                //                           ChangeQuantitySeparate(
+                                //                         int.parse(value),
+                                //                         packinghBloc
+                                //                                 .currentProduct
+                                //                                 .idProduct ??
+                                //                             0,
+                                //                         packinghBloc
+                                //                                 .currentProduct
+                                //                                 .pedidoId ??
+                                //                             0,
+                                //                         packinghBloc
+                                //                                 .currentProduct
+                                //                                 .idMove ??
+                                //                             0,
+                                //                       ));
 
-                                                      packinghBloc
-                                                          .add(SetPickingsEvent(
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .idProduct ??
-                                                            0,
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .pedidoId ??
-                                                            0,
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .idMove ??
-                                                            0,
-                                                      ));
+                                //                       packinghBloc
+                                //                           .add(SetPickingsEvent(
+                                //                         packinghBloc
+                                //                                 .currentProduct
+                                //                                 .idProduct ??
+                                //                             0,
+                                //                         packinghBloc
+                                //                                 .currentProduct
+                                //                                 .pedidoId ??
+                                //                             0,
+                                //                         packinghBloc
+                                //                                 .currentProduct
+                                //                                 .idMove ??
+                                //                             0,
+                                //                       ));
 
-                                                      cantidadController
-                                                          .clear();
-                                                      setState(() {
-                                                        viewQuantity = false;
-                                                      });
+                                //                       cantidadController
+                                //                           .clear();
+                                //                       setState(() {
+                                //                         viewQuantity = false;
+                                //                       });
 
-                                                      showDialog(
-                                                          barrierDismissible:
-                                                              false,
-                                                          context: context,
-                                                          builder: (context) {
-                                                            return const DialogLoadingPacking();
-                                                          });
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              seconds: 1), () {
-                                                        packinghBloc.add(
-                                                            LoadAllProductsFromPedidoEvent(
-                                                                packinghBloc
-                                                                        .currentProduct
-                                                                        .pedidoId ??
-                                                                    0));
-                                                      });
-                                                      Navigator.pop(context);
-                                                      Navigator.pop(context);
-                                                      return;
-                                                    },
-                                                    onSplit: () {
-                                                      packinghBloc.add(ChangeQuantitySeparate(
-                                                          int.parse(value),
-                                                          packinghBloc
-                                                                  .currentProduct
-                                                                  .idProduct ??
-                                                              0,
-                                                          packinghBloc
-                                                                  .currentProduct
-                                                                  .pedidoId ??
-                                                              0,
-                                                          packinghBloc
-                                                                  .currentProduct
-                                                                  .idMove ??
-                                                              0));
-                                                      cantidadController
-                                                          .clear();
-                                                      _finichPackingProductSplit(
-                                                          context,
-                                                          int.parse(value));
-                                                    });
-                                              });
-                                        }
-                                      }
-                                    }
-                                    viewQuantity = false;
-                                  });
-                                },
+                                //                       showDialog(
+                                //                           barrierDismissible:
+                                //                               false,
+                                //                           context: context,
+                                //                           builder: (context) {
+                                //                             return const DialogLoadingPacking();
+                                //                           });
+                                //                       Future.delayed(
+                                //                           const Duration(
+                                //                               seconds: 1), () {
+                                //                         packinghBloc.add(
+                                //                             LoadAllProductsFromPedidoEvent(
+                                //                                 packinghBloc
+                                //                                         .currentProduct
+                                //                                         .pedidoId ??
+                                //                                     0));
+                                //                       });
+                                //                       Navigator.pop(context);
+                                //                       Navigator.pop(context);
+                                //                       return;
+                                //                     },
+                                //                     onSplit: () {
+                                //                       packinghBloc.add(ChangeQuantitySeparate(
+                                //                           int.parse(value),
+                                //                           packinghBloc
+                                //                                   .currentProduct
+                                //                                   .idProduct ??
+                                //                               0,
+                                //                           packinghBloc
+                                //                                   .currentProduct
+                                //                                   .pedidoId ??
+                                //                               0,
+                                //                           packinghBloc
+                                //                                   .currentProduct
+                                //                                   .idMove ??
+                                //                               0));
+                                //                       cantidadController
+                                //                           .clear();
+                                //                       _finichPackingProductSplit(
+                                //                           context,
+                                //                           int.parse(value));
+                                //                     });
+                                //               });
+                                //         }
+                                //       }
+                                //     }
+                                //     viewQuantity = false;
+                                //   });
+                                // },
                               ),
                             ),
                           ),
@@ -1294,13 +1299,7 @@ class _PackingScreenState extends State<PackingScreen> {
         batchBloc.currentProduct.pedidoId ?? 0,
         batchBloc.currentProduct.idMove ?? 0));
 
-    // actualizamos el estado del producto como certificado
-    await db.setFieldTableProductosPedidos(
-        batchBloc.currentProduct.pedidoId ?? 0,
-        batchBloc.currentProduct.idProduct ?? 0,
-        "is_certificate",
-        "true",
-        batchBloc.currentProduct.idMove ?? 0);
+  
 
     //cerramos el dialogo de carga
     batchBloc.add(
@@ -1309,11 +1308,12 @@ class _PackingScreenState extends State<PackingScreen> {
   }
 
   void _finichPackingProductSplit(BuildContext context, int cantidad) async {
-    final DataBaseSqlite db = DataBaseSqlite();
     //marcamos el producto como terminado
+    print('Entramos a _finichPackingProductSplit -----');
     final batchBloc = context.read<WmsPackingBloc>();
 
     batchBloc.add(SetPickingSplitEvent(
+      batchBloc.currentProduct,
       batchBloc.currentProduct.idMove ?? 0,
       cantidad,
       batchBloc.currentProduct.idProduct ?? 0,
@@ -1334,7 +1334,9 @@ class _PackingScreenState extends State<PackingScreen> {
         ? batchBloc.quantitySelected.toString()
         : cantidadController.text);
 
-    if (cantidad == currentProduct.quantity) {
+    if (cantidad == 
+
+         currentProduct.quantity) {
       batchBloc.add(ChangeQuantitySeparate(
           cantidad,
           currentProduct.idProduct ?? 0,
@@ -1342,7 +1344,9 @@ class _PackingScreenState extends State<PackingScreen> {
           currentProduct.idMove ?? 0));
     } else {
       FocusScope.of(context).unfocus();
-      if (cantidad < (currentProduct.quantity ?? 0).toInt()) {
+    if (cantidad < 
+   
+         (currentProduct.quantity ?? 0).toInt()) {
         showDialog(
             context: context,
             builder: (context) {

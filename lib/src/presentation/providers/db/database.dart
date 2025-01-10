@@ -207,8 +207,9 @@ class DataBaseSqlite {
       is_quantity_is_ok INTEGER,
       location_dest_is_ok INTEGER,
       observation TEXT,
-      id_package INTEGER,
+      is_package INTEGER,
       is_packing INTEGER,
+      id_package INTEGER,
       FOREIGN KEY (id_package) REFERENCES tblpackages (id)
       FOREIGN KEY (pedido_id) REFERENCES tblpedidos_packing (id)
     )
@@ -614,14 +615,79 @@ class DataBaseSqlite {
     }
   }
 
+  Future<void> insertDuplicateProductoPedido(
+      PorductoPedido producto, int cantidad) async {
+    try {
+      final db = await database;
+
+      // Crear una copia de los datos de ProductoPedido, omitiendo los campos clave si es necesario
+      Map<String, dynamic> productCopy = {
+        "product_id": producto.productId,
+        "batch_id": producto.batchId,
+        "pedido_id": producto.pedidoId,
+        "id_move": producto.idMove,
+        "id_product": producto.idProduct,
+        "barcode_location":
+            producto.barcodeLocation == false ? "" : producto.barcodeLocation,
+        "lote_id": producto.loteId,
+        "lot_id": producto.lotId == [] ? "" : producto.lotId,
+        "location_id": producto.locationId,
+        "id_location": producto.idLocation,
+        "location_dest_id": producto.locationDestId,
+        "id_location_dest": producto.idLocationDest,
+        "quantity": cantidad,
+        "expire_date": producto.expireDate,
+        "tracking": producto.tracking == false
+            ? ""
+            : producto.tracking.toString(), // Convertir a String
+        "barcode": producto.barcode == false
+            ? ""
+            : (producto.barcode == ""
+                ? ""
+                : producto.barcode), // Asegurar que no sea bool
+        "weight": producto.weight == false
+            ? 0
+            : producto.weight.toDouble(), // Convertir a num (double)
+        "unidades": producto.unidades == false
+            ? ""
+            : producto.unidades.toString(), // Convertir a String
+
+        //variables de picking
+        "is_location_is_ok": 0,
+        "is_quantity_is_ok": 0,
+        "location_dest_is_ok": 0,
+        "product_is_ok": 0,
+        "observation": "",
+        //variables de packing
+        "is_selected": 0,
+        // "is_separate": 0,
+        "is_product_split":1,
+        // "is_packing":0
+      };
+
+      // Insertar el nuevo producto duplicado
+      await db!.insert(
+        'tblproductos_pedidos',
+        productCopy,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+
+      print("Producto duplicado insertado con éxito.");
+    } catch (e, s) {
+      print("Error al insertar producto duplicado: $e ==> $s");
+    }
+  }
+
   //metodo para obtener todos los tblbarcodes_packages de un producto
   Future<List<Barcodes>> getBarcodesProduct(
       int batchId, int productId, int idMove) async {
+    print("🏀batchId: $batchId, productId: $productId, idMove: $idMove");
+
     final db = await database;
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblbarcodes_packages',
-      where: 'batch_id = ? AND id_product = ? AND id_move = ?',
-      whereArgs: [batchId, productId, idMove],
+      where: 'batch_id = ?  AND id_Move = ?',
+      whereArgs: [batchId, idMove],
     );
 
     final List<Barcodes> barcodes = maps.map((map) {
@@ -1241,6 +1307,7 @@ class DataBaseSqlite {
   }
 
   ///todo insertar los barcodes de los productos
+  /// Método para insertar los barcodes de los productos
   Future<void> insertBarcodesPackageProduct(List<Barcodes> barcodesList) async {
     try {
       final db = await database;
@@ -1248,6 +1315,17 @@ class DataBaseSqlite {
       // Inicia la transacción
       await db!.transaction((txn) async {
         for (var barcode in barcodesList) {
+          // Validar los valores antes de hacer la consulta
+          String barcodeValue =
+              (barcode.barcode == null || barcode.barcode == false)
+                  ? ""
+                  : barcode.barcode.toString();
+
+          String cantidadValue =
+              (barcode.cantidad == null || barcode.cantidad == 0)
+                  ? "1" // Default value for cantidad is "1" if null or 0
+                  : barcode.cantidad.toString();
+
           // Realizamos la consulta para verificar si ya existe el producto
           final List<Map<String, dynamic>> existingProduct = await txn.query(
             'tblbarcodes_packages',
@@ -1257,17 +1335,9 @@ class DataBaseSqlite {
               barcode.idProduct,
               barcode.batchId,
               barcode.idMove,
-              barcode.barcode
+              barcodeValue, // Usamos barcodeValue que está validado
             ],
           );
-
-          // Convertir 'barcode.barcode' a String vacío si es false o null
-          String barcodeValue =
-              (barcode.barcode == null || barcode.barcode == false)
-                  ? ""
-                  : barcode.barcode.toString();
-          String cantidadValue =
-              barcode.cantidad?.toString() ?? "1"; // Usar "1" si es null
 
           if (existingProduct.isNotEmpty) {
             // Si el producto ya existe, lo actualizamos
@@ -1286,7 +1356,7 @@ class DataBaseSqlite {
                 barcode.idProduct,
                 barcode.batchId,
                 barcode.idMove,
-                barcode.barcode
+                barcodeValue, // Usamos barcodeValue que está validado
               ],
             );
           } else {
@@ -1379,13 +1449,33 @@ class DataBaseSqlite {
 
   //todo: Metodos para actualizar los campos de las tablas
 
+  //*metodo para actualizar la tabla de productos de un pedido validando los que estan ya separados
+  Future<int?> setFieldTableProductosPedidos3(int pedidoId, int productId,
+      String field, dynamic setValue, int idMove) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate IS NULL');
+    print("update3 tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
+
+    return resUpdate;
+  }
+  Future<int?> setFieldTableProductosPedidos2(int pedidoId, int productId,
+      String field, dynamic setValue, int idMove) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate = 1 AND is_package = 0');
+    print("update2 tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
+
+    return resUpdate;
+  }
+
   //*metodo para actualizar la tabla de productos de un pedido
   Future<int?> setFieldTableProductosPedidos(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove');
-    print("update tblproductos_pedidos ($field): $resUpdate");
+        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove ');
+    print("update tblproductos_pedidos (idProduct ----($productId)) -------($field): $resUpdate");
 
     return resUpdate;
   }

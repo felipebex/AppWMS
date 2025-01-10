@@ -145,7 +145,7 @@ class _DialogAdvetenciaCantidadScreenState
             ElevatedButton(
                 onPressed: () async {
                   Navigator.pop(context); // Cierra el diálogo
-                  widget.onAccepted(); // L
+                  widget.onSplit(); // L
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: grey,
@@ -155,8 +155,8 @@ class _DialogAdvetenciaCantidadScreenState
                   ),
                   elevation: 3,
                 ),
-                child: Text('Dividir Cantidad',
-                    style: const TextStyle(color: Colors.white))),
+                child: const Text('Dividir Cantidad',
+                    style: TextStyle(color: Colors.white))),
           ],
         ),
         actions: [
@@ -174,6 +174,7 @@ class _DialogAdvetenciaCantidadScreenState
               ),
               child:
                   Text('Cancelar', style: TextStyle(color: primaryColorApp))),
+          
           ElevatedButton(
               onPressed: () async {
                 // Validamos que tenga una novedad seleccionada

@@ -93,9 +93,18 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
             visible: widget.isPda,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                widget.batchBloc.currentProduct.locationDestId ??"",
-                style: const TextStyle(fontSize: 14, color: black),
+              child: Row(
+                children: [
+                  Text(
+                    widget.batchBloc.currentProduct.locationDestId ??"",
+                    style: const TextStyle(fontSize: 14, color: black),
+                  ),
+                  const Text("/"),
+                  Text(
+                    widget.batchBloc.batchWithProducts.batch?.muelle ?? "",
+                    style: TextStyle(fontSize: 14, color: primaryColorApp),
+                  )
+                ],
               ),
             ),
           ),

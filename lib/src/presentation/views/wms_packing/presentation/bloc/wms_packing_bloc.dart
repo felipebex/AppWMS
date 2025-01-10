@@ -156,35 +156,31 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onSetPickingsSplitEvent(
       SetPickingSplitEvent event, Emitter<WmsPackingState> emit) async {
     try {
+     
+
       //actualizamos el estado del producto como separado
-      await db.setFieldTableProductosPedidos(
+      await db.setFieldTableProductosPedidos3(
           event.pedidoId, event.productId, "is_separate", "true", event.idMove);
 
-      // actualizamos el estado del producto como certificado
-      await db.setFieldTableProductosPedidos(
-        event.pedidoId,
-        event.productId,
-        "is_certificate",
-        "true",
-        event.idMove,
-      );
-      //actualizamso el estado de producto como split
-      await db.setFieldTableProductosPedidos(
-        event.pedidoId,
-        event.productId,
-        "is_product_split",
-        "true",
-        event.idMove,
-      );
+      //marcamos el producto como producto split
+      await db.setFieldTableProductosPedidos3(event.pedidoId, event.productId,
+          "is_product_split", "true", event.idMove);
+
+      await db.setFieldTableProductosPedidos3(
+          event.pedidoId, event.productId, "is_package", "false", event.idMove);
+           // actualizamos el estado del producto como certificado
+      await db.setFieldTableProductosPedidos3(event.pedidoId, event.productId,
+          "is_certificate", "true", event.idMove);
+
+//calculamos la cantidad pendiente del producto
+      var pendingQuantity = (event.producto.quantity - event.quantity);
+      //creamos un nuevo producto (duplicado) con la cantidad separada
+      await db.insertDuplicateProductoPedido(event.producto, pendingQuantity);
 
       //actualizamos la cantidad separada
       quantitySelected = 0;
-
-      //duplicamos el producto con la cantidad pendiete de separar
-
-      //eleiminamso el producto ya enviado a listo
-
-      //actualizamos la lista de productos en progreso
+      //actualizamos la lista de productos
+      add(LoadAllProductsFromPedidoEvent(event.pedidoId));
     } catch (e, s) {
       print('Error en el  _onSetPickingsSplitEvent: $e, $s');
       emit(WmsPackingError(e.toString()));
@@ -268,9 +264,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       SearchProductPackingEvent event, Emitter<WmsPackingState> emit) async {
     final query = event.query.toLowerCase();
     if (query.isEmpty) {
-      listOfProductosProgress = listOfProductos
-          .where((product) => product.isSeparate == null)
-          .toList();
+      listOfProductosProgress = listOfProductos.where((product) {
+        return product.isSeparate == null || product.isSeparate == 0;
+      }).toList();
       emit(WmsPackingLoaded());
     } else {
       listOfProductosProgress = listOfProductos.where((product) {
@@ -389,8 +385,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                       .idProduct, // Suponiendo que `id` es el ID del producto
                   lote: producto.loteId
                       .toString(), // Suponiendo que `loteId` es el lote del producto
-                  locationId:
-                      producto.idLocation, // Asegúrate de tener este campo
+                  locationId: int.parse(producto.idLocation
+                      .toString()), // Asegúrate de tener este campo
                   cantidadSeparada: event.isCertificate
                       ? producto.quantitySeparate ?? 0
                       : producto.quantity ?? 0, // Cantidad a empaquetar
@@ -437,51 +433,66 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                 "true",
               );
 
-              for (var product in event.productos) {
-                //actualizamos el estado del producto como separado
-                await db.setFieldTableProductosPedidos(
-                    product.pedidoId ?? 0,
-                    product.idProduct ?? 0,
-                    "is_separate",
-                    "true",
-                    product.idMove ?? 0);
+              if (event.isCertificate == true) {
+                for (var product in event.productos) {
+                  //actualizamos el estado del producto como separado
+                  await db.setFieldTableProductosPedidos2(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "is_separate",
+                      "true",
+                      product.idMove ?? 0);
 
-                //actualizamos el estado del producto como no certificado
-                if (!event.isCertificate) {
-                  await db.setFieldTableProductosPedidos(
+                  await db.setFieldTableProductosPedidos2(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "id_package",
+                      newPackageResponse.result?.packaging?.id ?? 0,
+                      product.idMove ?? 0);
+
+                  await db.setFieldTableProductosPedidos2(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "is_package",
+                      "true",
+                      product.idMove ?? 0);
+                }
+              } else if (event.isCertificate == false) {
+                for (var product in event.productos) {
+                  //actualizamos el estado del producto como separado
+                  await db.setFieldTableProductosPedidos3(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "is_separate",
+                      "true",
+                      product.idMove ?? 0);
+
+                  //actualizamos el valor de que si tiene un paquete
+                  await db.setFieldTableProductosPedidos3(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "is_package",
+                      1,
+                      product.idMove ?? 0);
+
+                  // actualizamos el id del paquete en el producto
+                  await db.setFieldTableProductosPedidos3(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "id_package",
+                      newPackageResponse.result?.packaging?.id ?? 0,
+                      product.idMove ?? 0);
+                  await db.setFieldTableProductosPedidos3(
                       product.pedidoId ?? 0,
                       product.idProduct ?? 0,
                       "is_certificate",
                       "false",
                       product.idMove ?? 0);
                 }
-
-                //actualizamos el estado del producto como empacado
-                await db.setFieldTableProductosPedidos(
-                    product.pedidoId ?? 0,
-                    product.idProduct ?? 0,
-                    "is_packing",
-                    "true",
-                    product.idMove ?? 0);
-
-                //actualizamos el id del paquete en el producto
-                await db.setFieldTableProductosPedidos(
-                    product.pedidoId ?? 0,
-                    product.idProduct ?? 0,
-                    "id_package",
-                    newPackageResponse.result?.packaging?.id ?? 0,
-                    product.idMove ?? 0);
               }
 
               add(LoadAllProductsFromPedidoEvent(
                   event.productos[0].pedidoId ?? 0));
-
-              await db.setFieldTablePedidosPacking(
-                event.productos[0].batchId ?? 0,
-                event.productos[0].pedidoId ?? 0,
-                "is_packing",
-                "true",
-              );
 
               emit(WmsPackingLoaded());
 
@@ -519,10 +530,18 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       SetPickingsEvent event, Emitter<WmsPackingState> emit) async {
     try {
       //actualizamos el estado del producto como separado
-      await db.setFieldTableProductosPedidos(
+      await db.setFieldTableProductosPedidos3(
           event.pedidoId, event.productId, "is_separate", "true", event.idMove);
-      //actualizamos la cantidad separada
+      await db.setFieldTableProductosPedidos3(
+          event.pedidoId, event.productId, "is_package", "false", event.idMove);
+      await db.setFieldTableProductosPedidos3(
+          event.pedidoId, event.productId, "is_certificate", "true", event.idMove);
+
+      
+
+      //actualizamos la cantidad se mparada
       quantitySelected = 0;
+       add(LoadAllProductsFromPedidoEvent(event.pedidoId));
     } catch (e, s) {
       print('Error en el  _onSetPickingsEvent: $e, $s');
       emit(WmsPackingError(e.toString()));
@@ -535,7 +554,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     print('event.quantity: ${event.quantity}');
     if (event.quantity > 0) {
       quantitySelected = event.quantity;
-      await db.setFieldTableProductosPedidos(event.pedidoId, event.productId,
+      await db.setFieldTableProductosPedidos3(event.pedidoId, event.productId,
           "quantity_separate", event.quantity, event.idMove);
     }
     emit(ChangeQuantitySeparateState(quantitySelected));
@@ -583,7 +602,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
       locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
       quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
-      quantitySelected = currentProduct.quantitySeparate ?? 0;
+      quantitySelected = currentProduct.isProductSplit == 1
+          ? 0
+          : currentProduct.quantitySeparate ?? 0;
       products();
 
       print(
@@ -615,15 +636,18 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
         //filtramos y creamos la lista de productos listo a empacar
         productsDone = listOfProductos
-            .where(
-                (product) => product.isSeparate == 1 && product.isPacking != 1)
+            .where((product) =>
+                product.isSeparate == 1 &&
+                product.isCertificate == 1
+                && product.isPackage ==0 )
             .toList();
 
         //filtramos y creamos la lista de productos listo a separar para empaque
         listOfProductosProgress = listOfProductos.where((product) {
-          return (product.isSeparate == null &&
-              (product.isProductSplit == 1 || product.isPacking == null));
+          return product.isSeparate == null || product.isSeparate == 0;
         }).toList();
+
+        print(listOfProductosProgress);
 
         //traemos todos los paquetes de la base de datos del pedido en cuesiton
         final packagesDB = await db.getPackagesPedido(event.pedidoId);
@@ -854,7 +878,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       await db.setFieldTableProductosPedidos(event.pedidoId, event.productId,
           "product_is_ok", "true", event.idMove);
       //actualizamos la cantidad separada
-      await db.setFieldTableProductosPedidos(event.pedidoId, event.productId,
+      await db.setFieldTableProductosPedidos3(event.pedidoId, event.productId,
           "quantity_separate", event.quantity, event.idMove);
     }
     productIsOk = event.productIsOk;

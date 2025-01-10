@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/new_package_response.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
