@@ -167,6 +167,8 @@ class WmsPickingRepository {
       required BuildContext context //
       }) async {
     try {
+
+
       var response = await ApiRequestService().postPicking(
           endpoint: 'send_batch',
           isunecodePath: true,
@@ -181,7 +183,6 @@ class WmsPickingRepository {
           isLoadinDialog: false,
           context: context);
       //mostramos el body
-      print('Response sendPicking: ${response.body}');
 
       print('Response sendPicking: ${response.statusCode}');
       if (response.statusCode < 400) {

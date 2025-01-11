@@ -169,3 +169,11 @@ class SetPickingsEvent extends WmsPackingEvent {
 
   SetPickingsEvent(this.productId, this.pedidoId, this.idMove);
 }
+
+
+class UnPackingEvent extends WmsPackingEvent {
+  final UnPackingRequest request;
+  final BuildContext context;
+  final int pedidoId;
+  UnPackingEvent(this.request, this.context, this.pedidoId);
+}

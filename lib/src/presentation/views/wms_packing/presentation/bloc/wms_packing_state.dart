@@ -96,3 +96,9 @@ class ConfigurationErrorPack extends WmsPackingState {
 
   ConfigurationErrorPack(this.error);
 }
+
+
+class UnPackignSuccess extends WmsPackingState {
+  final String message;
+  UnPackignSuccess(this.message);
+}

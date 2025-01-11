@@ -10,6 +10,8 @@ import 'package:wms_app/src/presentation/views/wms_packing/domain/new_package_re
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/response_sedn_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/sen_packing_request.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/un_packing_request.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/unpacking_response_model.dart';
 
 class WmsPackingRepository {
   //endpoint para obtener todos los batch de packing con sus pedidos y productos
@@ -108,6 +110,64 @@ class WmsPackingRepository {
     }
 
     return NewPackageResponse(); // Retornamos un objeto vacío si no hay resultados
+  }
+
+//endpoint para desempacar productos de su caja
+  Future<UnPacking> unPacking(
+      UnPackingRequest request, BuildContext context,) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return UnPacking(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'send_packing', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_batch": request.idBatch,
+            "id_paquete": request.idPaquete,
+            "list_item":
+                request.listItem.map((item) => item.toMap()).toList(),
+          },
+        },
+        isLoadinDialog: true,
+        context: context,
+      );
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
+        var resultData = jsonResponse['result'];
+
+        return UnPacking(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: UnPackingResult(
+              code: resultData['code'],
+              result: resultData['result'] != null
+                  ? List<UnPackingElement>.from(resultData['result']
+                      .map((x) => UnPackingElement.fromMap(x)))
+                  : [], // Si no hay elementos en 'result', se retorna una lista vacía
+            ));
+      } else {
+        // Manejo de error si la respuesta no es exitosa
+        // ...
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return UnPacking(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en unPacking: $e, $s');
+      return UnPacking(); // Retornamos un objeto vacío en caso de error de red
+    }
+    return UnPacking(); // Retornamos un objeto vacío en caso de error de red
   }
 
   //endpoint para enviar los productos dentro del paquete anteriormente creado

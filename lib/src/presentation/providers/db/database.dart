@@ -1450,6 +1450,18 @@ class DataBaseSqlite {
 
   //todo: Metodos para actualizar los campos de las tablas
 
+  //*metodo para actualizar la tabla de productos de un pedido validando que esten empacados y poder desempacarlos
+  Future<int?> setFieldTableProductosPedidosUnPacking(int pedidoId, int productId,
+      String field, dynamic setValue, int idMove, int idPackage) async {
+    
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove  AND id_package =$idPackage');
+    print(
+        "update unpacking tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
+
+    return resUpdate;
+  }
   //*metodo para actualizar la tabla de productos de un pedido validando los que estan ya separados
   Future<int?> setFieldTableProductosPedidos3(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
