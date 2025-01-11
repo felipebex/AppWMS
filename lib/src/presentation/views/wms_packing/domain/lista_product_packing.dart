@@ -23,6 +23,7 @@ class PorductoPedido {
   final String? observation;
   final int? isPacking;
   final int? idPackage;
+  final String? packageName;
   final int? isPackage;
   final dynamic? isCertificate;
   final int? isSendOdoo;
@@ -75,6 +76,7 @@ class PorductoPedido {
     this.isQuantityIsOk,
     this.observation,
     this.idPackage,
+    this.packageName,
     this.isPackage,
     this.isCertificate,
     this.isSendOdoo,
@@ -119,6 +121,7 @@ class PorductoPedido {
         observation: json["observation"],
         expireDate: json["expire_date"],
         idPackage: json["id_package"],
+        packageName: json["package_name"],
         isPackage: json["is_package"],
         isCertificate: json["is_certificate"],
         isSendOdoo: json["is_send_odoo"],
@@ -162,6 +165,7 @@ class PorductoPedido {
         "is_quantity_is_ok": isQuantityIsOk,
         "observation": observation,
         "id_package": idPackage,
+        "package_name": packageName,
         "is_package": isPackage,
         "is_certificate": isCertificate,
         "is_product_split": isProductSplit,

@@ -3,11 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class Tab3Screen extends StatelessWidget {
-  const Tab3Screen({super.key});
+class Tab4Screen extends StatelessWidget {
+  const Tab4Screen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,87 +15,21 @@ class Tab3Screen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton: context
-                  .read<WmsPackingBloc>()
-                  .productsDone
-                  .isEmpty
-              ? null
-              : Stack(
-                  children: [
-                    Positioned(
-                      bottom:
-                          0.0, // Ajusta según sea necesario para colocar en la parte inferior
-                      right:
-                          0.0, // Ajusta según sea necesario para colocar en la parte derecha
-                      child: FloatingActionButton(
-                        onPressed:
-                            context.read<WmsPackingBloc>().productsDone.isEmpty
-                                ? null
-                                : () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return DialogConfirmatedPacking(
-                                            productos: context
-                                                .read<WmsPackingBloc>()
-                                                .productsDone,
-                                            isCertificate: true,
-                                          );
-                                        });
-                                  },
-                        backgroundColor: primaryColorApp,
-                        child: Image.asset(
-                          'assets/icons/packing.png',
-                          width: 30,
-                          height: 30,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 40.0, // Posición hacia arriba
-                      right: 0.0, // Posición hacia la derecha
-                      child: context
-                              .read<WmsPackingBloc>()
-                              .productsDone
-                              .isNotEmpty
-                          ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                context
-                                    .read<WmsPackingBloc>()
-                                    .productsDone
-                                    .length
-                                    .toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            )
-                          : const SizedBox
-                              .shrink(), // No mostrar el número si no hay productos seleccionados
-                    ),
-                  ],
-                ),
           body: Column(
             children: [
               Container(
                 margin: const EdgeInsets.only(top: 5, bottom: 10),
                 width: double.infinity,
                 height: size.height * 0.7,
-                child: (context.read<WmsPackingBloc>().productsDone.isEmpty)
+                child: (context
+                        .read<WmsPackingBloc>()
+                        .productsDonePacking
+                        .isEmpty)
                     ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('No hay productos preparados',
+                            Text('No hay productos listos',
                                 style: TextStyle(fontSize: 14, color: grey)),
                             Text('Intente con otro pedido o batch',
                                 style: TextStyle(fontSize: 12, color: grey)),
@@ -104,12 +37,14 @@ class Tab3Screen extends StatelessWidget {
                         ),
                       )
                     : ListView.builder(
-                        itemCount:
-                            context.read<WmsPackingBloc>().productsDone.length,
+                        itemCount: context
+                            .read<WmsPackingBloc>()
+                            .productsDonePacking
+                            .length,
                         itemBuilder: (context, index) {
                           final product = context
                               .read<WmsPackingBloc>()
-                              .productsDone[index];
+                              .productsDonePacking[index];
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: GestureDetector(
@@ -195,20 +130,42 @@ class Tab3Screen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     Text(
-                                                      "Cantidad a empacar: ",
+                                                      "Cantidad empacada: ",
                                                       style: TextStyle(
                                                         fontSize: 12,
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
                                                     Text(
-                                                        "${product.quantitySeparate}",
+                                                        product.isCertificate ==
+                                                                0
+                                                            ? "${product.quantity}"
+                                                            : "${product.quantitySeparate}",
                                                         style: const TextStyle(
                                                             fontSize: 12,
                                                             color: black)),
                                                   ],
                                                 ),
-                                                if (product.observation != null && product.isProductSplit == null)
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Paquete: ",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: primaryColorApp,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                       "${product.packageName}",
+                                                        style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: black)),
+                                                  ],
+                                                ),
+                                                if (product.observation !=
+                                                        null &&
+                                                    product.isProductSplit ==
+                                                        null)
                                                   Row(
                                                     children: [
                                                       Text(
@@ -237,7 +194,9 @@ class Tab3Screen extends StatelessWidget {
                                                       ),
                                                     ],
                                                   ),
-                                                if (product.observation != null && product.isProductSplit == 1)
+                                                if (product.observation !=
+                                                        null &&
+                                                    product.isProductSplit == 1)
                                                   Row(
                                                     children: [
                                                       Text(

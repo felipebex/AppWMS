@@ -30,21 +30,7 @@ class UserRepository {
         
         return Configurations.fromMap(jsonDecode(response.body));
       } else {
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          print("data: $data");
-          //mostramos alerta del error
-          Get.snackbar(
-            'Error en configurations : ${data['code']}',
-            data['msg'],
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-
+        Get.snackbar('Error', 'Error al obtener las configuraciones');
         return Configurations();
       }
     } catch (e, s) {

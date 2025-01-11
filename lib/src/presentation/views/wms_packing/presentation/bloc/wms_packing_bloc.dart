@@ -31,6 +31,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   List<PorductoPedido> listOfProductosProgress =
       []; //lista de productos sin certificar
   List<PorductoPedido> productsDone = []; //lista de productos ya certificados
+  List<PorductoPedido> productsDonePacking =
+      []; //lista de productos ya certificados
   List<PorductoPedido> listOfProductsForPacking =
       []; //lista de productos sin certificar seleccionados para empacar
 
@@ -214,6 +216,13 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               product.idMove,
               event.request.idPaquete);
         }
+
+        //restamos la cantidad de productos desempacados a un paquete
+        await db.updatePackageCantidad(
+          event.request.idPaquete,
+          event.request.listItem.length,
+        );
+
         //actualizamos la lista de productos
         emit(UnPackignSuccess("Desempaquetado del producto exitoso"));
         add(LoadAllProductsFromPedidoEvent(event.pedidoId));
@@ -506,6 +515,13 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
               if (event.isCertificate == true) {
                 for (var product in event.productos) {
+                  //actualizamos el valor del packageName al producto
+                  await db.setFieldTableProductosPedidos2String(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "package_name",
+                      newPackageResponse.result?.packaging?.name ?? '',
+                      product.idMove ?? 0);
                   //actualizamos el estado del producto como separado
                   await db.setFieldTableProductosPedidos2(
                       product.pedidoId ?? 0,
@@ -530,6 +546,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                 }
               } else if (event.isCertificate == false) {
                 for (var product in event.productos) {
+                  await db.setFieldTableProductosPedidos3String(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "package_name",
+                      newPackageResponse.result?.packaging?.name ?? '',
+                      product.idMove ?? 0);
                   //actualizamos el estado del producto como separado
                   await db.setFieldTableProductosPedidos3(
                       product.pedidoId ?? 0,
@@ -560,12 +582,11 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                       "false",
                       product.idMove ?? 0);
                 }
+                listOfProductsForPacking = [];
               }
 
               add(LoadAllProductsFromPedidoEvent(
                   event.productos[0].pedidoId ?? 0));
-
-              emit(WmsPackingLoaded());
 
               // Si todo salió bien, podemos notificar a la UI que el empaquetado fue exitoso
               emit(WmsPackingSuccessState('Empaquetado exitoso'));
@@ -702,6 +723,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         print('response lista de productos: ${response.length}');
         listOfProductos.clear();
         listOfProductos.addAll(response);
+        productsDonePacking.clear();
 
         //filtramos y creamos la lista de productos listo a empacar
         productsDone = listOfProductos
@@ -710,6 +732,13 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                 product.isCertificate == 1 &&
                 product.isPackage == 0)
             .toList();
+
+        productsDonePacking = listOfProductos
+            .where(
+                (product) => product.isSeparate == 1 && product.isPackage == 1)
+            .toList();
+
+        print('productsDonePacking: ${productsDonePacking.length}');
 
         //filtramos y creamos la lista de productos listo a separar para empaque
         listOfProductosProgress = listOfProductos.where((product) {

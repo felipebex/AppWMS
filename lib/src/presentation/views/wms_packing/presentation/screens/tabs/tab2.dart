@@ -21,7 +21,14 @@ class Tab2Screen extends StatelessWidget {
           //mostramos el error
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(state.message),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.red[200],
+          ));
+        }
+        if (state is WmsPackingSuccessState) {
+          //mostramos el error
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(state.message),
+            backgroundColor: Colors.green[200],
           ));
         }
       },
@@ -242,41 +249,39 @@ class Tab2Screen extends StatelessWidget {
                                         Expanded(
                                           child: GestureDetector(
                                             onTap: () {
-                                              //validamos
 
-                                              // // Mantener el comportamiento actual al tocar un producto
-                                              // context
-                                              //     .read<WmsPackingBloc>()
-                                              //     .add(FetchProductEvent(
-                                              //         product));
+                                              // Mantener el comportamiento actual al tocar un producto
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(FetchProductEvent(
+                                                      product));
 
-                                              // showDialog(
-                                              //   context: context,
-                                              //   builder: (context) {
-                                              //     return const DialogLoading(
-                                              //       message:
-                                              //           'Cargando información del producto...',
-                                              //     );
-                                              //   },
-                                              // );
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                    message:
+                                                        'Cargando información del producto...',
+                                                  );
+                                                },
+                                              );
 
-                                              // // Esperar 3 segundos antes de continuar
-                                              // Future.delayed(
-                                              //     const Duration(seconds: 1),
-                                              //     () {
-                                              //   // Cerrar el diálogo de carga
-                                              //   Navigator.of(context,
-                                              //           rootNavigator: true)
-                                              //       .pop();
+                                              // Esperar 3 segundos antes de continuar
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                // Cerrar el diálogo de carga
+                                                Navigator.of(context,
+                                                        rootNavigator: true)
+                                                    .pop();
 
-                                              //   // Ahora navegar a la vista "batch"
-                                              //   Navigator.pushNamed(
-                                              //     context,
-                                              //     'Packing',
-                                              //   );
-                                              // });
-                                              print(
-                                                  "Producto: ${product.toMap()}");
+                                                // Ahora navegar a la vista "batch"
+                                                Navigator.pushNamed(
+                                                  context,
+                                                  'Packing',
+                                                );
+                                              });
+                                             
                                             },
                                             child: Column(
                                               crossAxisAlignment:

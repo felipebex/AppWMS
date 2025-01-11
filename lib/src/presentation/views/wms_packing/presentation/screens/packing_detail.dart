@@ -9,6 +9,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/tabs/tab1.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/tabs/tab3.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/tabs/tab2.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/tabs/tab4.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class PackingDetailScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
             return true;
           },
           child: DefaultTabController(
-            length: 3,
+            length: 4,
             child: Scaffold(
               backgroundColor: Colors.white,
               appBar: 
@@ -86,6 +87,13 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                     Tab(
                         text: 'Preparado',
                         icon: Icon(
+                          Icons.star,
+                          color: Colors.white,
+                          size: 20,
+                        )),
+                    Tab(
+                        text: 'Listo',
+                        icon: Icon(
                           Icons.done,
                           color: Colors.white,
                           size: 20,
@@ -107,6 +115,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                       packingModel: widget.packingModel ?? PedidoPacking()),
                   const Tab2Screen(),
                   const Tab3Screen(),
+                  const Tab4Screen(),
                 ],
               ),
             ),

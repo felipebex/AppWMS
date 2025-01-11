@@ -209,6 +209,7 @@ class DataBaseSqlite {
       is_package INTEGER,
       is_packing INTEGER,
       id_package INTEGER,
+      package_name TEXT,
       FOREIGN KEY (id_package) REFERENCES tblpackages (id)
       FOREIGN KEY (pedido_id) REFERENCES tblpedidos_packing (id)
     )
@@ -1201,6 +1202,45 @@ class DataBaseSqlite {
     return productos;
   }
 
+//todo metodo para actualizar la cantidad de productos de un paquete
+  Future<int> updatePackageCantidad(int packageId, int cantidadRestar) async {
+    final db = await database;
+
+    // Primero, obtenemos el paquete con el ID dado
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblpackages',
+      where: 'id = ?',
+      whereArgs: [packageId],
+    );
+
+    // Si no se encuentra el paquete, retornamos 0
+    if (maps.isEmpty) {
+      return 0;
+    }
+
+    // Obtenemos la cantidad de productos actual del paquete
+    int cantidadActual = maps.first['cantidad_productos'];
+
+    // Verificamos si la cantidad a restar no excede la cantidad disponible
+    if (cantidadActual < cantidadRestar) {
+      throw Exception(
+          "La cantidad a restar es mayor que la cantidad disponible");
+    }
+
+    // Calculamos la nueva cantidad
+    int nuevaCantidad = cantidadActual - cantidadRestar;
+
+    // Actualizamos el paquete con la nueva cantidad
+    int result = await db.update(
+      'tblpackages',
+      {'cantidad_productos': nuevaCantidad},
+      where: 'id = ?',
+      whereArgs: [packageId],
+    );
+
+    return result; // Retornamos el número de filas afectadas
+  }
+
   //Todo: Métodos para batchs_products
 
   Future<void> insertBatchProducts(
@@ -1451,9 +1491,13 @@ class DataBaseSqlite {
   //todo: Metodos para actualizar los campos de las tablas
 
   //*metodo para actualizar la tabla de productos de un pedido validando que esten empacados y poder desempacarlos
-  Future<int?> setFieldTableProductosPedidosUnPacking(int pedidoId, int productId,
-      String field, dynamic setValue, int idMove, int idPackage) async {
-    
+  Future<int?> setFieldTableProductosPedidosUnPacking(
+      int pedidoId,
+      int productId,
+      String field,
+      dynamic setValue,
+      int idMove,
+      int idPackage) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove  AND id_package =$idPackage');
@@ -1462,6 +1506,7 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
+
   //*metodo para actualizar la tabla de productos de un pedido validando los que estan ya separados
   Future<int?> setFieldTableProductosPedidos3(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
@@ -1481,6 +1526,27 @@ class DataBaseSqlite {
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate = 1 AND is_package = 0');
     print(
         "update2 tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
+
+    return resUpdate;
+  }
+
+  Future<int?> setFieldTableProductosPedidos2String(int pedidoId, int productId,
+      String field, dynamic setValue, int idMove) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        " UPDATE tblproductos_pedidos SET $field = '$setValue' WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate = 1 AND is_package = 0");
+    print(
+        "update2 String tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
+
+    return resUpdate;
+  }
+  Future<int?> setFieldTableProductosPedidos3String(int pedidoId, int productId,
+      String field, dynamic setValue, int idMove) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        " UPDATE tblproductos_pedidos SET $field = '$setValue' WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate IS NULL");
+    print(
+        "update3 String tblproductos_pedidos (idProduct ----($productId)) .... ($field): $resUpdate");
 
     return resUpdate;
   }
