@@ -167,18 +167,7 @@ class Tab3Screen extends StatelessWidget {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    Text(
-                                                      "Cantidad: ",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp,
-                                                      ),
-                                                    ),
-                                                    Text("${product.quantity}",
-                                                        style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: black)),
-                                                    const Spacer(),
+                                                
                                                     Text(
                                                       "Unidades: ",
                                                       style: TextStyle(

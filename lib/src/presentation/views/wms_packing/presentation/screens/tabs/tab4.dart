@@ -89,13 +89,9 @@ class Tab4Screen extends StatelessWidget {
                                             ],
                                           ),
                                         ),
-
                                         Card(
                                           elevation: 3,
-                                          color: product.quantity ==
-                                                  product.quantitySeparate
-                                              ? white
-                                              : Colors.amber[100],
+                                          color: white,
                                           child: Padding(
                                             padding: const EdgeInsets.all(8.0),
                                             child: Column(
@@ -103,13 +99,17 @@ class Tab4Screen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     Text(
-                                                      "Cantidad: ",
+                                                      "Certificado: ",
                                                       style: TextStyle(
                                                         fontSize: 12,
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-                                                    Text("${product.quantity}",
+                                                    Text(
+                                                        product.isCertificate ==
+                                                                0
+                                                            ? "No"
+                                                            : "Si",
                                                         style: const TextStyle(
                                                             fontSize: 12,
                                                             color: black)),
@@ -156,16 +156,15 @@ class Tab4Screen extends StatelessWidget {
                                                       ),
                                                     ),
                                                     Text(
-                                                       "${product.packageName}",
+                                                        "${product.packageName}",
                                                         style: const TextStyle(
                                                             fontSize: 12,
                                                             color: black)),
                                                   ],
                                                 ),
-                                                if (product.observation !=
-                                                        null &&
-                                                    product.isProductSplit ==
-                                                        null)
+                                               
+                                                if (product.observation != "" ||
+                                                    product.observation == null)
                                                   Row(
                                                     children: [
                                                       Text(
@@ -180,38 +179,10 @@ class Tab4Screen extends StatelessWidget {
                                                         width:
                                                             size.width * 0.55,
                                                         child: Text(
-                                                            "${product.observation}",
-                                                            maxLines: 2,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black)),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                if (product.observation !=
-                                                        null &&
-                                                    product.isProductSplit == 1)
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        "Novedad: ",
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              primaryColorApp,
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width:
-                                                            size.width * 0.55,
-                                                        child: Text(
-                                                            "${product.observation}",
+                                                            product.observation ==
+                                                                    null
+                                                                ? "Sin novedad"
+                                                                : "${product.observation}",
                                                             maxLines: 2,
                                                             overflow:
                                                                 TextOverflow
@@ -249,7 +220,6 @@ class Tab4Screen extends StatelessWidget {
                                             ),
                                           ),
                                         ),
-
                                         if (product.tracking != false)
                                           Row(
                                             children: [
@@ -267,7 +237,6 @@ class Tab4Screen extends StatelessWidget {
                                                       color: black)),
                                             ],
                                           ),
-
                                         Row(
                                           children: [
                                             Text(
@@ -283,21 +252,6 @@ class Tab4Screen extends StatelessWidget {
                                                     color: black)),
                                           ],
                                         ),
-                                        // if (product.expirationDate != false)
-                                        //   Row(
-                                        //     children: [
-                                        //       const Text(
-                                        //         "Fecha de caducidad: ",
-                                        //         style: TextStyle(
-                                        //           fontSize: 16,
-                                        //           color: primaryColorApp,
-                                        //         ),
-                                        //       ),
-                                        //       Text("${product.expirationDate}",
-                                        //           style: const TextStyle(
-                                        //               fontSize: 16, color: black)),
-                                        //     ],
-                                        //   )
                                       ],
                                     ),
                                   )),

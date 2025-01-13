@@ -164,7 +164,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              left: size.width * 0.2),
+                                              left: size.width * 0.15),
                                           child: const Text(
                                             'BATCH - PACKING',
                                             style: TextStyle(
@@ -495,23 +495,17 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                 );
                               },
                             )
-                          : Center(
+                          : const Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  if (!context
-                                      .read<WmsPackingBloc>()
-                                      .isKeyboardVisible)
-                                    Image.asset('assets/images/empty.png',
-                                        height:
-                                            150), // Ajusta la altura según necesites
-                                  const SizedBox(height: 10),
-                                  const Text('No se encontraron resultados',
-                                      style:
-                                          TextStyle(fontSize: 18, color: grey)),
-                                  const Text('Intenta con otra búsqueda',
+                                  SizedBox(height: 10),
+                                  Text('No se encontraron resultados',
                                       style:
                                           TextStyle(fontSize: 14, color: grey)),
+                                  Text('Intenta con otra búsqueda',
+                                      style:
+                                          TextStyle(fontSize: 12, color: grey)),
                                 ],
                               ),
                             ),

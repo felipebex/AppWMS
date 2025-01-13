@@ -68,7 +68,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    print('🍔 shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
+    print(
+        '🍔 shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
     if (context.read<BatchBloc>().shouldRunDependencies) {
       final batchBloc = context.read<BatchBloc>();
       if (!batchBloc.locationIsOk && //false
@@ -305,23 +306,21 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                       });
                     }
 
-                    if(state is SubMuelleEditSusses){
+                    if (state is SubMuelleEditSusses) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         duration: const Duration(milliseconds: 1000),
-                        content:  Text(state.message),
+                        content: Text(state.message),
                         backgroundColor: Colors.green[200],
                       ));
                     }
 
-                    if(state is SubMuelleEditFail){
+                    if (state is SubMuelleEditFail) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         duration: const Duration(milliseconds: 1000),
-                        content:  Text(state.message),
+                        content: Text(state.message),
                         backgroundColor: Colors.red[200],
                       ));
                     }
-
-
                   }, builder: (context, status) {
                     return Column(
                       children: [
@@ -421,7 +420,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                         children: [
                                           LocationDropdownWidget(
                                             isPDA: false,
-                                            selectedLocation: selectedLocation,
+                                            selectedLocation:
+                                                selectedLocation,
                                             positionsOrigen:
                                                 batchBloc.positionsOrigen,
                                             currentLocationId: batchBloc
@@ -1062,8 +1062,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 ElevatedButton(
                                                                   onPressed:
                                                                       () async {
-                                                                        batchBloc.subMuelleSelected =
-                                                                            Muelles();
+                                                                    batchBloc
+                                                                            .subMuelleSelected =
+                                                                        Muelles();
                                                                     Navigator.pop(
                                                                         context);
                                                                   },
@@ -1092,12 +1093,13 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                     width: 10),
                                                                 ElevatedButton(
                                                                   onPressed: batchBloc
-                                                                              .subMuelleSelected.completeName ==
+                                                                              .subMuelleSelected
+                                                                              .completeName ==
                                                                           null
                                                                       ? null
                                                                       : () async {
-                                                                        print(
-                                                                            "Submuelle seleccionado: ${batchBloc.subMuelleSelected.completeName}");
+                                                                          print(
+                                                                              "Submuelle seleccionado: ${batchBloc.subMuelleSelected.completeName}");
                                                                           batchBloc.add(AssignSubmuelleEvent(
                                                                               batchBloc.filteredProducts.where((e) {
                                                                                 return e.isMuelle == null && e.isSeparate == 1;
@@ -1794,11 +1796,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                     });
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        duration: const Duration(milliseconds: 1000),
-                        content:
-                            const Text('No tienes permisos para ver detalles'),
-                        backgroundColor: Colors.red[200],
+                      const SnackBar(
+                        duration: Duration(milliseconds: 1000),
+                        content: Text('No tienes permisos para ver detalles'),
                       ),
                     );
                   }

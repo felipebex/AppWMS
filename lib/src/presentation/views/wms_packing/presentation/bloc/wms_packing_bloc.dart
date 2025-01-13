@@ -150,7 +150,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     //*evento para obtener las novedades
     on<LoadAllNovedadesPackingEvent>(_onLoadAllNovedadesEvent);
     add(LoadAllNovedadesPackingEvent());
-    add(LoadConfigurationsUserPack());
 
     //*metodo para dividir el producto en varios paquetes
     on<SetPickingSplitEvent>(_onSetPickingsSplitEvent);
@@ -276,6 +275,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       if (response != null) {
         emit(ConfigurationLoadedPack(response));
         configurations = response;
+        print('configurations: ${configurations.toMap()}');
       } else {
         emit(ConfigurationErrorPack('Error al cargar configuraciones'));
       }

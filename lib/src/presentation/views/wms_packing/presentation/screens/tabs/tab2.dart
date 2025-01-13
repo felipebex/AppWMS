@@ -124,12 +124,12 @@ class Tab2Screen extends StatelessWidget {
                       color: Colors.white,
                       elevation: 2,
                       child: TextFormField(
-                         readOnly: context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? true
-                                        : false,
+                        readOnly: context
+                                .read<UserBloc>()
+                                .fabricante
+                                .contains("Zebra")
+                            ? true
+                            : false,
                         textAlignVertical: TextAlignVertical.center,
                         onChanged: (value) {
                           context
@@ -255,8 +255,27 @@ class Tab2Screen extends StatelessWidget {
                                         Expanded(
                                           child: GestureDetector(
                                             onTap: () {
+                                              //validamos si este articulo se encuentra en la lista de productos preparados
+                                              if (context
+                                                  .read<WmsPackingBloc>()
+                                                  .productsDone
+                                                  .any((doneProduct) =>
+                                                      doneProduct.idMove ==
+                                                      product.idMove)) {
+                                                // Mostramos el error
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                  content: const Text(
+                                                      "Este producto se encuentra en estado preparado, por favor seleccione otro"),
+                                                  backgroundColor:
+                                                      Colors.red[200],
+                                                ));
+                                                return;
+                                              }
 
-                                              // Mantener el comportamiento actual al tocar un producto
+                                              context.read<WmsPackingBloc>().add(
+                                                  LoadConfigurationsUserPack());
+
                                               context
                                                   .read<WmsPackingBloc>()
                                                   .add(FetchProductEvent(
@@ -272,7 +291,6 @@ class Tab2Screen extends StatelessWidget {
                                                 },
                                               );
 
-                                              // Esperar 3 segundos antes de continuar
                                               Future.delayed(
                                                   const Duration(seconds: 1),
                                                   () {
@@ -287,7 +305,6 @@ class Tab2Screen extends StatelessWidget {
                                                   'Packing',
                                                 );
                                               });
-                                             
                                             },
                                             child: Column(
                                               crossAxisAlignment:
@@ -300,8 +317,7 @@ class Tab2Screen extends StatelessWidget {
                                                     "Producto:",
                                                     style: TextStyle(
                                                       fontSize: 14,
-                                                      color:
-                                                          primaryColorApp,
+                                                      color: primaryColorApp,
                                                     ),
                                                   ),
                                                 ),

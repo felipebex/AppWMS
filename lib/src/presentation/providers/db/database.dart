@@ -509,6 +509,7 @@ class DataBaseSqlite {
           "email": configuration.result?.result?.email,
           "rol": configuration.result?.result?.rol,
           "muelle_option": configuration.result?.result?.muelleOption,
+
           "location_picking_manual":
               configuration.result?.result?.locationPickingManual == true
                   ? 1
@@ -606,6 +607,16 @@ class DataBaseSqlite {
             showNextLocationsInDetails:
                 maps[0]['show_next_locations_in_details'] == 1,
             muelleOption: maps[0]['muelle_option'],
+            manualProductSelectionPack:
+                maps[0]['manual_product_selection_pack'] == 1,
+            manualQuantityPack: maps[0]['manual_quantity_pack'] == 1,
+            manualSpringSelectionPack:
+                maps[0]['manual_spring_selection_pack'] == 1,
+            showDetallesPack: maps[0]['show_detalles_pack'] == 1,
+            showNextLocationsInDetailsPack:
+                maps[0]['show_next_locations_in_details_pack'] == 1,
+            locationPackManual: maps[0]['location_pack_manual'] == 1,
+            
           ),
         ),
       );

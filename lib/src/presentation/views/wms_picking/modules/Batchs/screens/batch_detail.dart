@@ -425,6 +425,12 @@ class BatchDetailScreen extends StatelessWidget {
                                 color: Colors.white,
                                 elevation: 2,
                                 child: TextFormField(
+                                  readOnly: context
+                                          .read<UserBloc>()
+                                          .fabricante
+                                          .contains("Zebra")
+                                      ? true
+                                      : false,
                                   focusNode: FocusNode(),
                                   textAlignVertical: TextAlignVertical.center,
                                   onChanged: (value) {

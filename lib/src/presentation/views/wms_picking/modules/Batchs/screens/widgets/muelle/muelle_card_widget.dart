@@ -172,10 +172,9 @@ void validatePicking(
                   });
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      duration: const Duration(milliseconds: 1000),
-                      content: const Text('No tienes permisos para ver detalles'),
-                      backgroundColor: Colors.red[200],
+                    const SnackBar(
+                      duration: Duration(milliseconds: 1000),
+                      content: Text('No tienes permisos para ver detalles'),
                     ),
                   );
                 }
