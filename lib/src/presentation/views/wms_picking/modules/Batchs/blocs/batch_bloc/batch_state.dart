@@ -140,3 +140,17 @@ class NovedadesLoadedState  extends BatchState {
   final List<Novedad> listOfNovedades;
   NovedadesLoadedState({required this.listOfNovedades});
 }
+
+class SelectSubMuelle extends BatchState {
+  final Muelles subMuelle;
+  SelectSubMuelle(this.subMuelle);
+}
+
+class SubMuelleEditSusses extends BatchState {
+  final String message;
+  SubMuelleEditSusses(this.message);
+}
+class SubMuelleEditFail extends BatchState {
+  final String message;
+  SubMuelleEditFail(this.message);
+}

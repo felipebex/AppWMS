@@ -72,6 +72,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<String> listOfProductsName = [];
   List<Muelles> submuelles = [];
 
+  Muelles subMuelleSelected = Muelles();
+
   //*lista de novedades
   List<Novedad> novedades = [];
 
@@ -135,6 +137,19 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     on<LoadAllNovedadesEvent>(_onLoadAllNovedadesEvent);
     add(LoadAllNovedadesEvent());
+
+    on<SelectedSubMuelleEvent>(_onSelectecSubMuelle);
+  }
+
+  void _onSelectecSubMuelle(
+      SelectedSubMuelleEvent event, Emitter<BatchState> emit) {
+    try {
+      subMuelleSelected = Muelles();
+      subMuelleSelected = event.subMuelleSlected;
+      emit(SelectSubMuelle(subMuelleSelected));
+    } catch (e, s) {
+      print("Error bloc selectedSubMuelle $e -> $s");
+    }
   }
 
   void _onLoadAllNovedadesEvent(
@@ -248,7 +263,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       final userid = await PrefUtils.getUserId();
 
-      await repository.sendPicking(
+      final response = await repository.sendPicking(
           context: event.context,
           idBatch: event.productsSeparate[i].batchId ?? 0,
           timeTotal: secondsDifference,
@@ -261,12 +276,19 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
               cantidad: event.productsSeparate[i].quantitySeparate ?? 0,
               novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
-              muelle:  event.muelle.id ?? 0,
+              muelle: event.muelle.id ?? 0,
               idOperario: userid,
             ),
           ]);
 
-      add(FetchBatchWithProductsEvent(event.productsSeparate[i].batchId ?? 0));
+      if (response.result?.code == 200) {
+        emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
+        add(FetchBatchWithProductsEvent(
+            event.productsSeparate[i].batchId ?? 0));
+      }else{
+        emit(SubMuelleEditFail('Error al asignar el submuelle'));
+      }
+
       //emitimos el estado
     }
   }
@@ -412,8 +434,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //*validamso que el indice no este fuera de rango, si lo esta restamos 1
     // if (batchWithProducts.batch?.indexList == null) {
-      currentProduct =
-          filteredProducts[batchWithProducts.batch?.indexList ?? 0];
+    currentProduct = filteredProducts[batchWithProducts.batch?.indexList ?? 0];
     // } else {
     //   if (batchWithProducts.batch!.indexList! > filteredProducts.length - 1) {
     //     currentProduct =
@@ -439,10 +460,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             : false;
     locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
     quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
-    index = 
-    (batchWithProducts.batch?.indexList ?? 0);
+    index = (batchWithProducts.batch?.indexList ?? 0);
     quantitySelected = currentProduct.quantitySeparate ?? 0;
-
 
     print("🎽current product: ${currentProduct.toMap()}");
     print("🎽index: $index");
@@ -626,10 +645,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     print("id del muelle ${batchWithProducts.batch?.idMuelle}");
     submuelles.clear();
     final muellesdb =
-    //todo cambiar al id de idMuelle
-        await db.getSubmuellesByLocationId(batchWithProducts.batch?.idMuelle ?? 0
-            // 92265,
-            );
+        //todo cambiar al id de idMuelle
+        await db
+            .getSubmuellesByLocationId(batchWithProducts.batch?.idMuelle ?? 0
+                // 92265,
+                );
     if (muellesdb.isNotEmpty) {
       submuelles.addAll(muellesdb);
     }
@@ -733,8 +753,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       //   if (batchWithProducts.batch!.indexList! > filteredProducts.length - 1) {
       //     currentProduct = filteredProducts[(index) - 1];
       //   } else {
-          currentProduct = filteredProducts[index];
-        // }
+      currentProduct = filteredProducts[index];
+      // }
       // }
 
       if (currentProduct.locationId == oldLocation) {
@@ -759,8 +779,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
       );
-
-      
 
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));

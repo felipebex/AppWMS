@@ -179,3 +179,11 @@ class IsShouldRunDependencies extends BatchEvent {
 
 class LoadAllNovedadesEvent extends BatchEvent {
 }
+
+class SelectedSubMuelleEvent extends BatchEvent{
+  final Muelles subMuelleSlected;
+
+
+  SelectedSubMuelleEvent(this.subMuelleSlected);
+
+}

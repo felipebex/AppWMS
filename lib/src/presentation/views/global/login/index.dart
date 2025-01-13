@@ -198,6 +198,10 @@ class _LoginFormState extends State<_LoginForm> {
                 child: Column(
                   children: [
                     TextFormField(
+                      readOnly:
+                          context.read<UserBloc>().fabricante.contains("Zebra")
+                              ? true
+                              : false,
                       focusNode: _focusNodeEmail,
                       controller: context.read<LoginBloc>().email,
                       onTap:
@@ -228,6 +232,10 @@ class _LoginFormState extends State<_LoginForm> {
                       validator: (value) => Validator.email(value, context),
                     ),
                     TextFormField(
+                      readOnly:
+                          context.read<UserBloc>().fabricante.contains("Zebra")
+                              ? true
+                              : false,
                       controller: context.read<LoginBloc>().password,
                       autocorrect: false,
                       obscureText: context.watch<LoginBloc>().isVisible,

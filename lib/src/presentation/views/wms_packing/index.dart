@@ -228,6 +228,12 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                   color: Colors.white,
                                   elevation: 3,
                                   child: TextFormField(
+                                    readOnly: context
+                                            .read<UserBloc>()
+                                            .fabricante
+                                            .contains("Zebra")
+                                        ? true
+                                        : false,
                                     textAlignVertical: TextAlignVertical.center,
                                     controller: context
                                         .read<WmsPackingBloc>()
@@ -489,26 +495,26 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                 );
                               },
                             )
-                          :   Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      if (!context
-                                          .read<WmsPackingBloc>()
-                                          .isKeyboardVisible)
-                                        Image.asset('assets/images/empty.png',
-                                            height:
-                                                150), // Ajusta la altura según necesites
-                                      const SizedBox(height: 10),
-                                      const Text('No se encontraron resultados',
-                                          style: TextStyle(
-                                              fontSize: 18, color: grey)),
-                                      const Text('Intenta con otra búsqueda',
-                                          style: TextStyle(
-                                              fontSize: 14, color: grey)),
-                                    ],
-                                  ),
-                                ),
+                          : Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (!context
+                                      .read<WmsPackingBloc>()
+                                      .isKeyboardVisible)
+                                    Image.asset('assets/images/empty.png',
+                                        height:
+                                            150), // Ajusta la altura según necesites
+                                  const SizedBox(height: 10),
+                                  const Text('No se encontraron resultados',
+                                      style:
+                                          TextStyle(fontSize: 18, color: grey)),
+                                  const Text('Intenta con otra búsqueda',
+                                      style:
+                                          TextStyle(fontSize: 14, color: grey)),
+                                ],
+                              ),
+                            ),
                     ),
                   ],
                 ),

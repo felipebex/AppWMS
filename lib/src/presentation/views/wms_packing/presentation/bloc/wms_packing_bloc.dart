@@ -350,7 +350,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       emit(WmsPackingLoaded());
     } else {
       listOfProductosProgress = listOfProductos.where((product) {
-        return product.idProduct?.toLowerCase().contains(query) ?? false;
+        return product.productId?.toLowerCase().contains(query) ?? false;
       }).toList();
       emit(WmsPackingLoaded());
     }

@@ -229,7 +229,7 @@ class _PackingScreenState extends State<PackingScreen> {
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if ((matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected) >
-             currentProduct.quantity!) {
+            currentProduct.quantity!) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             duration: const Duration(milliseconds: 1000),
             content: Text(
@@ -280,10 +280,8 @@ class _PackingScreenState extends State<PackingScreen> {
                       child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
                         listener: (context, state) {
                           if (state is ChangeQuantitySeparateState) {
-
                             if (state.quantity ==
-                               packinghBloc.currentProduct.quantity
-                                        .toInt()) {
+                                packinghBloc.currentProduct.quantity.toInt()) {
                               _finichPackingProduct(context);
                             }
                             print("hola");
@@ -569,7 +567,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                     decoration: InputDecoration(
                                                       hintText: packinghBloc
                                                           .currentProduct
-                                                          .idProduct
+                                                          .productId
                                                           .toString(),
                                                       disabledBorder:
                                                           InputBorder.none,
@@ -869,9 +867,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10),
                                         child: Text(
-                                          packinghBloc
-                                                          .currentProduct
-                                                          .quantity
+                                          packinghBloc.currentProduct.quantity
                                                   ?.toString() ??
                                               "",
                                           style: TextStyle(
@@ -1013,6 +1009,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                   FilteringTextInputFormatter
                                       .digitsOnly, // Solo permite dígitos
                                 ],
+                                showCursor: true,
                                 onChanged: (value) {
                                   // Verifica si el valor no está vacío y si es un número válido
                                   if (value.isNotEmpty) {
@@ -1032,6 +1029,12 @@ class _PackingScreenState extends State<PackingScreen> {
                                 },
                                 controller: cantidadController,
                                 keyboardType: TextInputType.number,
+                                readOnly: context
+                                        .read<UserBloc>()
+                                        .fabricante
+                                        .contains("Zebra")
+                                    ? true
+                                    : false,
                                 decoration:
                                     InputDecorations.authInputDecoration(
                                   hintText: 'Cantidad',
@@ -1299,8 +1302,6 @@ class _PackingScreenState extends State<PackingScreen> {
         batchBloc.currentProduct.pedidoId ?? 0,
         batchBloc.currentProduct.idMove ?? 0));
 
-  
-
     //cerramos el dialogo de carga
     batchBloc.add(
         LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
@@ -1334,9 +1335,7 @@ class _PackingScreenState extends State<PackingScreen> {
         ? batchBloc.quantitySelected.toString()
         : cantidadController.text);
 
-    if (cantidad == 
-
-         currentProduct.quantity) {
+    if (cantidad == currentProduct.quantity) {
       batchBloc.add(ChangeQuantitySeparate(
           cantidad,
           currentProduct.idProduct ?? 0,
@@ -1344,9 +1343,7 @@ class _PackingScreenState extends State<PackingScreen> {
           currentProduct.idMove ?? 0));
     } else {
       FocusScope.of(context).unfocus();
-    if (cantidad < 
-   
-         (currentProduct.quantity ?? 0).toInt()) {
+      if (cantidad < (currentProduct.quantity ?? 0).toInt()) {
         showDialog(
             context: context,
             builder: (context) {

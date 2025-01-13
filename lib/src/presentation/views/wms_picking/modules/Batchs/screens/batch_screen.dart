@@ -1,7 +1,8 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison
 
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -51,23 +52,23 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
   FocusNode focusNode4 = FocusNode(); //cantidad textformfield
   FocusNode focusNode5 = FocusNode(); //cantidad muelle
+  FocusNode focusNode6 = FocusNode(); //Submuelle
 
   bool viewQuantity = false;
-
-  Muelles? selectedSubMuelle;
 
   //controller
   final TextEditingController _controllerLocation = TextEditingController();
   final TextEditingController _controllerProduct = TextEditingController();
   final TextEditingController _controllerQuantity = TextEditingController();
   final TextEditingController _controllerMuelle = TextEditingController();
+  final TextEditingController _controllerSubMuelle = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    log('shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
+    print('🍔 shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
     if (context.read<BatchBloc>().shouldRunDependencies) {
       final batchBloc = context.read<BatchBloc>();
       if (!batchBloc.locationIsOk && //false
@@ -120,6 +121,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     focusNode3.dispose();
     focusNode4.dispose();
     focusNode5.dispose();
+    focusNode6.dispose();
     super.dispose();
   }
 
@@ -254,7 +256,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
         int totalTasks = context.read<BatchBloc>().filteredProducts.length;
-        log("focoLocation: $focoLocation");
+        print("🍔 focoLocation: $focoLocation");
 
         double progress = totalTasks > 0
             ? context.read<BatchBloc>().filteredProducts.where((e) {
@@ -302,12 +304,30 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         FocusScope.of(context).requestFocus(focusNode3);
                       });
                     }
+
+                    if(state is SubMuelleEditSusses){
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        duration: const Duration(milliseconds: 1000),
+                        content:  Text(state.message),
+                        backgroundColor: Colors.green[200],
+                      ));
+                    }
+
+                    if(state is SubMuelleEditFail){
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        duration: const Duration(milliseconds: 1000),
+                        content:  Text(state.message),
+                        backgroundColor: Colors.red[200],
+                      ));
+                    }
+
+
                   }, builder: (context, status) {
                     return Column(
                       children: [
                         const WarningWidgetCubit(),
                         Padding(
-                          padding: const EdgeInsets.only(top: 25),
+                          padding: const EdgeInsets.only(top: 20),
                           child: Row(
                             children: [
                               IconButton(
@@ -362,13 +382,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        Text('Foco: $focoLocation',
-                            style: const TextStyle(fontSize: 10, color: black)),
-                        Text('Ubicacion: $scannedValue1',
-                            style: const TextStyle(fontSize: 10, color: black)),
-                        Text('producto: $scannedValue2',
-                            style: const TextStyle(fontSize: 10, color: black)),
-                        // Text('Ubicacion: $scannedValue1', style: const TextStyle(fontSize: 10, color: black)),
+                        // Text('Foco: $focoLocation',
+                        //     style: const TextStyle(fontSize: 10, color: black)),
+                        // Text('Ubicacion: $scannedValue1',
+                        //     style: const TextStyle(fontSize: 10, color: black)),
+                        // Text('producto: $scannedValue2',
+                        //     style: const TextStyle(fontSize: 10, color: black)),
 
                         //todo : ubicacion de origen
                         Row(
@@ -862,6 +881,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   ),
                 ),
               ),
+              //todo muelle multiple
               Visibility(
                 visible:
                     batchBloc.configurations.result?.result?.muelleOption ==
@@ -876,11 +896,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         color: Colors.grey[300],
                         elevation: 5,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                          ),
-                          child: Row(
-                            children: [
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                            ),
+                            child: Row(children: [
                               CantLineasMuelle(
                                   productsOk:
                                       batchBloc.filteredProducts.where((e) {
@@ -900,41 +919,22 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             .isEmpty
                                         ? null
                                         : () {
-                                            //no entramos a didpchanges
-                                            batchBloc.add(
-                                                IsShouldRunDependencies(false));
-
-                                            setState(() {
-                                              scannedValue6 = "";
-                                              alerta = "";
-                                              selectedSubMuelle = null;
-                                            });
-
-                                            ///mostramos un bottommodal con la lista de muelles
-                                            ///
-
                                             showModalBottomSheet(
                                               context: context,
                                               isDismissible: false,
                                               enableDrag: false,
                                               builder: (context) {
-                                                FocusNode focusNode6 =
-                                                    FocusNode();
-
-                                                // Asegúrate de que el focusNode tenga el foco al mostrar el modal
-                                                WidgetsBinding.instance
-                                                    .addPostFrameCallback((_) {
-                                                  FocusScope.of(context)
-                                                      .requestFocus(focusNode6);
-                                                });
-
-                                                return StatefulBuilder(
-                                                  builder: (context, setState) {
+                                                return BlocBuilder<BatchBloc,
+                                                    BatchState>(
+                                                  builder: (context, state) {
                                                     return Container(
                                                       height: 400,
                                                       padding:
                                                           const EdgeInsets.all(
                                                               16.0),
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                              bottom: 20),
                                                       child: Column(
                                                         crossAxisAlignment:
                                                             CrossAxisAlignment
@@ -943,7 +943,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           const SizedBox(
                                                               height: 10),
                                                           Text(
-                                                            'Seleccione o escanee la ubicación de destino para los productos',
+                                                            'Seleccione la sub ubicación de destino para los productos',
                                                             style: TextStyle(
                                                                 fontSize: 12,
                                                                 color:
@@ -965,10 +965,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                     batchBloc
                                                                             .submuelles[
                                                                         index];
-                                                                bool isSelected = muelle
-                                                                        .completeName ==
-                                                                    selectedSubMuelle
-                                                                        ?.completeName;
+                                                                bool
+                                                                    isSelected =
+                                                                    muelle ==
+                                                                        batchBloc
+                                                                            .subMuelleSelected;
 
                                                                 return Card(
                                                                   color: isSelected
@@ -996,7 +997,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                       muelle.barcode ==
                                                                               ""
                                                                           ? "Sin codigo de barras"
-                                                                          : '',
+                                                                          : muelle.barcode ??
+                                                                              "",
                                                                       style:
                                                                           TextStyle(
                                                                         fontSize:
@@ -1007,150 +1009,50 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                       ),
                                                                     ),
                                                                     onTap: () {
-                                                                      setState(
-                                                                          () {
-                                                                        selectedSubMuelle =
-                                                                            muelle; // Actualiza el muelle seleccionado
-                                                                      });
-                                                                      print(selectedSubMuelle
-                                                                          ?.toMap());
+                                                                      context
+                                                                          .read<
+                                                                              BatchBloc>()
+                                                                          .add(SelectedSubMuelleEvent(
+                                                                              muelle));
                                                                     },
                                                                   ),
                                                                 );
                                                               },
                                                             ),
                                                           ),
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          Focus(
-                                                            focusNode:
-                                                                focusNode6,
-                                                            onKey:
-                                                                (FocusNode node,
-                                                                    RawKeyEvent
-                                                                        event) {
-                                                              if (event
-                                                                  is RawKeyDownEvent) {
-                                                                if (event
-                                                                        .logicalKey ==
-                                                                    LogicalKeyboardKey
-                                                                        .enter) {
-                                                                  // Al presionar enter, procesamos el código escaneado
-                                                                  if (scannedValue6
-                                                                      .isNotEmpty) {
-                                                                    bool
-                                                                        validate =
-                                                                        validateScannedSubmuelle(
-                                                                      scannedValue6
-                                                                          .toLowerCase(),
-                                                                      batchBloc,
-                                                                    );
-
-                                                                    if (validate) {
-                                                                      showDialog(
-                                                                          context:
-                                                                              context,
-                                                                          builder:
-                                                                              (context) {
-                                                                            return const DialogLoading();
-                                                                          });
-
-                                                                      // Esperar 1 segundos y cerrar el diálogo y redirigirel focus
-                                                                      Future.delayed(
-                                                                          const Duration(
-                                                                              seconds: 1),
-                                                                          () {
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                      });
-                                                                    } else {
-                                                                      setState(
-                                                                          () {
-                                                                        scannedValue6 =
-                                                                            "";
-                                                                        alerta =
-                                                                            'Código de ubicacion destino incorrecto';
-                                                                      });
-                                                                    }
-                                                                  }
-                                                                  return KeyEventResult
-                                                                      .handled;
-                                                                } else {
-                                                                  setState(() {
-                                                                    scannedValue6 +=
-                                                                        event
-                                                                            .data
-                                                                            .keyLabel;
-                                                                  });
-                                                                  return KeyEventResult
-                                                                      .handled;
-                                                                }
-                                                              }
-                                                              return KeyEventResult
-                                                                  .ignored;
-                                                            },
-                                                            child: RichText(
-                                                              text: TextSpan(
-                                                                text: selectedSubMuelle ==
-                                                                        null
-                                                                    ? 'No ha seleccionado ningúna ubicacion destino.'
-                                                                    : '¿Está seguro de seleccionar la ubicacion destino ',
-                                                                style: const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black),
-                                                                children: <TextSpan>[
-                                                                  if (selectedSubMuelle !=
-                                                                      null)
-                                                                    TextSpan(
-                                                                      text: selectedSubMuelle
-                                                                              ?.completeName ??
-                                                                          "",
-                                                                      style:
-                                                                          TextStyle(
+                                                          Container(
+                                                            height: 15,
+                                                            margin:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    bottom: 5),
+                                                            child:
+                                                                TextFormField(
+                                                              showCursor: false,
+                                                              controller:
+                                                                  _controllerSubMuelle, // Asignamos el controlador
+                                                              enabled: true,
+                                                              focusNode:
+                                                                  focusNode6,
+                                                              onChanged:
+                                                                  (value) {},
+                                                              decoration:
+                                                                  const InputDecoration(
+                                                                disabledBorder:
+                                                                    InputBorder
+                                                                        .none,
+                                                                hintStyle:
+                                                                    TextStyle(
                                                                         fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            primaryColorApp,
-                                                                      ),
-                                                                    ),
-                                                                  TextSpan(
-                                                                    text: selectedSubMuelle ==
-                                                                            null
-                                                                        ? '.'
-                                                                        : ' para los productos?',
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            12,
+                                                                            14,
                                                                         color:
                                                                             black),
-                                                                  ),
-                                                                ],
+                                                                border:
+                                                                    InputBorder
+                                                                        .none,
                                                               ),
                                                             ),
                                                           ),
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          // Mostrar el valor escaneado
-                                                          Align(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            child: Text(
-                                                              alerta,
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color:
-                                                                          red),
-                                                            ),
-                                                          ),
-                                                          const SizedBox(
-                                                              height:
-                                                                  10), // Espacio entre el texto y el botón
                                                           Center(
                                                             child: Row(
                                                               mainAxisAlignment:
@@ -1160,16 +1062,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 ElevatedButton(
                                                                   onPressed:
                                                                       () async {
-                                                                    context
-                                                                        .read<
-                                                                            BatchBloc>()
-                                                                        .add(IsShouldRunDependencies(
-                                                                            true));
-
-                                                                    // Cerrar el focus y salir del modal
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .unfocus();
+                                                                        batchBloc.subMuelleSelected =
+                                                                            Muelles();
                                                                     Navigator.pop(
                                                                         context);
                                                                   },
@@ -1197,28 +1091,23 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                 const SizedBox(
                                                                     width: 10),
                                                                 ElevatedButton(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    if (selectedSubMuelle !=
-                                                                        null) {
-                                                                      batchBloc.add(AssignSubmuelleEvent(
-                                                                          batchBloc.filteredProducts.where((e) {
-                                                                            return e.isMuelle == null &&
-                                                                                e.isSeparate == 1;
-                                                                          }).toList(),
-                                                                          selectedSubMuelle!,
-                                                                          context));
-                                                                      // Future.delayed(
-                                                                      //     const Duration(
-                                                                      //         seconds: 1),
-                                                                      //     () {
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                      //   Navigator.pop(
-                                                                      //       context);
-                                                                      // });
-                                                                    }
-                                                                  },
+                                                                  onPressed: batchBloc
+                                                                              .subMuelleSelected.completeName ==
+                                                                          null
+                                                                      ? null
+                                                                      : () async {
+                                                                        print(
+                                                                            "Submuelle seleccionado: ${batchBloc.subMuelleSelected.completeName}");
+                                                                          batchBloc.add(AssignSubmuelleEvent(
+                                                                              batchBloc.filteredProducts.where((e) {
+                                                                                return e.isMuelle == null && e.isSeparate == 1;
+                                                                              }).toList(),
+                                                                              batchBloc.subMuelleSelected,
+                                                                              context));
+
+                                                                          Navigator.pop(
+                                                                              context);
+                                                                        },
                                                                   style: ElevatedButton
                                                                       .styleFrom(
                                                                     backgroundColor:
@@ -1250,11 +1139,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 );
                                               },
                                             );
-
-                                            //SCANEO LA UBICACION O SELECCION LA LISTA DE SUBPOCISIONES
-
-                                            //EDITO LAS LINEAS ANTERIORES A CUAL MUELLE VA
                                           },
+
+                                    //SCANEO LA UBICACION O SELECCION LA LISTA DE SUBPOCISIONES
+
+                                    //EDITO LAS LINEAS ANTERIORES A CUAL MUELLE VA
+
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: primaryColorAppLigth,
                                       minimumSize: const Size(100, 40),
@@ -1270,10 +1160,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                         fontSize: 12,
                                       ),
                                     )),
-                              )
-                            ],
-                          ),
-                        ))),
+                              ),
+                            ])))),
               ),
 
               //todo: cantidad

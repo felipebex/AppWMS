@@ -43,6 +43,8 @@ dependencies:
   connectivity_plus: ^6.0.3
   provider: ^6.1.2
 
+  keyboard_service: ^2.0.2
+
 
 
   bloc: ^8.1.1

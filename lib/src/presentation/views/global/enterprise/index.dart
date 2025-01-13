@@ -63,7 +63,7 @@ class SelectEnterpricePage extends StatelessWidget {
                       children: [
                         Center(
                             child: Text(
-                          "Bienvenido a ${Environment.flavor.appName } ",
+                          "Bienvenido a ${Environment.flavor.appName} ",
                           style: const TextStyle(
                               color: Colors.white, fontSize: 22),
                         )),
@@ -152,6 +152,10 @@ class _loginForm extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: TextFormField(
                     autocorrect: false,
+                    readOnly:
+                        context.read<UserBloc>().fabricante.contains("Zebra")
+                            ? true
+                            : false,
                     controller:
                         context.read<EntrepriseBloc>().entrepriceController,
                     style: const TextStyle(fontSize: 12),

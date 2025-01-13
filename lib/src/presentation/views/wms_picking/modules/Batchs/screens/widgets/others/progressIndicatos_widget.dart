@@ -37,8 +37,8 @@ class ProgressIndicatorWidget extends StatelessWidget {
             Align(
               alignment: Alignment.center,
               child: Text(
-                'Hecho $completed / Por hacer $total',
-                style: const TextStyle(fontSize: 14, color: Colors.white),
+                'Hecho $completed / Total $total',
+                style: const TextStyle(fontSize: 12, color: Colors.white),
               ),
             ),
           ],
