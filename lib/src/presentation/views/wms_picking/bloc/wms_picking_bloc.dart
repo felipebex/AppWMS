@@ -36,7 +36,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     //*filtrar los batchs por fecha
     on<FilterBatchsByDateEvent>(_onFilterBatchsByDateEvent);
 
-    //*obtener todos los batchs desde odoox
+    //*obtener todos los batchs desde odoo
     on<LoadAllBatchsEvent>(_onLoadAllBatchsEvent);
     //*obtener todos los batchs desde SQLite
     on<LoadBatchsFromDBEvent>(_onLoadBatchsFromDBEvent);
@@ -283,7 +283,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
       if (response != null && response is List) {
         // validamos que si hace la petición cada 3 minutos
-        if (!event.isLoadinDialog) {
+        if (event.isLoadinDialog) {
           final int userid = await PrefUtils.getUserId();
           final intBacths = await DataBaseSqlite().getAllBatchs(userid);
 

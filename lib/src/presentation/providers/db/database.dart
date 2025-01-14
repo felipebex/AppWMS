@@ -1252,6 +1252,39 @@ class DataBaseSqlite {
     return result; // Retornamos el número de filas afectadas
   }
 
+
+  //TODO Metodo para obtener la info de un paquete por id
+  Future<Paquete?> getPackageById(int packageId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblpackages',
+      where: 'id = ?',
+      whereArgs: [packageId],
+    );
+
+    if (maps.isNotEmpty) {
+      return Paquete(
+        id: maps[0]['id'],
+        name: maps[0]['name'],
+        batchId: maps[0]['batch_id'],
+        pedidoId: maps[0]['pedido_id'],
+        cantidadProductos: maps[0]['cantidad_productos'],
+        isSticker: maps[0]['is_sticker'] == 1,
+      );
+    }
+    return null;
+  }
+
+  //metodo para eliminar un paquete por id
+  Future<void> deletePackageById(int packageId) async {
+    final db = await database;
+    await db!.delete(
+      'tblpackages',
+      where: 'id = ?',
+      whereArgs: [packageId],
+    );
+  }
+
   //Todo: Métodos para batchs_products
 
   Future<void> insertBatchProducts(

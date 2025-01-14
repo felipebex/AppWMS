@@ -222,6 +222,16 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           event.request.listItem.length,
         );
 
+
+        //VERIFICAMOS CUANTOS PRODUCTOS TIENE EL PAQUETE
+        final response = await db.getPackageById(event.request.idPaquete);
+        if (response != null) {
+          if (response.cantidadProductos == 0) {
+            //si la cantidad de productos es 0 eliminamos el paquete
+            await db.deletePackageById(event.request.idPaquete);
+          }
+        }
+
         //actualizamos la lista de productos
         emit(UnPackignSuccess("Desempaquetado del producto exitoso"));
         add(LoadAllProductsFromPedidoEvent(event.pedidoId));
