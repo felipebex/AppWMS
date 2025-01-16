@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/product_templa
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
+import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'batch_event.dart';
@@ -263,6 +264,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       final userid = await PrefUtils.getUserId();
 
+
       final response = await repository.sendPicking(
           context: event.context,
           idBatch: event.productsSeparate[i].batchId ?? 0,
@@ -278,6 +280,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
               muelle: event.muelle.id ?? 0,
               idOperario: userid,
+              fechaTransaccion: event.productsSeparate[i].fechaTransaccion ?? '',
             ),
           ]);
 
@@ -285,7 +288,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
         add(FetchBatchWithProductsEvent(
             event.productsSeparate[i].batchId ?? 0));
-      }else{
+      } else {
         emit(SubMuelleEditFail('Error al asignar el submuelle'));
       }
 
@@ -487,7 +490,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     // Obtener la diferencia en segundos
     double secondsDifference = difference.inMilliseconds / 1000.0;
 
+
     final userid = await PrefUtils.getUserId();
+
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
         context: context,
@@ -503,7 +508,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
               novedad: product?.observation ?? 'Sin novedad',
               timeLine: product?.timeSeparate ?? 0,
               muelle: product?.muelleId ?? 0,
-              idOperario: userid),
+              idOperario: userid,
+              fechaTransaccion: product?.fechaTransaccion ?? ''),
         ]);
 
     if (response.result?.code == 200) {
@@ -547,6 +553,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     double secondsDifference = difference.inMilliseconds / 1000.0;
     final userid = await PrefUtils.getUserId();
 
+
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
         context: context,
@@ -564,7 +571,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
                   : product?.observation ?? 'Sin novedad',
               timeLine: product?.timeSeparate ?? 0,
               muelle: product?.muelleId ?? 0,
-              idOperario: userid),
+              idOperario: userid,
+              fechaTransaccion: product?.fechaTransaccion ?? ''),
         ]);
 
     if (response.result?.code == 200) {
@@ -846,6 +854,18 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         event.idMove,
         DateTime.now().toString(),
       );
+
+      //calculamos la fecha de transaccion
+      DateTime fechaTransaccion = DateTime.now();
+      String fechaFormateada = formatoFecha(fechaTransaccion);
+      //agregamos la fecha de transaccion
+      await db.dateTransaccionProduct(
+        event.batchId,
+        fechaFormateada,
+        event.productId,
+        event.idMove,
+      );
+
       await db.setFieldTableBatchProducts(
           event.batchId, event.productId, 'is_selected', 'true', event.idMove);
       await db.setFieldTableBatchProducts(event.batchId, event.productId,

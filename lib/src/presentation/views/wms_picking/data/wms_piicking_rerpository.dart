@@ -53,15 +53,42 @@ class WmsPickingRepository {
               batches.map((data) => BatchsModel.fromMap(data)).toList();
           return products;
         }
-      } else {
-       
-      }
+      } else {}
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
       return [];
     } catch (e, s) {
       // Manejo de otros errores
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.amber[200],
+          content: SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: SingleChildScrollView(
+              child: Text(
+                'Error en resBatchs: $e $s',
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+          ),
+          action: SnackBarAction(
+            label: 'Cerrar', // Este es el texto del botón de acción
+            textColor: Colors.black, // Color del texto de la acción
+            onPressed: () {
+              // Esto se ejecuta cuando el usuario presiona "Cerrar"
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+          behavior: SnackBarBehavior
+              .floating, // Hace que no se cierre automáticamente
+          duration:
+              const Duration(days: 365), // Esto hace que no se cierre solo
+        ),
+      );
+
       print('Error resBatchs: $e, $s');
     }
     return [];
@@ -98,14 +125,40 @@ class WmsPickingRepository {
 
           return products;
         }
-      } else {
-       
-      }
+      } else {}
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
       return [];
     } catch (e, s) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.amber[200],
+          content: SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: SingleChildScrollView(
+              child: Text(
+                'Error en getBatchById: $e $s',
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+          ),
+          action: SnackBarAction(
+            label: 'Cerrar', // Este es el texto del botón de acción
+            textColor: Colors.black, // Color del texto de la acción
+            onPressed: () {
+              // Esto se ejecuta cuando el usuario presiona "Cerrar"
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+          behavior: SnackBarBehavior
+              .floating, // Hace que no se cierre automáticamente
+          duration:
+              const Duration(days: 365), // Esto hace que no se cierre solo
+        ),
+      );
+
       // Manejo de otros errores
       print('Error getBatchById: $e, $s');
     }
@@ -145,14 +198,39 @@ class WmsPickingRepository {
               batches.map((data) => Muelles.fromMap(data)).toList();
           return muelles;
         }
-      } else {
-       
-      }
+      } else {}
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
       return [];
     } catch (e, s) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.amber[200],
+          content: SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: SingleChildScrollView(
+              child: Text(
+                'Error en getBatchById: $e $s',
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+          ),
+          action: SnackBarAction(
+            label: 'Cerrar', // Este es el texto del botón de acción
+            textColor: Colors.black, // Color del texto de la acción
+            onPressed: () {
+              // Esto se ejecuta cuando el usuario presiona "Cerrar"
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+          behavior: SnackBarBehavior
+              .floating, // Hace que no se cierre automáticamente
+          duration:
+              const Duration(days: 365), // Esto hace que no se cierre solo
+        ),
+      );
       // Manejo de otros errores
       print('Error getmuelles: $e, $s');
     }
@@ -167,8 +245,6 @@ class WmsPickingRepository {
       required BuildContext context //
       }) async {
     try {
-
-
       var response = await ApiRequestService().postPicking(
           endpoint: 'send_batch',
           isunecodePath: true,
@@ -196,6 +272,33 @@ class WmsPickingRepository {
       // Manejo de error de red
       print('Error de red: $e');
     } catch (e, s) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.amber[200],
+          content: SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: SingleChildScrollView(
+              child: Text(
+                'Error en sendPicking: $e $s',
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+          ),
+          action: SnackBarAction(
+            label: 'Cerrar', // Este es el texto del botón de acción
+            textColor: Colors.black, // Color del texto de la acción
+            onPressed: () {
+              // Esto se ejecuta cuando el usuario presiona "Cerrar"
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+          behavior: SnackBarBehavior
+              .floating, // Hace que no se cierre automáticamente
+          duration:
+              const Duration(days: 365), // Esto hace que no se cierre solo
+        ),
+      );
       // Manejo de otros errores
       print('Error sendPicking: $e, $s');
     }
@@ -217,14 +320,14 @@ class WmsPickingRepository {
 
     try {
       var response = await ApiRequestService().get(
-          endpoint: 'picking_novelties',
-          isunecodePath: true,
-          isLoadinDialog: isLoadinDialog,
-          context: context,);
+        endpoint: 'picking_novelties',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+        context: context,
+      );
 
       if (response.statusCode < 400) {
- 
-  // Decodifica la respuesta JSON a un mapa
+        // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
         // Accede a la clave "data" y luego a "result"
 
@@ -236,25 +339,7 @@ class WmsPickingRepository {
               result.map((data) => Novedad.fromMap(data)).toList();
           return novedades;
         }
-
-
-
       } else {
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        if (jsonResponse.containsKey('data') && jsonResponse['data'] is Map) {
-          Map<String, dynamic> data = jsonResponse['data'];
-          print("data: $data");
-          //mostramos alerta del error
-          Get.snackbar(
-            'Error en getnovedades : ${data['code']}',
-            data['msg'],
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-          );
-        }
-
         print('Error getnovedades: response is null');
       }
     } on SocketException catch (e) {
@@ -262,6 +347,33 @@ class WmsPickingRepository {
       print('Error de red: $e');
       return [];
     } catch (e, s) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.amber[200],
+          content: SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: SingleChildScrollView(
+              child: Text(
+                'Error en getnovedades: $e $s',
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+          ),
+          action: SnackBarAction(
+            label: 'Cerrar', // Este es el texto del botón de acción
+            textColor: Colors.black, // Color del texto de la acción
+            onPressed: () {
+              // Esto se ejecuta cuando el usuario presiona "Cerrar"
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+          behavior: SnackBarBehavior
+              .floating, // Hace que no se cierre automáticamente
+          duration:
+              const Duration(days: 365), // Esto hace que no se cierre solo
+        ),
+      );
       // Manejo de otros errores
       print('Error getnovedades: $e, $s');
     }

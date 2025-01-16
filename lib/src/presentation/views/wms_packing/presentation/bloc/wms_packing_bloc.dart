@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/domain/sen_packing_re
 import 'package:wms_app/src/presentation/views/wms_packing/domain/un_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'wms_packing_event.dart';
@@ -53,6 +54,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
   //*controller para la busqueda
   TextEditingController searchController = TextEditingController();
+  TextEditingController searchControllerPedido = TextEditingController();
   TextEditingController searchControllerProduct = TextEditingController();
   //*repositorio
   WmsPackingRepository wmsPackingRepository = WmsPackingRepository();
@@ -108,6 +110,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //*buscar un batch
     on<SearchBatchPackingEvent>(_onSearchBacthEvent);
+    //*buscar un pedido
+    on<SearchPedidoPackingEvent>(_onSearchPedidoEvent);
 
     //*cambiar el estado de las variables
     on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
@@ -221,7 +225,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           event.request.idPaquete,
           event.request.listItem.length,
         );
-
 
         //VERIFICAMOS CUANTOS PRODUCTOS TIENE EL PAQUETE
         final response = await db.getPackageById(event.request.idPaquete);
@@ -415,6 +418,26 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     emit(WmsPackingLoaded());
   }
 
+  //metodo para buscar un pedido de packing
+  void _onSearchPedidoEvent(
+      SearchPedidoPackingEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      final query = event.query.toLowerCase();
+      final pedidosFromDB = await db.getAllPedidosBatch(event.idBatch);
+      if (query.isEmpty) {
+        listOfPedidos = pedidosFromDB;
+      } else {
+        listOfPedidos = pedidosFromDB.where((pedido) {
+          return pedido.referencia?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(WmsPackingLoaded());
+    } catch (e, s) {
+      print('Error en el _onSearchPedidoEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
+    }
+  }
+
   ///*metodo para cambiar el estado del sticker
   void _onChangeStickerEvent(
       ChangeStickerEvent event, Emitter<WmsPackingState> emit) {
@@ -465,26 +488,30 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           ));
 
           if (packageId != null) {
+            DateTime fechaTransaccion = DateTime.now();
+            String fechaFormateada = formatoFecha(fechaTransaccion);
             // 3. Empaquetar los productos en el paquete recién creado
             // Crear la lista de ListItem a partir de los productos
             List<ListItem> listItems = event.productos.map((producto) {
               return ListItem(
-                  idMove: producto.idMove ??
-                      0, // O el campo correspondiente en tu producto
-                  productId: producto
-                      .idProduct, // Suponiendo que `id` es el ID del producto
-                  lote: producto.loteId
-                      .toString(), // Suponiendo que `loteId` es el lote del producto
-                  locationId: int.parse(producto.idLocation
-                      .toString()), // Asegúrate de tener este campo
-                  cantidadSeparada: event.isCertificate
-                      ? producto.quantitySeparate ?? 0
-                      : producto.quantity ?? 0, // Cantidad a empaquetar
-                  observacion: producto.observation ??
-                      'Sin novedad', // Observación del producto (si existe)
-                  unidadMedida: producto.unidades ??
-                      '', // La unidad de medida del producto
-                  idOperario: idOperario);
+                idMove: producto.idMove ??
+                    0, // O el campo correspondiente en tu producto
+                productId: producto
+                    .idProduct, // Suponiendo que `id` es el ID del producto
+                lote: producto.loteId
+                    .toString(), // Suponiendo que `loteId` es el lote del producto
+                locationId: int.parse(producto.idLocation
+                    .toString()), // Asegúrate de tener este campo
+                cantidadSeparada: event.isCertificate
+                    ? producto.quantitySeparate ?? 0
+                    : producto.quantity ?? 0, // Cantidad a empaquetar
+                observacion: producto.observation ??
+                    'Sin novedad', // Observación del producto (si existe)
+                unidadMedida:
+                    producto.unidades ?? '', // La unidad de medida del producto
+                idOperario: idOperario,
+                fechaTransaccion: fechaFormateada,
+              );
             }).toList();
 
             // 4. Crear el PackingRequest

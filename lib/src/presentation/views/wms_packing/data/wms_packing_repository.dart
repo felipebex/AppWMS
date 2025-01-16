@@ -126,7 +126,7 @@ class WmsPackingRepository {
     try {
       var response = await ApiRequestService().postPacking(
         endpoint:
-            'send_packing', // Cambiado para que sea el endpoint correspondiente
+            'unpacking', // Cambiado para que sea el endpoint correspondiente
         body: {
           "params": {
             "id_batch": request.idBatch,

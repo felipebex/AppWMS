@@ -110,6 +110,7 @@ class DataBaseSqlite {
         product_is_ok INTEGER,
         is_quantity_is_ok INTEGER,
         location_dest_is_ok INTEGER,
+        fecha_transaccion VARCHAR(255),
         is_send_odoo INTEGER,
         is_send_odoo_date VARCHAR(255),
         FOREIGN KEY (batch_id) REFERENCES tblbatchs (id)
@@ -835,19 +836,50 @@ class DataBaseSqlite {
     }
   }
 
-  Future<void> insertProductosPedidos(
-      List<PorductoPedido> productosList) async {
-    try {
-      final db = await database;
+Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
+  try {
+    final db = await database;
 
-      // Inicia la transacción
-      await db!.transaction((txn) async {
-        for (var producto in productosList) {
-          // Verificar si el producto ya existe
-          final List<Map<String, dynamic>> existingProducto = await txn.query(
+    // Inicia la transacción
+    await db!.transaction((txn) async {
+      for (var producto in productosList) {
+        // Verificar si el producto ya existe
+        final List<Map<String, dynamic>> existingProducto = await txn.query(
+          'tblproductos_pedidos',
+          where: 'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
+          whereArgs: [
+            producto.idProduct,
+            producto.batchId,
+            producto.pedidoId,
+            producto.idMove
+          ],
+        );
+
+        if (existingProducto.isNotEmpty) {
+          // Actualizar el producto si ya existe
+          await txn.update(
             'tblproductos_pedidos',
-            where:
-                'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
+            {
+              "product_id": producto.productId[1],
+              "batch_id": producto.batchId,
+              "pedido_id": producto.pedidoId,
+              "id_product": producto.idProduct,
+              "lote_id": producto.loteId,
+              "lot_id": (producto.lotId != null && producto.lotId!.isNotEmpty) ? producto.lotId![1] : "",
+              "location_id": producto.locationId?[1],
+              "id_location": producto.locationId?[0],
+              "id_move": producto.idMove,
+              "location_dest_id": producto.locationDestId?[1],
+              "id_location_dest": producto.locationDestId?[0],
+              "barcode_location": producto.barcodeLocation == false ? "" : producto.barcodeLocation,
+              "quantity": producto.quantity,
+              "expire_date": producto.expireDate,
+              "tracking": producto.tracking == false ? "" : producto.tracking.toString(),
+              "barcode": producto.barcode == false ? "" : (producto.barcode == "" ? "" : producto.barcode),
+              "weight": producto.weight == false ? 0 : producto.weight.toDouble(),
+              "unidades": producto.unidades == false ? "" : producto.unidades.toString(),
+            },
+            where: 'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
             whereArgs: [
               producto.idProduct,
               producto.batchId,
@@ -855,97 +887,40 @@ class DataBaseSqlite {
               producto.idMove
             ],
           );
-
-          if (existingProducto.isNotEmpty) {
-            // Actualizar el producto si ya existe
-            await txn.update(
-              'tblproductos_pedidos',
-              {
-                "product_id": producto.productId[1],
-                "batch_id": producto.batchId,
-                "pedido_id": producto.pedidoId,
-                "id_product": producto.idProduct,
-                "lote_id": producto.loteId,
-                "lot_id": producto.lotId == [] ? "" : producto.lotId?[1],
-                "location_id": producto.locationId?[1],
-                "id_location": producto.locationId?[0],
-                "id_move": producto.idMove,
-                "location_dest_id": producto.locationDestId?[1],
-                "id_location_dest": producto.locationDestId?[0],
-                "barcode_location": producto.barcodeLocation == false
-                    ? ""
-                    : producto.barcodeLocation,
-                "quantity": producto.quantity,
-                "expire_date": producto.expireDate,
-                "tracking": producto.tracking == false
-                    ? ""
-                    : producto.tracking.toString(), // Convertir a String
-                "barcode": producto.barcode == false
-                    ? ""
-                    : (producto.barcode == ""
-                        ? ""
-                        : producto.barcode), // Asegurar que no sea bool
-                "weight": producto.weight == false
-                    ? 0
-                    : producto.weight.toDouble(), // Convertir a num (double)
-                "unidades": producto.unidades == false
-                    ? ""
-                    : producto.unidades.toString(), // Convertir a String
-              },
-              where:
-                  'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
-              whereArgs: [
-                producto.idProduct,
-                producto.batchId,
-                producto.pedidoId,
-                producto.idMove
-              ],
-            );
-          } else {
-            // Insertar el producto si no existe
-            await txn.insert(
-              'tblproductos_pedidos',
-              {
-                "product_id": producto.productId[1],
-                "batch_id": producto.batchId,
-                "pedido_id": producto.pedidoId,
-                "id_move": producto.idMove,
-                "id_product": producto.idProduct,
-                "barcode_location": producto.barcodeLocation == false
-                    ? ""
-                    : producto.barcodeLocation,
-                "lote_id": producto.loteId,
-                "lot_id": producto.lotId == [] ? "" : producto.lotId?[1],
-                "location_id": producto.locationId?[1],
-                "id_location": producto.locationId?[0],
-                "location_dest_id": producto.locationDestId?[1],
-                "id_location_dest": producto.locationDestId?[0],
-                "quantity": producto.quantity,
-                "expire_date": producto.expireDate,
-                "tracking": producto.tracking == false
-                    ? ""
-                    : producto.tracking.toString(), // Convertir a String
-                "barcode": producto.barcode == false
-                    ? ""
-                    : (producto.barcode == ""
-                        ? ""
-                        : producto.barcode), // Asegurar que no sea bool
-                "weight": producto.weight == false
-                    ? 0
-                    : producto.weight.toDouble(), // Convertir a num (double)
-                "unidades": producto.unidades == false
-                    ? ""
-                    : producto.unidades.toString(), // Convertir a String
-              },
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          }
+        } else {
+          // Insertar el producto si no existe
+          await txn.insert(
+            'tblproductos_pedidos',
+            {
+              "product_id": producto.productId[1],
+              "batch_id": producto.batchId,
+              "pedido_id": producto.pedidoId,
+              "id_move": producto.idMove,
+              "id_product": producto.idProduct,
+              "barcode_location": producto.barcodeLocation == false ? "" : producto.barcodeLocation,
+              "lote_id": producto.loteId,
+              "lot_id": (producto.lotId != null && producto.lotId!.isNotEmpty) ? producto.lotId![1] : "",
+              "location_id": producto.locationId?[1],
+              "id_location": producto.locationId?[0],
+              "location_dest_id": producto.locationDestId?[1],
+              "id_location_dest": producto.locationDestId?[0],
+              "quantity": producto.quantity,
+              "expire_date": producto.expireDate,
+              "tracking": producto.tracking == false ? "" : producto.tracking.toString(),
+              "barcode": producto.barcode == false ? "" : (producto.barcode == "" ? "" : producto.barcode),
+              "weight": producto.weight == false ? 0 : producto.weight.toDouble(),
+              "unidades": producto.unidades == false ? "" : producto.unidades.toString(),
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
         }
-      });
-    } catch (e, s) {
-      print("Error al insertar productos en productos_pedidos: $e ==> $s");
-    }
+      }
+    });
+  } catch (e, s) {
+    print("Error al insertar productos en productos_pedidos: $e ==> $s");
   }
+}
+
 
   //todo meotod para insertar paquete
 
@@ -1160,6 +1135,23 @@ class DataBaseSqlite {
     }
     return [];
   }
+
+
+  //*obtener todos los pedidos de un batch
+  Future<List<PedidoPacking>> getAllPedidosBatch(int batchId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db!.query(
+      'tblpedidos_packing',
+      where: 'batch_id = ?',
+      whereArgs: [batchId],
+    );
+
+    final List<PedidoPacking> pedidos = maps.map((map) {
+      return PedidoPacking.fromMap(map);
+    }).toList();
+    return pedidos;
+  }
+
 
   //todo metodos para obtener los pedidos de un packing
   Future<List<PedidoPacking>> getPedidosPacking(int batchId) async {
@@ -1743,6 +1735,18 @@ class DataBaseSqlite {
     print("endStopwatchProduct: $resUpdate");
     return resUpdate;
   }
+  Future<int?> dateTransaccionProduct(
+      int batchId, String date, int productId, int moveId) async {
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE tblbatch_products SET fecha_transaccion = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
+
+    print("dateTransaccionProduct: $resUpdate");
+    return resUpdate;
+  }
+
+
+
 
   Future<int?> totalStopwatchBatch(int batchId, double time) async {
     final db = await database;

@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 final internetChecker = CheckInternetConnection();
@@ -46,18 +47,18 @@ void main() async {
   await Preferences.init();
 
   // //cron
-  // var cron = Cron();
-  // cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-  //   try {
-  //     final result = await InternetAddress.lookup('example.com');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       final isLogin = await PrefUtils.getIsLoggedIn();
-  //       if (isLogin) {
-  //         searchProductsNoSendOdoo(navigatorKey.currentContext!);
-  //       }
-  //     }
-  //   } on SocketException catch (_) {}
-  // });
+  var cron = Cron();
+  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        final isLogin = await PrefUtils.getIsLoggedIn();
+        if (isLogin) {
+          searchProductsNoSendOdoo(navigatorKey.currentContext!);
+        }
+      }
+    } on SocketException catch (_) {}
+  });
   // cron.schedule(Schedule.parse('*/5 * * * *'), () async {
   //   try {
   //     final result = await InternetAddress.lookup('example.com');
@@ -139,7 +140,7 @@ class MyApp extends StatelessWidget {
 }
 
 ///metodo el cual se encarga de verificar que productos estan con estado no enviado para enviarlos a odoo
-void searchProductsNoSendOdoo( BuildContext context) async {
+void searchProductsNoSendOdoo(BuildContext context) async {
   DataBaseSqlite db = DataBaseSqlite();
   WmsPickingRepository repository = WmsPickingRepository();
   //traemos todos los productos
@@ -149,10 +150,12 @@ void searchProductsNoSendOdoo( BuildContext context) async {
       products.where((element) => element.isSendOdoo == 0).toList();
   //recorremos la lista
   for (var product in productsNoSendOdoo) {
+    DateTime fechaTransaccion = DateTime.now();
+    String fechaFormateada = formatoFecha(fechaTransaccion);
     //TIEMPO DE INICIO DEL PRODUCTO
     final totalTime = await db.getFieldTableProducts(product.batchId ?? 0,
         product.idProduct ?? 0, product.idMove ?? 0, 'time_separate');
-    
+
     final userId = await PrefUtils.getUserId();
 
     //enviamos el producto a odoo
@@ -165,18 +168,15 @@ void searchProductsNoSendOdoo( BuildContext context) async {
           Item(
             idMove: product.idMove ?? 0,
             productId: product.idProduct ?? 0,
-            lote: product.loteId.toString() ,
+            lote: product.loteId.toString(),
             cantidad: product.quantitySeparate ?? 0,
             novedad: product.observation ?? 'Sin novedad',
             timeLine: double.parse(totalTime),
             muelle: product.idLocationDest ?? 0,
             idOperario: userId,
-            
+            fechaTransaccion: product.fechaTransaccion ?? fechaFormateada,
           ),
         ]);
-
-
-
 
     if (response.result?.code == 200) {
       //recorremos todos los resultados de la respuesta
@@ -213,10 +213,3 @@ void refreshData(BuildContext context) async {
     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, context));
   }
 }
-
-
-
-
-
-
-

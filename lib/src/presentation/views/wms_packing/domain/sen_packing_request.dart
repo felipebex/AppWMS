@@ -30,12 +30,13 @@ class PackingRequest {
 class ListItem {
   final int idMove;
   final int productId;
-  final dynamic lote;
+  final String lote;
   final int locationId;
   final int cantidadSeparada;
   final String observacion;
   final String unidadMedida;
   final int idOperario;
+  final String fechaTransaccion;
 
   ListItem({
     required this.idMove,
@@ -46,6 +47,7 @@ class ListItem {
     required this.observacion,
     required this.unidadMedida,
     required this.idOperario,
+    required this.fechaTransaccion,
   });
 
   Map<String, dynamic> toMap() {
@@ -58,6 +60,7 @@ class ListItem {
       "observacion": observacion,
       "unidad_medida": unidadMedida,
       "id_operario": idOperario,
+      "fecha_transaccion": fechaTransaccion,
     };
   }
 }

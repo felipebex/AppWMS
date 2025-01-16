@@ -29,7 +29,6 @@ class HomePage extends StatelessWidget {
         create: (context) => HomeBloc(),
         child: BlocConsumer<HomeBloc, HomeState>(
           listener: (context, state) {
-
             if (state is HomeLoadErrorState) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -49,8 +48,6 @@ class HomePage extends StatelessWidget {
 
                 //esperamos 1 segundo y luego hacemos la peticion de los batchs
                 await Future.delayed(const Duration(seconds: 1));
-                
-
 
                 final String rol = await PrefUtils.getUserRol();
                 //peticion segun el rol del usuario
@@ -139,14 +136,15 @@ class HomePage extends StatelessWidget {
                                                   context: context,
                                                   builder: (context) {
                                                     return const DialogLoading(
-                                                      message: 'Cargando información del usuario...',
+                                                      message:
+                                                          'Cargando información del usuario...',
                                                     );
                                                   });
 
                                               // Esperar 3 segundos antes de continuar
                                               Future.delayed(
-                                                  const Duration(milliseconds: 300),
-                                                  () {
+                                                  const Duration(
+                                                      milliseconds: 300), () {
                                                 Navigator.pop(context);
                                                 Navigator.pushNamed(
                                                     context, 'user');
@@ -240,71 +238,162 @@ class HomePage extends StatelessWidget {
                                       )
                                     ],
                                   )),
-                              Center(
-                                child:
-                                    BlocBuilder<WMSPickingBloc, PickingState>(
-                                  builder: (context, state) {
-                                    return Container(
+
+                              //todo: informativo para picking
+                              Visibility(
+                                visible: homeBloc.userRol == 'picking' ||
+                                    homeBloc.userRol == 'admin',
+                                child: Center(
+                                  child:
+                                      BlocBuilder<WMSPickingBloc, PickingState>(
+                                    builder: (context, state) {
+                                      return Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          width: size.width,
+                                          height: 50,
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              context.read<UserBloc>().add(
+                                                  LoadInfoDeviceEventUser());
+                                              final String rol =
+                                                  await PrefUtils.getUserRol();
+
+                                              if (rol == 'picking' ||
+                                                  rol == 'admin') {
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .add(
+                                                        LoadBatchsFromDBEvent());
+
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogLoading(
+                                                        message:
+                                                            'Cargando batchs...',
+                                                      );
+                                                    });
+
+                                                // Esperar 3 segundos antes de continuar
+                                                Future.delayed(
+                                                    const Duration(
+                                                        milliseconds: 300), () {
+                                                  Navigator.pop(context);
+                                                  Navigator.pushNamed(
+                                                      context, 'wms-picking',
+                                                      arguments: 0);
+                                                });
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Su usuario no tiene permisos para acceder a este módulo"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: ItemList(
+                                              size: size,
+                                              color: primaryColorApp,
+                                              title: 'BATCH PICKING En Proceso',
+                                              value: (context
+                                                          .read<
+                                                              WMSPickingBloc>()
+                                                          .listOfBatchs
+                                                          .length -
+                                                      context
+                                                          .read<
+                                                              WMSPickingBloc>()
+                                                          .batchsDone
+                                                          .where((element) {
+                                                        return DateTime.parse(
+                                                                    element.timeSeparateEnd ??
+                                                                        "")
+                                                                .toString()
+                                                                .substring(
+                                                                    0, 10) ==
+                                                            DateTime.now()
+                                                                .toString()
+                                                                .substring(
+                                                                    0, 10);
+                                                      }).length)
+                                                  .toString(),
+                                            ),
+                                          ));
+                                    },
+                                  ),
+                                ),
+                              ),
+                              //todo: informativo para packing
+                              Visibility(
+                                visible: homeBloc.userRol == 'packing' ||
+                                    homeBloc.userRol == 'admin',
+                                child: Center(
+                                  child:
+                                      BlocBuilder<WMSPickingBloc, PickingState>(
+                                    builder: (context, state) {
+                                      return Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10),
                                         width: size.width,
                                         height: 50,
-                                        child: ListView(
-                                          scrollDirection: Axis.horizontal,
-                                          children: [
-                                            GestureDetector(
-                                              onTap: () async {
-                                                context.read<UserBloc>().add(
-                                                    LoadInfoDeviceEventUser());
-                                                final String rol =
-                                                    await PrefUtils
-                                                        .getUserRol();
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            context
+                                                .read<UserBloc>()
+                                                .add(LoadInfoDeviceEventUser());
+                                            final String rol =
+                                                await PrefUtils.getUserRol();
 
-                                                if (rol == 'picking' ||
-                                                    rol == 'admin') {
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .add(
-                                                          LoadBatchsFromDBEvent());
+                                            if (rol == 'packing' ||
+                                                rol == 'admin') {
+                                              context.read<WmsPackingBloc>().add(
+                                                  LoadBatchPackingFromDBEvent());
 
-                                                  showDialog(
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return const DialogLoading(
-                                                            message:
-                                                                'Cargando batchs...'
-                                                        );
-                                                      });
-
-                                                  // Esperar 3 segundos antes de continuar
-                                                  Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 300), () {
-                                                    Navigator.pop(context);
-                                                    Navigator.pushNamed(
-                                                        context, 'wms-picking',
-                                                        arguments: 1);
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogLoading(
+                                                        message:
+                                                            'Cargando packing...');
                                                   });
-                                                } else {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          "Su usuario no tiene permisos para acceder a este módulo"),
-                                                      duration:
-                                                          Duration(seconds: 4),
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              child: ItemList(
-                                                size: size,
-                                                color: green,
-                                                title: 'BATCH Hechos',
-                                                value: context
-                                                    .read<WMSPickingBloc>()
-                                                    .batchsDone
-                                                    .where((element) {
+
+                                              // Esperar 3 segundos antes de continuar
+                                              Future.delayed(
+                                                  const Duration(seconds: 1),
+                                                  () {
+                                                Navigator.pop(context);
+                                                Navigator.pushNamed(
+                                                    context, 'wms-packing');
+                                              });
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Su usuario no tiene permisos para acceder a este módulo"),
+                                                  duration:
+                                                      Duration(seconds: 4),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: ItemList(
+                                            size: size,
+                                            color: primaryColorApp,
+                                            title: 'BATCH PACKING En Proceso',
+                                            value: (context
+                                                        .read<WmsPackingBloc>()
+                                                        .listOfBatchs
+                                                        .length -
+                                                    context
+                                                        .read<WmsPackingBloc>()
+                                                        .listOfBatchsDoneDB
+                                                        .where((element) {
                                                       return DateTime.parse(
                                                                   element.timeSeparateEnd ??
                                                                       "")
@@ -314,88 +403,17 @@ class HomePage extends StatelessWidget {
                                                           DateTime.now()
                                                               .toString()
                                                               .substring(0, 10);
-                                                    })
-                                                    .length
-                                                    .toString(),
-                                              ),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () async {
-                                                context.read<UserBloc>().add(
-                                                    LoadInfoDeviceEventUser());
-                                                final String rol =
-                                                    await PrefUtils
-                                                        .getUserRol();
-
-                                                if (rol == 'picking' ||
-                                                    rol == 'admin') {
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .add(
-                                                          LoadBatchsFromDBEvent());
-
-                                                  showDialog(
-                                                      context: context,
-                                                      builder: (context) {
-                                                        return const DialogLoading(
-                                                          message: 'Cargando batchs...',
-                                                        );
-                                                      });
-
-                                                  // Esperar 3 segundos antes de continuar
-                                                  Future.delayed(
-                                                      const Duration(
-                                                          milliseconds: 300), () {
-                                                    Navigator.pop(context);
-                                                    Navigator.pushNamed(
-                                                        context, 'wms-picking',
-                                                        arguments: 0);
-                                                  });
-                                                } else {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          "Su usuario no tiene permisos para acceder a este módulo"),
-                                                      duration:
-                                                          Duration(seconds: 4),
-                                                    ),
-                                                  );
-                                                }
-                                              },
-                                              child: ItemList(
-                                                size: size,
-                                                color: primaryColorApp,
-                                                title: 'BATCH En Proceso',
-                                                value: (context
-                                                            .read<
-                                                                WMSPickingBloc>()
-                                                            .listOfBatchs
-                                                            .length -
-                                                        context
-                                                            .read<
-                                                                WMSPickingBloc>()
-                                                            .batchsDone
-                                                            .where((element) {
-                                                          return DateTime.parse(
-                                                                      element.timeSeparateEnd ??
-                                                                          "")
-                                                                  .toString()
-                                                                  .substring(
-                                                                      0, 10) ==
-                                                              DateTime.now()
-                                                                  .toString()
-                                                                  .substring(
-                                                                      0, 10);
-                                                        }).length)
-                                                    .toString(),
-                                              ),
-                                            ),
-                                          ],
-                                        ));
-                                  },
+                                                    }).length)
+                                                .toString(),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
+
+                              //todo informativo para packing
                               const Padding(
                                 padding: EdgeInsets.symmetric(
                                     horizontal: 20, vertical: 20),
@@ -484,8 +502,7 @@ class HomePage extends StatelessWidget {
                                                     builder: (context) {
                                                       return const DialogLoading(
                                                           message:
-                                                              'Cargando packing...'
-                                                      );
+                                                              'Cargando packing...');
                                                     });
 
                                                 // Esperar 3 segundos antes de continuar

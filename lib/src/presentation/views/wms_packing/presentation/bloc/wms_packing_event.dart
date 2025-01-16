@@ -40,6 +40,12 @@ class SearchBatchPackingEvent extends WmsPackingEvent {
 
   SearchBatchPackingEvent(this.query, this.indexMenu);
 }
+class SearchPedidoPackingEvent extends WmsPackingEvent {
+  final String query;
+  final int idBatch;
+
+  SearchPedidoPackingEvent(this.query, this.idBatch);
+}
 
 class ValidateFieldsPackingEvent extends WmsPackingEvent {
   final String field;

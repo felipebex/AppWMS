@@ -233,6 +233,7 @@ class ProductsBatch {
       locationDestIsOk; // Variable para si la ubicación destino está leída
   late dynamic
       isQuantityIsOk; // Variable para si la cantidad es leída correctamente
+  final String? fechaTransaccion;
 
   ProductsBatch({
     this.id,
@@ -274,6 +275,7 @@ class ProductsBatch {
     this.isSendOdooDate,
     this.weight,
     this.otherBarcode,
+    this.fechaTransaccion,
   });
 
   factory ProductsBatch.fromMap(Map<String, dynamic> map) {
@@ -324,6 +326,7 @@ class ProductsBatch {
       isSendOdoo: map['is_send_odoo'],
       isSendOdooDate: map['is_send_odoo_date'],
       weight: map['weight'],
+      fechaTransaccion: map['fecha_transaccion'],
     );
   }
 
@@ -372,6 +375,7 @@ class ProductsBatch {
       "is_send_odoo": isSendOdoo,
       "is_send_odoo_date": isSendOdooDate,
       "weight": weight,
+      "fecha_transaccion": fechaTransaccion,
     };
   }
 }

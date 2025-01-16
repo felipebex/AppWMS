@@ -55,7 +55,6 @@ class ResultDataUser {
     final Map<String, Currency>? currencies;
     final BundleParams? bundleParams;
     final UserCompanies? userCompanies;
-    final bool? showEffect;
     final bool? displaySwitchCompanyMenu;
     final List<int>? userId;
     final int? maxTimeBetweenKeysInMs;
@@ -94,7 +93,6 @@ class ResultDataUser {
         this.currencies,
         this.bundleParams,
         this.userCompanies,
-        this.showEffect,
         this.displaySwitchCompanyMenu,
         this.userId,
         this.maxTimeBetweenKeysInMs,
@@ -138,7 +136,6 @@ class ResultDataUser {
         currencies: Map.from(json["currencies"]!).map((k, v) => MapEntry<String, Currency>(k, Currency.fromMap(v))),
         bundleParams: json["bundle_params"] == null ? null : BundleParams.fromMap(json["bundle_params"]),
         userCompanies: json["user_companies"] == null ? null : UserCompanies.fromMap(json["user_companies"]),
-        showEffect: json["show_effect"],
         displaySwitchCompanyMenu: json["display_switch_company_menu"],
         userId: json["user_id"] == null ? [] : List<int>.from(json["user_id"]!.map((x) => x)),
         maxTimeBetweenKeysInMs: json["max_time_between_keys_in_ms"],
@@ -178,7 +175,6 @@ class ResultDataUser {
         "currencies": Map.from(currencies!).map((k, v) => MapEntry<String, dynamic>(k, v.toMap())),
         "bundle_params": bundleParams?.toMap(),
         "user_companies": userCompanies?.toMap(),
-        "show_effect": showEffect,
         "display_switch_company_menu": displaySwitchCompanyMenu,
         "user_id": userId == null ? [] : List<dynamic>.from(userId!.map((x) => x)),
         "max_time_between_keys_in_ms": maxTimeBetweenKeysInMs,

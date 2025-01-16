@@ -159,6 +159,9 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                           icon: const Icon(Icons.arrow_back,
                                               color: white),
                                           onPressed: () {
+                                            context
+                                                .read<WmsPackingBloc>()
+                                                .add(ShowKeyboardEvent(false));
                                             Navigator.pop(context);
                                           },
                                         ),
@@ -334,6 +337,10 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                           .add(LoadAllPedidosFromBatchEvent(
                                             batch.id ?? 0,
                                           ));
+
+                                      context
+                                          .read<WmsPackingBloc>()
+                                          .add(ShowKeyboardEvent(false));
 
                                       // viajamos a la vista de detalles del batch con sus pedidos
                                       Navigator.pushNamed(
