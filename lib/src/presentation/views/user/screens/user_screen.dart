@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/environment/environment.dart';
@@ -392,14 +391,14 @@ class UserScreen extends StatelessWidget {
                                           ],
                                         ),
                                         const SizedBox(height: 10),
-                                         Center(
+                                        Center(
                                           child: Text("Permisos Packing:",
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   color: primaryColorApp)),
                                         ),
                                         const SizedBox(height: 10),
-                                          Row(
+                                        Row(
                                           children: [
                                             const Text("Ubicacion de origen: ",
                                                 style: TextStyle(
@@ -428,7 +427,7 @@ class UserScreen extends StatelessWidget {
                                                     color: primaryColorApp))
                                           ],
                                         ),
-                                           Row(
+                                        Row(
                                           children: [
                                             const Text("Seleccionar Producto: ",
                                                 style: TextStyle(
@@ -486,9 +485,7 @@ class UserScreen extends StatelessWidget {
                                                     color: primaryColorApp))
                                           ],
                                         ),
-                                      
-                                      
-                                       Row(
+                                        Row(
                                           children: [
                                             const Text("Seleccionar Muelle: ",
                                                 style: TextStyle(
@@ -517,7 +514,6 @@ class UserScreen extends StatelessWidget {
                                                     color: primaryColorApp))
                                           ],
                                         ),
-                                      
                                       ],
                                     ),
                                   ),

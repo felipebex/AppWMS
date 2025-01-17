@@ -41,129 +41,133 @@ class Tab1Screen extends StatelessWidget {
             },
             child: Scaffold(
               backgroundColor: white,
-              floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  if (context.read<WmsPackingBloc>().packages.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text(
-                          'No se puede confirmar un pedido sin empaques',
-                          style: TextStyle(color: white),
-                        ),
-                        backgroundColor: Colors.red[200],
-                      ),
-                    );
-                    return;
-                  } else if (context
-                          .read<WmsPackingBloc>()
-                          .productsDone
-                          .isNotEmpty &&
-                      context
-                          .read<WmsPackingBloc>()
-                          .listOfProductosProgress
-                          .isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text(
-                          'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
-                          style: TextStyle(color: white),
-                        ),
-                        backgroundColor: Colors.red[200],
-                      ),
-                    );
-                    return;
-                  }
-
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                          child: AlertDialog(
-                            backgroundColor: Colors.white,
-                            actionsAlignment: MainAxisAlignment.center,
-                            title: Text(
-                              'Confirmar pedido',
-                              style: TextStyle(
-                                  color: primaryColorApp, fontSize: 16),
-                              textAlign: TextAlign.center,
+              floatingActionButton: packingModel?.isTerminate == 1
+                  ? null
+                  : FloatingActionButton(
+                      onPressed: () {
+                        if (context.read<WmsPackingBloc>().packages.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'No se puede confirmar un pedido sin empaques',
+                                style: TextStyle(color: white),
+                              ),
+                              backgroundColor: Colors.red[200],
                             ),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  height: 100,
-                                  width: 200,
-                                  child: Image.asset(
-                                    "assets/images/icono.jpeg",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                const Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '¿Estás seguro de confirmar el pedido y dejarlo listo para ser enviado?',
-                                    style:
-                                        TextStyle(color: black, fontSize: 14),
+                          );
+                          return;
+                        } else if (context
+                                .read<WmsPackingBloc>()
+                                .productsDone
+                                .isNotEmpty &&
+                            context
+                                .read<WmsPackingBloc>()
+                                .listOfProductosProgress
+                                .isNotEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
+                                style: TextStyle(color: white),
+                              ),
+                              backgroundColor: Colors.red[200],
+                            ),
+                          );
+                          return;
+                        }
+
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                child: AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  actionsAlignment: MainAxisAlignment.center,
+                                  title: Text(
+                                    'Confirmar pedido',
+                                    style: TextStyle(
+                                        color: primaryColorApp, fontSize: 16),
                                     textAlign: TextAlign.center,
                                   ),
-                                ),
-                              ],
-                            ),
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: grey,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        height: 100,
+                                        width: 200,
+                                        child: Image.asset(
+                                          "assets/images/icono.jpeg",
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      const Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          '¿Estás seguro de confirmar el pedido y dejarlo listo para ser enviado?',
+                                          style: TextStyle(
+                                              color: black, fontSize: 14),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                child: const Text(
-                                  'Cancelar',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  await DataBaseSqlite()
-                                      .setFieldTablePedidosPacking(
-                                    packingModel?.batchId ?? 0,
-                                    packingModel?.id ?? 0,
-                                    "is_terminate",
-                                    "true",
-                                  );
+                                  actions: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: grey,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cancelar',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        await DataBaseSqlite()
+                                            .setFieldTablePedidosPacking(
+                                          packingModel?.batchId ?? 0,
+                                          packingModel?.id ?? 0,
+                                          "is_terminate",
+                                          "true",
+                                        );
 
-                                  context
-                                      .read<WmsPackingBloc>()
-                                      .add(LoadAllPedidosFromBatchEvent(
-                                        packingModel?.batchId ?? 0,
-                                      ));
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .add(LoadAllPedidosFromBatchEvent(
+                                              packingModel?.batchId ?? 0,
+                                            ));
 
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pop();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).pop();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: primaryColorApp,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Aceptar',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                child: const Text(
-                                  'Aceptar',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      });
-                },
-                backgroundColor: primaryColorApp,
-                child: const Icon(Icons.check, color: white),
-              ),
+                              );
+                            });
+                      },
+                      backgroundColor: primaryColorApp,
+                      child: const Icon(Icons.check, color: white),
+                    ),
               body: Column(
                 children: [
                   const WarningWidgetCubit(),

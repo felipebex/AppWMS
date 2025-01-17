@@ -381,12 +381,12 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        // Text('Foco: $focoLocation',
-                        //     style: const TextStyle(fontSize: 10, color: black)),
-                        // Text('Ubicacion: $scannedValue1',
-                        //     style: const TextStyle(fontSize: 10, color: black)),
-                        // Text('producto: $scannedValue2',
-                        //     style: const TextStyle(fontSize: 10, color: black)),
+                        Text('Foco: $focoLocation',
+                            style: const TextStyle(fontSize: 10, color: black)),
+                        Text('Ubicacion: $scannedValue1',
+                            style: const TextStyle(fontSize: 10, color: black)),
+                        Text('producto: $scannedValue2',
+                            style: const TextStyle(fontSize: 10, color: black)),
 
                         //todo : ubicacion de origen
                         Row(
@@ -472,7 +472,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           if (event is RawKeyDownEvent) {
                                             if (event.logicalKey ==
                                                 LogicalKeyboardKey.enter) {
+
                                               if (scannedValue1.isNotEmpty) {
+                                                print("scan ubicacion: $scannedValue1");
                                                 validateLocation(scannedValue1);
                                               }
 
@@ -1787,7 +1789,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                     //cerramos el focus
                     batchBloc.isSearch = false;
                     batchBloc.add(LoadProductEditEvent());
-                    batchBloc.add(IsShouldRunDependencies(true));
+                    batchBloc.add(IsShouldRunDependencies(false));
                     Navigator.pushNamed(
                       context,
                       'batch-detail',

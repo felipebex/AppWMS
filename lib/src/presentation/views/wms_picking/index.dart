@@ -1,4 +1,3 @@
-
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
@@ -67,8 +66,9 @@ class _PickingPageState extends State<WMSPickingPage> {
             }
 
             double progress = context
-                        .read<WMSPickingBloc>()
-                        .listOfBatchs.isNotEmpty
+                    .read<WMSPickingBloc>()
+                    .listOfBatchs
+                    .isNotEmpty
                 ? context.read<WMSPickingBloc>().batchsDone.where((element) {
                       return DateTime.parse(element.timeSeparateEnd ?? "")
                               .toString()
@@ -207,7 +207,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                     .read<WMSPickingBloc>()
                                                     .searchController
                                                     .clear();
-                                                Navigator.pop(context);
+                                                Navigator.pushNamed(
+                                                    context, 'home');
                                               },
                                             ),
                                             Padding(
@@ -264,12 +265,12 @@ class _PickingPageState extends State<WMSPickingPage> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.only(
-                                      left: 10, right: 10,),
+                                    left: 10,
+                                    right: 10,
+                                  ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      
-                                      
                                       SizedBox(
                                         width: size.width * 0.75,
                                         child: Card(
@@ -284,7 +285,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               decoration: InputDecoration(
                                                 prefixIcon: const Icon(
                                                     Icons.search,
-                                                    color: grey, size: 20),
+                                                    color: grey,
+                                                    size: 20),
                                                 suffixIcon: IconButton(
                                                     onPressed: () {
                                                       context
@@ -318,7 +320,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       },
                                                       icon: const Icon(
                                                           Icons.close,
-                                                          color: grey, size:20),
+                                                          color: grey,
+                                                          size: 20),
                                                     )),
                                                 disabledBorder:
                                                     const OutlineInputBorder(),
@@ -349,7 +352,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                     }),
                                         ),
                                       ),
-                                      
                                       Card(
                                         color: Colors.white,
                                         elevation: 3,
@@ -371,13 +373,13 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               }
                                             });
                                           },
-                                          icon: const Icon(Icons.calendar_month,
-                                              color: grey, size: 20,),
+                                          icon: const Icon(
+                                            Icons.calendar_month,
+                                            color: grey,
+                                            size: 20,
+                                          ),
                                         ),
                                       )
-                                    
-
-                                    
                                     ],
                                   ),
                                 ),
@@ -438,13 +440,13 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 builder: (context) {
                                                   return const DialogLoading(
                                                       message:
-                                                          'Cargando productos...'
-                                                  );
+                                                          'Cargando productos...');
                                                 });
 
                                             // Esperar 3 segundos antes de continuar
                                             Future.delayed(
-                                                const Duration(milliseconds: 800), () {
+                                                const Duration(
+                                                    milliseconds: 800), () {
                                               // Cerrar el diálogo de carga
                                               Navigator.of(context,
                                                       rootNavigator: true)

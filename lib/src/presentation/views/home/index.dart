@@ -131,7 +131,8 @@ class HomePage extends StatelessWidget {
                                           GestureDetector(
                                             onTap: () {
                                               context.read<UserBloc>().add(
-                                                  GetConfigurations(context));
+                                                  GetConfigurationsUser(
+                                                      context));
                                               showDialog(
                                                   context: context,
                                                   builder: (context) {
@@ -300,18 +301,13 @@ class HomePage extends StatelessWidget {
                                               size: size,
                                               color: primaryColorApp,
                                               title: 'BATCH PICKING En Proceso',
-                                              value: (context
-                                                          .read<
-                                                              WMSPickingBloc>()
-                                                          .listOfBatchs
-                                                          .length -
-                                                      context
-                                                          .read<
-                                                              WMSPickingBloc>()
-                                                          .batchsDone
-                                                          .where((element) {
+                                              value:
+                                                  context
+                                                      .read<WMSPickingBloc>()
+                                                      .listOfBatchs
+                                                      .where((element) {
                                                         return DateTime.parse(
-                                                                    element.timeSeparateEnd ??
+                                                                    element.scheduleddate ??
                                                                         "")
                                                                 .toString()
                                                                 .substring(
@@ -320,8 +316,9 @@ class HomePage extends StatelessWidget {
                                                                 .toString()
                                                                 .substring(
                                                                     0, 10);
-                                                      }).length)
-                                                  .toString(),
+                                                      })
+                                                      .length
+                                                      .toString(),
                                             ),
                                           ));
                                     },

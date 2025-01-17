@@ -47,11 +47,25 @@ class WmsPickingRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          List<dynamic> batches = jsonResponse['result']['result'];
-          // Mapea los datos decodificados a una lista de BatchsModel
-          List<BatchsModel> products =
-              batches.map((data) => BatchsModel.fromMap(data)).toList();
-          return products;
+          if (jsonResponse['result']['code'] == 400) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Error : ${jsonResponse['result']['msg']}',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+          } else if (jsonResponse['result']['code'] == 200) {
+            List<dynamic> batches = jsonResponse['result']['result'];
+            // Mapea los datos decodificados a una lista de BatchsModel
+            List<BatchsModel> products =
+                batches.map((data) => BatchsModel.fromMap(data)).toList();
+            return products;
+          }
         }
       } else {}
     } on SocketException catch (e) {

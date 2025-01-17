@@ -4,7 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/data/wms_piicking_rerpository.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -934,7 +934,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       getPosicions();
       getMuelles();
 
-      int indexToAccess = batchWithProducts.batch!.indexList ?? index;
+      int indexToAccess = batchWithProducts.batch?.indexList ?? index;
       if (indexToAccess >= 0 && indexToAccess < filteredProducts.length) {
         currentProduct = filteredProducts[indexToAccess];
         //agregamos la lista de barcodes al producto actual

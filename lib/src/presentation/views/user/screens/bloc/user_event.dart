@@ -9,6 +9,11 @@ final class GetConfigurations extends UserEvent {
 
     BuildContext context;
     GetConfigurations(this.context);
+}
+final class GetConfigurationsUser extends UserEvent {
+
+    BuildContext context;
+    GetConfigurationsUser(this.context);
   
 }
 

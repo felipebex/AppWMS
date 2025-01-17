@@ -7,6 +7,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,17 +85,36 @@ class BatchDetailScreen extends StatelessWidget {
                                     icon: const Icon(Icons.arrow_back,
                                         color: white),
                                     onPressed: () {
-                                      context
+                                      print(context
                                           .read<BatchBloc>()
-                                          .add(ClearSearchProudctsBatchEvent());
-                                      context.read<BatchBloc>().add(
-                                          FetchBatchWithProductsEvent(context
-                                                  .read<BatchBloc>()
-                                                  .batchWithProducts
-                                                  .batch
-                                                  ?.id ??
-                                              0));
-                                      Navigator.pop(context);
+                                          .batchWithProducts
+                                          .batch
+                                          ?.toMap());
+
+                                      if (context
+                                              .read<BatchBloc>()
+                                              .batchWithProducts
+                                              .batch
+                                              ?.isSeparate ==
+                                          1) {
+                                        context
+                                            .read<WMSPickingBloc>()
+                                            .add(LoadBatchsFromDBEvent());
+                                        Navigator.pushNamed(
+                                            context, 'wms-picking',
+                                            arguments: 1);
+                                      } else {
+                                        context.read<BatchBloc>().add(
+                                            ClearSearchProudctsBatchEvent());
+                                        context.read<BatchBloc>().add(
+                                            FetchBatchWithProductsEvent(context
+                                                    .read<BatchBloc>()
+                                                    .batchWithProducts
+                                                    .batch
+                                                    ?.id ??
+                                                0));
+                                        Navigator.pop(context);
+                                      }
                                     },
                                   ),
                                   Padding(

@@ -11,6 +11,13 @@ final class ConfigurationLoaded extends UserState {
   ConfigurationLoaded(this.configurations);
 }
 
+final class ConfigurationLoadedUser extends UserState {
+  final Configurations configurations;
+
+  ConfigurationLoadedUser(this.configurations);
+}
+
+
 final class ConfigurationError extends UserState {
   final String message;
 
