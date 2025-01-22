@@ -66,9 +66,8 @@ class PakingListScreen extends StatelessWidget {
                       width: double.infinity,
                       child: BlocProvider(
                         create: (context) => ConnectionStatusCubit(),
-                        child:
-                            BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-                                builder: (context, status) {
+                        child: BlocBuilder<ConnectionStatusCubit,
+                            ConnectionStatus>(builder: (context, status) {
                           return Column(
                             children: [
                               const WarningWidgetCubit(),
@@ -92,6 +91,11 @@ class PakingListScreen extends StatelessWidget {
                                         context
                                             .read<WmsPackingBloc>()
                                             .add(ShowKeyboardEvent(false));
+
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .searchControllerPedido
+                                            .clear();
                                         Navigator.pop(context);
                                       },
                                     ),
@@ -111,7 +115,7 @@ class PakingListScreen extends StatelessWidget {
                         }),
                       ),
                     ),
-                
+
                     Container(
                       width: size.width,
                       child: SingleChildScrollView(
@@ -154,7 +158,8 @@ class PakingListScreen extends StatelessWidget {
                                               alignment: Alignment.centerLeft,
                                               child: Text(
                                                 batchModel?.userName == false ||
-                                                        batchModel?.userName == ""
+                                                        batchModel?.userName ==
+                                                            ""
                                                     ? 'Sin responsable'
                                                     : "${batchModel?.userName}",
                                                 style: TextStyle(
@@ -211,14 +216,15 @@ class PakingListScreen extends StatelessWidget {
                                                           ""); // Parsear la fecha
                                                   // Formatear la fecha usando Intl
                                                   displayDate = DateFormat(
-                                                          'dd MMMM yyyy', 'es_ES')
+                                                          'dd MMMM yyyy',
+                                                          'es_ES')
                                                       .format(dateTime);
                                                 } catch (e) {
                                                   displayDate =
                                                       'sin fecha'; // Si ocurre un error al parsear
                                                 }
                                               }
-                
+
                                               return Container(
                                                 width: size.width * 0.46,
                                                 alignment: Alignment.centerLeft,
@@ -253,7 +259,8 @@ class PakingListScreen extends StatelessWidget {
                                                         .read<WmsPackingBloc>()
                                                         .listOfPedidos
                                                         .where((element) =>
-                                                            element.isTerminate ==
+                                                            element
+                                                                .isTerminate ==
                                                             1)
                                                         .length /
                                                     context
@@ -279,9 +286,9 @@ class PakingListScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                
+
                             //*barra de buscar
-                
+
                             SizedBox(
                                 height: 55,
                                 width: size.width * 1,
@@ -322,20 +329,21 @@ class PakingListScreen extends StatelessWidget {
                                                         .read<WmsPackingBloc>()
                                                         .searchControllerPedido
                                                         .clear();
-                
+
                                                     context
                                                         .read<WmsPackingBloc>()
                                                         .add(
                                                             SearchPedidoPackingEvent(
                                                                 '',
-                                                                batchModel?.id ??
+                                                                batchModel
+                                                                        ?.id ??
                                                                     0));
-                
+
                                                     context
                                                         .read<WmsPackingBloc>()
                                                         .add(ShowKeyboardEvent(
                                                             false));
-                
+
                                                     FocusScope.of(context)
                                                         .unfocus();
                                                   },
@@ -353,8 +361,10 @@ class PakingListScreen extends StatelessWidget {
                                               border: InputBorder.none,
                                             ),
                                             onChanged: (value) {
-                                              context.read<WmsPackingBloc>().add(
-                                                  SearchPedidoPackingEvent(value,
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(SearchPedidoPackingEvent(
+                                                      value,
                                                       batchModel?.id ?? 0));
                                             },
                                             onTap: !context
@@ -374,22 +384,22 @@ class PakingListScreen extends StatelessWidget {
                                     ],
                                   ),
                                 )),
-                
+
                             //*listado de pedidos
                             BlocBuilder<WmsPackingBloc, WmsPackingState>(
                               builder: (context, state) {
                                 final packingBloc =
                                     context.read<WmsPackingBloc>();
-                
+
                                 // Ordenamos la lista de pedidos
                                 final sortedPedidos = List.from(packingBloc
-                                    .listOfPedidos); // Copiamos la lista para no modificarla directamente
+                                    .listOfPedidosFilters); // Copiamos la lista para no modificarla directamente
                                 sortedPedidos.sort((a, b) {
                                   // Si 'isTerminate' es diferente de 1, debe ir primero
                                   return (a.isTerminate == 1 ? 1 : 0)
                                       .compareTo(b.isTerminate == 1 ? 1 : 0);
                                 });
-                
+
                                 return Container(
                                   width: size.width * 1,
                                   height: size.height * 0.46,
@@ -412,12 +422,17 @@ class PakingListScreen extends StatelessWidget {
                                           context.read<WmsPackingBloc>().add(
                                               LoadAllProductsFromPedidoEvent(
                                                   packing.id ?? 0));
-                
+
+                                          //cerramos el teclado focus
+
+                                          FocusScope.of(context).unfocus();
+
                                           // Viajamos a la vista de detalle de un pedido
                                           Navigator.pushNamed(
                                               context, 'packing-detail',
                                               arguments: packing);
-                                          print('Pedido seleccionado: ${packing.toMap()}');
+                                          print(
+                                              'Pedido seleccionado: ${packing.toMap()}');
                                         },
                                         child: Card(
                                           elevation: 5,
@@ -443,15 +458,18 @@ class PakingListScreen extends StatelessWidget {
                                                       width: size.width * 0.65,
                                                       child: Text(
                                                           packing.name ?? " ",
-                                                          style: const TextStyle(
-                                                              fontSize: 14,
-                                                              color: black)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color:
+                                                                      black)),
                                                     ),
                                                   ],
                                                 ),
                                                 Row(
                                                   children: [
-                                                    Text("Cantidad de productos:",
+                                                    Text(
+                                                        "Cantidad de productos:",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color:
@@ -462,9 +480,11 @@ class PakingListScreen extends StatelessWidget {
                                                           packing
                                                               .cantidadProductos
                                                               .toString(),
-                                                          style: const TextStyle(
-                                                              fontSize: 14,
-                                                              color: black)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color:
+                                                                      black)),
                                                     ),
                                                     Container(
                                                       margin:
@@ -480,14 +500,16 @@ class PakingListScreen extends StatelessWidget {
                                                               : packing.isSelected !=
                                                                       1
                                                                   ? grey
-                                                                  : Colors
-                                                                      .green[100],
+                                                                  : Colors.green[
+                                                                      100],
                                                           borderRadius:
                                                               BorderRadius
-                                                                  .circular(10)),
+                                                                  .circular(
+                                                                      10)),
                                                       child: Center(
                                                         child: Text(
-                                                          packing.isTerminate == 1
+                                                          packing.isTerminate ==
+                                                                  1
                                                               ? 'Terminado'
                                                               : packing.isSelected !=
                                                                       1
@@ -522,14 +544,17 @@ class PakingListScreen extends StatelessWidget {
                                                       child: Text(
                                                           packing.referencia ??
                                                               '',
-                                                          style: const TextStyle(
-                                                              color: black,
-                                                              fontSize: 14)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: black,
+                                                                  fontSize:
+                                                                      14)),
                                                     ),
                                                   ],
                                                 ),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text(
                                                       "Tipo de operación:",
                                                       style: TextStyle(
@@ -548,7 +573,8 @@ class PakingListScreen extends StatelessWidget {
                                                           color: black)),
                                                 ),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text("Contacto:",
                                                       style: TextStyle(
                                                           fontSize: 14,
@@ -559,7 +585,8 @@ class PakingListScreen extends StatelessWidget {
                                                 SizedBox(
                                                   width: size.width * 0.9,
                                                   child: Text(
-                                                      packing.contactoName ?? " ",
+                                                      packing.contactoName ??
+                                                          " ",
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           color: black)),

@@ -9,6 +9,7 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:flutter/material.dart';
@@ -69,12 +70,14 @@ class HomePage extends StatelessWidget {
                 }
               },
               child: Scaffold(
-                floatingActionButton: FloatingActionButton(
-                  onPressed: () async {
-                    await DataBaseSqlite().deleteAll();
-                  },
-                  child: const Icon(Icons.refresh),
-                ),
+                floatingActionButton: homeBloc.userRol == 'admin'
+                    ? FloatingActionButton(
+                        onPressed: () async {
+                          await DataBaseSqlite().deleteAll();
+                        },
+                        child: const Icon(Icons.refresh),
+                      )
+                    : null,
                 body: Container(
                   width: size.width,
                   height: size.height,
@@ -108,7 +111,7 @@ class HomePage extends StatelessWidget {
                                   padding:
                                       const EdgeInsets.only(left: 20, top: 40),
                                   width: size.width,
-                                  height: 120,
+                                  height: 130,
                                   child: Row(
                                     children: [
                                       Column(
@@ -212,6 +215,29 @@ class HomePage extends StatelessWidget {
                                               )
                                             ],
                                           ),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.storage,
+                                                  color: Colors.amber[200],
+                                                  size: 18),
+                                              const SizedBox(width: 5),
+                                              SizedBox(
+                                                width: size.width * 0.6,
+                                                child: Text(
+                                                  Preferences.nameDatabase
+                                                      .toString(),
+                                                  style: const TextStyle(
+                                                      color: white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              )
+                                            ],
+                                          ),
                                         ],
                                       ),
                                       //ICONO DE CERRAR SESION
@@ -301,24 +327,21 @@ class HomePage extends StatelessWidget {
                                               size: size,
                                               color: primaryColorApp,
                                               title: 'BATCH PICKING En Proceso',
-                                              value:
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .listOfBatchs
-                                                      .where((element) {
-                                                        return DateTime.parse(
-                                                                    element.scheduleddate ??
-                                                                        "")
-                                                                .toString()
-                                                                .substring(
-                                                                    0, 10) ==
-                                                            DateTime.now()
-                                                                .toString()
-                                                                .substring(
-                                                                    0, 10);
-                                                      })
-                                                      .length
-                                                      .toString(),
+                                              value: context
+                                                  .read<WMSPickingBloc>()
+                                                  .listOfBatchs
+                                                  .where((element) {
+                                                    return DateTime.parse(element
+                                                                    .scheduleddate ??
+                                                                "")
+                                                            .toString()
+                                                            .substring(0, 10) ==
+                                                        DateTime.now()
+                                                            .toString()
+                                                            .substring(0, 10);
+                                                  })
+                                                  .length
+                                                  .toString(),
                                             ),
                                           ));
                                     },

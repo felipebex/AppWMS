@@ -26,6 +26,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
   //*listad de pedido de un batch
   List<PedidoPacking> listOfPedidos = [];
+  List<PedidoPacking> listOfPedidosFilters = [];
 
   //*lista de productos de un pedido
   List<PorductoPedido> listOfProductos = []; //lista de productos de un pedido
@@ -117,6 +118,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
     on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
     on<ChangeProductIsOkEvent>(_onChangeProductIsOkEvent);
+
     //*cantidad
     on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
     on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
@@ -422,12 +424,16 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onSearchPedidoEvent(
       SearchPedidoPackingEvent event, Emitter<WmsPackingState> emit) async {
     try {
+
+      listOfPedidosFilters = [];
+      listOfPedidosFilters = listOfPedidos;
+
       final query = event.query.toLowerCase();
       final pedidosFromDB = await db.getAllPedidosBatch(event.idBatch);
       if (query.isEmpty) {
-        listOfPedidos = pedidosFromDB;
+        listOfPedidosFilters = pedidosFromDB;
       } else {
-        listOfPedidos = pedidosFromDB.where((pedido) {
+        listOfPedidosFilters = pedidosFromDB.where((pedido) {
           return pedido.referencia?.toLowerCase().contains(query) ?? false;
         }).toList();
       }
@@ -811,6 +817,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       if (response != null && response is List) {
         print('response pedidos: ${response.length}');
         listOfPedidos.clear();
+        listOfPedidosFilters.clear();
+        listOfPedidosFilters.addAll(response);
         listOfPedidos.addAll(response);
         print('pedidosToInsert: ${response.length}');
         emit(WmsPackingLoaded());

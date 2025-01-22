@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously
+// ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously, prefer_if_null_operators
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
@@ -264,7 +264,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       final userid = await PrefUtils.getUserId();
 
-
       final response = await repository.sendPicking(
           context: event.context,
           idBatch: event.productsSeparate[i].batchId ?? 0,
@@ -280,7 +279,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
               muelle: event.muelle.id ?? 0,
               idOperario: userid,
-              fechaTransaccion: event.productsSeparate[i].fechaTransaccion ?? '',
+              fechaTransaccion:
+                  event.productsSeparate[i].fechaTransaccion ?? '',
             ),
           ]);
 
@@ -436,17 +436,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     print("entro al evento de cargar datos");
 
     //*validamso que el indice no este fuera de rango, si lo esta restamos 1
-    // if (batchWithProducts.batch?.indexList == null) {
     currentProduct = filteredProducts[batchWithProducts.batch?.indexList ?? 0];
-    // } else {
-    //   if (batchWithProducts.batch!.indexList! > filteredProducts.length - 1) {
-    //     currentProduct =
-    //         filteredProducts[(batchWithProducts.batch?.indexList ?? 0) - 1];
-    //   } else {
-    //     currentProduct =
-    //         filteredProducts[batchWithProducts.batch?.indexList ?? 0];
-    //   }
-    // }
+   
 
     if (currentProduct.locationId == oldLocation) {
       locationIsOk = true;
@@ -484,12 +475,28 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     //tiempo de separacion del producto, lo traemos de la bd
     final starTime = await db.getFieldTableBtach(
         product?.batchId ?? 0, 'time_separate_start');
-    DateTime dateTimeStart = DateTime.parse(starTime);
-    // Calcular la diferencia
-    Duration difference = dateTimeActuality.difference(dateTimeStart);
-    // Obtener la diferencia en segundos
-    double secondsDifference = difference.inMilliseconds / 1000.0;
 
+    String? startTime; // Suponiendo que `startTime` es de tipo String o null
+    double secondsDifference = 0.0;
+// Verificación si la fecha de inicio es nula o vacía
+    if (startTime == null || startTime.isEmpty) {
+      // Si está vacía o es nula, puedes manejar el caso aquí
+      print("La fecha de inicio no es válida.");
+    } else {
+      // Si `startTime` tiene un valor, continúa con el cálculo
+      try {
+        DateTime dateTimeStart =
+            DateTime.parse(startTime); // Parsear el String a DateTime
+        // Calcular la diferencia entre la fecha actual y la fecha de inicio
+        Duration difference = dateTimeActuality.difference(dateTimeStart);
+        // Obtener la diferencia en segundos
+        secondsDifference = difference.inMilliseconds / 1000.0;
+        print("Diferencia en segundos: $secondsDifference");
+      } catch (e) {
+        // Si ocurre algún error durante el parseo (por ejemplo, formato incorrecto)
+        print("Error al parsear la fecha: $e");
+      }
+    }
 
     final userid = await PrefUtils.getUserId();
 
@@ -552,7 +559,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     // Obtener la diferencia en segundos
     double secondsDifference = difference.inMilliseconds / 1000.0;
     final userid = await PrefUtils.getUserId();
-
 
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
@@ -956,13 +962,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
+
+
 //*metodo para ordenar los productos por ubicacion
   Future<List<ProductsBatch>> sortProductsByLocationId() async {
     final products = filteredProducts;
-    final batch = batchWithProducts.batch!;
+    final batch = batchWithProducts.batch;
 
     //traemos el batch actualizado
-    final batchUpdated = await db.getBatchById(batch.id ?? 0);
+    final batchUpdated = await db.getBatchById(batch?.id ?? 0);
 
     //ORDENAMOS LOS PRODUCTOS SEGUN EL ORDENAMIENTO QUE DIGA EL BATCH
     switch (batchUpdated?.orderBy) {

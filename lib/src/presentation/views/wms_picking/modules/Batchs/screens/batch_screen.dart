@@ -420,8 +420,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                         children: [
                                           LocationDropdownWidget(
                                             isPDA: false,
-                                            selectedLocation:
-                                                selectedLocation,
+                                            selectedLocation: selectedLocation,
                                             positionsOrigen:
                                                 batchBloc.positionsOrigen,
                                             currentLocationId: batchBloc
@@ -472,9 +471,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                           if (event is RawKeyDownEvent) {
                                             if (event.logicalKey ==
                                                 LogicalKeyboardKey.enter) {
-
                                               if (scannedValue1.isNotEmpty) {
-                                                print("scan ubicacion: $scannedValue1");
+                                                print(
+                                                    "scan ubicacion: $scannedValue1");
                                                 validateLocation(scannedValue1);
                                               }
 
@@ -776,7 +775,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         //Todo: MUELLE
 
                         if (batchBloc.batchWithProducts.batch?.indexList ==
-                            (batchBloc.filteredProducts.length) - 1)
+                                (batchBloc.filteredProducts.length) - 1 ||
+                            batchBloc.filteredProducts.length == 1)
                           Row(
                             children: [
                               Padding(
@@ -994,22 +994,19 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                                             : black,
                                                                       ),
                                                                     ),
-                                                                    subtitle:
-                                                                        Text(
-                                                                      muelle.barcode ==
-                                                                              ""
-                                                                          ? "Sin codigo de barras"
-                                                                          : muelle.barcode ??
-                                                                              "",
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: isSelected
-                                                                            ? Colors.white
-                                                                            : red,
-                                                                      ),
-                                                                    ),
+                                                                    subtitle: muelle.barcode ==
+                                                                                null ||
+                                                                            muelle.barcode ==
+                                                                                ""
+                                                                        ? Text(
+                                                                            "Sin codigo de barras",
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 12,
+                                                                              color: isSelected ? Colors.white : red,
+                                                                            ),
+                                                                          )
+                                                                        : null,
                                                                     onTap: () {
                                                                       context
                                                                           .read<

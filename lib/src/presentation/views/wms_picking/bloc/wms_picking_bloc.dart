@@ -65,7 +65,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       final novedadeslist =
           await wmsPickingRepository.getnovedades(false, event.context);
 
-
       listOfNovedades.clear();
       listOfNovedades.addAll(novedadeslist);
 
@@ -377,10 +376,15 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         // Enviar la lista agrupada a insertBatchProducts
         await DataBaseSqlite().insertBatchProducts(productsToInsert);
 
-        // Enviar la lista agrupada a insertBarcodesPackageProduct
-        await DataBaseSqlite().insertBarcodesPackageProduct(barcodesToInsert);
-        await DataBaseSqlite()
-            .insertBarcodesPackageProduct(otherBarcodesToInsert);
+        if (barcodesToInsert.isNotEmpty) {
+          await DataBaseSqlite().insertBarcodesPackageProduct(barcodesToInsert);
+        }
+
+        if (otherBarcodesToInsert.isNotEmpty) {
+          // Enviar la lista agrupada a insertBarcodesPackageProduct
+          await DataBaseSqlite()
+              .insertBarcodesPackageProduct(otherBarcodesToInsert);
+        }
 
         //* Carga los batches desde la base de datos
         add(LoadBatchsFromDBEvent());
@@ -411,7 +415,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       filteredBatchs = filteredBatchs
           .where((element) => element.isSeparate == null)
           .toList();
-
 
       emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
     } catch (e) {

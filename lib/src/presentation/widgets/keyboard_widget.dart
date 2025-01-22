@@ -68,6 +68,8 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
     );
   }
 
+
+
   List<Widget> _buildNumberRow(List<String> numbers) {
     return numbers.map((number) => _buildKey(number)).toList();
   }
@@ -102,6 +104,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
       ),
     );
   }
+  
 
   // Crear un botón especial sin animación
   Widget _buildSpecialButton(String key) {

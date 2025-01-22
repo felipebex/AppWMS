@@ -33,6 +33,10 @@ final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
+  ErrorWidget.builder = (FlutterErrorDetails details) => const Center(
+        child: Text('Error Happened, Sorry for interrupting.'),
+      );
+
   WidgetsFlutterBinding.ensureInitialized();
   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
 

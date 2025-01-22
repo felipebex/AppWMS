@@ -4,6 +4,7 @@ import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
+import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class UserScreen extends StatelessWidget {
@@ -130,6 +131,33 @@ class UserScreen extends StatelessWidget {
                                                 fontSize: 14, color: black))
                                       ],
                                     ),
+                                    Row(
+                                      children: [
+                                        Text("Url: ",
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: primaryColorApp)),
+                                        // Text('WMS',
+                                        Text(
+                                            Preferences.urlWebsite.toString(),
+                                            style: const TextStyle(
+                                                fontSize: 14, color: black))
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text("DataBase: ",
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                color: primaryColorApp)),
+                                        // Text('WMS',
+                                        Text(
+                                            Preferences.nameDatabase.toString(),
+                                            style: const TextStyle(
+                                                fontSize: 14, color: black))
+                                      ],
+                                    ),
+
                                   ],
                                 ),
                               ),

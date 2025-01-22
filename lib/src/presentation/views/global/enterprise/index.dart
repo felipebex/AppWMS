@@ -152,10 +152,10 @@ class _loginForm extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: TextFormField(
                     autocorrect: false,
-                    readOnly:
-                        context.read<UserBloc>().fabricante.contains("Zebra")
-                            ? true
-                            : false,
+                    // readOnly:
+                    //     context.read<UserBloc>().fabricante.contains("Zebra")
+                    //         ? true
+                    //         : false,
                     controller:
                         context.read<EntrepriseBloc>().entrepriceController,
                     style: const TextStyle(fontSize: 12),

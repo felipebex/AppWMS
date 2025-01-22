@@ -722,6 +722,37 @@ class BatchDetailScreen extends StatelessWidget {
                                                 ],
                                               ),
                                             ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 8),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.arrow_forward,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text("Priority:",
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: black)),
+                                                  const SizedBox(width: 5),
+                                                  SizedBox(
+                                                    width: size.width * 0.5,
+                                                    child: Text(
+                                                        productsBatch
+                                                            .rimovalPriority
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp)),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                             ExpiryDateWidget(
                                                 expireDate:
                                                     productsBatch.expireDate ==

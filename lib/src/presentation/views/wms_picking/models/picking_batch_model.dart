@@ -195,7 +195,7 @@ class ProductsBatch {
   final dynamic productId;
   final int? batchId;
   final String? name;
-  final String? rimovalPriority;
+  final dynamic rimovalPriority;
   final dynamic lotId;
   final dynamic loteId;
   final dynamic locationId;
@@ -243,6 +243,8 @@ class ProductsBatch {
     this.muelleId,
     this.expireDate,
     // this.pickingId,
+
+    
     this.barcodeLocation,
     this.idProduct,
     this.productId,
@@ -257,6 +259,9 @@ class ProductsBatch {
     this.productPacking,
     this.barcode,
     this.isPending,
+
+
+
     this.name,
     this.weigth,
     this.unidades,
