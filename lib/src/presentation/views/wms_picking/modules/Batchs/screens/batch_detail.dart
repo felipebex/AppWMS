@@ -85,12 +85,6 @@ class BatchDetailScreen extends StatelessWidget {
                                     icon: const Icon(Icons.arrow_back,
                                         color: white),
                                     onPressed: () {
-                                      print(context
-                                          .read<BatchBloc>()
-                                          .batchWithProducts
-                                          .batch
-                                          ?.toMap());
-
                                       if (context
                                               .read<BatchBloc>()
                                               .batchWithProducts
@@ -104,6 +98,8 @@ class BatchDetailScreen extends StatelessWidget {
                                             context, 'wms-picking',
                                             arguments: 1);
                                       } else {
+                                        context.read<BatchBloc>().add(
+                                            IsShouldRunDependencies(true));
                                         context.read<BatchBloc>().add(
                                             ClearSearchProudctsBatchEvent());
                                         context.read<BatchBloc>().add(
@@ -729,7 +725,7 @@ class BatchDetailScreen extends StatelessWidget {
                                               child: Row(
                                                 children: [
                                                   Icon(
-                                                    Icons.arrow_forward,
+                                                    Icons.priority_high,
                                                     color: primaryColorApp,
                                                     size: 15,
                                                   ),

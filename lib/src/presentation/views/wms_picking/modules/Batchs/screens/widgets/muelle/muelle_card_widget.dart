@@ -57,7 +57,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
               DropdownMenuItem(
                 value: widget.batchBloc.currentProduct.barcodeLocationDest,
                 child: Text(
-                 widget.batchBloc.currentProduct.locationDestId,
+                 widget.batchBloc.currentProduct.locationDestId ?? "",
                   style: const TextStyle(fontSize: 14, color: black),
                 ),
               ),

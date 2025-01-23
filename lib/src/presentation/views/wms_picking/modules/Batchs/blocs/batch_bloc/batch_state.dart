@@ -154,3 +154,9 @@ class SubMuelleEditFail extends BatchState {
   final String message;
   SubMuelleEditFail(this.message);
 }
+
+
+class BarcodesProductLoadedState extends BatchState {
+  final List<Barcodes> listOfBarcodes;
+  BarcodesProductLoadedState({required this.listOfBarcodes});
+}

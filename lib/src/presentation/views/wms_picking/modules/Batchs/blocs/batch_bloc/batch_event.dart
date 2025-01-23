@@ -187,3 +187,9 @@ class SelectedSubMuelleEvent extends BatchEvent{
   SelectedSubMuelleEvent(this.subMuelleSlected);
 
 }
+
+class FetchBarcodesProductEvent extends BatchEvent {
+}
+
+class ResetValuesEvent extends BatchEvent {
+}

@@ -31,6 +31,8 @@ class PopupMenuButtonWidget extends StatelessWidget {
               if (batchBloc
                       .configurations.result?.result?.showDetallesPicking ==
                   true) {
+                //cambiamos el estado de la variable de si se deben correr las dependencias
+                batchBloc.add(IsShouldRunDependencies(false));
                 //cerramos el focus
                 FocusScope.of(context).unfocus();
                 batchBloc.isSearch = true;

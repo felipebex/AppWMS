@@ -57,7 +57,7 @@ class ExpiryDateWidget extends StatelessWidget {
           Text(
             "Fecha caducidad: ",
             style: TextStyle(
-              fontSize: isDetaild ? 12 : 14,
+              fontSize: isDetaild ? 12 : 13,
               color: isDetaild ? black : primaryColorApp,
             ),
           ),
@@ -71,7 +71,7 @@ class ExpiryDateWidget extends StatelessWidget {
                     ? "${expireDate!.toString().split(" ")[0]} (${daysLeft > 0 ? "$daysLeft días" : "Vencido"})"
                     : '',
                 style: TextStyle(
-                  fontSize: isDetaild ? 12 : 14,
+                  fontSize: isDetaild ? 12 : 13,
                   color: textColor,
                 ),
               ),
@@ -84,7 +84,7 @@ class ExpiryDateWidget extends StatelessWidget {
               child: Text(
                 'Sin fecha de expiración',
                 style: TextStyle(
-                  fontSize: isDetaild ? 12 : 14,
+                  fontSize: isDetaild ? 12 : 13,
                   color: red,
                 ),
               ),

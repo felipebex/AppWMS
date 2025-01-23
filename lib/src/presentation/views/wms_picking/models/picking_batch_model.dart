@@ -66,7 +66,7 @@ class BatchsModel {
   final dynamic scheduleddate;
   final dynamic pickingTypeId;
   final String? muelle; // es el mismo location_id
-  final int? idMuelle;
+  final dynamic? idMuelle;
   final String? state;
   final dynamic userId;
   final String? userName;
@@ -195,7 +195,7 @@ class ProductsBatch {
   final dynamic productId;
   final int? batchId;
   final String? name;
-  final dynamic rimovalPriority;
+  final dynamic? rimovalPriority;
   final dynamic lotId;
   final dynamic loteId;
   final dynamic locationId;

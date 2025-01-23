@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -67,8 +68,8 @@ class ProductDropdownWidget extends StatelessWidget {
                 ),
               );
             }).toList(),
-            onChanged: batchBloc
-                        .configurations.result?.result?.manualProductSelection ==
+            onChanged: batchBloc.configurations.result?.result
+                        ?.manualProductSelection ==
                     false
                 ? null
                 : batchBloc.locationIsOk && !batchBloc.productIsOk
@@ -146,7 +147,6 @@ class ProductDropdownWidget extends StatelessWidget {
                         style: const TextStyle(fontSize: 14, color: black),
                       ),
                     ),
-                   
                   ],
                 ),
               ),

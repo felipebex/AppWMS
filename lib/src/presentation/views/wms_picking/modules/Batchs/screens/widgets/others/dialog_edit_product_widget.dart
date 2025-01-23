@@ -76,7 +76,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                         style: TextStyle(fontSize: 14, color: black)),
                     TextSpan(
                         text:
-                            "${(widget.productsBatch.quantity - widget.productsBatch.quantitySeparate).toString()} ",
+                            "${(widget.productsBatch.quantity - (widget.productsBatch.quantitySeparate ?? 0))} ",
                         style: TextStyle(
                             fontSize: 14,
                             color: primaryColorApp,
@@ -227,13 +227,9 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                     ),
                   ),
                 ),
-                
-                
                 Visibility(
-                  visible: context
-                      .read<UserBloc>()
-                      .fabricante
-                      .contains("Zebra"),
+                  visible:
+                      context.read<UserBloc>().fabricante.contains("Zebra"),
                   child: CustomKeyboardNumber(
                     controller: context.read<BatchBloc>().editProductController,
                     onchanged: () {

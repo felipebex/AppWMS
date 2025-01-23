@@ -130,18 +130,65 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     //*evento para asignar el submuelle
     on<AssignSubmuelleEvent>(_onAssignSubmuelleEvent);
 
+    //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEvent>(_onLoadInfoDevicesEvent);
-
+    //*evento para mostrar el teclado
     on<ShowKeyboard>(_onShowKeyboardEvent);
-
+    //*evento para validar si se deben ejecutar las dependencias
     on<IsShouldRunDependencies>(_onIsShouldRunDependenciesEvent);
-
+    //*evento para obtener todas las novedades
     on<LoadAllNovedadesEvent>(_onLoadAllNovedadesEvent);
     add(LoadAllNovedadesEvent());
-
+    //*evento para seleccionar un submuelle
     on<SelectedSubMuelleEvent>(_onSelectecSubMuelle);
+    //*evento para obtener los barcodes de un producto por paquete
+    on<FetchBarcodesProductEvent>(_onFetchBarcodesProductEvent);
+    //*evento para reiniciar los valores
+    on<ResetValuesEvent>(_onResetValuesEvent);
   }
 
+  //*evento para reiniciar los valores
+  void _onResetValuesEvent(ResetValuesEvent event, Emitter<BatchState> emit) {
+    print("entro al evento de resetear valores");
+    listOfProductsBatch.clear();
+    filteredProducts.clear();
+    listOfProductsBatchDB.clear();
+    listOfBarcodes.clear();
+    currentProduct = ProductsBatch(); 
+    oldLocation = '';
+    searchController.clear();
+    editProductController.clear();
+    batchWithProducts = BatchWithProducts();
+    positionsOrigen.clear();
+    muelles.clear();
+    listOfProductsName.clear();
+    submuelles.clear();
+    subMuelleSelected = Muelles();
+    selectedNovedad = '';
+    quantitySelected = 0;
+    isSearch = true;
+    isKeyboardVisible = false;
+    shouldRunDependencies = true;
+    index = 0;
+    emit(BatchInitial());
+  }
+
+  //*evento para obtener los barcodes de un producto por paquete
+  void _onFetchBarcodesProductEvent(
+      FetchBarcodesProductEvent event, Emitter<BatchState> emit) async {
+    try {
+      listOfBarcodes.clear();
+      listOfBarcodes = await db.getBarcodesProduct(
+        batchWithProducts.batch?.id ?? 0,
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0,
+      );
+    } catch (e, s) {
+      print("Error en _onFetchBarcodesProductEvent: $e, $s");
+    }
+    emit(BarcodesProductLoadedState(listOfBarcodes: listOfBarcodes));
+  }
+//*evento para seleccionar un submuelle
   void _onSelectecSubMuelle(
       SelectedSubMuelleEvent event, Emitter<BatchState> emit) {
     try {
@@ -152,7 +199,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       print("Error bloc selectedSubMuelle $e -> $s");
     }
   }
-
+//*evento para obtener todas las novedades
   void _onLoadAllNovedadesEvent(
       LoadAllNovedadesEvent event, Emitter<BatchState> emit) async {
     try {
@@ -167,7 +214,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
     emit(NovedadesLoadedState(listOfNovedades: novedades));
   }
-
+//*evento para validar si se deben ejecutar las dependencias
   void _onIsShouldRunDependenciesEvent(
       IsShouldRunDependencies event, Emitter<BatchState> emit) {
     shouldRunDependencies = event.shouldRunDependencies;
@@ -175,12 +222,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     emit(ShouldRunDependenciesState(
         shouldRunDependencies: shouldRunDependencies));
   }
-
+//*evento para mostrar el teclado
   void _onShowKeyboardEvent(ShowKeyboard event, Emitter<BatchState> emit) {
     isKeyboardVisible = event.showKeyboard;
     emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
   }
-
+  //*evento para obtener la informacion del dispositivo
   void _onLoadInfoDevicesEvent(
       LoadInfoDeviceEvent event, Emitter<BatchState> emit) async {
     emit(BatchInitial());
@@ -202,6 +249,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
+  //* evento para cargar la configuracion del usuario
   void _onLoadConfigurationsUserEvent(
       LoadConfigurationsUser event, Emitter<BatchState> emit) async {
     try {
@@ -274,7 +322,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
               idMove: event.productsSeparate[i].idMove ?? 0,
               productId: event.productsSeparate[i].idProduct ?? 0,
               lote: event.productsSeparate[i].lotId ?? '',
-              cantidad: event.productsSeparate[i].quantitySeparate ?? 0,
+              cantidad: (event.productsSeparate[i].quantitySeparate ?? 0) >
+                      (event.productsSeparate[i].quantity)
+                  ? event.productsSeparate[i].quantity
+                  : event.productsSeparate[i].quantitySeparate ?? 0,
               novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
               muelle: event.muelle.id ?? 0,
@@ -425,28 +476,27 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<BatchState> emit) async {
-    quantitySelected = quantitySelected + event.quantity;
-    await db.incremenQtytProductSeparate(batchWithProducts.batch?.id ?? 0,
-        event.productId, event.idMove, event.quantity);
-    emit(ChangeQuantitySeparateState(quantitySelected));
+    print("quantitySelected ======> $quantitySelected");
+    if (quantitySelected > (currentProduct.quantity ?? 0)) {
+      return;
+    } else {
+      quantitySelected = quantitySelected + event.quantity;
+      await db.incremenQtytProductSeparate(batchWithProducts.batch?.id ?? 0,
+          event.productId, event.idMove, event.quantity);
+      emit(ChangeQuantitySeparateState(quantitySelected));
+    }
   }
 
 //* metodo para cargar las variables de la vista dependiendo del estado de los productos y del batch
   void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
+    
     print("entro al evento de cargar datos");
-
-    //*validamso que el indice no este fuera de rango, si lo esta restamos 1
     currentProduct = filteredProducts[batchWithProducts.batch?.indexList ?? 0];
-   
-
     if (currentProduct.locationId == oldLocation) {
       locationIsOk = true;
     } else {
       locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
     }
-
-    print(locationIsOk);
-
     productIsOk = currentProduct.productIsOk == false
         ? false
         : currentProduct.productIsOk == 1
@@ -457,10 +507,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     index = (batchWithProducts.batch?.indexList ?? 0);
     quantitySelected = currentProduct.quantitySeparate ?? 0;
 
-    print("🎽current product: ${currentProduct.toMap()}");
-    print("🎽index: $index");
-    print("🎽batchWithProducts.batch${batchWithProducts.batch?.toMap()}");
-    print("🎽filteredProducts: ${filteredProducts.length}");
+
+    // print("🎽current product: ${currentProduct.toMap()}");
+    // print("🎽index: $index");
+    // print("🎽batchWithProducts.batch${batchWithProducts.batch?.toMap()}");
+    // print("🎽filteredProducts: ${filteredProducts.length}");
 
     emit(LoadDataInfoState());
   }
@@ -472,9 +523,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
 
     //todo: tiempor por batch
-    //tiempo de separacion del producto, lo traemos de la bd
-    final starTime = await db.getFieldTableBtach(
-        product?.batchId ?? 0, 'time_separate_start');
+    // //tiempo de separacion del producto, lo traemos de la bd
+    // final starTime = await db.getFieldTableBtach(
+    //     product?.batchId ?? 0, 'time_separate_start');
 
     String? startTime; // Suponiendo que `startTime` es de tipo String o null
     double secondsDifference = 0.0;
@@ -511,7 +562,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
               idMove: product?.idMove ?? 0,
               productId: product?.idProduct ?? 0,
               lote: product?.lotId ?? '',
-              cantidad: product?.quantitySeparate ?? 0,
+              cantidad: (product?.quantitySeparate ?? 0) > (product?.quantity)
+                  ? product?.quantity
+                  : product?.quantitySeparate ?? 0,
               novedad: product?.observation ?? 'Sin novedad',
               timeLine: product?.timeSeparate ?? 0,
               muelle: product?.muelleId ?? 0,
@@ -656,14 +709,16 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void getSubmuelles() async {
-    print("id del muelle ${batchWithProducts.batch?.idMuelle}");
     submuelles.clear();
     final muellesdb =
         //todo cambiar al id de idMuelle
-        await db
-            .getSubmuellesByLocationId(batchWithProducts.batch?.idMuelle ?? 0
-                // 92265,
-                );
+        await db.getSubmuellesByLocationId(
+      batchWithProducts.batch?.idMuelle == ""
+          ? 0
+          : int.parse(batchWithProducts.batch?.idMuelle ?? '0'),
+
+      // 92265,
+    );
     if (muellesdb.isNotEmpty) {
       submuelles.addAll(muellesdb);
     }
@@ -694,7 +749,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
     print("entro al evento de cambiar producto");
-    //desseleccionamos el producto actual
+
+    bool hasIncreasedIndex =
+        false; // Agregamos un flag para controlar el incremento de index
+
+    // Desseleccionamos el producto ya separado
     await db.setFieldTableBatchProducts(
         batchWithProducts.batch?.id ?? 0,
         event.currentProduct.idProduct ?? 0,
@@ -706,7 +765,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     print("current product: ${currentProduct.toMap()}");
 
-    //actualizamos el tiempo total del producto
+    // Actualizamos el tiempo total del producto ya separado
     await db.endStopwatchProduct(
         batchWithProducts.batch?.id ?? 0,
         dateTimeActuality.toString(),
@@ -723,9 +782,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         starTimeProduct == "null" || starTimeProduct.isEmpty
             ? DateTime.parse(DateTime.now().toString())
             : DateTime.parse(starTimeProduct);
-    // Calcular la diferencia
+
+    // Calcular la diferencia del producto ya separado
     Duration differenceProduct =
         dateTimeActuality.difference(dateTimeStartProduct);
+
     // Obtener la diferencia en segundos
     double secondsDifferenceProduct = differenceProduct.inMilliseconds / 1000.0;
 
@@ -736,14 +797,17 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         secondsDifferenceProduct);
 
     sendProuctOdoo(event.context);
-    //validamos si es el ultimo producto
+
+    // Validamos si es el último producto
     if (filteredProducts.length == index + 1) {
-      //actualizamos el index de la lista de productos
+      // Actualizamos el index de la lista de productos
       await db.setFieldTableBatch(
           batchWithProducts.batch?.id ?? 0, 'index_list', index);
-      //emitimos el estado de productos completados
+
+      // Emitimos el estado de productos completados
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
+
       if (currentProduct.locationId == oldLocation) {
         locationIsOk = true;
       } else {
@@ -751,32 +815,29 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       }
       return;
     } else {
-      //validamos la ultima ubicacion
+      // Validamos la última ubicación
       productIsOk = false;
       quantityIsOk = false;
-      index++;
 
-      //actualizamos el index de la lista de productos
+      // Solo incrementamos el índice si no ha sido incrementado previamente
+      if (!hasIncreasedIndex) {
+        index++;
+        hasIncreasedIndex =
+            true; // Establecemos el flag a true después de incrementar
+      }
+
+      // Actualizamos el index de la lista de productos
       await db.setFieldTableBatch(
           batchWithProducts.batch?.id ?? 0, 'index_list', index);
-      //actualizamos el producto actual
-      //*validamso que el indice no este fuera de rango, si lo esta restamos 1
-      // if (batchWithProducts.batch?.indexList == null) {
-      //   currentProduct = filteredProducts[index];
-      // } else {
-      //   if (batchWithProducts.batch!.indexList! > filteredProducts.length - 1) {
-      //     currentProduct = filteredProducts[(index) - 1];
-      //   } else {
+
       currentProduct = filteredProducts[index];
-      // }
-      // }
 
       if (currentProduct.locationId == oldLocation) {
-        print('La ubicacion es igual');
+        print('La ubicación es igual');
         locationIsOk = true;
       } else {
         locationIsOk = false;
-        print('La ubicacion es diferente');
+        print('La ubicación es diferente');
       }
 
       await db.startStopwatch(
@@ -786,16 +847,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         DateTime.now().toString(),
       );
 
-      listOfBarcodes.clear();
-
-      listOfBarcodes = await db.getBarcodesProduct(
-        batchWithProducts.batch?.id ?? 0,
-        currentProduct.idProduct ?? 0,
-        currentProduct.idMove ?? 0,
-      );
-
       emit(CurrentProductChangedState(
           currentProduct: currentProduct, index: index));
+
       add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
       return;
     }
@@ -853,6 +907,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
     if (event.productIsOk) {
+     
       //empezamos el tiempo de separacion del batch y del producto
       await db.startStopwatch(
         event.batchId,
@@ -860,6 +915,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         event.idMove,
         DateTime.now().toString(),
       );
+
+      
 
       //calculamos la fecha de transaccion
       DateTime fechaTransaccion = DateTime.now();
@@ -934,25 +991,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       await sortProductsByLocationId();
 
-      print('Productos cargados: ${filteredProducts.length}');
       add(LoadDataInfoEvent());
       getSubmuelles();
       getPosicions();
       getMuelles();
-
-      int indexToAccess = batchWithProducts.batch?.indexList ?? index;
-      if (indexToAccess >= 0 && indexToAccess < filteredProducts.length) {
-        currentProduct = filteredProducts[indexToAccess];
-        //agregamos la lista de barcodes al producto actual
-        listOfBarcodes.clear();
-
-        listOfBarcodes = await db.getBarcodesProduct(
-          batchWithProducts.batch?.id ?? 0,
-          currentProduct.idProduct ?? 0,
-          currentProduct.idMove ?? 0,
-        );
-      }
       products();
+
+      add(FetchBarcodesProductEvent());
 
       emit(LoadProductsBatchSuccesStateBD(
           listOfProductsBatch: filteredProducts));
@@ -961,8 +1006,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       print('No se encontró el batch con ID: ${event.batchId}');
     }
   }
-
-
 
 //*metodo para ordenar los productos por ubicacion
   Future<List<ProductsBatch>> sortProductsByLocationId() async {

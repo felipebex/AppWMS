@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
+import 'package:flutter/material.dart';
 import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -12,12 +13,16 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -44,6 +49,7 @@ class HomePage extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: () async {
                 //peticion para la configuracion
+                if (!mounted) return;
                 context.read<UserBloc>().add(GetConfigurations(context));
                 // context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
 
@@ -53,24 +59,28 @@ class HomePage extends StatelessWidget {
                 final String rol = await PrefUtils.getUserRol();
                 //peticion segun el rol del usuario
                 if (rol == 'picking') {
+                if (!mounted) return;
                   context
                       .read<WMSPickingBloc>()
                       .add(LoadAllBatchsEvent(context, true));
                 } else if (rol == 'admin') {
+                if (!mounted) return;
                   context
                       .read<WMSPickingBloc>()
                       .add(LoadAllBatchsEvent(context, true));
+                if (!mounted) return;
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(true, context));
                 } else if (rol == 'packing') {
+                if (!mounted) return;
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(true, context));
                 }
               },
               child: Scaffold(
-                floatingActionButton: homeBloc.userRol == 'admin'
+                floatingActionButton: homeBloc.userRol == 'picking'
                     ? FloatingActionButton(
                         onPressed: () async {
                           await DataBaseSqlite().deleteAll();

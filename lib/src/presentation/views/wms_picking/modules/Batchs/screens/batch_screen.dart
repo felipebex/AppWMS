@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison
 
 import 'dart:async';
-import 'dart:developer';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +9,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
@@ -69,7 +68,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     super.didChangeDependencies();
 
     print(
-        '🍔 shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
+        '🍎 shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
     if (context.read<BatchBloc>().shouldRunDependencies) {
       final batchBloc = context.read<BatchBloc>();
       if (!batchBloc.locationIsOk && //false
@@ -203,10 +202,15 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     _controllerQuantity.text = "";
     final batchBloc = context.read<BatchBloc>();
     final currentProduct = batchBloc.currentProduct;
+    //validamos que no aumente en cantidad si llego al maximo
+    if (batchBloc.quantitySelected == currentProduct.quantity.toInt()) {
+      return;
+    }
     if (scannedValue3.toLowerCase() == currentProduct.barcode?.toLowerCase()) {
       batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
       batchBloc.add(AddQuantitySeparate(
           currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0, 1, false));
+
       setState(() {
         scannedValue3 = ""; //limpiamos el valor escaneado
       });
@@ -218,10 +222,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         scannedValue3 = ""; //limpiamos el valor escaneado
       });
     }
-    if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
-      batchBloc.add(FetchBatchWithProductsEvent(
-          batchBloc.batchWithProducts.batch?.id ?? 0));
-    }
+
+    // if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
+    //   batchBloc.add(FetchBatchWithProductsEvent(
+    //       batchBloc.batchWithProducts.batch?.id ?? 0));
+    // }
   }
 
   void validateMuelle(String barcode) {
@@ -331,10 +336,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                             children: [
                               IconButton(
                                 onPressed: () {
-                                  batchBloc.index = 0;
-                                  batchBloc.quantitySelected = 0;
                                   cantidadController.clear();
-                                  batchBloc.oldLocation = "";
+
+                                  context
+                                      .read<BatchBloc>()
+                                      .add(ResetValuesEvent());
                                   context
                                       .read<WMSPickingBloc>()
                                       .add(LoadBatchsFromDBEvent());
@@ -620,15 +626,47 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                   ),
                                                 ),
                                               ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  'Lote/Numero de serie',
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: primaryColorApp),
+                                              if (currentProduct.loteId != null)
+                                                Row(
+                                                  children: [
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        'Lote/Numero de serie',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                primaryColorApp),
+                                                      ),
+                                                    ),
+                                                    const Spacer(),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return const DialogInfo(
+                                                                title:
+                                                                    "Información",
+                                                                body:
+                                                                    "Este producto contiene codigos de barras por paquete, escanea el codigo de barras para seleccionar el producto o aumentar su cantidad por paquete",
+                                                              );
+                                                            });
+                                                      },
+                                                      child: Visibility(
+                                                        visible: batchBloc
+                                                            .listOfBarcodes
+                                                            .isNotEmpty,
+                                                        child: Image.asset(
+                                                            "assets/icons/package_barcode.png",
+                                                            color:
+                                                                primaryColorApp,
+                                                            width: 20),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ),
                                               Align(
                                                 alignment: Alignment.centerLeft,
                                                 child: Text(
@@ -692,7 +730,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       currentProduct.productId
                                                           .toString(),
                                                       style: const TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 13,
                                                           color: black),
                                                     ),
                                                     Visibility(
@@ -711,7 +749,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                         textAlign:
                                                             TextAlign.start,
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 13,
                                                             color: red),
                                                       ),
                                                     ),
@@ -724,16 +762,47 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               if (currentProduct.loteId != null)
                                                 Column(
                                                   children: [
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        'Lote/Numero de serie ',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color:
-                                                                primaryColorApp),
-                                                      ),
+                                                    Row(
+                                                      children: [
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(
+                                                            'Lote/Numero de serie ',
+                                                            style: TextStyle(
+                                                                fontSize: 13,
+                                                                color:
+                                                                    primaryColorApp),
+                                                          ),
+                                                        ),
+                                                        const Spacer(),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return const DialogInfo(
+                                                                    title:
+                                                                        "Información",
+                                                                    body:
+                                                                        "Este producto contiene codigos de barras por paquete, escanea el codigo de barras para seleccionar el producto o aumentar su cantidad por paquete",
+                                                                  );
+                                                                });
+                                                          },
+                                                          child: Visibility(
+                                                            visible: batchBloc
+                                                                .listOfBarcodes
+                                                                .isNotEmpty,
+                                                            child: Image.asset(
+                                                                "assets/icons/package_barcode.png",
+                                                                color:
+                                                                    primaryColorApp,
+                                                                width: 20),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                     Align(
                                                       alignment:
@@ -742,7 +811,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                         currentProduct.lotId ??
                                                             '',
                                                         style: const TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 13,
                                                             color: black),
                                                       ),
                                                     ),
@@ -750,8 +819,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 ),
                                               ExpiryDateWidget(
                                                   expireDate: currentProduct
-                                                              .expireDate ==
-                                                          ""
+                                                                  .expireDate ==
+                                                              "" ||
+                                                          currentProduct
+                                                                  .expireDate ==
+                                                              null
                                                       ? DateTime.now()
                                                       : DateTime.parse(
                                                           currentProduct
@@ -1208,7 +1280,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   ),
                                 ),
                                 Visibility(
-                                  visible: currentProduct.quantity -
+                                  visible: (currentProduct.quantity ?? 0) -
                                           batchBloc.quantitySelected !=
                                       0,
                                   child: const Text('Pdte:',
@@ -1218,7 +1290,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5),
-                                    child: currentProduct.quantity -
+                                    child: (currentProduct.quantity ?? 0) -
                                                 batchBloc.quantitySelected ==
                                             0
                                         ? Container() // Ocultamos el widget si la diferencia es 0
@@ -1646,6 +1718,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
         } else {
           FocusScope.of(context).requestFocus(focusNode2);
         }
+        //llamamos los barcodes del producto
+        batchBloc.add(FetchBarcodesProductEvent());
         Navigator.pop(context);
       });
       return;

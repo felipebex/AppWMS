@@ -33,9 +33,14 @@ final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-  ErrorWidget.builder = (FlutterErrorDetails details) => const Center(
-        child: Text('Error Happened, Sorry for interrupting.'),
-      );
+  ErrorWidget.builder = (FlutterErrorDetails details) => Scaffold(
+    body: const Center(
+          child: Card(
+              color: white,
+              elevation: 2,
+              child: Text('Error Happened, Sorry for interrupting.')),
+        ),
+  );
 
   WidgetsFlutterBinding.ensureInitialized();
   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
@@ -173,7 +178,9 @@ void searchProductsNoSendOdoo(BuildContext context) async {
             idMove: product.idMove ?? 0,
             productId: product.idProduct ?? 0,
             lote: product.loteId.toString(),
-            cantidad: product.quantitySeparate ?? 0,
+            cantidad: (product.quantitySeparate ?? 0) > (product.quantity ?? 0)
+                ? product.quantity ?? 0
+                : product.quantitySeparate ?? 0,
             novedad: product.observation ?? 'Sin novedad',
             timeLine: double.parse(totalTime),
             muelle: product.idLocationDest ?? 0,

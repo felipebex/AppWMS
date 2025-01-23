@@ -26,7 +26,7 @@ class CantLineasMuelle extends StatelessWidget {
                     title: Center(
                         child: Text(
                       "Productos separados sin ubicacion destino",
-                      style: TextStyle(fontSize: 14, color: primaryColorApp),
+                      style: TextStyle(fontSize: 12, color: primaryColorApp),
                     )),
                     content: SizedBox(
                       width: size.width * 0.8, // Ancho máximo fijo (opcional)
