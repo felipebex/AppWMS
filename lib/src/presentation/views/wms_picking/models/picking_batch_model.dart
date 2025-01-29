@@ -71,6 +71,7 @@ class BatchsModel {
   final dynamic userId;
   final String? userName;
   final int? countItems;
+  final dynamic? totalQuantityItems;
 
   int? indexList;
   final dynamic isWave;
@@ -102,6 +103,7 @@ class BatchsModel {
     this.userId,
     this.userName,
     this.countItems,
+    this.totalQuantityItems,
     this.indexList,
     this.isWave,
     this.isSeparate,
@@ -134,6 +136,7 @@ class BatchsModel {
         userId: json['user_id'],
         userName: json['user_name'],
         countItems: json['count_items'],
+        totalQuantityItems: json['total_quantity_items'],
         indexList: json['index_list'],
         isWave: json['is_wave'],
         isSeparate: json['is_separate'],
@@ -164,6 +167,7 @@ class BatchsModel {
         'user_id': userId,
         'user_name': userName,
         'count_items': countItems,
+        'total_quantity_items': totalQuantityItems,
         'index_list': indexList,
         'is_wave': isWave,
         'is_separate': isSeparate,
@@ -192,6 +196,7 @@ class ProductsBatch {
   final int? idMove;
 
   final int? idProduct;
+  final int? orderProduct;
   final dynamic productId;
   final int? batchId;
   final String? name;
@@ -243,6 +248,7 @@ class ProductsBatch {
     this.muelleId,
     this.expireDate,
     // this.pickingId,
+    this.orderProduct,
 
     
     this.barcodeLocation,
@@ -289,6 +295,7 @@ class ProductsBatch {
       rimovalPriority: map['rimoval_priority'],
       expireDate: map['expire_date'],
       batchId: map['batch_id'],
+      orderProduct: map['order_product'],
       idProduct: map['id_product'],
       productId: map['product_id'],
       muelleId: map['muelle_id'],
@@ -344,6 +351,7 @@ class ProductsBatch {
       "batch_id": batchId,
       "id_move": idMove,
       "muelle_id": muelleId,
+      "order_product": orderProduct,
       "barcode_location_dest": barcodeLocation,
       // "picking_id": pickingId,
       "product_id": productId,

@@ -59,59 +59,7 @@ class WmsPackingRepository {
     return [];
   }
 
-  //endpoint para crear un nuevo paquete
-  Future<NewPackageResponse> newPackage(
-    bool isLoadinDialog,
-    BuildContext context,
-  ) async {
-    // Verificar si el dispositivo tiene acceso a Internet
-    var connectivityResult = await Connectivity().checkConnectivity();
-
-    if (connectivityResult == ConnectivityResult.none) {
-      print("Error: No hay conexión a Internet.");
-      return NewPackageResponse(); // Si no hay conexión, retornar un objeto vacío
-    }
-
-    try {
-      var response = await ApiRequestService().postPacking(
-        endpoint: 'create_package', // Endpoint actualizado
-        body: {"params": {}},
-        isLoadinDialog: isLoadinDialog,
-        context: context,
-      );
-
-      if (response.statusCode < 400) {
-        // Decodifica la respuesta JSON a un mapa
-        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-        // Accede a la clave "data" y luego a "result"
-
-        // Asegúrate de que 'result' exista y sea una lista
-        if (jsonResponse.containsKey('result')) {
-          Map<String, dynamic> package = jsonResponse['result']['packaging'];
-          print(package);
-          return NewPackageResponse(
-              result: DataPackage(
-                  code: jsonResponse['result']['code'],
-                  msg: jsonResponse['result']['msg'],
-                  packaging: NewPackage(
-                    id: package['id'],
-                    name: package['name'],
-                    createDate: DateTime.parse(package['create_date']),
-                    writeDate: DateTime.parse(package['write_date']),
-                  )));
-        }
-      } else {}
-    } on SocketException catch (e) {
-      print('Error de red: $e');
-      return NewPackageResponse(); // Retornamos un objeto vacío en caso de error de red
-    } catch (e, s) {
-      // Manejo de otros errores
-      print('Error en create_packaing: $e, $s');
-    }
-
-    return NewPackageResponse(); // Retornamos un objeto vacío si no hay resultados
-  }
-
+  
 //endpoint para desempacar productos de su caja
   Future<UnPacking> unPacking(
       UnPackingRequest request, BuildContext context,) async {
@@ -188,8 +136,7 @@ class WmsPackingRepository {
         body: {
           "params": {
             "id_batch": packingRequest.idBatch,
-            "id_paquete": packingRequest.idPaquete,
-            "is_sticker": packingRequest.isCertificate,
+            "is_sticker": packingRequest.isSticker,
             "is_certificate": packingRequest.isCertificate,
             "peso_total_paquete": packingRequest.pesoTotalPaquete,
             "list_item":

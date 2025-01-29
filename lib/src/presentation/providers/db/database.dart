@@ -67,6 +67,7 @@ class DataBaseSqlite {
         order_by TEXT,
         order_picking TEXT,
         count_items INTEGER,
+        total_quantity_items INTEGER,
         observation TEXT
       )
     ''');
@@ -96,6 +97,7 @@ class DataBaseSqlite {
         is_selected INTEGER,
         is_separate INTEGER,
         is_pending INTEGER,
+        order_product INTEGER,
 
         time_separate DECIMAL(10,2),
         time_separate_start VARCHAR(255),
@@ -693,7 +695,6 @@ class DataBaseSqlite {
   //metodo para obtener todos los tblbarcodes_packages de un producto
   Future<List<Barcodes>> getBarcodesProduct(
       int batchId, int productId, int idMove) async {
-    print("🏀batchId: $batchId, productId: $productId, idMove: $idMove");
 
     final db = await database;
     final List<Map<String, dynamic>> maps = await db!.query(
@@ -1026,6 +1027,7 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
               'order_by': batch.orderBy,
               'order_picking': batch.orderPicking,
               'count_items': batch.countItems,
+              'total_quantity_items': batch.totalQuantityItems,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -1048,6 +1050,8 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
               'order_by': batch.orderBy,
               'order_picking': batch.orderPicking,
               'count_items': batch.countItems,
+              'total_quantity_items': batch.totalQuantityItems,
+              'index_list': batch.indexList,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -1088,6 +1092,7 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
               'order_by': batch.orderBy,
               'order_picking': batch.orderPicking,
               'count_items': batch.countItems,
+              'total_quantity_items': batch.totalQuantityItems,
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -1522,17 +1527,37 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
   }
 
   //Todo: Eliminar todos los registros
-  Future<void> deleteAll() async {
+  Future<void> deleteBD() async {
     final db = await database;
+    //picking
     await db?.delete('tblbatchs');
     await db?.delete('tblbatch_products');
+    //packing
     await db?.delete('tblbatchs_packing');
     await db?.delete('tblpedidos_packing');
     await db?.delete('tblproductos_pedidos');
     await db?.delete('tblpackages');
+    //others
+    await db?.delete('tblbarcodes_packages');
+
+  }
+  Future<void> deleteAll() async {
+    final db = await database;
+    //picking
+    await db?.delete('tblbatchs');
+    await db?.delete('tblbatch_products');
+    //packing
+    await db?.delete('tblbatchs_packing');
+    await db?.delete('tblpedidos_packing');
+    await db?.delete('tblproductos_pedidos');
+    await db?.delete('tblpackages');
+    //others
     await db?.delete('tblbarcodes_packages');
     await db?.delete('tblconfigurations');
   }
+
+
+
 
   //todo: Metodos para actualizar los campos de las tablas
 
@@ -1668,6 +1693,15 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
 
     return resUpdate;
   }
+
+  
+
+  Future<int?> updateRaw(String rawQuery)async{
+    final db = await database;
+    final resUpdate = await db!.rawUpdate(rawQuery);
+    return resUpdate;
+  }
+
 
   Future<String> getFieldTableBtach(int batchId, String field) async {
     final db = await database;

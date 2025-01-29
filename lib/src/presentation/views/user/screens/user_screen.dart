@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/environment/environment.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
@@ -138,8 +139,7 @@ class UserScreen extends StatelessWidget {
                                                 fontSize: 14,
                                                 color: primaryColorApp)),
                                         // Text('WMS',
-                                        Text(
-                                            Preferences.urlWebsite.toString(),
+                                        Text(Preferences.urlWebsite.toString(),
                                             style: const TextStyle(
                                                 fontSize: 14, color: black))
                                       ],
@@ -157,7 +157,6 @@ class UserScreen extends StatelessWidget {
                                                 fontSize: 14, color: black))
                                       ],
                                     ),
-
                                   ],
                                 ),
                               ),
@@ -547,7 +546,63 @@ class UserScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            )
+                            ),
+                            const SizedBox(height: 20),
+                            ElevatedButton(
+                              onPressed: () {
+                                //modal de confirmacion
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        actionsAlignment:
+                                            MainAxisAlignment.center,
+                                        title: Center(
+                                            child: Text(
+                                                "Eliminar Base de Datos",
+                                                style: TextStyle(
+                                                    color: primaryColorApp,
+                                                    fontSize: 14))),
+                                        content: const Text(
+                                            "¿Estas seguro de eliminar la base de datos?\nEsta accion no se puede deshacer y perderas todo el progreso que llevas realizado y esta guardado en la base de datos",
+                                            style: TextStyle(
+                                                fontSize: 12, color: black)),
+                                        actions: [
+                                          ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  backgroundColor: grey),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text("Cancelar",
+                                                  style:
+                                                      TextStyle(color: white))),
+                                          ElevatedButton(
+                                              onPressed: () async {
+                                                await DataBaseSqlite()
+                                                    .deleteAll();
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                        const SnackBar(
+                                                  content: Text(
+                                                      "Base de datos eliminada correctamente"),
+                                                ));
+                                                Navigator.pop(context);
+                                                Navigator.pop(context);
+                                              },
+                                              child: const Text("Aceptar")),
+                                        ],
+                                      );
+                                    });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: grey),
+                              child: const Text(
+                                "Eliminar Base de Datos",
+                                style: TextStyle(color: white),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
                           ],
                         ),
                       ),

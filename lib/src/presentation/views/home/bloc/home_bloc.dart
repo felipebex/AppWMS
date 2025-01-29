@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 part 'home_event.dart';
 part 'home_state.dart';
@@ -25,5 +26,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
     });
     add(HomeLoadData());
+    
+  }
+
+  Future<void> getAppVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String appVersion = packageInfo.version; // Versión de la app
+    String buildNumber = packageInfo.buildNumber; // Número del build
+
+    print('Versión de la app: $appVersion');
+    print('Número de build: $buildNumber');
   }
 }

@@ -48,46 +48,47 @@ class _HomePageState extends State<HomePage> {
             final homeBloc = context.read<HomeBloc>();
             return RefreshIndicator(
               onRefresh: () async {
+                //borramos la informacion de las tablas de picking y packing
+                await DataBaseSqlite().deleteBD();
+
                 //peticion para la configuracion
                 if (!mounted) return;
                 context.read<UserBloc>().add(GetConfigurations(context));
-                // context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
-
                 //esperamos 1 segundo y luego hacemos la peticion de los batchs
                 await Future.delayed(const Duration(seconds: 1));
-
                 final String rol = await PrefUtils.getUserRol();
                 //peticion segun el rol del usuario
                 if (rol == 'picking') {
-                if (!mounted) return;
+                  if (!mounted) return;
                   context
                       .read<WMSPickingBloc>()
                       .add(LoadAllBatchsEvent(context, true));
                 } else if (rol == 'admin') {
-                if (!mounted) return;
+                  if (!mounted) return;
                   context
                       .read<WMSPickingBloc>()
                       .add(LoadAllBatchsEvent(context, true));
-                if (!mounted) return;
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(true, context));
                 } else if (rol == 'packing') {
-                if (!mounted) return;
+                  if (!mounted) return;
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(true, context));
                 }
               },
               child: Scaffold(
-                floatingActionButton: homeBloc.userRol == 'picking'
-                    ? FloatingActionButton(
-                        onPressed: () async {
-                          await DataBaseSqlite().deleteAll();
-                        },
-                        child: const Icon(Icons.refresh),
-                      )
-                    : null,
+                // floatingActionButton: FloatingActionButton(onPressed: () {
+                //   //mostramos un modal para actualizar la app
+                //   showDialog(
+                //       //no se puede cerrar el modal
+                //       barrierDismissible: false,
+                //       context: context,
+                //       builder: (context) {
+                //         return const DialogUpdateApp();
+                //       });
+                // }),
                 body: Container(
                   width: size.width,
                   height: size.height,
@@ -138,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                                               Text(Environment.flavor.appName,
                                                   style: const TextStyle(
                                                       fontSize: 18,
-                                                      color: white))
+                                                      color: white)),
                                             ],
                                           ),
                                           GestureDetector(
@@ -301,7 +302,9 @@ class _HomePageState extends State<HomePage> {
                                                 context
                                                     .read<WMSPickingBloc>()
                                                     .add(
-                                                        LoadBatchsFromDBEvent());
+                                                        FilterBatchesBStatusEvent(
+                                                      '',
+                                                    ));
 
                                                 showDialog(
                                                     context: context,
@@ -446,7 +449,7 @@ class _HomePageState extends State<HomePage> {
                               //todo informativo para packing
                               const Padding(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 20),
+                                    horizontal: 20, vertical: 10),
                                 child: Text("Mis módulos",
                                     style: TextStyle(
                                         color: white,
@@ -478,8 +481,9 @@ class _HomePageState extends State<HomePage> {
                                                 context
                                                     .read<WMSPickingBloc>()
                                                     .add(
-                                                        LoadBatchsFromDBEvent());
-
+                                                        FilterBatchesBStatusEvent(
+                                                      '',
+                                                    ));
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {

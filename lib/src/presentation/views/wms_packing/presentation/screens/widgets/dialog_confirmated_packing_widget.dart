@@ -120,8 +120,6 @@ class DialogConfirmatedPacking extends StatelessWidget {
                     isCertificate,
                     context
                   ));
-
-              context.read<WmsPackingBloc>().add(ChangeStickerEvent(false));
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(

@@ -56,6 +56,10 @@ class Tab2Screen extends StatelessWidget {
                             ? null
                             : () {
                                 //cerramos el teclado
+                                context
+                                    .read<WmsPackingBloc>()
+                                    .add(ChangeStickerEvent(false));
+
                                 FocusScope.of(context).unfocus();
                                 showDialog(
                                     context: context,

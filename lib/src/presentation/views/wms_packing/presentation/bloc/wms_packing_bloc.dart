@@ -424,7 +424,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onSearchPedidoEvent(
       SearchPedidoPackingEvent event, Emitter<WmsPackingState> emit) async {
     try {
-
       listOfPedidosFilters = [];
       listOfPedidosFilters = listOfPedidos;
 
@@ -462,20 +461,67 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         // 1. Intentar crear el paquete
         emit(
             WmsPackingLoadingState()); // Estado de carga mientras creas el paquete
-        final newPackageResponse = await wmsPackingRepository.newPackage(
-          true, // Muestra un diálogo de carga si es necesario
-          event.context, // Pasar el contexto si es necesario para la UI
-        );
+
+        // final newPackageResponse = await wmsPackingRepository.newPackage(
+        //   true, // Muestra un diálogo de carga si es necesario
+        //   event.context, // Pasar el contexto si es necesario para la UI
+        // );
 
         // 2. Si la creación del paquete fue exitosa
-        if (newPackageResponse.result?.code == 200) {
-          // Obtener el ID del paquete recién creado
-          final packageId = newPackageResponse.result?.packaging?.id;
+        // if (newPackageResponse.result?.code == 200) {
+        // Obtener el ID del paquete recién creado
+        // final packageId = newPackageResponse.result?.packaging?.id;
 
+        // if (packageId != null) {
+        DateTime fechaTransaccion = DateTime.now();
+        String fechaFormateada = formatoFecha(fechaTransaccion);
+        // 3. Empaquetar los productos en el paquete recién creado
+        // Crear la lista de ListItem a partir de los productos
+        List<ListItem> listItems = event.productos.map((producto) {
+          return ListItem(
+            idMove: producto.idMove ??
+                0, // O el campo correspondiente en tu producto
+            productId:
+                producto.idProduct, // Suponiendo que `id` es el ID del producto
+            lote: producto.loteId
+                .toString(), // Suponiendo que `loteId` es el lote del producto
+            locationId: int.parse(producto.idLocation
+                .toString()), // Asegúrate de tener este campo
+            cantidadSeparada: event.isCertificate
+                ? producto.quantitySeparate ?? 0
+                : producto.quantity ?? 0, // Cantidad a empaquetar
+            observacion: producto.observation ??
+                'Sin novedad', // Observación del producto (si existe)
+            unidadMedida:
+                producto.unidades ?? '', // La unidad de medida del producto
+            idOperario: idOperario,
+            fechaTransaccion: fechaFormateada,
+          );
+        }).toList();
+
+        // 4. Crear el PackingRequest
+        final packingRequest = PackingRequest(
+          idBatch: event.productos[0].batchId ??
+              0, // Usamos el ID del paquete recién creado
+          // idPaquete: packageId, // Suponemos que es el mismo ID
+          isSticker: event.isSticker, // Puede variar según tu lógica
+          isCertificate: event.isCertificate, // Puede variar según tu lógica
+          pesoTotalPaquete: 34.0, // Calcular el peso total de los productos
+          listItem: listItems, // Lista de productos a empaquetar
+        );
+
+        // Llamamos al servicio para enviar el empaquetado
+        final responsePacking = await wmsPackingRepository.sendPackingRequest(
+          packingRequest,
+          true, // Muestra un diálogo de carga si es necesario
+          event.context,
+        );
+
+        if (responsePacking.result?.code == 200) {
           //creamos el paquete en la bd local
           packages.add(Paquete(
-            id: newPackageResponse.result?.packaging?.id ?? 0,
-            name: newPackageResponse.result?.packaging?.name ?? '',
+            id: responsePacking.result?.result?[0].idPaquete ?? 0,
+            name: responsePacking.result?.result?[0].namePaquete ?? '',
             batchId: event.productos[0].batchId,
             pedidoId: event.productos[0].pedidoId,
             cantidadProductos: event.productos.length,
@@ -484,8 +530,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           ));
 
           await db.insertPackage(Paquete(
-            id: newPackageResponse.result?.packaging?.id ?? 0,
-            name: newPackageResponse.result?.packaging?.name ?? '',
+            id: responsePacking.result?.result?[0].idPaquete ?? 0,
+            name: responsePacking.result?.result?[0].namePaquete ?? '',
             batchId: event.productos[0].batchId,
             pedidoId: event.productos[0].pedidoId,
             cantidadProductos: event.productos.length,
@@ -493,165 +539,97 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
             isSticker: event.isSticker,
           ));
 
-          if (packageId != null) {
-            DateTime fechaTransaccion = DateTime.now();
-            String fechaFormateada = formatoFecha(fechaTransaccion);
-            // 3. Empaquetar los productos en el paquete recién creado
-            // Crear la lista de ListItem a partir de los productos
-            List<ListItem> listItems = event.productos.map((producto) {
-              return ListItem(
-                idMove: producto.idMove ??
-                    0, // O el campo correspondiente en tu producto
-                productId: producto
-                    .idProduct, // Suponiendo que `id` es el ID del producto
-                lote: producto.loteId
-                    .toString(), // Suponiendo que `loteId` es el lote del producto
-                locationId: int.parse(producto.idLocation
-                    .toString()), // Asegúrate de tener este campo
-                cantidadSeparada: event.isCertificate
-                    ? producto.quantitySeparate ?? 0
-                    : producto.quantity ?? 0, // Cantidad a empaquetar
-                observacion: producto.observation ??
-                    'Sin novedad', // Observación del producto (si existe)
-                unidadMedida:
-                    producto.unidades ?? '', // La unidad de medida del producto
-                idOperario: idOperario,
-                fechaTransaccion: fechaFormateada,
-              );
-            }).toList();
+          //actualizamos el estado del pedido como seleccionado
+          await db.setFieldTablePedidosPacking(
+            event.productos[0].batchId ?? 0,
+            event.productos[0].pedidoId ?? 0,
+            "is_selected",
+            "true",
+          );
 
-            // 4. Crear el PackingRequest
-            final packingRequest = PackingRequest(
-              idBatch: event.productos[0].batchId ??
-                  0, // Usamos el ID del paquete recién creado
-              idPaquete: packageId, // Suponemos que es el mismo ID
-              isSticker: event.isSticker, // Puede variar según tu lógica
-              isCertificate:
-                  event.isCertificate, // Puede variar según tu lógica
-              pesoTotalPaquete: 34.0, // Calcular el peso total de los productos
-              listItem: listItems, // Lista de productos a empaquetar
-            );
+          //actualizamos el estado del batch como seleccionado
+          await db.setFieldTableBatchPacking(
+            event.productos[0].batchId ?? 0,
+            "is_selected",
+            "true",
+          );
 
-            // Llamamos al servicio para enviar el empaquetado
-            final responsePacking =
-                await wmsPackingRepository.sendPackingRequest(
-              packingRequest,
-              true, // Muestra un diálogo de carga si es necesario
-              event.context,
-            );
+          if (event.isCertificate == true) {
+            for (var product in event.productos) {
+              //actualizamos el valor del packageName al producto
+              await db.setFieldTableProductosPedidos2String(
+                  product.pedidoId ?? 0,
+                  product.idProduct ?? 0,
+                  "package_name",
+                  responsePacking.result?.result?[0].namePaquete ?? '',
+                  product.idMove ?? 0);
+              //actualizamos el estado del producto como separado
+              await db.setFieldTableProductosPedidos2(
+                  product.pedidoId ?? 0,
+                  product.idProduct ?? 0,
+                  "is_separate",
+                  "true",
+                  product.idMove ?? 0);
 
-            if (responsePacking.result?.code == 200) {
-              //actualizamos el estado del pedido como seleccionado
-              await db.setFieldTablePedidosPacking(
-                event.productos[0].batchId ?? 0,
-                event.productos[0].pedidoId ?? 0,
-                "is_selected",
-                "true",
-              );
+              await db.setFieldTableProductosPedidos2(
+                  product.pedidoId ?? 0,
+                  product.idProduct ?? 0,
+                  "id_package",
+                  responsePacking.result?.result?[0].idPaquete ?? 0,
+                  product.idMove ?? 0);
 
-              //actualizamos el estado del batch como seleccionado
-              await db.setFieldTableBatchPacking(
-                event.productos[0].batchId ?? 0,
-                "is_selected",
-                "true",
-              );
-
-              if (event.isCertificate == true) {
-                for (var product in event.productos) {
-                  //actualizamos el valor del packageName al producto
-                  await db.setFieldTableProductosPedidos2String(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "package_name",
-                      newPackageResponse.result?.packaging?.name ?? '',
-                      product.idMove ?? 0);
-                  //actualizamos el estado del producto como separado
-                  await db.setFieldTableProductosPedidos2(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "is_separate",
-                      "true",
-                      product.idMove ?? 0);
-
-                  await db.setFieldTableProductosPedidos2(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "id_package",
-                      newPackageResponse.result?.packaging?.id ?? 0,
-                      product.idMove ?? 0);
-
-                  await db.setFieldTableProductosPedidos2(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "is_package",
-                      "true",
-                      product.idMove ?? 0);
-                }
-              } else if (event.isCertificate == false) {
-                for (var product in event.productos) {
-                  await db.setFieldTableProductosPedidos3String(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "package_name",
-                      newPackageResponse.result?.packaging?.name ?? '',
-                      product.idMove ?? 0);
-                  //actualizamos el estado del producto como separado
-                  await db.setFieldTableProductosPedidos3(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "is_separate",
-                      "true",
-                      product.idMove ?? 0);
-
-                  //actualizamos el valor de que si tiene un paquete
-                  await db.setFieldTableProductosPedidos3(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "is_package",
-                      1,
-                      product.idMove ?? 0);
-
-                  // actualizamos el id del paquete en el producto
-                  await db.setFieldTableProductosPedidos3(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "id_package",
-                      newPackageResponse.result?.packaging?.id ?? 0,
-                      product.idMove ?? 0);
-                  await db.setFieldTableProductosPedidos3(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "is_certificate",
-                      "false",
-                      product.idMove ?? 0);
-                }
-                listOfProductsForPacking = [];
-              }
-
-              add(LoadAllProductsFromPedidoEvent(
-                  event.productos[0].pedidoId ?? 0));
-
-              // Si todo salió bien, podemos notificar a la UI que el empaquetado fue exitoso
-              emit(WmsPackingSuccessState('Empaquetado exitoso'));
-            } else {
-              emit(WmsPackingErrorState(
-                  'Error: No se pudo empaquetar los productos'));
+              await db.setFieldTableProductosPedidos2(
+                  product.pedidoId ?? 0,
+                  product.idProduct ?? 0,
+                  "is_package",
+                  "true",
+                  product.idMove ?? 0);
             }
-          } else {
-            // Si no se obtuvo un ID válido, mostrar un error
-            emit(WmsPackingErrorState('Error: No se pudo crear el paquete'));
+          } else if (event.isCertificate == false) {
+            for (var product in event.productos) {
+              await db.setFieldTableProductosPedidos3String(
+                  product.pedidoId ?? 0,
+                  product.idProduct ?? 0,
+                  "package_name",
+                  responsePacking.result?.result?[0].namePaquete ?? '',
+                  product.idMove ?? 0);
+              //actualizamos el estado del producto como separado
+              await db.setFieldTableProductosPedidos3(
+                  product.pedidoId ?? 0,
+                  product.idProduct ?? 0,
+                  "is_separate",
+                  "true",
+                  product.idMove ?? 0);
+
+              //actualizamos el valor de que si tiene un paquete
+              await db.setFieldTableProductosPedidos3(product.pedidoId ?? 0,
+                  product.idProduct ?? 0, "is_package", 1, product.idMove ?? 0);
+
+              // actualizamos el id del paquete en el producto
+              await db.setFieldTableProductosPedidos3(
+                  product.pedidoId ?? 0,
+                  product.idProduct ?? 0,
+                  "id_package",
+                  responsePacking.result?.result?[0].idPaquete ?? 0,
+                  product.idMove ?? 0);
+              await db.setFieldTableProductosPedidos3(
+                  product.pedidoId ?? 0,
+                  product.idProduct ?? 0,
+                  "is_certificate",
+                  "false",
+                  product.idMove ?? 0);
+            }
+            listOfProductsForPacking = [];
           }
+
+          add(LoadAllProductsFromPedidoEvent(event.productos[0].pedidoId ?? 0));
+
+          // Si todo salió bien, podemos notificar a la UI que el empaquetado fue exitoso
+          emit(WmsPackingSuccessState('Empaquetado exitoso'));
         } else {
-          // Si la creación del paquete falla, mostrar un mensaje de error
-          final errorMessage =
-              newPackageResponse.result?.msg ?? 'Error desconocido';
-          emit(
-              WmsPackingErrorState('Error al crear el paquete: $errorMessage'));
+          emit(WmsPackingErrorState(
+              'Error: No se pudo empaquetar los productos'));
         }
-      } else {
-        // Si no hay productos seleccionados
-        emit(WmsPackingErrorState(
-            'No se seleccionaron productos para empaquetar'));
       }
     } catch (e, s) {
       // Manejo de excepciones genéricas

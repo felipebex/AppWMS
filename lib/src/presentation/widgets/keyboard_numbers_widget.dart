@@ -38,7 +38,7 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
           borderRadius: BorderRadius.circular(10),
         ),
         padding:  EdgeInsets.symmetric(horizontal: 
-        widget.isDialog ? 10 : 20.0, vertical:  10.0),
+        widget.isDialog ? 10 : 20.0, vertical:  5.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -78,7 +78,7 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
         width:
         widget.isDialog ? 64 :
          100, // Tamaño ajustado
-        height: 40, // Tamaño 5justado
+        height: 30, // Tamaño 5justado
         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 3),
         decoration: BoxDecoration(
           color: white, // Color blanco de fondo
@@ -88,7 +88,7 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
         child: Center(
           child: Text(
             key,
-            style: const TextStyle(fontSize: 25), // Tamaño del texto ajustado
+            style: const TextStyle(fontSize: 20), // Tamaño del texto ajustado
           ),
         ),
       ),
@@ -105,7 +105,7 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
         width: 
         widget.isDialog ? 64 :
         100, // Tamaño ajustado
-        height: 40, // Tamaño ajustado
+        height: 30, // Tamaño ajustado
         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
         decoration: BoxDecoration(
           color: primaryColorApp,
@@ -133,7 +133,7 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
         width: 
         widget.isDialog ? 64 :
         100, // Tamaño ajustado
-        height: 40,
+        height: 30,
         decoration: BoxDecoration(
           color: primaryColorApp,
           borderRadius: BorderRadius.circular(5),

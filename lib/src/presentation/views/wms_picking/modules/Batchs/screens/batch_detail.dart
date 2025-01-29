@@ -93,13 +93,16 @@ class BatchDetailScreen extends StatelessWidget {
                                           1) {
                                         context
                                             .read<WMSPickingBloc>()
-                                            .add(LoadBatchsFromDBEvent());
+                                            .add(FilterBatchesBStatusEvent(
+                                              '',
+                                            ));
                                         Navigator.pushNamed(
                                             context, 'wms-picking',
                                             arguments: 1);
                                       } else {
-                                        context.read<BatchBloc>().add(
-                                            IsShouldRunDependencies(true));
+                                        context
+                                            .read<BatchBloc>()
+                                            .add(IsShouldRunDependencies(true));
                                         context.read<BatchBloc>().add(
                                             ClearSearchProudctsBatchEvent());
                                         context.read<BatchBloc>().add(
@@ -871,8 +874,9 @@ class BatchDetailScreen extends StatelessWidget {
                                                                 .read<
                                                                     BatchBloc>()
                                                                 .formatSecondsToHHMMSS(
-                                                                    productsBatch
-                                                                            .timeSeparate ??
+                                                                    (productsBatch.timeSeparate ??
+                                                                                0)
+                                                                            .toDouble() ??
                                                                         0.0),
                                                             style: TextStyle(
                                                               fontSize: 12,

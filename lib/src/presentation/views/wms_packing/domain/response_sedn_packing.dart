@@ -31,10 +31,12 @@ class ResponseSendPacking {
 class ResponseSendPackingResult {
     final int? code;
     final List<ResultElement>? result;
+    final String? msg;
 
     ResponseSendPackingResult({
         this.code,
         this.result,
+        this.msg,
     });
 
     factory ResponseSendPackingResult.fromJson(String str) => ResponseSendPackingResult.fromMap(json.decode(str));
@@ -44,11 +46,13 @@ class ResponseSendPackingResult {
     factory ResponseSendPackingResult.fromMap(Map<String, dynamic> json) => ResponseSendPackingResult(
         code: json["code"],
         result: json["result"] == null ? [] : List<ResultElement>.from(json["result"]!.map((x) => ResultElement.fromMap(x))),
+        msg: json["msg"],
     );
 
     Map<String, dynamic> toMap() => {
         "code": code,
         "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toMap())),
+        "msg": msg,
     };
 }
 

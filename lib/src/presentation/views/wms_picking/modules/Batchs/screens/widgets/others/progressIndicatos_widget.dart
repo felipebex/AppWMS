@@ -32,7 +32,7 @@ class ProgressIndicatorWidget extends StatelessWidget {
               valueColor: const AlwaysStoppedAnimation<Color>(
                   green), // Color de la barra
             ),
-            const SizedBox(height: 10), // Espaciado entre la barra y el texto
+            const SizedBox(height: 5), // Espaciado entre la barra y el texto
             // Texto de progreso
             Align(
               alignment: Alignment.center,

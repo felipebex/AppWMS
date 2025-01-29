@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison, unused_element, sort_child_properties_last
 
 import 'dart:async';
 
@@ -35,7 +35,8 @@ class BatchScreen extends StatefulWidget {
   _BatchDetailScreenState createState() => _BatchDetailScreenState();
 }
 
-class _BatchDetailScreenState extends State<BatchScreen> {
+class _BatchDetailScreenState extends State<BatchScreen>
+    with WidgetsBindingObserver {
   String scannedValue1 = '';
   String scannedValue2 = '';
   String scannedValue3 = '';
@@ -64,11 +65,43 @@ class _BatchDetailScreenState extends State<BatchScreen> {
   final TextEditingController cantidadController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // Añadimos el observer para escuchar el ciclo de vida de la app.
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // La app ha vuelto al primer plano, ejecutamos un cargando para cambiar el estado y restablecer el foco
+      //mostramos el dialogo de carga y lo cerramos 1 segundo despues
+      showDialog(
+          context: context,
+          builder: (context) {
+            return const DialogLoading(
+              message: "Espere un momento...",
+            );
+          });
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.pop(context);
+      });
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _handleDependencies();
+  }
 
-    print(
-        '🍎 shouldRunDependencies: ${context.read<BatchBloc>().shouldRunDependencies}');
+  void _handleDependencies() {
+    //mostramos cual foco esta activo
+    print(" 🌮 _handleDependencies");
+    // print(
+    //     "1: ${focusNode1.hasFocus}, 2: ${focusNode2.hasFocus}, 3: ${focusNode3.hasFocus}, 4: ${focusNode4.hasFocus}, 5: ${focusNode5.hasFocus}, 6: ${focusNode6.hasFocus}");
+
     if (context.read<BatchBloc>().shouldRunDependencies) {
       final batchBloc = context.read<BatchBloc>();
       if (!batchBloc.locationIsOk && //false
@@ -93,7 +126,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       }
       if (batchBloc.locationIsOk && //true
           batchBloc.productIsOk && //true
-          batchBloc.quantityIsOk && //ttrue
+          batchBloc.quantityIsOk && //true
           !batchBloc.locationDestIsOk && //false
           !viewQuantity) //false
       {
@@ -122,6 +155,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
     focusNode4.dispose();
     focusNode5.dispose();
     focusNode6.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -262,7 +296,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
         int totalTasks = context.read<BatchBloc>().filteredProducts.length;
-        print("🍔 focoLocation: $focoLocation");
+        print(
+            "🍔 focoLocation: ${focusNode1.hasFocus ? 'ubicacion' : (focusNode2.hasFocus ? 'producto' : (focusNode3.hasFocus ? 'cantidad PDA' : (focusNode4.hasFocus ? 'cantidad TEXT' : (focusNode5.hasFocus ? 'muelle' : (focusNode6.hasFocus ? 'submuelle' : '')))))}");
+
+        print(
+            "🍒 showDePenciess ${context.read<BatchBloc>().shouldRunDependencies}");
 
         double progress = totalTasks > 0
             ? context.read<BatchBloc>().filteredProducts.where((e) {
@@ -293,6 +331,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         _nextProduct(currentProduct, batchBloc);
                       }
                     }
+
+                    if (state is CurrentProductChangedState) {
+                      _handleDependencies();
+                    }
+
                     if (state is ChangeLocationIsOkState) {
                       setState(() {
                         focoLocation = 'producto';
@@ -331,7 +374,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                       children: [
                         const WarningWidgetCubit(),
                         Padding(
-                          padding: const EdgeInsets.only(top: 20),
+                          padding: const EdgeInsets.only(top: 15),
                           child: Row(
                             children: [
                               IconButton(
@@ -343,18 +386,20 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                       .add(ResetValuesEvent());
                                   context
                                       .read<WMSPickingBloc>()
-                                      .add(LoadBatchsFromDBEvent());
+                                      .add(FilterBatchesBStatusEvent(
+                                        '',
+                                      ));
                                   Navigator.pop(context);
                                 },
                                 icon: const Icon(Icons.arrow_back,
-                                    color: Colors.white, size: 30),
+                                    color: Colors.white, size: 20),
                               ),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   batchBloc.batchWithProducts.batch?.name ?? '',
                                   style: const TextStyle(
-                                      color: Colors.white, fontSize: 16),
+                                      color: Colors.white, fontSize: 14),
                                 ),
                               ),
                               const Spacer(),
@@ -365,7 +410,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
+                              horizontal: 10, vertical: 0),
                           child: ProgressIndicatorWidget(
                             progress: progress,
                             completed: batchBloc.filteredProducts.where((e) {
@@ -383,16 +428,24 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  padding: const EdgeInsets.only(top: 2),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        Text('Foco: $focoLocation',
-                            style: const TextStyle(fontSize: 10, color: black)),
-                        Text('Ubicacion: $scannedValue1',
-                            style: const TextStyle(fontSize: 10, color: black)),
-                        Text('producto: $scannedValue2',
-                            style: const TextStyle(fontSize: 10, color: black)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                                "Foco: ${focusNode1.hasFocus ? 'ubicacion' : (focusNode2.hasFocus ? 'producto' : (focusNode3.hasFocus ? 'cantidad PDA' : (focusNode4.hasFocus ? 'cantidad TEXT' : (focusNode5.hasFocus ? 'muelle' : (focusNode6.hasFocus ? 'submuelle' : '')))))}",
+                                style: const TextStyle(
+                                    fontSize: 10, color: black)),
+                            const Text("   -   ",
+                                style: TextStyle(fontSize: 10, color: black)),
+                            Text("Index: ${batchBloc.index + 1} ",
+                                style: const TextStyle(
+                                    fontSize: 10, color: black)),
+                          ],
+                        ),
 
                         //todo : ubicacion de origen
                         Row(
@@ -418,9 +471,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                   : Colors.red[200],
                               elevation: 5,
                               child: Container(
+                                // color: Colors.amber,
                                 width: size.width * 0.85,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
+                                    horizontal: 10, vertical: 2),
                                 child: batchBloc.isPdaZebra
                                     ? Column(
                                         children: [
@@ -537,7 +591,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               child: Container(
                                 width: size.width * 0.85,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
+                                    horizontal: 10, vertical: 2),
                                 child: batchBloc.isPdaZebra
                                     ? Column(
                                         children: [
@@ -553,7 +607,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             isPDA: false,
                                           ),
                                           Container(
-                                            height: 15,
+                                            height: 32,
                                             margin: const EdgeInsets.only(
                                                 bottom: 5),
                                             child: TextFormField(
@@ -573,13 +627,14 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 validateProduct(value);
                                               },
                                               decoration: InputDecoration(
-                                                hintText: batchBloc
-                                                    .currentProduct.productId
-                                                    .toString(),
+                                                hintText:
+                                                    "${batchBloc.currentProduct.productId}",
+                                                // .toString(),
+                                                hintMaxLines: 3,
                                                 disabledBorder:
                                                     InputBorder.none,
                                                 hintStyle: const TextStyle(
-                                                    fontSize: 14, color: black),
+                                                    fontSize: 12, color: black),
                                                 border: InputBorder.none,
                                               ),
                                             ),
@@ -589,8 +644,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                             children: [
                                               ExpiryDateWidget(
                                                   expireDate: currentProduct
-                                                              .expireDate ==
-                                                          ""
+                                                                  .expireDate ==
+                                                              "" ||
+                                                          currentProduct
+                                                                  .expireDate ==
+                                                              null
                                                       ? DateTime.now()
                                                       : DateTime.parse(
                                                           currentProduct
@@ -635,7 +693,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                       child: Text(
                                                         'Lote/Numero de serie',
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 13,
                                                             color:
                                                                 primaryColorApp),
                                                       ),
@@ -672,7 +730,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                 child: Text(
                                                   currentProduct.lotId ?? '',
                                                   style: const TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 13,
                                                       color: black),
                                                 ),
                                               ),
@@ -727,8 +785,8 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                           .start, //alineamos el texto a la izquierda
                                                   children: [
                                                     Text(
-                                                      currentProduct.productId
-                                                          .toString(),
+                                                      "${currentProduct.productId}",
+                                                      maxLines: 3,
                                                       style: const TextStyle(
                                                           fontSize: 13,
                                                           color: black),
@@ -1239,11 +1297,11 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
               //todo: cantidad
 
-              SizedBox(
+              Container(
                 width: size.width,
                 height: viewQuantity == true &&
                         context.read<UserBloc>().fabricante.contains("Zebra")
-                    ? 345
+                    ? 300
                     : !viewQuantity
                         ? 110
                         : 150,
@@ -1259,7 +1317,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                 ? white
                                 : Colors.grey[300]
                             : Colors.red[200],
-                        elevation: 5,
+                        elevation: 1,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,
@@ -1269,14 +1327,14 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               children: [
                                 const Text('Cant:',
                                     style: TextStyle(
-                                        color: Colors.black, fontSize: 14)),
+                                        color: Colors.black, fontSize: 13)),
                                 Padding(
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 5),
                                   child: Text(
                                     currentProduct.quantity?.toString() ?? "",
                                     style: TextStyle(
-                                        color: primaryColorApp, fontSize: 14),
+                                        color: primaryColorApp, fontSize: 13),
                                   ),
                                 ),
                                 Visibility(
@@ -1285,7 +1343,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                       0,
                                   child: const Text('Pdte:',
                                       style: TextStyle(
-                                          color: Colors.black, fontSize: 14)),
+                                          color: Colors.black, fontSize: 13)),
                                 ),
                                 Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -1312,89 +1370,96 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                             .quantitySelected)
                                                     : 0, // Si no cumple, el color será para diferencia 0
                                               ),
-                                              fontSize: 14,
+                                              fontSize: 13,
                                             ),
                                           )),
 
                                 Text(currentProduct.unidades ?? "",
                                     style: const TextStyle(
-                                        color: Colors.black, fontSize: 14)),
-                                // const Spacer(),
+                                        color: Colors.black, fontSize: 13)),
                                 Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: Container(
-                                        alignment: Alignment.center,
-                                        child: batchBloc.isPdaZebra
-                                            ? TextFormField(
-                                                showCursor: false,
-                                                textAlign: TextAlign.center,
-                                                enabled: batchBloc
-                                                        .locationIsOk && //true
-                                                    batchBloc
-                                                        .productIsOk && //true
-                                                    batchBloc
-                                                        .quantityIsOk && //true
-
-                                                    !batchBloc.locationDestIsOk,
-                                                // showCursor: false,
-                                                controller:
-                                                    _controllerQuantity, // Controlador que maneja el texto
-                                                focusNode: focusNode3,
-                                                onChanged: (value) {
-                                                  validateQuantity(value);
-                                                },
-                                                decoration: InputDecoration(
-                                                  hintText: batchBloc
-                                                      .quantitySelected
-                                                      .toString(),
-                                                  disabledBorder:
-                                                      InputBorder.none,
-                                                  hintStyle: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: black),
-                                                  border: InputBorder.none,
-                                                ),
+                                  child: Container(
+                                    padding: const EdgeInsets.only(
+                                    bottom: 5),
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      child: Container(
+                                          alignment: Alignment.center,
+                                          child: batchBloc.isPdaZebra
+                                              ? Center(
+                                                child: TextFormField(
+                                                    showCursor: false,
+                                                    textAlign: TextAlign.center,
+                                                    enabled: batchBloc
+                                                            .locationIsOk && //true
+                                                        batchBloc
+                                                            .productIsOk && //true
+                                                        batchBloc
+                                                            .quantityIsOk && //true
+                                                                                    
+                                                        !batchBloc.locationDestIsOk,
+                                                    // showCursor: false,
+                                                    controller:
+                                                        _controllerQuantity, // Controlador que maneja el texto
+                                                    focusNode: focusNode3,
+                                                    onChanged: (value) {
+                                                      validateQuantity(value);
+                                                    },
+                                                    decoration: InputDecoration(
+                                                      hintText: batchBloc
+                                                          .quantitySelected
+                                                          .toString(),
+                                                      disabledBorder:
+                                                          InputBorder.none,
+                                                      hintStyle: const TextStyle(
+                                                          fontSize: 13,
+                                                          color: black),
+                                                      border: InputBorder.none,
+                                                    ),
+                                                  ),
                                               )
-                                            : Focus(
-                                                focusNode: focusNode3,
-                                                onKey: (FocusNode node,
-                                                    RawKeyEvent event) {
-                                                  if (event
-                                                      is RawKeyDownEvent) {
-                                                    if (event.logicalKey ==
-                                                        LogicalKeyboardKey
-                                                            .enter) {
-                                                      if (scannedValue3
-                                                          .isNotEmpty) {
-                                                        validateQuantity(
-                                                            scannedValue3);
+                                              : Focus(
+                                                  focusNode: focusNode3,
+                                                  onKey: (FocusNode node,
+                                                      RawKeyEvent event) {
+                                                    if (event
+                                                        is RawKeyDownEvent) {
+                                                      if (event.logicalKey ==
+                                                          LogicalKeyboardKey
+                                                              .enter) {
+                                                        if (scannedValue3
+                                                            .isNotEmpty) {
+                                                          validateQuantity(
+                                                              scannedValue3);
+                                                        }
+                                                        return KeyEventResult
+                                                            .handled;
+                                                      } else {
+                                                        setState(() {
+                                                          scannedValue3 +=
+                                                              event.data.keyLabel;
+                                                        });
+                                                        return KeyEventResult
+                                                            .handled;
                                                       }
-                                                      return KeyEventResult
-                                                          .handled;
-                                                    } else {
-                                                      setState(() {
-                                                        scannedValue3 +=
-                                                            event.data.keyLabel;
-                                                      });
-                                                      return KeyEventResult
-                                                          .handled;
                                                     }
-                                                  }
-                                                  return KeyEventResult.ignored;
-                                                },
-                                                child: Text(
-                                                    batchBloc.quantitySelected
-                                                        .toString(),
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: const TextStyle(
-                                                      color: Colors.black,
-                                                      fontSize: 14,
-                                                    )),
-                                              )),
+                                                    return KeyEventResult.ignored;
+                                                  },
+                                                  child: Text(
+                                                      batchBloc.quantitySelected
+                                                          .toString(),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14,
+                                                      )),
+                                                )),
+                                    ),
                                   ),
                                 ),
                                 IconButton(
@@ -1417,7 +1482,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                               }
                                             : null,
                                     icon: Icon(Icons.edit_note_rounded,
-                                        color: primaryColorApp, size: 30)),
+                                        color: primaryColorApp, size: 25)),
                               ],
                             ),
                           ),
@@ -1428,9 +1493,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                       visible: viewQuantity,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 2),
+                            horizontal: 10, vertical: 3),
                         child: SizedBox(
-                          height: 40,
+                          height: 35,
                           child: TextFormField(
                             //tmano del campo
 
@@ -1524,6 +1589,10 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                                                     0,
                                                 onAccepted: () {
                                                   batchBloc.add(
+                                                      IsShouldRunDependencies(
+                                                          true));
+
+                                                  batchBloc.add(
                                                       ChangeQuantitySeparate(
                                                           int.parse(value),
                                                           currentProduct
@@ -1548,7 +1617,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                     ),
                     Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
+                          horizontal: 10, vertical: 0
                         ),
                         child: ElevatedButton(
                           onPressed: batchBloc.quantityIsOk &&
@@ -1561,7 +1630,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                               : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColorApp,
-                            minimumSize: Size(size.width * 0.93, 35),
+                            minimumSize: Size(size.width * 0.93, 30),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -1630,7 +1699,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
                   cantidad: cantidad,
                   batchId: batchBloc.batchWithProducts.batch?.id ?? 0,
                   onAccepted: () async {
-                    batchBloc.add(IsShouldRunDependencies(false));
+                    batchBloc.add(IsShouldRunDependencies(true));
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
                         currentProduct.idProduct ?? 0,
@@ -1713,11 +1782,6 @@ class _BatchDetailScreenState extends State<BatchScreen> {
           });
       // Esperar 1 segundos y cerrar el diálogo y redirigirel focus
       Future.delayed(const Duration(seconds: 1), () {
-        if (currentProduct.locationId != batchBloc.oldLocation) {
-          FocusScope.of(context).requestFocus(focusNode1);
-        } else {
-          FocusScope.of(context).requestFocus(focusNode2);
-        }
         //llamamos los barcodes del producto
         batchBloc.add(FetchBarcodesProductEvent());
         Navigator.pop(context);
@@ -1739,10 +1803,7 @@ class _BatchDetailScreenState extends State<BatchScreen> {
             orElse: () =>
                 Barcodes() // Si no se encuentra ningún match, devuelve null
             );
-    print(context.read<BatchBloc>().listOfBarcodes);
     if (matchedBarcode.barcode != null) {
-      print("Coincidencia encontrada: Cantidad = ${matchedBarcode.cantidad}");
-
       if (isProduct) {
         batchBloc.add(ValidateFieldsEvent(field: "product", isOk: true));
 
@@ -1839,7 +1900,9 @@ class _BatchDetailScreenState extends State<BatchScreen> {
 
       batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
           currentProduct.idProduct ?? 0));
-      context.read<WMSPickingBloc>().add(LoadBatchsFromDBEvent());
+      context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
+            '',
+          ));
       context.read<BatchBloc>().index = 0;
       context.read<BatchBloc>().isSearch = true;
 

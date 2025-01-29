@@ -23,7 +23,7 @@ class PopupMenuButtonWidget extends StatelessWidget {
         return PopupMenuButton<String>(
           shadowColor: Colors.white,
           color: Colors.white,
-          icon: const Icon(Icons.more_vert, color: Colors.white, size: 30),
+          icon: const Icon(Icons.more_vert, color: Colors.white, size: 20),
           onSelected: (String value) {
             // Manejar la selección de opciones aquí
             if (value == '1') {
@@ -111,11 +111,7 @@ class PopupMenuButtonWidget extends StatelessWidget {
                       ),
                     );
                   });
-            } else if (value == '3') {
-              batchBloc.add(LoadConfigurationsUser());
-              batchBloc.add(UpdateProductOdooEvent(
-                  batchBloc.batchWithProducts.batch?.id ?? 0, context));
-            }
+            } 
           },
           itemBuilder: (BuildContext context) {
             return [
@@ -130,17 +126,7 @@ class PopupMenuButtonWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              PopupMenuItem<String>(
-                value: '3',
-                child: Row(
-                  children: [
-                    Icon(Icons.refresh, color: primaryColorApp, size: 20),
-                    const SizedBox(width: 10),
-                    const Text('Actualizar Datos',
-                        style: TextStyle(color: black, fontSize: 14)),
-                  ],
-                ),
-              ),
+             
               if (batchBloc.locationIsOk == true &&
                   batchBloc.index + 1 <
                       batchBloc.batchWithProducts.products!.length &&

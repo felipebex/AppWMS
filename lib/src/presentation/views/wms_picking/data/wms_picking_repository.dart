@@ -6,7 +6,6 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
@@ -19,7 +18,7 @@ import 'dart:io';
 import 'package:wms_app/src/presentation/views/wms_picking/models/response_send_picking.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 
-class WmsPickingRepository {
+class WmsPickingRepository   {
   //metodo para pedir los batchs
   Future<List<BatchsModel>> resBatchs(
     bool isLoadinDialog,
@@ -299,14 +298,15 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          action: SnackBarAction(
-            label: 'Cerrar', // Este es el texto del botón de acción
-            textColor: Colors.black, // Color del texto de la acción
-            onPressed: () {
-              // Esto se ejecuta cuando el usuario presiona "Cerrar"
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
+          // action: SnackBarAction(
+          //   label: 'Cerrar', // Este es el texto del botón de acción
+          //   textColor: Colors.black, // Color del texto de la acción
+          //   onPressed: () {
+          //      if (!mounted) return;
+          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
+          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //   },
+          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:

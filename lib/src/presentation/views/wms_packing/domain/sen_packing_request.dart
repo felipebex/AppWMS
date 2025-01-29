@@ -1,6 +1,6 @@
 class PackingRequest {
   final int idBatch;
-  final int idPaquete;
+  // final int idPaquete;
   final bool isSticker;
   final bool isCertificate;
   final double pesoTotalPaquete;
@@ -8,7 +8,7 @@ class PackingRequest {
 
   PackingRequest({
     required this.idBatch,
-    required this.idPaquete,
+    // required this.idPaquete,
     required this.isSticker,
     required this.isCertificate,
     required this.pesoTotalPaquete,
@@ -18,7 +18,7 @@ class PackingRequest {
   Map<String, dynamic> toMap() {
     return {
       "id_batch": idBatch,
-      "id_paquete": idPaquete,
+      // "id_paquete": idPaquete,
       "is_sticker": isSticker,
       "is_certificate": isCertificate,
       "peso_total_paquete": pesoTotalPaquete,

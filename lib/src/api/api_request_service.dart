@@ -213,7 +213,7 @@ class ApiRequestService {
           request.body = json.encode(body);
           request.headers.addAll(headers);
 
-          final response = await request.send();
+          final response = await request.send().timeout(const Duration(seconds: 30));
 
           // Cerrar el diálogo de carga cuando la solicitud se haya completado
           if (isLoadinDialog) {
@@ -263,9 +263,9 @@ class ApiRequestService {
       // Cerrar el diálogo de carga incluso en caso de error de red
       Get.back();
       rethrow; // Re-lanzamos la excepción para que sea manejada en el repositorio
-    } catch (e) {
+    } catch (e,s) {
       // Manejo de otros errores
-      print('Error desconocido en la solicitud: $e');
+      print('Error desconocido en la solicitud: $e \n $s');
       // Cerrar el diálogo de carga incluso en caso de otros errores
       Get.back();
       rethrow; // Re-lanzamos la excepción para manejarla en el repositorio

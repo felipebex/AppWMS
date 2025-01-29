@@ -9,13 +9,12 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 
 class WMSPickingPage extends StatefulWidget {
   const WMSPickingPage({super.key, required this.indexSelected});
@@ -27,11 +26,20 @@ class WMSPickingPage extends StatefulWidget {
 
 class _PickingPageState extends State<WMSPickingPage> {
   NotchBottomBarController controller = NotchBottomBarController();
+  final GlobalKey _bottomBarKey = GlobalKey();
 
   @override
   void initState() {
     controller.index = widget.indexSelected;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    if (mounted) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -47,26 +55,22 @@ class _PickingPageState extends State<WMSPickingPage> {
           BlocListener<BatchBloc, BatchState>(
             listener: (context, state) {
               if (state is PickingOkState) {
-                context.read<WMSPickingBloc>().add(LoadBatchsFromDBEvent());
+                context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
+                      '',
+                    ));
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Separación realizada con éxito'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   const SnackBar(
+                //     content: Text('Separación realizada con éxito'),
+                //     backgroundColor: Colors.green,
+                //   ),
+                // );
               }
             },
           ),
         ],
         child: BlocBuilder<WMSPickingBloc, PickingState>(
           builder: (context, state) {
-            if (controller.index == 1) {
-              context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
-                    'done',
-                  ));
-            }
-
             double progress = context
                     .read<WMSPickingBloc>()
                     .listOfBatchs
@@ -84,85 +88,25 @@ class _PickingPageState extends State<WMSPickingPage> {
                 bottomNavigationBar: context
                         .read<WMSPickingBloc>()
                         .isKeyboardVisible
-                    ? CustomKeyboard(
-                        controller:
-                            context.read<WMSPickingBloc>().searchController,
-                        onchanged: () {
-                          context.read<WMSPickingBloc>().add(SearchBatchEvent(
-                              context
-                                  .read<WMSPickingBloc>()
-                                  .searchController
-                                  .text,
-                              controller.index));
-                        },
+                    ? Padding(
+                        padding: const EdgeInsets.only(bottom: 36),
+                        child: CustomKeyboard(
+                          controller:
+                              context.read<WMSPickingBloc>().searchController,
+                          onchanged: () {
+                            context.read<WMSPickingBloc>().add(SearchBatchEvent(
+                                context
+                                    .read<WMSPickingBloc>()
+                                    .searchController
+                                    .text,
+                                controller.index));
+                          },
+                        ),
                       )
-                    : AnimatedNotchBottomBar(
-                        /// Provide NotchBottomBarController
-                        notchBottomBarController: controller,
-                        color: Colors.white,
-                        showLabel: true,
-                        textOverflow: TextOverflow.visible,
-                        maxLine: 1,
-                        shadowElevation: 3,
-                        kBottomRadius: 8.0,
-                        notchColor: primaryColorApp,
-                        removeMargins: false,
-                        showShadow: false,
-                        durationInMilliSeconds: 300,
-                        itemLabelStyle: const TextStyle(fontSize: 10),
-                        elevation: 12,
-                        bottomBarItems: [
-                          BottomBarItem(
-                            inActiveItem: Icon(
-                              Icons.batch_prediction,
-                              color: primaryColorApp,
-                            ),
-                            activeItem: const Icon(
-                              Icons.batch_prediction,
-                              color: white,
-                            ),
-                            itemLabel: 'En Proceso',
-                          ),
-                          const BottomBarItem(
-                            inActiveItem: Icon(
-                              Icons.batch_prediction,
-                              color: green,
-                            ),
-                            activeItem: Icon(
-                              Icons.batch_prediction,
-                              color: white,
-                            ),
-                            itemLabel: 'Hechos',
-                          ),
-                        ],
-                        onTap: (index) {
-                          setState(() {
-                            controller.index = index;
-                          });
-                          switch (index) {
-                            case 0:
-                              context
-                                  .read<WMSPickingBloc>()
-                                  .add(FilterBatchesBStatusEvent(
-                                    '',
-                                  ));
-                              break;
-                            case 1:
-                              context
-                                  .read<WMSPickingBloc>()
-                                  .add(FilterBatchesBStatusEvent(
-                                    'done',
-                                  ));
-                              break;
-
-                            default:
-                          }
-                        },
-                        kIconSize: 24.0,
-                      ),
-                body: Container(
+                    : null,
+                body: SizedBox(
                   width: size.width * 1,
-                  height: size.height * 0.87,
+                  height: size.height * 0.9,
                   child: Column(
                     children: [
                       Container(
@@ -249,11 +193,72 @@ class _PickingPageState extends State<WMSPickingPage> {
                         ),
                       ),
 
+                      Container(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                                onPressed: () {
+                                  context
+                                      .read<WMSPickingBloc>()
+                                      .add(FilterBatchesBStatusEvent(''));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.batch_prediction,
+                                      color: primaryColorApp,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'En Proceso',
+                                      style: TextStyle(
+                                          color: primaryColorApp, fontSize: 12),
+                                    )
+                                  ],
+                                )),
+                            ElevatedButton(
+                                onPressed: () {
+                                  context
+                                      .read<WMSPickingBloc>()
+                                      .add(FilterBatchesBStatusEvent('done'));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.batch_prediction,
+                                      color: green,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'Hechos',
+                                      style: TextStyle(
+                                          color: primaryColorApp, fontSize: 12),
+                                    )
+                                  ],
+                                ))
+                          ],
+                        ),
+                      ),
+
                       //*barra de buscar
 
                       SizedBox(
                           // color: Colors.amber,
-                          height: 75, //120
+                          height: 60, //120
                           width: size.width * 1,
                           child: Column(
                             children: [
@@ -262,13 +267,9 @@ class _PickingPageState extends State<WMSPickingPage> {
                                   left: 10,
                                   right: 10,
                                 ),
-                                child:
-                                    //  Row(
-                                    //   mainAxisAlignment: MainAxisAlignment.center,
-                                    //   children: [
-                                    SizedBox(
+                                child: SizedBox(
                                   width: size.width * 0.95,
-                                  height: 60,
+                                  height: 55,
                                   child: Card(
                                     color: Colors.white,
                                     elevation: 3,
@@ -320,6 +321,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               SearchBatchEvent(
                                                   value, controller.index));
                                         },
+                                        style: const TextStyle(
+                                            color: Colors.black, fontSize: 14),
                                         onTap: !context
                                                 .read<UserBloc>()
                                                 .fabricante
@@ -333,37 +336,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               }),
                                   ),
                                 ),
-                                //   Card(
-                                //     color: Colors.white,
-                                //     elevation: 3,
-                                //     child: IconButton(
-                                //       onPressed: () {
-                                //         showDatePicker(
-                                //           context: context,
-                                //           initialDate: DateTime.now(),
-                                //           firstDate: DateTime(2000),
-                                //           lastDate: DateTime.now(),
-                                //         ).then((DateTime? value) {
-                                //           if (value != null) {
-                                //             context
-                                //                 .read<WMSPickingBloc>()
-                                //                 .add(
-                                //                     FilterBatchsByDateEvent(
-                                //                         value,
-                                //                         controller.index));
-                                //           }
-                                //         });
-                                //       },
-                                //       icon: const Icon(
-                                //         Icons.calendar_month,
-                                //         color: grey,
-                                //         size: 20,
-                                //       ),
-                                //     ),
-                                //   )
-
-                                // ],
-                                // ),
                               ),
                             ],
                           )),
@@ -390,7 +362,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       .read<WMSPickingBloc>()
                                       .filteredBatchs[index];
                                   //convertimos la fecha
-                      
+
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
@@ -402,11 +374,11 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             .add(FetchBatchWithProductsEvent(
                                               batch.id ?? 0,
                                             ));
-                      
+
                                         context
                                             .read<BatchBloc>()
                                             .add(LoadInfoDeviceEvent());
-                      
+
                                         //todo navegamos a la vista de separacion de productos del batch
                                         if (batch.isSeparate == 1) {
                                           context.read<BatchBloc>().isSearch =
@@ -424,16 +396,16 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                     message:
                                                         'Cargando productos...');
                                               });
-                      
+
                                           // Esperar 3 segundos antes de continuar
                                           Future.delayed(
-                                              const Duration(
-                                                  milliseconds: 800), () {
+                                              const Duration(milliseconds: 800),
+                                              () {
                                             // Cerrar el diálogo de carga
                                             Navigator.of(context,
                                                     rootNavigator: true)
                                                 .pop();
-                      
+
                                             // Ahora navegar a la vista "batch"
                                             Navigator.pushNamed(
                                               context,
@@ -441,11 +413,11 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             );
                                           });
                                         }
-                      
+
                                         DataBaseSqlite db = DataBaseSqlite();
-                      
+
                                         await db.getBacth(batch.id ?? 0);
-                      
+
                                         await db.getProductBacth(
                                             batch.id ?? 0, 3734);
                                       },
@@ -467,7 +439,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 color: Colors.white,
                                                 borderRadius:
                                                     BorderRadius.circular(10),
-                      
+
                                                 //sombras
                                                 boxShadow: const [
                                                   BoxShadow(
@@ -493,8 +465,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 MainAxisAlignment.start,
                                             children: [
                                               const Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Text(
                                                     "Tipo de operación:",
                                                     style: TextStyle(
@@ -502,8 +473,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                         color: grey)),
                                               ),
                                               Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Text(
                                                   batch.pickingTypeId
                                                       .toString(),
@@ -516,8 +486,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 ),
                                               ),
                                               Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
                                                     Icon(
@@ -543,8 +512,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 ),
                                               ),
                                               Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
                                                     Icon(
@@ -557,10 +525,9 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       child: Text(
                                                         batch.userName ??
                                                             "Sin usuario",
-                                                        style:
-                                                            const TextStyle(
-                                                                fontSize: 14,
-                                                                color: black),
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
                                                         maxLines: 2,
                                                         overflow: TextOverflow
                                                             .ellipsis,
@@ -570,8 +537,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 ),
                                               ),
                                               Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Row(
                                                   children: [
                                                     Icon(
@@ -586,12 +552,47 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                           fontSize: 14,
                                                           color: black),
                                                       maxLines: 2,
-                                                      overflow: TextOverflow
-                                                          .ellipsis,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
                                                     ),
                                                     Expanded(
                                                       child: Text(
                                                         batch.countItems
+                                                            .toString(),
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                primaryColorApp),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.add,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    const Text(
+                                                      "Cantidad unidades: ",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: black),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    Expanded(
+                                                      child: Text(
+                                                        batch.totalQuantityItems
                                                             .toString(),
                                                         style: TextStyle(
                                                             fontSize: 14,

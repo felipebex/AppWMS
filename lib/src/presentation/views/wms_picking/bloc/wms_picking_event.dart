@@ -55,9 +55,9 @@ class SearchBatchEvent extends PickingEvent {
 
 //*evento para cargar los batchs de la base de datos
 
-class LoadBatchsFromDBEvent extends PickingEvent {
-  LoadBatchsFromDBEvent();
-}
+// class LoadBatchsFromDBEvent extends PickingEvent {
+//   LoadBatchsFromDBEvent();
+// }
 
 //*evento para cargar los productos de un batch
 class LoadAllProductsFromBatchEvent extends PickingEvent {

@@ -136,11 +136,6 @@ class LoadConfigurationsUser extends BatchEvent {
   LoadConfigurationsUser();
 }
 
-class UpdateProductOdooEvent extends BatchEvent {
-  final int batchId;
-  final BuildContext context;
-  UpdateProductOdooEvent( this.batchId,  this.context);
-}
 
 class LoadProductEditEvent extends BatchEvent {
 
@@ -192,4 +187,7 @@ class FetchBarcodesProductEvent extends BatchEvent {
 }
 
 class ResetValuesEvent extends BatchEvent {
+}
+
+class SortProductsByLocation extends BatchEvent {
 }

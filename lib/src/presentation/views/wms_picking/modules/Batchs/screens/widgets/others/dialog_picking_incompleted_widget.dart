@@ -116,7 +116,11 @@ class DialogPickingIncompleted extends StatelessWidget {
                     batchBloc.add(PickingOkEvent(
                         batchBloc.batchWithProducts.batch?.id ?? 0,
                         currentProduct.idProduct ?? 0));
-                    context.read<WMSPickingBloc>().add(LoadBatchsFromDBEvent());
+                    context
+                        .read<WMSPickingBloc>()
+                        .add(FilterBatchesBStatusEvent(
+                          '',
+                        ));
                     context.read<BatchBloc>().index = 0;
                     context.read<BatchBloc>().isSearch = true;
                     Navigator.pop(context);
