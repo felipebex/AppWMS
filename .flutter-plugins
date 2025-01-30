@@ -1,6 +1,11 @@
 # This is a generated file; do not edit or check into version control.
 connectivity_plus=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/connectivity_plus-6.1.1/
 device_info_plus=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/device_info_plus-9.1.2/
+flutter_keyboard_visibility=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility-6.0.0/
+flutter_keyboard_visibility_linux=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_linux-1.0.0/
+flutter_keyboard_visibility_macos=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_macos-1.0.0/
+flutter_keyboard_visibility_web=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_web-2.0.0/
+flutter_keyboard_visibility_windows=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_keyboard_visibility_windows-1.0.0/
 flutter_local_notifications=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_local_notifications-18.0.1/
 flutter_local_notifications_linux=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-5.0.0/
 flutter_localization=/Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_localization-0.2.3/

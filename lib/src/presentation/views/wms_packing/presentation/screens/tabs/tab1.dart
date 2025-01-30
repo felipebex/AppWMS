@@ -636,6 +636,46 @@ class Tab1Screen extends StatelessWidget {
                                                       Visibility(
                                                         visible: product
                                                                 .isCertificate ==
+                                                            0,
+                                                        child: Row(
+                                                          children: [
+                                                            RichText(
+                                                              text: TextSpan(
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize:
+                                                                      14, // Tamaño del texto
+                                                                  color: Colors
+                                                                      .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                                ),
+                                                                children: <TextSpan>[
+                                                                  const TextSpan(
+                                                                      text:
+                                                                          "Cantidad empacada: ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          color:
+                                                                              black)), // Parte del texto en color negro (o el color que prefieras)
+
+                                                                  TextSpan(
+                                                                    text:
+                                                                        "${product.quantity}", // La cantidad en color rojo
+                                                                    style: TextStyle(
+                                                                        color:
+                                                                            primaryColorApp,
+                                                                        fontSize:
+                                                                            12), // Estilo solo para la cantidad
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Visibility(
+                                                        visible: product
+                                                                .isCertificate ==
                                                             1,
                                                         child: Row(
                                                           children: [
@@ -673,8 +713,10 @@ class Tab1Screen extends StatelessWidget {
                                                                           .isProductSplit ==
                                                                       null)
                                                                     TextSpan(
-                                                                      text:
-                                                                          "${product.observation}", // La cantidad en color rojo
+                                                                      text: product.observation ==
+                                                                              null
+                                                                          ? "Sin novedad"
+                                                                          : "${product.observation}", // La cantidad en color rojo
                                                                       style: TextStyle(
                                                                           color:
                                                                               primaryColorApp,

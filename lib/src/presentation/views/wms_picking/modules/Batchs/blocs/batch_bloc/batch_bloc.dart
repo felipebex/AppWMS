@@ -145,7 +145,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   //*evento para reiniciar los valores
   void _onResetValuesEvent(ResetValuesEvent event, Emitter<BatchState> emit) {
-    print("entro al evento de resetear valores");
     listOfProductsBatch.clear();
     filteredProducts.clear();
     listOfProductsBatchDB.clear();
@@ -180,7 +179,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         currentProduct.idMove ?? 0,
       );
     } catch (e, s) {
-      print("Error en _onFetchBarcodesProductEvent: $e, $s");
+      print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
     }
     emit(BarcodesProductLoadedState(listOfBarcodes: listOfBarcodes));
   }
@@ -193,7 +192,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       subMuelleSelected = event.subMuelleSlected;
       emit(SelectSubMuelle(subMuelleSelected));
     } catch (e, s) {
-      print("Error bloc selectedSubMuelle $e -> $s");
+      print("❌ Error bloc selectedSubMuelle $e -> $s");
     }
   }
 
@@ -207,25 +206,32 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         novedades = response;
         print("novedades: ${novedades.length}");
       }
+      emit(NovedadesLoadedState(listOfNovedades: novedades));
     } catch (e, s) {
-      print("Error en __onLoadAllNovedadesEvent: $e, $s");
+      print("❌ Error en __onLoadAllNovedadesEvent: $e, $s");
     }
-    emit(NovedadesLoadedState(listOfNovedades: novedades));
   }
 
 //*evento para validar si se deben ejecutar las dependencias
   void _onIsShouldRunDependenciesEvent(
       IsShouldRunDependencies event, Emitter<BatchState> emit) {
-    shouldRunDependencies = event.shouldRunDependencies;
-    print('shouldRunDependencies: $shouldRunDependencies');
-    emit(ShouldRunDependenciesState(
-        shouldRunDependencies: shouldRunDependencies));
+    try {
+      shouldRunDependencies = event.shouldRunDependencies;
+      emit(ShouldRunDependenciesState(
+          shouldRunDependencies: shouldRunDependencies));
+    } catch (e, s) {
+      print("❌ Error en _onIsShouldRunDependenciesEvent: $e, $s");
+    }
   }
 
 //*evento para mostrar el teclado
   void _onShowKeyboardEvent(ShowKeyboard event, Emitter<BatchState> emit) {
-    isKeyboardVisible = event.showKeyboard;
-    emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
+    try {
+      isKeyboardVisible = event.showKeyboard;
+      emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
+    } catch (e, s) {
+      print("❌ Error en _onShowKeyboardEvent: $e, $s");
+    }
   }
 
   //*evento para obtener la informacion del dispositivo
@@ -233,20 +239,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       LoadInfoDeviceEvent event, Emitter<BatchState> emit) async {
     emit(BatchInitial());
     try {
-      // String info = '';
-
       //cargamos la informacion del dispositivo
       DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
-      // info = '''
-      //   Modelo: ${androidInfo.model}
-      //   Versión: ${androidInfo.version.release}
-      //   Fabricante: ${androidInfo.manufacturer}
-      // ''';
       isPdaZebra = androidInfo.manufacturer.contains('Zebra');
-      // print("info device: $info");
+      emit(InfoDeviceLoadedState());
     } catch (e, s) {
-      print('Error en GetConfigurations.dart: $e =>$s');
+      print('❌ Error en LoadInfoDeviceEvent : $e =>$s');
     }
   }
 
@@ -261,137 +260,154 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         emit(ConfigurationLoaded(response));
         configurations = response;
       } else {
-        emit(ConfigurationError('Error al cargar configuraciones'));
+        emit(ConfigurationError('Error al cargar LoadConfigurationsUser'));
       }
     } catch (e, s) {
-      print('Error en GetConfigurations.dart: $e =>$s');
+      print('❌ Error en LoadConfigurationsUser $e =>$s');
     }
   }
 
 //*evento para asignar el submuelle
   void _onAssignSubmuelleEvent(
       AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
-    for (var i = 0; i < event.productsSeparate.length; i++) {
-      //actualizamos el valor de que se le asigno un submuelle
-      await db.setFieldTableBatchProducts(
-          event.productsSeparate[i].batchId ?? 0,
-          event.productsSeparate[i].idProduct ?? 0,
-          'is_muelle',
-          'true',
-          event.productsSeparate[i].idMove ?? 0);
+    try {
+      for (var i = 0; i < event.productsSeparate.length; i++) {
+        //actualizamos el valor de que se le asigno un submuelle
+        await db.setFieldTableBatchProducts(
+            event.productsSeparate[i].batchId ?? 0,
+            event.productsSeparate[i].idProduct ?? 0,
+            'is_muelle',
+            'true',
+            event.productsSeparate[i].idMove ?? 0);
 
-      //actualziamos el muelle del producto
-      await db.setFieldTableBatchProducts(
-          event.productsSeparate[i].batchId ?? 0,
-          event.productsSeparate[i].idProduct ?? 0,
-          'muelle_id',
-          event.muelle.id ?? 0,
-          event.productsSeparate[i].idMove ?? 0);
+        //actualziamos el muelle del producto
+        await db.setFieldTableBatchProducts(
+            event.productsSeparate[i].batchId ?? 0,
+            event.productsSeparate[i].idProduct ?? 0,
+            'muelle_id',
+            event.muelle.id ?? 0,
+            event.productsSeparate[i].idMove ?? 0);
 
-      //actualizamos el nombre del muelle del producto
-      await db.setFieldStringTableBatchProducts(
-          event.productsSeparate[i].batchId ?? 0,
-          event.productsSeparate[i].idProduct ?? 0,
-          'location_dest_id',
-          event.muelle.completeName ?? '',
-          event.productsSeparate[i].idMove ?? 0);
+        //actualizamos el nombre del muelle del producto
+        await db.setFieldStringTableBatchProducts(
+            event.productsSeparate[i].batchId ?? 0,
+            event.productsSeparate[i].idProduct ?? 0,
+            'location_dest_id',
+            event.muelle.completeName ?? '',
+            event.productsSeparate[i].idMove ?? 0);
 
-      //enviamos el producto a odoo
+        //enviamos el producto a odoo
 
-      DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
-      //traemos un producto de la base de datos  ya anteriormente guardado
+        DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+        //traemos un producto de la base de datos  ya anteriormente guardado
 
-      //todo: tiempor por batch
-      //tiempo de separacion del producto, lo traemos de la bd
-      final starTime = await db.getFieldTableBtach(
-          event.productsSeparate[i].batchId ?? 0, 'time_separate_start');
-      DateTime dateTimeStart = DateTime.parse(starTime);
-      // Calcular la diferencia
-      Duration difference = dateTimeActuality.difference(dateTimeStart);
-      // Obtener la diferencia en segundos
-      double secondsDifference = difference.inMilliseconds / 1000.0;
+        //todo: tiempor por batch
+        //tiempo de separacion del producto, lo traemos de la bd
+        final starTime = await db.getFieldTableBtach(
+            event.productsSeparate[i].batchId ?? 0, 'time_separate_start');
+        DateTime dateTimeStart = DateTime.parse(starTime);
+        // Calcular la diferencia
+        Duration difference = dateTimeActuality.difference(dateTimeStart);
+        // Obtener la diferencia en segundos
+        double secondsDifference = difference.inMilliseconds / 1000.0;
 
-      final userid = await PrefUtils.getUserId();
+        final userid = await PrefUtils.getUserId();
 
-      final response = await repository.sendPicking(
-          context: event.context,
-          idBatch: event.productsSeparate[i].batchId ?? 0,
-          timeTotal: secondsDifference,
-          cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
-          listItem: [
-            Item(
-              idMove: event.productsSeparate[i].idMove ?? 0,
-              productId: event.productsSeparate[i].idProduct ?? 0,
-              lote: event.productsSeparate[i].lotId ?? '',
-              cantidad: (event.productsSeparate[i].quantitySeparate ?? 0) >
-                      (event.productsSeparate[i].quantity)
-                  ? event.productsSeparate[i].quantity
-                  : event.productsSeparate[i].quantitySeparate ?? 0,
-              novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
-              timeLine: event.productsSeparate[i].timeSeparate ?? 0,
-              muelle: event.muelle.id ?? 0,
-              idOperario: userid,
-              fechaTransaccion:
-                  event.productsSeparate[i].fechaTransaccion ?? '',
-            ),
-          ]);
+        final response = await repository.sendPicking(
+            context: event.context,
+            idBatch: event.productsSeparate[i].batchId ?? 0,
+            timeTotal: secondsDifference,
+            cantItemsSeparados:
+                batchWithProducts.batch?.productSeparateQty ?? 0,
+            listItem: [
+              Item(
+                idMove: event.productsSeparate[i].idMove ?? 0,
+                productId: event.productsSeparate[i].idProduct ?? 0,
+                lote: event.productsSeparate[i].lotId ?? '',
+                cantidad: (event.productsSeparate[i].quantitySeparate ?? 0) >
+                        (event.productsSeparate[i].quantity)
+                    ? event.productsSeparate[i].quantity
+                    : event.productsSeparate[i].quantitySeparate ?? 0,
+                novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
+                timeLine: event.productsSeparate[i].timeSeparate ?? 0,
+                muelle: event.muelle.id ?? 0,
+                idOperario: userid,
+                fechaTransaccion:
+                    event.productsSeparate[i].fechaTransaccion ?? '',
+              ),
+            ]);
 
-      if (response.result?.code == 200) {
-        emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
-        add(FetchBatchWithProductsEvent(
-            event.productsSeparate[i].batchId ?? 0));
-      } else {
-        emit(SubMuelleEditFail('Error al asignar el submuelle'));
+        if (response.result?.code == 200) {
+          add(FetchBatchWithProductsEvent(
+              event.productsSeparate[i].batchId ?? 0));
+          emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
+        } else {
+          emit(SubMuelleEditFail('Error al asignar el submuelle'));
+        }
       }
-
-      //emitimos el estado
+    } catch (e, s) {
+      emit(SubMuelleEditFail('Error al asignar el submuelle'));
+      print("❌ Error en el AssignSubmuelleEvent :$s ->$s");
     }
+
+    //emitimos el estado
   }
 
   //*evento para enviar un producto a odoo editado
   void _onSendProductEditOdooEvent(
       SendProductEditOdooEvent event, Emitter<BatchState> emit) async {
-    emit(LoadingSendProductEdit());
-    sendProuctEditOdoo(event.product, event.cantidad, event.context);
-
-    final response = await DataBaseSqlite()
-        .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
-
-    print("response: $response");
-
-    final List<ProductsBatch> products = response!.products!
-        .where((product) => product.quantitySeparate != product.quantity)
-        .toList();
-    batchWithProducts.products = response.products;
-    filteredProducts.clear();
-    filteredProducts.addAll(products);
-    emit(ProductEditOk());
+    try {
+      emit(LoadingSendProductEdit());
+      bool responseEdit = await sendProuctEditOdoo(
+          event.product, event.cantidad, event.context);
+      if (responseEdit) {
+        final response = await DataBaseSqlite()
+            .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
+        final List<ProductsBatch> products = response!.products!
+            .where((product) => product.quantitySeparate != product.quantity)
+            .toList();
+        batchWithProducts.products = response.products;
+        filteredProducts.clear();
+        filteredProducts.addAll(products);
+        emit(ProductEditOk());
+      } else {
+        emit(ProductEditError());
+      }
+    } catch (e, s) {
+      print("❌ Error en el SendProductEditOdooEvent :$e->$s");
+    }
   }
 
   //*evento para editar un producto
   void _onEditProductEvent(
       LoadProductEditEvent event, Emitter<BatchState> emit) async {
-    //filtramos la lista de producto para mostrar solo los productos que estan separados en cantidad incompletas
-
-    final response = await DataBaseSqlite()
-        .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
-
-    final List<ProductsBatch> products = response!.products!
-        .where((product) => product.quantitySeparate != product.quantity)
-        .toList();
-    filteredProducts.clear();
-    filteredProducts.addAll(products);
-    emit(LoadProductsBatchSuccesStateBD(listOfProductsBatch: filteredProducts));
+    try {
+      final response = await DataBaseSqlite()
+          .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
+      if (response?.products?.isEmpty == true) {
+        emit(ProductEditError());
+        return;
+      }
+      final List<ProductsBatch> products = response!.products!
+          .where((product) => product.quantitySeparate != product.quantity)
+          .toList();
+      filteredProducts.clear();
+      filteredProducts.addAll(products);
+      emit(LoadProductsBatchSuccesStateBD(
+          listOfProductsBatch: filteredProducts));
+    } catch (e, s) {
+      print("❌ Error en el _onEditProductEvent: $e -> $s");
+    }
   }
 
   //*evento para dejar pendiente la separacion
   void _onPickingPendingEvent(
       ProductPendingEvent event, Emitter<BatchState> emit) async {
     try {
+      emit(ProductPendingLoading());
       if (filteredProducts.isEmpty) {
         return;
       }
-      print("event current product: ${event.product.toMap()}");
       //cambiamos el estado del producto a pendiente
       await db.setFieldTableBatchProducts(
           batchWithProducts.batch?.id ?? 0,
@@ -413,161 +429,183 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       //ordenamos los productos por ubicacion
       await sortProductsByLocationId();
       add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
+      emit(ProductPendingSuccess());
     } catch (e, s) {
-      print('Error _onPickingPendingEvent: $e, $s');
+      emit(ProductPendingError());
+      print('❌ Error _onPickingPendingEvent: $e, $s');
     }
   }
 
   ///* evento para finalizar la separacion
   void _onPickingOkEvent(PickingOkEvent event, Emitter<BatchState> emit) async {
-    await db.setFieldTableBatch(event.batchId, 'is_separate', 'true');
-    DateTime dateTimeEnd = DateTime.parse(DateTime.now().toString());
-    await db.endStopwatchBatch(event.batchId, dateTimeEnd.toString());
-    final starTime =
-        await db.getFieldTableBtach(event.batchId, 'time_separate_start');
-    DateTime dateTimeStart = DateTime.parse(starTime);
-    // Calcular la diferencia
-    Duration difference = dateTimeEnd.difference(dateTimeStart);
-    // Obtener la diferencia en segundos
-    double secondsDifference = difference.inMilliseconds / 1000.0;
-
-    await db.totalStopwatchBatch(event.batchId, secondsDifference);
-
-    print("el tiempo total de separacion es: $secondsDifference");
-    emit(PickingOkState());
+    try {
+      emit(PickingOkLoading());
+      await db.setFieldTableBatch(event.batchId, 'is_separate', 'true');
+      DateTime dateTimeEnd = DateTime.parse(DateTime.now().toString());
+      await db.endStopwatchBatch(event.batchId, dateTimeEnd.toString());
+      final starTime =
+          await db.getFieldTableBtach(event.batchId, 'time_separate_start');
+      DateTime dateTimeStart = DateTime.parse(starTime);
+      // Calcular la diferencia
+      Duration difference = dateTimeEnd.difference(dateTimeStart);
+      // Obtener la diferencia en segundos
+      double secondsDifference = difference.inMilliseconds / 1000.0;
+      await db.totalStopwatchBatch(event.batchId, secondsDifference);
+      emit(PickingOkState());
+    } catch (e, s) {
+      emit(PickingOkError());
+      print("❌ Error en PickingOkEvent $e -> $s");
+    }
   }
 
   //*metodo para cambiar la cantidad seleccionada
   void _onChangeQuantitySelectedEvent(
       ChangeQuantitySeparate event, Emitter<BatchState> emit) async {
-    if (event.quantity > 0) {
-      quantitySelected = event.quantity;
-      await db.setFieldTableBatchProducts(batchWithProducts.batch?.id ?? 0,
-          event.productId, 'quantity_separate', event.quantity, event.idMove);
+    try {
+      if (event.quantity > 0) {
+        quantitySelected = event.quantity;
+        await db.setFieldTableBatchProducts(batchWithProducts.batch?.id ?? 0,
+            event.productId, 'quantity_separate', event.quantity, event.idMove);
+      }
+      emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
+    } catch (e, s) {
+      emit(ChangeQuantitySeparateStateError('Error al separar cantidad'));
+      print('❌ Error en ChangeQuantitySeparate: $e -> $s ');
     }
-    emit(ChangeQuantitySeparateState(quantitySelected));
   }
 
   //*evento para aumentar la cantidad
-
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<BatchState> emit) async {
-    print("quantitySelected ======> $quantitySelected");
-    if (quantitySelected > (currentProduct.quantity ?? 0)) {
-      return;
-    } else {
-      quantitySelected = quantitySelected + event.quantity;
-      await db.incremenQtytProductSeparate(batchWithProducts.batch?.id ?? 0,
-          event.productId, event.idMove, event.quantity);
-      emit(ChangeQuantitySeparateState(quantitySelected));
+    try {
+      if (quantitySelected > (currentProduct.quantity ?? 0)) {
+        return;
+      } else {
+        quantitySelected = quantitySelected + event.quantity;
+        await db.incremenQtytProductSeparate(batchWithProducts.batch?.id ?? 0,
+            event.productId, event.idMove, event.quantity);
+        emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
+      }
+    } catch (e, s) {
+      emit(ChangeQuantitySeparateStateError('Error al aumentar cantidad'));
+      print("❌ Error en el AddQuantitySeparate $e ->$s");
     }
   }
 
 //* metodo para cargar las variables de la vista dependiendo del estado de los productos y del batch
   void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
-    print("entro al evento de cargar datos");
-    currentProduct = filteredProducts[batchWithProducts.batch?.indexList ?? 0];
-    if (currentProduct.locationId == oldLocation) {
-      locationIsOk = true;
-    } else {
-      locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+    try {
+      emit(LoadDataInfoLoading());
+      if (filteredProducts.length == 1) {
+        currentProduct = filteredProducts[0];
+      } else {
+        currentProduct =
+            filteredProducts[batchWithProducts.batch?.indexList ?? 0];
+      }
+      if (currentProduct.locationId == oldLocation) {
+        locationIsOk = true;
+      } else {
+        locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+      }
+      productIsOk = currentProduct.productIsOk == false
+          ? false
+          : currentProduct.productIsOk == 1
+              ? true
+              : false;
+      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
+      quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+      index = (batchWithProducts.batch?.indexList ?? 0);
+      quantitySelected = currentProduct.quantitySeparate ?? 0;
+
+      print("locationIsOk: $locationIsOk \n"
+          "productIsOk: $productIsOk \n"
+          "locationDestIsOk: $locationDestIsOk \n"
+          "quantityIsOk: $quantityIsOk \n"
+          "index: $index \n"
+          "quantitySelected: $quantitySelected \n");
+      emit(LoadDataInfoSuccess());
+    } catch (e, s) {
+      emit(LoadDataInfoError("Error al cargar las variables de estado"));
+      print("❌ Error en  LoadDataInfoEvent $e ->$s");
     }
-    productIsOk = currentProduct.productIsOk == false
-        ? false
-        : currentProduct.productIsOk == 1
-            ? true
-            : false;
-    locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
-    quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
-    index = (batchWithProducts.batch?.indexList ?? 0);
-    quantitySelected = currentProduct.quantitySeparate ?? 0;
-
-    print("locationIsOk: $locationIsOk \n"
-        "productIsOk: $productIsOk \n"
-        "locationDestIsOk: $locationDestIsOk \n"
-        "quantityIsOk: $quantityIsOk \n"
-        "index: $index \n"
-        "quantitySelected: $quantitySelected \n");
-
-    emit(LoadDataInfoState());
   }
 
+//*metodo para enviar al wms
   void sendProuctOdoo(BuildContext context) async {
-    DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
-    //traemos un producto de la base de datos  ya anteriormente guardado
-    final product = await db.getProductBatch(batchWithProducts.batch?.id ?? 0,
-        currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
+    try {
+      DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+      //traemos un producto de la base de datos  ya anteriormente guardado
+      final product = await db.getProductBatch(batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
 
-    //todo: tiempor por batch
-    // //tiempo de separacion del producto, lo traemos de la bd
-    // final starTime = await db.getFieldTableBtach(
-    //     product?.batchId ?? 0, 'time_separate_start');
-
-    String? startTime; // Suponiendo que `startTime` es de tipo String o null
-    double secondsDifference = 0.0;
+      String? startTime; // Suponiendo que `startTime` es de tipo String o null
+      double secondsDifference = 0.0;
 // Verificación si la fecha de inicio es nula o vacía
-    if (startTime == null || startTime.isEmpty) {
-      // Si está vacía o es nula, puedes manejar el caso aquí
-      print("La fecha de inicio no es válida.");
-    } else {
-      // Si `startTime` tiene un valor, continúa con el cálculo
-      try {
-        DateTime dateTimeStart =
-            DateTime.parse(startTime); // Parsear el String a DateTime
-        // Calcular la diferencia entre la fecha actual y la fecha de inicio
-        Duration difference = dateTimeActuality.difference(dateTimeStart);
-        // Obtener la diferencia en segundos
-        secondsDifference = difference.inMilliseconds / 1000.0;
-        print("Diferencia en segundos: $secondsDifference");
-      } catch (e) {
-        // Si ocurre algún error durante el parseo (por ejemplo, formato incorrecto)
-        print("Error al parsear la fecha: $e");
+      if (startTime == null || startTime.isEmpty) {
+        // Si está vacía o es nula, puedes manejar el caso aquí
+        print("La fecha de inicio no es válida.");
+      } else {
+        // Si `startTime` tiene un valor, continúa con el cálculo
+        try {
+          DateTime dateTimeStart =
+              DateTime.parse(startTime); // Parsear el String a DateTime
+          // Calcular la diferencia entre la fecha actual y la fecha de inicio
+          Duration difference = dateTimeActuality.difference(dateTimeStart);
+          // Obtener la diferencia en segundos
+          secondsDifference = difference.inMilliseconds / 1000.0;
+          print("Diferencia en segundos: $secondsDifference");
+        } catch (e) {
+          // Si ocurre algún error durante el parseo (por ejemplo, formato incorrecto)
+          print("❌ Error al parsear la fecha: $e");
+        }
       }
-    }
 
-    final userid = await PrefUtils.getUserId();
+      final userid = await PrefUtils.getUserId();
 
-    //enviamos el producto a odoo
-    final response = await repository.sendPicking(
-        context: context,
-        idBatch: product?.batchId ?? 0,
-        timeTotal: secondsDifference,
-        cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
-        listItem: [
-          Item(
-              idMove: product?.idMove ?? 0,
-              productId: product?.idProduct ?? 0,
-              lote: product?.lotId ?? '',
-              cantidad: (product?.quantitySeparate ?? 0) > (product?.quantity)
-                  ? product?.quantity
-                  : product?.quantitySeparate ?? 0,
-              novedad: product?.observation ?? 'Sin novedad',
-              timeLine: product?.timeSeparate ?? 0.0,
-              muelle: product?.muelleId ?? 0,
-              idOperario: userid,
-              fechaTransaccion: product?.fechaTransaccion ?? ''),
-        ]);
+      //enviamos el producto a odoo
+      final response = await repository.sendPicking(
+          context: context,
+          idBatch: product?.batchId ?? 0,
+          timeTotal: secondsDifference,
+          cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
+          listItem: [
+            Item(
+                idMove: product?.idMove ?? 0,
+                productId: product?.idProduct ?? 0,
+                lote: product?.lotId ?? '',
+                cantidad: (product?.quantitySeparate ?? 0) > (product?.quantity)
+                    ? product?.quantity
+                    : product?.quantitySeparate ?? 0,
+                novedad: product?.observation ?? 'Sin novedad',
+                timeLine: product?.timeSeparate ?? 0.0,
+                muelle: product?.muelleId ?? 0,
+                idOperario: userid,
+                fechaTransaccion: product?.fechaTransaccion ?? ''),
+          ]);
 
-    if (response.result?.code == 200) {
-      //recorremos todos los resultados de la respuesta
-      for (var resultProduct in response.result!.result!) {
+      if (response.result?.code == 200) {
+        //recorremos todos los resultados de la respuesta
+        for (var resultProduct in response.result!.result!) {
+          await db.setFieldTableBatchProducts(
+            resultProduct.idBatch ?? 0,
+            resultProduct.idProduct ?? 0,
+            'is_send_odoo',
+            'true',
+            resultProduct.idMove ?? 0,
+          );
+        }
+      } else {
+        //elementos que no se pudieron enviar a odoo
         await db.setFieldTableBatchProducts(
-          resultProduct.idBatch ?? 0,
-          resultProduct.idProduct ?? 0,
+          product?.batchId ?? 0,
+          product?.idProduct ?? 0,
           'is_send_odoo',
-          'true',
-          resultProduct.idMove ?? 0,
+          'false',
+          product?.idMove ?? 0,
         );
       }
-    } else {
-      //elementos que no se pudieron enviar a odoo
-      await db.setFieldTableBatchProducts(
-        product?.batchId ?? 0,
-        product?.idProduct ?? 0,
-        'is_send_odoo',
-        'false',
-        product?.idMove ?? 0,
-      );
+    } catch (e, s) {
+      print("❌ Error en el sendProuctOdoo $e ->$s ");
     }
   }
 
@@ -637,7 +675,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           resultProduct.idMove ?? 0,
         );
       }
-      // filteredProducts = b
 
       return true;
     } else {
@@ -654,302 +691,337 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   void _onValidateFields(ValidateFieldsEvent event, Emitter<BatchState> emit) {
-    switch (event.field) {
-      case 'location':
-        isLocationOk = event.isOk;
-        break;
-      case 'product':
-        isProductOk = event.isOk;
-        break;
-      case 'locationDest':
-        isLocationDestOk = event.isOk;
-        break;
-      case 'quantity':
-        isQuantityOk = event.isOk;
-        break;
+    try {
+      switch (event.field) {
+        case 'location':
+          isLocationOk = event.isOk;
+          break;
+        case 'product':
+          isProductOk = event.isOk;
+          break;
+        case 'locationDest':
+          isLocationDestOk = event.isOk;
+          break;
+        case 'quantity':
+          isQuantityOk = event.isOk;
+          break;
+      }
+      emit(ValidateFieldsStateSuccess(event.isOk));
+    } catch (e, s) {
+      emit(ValidateFieldsStateError('Error al validar campos'));
+      print("❌ Error en el ValidateFieldsEvent $e ->$s");
     }
-    print(
-        'Location: $isLocationOk, Product: $isProductOk, LocationDest: $isLocationDestOk, Quantity: $isQuantityOk');
-    emit(ValidateFieldsState(event.isOk));
   }
 
   void _onSelectNovedadEvent(
       SelectNovedadEvent event, Emitter<BatchState> emit) {
-    selectedNovedad = event.novedad;
-    emit(SelectNovedadState(event.novedad));
+    try {
+      selectedNovedad = event.novedad;
+      emit(SelectNovedadStateSuccess(event.novedad));
+    } catch (e, s) {
+      emit(SelectNovedadStateError('Errror al seleccionar novedad'));
+      print('❌ Error en el SelectNovedadEvent $e ->$s');
+    }
   }
 
   void getPosicions() {
-    positionsOrigen.clear();
-    for (var i = 0; i < filteredProducts.length; i++) {
-      if (filteredProducts[i].locationId != false) {
-        if (positionsOrigen.contains(filteredProducts[i].locationId ?? '')) {
-          continue;
+    try {
+      // Usar un Set para evitar duplicados automáticamente
+      Set<String> positionsSet = {};
+      // Usamos un filtro para no tener que comprobar locationId en cada iteración
+      for (var product in filteredProducts) {
+        // Solo añadimos locationId si no es nulo ni vacío
+        String locationId = product.locationId ?? '';
+        if (locationId.isNotEmpty) {
+          positionsSet.add(locationId);
         }
-        positionsOrigen.add(filteredProducts[i].locationId ?? '');
       }
+
+      // Convertimos el Set a lista si es necesario
+      positionsOrigen = positionsSet.toList();
+    } catch (e, s) {
+      print("❌ Error en getPosicions: $e -> $s");
     }
   }
 
   void getMuelles() {
-    muelles.clear();
-    if (batchWithProducts.batch?.muelle?.isNotEmpty == true) {
-      // if (positions.contains(batchWithProducts.batch?.muelle)) {
-      muelles.add(batchWithProducts.batch?.muelle ?? '');
-      // }
+    try {
+      muelles.clear();
+      if (batchWithProducts.batch?.muelle?.isNotEmpty == true) {
+        muelles.add(batchWithProducts.batch?.muelle ?? '');
+      }
+    } catch (e, s) {
+      print("❌ Error en el getMuelles $e ->$s");
     }
   }
 
   void getSubmuelles() async {
-    submuelles.clear();
-    final muellesdb =
-        //todo cambiar al id de idMuelle
-        await db.getSubmuellesByLocationId(
-      batchWithProducts.batch?.idMuelle == ""
-          ? 0
-          : int.parse(batchWithProducts.batch?.idMuelle.toString() ?? '0'),
-
-      // 92265,
-    );
-    if (muellesdb.isNotEmpty) {
-      submuelles.addAll(muellesdb);
+    try {
+      submuelles.clear();
+      final muellesdb =
+          //todo cambiar al id de idMuelle
+          await db.getSubmuellesByLocationId(
+        batchWithProducts.batch?.idMuelle == ""
+            ? 0
+            : int.parse(batchWithProducts.batch?.idMuelle.toString() ?? '0'),
+      );
+      if (muellesdb.isNotEmpty) {
+        submuelles.addAll(muellesdb);
+      }
+    } catch (e, s) {
+      print("❌ Error en el getSubmuelles $e ->$s");
     }
   }
 
   void products() {
-    // Limpiamos la lista 'listOfProductsName' para asegurarnos que no haya duplicados de iteraciones anteriores
-    listOfProductsName.clear();
-
-    // Recorremos los productos del batch
-    for (var i = 0; i < filteredProducts.length; i++) {
-      var product = filteredProducts[i];
-
-      // Aseguramos que productId no sea nulo antes de intentar agregarlo
-      if (product != null && product.productId != null) {
-        var productIdString =
-            product.productId.toString(); // Convertimos a String
-
-        // Validamos si el productId ya existe en la lista 'positions'
-        if (!listOfProductsName.contains(productIdString)) {
-          listOfProductsName.add(
-              productIdString); // Agregamos el productId a la lista 'listOfProductsName'
+    try {
+      // Usamos un Set para evitar duplicados y mejorar el rendimiento de búsqueda
+      Set<String> productIdsSet = {};
+      // Recorremos los productos del batch
+      for (var product in filteredProducts) {
+        // Validamos que el productId no sea nulo y lo convertimos a String
+        if (product.productId != null) {
+          productIdsSet.add(product.productId.toString());
         }
       }
+      // Asignamos el Set a la lista, si es necesario
+      listOfProductsName = productIdsSet.toList();
+    } catch (e, s) {
+      print("❌ Error en el products $e ->$s");
     }
   }
 
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
-    print("🍕🍕🍕 entro al evento de cambiar producto🍕🍕🍕");
+    try {
+      // Desseleccionamos el producto ya separado
+      await db.setFieldTableBatchProducts(
+          batchWithProducts.batch?.id ?? 0,
+          event.currentProduct.idProduct ?? 0,
+          'is_selected',
+          'false',
+          currentProduct.idMove ?? 0);
 
-    // Desseleccionamos el producto ya separado
-    await db.setFieldTableBatchProducts(
-        batchWithProducts.batch?.id ?? 0,
-        event.currentProduct.idProduct ?? 0,
-        'is_selected',
-        'false',
-        currentProduct.idMove ?? 0);
+      DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
 
-    DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+      // Actualizamos el tiempo total del producto ya separado
+      await db.endStopwatchProduct(
+          batchWithProducts.batch?.id ?? 0,
+          dateTimeActuality.toString(),
+          currentProduct.idProduct ?? 0,
+          currentProduct.idMove ?? 0);
 
-    print("current product: ${currentProduct.toMap()}");
+      final starTimeProduct = await db.getFieldTableProducts(
+          currentProduct.batchId ?? 0,
+          currentProduct.idProduct ?? 0,
+          currentProduct.idMove ?? 0,
+          "time_separate_start");
 
-    // Actualizamos el tiempo total del producto ya separado
-    await db.endStopwatchProduct(
-        batchWithProducts.batch?.id ?? 0,
-        dateTimeActuality.toString(),
-        currentProduct.idProduct ?? 0,
-        currentProduct.idMove ?? 0);
+      DateTime dateTimeStartProduct =
+          starTimeProduct == "null" || starTimeProduct.isEmpty
+              ? DateTime.parse(DateTime.now().toString())
+              : DateTime.parse(starTimeProduct);
 
-    final starTimeProduct = await db.getFieldTableProducts(
-        currentProduct.batchId ?? 0,
-        currentProduct.idProduct ?? 0,
-        currentProduct.idMove ?? 0,
-        "time_separate_start");
+      // Calcular la diferencia del producto ya separado
+      Duration differenceProduct =
+          dateTimeActuality.difference(dateTimeStartProduct);
 
-    DateTime dateTimeStartProduct =
-        starTimeProduct == "null" || starTimeProduct.isEmpty
-            ? DateTime.parse(DateTime.now().toString())
-            : DateTime.parse(starTimeProduct);
+      // Obtener la diferencia en segundos
+      double secondsDifferenceProduct =
+          differenceProduct.inMilliseconds / 1000.0;
 
-    // Calcular la diferencia del producto ya separado
-    Duration differenceProduct =
-        dateTimeActuality.difference(dateTimeStartProduct);
+      await db.totalStopwatchProduct(
+          batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0,
+          currentProduct.idMove ?? 0,
+          secondsDifferenceProduct);
 
-    // Obtener la diferencia en segundos
-    double secondsDifferenceProduct = differenceProduct.inMilliseconds / 1000.0;
+      sendProuctOdoo(event.context);
 
-    await db.totalStopwatchProduct(
-        batchWithProducts.batch?.id ?? 0,
-        currentProduct.idProduct ?? 0,
-        currentProduct.idMove ?? 0,
-        secondsDifferenceProduct);
+      // Validamos si es el último producto
+      if (filteredProducts.length == index + 1) {
+        // Actualizamos el index de la lista de productos
+        await db.setFieldTableBatch(
+            batchWithProducts.batch?.id ?? 0, 'index_list', index);
 
-    sendProuctOdoo(event.context);
-
-    // Validamos si es el último producto
-    if (filteredProducts.length == index + 1) {
-      // Actualizamos el index de la lista de productos
-      await db.setFieldTableBatch(
-          batchWithProducts.batch?.id ?? 0, 'index_list', index);
-
-      // Emitimos el estado de productos completados
-      emit(CurrentProductChangedState(
-          currentProduct: currentProduct, index: index));
-
-      if (currentProduct.locationId == oldLocation) {
-        locationIsOk = true;
+        if (currentProduct.locationId == oldLocation) {
+          locationIsOk = true;
+        } else {
+          locationIsOk = false;
+        }
+        // Emitimos el estado de productos completados
+        emit(CurrentProductChangedState(
+            currentProduct: currentProduct, index: index));
+        return;
       } else {
-        locationIsOk = false;
-      }
-      return;
-    } else {
-      // Validamos la última ubicación
-      productIsOk = false;
-      quantityIsOk = false;
+        // Validamos la última ubicación
+        productIsOk = false;
+        quantityIsOk = false;
 
-      // Solo incrementamos el índice si no ha sido incrementado previamente
-      index = (batchWithProducts.batch?.indexList ?? 0) + 1;
-
-      // Calcular la longitud una sola vez
-      // Contar los productos con isSeparate == 1 usando fold
-      int separateCount = filteredProducts.fold(0, (count, e) {
-        return e.isSeparate == 1 ? count + 1 : count;
-      });
-
-      if (index >= separateCount) {
-        print('El index ES MAYOR 🍓');
-        index = separateCount + 1;
-      }
-
-      if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
-        print('El index ES DIFERENTE A INDEXLIST 🍓');
+        // Solo incrementamos el índice si no ha sido incrementado previamente
         index = (batchWithProducts.batch?.indexList ?? 0) + 1;
+
+        // Calcular la longitud una sola vez
+        // Contar los productos con isSeparate == 1 usando fold
+        int separateCount = filteredProducts.fold(0, (count, e) {
+          return e.isSeparate == 1 ? count + 1 : count;
+        });
+
+        if (index >= separateCount) {
+          print('El index ES MAYOR 🍓');
+          index = separateCount + 1;
+        }
+
+        if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
+          print('El index ES DIFERENTE A INDEXLIST 🍓');
+          index = (batchWithProducts.batch?.indexList ?? 0) + 1;
+        }
+
+        // Actualizamos el index de la lista de productos
+        await db.setFieldTableBatch(
+            batchWithProducts.batch?.id ?? 0, 'index_list', index);
+
+        currentProduct = filteredProducts[index];
+
+        if (currentProduct.locationId == oldLocation) {
+          print('La ubicación es igual');
+          locationIsOk = true;
+        } else {
+          locationIsOk = false;
+          print('La ubicación es diferente');
+        }
+
+        await db.startStopwatch(
+          batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0,
+          currentProduct.idMove ?? 0,
+          DateTime.now().toString(),
+        );
+
+        emit(CurrentProductChangedState(
+            currentProduct: currentProduct, index: index));
+
+        add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
+
+        //mostramos todas las variables
+
+        return;
       }
-
-      // Actualizamos el index de la lista de productos
-      await db.setFieldTableBatch(
-          batchWithProducts.batch?.id ?? 0, 'index_list', index);
-
-      currentProduct = filteredProducts[index];
-
-      if (currentProduct.locationId == oldLocation) {
-        print('La ubicación es igual');
-        locationIsOk = true;
-      } else {
-        locationIsOk = false;
-        print('La ubicación es diferente');
-      }
-
-      await db.startStopwatch(
-        batchWithProducts.batch?.id ?? 0,
-        currentProduct.idProduct ?? 0,
-        currentProduct.idMove ?? 0,
-        DateTime.now().toString(),
-      );
-
-      emit(CurrentProductChangedState(
-          currentProduct: currentProduct, index: index));
-
-      add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
-
-      //mostramos todas las variables
-
-      return;
+    } catch (e, s) {
+      emit(CurrentProductChangedStateError('Error al cambiar de producto'));
+      print("❌ Error en el ChangeCurrentProduct $e ->$s");
     }
   }
 
   void _onChangeQuantityIsOkEvent(
       ChangeIsOkQuantity event, Emitter<BatchState> emit) async {
-    if (event.isOk) {
-      await db.setFieldTableBatchProducts(event.batchId, event.productId,
-          'is_quantity_is_ok', 'true', event.idMove);
+    try {
+      if (event.isOk) {
+        await db.setFieldTableBatchProducts(event.batchId, event.productId,
+            'is_quantity_is_ok', 'true', event.idMove);
+      }
+      quantityIsOk = event.isOk;
+      emit(ChangeIsOkState(
+        quantityIsOk,
+      ));
+    } catch (e, s) {
+      print("❌ Error en el ChangeIsOkQuantity $e ->$s");
     }
-    quantityIsOk = event.isOk;
-    emit(ChangeIsOkState(
-      quantityIsOk,
-    ));
   }
 
   void _onChangeLocationIsOkEvent(
       ChangeLocationIsOkEvent event, Emitter<BatchState> emit) async {
-    if (isLocationOk) {
-      await db.setFieldTableBatchProducts(
-        event.batchId,
-        event.productId,
-        'is_location_is_ok',
-        'true',
-        event.idMove,
-      );
-
-      if (index == 0) {
-        await db.startStopwatchBatch(event.batchId, DateTime.now().toString());
+    try {
+      if (isLocationOk) {
+        await db.setFieldTableBatchProducts(
+          event.batchId,
+          event.productId,
+          'is_location_is_ok',
+          'true',
+          event.idMove,
+        );
+        if (index == 0) {
+          await db.startStopwatchBatch(
+              event.batchId, DateTime.now().toString());
+        }
+        //cuando se lea la ubicacion se selecciona el batch
+        await db.setFieldTableBatch(event.batchId, 'is_selected', 'true');
+        locationIsOk = true;
+        emit(ChangeLocationIsOkState(
+          locationIsOk,
+        ));
       }
-      //cuando se lea la ubicacion se selecciona el batch
-      await db.setFieldTableBatch(event.batchId, 'is_selected', 'true');
-
-      locationIsOk = true;
-
-      emit(ChangeLocationIsOkState(
-        locationIsOk,
-      ));
+    } catch (e, s) {
+      print("❌ Error en el ChangeLocationIsOkEvent $e ->$s");
     }
   }
 
   void _onChangeLocationDestIsOkEvent(
       ChangeLocationDestIsOkEvent event, Emitter<BatchState> emit) async {
-    if (event.locationDestIsOk) {
-      await db.setFieldTableBatchProducts(event.batchId, event.productId,
-          'location_dest_is_ok', 'true', event.idMove);
+    try {
+      if (event.locationDestIsOk) {
+        await db.setFieldTableBatchProducts(event.batchId, event.productId,
+            'location_dest_is_ok', 'true', event.idMove);
+      }
+      locationDestIsOk = event.locationDestIsOk;
+      emit(ChangeIsOkState(
+        locationDestIsOk,
+      ));
+    } catch (e, s) {
+      print("❌ Error en el ChangeLocationDestIsOkEvent $e ->$s");
     }
-    locationDestIsOk = event.locationDestIsOk;
-    emit(ChangeIsOkState(
-      locationDestIsOk,
-    ));
   }
 
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<BatchState> emit) async {
-    if (event.productIsOk) {
-      //empezamos el tiempo de separacion del batch y del producto
-      await db.startStopwatch(
-        event.batchId,
-        event.productId,
-        event.idMove,
-        DateTime.now().toString(),
-      );
+    try {
+      if (event.productIsOk) {
+        //empezamos el tiempo de separacion del batch y del producto
+        await db.startStopwatch(
+          event.batchId,
+          event.productId,
+          event.idMove,
+          DateTime.now().toString(),
+        );
 
-      //calculamos la fecha de transaccion
-      DateTime fechaTransaccion = DateTime.now();
-      String fechaFormateada = formatoFecha(fechaTransaccion);
-      //agregamos la fecha de transaccion
-      await db.dateTransaccionProduct(
-        event.batchId,
-        fechaFormateada,
-        event.productId,
-        event.idMove,
-      );
+        //calculamos la fecha de transaccion
+        DateTime fechaTransaccion = DateTime.now();
+        String fechaFormateada = formatoFecha(fechaTransaccion);
+        //agregamos la fecha de transaccion
+        await db.dateTransaccionProduct(
+          event.batchId,
+          fechaFormateada,
+          event.productId,
+          event.idMove,
+        );
 
-      await db.setFieldTableBatchProducts(
-          event.batchId, event.productId, 'is_selected', 'true', event.idMove);
-      await db.setFieldTableBatchProducts(event.batchId, event.productId,
-          'product_is_ok', 'true', event.idMove);
-      await db.setFieldTableBatchProducts(event.batchId, event.productId,
-          'quantity_separate', event.quantity, event.idMove);
+        await db.setFieldTableBatchProducts(event.batchId, event.productId,
+            'is_selected', 'true', event.idMove);
+        await db.setFieldTableBatchProducts(event.batchId, event.productId,
+            'product_is_ok', 'true', event.idMove);
+        await db.setFieldTableBatchProducts(event.batchId, event.productId,
+            'quantity_separate', event.quantity, event.idMove);
+      }
+      productIsOk = event.productIsOk;
+      emit(ChangeProductIsOkState(
+        productIsOk,
+      ));
+    } catch (e, s) {
+      print("❌ Error en el ChangeProductIsOkEvent $e ->$s");
     }
-    productIsOk = event.productIsOk;
-    emit(ChangeProductIsOkState(
-      productIsOk,
-    ));
   }
 
   void _onClearSearchEvent(
       ClearSearchProudctsBatchEvent event, Emitter<BatchState> emit) async {
-    searchController.clear();
-    filteredProducts.clear();
-    filteredProducts.addAll(batchWithProducts.products!);
-    await sortProductsByLocationId();
-    emit(LoadProductsBatchSuccesState(listOfProductsBatch: filteredProducts));
+    try {
+      searchController.clear();
+      filteredProducts.clear();
+      filteredProducts.addAll(batchWithProducts.products!);
+      await sortProductsByLocationId();
+      emit(LoadProductsBatchSuccesState(listOfProductsBatch: filteredProducts));
+    } catch (e, s) {
+      print("❌ Error en el ClearSearchProudctsBatchEvent $e ->$s");
+    }
   }
 
   void _onSearchBacthEvent(
@@ -972,159 +1044,163 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   void _onFetchBatchWithProductsEvent(
       FetchBatchWithProductsEvent event, Emitter<BatchState> emit) async {
-    batchWithProducts = BatchWithProducts();
-
-    add(LoadConfigurationsUser());
-
-    final response = await DataBaseSqlite().getBatchWithProducts(event.batchId);
-
-    if (response != null) {
-      batchWithProducts = response;
-
-      if (batchWithProducts.products!.isEmpty) {
-        print('No hay productos en el batch');
-        emit(EmptyroductsBatch());
-        return;
-      }
-
-      filteredProducts.clear();
-      filteredProducts.addAll(batchWithProducts.products!);
-
-      await sortProductsByLocationId();
-
-      add(LoadDataInfoEvent());
-      getSubmuelles();
-      getPosicions();
-      getMuelles();
-      products();
-
-      add(FetchBarcodesProductEvent());
-
-      emit(LoadProductsBatchSuccesStateBD(
-          listOfProductsBatch: filteredProducts));
-    } else {
+    try {
       batchWithProducts = BatchWithProducts();
-      print('No se encontró el batch con ID: ${event.batchId}');
+
+      add(LoadConfigurationsUser());
+
+      final response =
+          await DataBaseSqlite().getBatchWithProducts(event.batchId);
+
+      if (response != null) {
+        batchWithProducts = response;
+
+        if (batchWithProducts.products!.isEmpty) {
+          print('No hay productos en el batch');
+          emit(EmptyroductsBatch());
+          return;
+        }
+
+        filteredProducts.clear();
+        filteredProducts.addAll(batchWithProducts.products!);
+
+        await sortProductsByLocationId();
+
+        add(LoadDataInfoEvent());
+        getSubmuelles();
+        getPosicions();
+        getMuelles();
+        products();
+
+        add(FetchBarcodesProductEvent());
+
+        emit(LoadProductsBatchSuccesStateBD(
+            listOfProductsBatch: filteredProducts));
+      } else {
+        batchWithProducts = BatchWithProducts();
+        print('No se encontró el batch con ID: ${event.batchId}');
+      }
+    } catch (e, s) {
+      print("❌ Error en el FetchBatchWithProductsEvent $e ->$s");
     }
   }
 
 //*metodo para ordenar los productos por ubicacion
   Future<List<ProductsBatch>> sortProductsByLocationId() async {
-    final products = filteredProducts;
-    final batch = batchWithProducts.batch;
+    try {
+      final products = filteredProducts;
+      final batch = batchWithProducts.batch;
 
-    //traemos el batch actualizado
-    final batchUpdated = await db.getBatchById(batch?.id ?? 0);
+      //traemos el batch actualizado
+      final batchUpdated = await db.getBatchById(batch?.id ?? 0);
 
-    //ORDENAMOS LOS PRODUCTOS SEGUN EL ORDENAMIENTO QUE DIGA EL BATCH
-    switch (batchUpdated?.orderBy) {
-      case "removal_priority":
-        {
-          if (batchUpdated?.orderPicking == "asc") {
-            products.sort((a, b) {
-              return a.rimovalPriority!.compareTo(b.rimovalPriority!);
-            });
-          } else {
-            products.sort((a, b) {
-              return b.rimovalPriority!.compareTo(a.rimovalPriority!);
-            });
+      //ORDENAMOS LOS PRODUCTOS SEGUN EL ORDENAMIENTO QUE DIGA EL BATCH
+      switch (batchUpdated?.orderBy) {
+        case "removal_priority":
+          {
+            if (batchUpdated?.orderPicking == "asc") {
+              products.sort((a, b) {
+                return a.rimovalPriority!.compareTo(b.rimovalPriority!);
+              });
+            } else {
+              products.sort((a, b) {
+                return b.rimovalPriority!.compareTo(a.rimovalPriority!);
+              });
+            }
           }
-        }
-        break;
-      case "location_name":
-        {
-          if (batchUpdated?.orderPicking == "asc") {
-            products.sort((a, b) {
-              return a.locationId!.compareTo(b.locationId!);
-            });
-          } else {
-            products.sort((a, b) {
-              return b.locationId!.compareTo(a.locationId!);
-            });
+          break;
+        case "location_name":
+          {
+            if (batchUpdated?.orderPicking == "asc") {
+              products.sort((a, b) {
+                return a.locationId!.compareTo(b.locationId!);
+              });
+            } else {
+              products.sort((a, b) {
+                return b.locationId!.compareTo(a.locationId!);
+              });
+            }
           }
-        }
-        break;
-      case "product_name":
-        {
-          if (batchUpdated?.orderPicking == "asc") {
-            products.sort((a, b) {
-              return a.productId!.compareTo(b.productId!);
-            });
-          } else {
-            products.sort((a, b) {
-              return b.productId!.compareTo(a.productId!);
-            });
+          break;
+        case "product_name":
+          {
+            if (batchUpdated?.orderPicking == "asc") {
+              products.sort((a, b) {
+                return a.productId!.compareTo(b.productId!);
+              });
+            } else {
+              products.sort((a, b) {
+                return b.productId!.compareTo(a.productId!);
+              });
+            }
           }
-        }
-        break;
+          break;
+      }
+
+      // Filtrar los productos con isPending == 1
+      List<ProductsBatch> pendingProducts =
+          products.where((product) => product.isPending == 1).toList();
+
+      // Filtrar los productos que no están pendientes
+      List<ProductsBatch> nonPendingProducts =
+          products.where((product) => product.isPending != 1).toList();
+
+      // Concatenar los productos no pendientes con los productos pendientes al final
+      filteredProducts.clear();
+      filteredProducts.addAll(nonPendingProducts);
+      filteredProducts.addAll(pendingProducts);
+
+      return filteredProducts;
+    } catch (e, s) {
+      print("❌ Error en el sortProductsByLocationId $e ->$s");
+      return [];
     }
-
-    // Filtrar los productos con isPending == 1
-    List<ProductsBatch> pendingProducts =
-        products.where((product) => product.isPending == 1).toList();
-
-    // Filtrar los productos que no están pendientes
-    List<ProductsBatch> nonPendingProducts =
-        products.where((product) => product.isPending != 1).toList();
-
-    // Concatenar los productos no pendientes con los productos pendientes al final
-    filteredProducts.clear();
-    filteredProducts.addAll(nonPendingProducts);
-    filteredProducts.addAll(pendingProducts);
-
-    return filteredProducts;
-  }
-
-  String calculateProgress() {
-    final totalItems = batchWithProducts.products?.length ?? 0;
-    final separatedItems = batchWithProducts.batch?.productSeparateQty ?? 0;
-
-    // Evitar división por cero
-    if (totalItems == 0) return "0.0";
-
-    final progress = (separatedItems / totalItems) * 100;
-    return progress.toStringAsFixed(1); // Redondear a un decimal
   }
 
   String calcularUnidadesSeparadas() {
-    // Si no hay productos, devuelve "0.0"
-    if (batchWithProducts.products == null ||
-        batchWithProducts.products!.isEmpty) {
-      return "0.0";
+    try {
+      if (batchWithProducts.products == null ||
+          batchWithProducts.products!.isEmpty) {
+        return "0.0";
+      }
+      int totalSeparadas = 0;
+      int totalCantidades = 0;
+      for (var product in batchWithProducts.products!) {
+        totalSeparadas += product.quantitySeparate ?? 0;
+        totalCantidades +=
+            (product.quantity as int?) ?? 0; // Aseguramos que sea int
+      }
+      // Evitar división por cero
+      if (totalCantidades == 0) {
+        return "0.0";
+      }
+      final progress = (totalSeparadas / totalCantidades) * 100;
+      return progress.toStringAsFixed(1);
+    } catch (e, s) {
+      print("❌ Error en el calcularUnidadesSeparadas $e ->$s");
+      return '';
     }
-
-    int totalSeparadas = 0;
-    int totalCantidades = 0;
-
-    for (var product in batchWithProducts.products!) {
-      totalSeparadas += product.quantitySeparate ?? 0;
-      totalCantidades +=
-          (product.quantity as int?) ?? 0; // Aseguramos que sea int
-    }
-
-    // Evitar división por cero
-    if (totalCantidades == 0) {
-      return "0.0";
-    }
-
-    final progress = (totalSeparadas / totalCantidades) * 100;
-    return progress.toStringAsFixed(1);
   }
 
   String formatSecondsToHHMMSS(double secondsDecimal) {
-    // Redondear a los segundos más cercanos
-    int totalSeconds = secondsDecimal.round();
+    try {
+      // Redondear a los segundos más cercanos
+      int totalSeconds = secondsDecimal.round();
 
-    // Calcular horas, minutos y segundos
-    int hours = totalSeconds ~/ 3600;
-    int minutes = (totalSeconds % 3600) ~/ 60;
-    int seconds = totalSeconds % 60;
+      // Calcular horas, minutos y segundos
+      int hours = totalSeconds ~/ 3600;
+      int minutes = (totalSeconds % 3600) ~/ 60;
+      int seconds = totalSeconds % 60;
 
-    // Formatear en 00:00:00
-    String formattedTime = '${hours.toString().padLeft(2, '0')}:'
-        '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}';
+      // Formatear en 00:00:00
+      String formattedTime = '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
 
-    return formattedTime;
+      return formattedTime;
+    } catch (e, s) {
+      print("❌ Error en el formatSecondsToHHMMSS $e ->$s");
+      return "";
+    }
   }
 }

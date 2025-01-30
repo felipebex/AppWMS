@@ -5,23 +5,17 @@ sealed class BatchState {}
 
 final class BatchInitial extends BatchState {}
 
-
 final class ProductsBatchLoadingState extends BatchState {}
-
 
 final class LoadProductsBatchSuccesState extends BatchState {
   final List<ProductsBatch> listOfProductsBatch;
   LoadProductsBatchSuccesState({required this.listOfProductsBatch});
 }
 
-
-
 final class LoadProductsBatchSuccesStateBD extends BatchState {
   final List<ProductsBatch> listOfProductsBatch;
   LoadProductsBatchSuccesStateBD({required this.listOfProductsBatch});
 }
-
-
 
 class ShowKeyboardState extends BatchState {
   final bool showKeyboard;
@@ -33,77 +27,100 @@ class ShouldRunDependenciesState extends BatchState {
   ShouldRunDependenciesState({required this.shouldRunDependencies});
 }
 
-
-
-
 final class BatchErrorState extends BatchState {
   final String error;
   BatchErrorState(this.error);
 }
 
-
 final class EmptyroductsBatch extends BatchState {}
-
 
 final class GetProductByIdLoaded extends BatchState {
   final Products product;
   GetProductByIdLoaded(this.product);
 }
 
-
 class ChangeIsOkState extends BatchState {
   final bool isOk;
   ChangeIsOkState(this.isOk);
 }
+
 class ChangeProductIsOkState extends BatchState {
   final bool isOk;
   ChangeProductIsOkState(this.isOk);
 }
+
 class ChangeLocationIsOkState extends BatchState {
   final bool isOk;
   ChangeLocationIsOkState(this.isOk);
 }
 
-
+//*estado para cambiar de producto
 final class CurrentProductChangedState extends BatchState {
   final ProductsBatch currentProduct;
   final int index;
-  CurrentProductChangedState({required this.currentProduct, required this.index});
+  CurrentProductChangedState(
+      {required this.currentProduct, required this.index});
 }
 
-
+class CurrentProductChangedStateError extends BatchState {
+  final String msg;
+  CurrentProductChangedStateError(this.msg);
+}
 
 final class QuantityChangedState extends BatchState {
   final int quantity;
   QuantityChangedState(this.quantity);
 }
 
-
-class SelectNovedadState extends BatchState {
+//*estados para seleccionar una novedad
+class SelectNovedadStateSuccess extends BatchState {
   final String novedad;
-  SelectNovedadState(this.novedad);
+  SelectNovedadStateSuccess(this.novedad);
 }
 
+class SelectNovedadStateError extends BatchState {
+  final String msg;
+  SelectNovedadStateError(this.msg);
+}
 
-class ValidateFieldsState extends BatchState {
+//*estado para validar campos
+class ValidateFieldsStateSuccess extends BatchState {
   final bool isOk;
-  ValidateFieldsState(this.isOk);
+  ValidateFieldsStateSuccess(this.isOk);
 }
 
-
-class LoadDataInfoState extends BatchState {
+class ValidateFieldsStateError extends BatchState {
+  final String msg;
+  ValidateFieldsStateError(this.msg);
 }
 
+//*estado para cargar las vairbales d estado
+class LoadDataInfoSuccess extends BatchState {}
 
-class ChangeQuantitySeparateState extends BatchState {
+class LoadDataInfoError extends BatchState {
+  final String msg;
+  LoadDataInfoError(this.msg);
+}
+
+class LoadDataInfoLoading extends BatchState {}
+
+//*estado para separar la cantidad
+class ChangeQuantitySeparateStateSuccess extends BatchState {
   final int quantity;
-  ChangeQuantitySeparateState(this.quantity);
+  ChangeQuantitySeparateStateSuccess(this.quantity);
 }
 
-class PickingOkState extends BatchState {
+class ChangeQuantitySeparateStateError extends BatchState {
+  final String msg;
+  ChangeQuantitySeparateStateError(this.msg);
 }
 
+//*estados para finalizar la separacion
+class PickingOkState extends BatchState {}
 
+class PickingOkError extends BatchState {}
+
+class PickingOkLoading extends BatchState {}
 
 class ConfigurationLoading extends BatchState {}
 
@@ -122,21 +139,20 @@ class ConfigurationError extends BatchState {
 class ProductPendingState extends BatchState {
   final List<ProductsBatch> listOfProductsBatch;
   ProductPendingState({required this.listOfProductsBatch});
-
 }
 
 class LoadingSendProductEdit extends BatchState {}
 
 class ProductEditOk extends BatchState {}
 
+class ProductEditError extends BatchState {}
 
 class ScanBarcodeState extends BatchState {
   final String barcode;
   ScanBarcodeState(this.barcode);
 }
 
-
-class NovedadesLoadedState  extends BatchState {
+class NovedadesLoadedState extends BatchState {
   final List<Novedad> listOfNovedades;
   NovedadesLoadedState({required this.listOfNovedades});
 }
@@ -150,13 +166,24 @@ class SubMuelleEditSusses extends BatchState {
   final String message;
   SubMuelleEditSusses(this.message);
 }
+
 class SubMuelleEditFail extends BatchState {
   final String message;
   SubMuelleEditFail(this.message);
 }
 
-
 class BarcodesProductLoadedState extends BatchState {
   final List<Barcodes> listOfBarcodes;
   BarcodesProductLoadedState({required this.listOfBarcodes});
 }
+
+class InfoDeviceLoadedState extends BatchState {
+  InfoDeviceLoadedState();
+}
+
+//*estados para pasar el producto a pendiente
+class ProductPendingSuccess extends BatchState {}
+
+class ProductPendingError extends BatchState {}
+
+class ProductPendingLoading extends BatchState {}

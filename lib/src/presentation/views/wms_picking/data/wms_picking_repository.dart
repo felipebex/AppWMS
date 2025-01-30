@@ -18,7 +18,7 @@ import 'dart:io';
 import 'package:wms_app/src/presentation/views/wms_picking/models/response_send_picking.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 
-class WmsPickingRepository   {
+class WmsPickingRepository {
   //metodo para pedir los batchs
   Future<List<BatchsModel>> resBatchs(
     bool isLoadinDialog,
@@ -59,11 +59,37 @@ class WmsPickingRepository   {
                   ),
                 )));
           } else if (jsonResponse['result']['code'] == 200) {
-            List<dynamic> batches = jsonResponse['result']['result'];
-            // Mapea los datos decodificados a una lista de BatchsModel
-            List<BatchsModel> products =
-                batches.map((data) => BatchsModel.fromMap(data)).toList();
-            return products;
+            // List<dynamic> batches = jsonResponse['result']['result'];
+            // // Mapea los datos decodificados a una lista de BatchsModel
+            // List<BatchsModel> products =
+            //     batches.map((data) => BatchsModel.fromMap(data)).toList();
+            // return products;
+
+            if (jsonResponse['result'].containsKey('result')) {
+              // Si contiene 'result', se procede con el mapeo
+              List<dynamic> batches = jsonResponse['result']['result'];
+              List<BatchsModel> products =
+                  batches.map((data) => BatchsModel.fromMap(data)).toList();
+              return products;
+            } else if (jsonResponse['result'].containsKey('msg')) {
+              // Si contiene 'msg', podrías manejar el mensaje de alguna forma
+              String msg = jsonResponse['result']['msg'];
+              // Aquí puedes manejar el mensaje de error o información según sea necesario
+
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  backgroundColor: Colors.amber[200],
+                  content: SizedBox(
+                    width: double.infinity,
+                    child: SingleChildScrollView(
+                      child: Text(
+                        msg,
+                        style:
+                            const TextStyle(color: Colors.black, fontSize: 12),
+                      ),
+                    ),
+                  )));
+              return [];
+            }
           }
         }
       } else {}
@@ -271,12 +297,7 @@ class WmsPickingRepository   {
           },
           isLoadinDialog: false,
           context: context);
-      //mostramos el body
-
-      print('Response sendPicking: ${response.statusCode}');
       if (response.statusCode < 400) {
-        print('Picking enviado correctamente');
-        log("Response sendPicking: ${response.body}");
         return SendPickingResponse.fromJson(response.body);
       } else {
         print('Error sendPicking: ${response.statusCode}');
@@ -298,15 +319,7 @@ class WmsPickingRepository   {
               ),
             ),
           ),
-          // action: SnackBarAction(
-          //   label: 'Cerrar', // Este es el texto del botón de acción
-          //   textColor: Colors.black, // Color del texto de la acción
-          //   onPressed: () {
-          //      if (!mounted) return;
-          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
-          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //   },
-          // ),
+
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:

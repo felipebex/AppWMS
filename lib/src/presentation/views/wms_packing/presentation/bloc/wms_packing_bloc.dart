@@ -212,6 +212,62 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               null,
               product.idMove,
               event.request.idPaquete);
+        
+          //actualizamos el valor de is_location
+          await db.setFieldTableProductosPedidosUnPacking(
+              event.pedidoId,
+              product.productId,
+              "is_location_is_ok",
+              null,
+              product.idMove,
+              event.request.idPaquete);
+          
+          //actualizamos el valor de quantity_separate
+          await db.setFieldTableProductosPedidosUnPacking(
+              event.pedidoId,
+              product.productId,
+              "quantity_separate",
+              null,
+              product.idMove,
+              event.request.idPaquete);
+          
+          //actualizamos el valor de is_selected
+          await db.setFieldTableProductosPedidosUnPacking(
+              event.pedidoId,
+              product.productId,
+              "is_selected",
+              null,
+              product.idMove,
+              event.request.idPaquete);
+          
+          //actualizamos el valor de product_is_ok
+          await db.setFieldTableProductosPedidosUnPacking(
+              event.pedidoId,
+              product.productId,
+              "product_is_ok",
+              null,
+              product.idMove,
+              event.request.idPaquete);
+
+          //actualzamos el valor de is_quantity_is_ok
+          await db.setFieldTableProductosPedidosUnPacking(
+              event.pedidoId,
+              product.productId,
+              "is_quantity_is_ok",
+              null,
+              product.idMove,
+              event.request.idPaquete);
+
+          //actualizamos el valor de package_name
+          await db.setFieldTableProductosPedidosUnPacking(
+              event.pedidoId,
+              product.productId,
+              "package_name",
+              null,
+              product.idMove,
+              event.request.idPaquete);
+
+
           //acrtualizamos el valor del id_paquete en el producto
           await db.setFieldTableProductosPedidosUnPacking(
               event.pedidoId,
@@ -220,6 +276,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               null,
               product.idMove,
               event.request.idPaquete);
+
+          
         }
 
         //restamos la cantidad de productos desempacados a un paquete
@@ -462,16 +520,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         emit(
             WmsPackingLoadingState()); // Estado de carga mientras creas el paquete
 
-        // final newPackageResponse = await wmsPackingRepository.newPackage(
-        //   true, // Muestra un diálogo de carga si es necesario
-        //   event.context, // Pasar el contexto si es necesario para la UI
-        // );
-
-        // 2. Si la creación del paquete fue exitosa
-        // if (newPackageResponse.result?.code == 200) {
-        // Obtener el ID del paquete recién creado
-        // final packageId = newPackageResponse.result?.packaging?.id;
-
+      
         // if (packageId != null) {
         DateTime fechaTransaccion = DateTime.now();
         String fechaFormateada = formatoFecha(fechaTransaccion);
