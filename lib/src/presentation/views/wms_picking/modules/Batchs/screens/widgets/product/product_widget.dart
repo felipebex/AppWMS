@@ -79,12 +79,7 @@ class ProductDropdownWidget extends StatelessWidget {
                           if (newValue == currentProduct.productId.toString()) {
                             batchBloc.add(ValidateFieldsEvent(
                                 field: "product", isOk: true));
-      
-                            batchBloc.add(ChangeQuantitySeparate(
-                                0,
-                                currentProduct.idProduct ?? 0,
-                                currentProduct.idMove ?? 0));
-      
+    
                             batchBloc.add(ChangeProductIsOkEvent(
                                 true,
                                 currentProduct.idProduct ?? 0,

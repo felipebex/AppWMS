@@ -191,3 +191,11 @@ class ResetValuesEvent extends BatchEvent {
 
 class SortProductsByLocation extends BatchEvent {
 }
+
+
+//evento para enviar un producto a odoo
+class SendProductOdooEvent extends BatchEvent {
+  final ProductsBatch product;
+  final BuildContext context;
+  SendProductOdooEvent(this.product, this.context);
+}

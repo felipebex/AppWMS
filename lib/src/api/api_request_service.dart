@@ -213,7 +213,8 @@ class ApiRequestService {
           request.body = json.encode(body);
           request.headers.addAll(headers);
 
-          final response = await request.send().timeout(const Duration(seconds: 30));
+          final response =
+              await request.send().timeout(const Duration(seconds: 100));
 
           // Cerrar el diálogo de carga cuando la solicitud se haya completado
           if (isLoadinDialog) {
@@ -245,6 +246,9 @@ class ApiRequestService {
         }
       }
       return http.Response('Error de red', 404);
+    } on TimeoutException catch (e,s ) {
+      print('La solicitud superó el tiempo de espera: $e');
+      return http.Response('La solicitud superó el tiempo de espera', 408);
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');
@@ -263,7 +267,7 @@ class ApiRequestService {
       // Cerrar el diálogo de carga incluso en caso de error de red
       Get.back();
       rethrow; // Re-lanzamos la excepción para que sea manejada en el repositorio
-    } catch (e,s) {
+    } catch (e, s) {
       // Manejo de otros errores
       print('Error desconocido en la solicitud: $e \n $s');
       // Cerrar el diálogo de carga incluso en caso de otros errores

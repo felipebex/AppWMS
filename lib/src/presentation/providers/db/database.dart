@@ -619,7 +619,6 @@ class DataBaseSqlite {
             showNextLocationsInDetailsPack:
                 maps[0]['show_next_locations_in_details_pack'] == 1,
             locationPackManual: maps[0]['location_pack_manual'] == 1,
-            
           ),
         ),
       );
@@ -695,7 +694,6 @@ class DataBaseSqlite {
   //metodo para obtener todos los tblbarcodes_packages de un producto
   Future<List<Barcodes>> getBarcodesProduct(
       int batchId, int productId, int idMove) async {
-
     final db = await database;
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblbarcodes_packages',
@@ -715,11 +713,11 @@ class DataBaseSqlite {
     return barcodes;
   }
 
-
   //todo obtener todos los barcodes
   Future<List<Barcodes>> getAllBarcodes() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db!.query('tblbarcodes_packages');
+    final List<Map<String, dynamic>> maps =
+        await db!.query('tblbarcodes_packages');
 
     final List<Barcodes> barcodes = maps.map((map) {
       return Barcodes(
@@ -732,8 +730,6 @@ class DataBaseSqlite {
     }).toList();
     return barcodes;
   }
-
-
 
   //todo insertar btach de packing
   Future<void> insertBatchPacking(BatchPackingModel batch) async {
@@ -857,50 +853,19 @@ class DataBaseSqlite {
     }
   }
 
-Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
-  try {
-    final db = await database;
+  Future<void> insertProductosPedidos(
+      List<PorductoPedido> productosList) async {
+    try {
+      final db = await database;
 
-    // Inicia la transacción
-    await db!.transaction((txn) async {
-      for (var producto in productosList) {
-        // Verificar si el producto ya existe
-        final List<Map<String, dynamic>> existingProducto = await txn.query(
-          'tblproductos_pedidos',
-          where: 'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
-          whereArgs: [
-            producto.idProduct,
-            producto.batchId,
-            producto.pedidoId,
-            producto.idMove
-          ],
-        );
-
-        if (existingProducto.isNotEmpty) {
-          // Actualizar el producto si ya existe
-          await txn.update(
+      // Inicia la transacción
+      await db!.transaction((txn) async {
+        for (var producto in productosList) {
+          // Verificar si el producto ya existe
+          final List<Map<String, dynamic>> existingProducto = await txn.query(
             'tblproductos_pedidos',
-            {
-              "product_id": producto.productId[1],
-              "batch_id": producto.batchId,
-              "pedido_id": producto.pedidoId,
-              "id_product": producto.idProduct,
-              "lote_id": producto.loteId,
-              "lot_id": (producto.lotId != null && producto.lotId!.isNotEmpty) ? producto.lotId![1] : "",
-              "location_id": producto.locationId?[1],
-              "id_location": producto.locationId?[0],
-              "id_move": producto.idMove,
-              "location_dest_id": producto.locationDestId?[1],
-              "id_location_dest": producto.locationDestId?[0],
-              "barcode_location": producto.barcodeLocation == false ? "" : producto.barcodeLocation,
-              "quantity": producto.quantity,
-              "expire_date": producto.expireDate,
-              "tracking": producto.tracking == false ? "" : producto.tracking.toString(),
-              "barcode": producto.barcode == false ? "" : (producto.barcode == "" ? "" : producto.barcode),
-              "weight": producto.weight == false ? 0 : producto.weight.toDouble(),
-              "unidades": producto.unidades == false ? "" : producto.unidades.toString(),
-            },
-            where: 'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
+            where:
+                'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
             whereArgs: [
               producto.idProduct,
               producto.batchId,
@@ -908,40 +873,95 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
               producto.idMove
             ],
           );
-        } else {
-          // Insertar el producto si no existe
-          await txn.insert(
-            'tblproductos_pedidos',
-            {
-              "product_id": producto.productId[1],
-              "batch_id": producto.batchId,
-              "pedido_id": producto.pedidoId,
-              "id_move": producto.idMove,
-              "id_product": producto.idProduct,
-              "barcode_location": producto.barcodeLocation == false ? "" : producto.barcodeLocation,
-              "lote_id": producto.loteId,
-              "lot_id": (producto.lotId != null && producto.lotId!.isNotEmpty) ? producto.lotId![1] : "",
-              "location_id": producto.locationId?[1],
-              "id_location": producto.locationId?[0],
-              "location_dest_id": producto.locationDestId?[1],
-              "id_location_dest": producto.locationDestId?[0],
-              "quantity": producto.quantity,
-              "expire_date": producto.expireDate,
-              "tracking": producto.tracking == false ? "" : producto.tracking.toString(),
-              "barcode": producto.barcode == false ? "" : (producto.barcode == "" ? "" : producto.barcode),
-              "weight": producto.weight == false ? 0 : producto.weight.toDouble(),
-              "unidades": producto.unidades == false ? "" : producto.unidades.toString(),
-            },
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-        }
-      }
-    });
-  } catch (e, s) {
-    print("Error al insertar productos en productos_pedidos: $e ==> $s");
-  }
-}
 
+          if (existingProducto.isNotEmpty) {
+            // Actualizar el producto si ya existe
+            await txn.update(
+              'tblproductos_pedidos',
+              {
+                "product_id": producto.productId[1],
+                "batch_id": producto.batchId,
+                "pedido_id": producto.pedidoId,
+                "id_product": producto.idProduct,
+                "lote_id": producto.loteId,
+                "lot_id": (producto.lotId != null && producto.lotId!.isNotEmpty)
+                    ? producto.lotId![1]
+                    : "",
+                "location_id": producto.locationId?[1],
+                "id_location": producto.locationId?[0],
+                "id_move": producto.idMove,
+                "location_dest_id": producto.locationDestId?[1],
+                "id_location_dest": producto.locationDestId?[0],
+                "barcode_location": producto.barcodeLocation == false
+                    ? ""
+                    : producto.barcodeLocation,
+                "quantity": producto.quantity,
+                "expire_date": producto.expireDate,
+                "tracking": producto.tracking == false
+                    ? ""
+                    : producto.tracking.toString(),
+                "barcode": producto.barcode == false
+                    ? ""
+                    : (producto.barcode == "" ? "" : producto.barcode),
+                "weight":
+                    producto.weight == false ? 0 : producto.weight.toDouble(),
+                "unidades": producto.unidades == false
+                    ? ""
+                    : producto.unidades.toString(),
+              },
+              where:
+                  'id_product = ? AND batch_id = ? AND pedido_id = ? AND id_move = ?',
+              whereArgs: [
+                producto.idProduct,
+                producto.batchId,
+                producto.pedidoId,
+                producto.idMove
+              ],
+            );
+          } else {
+            // Insertar el producto si no existe
+            await txn.insert(
+              'tblproductos_pedidos',
+              {
+                "product_id": producto.productId[1],
+                "batch_id": producto.batchId,
+                "pedido_id": producto.pedidoId,
+                "id_move": producto.idMove,
+                "id_product": producto.idProduct,
+                "barcode_location": producto.barcodeLocation == false
+                    ? ""
+                    : producto.barcodeLocation,
+                "lote_id": producto.loteId,
+                "lot_id": (producto.lotId != null && producto.lotId!.isNotEmpty)
+                    ? producto.lotId![1]
+                    : "",
+                "location_id": producto.locationId?[1],
+                "id_location": producto.locationId?[0],
+                "location_dest_id": producto.locationDestId?[1],
+                "id_location_dest": producto.locationDestId?[0],
+                "quantity": producto.quantity,
+                "expire_date": producto.expireDate,
+                "tracking": producto.tracking == false
+                    ? ""
+                    : producto.tracking.toString(),
+                "barcode": producto.barcode == false
+                    ? ""
+                    : (producto.barcode == "" ? "" : producto.barcode),
+                "weight":
+                    producto.weight == false ? 0 : producto.weight.toDouble(),
+                "unidades": producto.unidades == false
+                    ? ""
+                    : producto.unidades.toString(),
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
+        }
+      });
+    } catch (e, s) {
+      print("Error al insertar productos en productos_pedidos: $e ==> $s");
+    }
+  }
 
   //todo meotod para insertar paquete
 
@@ -1161,7 +1181,6 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
     return [];
   }
 
-
   //*obtener todos los pedidos de un batch
   Future<List<PedidoPacking>> getAllPedidosBatch(int batchId) async {
     final db = await database;
@@ -1176,7 +1195,6 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
     }).toList();
     return pedidos;
   }
-
 
   //todo metodos para obtener los pedidos de un packing
   Future<List<PedidoPacking>> getPedidosPacking(int batchId) async {
@@ -1268,7 +1286,6 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
 
     return result; // Retornamos el número de filas afectadas
   }
-
 
   //TODO Metodo para obtener la info de un paquete por id
   Future<Paquete?> getPackageById(int packageId) async {
@@ -1407,7 +1424,8 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
       print('Error insertBatchProducts: $e => $s');
     }
   }
- ///todo insertar los barcodes de los productos
+
+  ///todo insertar los barcodes de los productos
   Future<void> insertBarcodesPackageProduct(List<Barcodes> barcodesList) async {
     try {
       final db = await database;
@@ -1473,6 +1491,7 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
       print('Error insertBarcodesPackageProduct: $e => $s');
     }
   }
+
   //metodo para traer un producto de un batch de la tabla tblbatch_products
   Future<ProductsBatch?> getProductBatch(
       int batchId, int productId, int idMove) async {
@@ -1531,7 +1550,6 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
     final db = await database;
     //picking
     await db?.delete('tblbatchs');
-    await db?.delete('tblbatch_products');
     //packing
     await db?.delete('tblbatchs_packing');
     await db?.delete('tblpedidos_packing');
@@ -1540,12 +1558,17 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
     //others
     await db?.delete('tblbarcodes_packages');
 
+    await db?.delete(
+      'tblbatch_products',
+      where: 'is_send_odoo = ? OR is_send_odoo IS NULL',
+      whereArgs: [1], // Elimina donde is_send_odoo = 1 o is_send_odoo IS NULL
+    );
   }
+
   Future<void> deleteAll() async {
     final db = await database;
     //picking
     await db?.delete('tblbatchs');
-    await db?.delete('tblbatch_products');
     //packing
     await db?.delete('tblbatchs_packing');
     await db?.delete('tblpedidos_packing');
@@ -1555,9 +1578,6 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
     await db?.delete('tblbarcodes_packages');
     await db?.delete('tblconfigurations');
   }
-
-
-
 
   //todo: Metodos para actualizar los campos de las tablas
 
@@ -1611,6 +1631,7 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
 
     return resUpdate;
   }
+
   Future<int?> setFieldTableProductosPedidos3String(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
     final db = await database;
@@ -1694,14 +1715,11 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
     return resUpdate;
   }
 
-  
-
-  Future<int?> updateRaw(String rawQuery)async{
+  Future<int?> updateRaw(String rawQuery) async {
     final db = await database;
     final resUpdate = await db!.rawUpdate(rawQuery);
     return resUpdate;
   }
-
 
   Future<String> getFieldTableBtach(int batchId, String field) async {
     final db = await database;
@@ -1779,6 +1797,7 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
     print("endStopwatchProduct: $resUpdate");
     return resUpdate;
   }
+
   Future<int?> dateTransaccionProduct(
       int batchId, String date, int productId, int moveId) async {
     final db = await database;
@@ -1788,9 +1807,6 @@ Future<void> insertProductosPedidos(List<PorductoPedido> productosList) async {
     print("dateTransaccionProduct: $resUpdate");
     return resUpdate;
   }
-
-
-
 
   Future<int?> totalStopwatchBatch(int batchId, double time) async {
     final db = await database;

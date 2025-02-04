@@ -39,9 +39,13 @@ final class GetProductByIdLoaded extends BatchState {
   GetProductByIdLoaded(this.product);
 }
 
-class ChangeIsOkState extends BatchState {
+class ChangeQuantityIsOkState extends BatchState {
   final bool isOk;
-  ChangeIsOkState(this.isOk);
+  ChangeQuantityIsOkState(this.isOk);
+}
+class ChangeLocationDestIsOkState extends BatchState {
+  final bool isOk;
+  ChangeLocationDestIsOkState(this.isOk);
 }
 
 class ChangeProductIsOkState extends BatchState {
@@ -65,6 +69,8 @@ final class CurrentProductChangedState extends BatchState {
 class CurrentProductChangedStateError extends BatchState {
   final String msg;
   CurrentProductChangedStateError(this.msg);
+}
+class CurrentProductChangedStateLoading extends BatchState {
 }
 
 final class QuantityChangedState extends BatchState {
@@ -187,3 +193,12 @@ class ProductPendingSuccess extends BatchState {}
 class ProductPendingError extends BatchState {}
 
 class ProductPendingLoading extends BatchState {}
+
+
+//*estados para enviar un producto a odoo
+
+class SendProductOdooLoading extends BatchState {}
+
+class SendProductOdooSuccess extends BatchState {}
+
+class SendProductOdooError extends BatchState {}

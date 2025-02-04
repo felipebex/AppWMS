@@ -33,13 +33,18 @@ final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-  ErrorWidget.builder = (FlutterErrorDetails details) => const Scaffold(
-    body: Center(
-          child: Card(
-              color: white,
-              elevation: 2,
-              child: Text('Ocurrió un error inesperado, por favor reinicia la aplicación')),
-        ),
+  ErrorWidget.builder = (FlutterErrorDetails details) =>  Scaffold(
+    body: Container(
+      width: double.infinity,
+      height: double.infinity,
+
+      child: Center(
+            child: Card(
+                color: white,
+                elevation: 2,
+                child: Text('Ocurrió un error inesperado, por favor reinicia la aplicación')),
+          ),
+    ),
   );
 
   WidgetsFlutterBinding.ensureInitialized();

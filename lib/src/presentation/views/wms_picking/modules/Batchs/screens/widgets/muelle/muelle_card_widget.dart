@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_picking_incompleted_widget.dart';
@@ -139,7 +140,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
     BatchBloc batchBloc,
     BuildContext context,
     ProductsBatch currentProduct,
-  ) {
+  ) async {
     batchBloc.add(FetchBatchWithProductsEvent(
         batchBloc.batchWithProducts.batch?.id ?? 0));
 
@@ -148,22 +149,84 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
         double.parse(batchBloc.calcularUnidadesSeparadas());
 
     if (unidadesSeparadas == "100.0" || unidadesSeparadas == 100.0) {
-      batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
-      batchBloc.add(ChangeLocationDestIsOkEvent(
-          true,
-          currentProduct.idProduct ?? 0,
-          batchBloc.batchWithProducts.batch?.id ?? 0,
-          currentProduct.idMove ?? 0));
+      var productsToSend = batchBloc.filteredProducts
+          .where((element) => element.isSendOdoo == 0)
+          .toList();
 
-      batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
-          currentProduct.idProduct ?? 0));
-      context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
-            '',
-          ));
-      context.read<BatchBloc>().index = 0;
-      context.read<BatchBloc>().isSearch = true;
+      // Si hay productos pendientes de enviar a Odoo, mostramos un modal
+      if (productsToSend.isNotEmpty) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: Colors.white,
+            title: const Center(
+              child: Text("Advertencia",
+                  style: TextStyle(color: yellow, fontSize: 16)),
+            ),
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                    "Tienes productos que no han sido enviados al wms. revisa la lista de productos y envíalos antes de continuar.",
+                    style: TextStyle(color: black, fontSize: 14)),
+                const SizedBox(height: 15), 
+                ElevatedButton(
+                    onPressed: () {
+                        Navigator.pop(context);
+                  if (batchBloc
+                          .configurations.result?.result?.showDetallesPicking ==
+                      true) {
+                    //cerramos el focus
+                    batchBloc.isSearch = false;
+                    batchBloc.add(LoadProductEditEvent());
+                    batchBloc.add(IsShouldRunDependencies(false));
+                    Navigator.pushNamed(
+                      context,
+                      'batch-detail',
+                    ).then((_) {
+                      batchBloc.add(IsShouldRunDependencies(true));
+                    });
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        duration: Duration(milliseconds: 1000),
+                        content: Text('No tienes permisos para ver detalles'),
+                      ),
+                    );
+                  }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 3,
+                    ),
+                    child: Text('Ver productos',
+                        style: TextStyle(color: primaryColorApp, fontSize: 12)))
+              ],
+            ),
+          ),
+        );
+      } else {
+        batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+        batchBloc.add(ChangeLocationDestIsOkEvent(
+            true,
+            currentProduct.idProduct ?? 0,
+            batchBloc.batchWithProducts.batch?.id ?? 0,
+            currentProduct.idMove ?? 0));
 
-      Navigator.pop(context);
+        batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
+            currentProduct.idProduct ?? 0));
+        context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
+              '',
+            ));
+        context.read<BatchBloc>().index = 0;
+        context.read<BatchBloc>().isSearch = true;
+
+        Navigator.pop(context);
+      }
     } else {
       showDialog(
           context: context,
