@@ -125,13 +125,11 @@ class BatchDetailScreen extends StatelessWidget {
                                             .add(FilterBatchesBStatusEvent(
                                               '',
                                             ));
-                                        Navigator.pushNamed(
+                                        Navigator.pushReplacementNamed(
                                             context, 'wms-picking',
                                             arguments: 1);
                                       } else {
-                                        context
-                                            .read<BatchBloc>()
-                                            .add(IsShouldRunDependencies(true));
+                                        //     .add(IsShouldRunDependencies(true));
                                         context.read<BatchBloc>().add(
                                             ClearSearchProudctsBatchEvent());
                                         context.read<BatchBloc>().add(
@@ -141,7 +139,8 @@ class BatchDetailScreen extends StatelessWidget {
                                                     .batch
                                                     ?.id ??
                                                 0));
-                                        Navigator.pop(context);
+                                        Navigator.pushReplacementNamed(
+                                            context, 'batch');
                                       }
                                     },
                                   ),
@@ -736,9 +735,15 @@ class BatchDetailScreen extends StatelessWidget {
                                                                       ? green
                                                                       : red)),
                                                     ),
-                                                    if (productsBatch
-                                                            .isSendOdoo ==
-                                                        0 )
+                                                    if ((productsBatch
+                                                                    .isSendOdoo ==
+                                                                0 ||
+                                                            productsBatch
+                                                                    .isSendOdoo ==
+                                                                null) &&
+                                                        productsBatch
+                                                                .quantitySeparate !=
+                                                            null)
                                                       ElevatedButton(
                                                           onPressed: () async {
                                                             context

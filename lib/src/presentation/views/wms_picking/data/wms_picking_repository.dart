@@ -237,7 +237,9 @@ class WmsPickingRepository {
               batches.map((data) => Muelles.fromMap(data)).toList();
           return muelles;
         }
-      } else {}
+      } else {
+        
+      }
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');

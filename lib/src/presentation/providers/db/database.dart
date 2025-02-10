@@ -1,5 +1,8 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks
 
+import 'dart:io';
+
+import 'package:path_provider/path_provider.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/models/recent_url_model.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -30,7 +33,7 @@ class DataBaseSqlite {
     final path = join(dbPath, 'wmsapp.db');
 
     return await openDatabase(path,
-        version: 5,
+        version: 1,
         onCreate: _createDB,
         onUpgrade: _upgradeDB,
         singleInstance: true);
@@ -294,51 +297,80 @@ class DataBaseSqlite {
   }
 
   //metodo para insertar una novedad
-  Future<void> insertNovedad(Novedad novedad) async {
+  Future<void> insertBatchNovedades(List<Novedad> novedades) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
-      await db!.transaction((txn) async {
-        // Verificar si la novedad ya existe
-        final List<Map<String, dynamic>> existingNovedad = await txn.query(
+      // Comienza la transacción
+      await db.transaction((txn) async {
+        Batch batch = txn.batch();
+
+        // Primero, obtener todas las IDs de las novedades existentes
+        final List<Map<String, dynamic>> existingNovedades = await txn.query(
           'tblnovedades',
-          where: 'id = ?',
-          whereArgs: [novedad.id],
+          columns: ['id'],
+          where: 'id IN (?)',
+          whereArgs: [
+            novedades.map((novedad) => novedad.id).toList().join(','),
+          ],
         );
 
-        if (existingNovedad.isNotEmpty) {
-          // Actualizar la novedad
-          await txn.update(
-            'tblnovedades',
-            {
-              "id": novedad.id,
-              "name": novedad.name,
-              "code": novedad.code,
-            },
-            where: 'id = ?',
-            whereArgs: [novedad.id],
-          );
-        } else {
-          // Insertar nueva novedad
-          await txn.insert(
-            'tblnovedades',
-            {
-              "id": novedad.id,
-              "name": novedad.name,
-              "code": novedad.code,
-            },
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
+        // Crear un conjunto de los IDs existentes para facilitar la comprobación
+        Set<int> existingIds = Set.from(existingNovedades.map((e) => e['id']));
+
+        // Recorrer todas las novedades y realizar insert o update según corresponda
+        for (var novedad in novedades) {
+          if (existingIds.contains(novedad.id)) {
+            // Si la novedad ya existe, la actualizamos
+            batch.update(
+              'tblnovedades',
+              {
+                "name": novedad.name,
+                "code": novedad.code,
+              },
+              where: 'id = ?',
+              whereArgs: [novedad.id],
+            );
+          } else {
+            // Si no existe, la insertamos
+            batch.insert(
+              'tblnovedades',
+              {
+                "id": novedad.id,
+                "name": novedad.name,
+                "code": novedad.code,
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
         }
+
+        // Ejecutar la transacción en batch
+        await batch.commit();
       });
+
+      print("Novedades insertadas/actualizadas con éxito.");
     } catch (e) {
-      print("Error al insertar novedad: $e");
+      print("Error al insertar novedades: $e");
     }
   }
 
+// Future<void> insertBatch(List<Map<String, dynamic>> records) async {
+//     Database? db = await database;
+//     // Empieza la transacción
+//     await db!.transaction((txn) async {
+//       Batch batch = txn.batch();
+//       for (var record in records) {
+//         batch.insert('tblclients', record);
+//       }
+//       // Ejecuta la transacción
+//       await batch.commit();
+//     });
+//   }
+
   //metodo para obtener todas las novedades
   Future<List<Novedad>> getAllNovedades() async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query('tblnovedades');
 
     final List<Novedad> novedades = maps.map((map) {
@@ -353,7 +385,7 @@ class DataBaseSqlite {
 
   //metodo para obtener todas las urls recientes
   Future<List<RecentUrl>> getAllUrlsRecientes() async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query('tblurlsrecientes');
 
     final List<RecentUrl> urls = maps.map((map) {
@@ -369,47 +401,29 @@ class DataBaseSqlite {
   //metodo para insertar todos los submuelles sin que se repitan
   Future<void> insertSubmuelles(List<Muelles> submuelles) async {
     try {
-      final db = await database;
-
-      await db!.transaction((txn) async {
+      final db = await getDatabaseInstance();
+      // Ejecutamos las inserciones en una sola transacción usando un batch
+      await db.transaction((txn) async {
+        Batch batch = txn.batch();
+        // Insertamos o reemplazamos los submuelles
         for (var submuelle in submuelles) {
-          // Verificar si el submuelle ya existe
-          final List<Map<String, dynamic>> existingSubmuelle = await txn.query(
+          batch.insert(
             'tblsubmuelles',
-            where: 'id = ?',
-            whereArgs: [submuelle.id],
+            {
+              "id": submuelle.id,
+              "name": submuelle.name,
+              "complete_name": submuelle.completeName,
+              "location_id": submuelle.locationId,
+              "barcode": submuelle.barcode,
+            },
+            conflictAlgorithm: ConflictAlgorithm
+                .replace, // Reemplazamos si el registro ya existe
           );
-
-          if (existingSubmuelle.isNotEmpty) {
-            // Actualizar el submuelle
-            await txn.update(
-              'tblsubmuelles',
-              {
-                "id": submuelle.id,
-                "name": submuelle.name,
-                "complete_name": submuelle.completeName,
-                "location_id": submuelle.locationId,
-                "barcode": submuelle.barcode,
-              },
-              where: 'id = ?',
-              whereArgs: [submuelle.id],
-            );
-          } else {
-            // Insertar nuevo submuelle
-            await txn.insert(
-              'tblsubmuelles',
-              {
-                "id": submuelle.id,
-                "name": submuelle.name,
-                "complete_name": submuelle.completeName,
-                "location_id": submuelle.locationId,
-                "barcode": submuelle.barcode,
-              },
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          }
         }
+        // Ejecutamos el batch
+        await batch.commit();
       });
+      print("Submuelles insertados/actualizados con éxito.");
     } catch (e) {
       print("Error al insertar submuelles: $e");
     }
@@ -417,7 +431,7 @@ class DataBaseSqlite {
 
   //metodo para obtener todos los muelles de ub batch por location_id
   Future<List<Muelles>> getSubmuellesByLocationId(int batchId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblsubmuelles',
       where: 'location_id = ?',
@@ -439,7 +453,7 @@ class DataBaseSqlite {
   //metodo para insertar una url reciente
   Future<void> insertUrlReciente(RecentUrl url) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       await db!.transaction((txn) async {
         // Verificar si la url ya existe
@@ -480,7 +494,7 @@ class DataBaseSqlite {
   //metdo para eliminar una url reciente
   Future<void> deleteUrlReciente(String url) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
       await db!.delete(
         'tblurlsrecientes',
         where: 'url = ?',
@@ -491,134 +505,119 @@ class DataBaseSqlite {
     }
   }
 
+  Future<Database> getDatabaseInstance() async {
+    _database = await initDB(); // Intenta abrir la base de datos
+    return _database!;
+  }
+
   Future<void> insertConfiguration(
       Configurations configuration, int userId) async {
     try {
-      final db = await database;
-      await db!.transaction((txn) async {
-        // Verificar si la configuración ya existe
-        final List<Map<String, dynamic>> existingConfiguration =
-            await txn.query(
+      final db = await getDatabaseInstance();
+
+      // Convertir valores booleanos a enteros (0 o 1) de forma eficiente
+      Map<String, dynamic> configurationData = {
+        "id": userId,
+        "name": configuration.result?.result?.name,
+        "last_name": configuration.result?.result?.lastName,
+        "email": configuration.result?.result?.email,
+        "rol": configuration.result?.result?.rol,
+        "muelle_option": configuration.result?.result?.muelleOption,
+
+        "location_picking_manual":
+            _boolToInt(configuration.result?.result?.locationPickingManual),
+        "manual_product_selection":
+            _boolToInt(configuration.result?.result?.manualProductSelection),
+        "manual_quantity":
+            _boolToInt(configuration.result?.result?.manualQuantity),
+        "manual_spring_selection":
+            _boolToInt(configuration.result?.result?.manualSpringSelection),
+        "show_detalles_picking":
+            _boolToInt(configuration.result?.result?.showDetallesPicking),
+        "show_next_locations_in_details": _boolToInt(
+            configuration.result?.result?.showNextLocationsInDetails),
+
+        // Nuevos campos faltantes:
+        "location_pack_manual":
+            _boolToInt(configuration.result?.result?.locationPackManual),
+        "show_detalles_pack":
+            _boolToInt(configuration.result?.result?.showDetallesPack),
+        "show_next_locations_in_details_pack": _boolToInt(
+            configuration.result?.result?.showNextLocationsInDetailsPack),
+        "manual_product_selection_pack": _boolToInt(
+            configuration.result?.result?.manualProductSelectionPack),
+        "manual_quantity_pack":
+            _boolToInt(configuration.result?.result?.manualQuantityPack),
+        "manual_spring_selection_pack":
+            _boolToInt(configuration.result?.result?.manualSpringSelectionPack),
+      };
+
+      // Realizar la inserción o actualización usando INSERT OR REPLACE
+      await db.transaction((txn) async {
+        await txn.insert(
           'tblconfigurations',
-          where: 'id = ?',
-          whereArgs: [userId],
+          configurationData,
+          conflictAlgorithm: ConflictAlgorithm
+              .replace, // Esto actualiza si ya existe un registro con el mismo 'id'
         );
-
-        // Convertir valores booleanos a enteros (0 o 1)
-        Map<String, dynamic> configurationData = {
-          "id": userId,
-          "name": configuration.result?.result?.name,
-          "last_name": configuration.result?.result?.lastName,
-          "email": configuration.result?.result?.email,
-          "rol": configuration.result?.result?.rol,
-          "muelle_option": configuration.result?.result?.muelleOption,
-
-          "location_picking_manual":
-              configuration.result?.result?.locationPickingManual == true
-                  ? 1
-                  : 0,
-          "manual_product_selection":
-              configuration.result?.result?.manualProductSelection == true
-                  ? 1
-                  : 0,
-          "manual_quantity":
-              configuration.result?.result?.manualQuantity == true ? 1 : 0,
-          "manual_spring_selection":
-              configuration.result?.result?.manualSpringSelection == true
-                  ? 1
-                  : 0,
-          "show_detalles_picking":
-              configuration.result?.result?.showDetallesPicking == true ? 1 : 0,
-          "show_next_locations_in_details":
-              configuration.result?.result?.showNextLocationsInDetails == true
-                  ? 1
-                  : 0,
-          // Nuevos campos faltantes:
-          "location_pack_manual":
-              configuration.result?.result?.locationPackManual == true ? 1 : 0,
-          "show_detalles_pack":
-              configuration.result?.result?.showDetallesPack == true ? 1 : 0,
-          "show_next_locations_in_details_pack":
-              configuration.result?.result?.showNextLocationsInDetailsPack ==
-                      true
-                  ? 1
-                  : 0,
-          "manual_product_selection_pack":
-              configuration.result?.result?.manualProductSelectionPack == true
-                  ? 1
-                  : 0,
-          "manual_quantity_pack":
-              configuration.result?.result?.manualQuantityPack == true ? 1 : 0,
-          "manual_spring_selection_pack":
-              configuration.result?.result?.manualSpringSelectionPack == true
-                  ? 1
-                  : 0,
-        };
-
-        if (existingConfiguration.isNotEmpty) {
-          // Actualizar la configuración
-          await txn.update(
-            'tblconfigurations',
-            configurationData,
-            where: 'id = ?',
-            whereArgs: [configurationData["id"]],
-          );
-        } else {
-          // Insertar nueva configuración
-          await txn.insert(
-            'tblconfigurations',
-            configurationData,
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-        }
       });
+
+      print("Configuración insertada/actualizada con éxito.");
     } catch (e) {
-      print("Error al insertar configuración: $e");
+      print("Error al insertar/actualizar configuración: $e");
     }
+  }
+
+// Función para convertir valores booleanos a enteros (0 o 1)
+  int _boolToInt(bool? value) {
+    return value == true ? 1 : 0;
   }
 
 // Método para obtener la configuración del primer registro
   Future<Configurations?> getConfiguration(int userId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
 
-    // Realizamos la consulta para obtener el primer registro de la tabla sin filtro
+    // Realizamos la consulta para obtener la configuración del usuario
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblconfigurations',
-      where: 'id = ?', // Cambié 'user_id' a 'id' según tu estructura
+      where: 'id = ?',
       whereArgs: [userId],
     );
 
-    // Verificamos si la consulta retornó resultados
+    // Verificamos si hay resultados y devolvemos el primero
     if (maps.isNotEmpty) {
-      // Si hay resultados, devolvemos el primer registro en el formato esperado
+      // Desestructuración de los valores del primer mapa
+      final map = maps.first;
+
+      // Convertimos el mapa en la estructura de la configuración
       final config = Configurations(
         jsonrpc: '2.0',
         id: 1,
         result: ConfigurationsResult(
           code: 200,
           result: DataConfig(
-            name: maps[0]['name'],
-            lastName: maps[0]['last_name'],
-            email: maps[0]['email'],
-            rol: maps[0]['rol'],
-            id: maps[0]['id'],
-            locationPickingManual: maps[0]['location_picking_manual'] == 1,
-            manualProductSelection: maps[0]['manual_product_selection'] == 1,
-            manualQuantity: maps[0]['manual_quantity'] == 1,
-            manualSpringSelection: maps[0]['manual_spring_selection'] == 1,
-            showDetallesPicking: maps[0]['show_detalles_picking'] == 1,
+            name: map['name'],
+            lastName: map['last_name'],
+            email: map['email'],
+            rol: map['rol'],
+            id: map['id'],
+            locationPickingManual: _intToBool(map['location_picking_manual']),
+            manualProductSelection: _intToBool(map['manual_product_selection']),
+            manualQuantity: _intToBool(map['manual_quantity']),
+            manualSpringSelection: _intToBool(map['manual_spring_selection']),
+            showDetallesPicking: _intToBool(map['show_detalles_picking']),
             showNextLocationsInDetails:
-                maps[0]['show_next_locations_in_details'] == 1,
-            muelleOption: maps[0]['muelle_option'],
+                _intToBool(map['show_next_locations_in_details']),
+            muelleOption: map['muelle_option'],
             manualProductSelectionPack:
-                maps[0]['manual_product_selection_pack'] == 1,
-            manualQuantityPack: maps[0]['manual_quantity_pack'] == 1,
+                _intToBool(map['manual_product_selection_pack']),
+            manualQuantityPack: _intToBool(map['manual_quantity_pack']),
             manualSpringSelectionPack:
-                maps[0]['manual_spring_selection_pack'] == 1,
-            showDetallesPack: maps[0]['show_detalles_pack'] == 1,
+                _intToBool(map['manual_spring_selection_pack']),
+            showDetallesPack: _intToBool(map['show_detalles_pack']),
             showNextLocationsInDetailsPack:
-                maps[0]['show_next_locations_in_details_pack'] == 1,
-            locationPackManual: maps[0]['location_pack_manual'] == 1,
+                _intToBool(map['show_next_locations_in_details_pack']),
+            locationPackManual: _intToBool(map['location_pack_manual']),
           ),
         ),
       );
@@ -629,10 +628,15 @@ class DataBaseSqlite {
     }
   }
 
+// Función para convertir valores enteros (0, 1) en booleanos
+  bool _intToBool(int value) {
+    return value == 1;
+  }
+
   Future<void> insertDuplicateProductoPedido(
       PorductoPedido producto, int cantidad) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       // Crear una copia de los datos de ProductoPedido, omitiendo los campos clave si es necesario
       Map<String, dynamic> productCopy = {
@@ -694,7 +698,7 @@ class DataBaseSqlite {
   //metodo para obtener todos los tblbarcodes_packages de un producto
   Future<List<Barcodes>> getBarcodesProduct(
       int batchId, int productId, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblbarcodes_packages',
       where: 'batch_id = ?  AND id_Move = ?',
@@ -715,7 +719,7 @@ class DataBaseSqlite {
 
   //todo obtener todos los barcodes
   Future<List<Barcodes>> getAllBarcodes() async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps =
         await db!.query('tblbarcodes_packages');
 
@@ -734,7 +738,7 @@ class DataBaseSqlite {
   //todo insertar btach de packing
   Future<void> insertBatchPacking(BatchPackingModel batch) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       await db!.transaction((txn) async {
         // Verificar si el batch ya existe
@@ -789,7 +793,7 @@ class DataBaseSqlite {
   Future<void> insertPedidosBatchPacking(
       List<PedidoPacking> pedidosList) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       // Inicia la transacción
       await db!.transaction((txn) async {
@@ -856,7 +860,7 @@ class DataBaseSqlite {
   Future<void> insertProductosPedidos(
       List<PorductoPedido> productosList) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       // Inicia la transacción
       await db!.transaction((txn) async {
@@ -967,8 +971,7 @@ class DataBaseSqlite {
 
   Future<void> insertPackage(Paquete package) async {
     try {
-      final db = await database;
-
+      final db = await getDatabaseInstance();
       await db!.transaction((txn) async {
         // Verificar si el batch ya existe
         final List<Map<String, dynamic>> existingPackage = await txn.query(
@@ -1019,7 +1022,7 @@ class DataBaseSqlite {
   //* Insertar un batch
   Future<void> insertBatch(BatchsModel batch) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       await db!.transaction((txn) async {
         // Verificar si el batch ya existe
@@ -1082,10 +1085,53 @@ class DataBaseSqlite {
     }
   }
 
+  // Future<void> insertBatch(List<BatchsModel> batches) async {
+  //   try {
+  //     final db = await getDatabaseInstance();
+
+  //     await db!.transaction((txn) async {
+  //       Batch batch = txn.batch();
+
+  //       // Añadir las operaciones de inserción o actualización al batch
+  //       for (var batchModel in batches) {
+  //         batch.insert(
+  //           'tblbatchs',
+  //           {
+  //             "id": batchModel.id,
+  //             "name": batchModel.name,
+  //             "scheduleddate": batchModel.scheduleddate,
+  //             "picking_type_id": batchModel.pickingTypeId,
+  //             "state": batchModel.state,
+  //             "user_id": batchModel.userId,
+  //             "user_name": batchModel.userName,
+  //             "is_wave": batchModel.isWave,
+  //             'muelle': batchModel.muelle,
+  //             'id_muelle': batchModel.idMuelle,
+  //             'order_by': batchModel.orderBy,
+  //             'order_picking': batchModel.orderPicking,
+  //             'count_items': batchModel.countItems,
+  //             'total_quantity_items': batchModel.totalQuantityItems,
+  //             'index_list': batchModel.indexList,
+  //           },
+  //           conflictAlgorithm: ConflictAlgorithm
+  //               .replace, // Esto maneja tanto la inserción como la actualización
+  //         );
+  //       }
+
+  //       // Ejecutar todas las operaciones del batch en una sola ejecución
+  //       await batch.commit();
+  //     });
+
+  //     print("Batch insertado/actualizado con éxito.");
+  //   } catch (e) {
+  //     print("Error al insertar batch: $e");
+  //   }
+  // }
+
   //metodo para actualizar la info de un batch
   Future<void> updateBatch(BatchsModel batch) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       await db!.transaction((txn) async {
         // Verificar si el batch ya existe
@@ -1126,7 +1172,7 @@ class DataBaseSqlite {
 
   //obtener un solo batch
   Future<BatchsModel?> getBatchById(int batchId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblbatchs',
       where: 'id = ?',
@@ -1143,7 +1189,7 @@ class DataBaseSqlite {
 
   Future<List<BatchsModel>> getAllBatchs(int userId) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       // Agregar una condición de búsqueda por user_id
       final List<Map<String, dynamic>> maps = await db!.query(
@@ -1167,7 +1213,7 @@ class DataBaseSqlite {
   //* Obtener todos los batchs del packing
   Future<List<BatchPackingModel>> getAllBatchsPacking() async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
       final List<Map<String, dynamic>> maps =
           await db!.query('tblbatchs_packing');
 
@@ -1183,7 +1229,7 @@ class DataBaseSqlite {
 
   //*obtener todos los pedidos de un batch
   Future<List<PedidoPacking>> getAllPedidosBatch(int batchId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblpedidos_packing',
       where: 'batch_id = ?',
@@ -1198,7 +1244,7 @@ class DataBaseSqlite {
 
   //todo metodos para obtener los pedidos de un packing
   Future<List<PedidoPacking>> getPedidosPacking(int batchId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblpedidos_packing',
       where: 'batch_id = ?',
@@ -1213,7 +1259,7 @@ class DataBaseSqlite {
 
   // //todo metodos para obtener los productos de un pedido
   Future<List<PorductoPedido>> getProductosPedido(int pedidoId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblproductos_pedidos',
       where: 'pedido_id = ?',
@@ -1229,7 +1275,7 @@ class DataBaseSqlite {
   //todo metodos para obtener los paquetes de un pedido
 
   Future<List<Paquete>> getPackagesPedido(int pedidoId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblpackages',
       where: 'pedido_id = ?',
@@ -1250,7 +1296,7 @@ class DataBaseSqlite {
 
 //todo metodo para actualizar la cantidad de productos de un paquete
   Future<int> updatePackageCantidad(int packageId, int cantidadRestar) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
 
     // Primero, obtenemos el paquete con el ID dado
     final List<Map<String, dynamic>> maps = await db!.query(
@@ -1289,7 +1335,7 @@ class DataBaseSqlite {
 
   //TODO Metodo para obtener la info de un paquete por id
   Future<Paquete?> getPackageById(int packageId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblpackages',
       where: 'id = ?',
@@ -1311,7 +1357,7 @@ class DataBaseSqlite {
 
   //metodo para eliminar un paquete por id
   Future<void> deletePackageById(int packageId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     await db!.delete(
       'tblpackages',
       where: 'id = ?',
@@ -1324,7 +1370,7 @@ class DataBaseSqlite {
   Future<void> insertBatchProducts(
       List<ProductsBatch> productsBatchList) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       // Inicia la transacción
       await db!.transaction((txn) async {
@@ -1428,7 +1474,7 @@ class DataBaseSqlite {
   ///todo insertar los barcodes de los productos
   Future<void> insertBarcodesPackageProduct(List<Barcodes> barcodesList) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
 
       // Inicia la transacción
       await db!.transaction((txn) async {
@@ -1495,7 +1541,7 @@ class DataBaseSqlite {
   //metodo para traer un producto de un batch de la tabla tblbatch_products
   Future<ProductsBatch?> getProductBatch(
       int batchId, int productId, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db!.query(
       'tblbatch_products',
       where: 'batch_id = ? AND id_product = ? AND id_move = ?',
@@ -1510,7 +1556,7 @@ class DataBaseSqlite {
 
   //* Obtener todos los productos de tblbatch_products
   Future<List<ProductsBatch>> getProducts() async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final List<Map<String, dynamic>> maps =
         await db!.query('tblbatch_products');
     return maps.map((map) => ProductsBatch.fromMap(map)).toList();
@@ -1519,7 +1565,7 @@ class DataBaseSqlite {
   //* Obtener un batch con sus productos
   Future<BatchWithProducts?> getBatchWithProducts(int batchId) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
       final List<Map<String, dynamic>> batchMaps = await db!.query(
         'tblbatchs',
         where: 'id = ?',
@@ -1547,37 +1593,40 @@ class DataBaseSqlite {
 
   //Todo: Eliminar todos los registros
   Future<void> deleteBD() async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     //picking
-    await db?.delete('tblbatchs');
+    await db.delete('tblbatchs');
     //packing
-    await db?.delete('tblbatchs_packing');
-    await db?.delete('tblpedidos_packing');
-    await db?.delete('tblproductos_pedidos');
-    await db?.delete('tblpackages');
+    await db.delete('tblbatchs_packing');
+    await db.delete('tblpedidos_packing');
+    await db.delete('tblproductos_pedidos');
+    await db.delete('tblpackages');
     //others
-    await db?.delete('tblbarcodes_packages');
+    await db.delete('tblbarcodes_packages');
 
-    await db?.delete(
-      'tblbatch_products',
-      where: 'is_send_odoo = ? OR is_send_odoo IS NULL',
-      whereArgs: [1], // Elimina donde is_send_odoo = 1 o is_send_odoo IS NULL
-    );
+    await db.delete('tblbatch_products');
+  }
+  Future<void> deleteBDCloseSession() async {
+    final db = await getDatabaseInstance();
+    //picking
+    await db.delete('tblbatchs');
+    //packing
+    await db.delete('tblbatchs_packing');
+    await db.delete('tblpedidos_packing');
+    await db.delete('tblproductos_pedidos');
+    await db.delete('tblpackages');
+    //configuraciones
+    await db.delete('tblconfigurations');
+    //novedades
+    await db.delete('tblnovedades');
+    //muelles
+    await db.delete('tblsubmuelles');
+    //others
+    await db.delete('tblbarcodes_packages');
+
+    await db.delete('tblbatch_products');
   }
 
-  Future<void> deleteAll() async {
-    final db = await database;
-    //picking
-    await db?.delete('tblbatchs');
-    //packing
-    await db?.delete('tblbatchs_packing');
-    await db?.delete('tblpedidos_packing');
-    await db?.delete('tblproductos_pedidos');
-    await db?.delete('tblpackages');
-    //others
-    await db?.delete('tblbarcodes_packages');
-    await db?.delete('tblconfigurations');
-  }
 
   //todo: Metodos para actualizar los campos de las tablas
 
@@ -1589,7 +1638,7 @@ class DataBaseSqlite {
       dynamic setValue,
       int idMove,
       int idPackage) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove  AND id_package =$idPackage');
     print(
@@ -1601,7 +1650,7 @@ class DataBaseSqlite {
   //*metodo para actualizar la tabla de productos de un pedido validando los que estan ya separados
   Future<int?> setFieldTableProductosPedidos3(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate IS NULL');
     print(
@@ -1612,7 +1661,7 @@ class DataBaseSqlite {
 
   Future<int?> setFieldTableProductosPedidos2(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate = 1 AND is_package = 0');
     print(
@@ -1623,7 +1672,7 @@ class DataBaseSqlite {
 
   Future<int?> setFieldTableProductosPedidos2String(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         " UPDATE tblproductos_pedidos SET $field = '$setValue' WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate = 1 AND is_package = 0");
     print(
@@ -1634,7 +1683,7 @@ class DataBaseSqlite {
 
   Future<int?> setFieldTableProductosPedidos3String(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         " UPDATE tblproductos_pedidos SET $field = '$setValue' WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove AND is_certificate IS NULL");
     print(
@@ -1646,7 +1695,7 @@ class DataBaseSqlite {
   //*metodo para actualizar la tabla de productos de un pedido
   Future<int?> setFieldTableProductosPedidos(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblproductos_pedidos SET $field = $setValue WHERE id_product = $productId AND pedido_id = $pedidoId AND id_move = $idMove ');
     print(
@@ -1658,10 +1707,10 @@ class DataBaseSqlite {
   //*metodo para actualizar la tabla de pedidos de un batch
   Future<int?> setFieldTablePedidosPacking(
       int batchId, int pedidoId, String field, dynamic setValue) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblpedidos_packing SET $field = $setValue WHERE id = $pedidoId AND batch_id = $batchId ');
-    print("update tblpedidos_packing ($field): $resUpdate");
+    // print("update tblpedidos_packing ($field): $resUpdate");
 
     return resUpdate;
   }
@@ -1669,10 +1718,10 @@ class DataBaseSqlite {
   //*metodo para actualizar la tabla de batch de un packing
   Future<int?> setFieldTableBatchPacking(
       int batchId, String field, dynamic setValue) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatchs_packing SET $field = $setValue WHERE id = $batchId');
-    print("update tblbatchs_packing ($field): $resUpdate");
+    // print("update tblbatchs_packing ($field): $resUpdate");
 
     return resUpdate;
   }
@@ -1680,10 +1729,10 @@ class DataBaseSqlite {
   //*metodo para actualizar la tabla tblbatchs
   Future<int?> setFieldTableBatch(
       int batchId, String field, dynamic setValue) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatchs SET $field = $setValue WHERE id = $batchId');
-    print("update tblbatchs ($field): $resUpdate");
+    // print("update tblbatchs ($field): $resUpdate");
 
     return resUpdate;
   }
@@ -1691,38 +1740,38 @@ class DataBaseSqlite {
   //*metodo para actualizar la tabla de productos de un batch
   Future<int?> setFieldTableBatchProducts(int batchId, int productId,
       String field, dynamic setValue, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatch_products SET $field = $setValue WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    print("update tblbatch_products ($field): $resUpdate");
+    // print("update tblbatch_products ($field): $resUpdate");
 
     return resUpdate;
   }
 
   //metodo para cerrar la bd
   Future<void> close() async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     db!.close();
   }
 
   Future<int?> setFieldStringTableBatchProducts(int batchId, int productId,
       String field, dynamic setValue, int idMove) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         " UPDATE tblbatch_products SET $field = '$setValue' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove");
-    print("update tblbatch_products ($field): $resUpdate");
+    // print("update tblbatch_products ($field): $resUpdate");
 
     return resUpdate;
   }
 
   Future<int?> updateRaw(String rawQuery) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(rawQuery);
     return resUpdate;
   }
 
   Future<String> getFieldTableBtach(int batchId, String field) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final res = await db!.rawQuery('''
       SELECT $field FROM tblbatchs WHERE id = $batchId LIMIT 1
     ''');
@@ -1737,7 +1786,7 @@ class DataBaseSqlite {
   Future<String> getFieldTableProducts(
       int batchId, int productId, int moveId, String field) async {
     try {
-      final db = await database;
+      final db = await getDatabaseInstance();
       final res = await db!.rawQuery('''
       SELECT $field FROM tblbatch_products WHERE batch_id = $batchId AND  id_product = $productId AND id_move = $moveId LIMIT 1
     ''');
@@ -1756,7 +1805,7 @@ class DataBaseSqlite {
 
   Future<int?> startStopwatch(
       int batchId, int productId, int moveId, String date) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatch_products SET time_separate_start = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId ");
     print("startStopwatch: $resUpdate");
@@ -1765,7 +1814,7 @@ class DataBaseSqlite {
 
   Future<int?> totalStopwatchProduct(
       int batchId, int productId, int moveId, double time) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatch_products SET time_separate = $time WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId ");
     print("startStopwatch: $resUpdate");
@@ -1773,7 +1822,7 @@ class DataBaseSqlite {
   }
 
   Future<int?> startStopwatchBatch(int batchId, String date) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatchs SET time_separate_start = '$date' WHERE id = $batchId ");
     print("startStopwatchBatch: $resUpdate");
@@ -1781,7 +1830,7 @@ class DataBaseSqlite {
   }
 
   Future<int?> endStopwatchBatch(int batchId, String date) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatchs SET time_separate_end = '$date' WHERE id = $batchId ");
     print("startStopwatchBatch: $resUpdate");
@@ -1790,7 +1839,7 @@ class DataBaseSqlite {
 
   Future<int?> endStopwatchProduct(
       int batchId, String date, int productId, int moveId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatch_products SET time_separate_end = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
 
@@ -1800,7 +1849,7 @@ class DataBaseSqlite {
 
   Future<int?> dateTransaccionProduct(
       int batchId, String date, int productId, int moveId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatch_products SET fecha_transaccion = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
 
@@ -1809,7 +1858,7 @@ class DataBaseSqlite {
   }
 
   Future<int?> totalStopwatchBatch(int batchId, double time) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         "UPDATE tblbatchs SET time_separate_total = $time WHERE id = $batchId ");
     print("endStopwatchBatch: $resUpdate");
@@ -1822,7 +1871,7 @@ class DataBaseSqlite {
     String novedad,
     int idMove,
   ) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         " UPDATE tblbatch_products SET observation = '$novedad' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove");
     print("updateNovedad: $resUpdate");
@@ -1834,7 +1883,7 @@ class DataBaseSqlite {
     int productId,
     String novedad,
   ) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         " UPDATE tblproductos_pedidos SET observation = '$novedad' WHERE id_product = $productId AND pedido_id = $pedidoId");
     print("updateNovedad: $resUpdate");
@@ -1843,7 +1892,7 @@ class DataBaseSqlite {
 
   //sumamos la cantidad de productos separados en la tabla de tblbatch
   Future<int?> incrementProductSeparateQty(int batchId) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
 
     // Usamos una transacción para asegurar que la operación sea atómica
     return await db!.transaction((txn) async {
@@ -1878,7 +1927,7 @@ class DataBaseSqlite {
   //incrementar la cantidad de productos separados en la tabla de tblbatch_products
   Future<int?> incremenQtytProductSeparate(
       int batchId, int productId, int idMove, int quantity) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     return await db!.transaction((txn) async {
       // Primero, obtenemos el valor actual de product_separate_qty
       final result = await txn.query(
@@ -1918,7 +1967,7 @@ class DataBaseSqlite {
 
   Future<int?> incremenQtytProductSeparatePacking(
       int pedidoId, int productId, int idMove, int quantity) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
     return await db!.transaction((txn) async {
       // Primero, obtenemos el valor actual de quantity_separate
       final result = await txn.query(
@@ -1960,7 +2009,7 @@ class DataBaseSqlite {
     int batchId,
     int productId,
   ) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
 
     final res = await db!.rawQuery('''
       SELECT * FROM tblbatch_products WHERE batch_id = $batchId AND id_product = $productId  LIMIT 1
@@ -1971,7 +2020,7 @@ class DataBaseSqlite {
   Future<List> getBacth(
     int batchId,
   ) async {
-    final db = await database;
+    final db = await getDatabaseInstance();
 
     final res = await db!.rawQuery('''
       SELECT * FROM tblbatchs WHERE id = $batchId   LIMIT 1

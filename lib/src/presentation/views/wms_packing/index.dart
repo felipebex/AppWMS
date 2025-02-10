@@ -343,7 +343,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                           .add(ShowKeyboardEvent(false));
 
                                       // viajamos a la vista de detalles del batch con sus pedidos
-                                      Navigator.pushNamed(
+                                      Navigator.pushReplacementNamed(
                                         context,
                                         'packing-list',
                                         arguments: batch,

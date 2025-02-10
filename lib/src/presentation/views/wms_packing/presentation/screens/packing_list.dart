@@ -428,7 +428,7 @@ class PakingListScreen extends StatelessWidget {
                                           FocusScope.of(context).unfocus();
 
                                           // Viajamos a la vista de detalle de un pedido
-                                          Navigator.pushNamed(
+                                          Navigator.pushReplacementNamed(
                                               context, 'packing-detail',
                                               arguments: packing);
                                           print(

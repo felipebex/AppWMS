@@ -87,19 +87,19 @@ class ProductDropdownWidget extends StatelessWidget {
                                 0,
                                 currentProduct.idMove ?? 0));
       
-                            batchBloc.add(ChangeIsOkQuantity(
-                                true,
-                                currentProduct.idProduct ?? 0,
-                                batchBloc.batchWithProducts.batch?.id ?? 0,
-                                currentProduct.idMove ?? 0));
+                            // batchBloc.add(ChangeIsOkQuantity(
+                            //     true,
+                            //     currentProduct.idProduct ?? 0,
+                            //     batchBloc.batchWithProducts.batch?.id ?? 0,
+                            //     currentProduct.idMove ?? 0));
                           } else {
                             batchBloc.add(ValidateFieldsEvent(
                                 field: "product", isOk: false));
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(milliseconds: 1000),
-                              content: const Text('Producto erroneo'),
-                              backgroundColor: Colors.red[200],
-                            ));
+                            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            //   duration: const Duration(milliseconds: 1000),
+                            //   content: const Text('Producto erroneo'),
+                            //   backgroundColor: Colors.red[200],
+                            // ));
                           }
                         }
                       : null,

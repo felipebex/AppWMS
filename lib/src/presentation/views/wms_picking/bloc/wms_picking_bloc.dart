@@ -49,27 +49,22 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   }
 
   //*metodo para cargar todas las novedades
+
   void _onLoadAllNovedadesEvent(
       LoadAllNovedades event, Emitter<PickingState> emit) async {
     try {
       final novedadeslist =
           await wmsPickingRepository.getnovedades(false, event.context);
-
       listOfNovedades.clear();
       listOfNovedades.addAll(novedadeslist);
 
-      //agrgegar las novedades a la base de datos
-      for (var novedad in listOfNovedades) {
+      // Si hay novedades para insertar, ejecutar la inserción en batch
+      if (listOfNovedades.isNotEmpty) {
         try {
-          if (novedad.id != null && novedad.name != null) {
-            await DataBaseSqlite().insertNovedad(Novedad(
-              id: novedad.id,
-              name: novedad.name,
-              code: novedad.code,
-            ));
-          }
-        } catch (dbError, stackTrace) {
-          print('Error inserting novedades: $dbError  $stackTrace');
+          await DataBaseSqlite().insertBatchNovedades(listOfNovedades);
+          print('Novedades insertadas con éxito.');
+        } catch (e) {
+          print('Error inserting batch of novedades: $e');
         }
       }
 

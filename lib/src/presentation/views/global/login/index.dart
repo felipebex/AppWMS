@@ -72,7 +72,7 @@ class LoginPage extends StatelessWidget {
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();
                 Get.back();
-                Navigator.pushNamed(context, 'home');
+                Navigator.pushReplacementNamed(context, 'home');
               }
             },
           ),

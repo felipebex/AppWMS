@@ -34,7 +34,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   ErrorWidget.builder = (FlutterErrorDetails details) =>  Scaffold(
-    body: Container(
+    body: SizedBox(
       width: double.infinity,
       height: double.infinity,
 
@@ -60,7 +60,10 @@ void main() async {
   // Inicializar la base de datos SQLite
   await Preferences.init();
 
-  // //cron
+
+
+
+  // cron
   var cron = Cron();
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
     try {
@@ -73,6 +76,10 @@ void main() async {
       }
     } on SocketException catch (_) {}
   });
+
+
+
+
   // cron.schedule(Schedule.parse('*/5 * * * *'), () async {
   //   try {
   //     final result = await InternetAddress.lookup('example.com');

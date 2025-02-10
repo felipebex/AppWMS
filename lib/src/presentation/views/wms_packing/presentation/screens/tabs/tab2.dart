@@ -304,7 +304,7 @@ class Tab2Screen extends StatelessWidget {
                                                     .pop();
 
                                                 // Ahora navegar a la vista "batch"
-                                                Navigator.pushNamed(
+                                                Navigator.pushReplacementNamed(
                                                   context,
                                                   'Packing',
                                                 );

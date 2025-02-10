@@ -148,7 +148,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
     final double unidadesSeparadas =
         double.parse(batchBloc.calcularUnidadesSeparadas());
 
-    if (unidadesSeparadas == "100.0" || unidadesSeparadas == 100.0) {
+    if (unidadesSeparadas == "100.0" || unidadesSeparadas >= 100.0) {
       var productsToSend = batchBloc.filteredProducts
           .where((element) => element.isSendOdoo == 0)
           .toList();
@@ -170,31 +170,32 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                 const Text(
                     "Tienes productos que no han sido enviados al wms. revisa la lista de productos y envíalos antes de continuar.",
                     style: TextStyle(color: black, fontSize: 14)),
-                const SizedBox(height: 15), 
+                const SizedBox(height: 15),
                 ElevatedButton(
                     onPressed: () {
-                        Navigator.pop(context);
-                  if (batchBloc
-                          .configurations.result?.result?.showDetallesPicking ==
-                      true) {
-                    //cerramos el focus
-                    batchBloc.isSearch = false;
-                    batchBloc.add(LoadProductEditEvent());
-                    batchBloc.add(IsShouldRunDependencies(false));
-                    Navigator.pushNamed(
-                      context,
-                      'batch-detail',
-                    ).then((_) {
-                      batchBloc.add(IsShouldRunDependencies(true));
-                    });
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        duration: Duration(milliseconds: 1000),
-                        content: Text('No tienes permisos para ver detalles'),
-                      ),
-                    );
-                  }
+                      Navigator.pop(context);
+                      if (batchBloc.configurations.result?.result
+                              ?.showDetallesPicking ==
+                          true) {
+                        //cerramos el focus
+                        batchBloc.isSearch = false;
+                        batchBloc.add(LoadProductEditEvent());
+                        // batchBloc.add(IsShouldRunDependencies(false));
+                        Navigator.pushReplacementNamed(
+                          context,
+                          'batch-detail',
+                        ).then((_) {
+                          // batchBloc.add(IsShouldRunDependencies(true));
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            duration: Duration(milliseconds: 1000),
+                            content:
+                                Text('No tienes permisos para ver detalles'),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -225,7 +226,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
         context.read<BatchBloc>().index = 0;
         context.read<BatchBloc>().isSearch = true;
 
-        Navigator.pop(context);
+        Navigator.pushReplacementNamed(context, 'wms-picking', arguments: 0);
       }
     } else {
       showDialog(
@@ -246,18 +247,13 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
 
                     // Comprobamos si el widget aún está montado antes de hacer setState
                     if (mounted) {
-                      batchBloc.add(IsShouldRunDependencies(false));
+                      // batchBloc.add(IsShouldRunDependencies(false));
                     }
 
-                    Navigator.pushNamed(
+                    Navigator.pushReplacementNamed(
                       context,
                       'batch-detail',
-                    ).then((_) {
-                      // Solo volvemos a cambiar el estado si el widget sigue montado
-                      if (mounted) {
-                        batchBloc.add(IsShouldRunDependencies(true));
-                      }
-                    });
+                    );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

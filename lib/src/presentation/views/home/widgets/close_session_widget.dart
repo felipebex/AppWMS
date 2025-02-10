@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -54,12 +56,16 @@ class CloseSession extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () {
+            onPressed: () async {
               PrefUtils.clearPrefs();
               //limpiamos toda la base de datos
 
               Preferences.removeUrlWebsite();
-              DataBaseSqlite().deleteAll();
+
+              //borramos la bd y la cerramos
+              await DataBaseSqlite().deleteBD();
+              //esperamos 1 segundo
+              await Future.delayed(const Duration(seconds: 1));
 
               PrefUtils.setIsLoggedIn(false);
               Navigator.pushNamedAndRemoveUntil(

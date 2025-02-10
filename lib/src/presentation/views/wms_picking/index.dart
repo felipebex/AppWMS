@@ -2,14 +2,12 @@
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:intl/intl.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -26,7 +24,6 @@ class WMSPickingPage extends StatefulWidget {
 
 class _PickingPageState extends State<WMSPickingPage> {
   NotchBottomBarController controller = NotchBottomBarController();
-  final GlobalKey _bottomBarKey = GlobalKey();
 
   @override
   void initState() {
@@ -146,7 +143,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   .read<WMSPickingBloc>()
                                                   .searchController
                                                   .clear();
-                                              Navigator.pushNamed(
+                                              Navigator.pushReplacementNamed(
                                                   context, 'home');
                                             },
                                           ),
@@ -369,57 +366,42 @@ class _PickingPageState extends State<WMSPickingPage> {
                                     ),
                                     child: GestureDetector(
                                       onTap: () async {
-                                        context
-                                            .read<BatchBloc>()
-                                            .add(FetchBatchWithProductsEvent(
-                                              batch.id ?? 0,
-                                            ));
+                                        // Agrupar eventos de BatchBloc si es necesario
+                                        final batchBloc =
+                                            context.read<BatchBloc>();
 
-                                        context
-                                            .read<BatchBloc>()
-                                            .add(LoadInfoDeviceEvent());
+                                        try {
+                                          // Disparar eventos de BatchBloc
+                                          batchBloc.add(
+                                              FetchBatchWithProductsEvent(
+                                                  batch.id ?? 0));
+                                          batchBloc.add(LoadInfoDeviceEvent());
+                                          batchBloc
+                                              .add(LoadConfigurationsUser());
 
-                                        //todo navegamos a la vista de separacion de productos del batch
-                                        if (batch.isSeparate == 1) {
-                                          context.read<BatchBloc>().isSearch =
-                                              true;
-                                          Navigator.pushNamed(
-                                            context,
-                                            'batch-detail',
+                                          // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
+                                          if (batch.isSeparate == 1) {
+                                            batchBloc.isSearch = true;
+                                            Navigator.pushReplacementNamed(
+                                                context, 'batch-detail');
+                                          } else {
+                                            //   // Cerrar el diálogo de carga inmediatamente
+
+                                            Navigator.pushReplacementNamed(
+                                                context, 'batch');
+                                          }
+                                        } catch (e) {
+                                          // Manejo de errores, por si ocurre algún problema
+
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Error al cargar los datos'),
+                                              duration: Duration(seconds: 4),
+                                            ),
                                           );
-                                        } else {
-                                          // Mostrar un diálogo de carga antes de navegar a la vista "batch"
-                                          showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return const DialogLoading(
-                                                    message:
-                                                        'Cargando productos...');
-                                              });
-
-                                          // Esperar 3 segundos antes de continuar
-                                          Future.delayed(
-                                              const Duration(milliseconds: 800),
-                                              () {
-                                            // Cerrar el diálogo de carga
-                                            Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .pop();
-
-                                            // Ahora navegar a la vista "batch"
-                                            Navigator.pushNamed(
-                                              context,
-                                              'batch',
-                                            );
-                                          });
                                         }
-
-                                        DataBaseSqlite db = DataBaseSqlite();
-
-                                        await db.getBacth(batch.id ?? 0);
-
-                                        await db.getProductBacth(
-                                            batch.id ?? 0, 3734);
                                       },
                                       child: Card(
                                         color: batch.isSeparate == 1

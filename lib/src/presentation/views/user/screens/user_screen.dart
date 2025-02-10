@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/environment/environment.dart';
@@ -61,7 +63,8 @@ class UserScreen extends StatelessWidget {
                                           elevation: 2,
                                           child: IconButton(
                                               onPressed: () {
-                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                    context, 'home');
                                               },
                                               icon: Icon(Icons.arrow_back,
                                                   color: primaryColorApp,
@@ -580,7 +583,7 @@ class UserScreen extends StatelessWidget {
                                           ElevatedButton(
                                               onPressed: () async {
                                                 await DataBaseSqlite()
-                                                    .deleteAll();
+                                                    .deleteBD();
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
                                                         const SnackBar(

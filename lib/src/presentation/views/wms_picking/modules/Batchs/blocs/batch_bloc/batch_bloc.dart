@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously, prefer_if_null_operators
 
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -24,11 +25,20 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   List<ProductsBatch> listOfProductsBatchDB = [];
   List<Barcodes> listOfBarcodes = [];
 
+  //*valores de scanvalue
+
+  String scannedValue1 = '';
+  String scannedValue2 = '';
+  String scannedValue3 = '';
+  String scannedValue4 = '';
+
   // //*validaciones de campos del estado de la vista
   bool isLocationOk = true;
   bool isProductOk = true;
   bool isLocationDestOk = true;
   bool isQuantityOk = true;
+  bool _isProcessing = false; // Bandera para controlar el estado del proceso
+  bool isProcessing = false; // Bandera para controlar el estado del proceso
 
   //variable de apoyo
   bool isSearch = true;
@@ -81,6 +91,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   bool isPdaZebra = false;
   bool isKeyboardVisible = false;
   bool shouldRunDependencies = true;
+  bool viewQuantity = false;
 
   //*indice del producto actual
   int index = 0;
@@ -130,8 +141,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<LoadInfoDeviceEvent>(_onLoadInfoDevicesEvent);
     //*evento para mostrar el teclado
     on<ShowKeyboard>(_onShowKeyboardEvent);
-    //*evento para validar si se deben ejecutar las dependencias
-    on<IsShouldRunDependencies>(_onIsShouldRunDependenciesEvent);
     //*evento para obtener todas las novedades
     on<LoadAllNovedadesEvent>(_onLoadAllNovedadesEvent);
     add(LoadAllNovedadesEvent());
@@ -143,98 +152,190 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<ResetValuesEvent>(_onResetValuesEvent);
     //*evento para enviar un producto a odoo
     on<SendProductOdooEvent>(_onSendProductOdooEvent);
+    //*evento para actualizar el valor del scan
+    on<UpdateScannedValueEvent>(_onUpdateScannedValueEvent);
+    on<ClearScannedValueEvent>(_onClearScannedValueEvent);
+    //*metodo para establecer un proceso en ejecucion
+    on<SetIsProcessingEvent>(_onSetIsProcessingEvent);
+
+    //*evento para ver la cantidad
+    on<ShowQuantityEvent>(_onShowQuantityEvent);
   }
 
-  //*evento para enviar un producto a odoo
+
+
+  //*evento para establecer un proceso en ejecucion
+  void _onSetIsProcessingEvent(
+      SetIsProcessingEvent event, Emitter<BatchState> emit) {
+    try {
+      print("------------------------------===============-------------========================");
+      isProcessing = event.isProcessing;
+      emit(SetIsProcessingState(isProcessing));
+    } catch (e, s) {
+      print("❌ Error en _onSetIsProcessingEvent: $e, $s");
+    }
+  }
+
+
+  //*evento para ver la cantidad
+  void _onShowQuantityEvent(ShowQuantityEvent event, Emitter<BatchState> emit) {
+    try {
+      viewQuantity = !viewQuantity;
+      emit(ShowQuantityState(viewQuantity));
+    } catch (e, s) {
+      print("❌ Error en _onShowQuantityEvent: $e, $s");
+    }
+  }
+
+//*evento para limpiar el valor del scan
+  void _onClearScannedValueEvent(
+      ClearScannedValueEvent event, Emitter<BatchState> emit) {
+    try {
+      switch (event.scan) {
+        case 'location':
+          scannedValue1 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'product':
+          scannedValue2 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'quantity':
+          scannedValue3 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'muelle':
+          scannedValue4 = '';
+          emit(ClearScannedValueState());
+          break;
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+      emit(ClearScannedValueState());
+    } catch (e, s) {
+      print("❌ Error en _onClearScannedValueEvent: $e, $s");
+    }
+  }
+
+  //*evento para actualizar el valor del scan
+  void _onUpdateScannedValueEvent(
+      UpdateScannedValueEvent event, Emitter<BatchState> emit) {
+    try {
+      switch (event.scan) {
+        case 'location':
+          // Acumulador de valores escaneados
+          scannedValue1 += event.scannedValue;
+          print('scannedValue1: $scannedValue1');
+          emit(UpdateScannedValueState(scannedValue1, event.scan));
+          break;
+        case 'product':
+          scannedValue2 += event.scannedValue;
+          print('scannedValue2: $scannedValue2');
+          emit(UpdateScannedValueState(scannedValue2, event.scan));
+          break;
+        case 'quantity':
+          scannedValue3 += event.scannedValue;
+          print('scannedValue3: $scannedValue3');
+          emit(UpdateScannedValueState(scannedValue3, event.scan));
+          break;
+        case 'muelle':
+          print('scannedValue4: $scannedValue4');
+          scannedValue4 += event.scannedValue;
+          emit(UpdateScannedValueState(scannedValue4, event.scan));
+          break;
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+    } catch (e, s) {
+      print("❌ Error en _onUpdateScannedValueEvent: $e, $s");
+    }
+  }
+
   void _onSendProductOdooEvent(
       SendProductOdooEvent event, Emitter<BatchState> emit) async {
+    if (_isProcessing) {
+      // Si ya está en proceso, no ejecutamos nada
+      return;
+    }
+
     try {
+      _isProcessing = true; // Activar la bandera para evitar duplicados
+      emit(SendProductOdooLoading());
+
+      DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+      double secondsDifference = 0.0;
+
       try {
-        emit(SendProductOdooLoading());
-        DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
-        String?
-            startTime; // Suponiendo que `startTime` es de tipo String o null
-        double secondsDifference = 0.0;
-// Verificación si la fecha de inicio es nula o vacía
-        if (startTime == null || startTime.isEmpty) {
-          // Si está vacía o es nula, puedes manejar el caso aquí
-          print("La fecha de inicio no es válida.");
-        } else {
-          // Si `startTime` tiene un valor, continúa con el cálculo
-          try {
-            DateTime dateTimeStart =
-                DateTime.parse(startTime); // Parsear el String a DateTime
-            // Calcular la diferencia entre la fecha actual y la fecha de inicio
-            Duration difference = dateTimeActuality.difference(dateTimeStart);
-            // Obtener la diferencia en segundos
-            secondsDifference = difference.inMilliseconds / 1000.0;
-            print("Diferencia en segundos: $secondsDifference");
-          } catch (e) {
-            // Si ocurre algún error durante el parseo (por ejemplo, formato incorrecto)
-            print("❌ Error al parsear la fecha: $e");
-          }
-        }
-        final userid = await PrefUtils.getUserId();
-        final response = await repository.sendPicking(
-            context: event.context,
-            idBatch: event.product.batchId ?? 0,
-            timeTotal: secondsDifference,
-            cantItemsSeparados:
-                batchWithProducts.batch?.productSeparateQty ?? 0,
-            listItem: [
-              Item(
-                  idMove: event.product.idMove ?? 0,
-                  productId: event.product.idProduct ?? 0,
-                  lote: event.product.lotId ?? '',
-                  cantidad: event.product.quantitySeparate ?? 0,
-                  novedad: event.product.observation ?? 'Sin novedad',
-                  timeLine: event.product.timeSeparate == null
-                      ? 30.0
-                      : event.product.timeSeparate,
-                  muelle: event.product.muelleId ?? 0,
-                  idOperario: userid,
-                  fechaTransaccion: event.product.fechaTransaccion ?? ''),
-            ]);
+        // Calcular la diferencia en segundos
+        Duration difference = dateTimeActuality.difference(DateTime.now());
+        secondsDifference = difference.inMilliseconds / 1000.0;
+        print("Diferencia en segundos: $secondsDifference");
+      } catch (e) {
+        print("❌ Error al parsear la fecha: $e");
+      }
 
-        if (response.result?.code == 200) {
-          //recorremos todos los resultados de la respuesta
-          await db.setFieldTableBatchProducts(
-            event.product.batchId ?? 0,
-            event.product.idProduct ?? 0,
-            'is_send_odoo',
-            'true',
-            event.product.idMove ?? 0,
-          );
+      final userid = await PrefUtils.getUserId();
+      final response = await repository.sendPicking(
+        context: event.context,
+        idBatch: event.product.batchId ?? 0,
+        timeTotal: secondsDifference,
+        cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
+        listItem: [
+          Item(
+            idMove: event.product.idMove ?? 0,
+            productId: event.product.idProduct ?? 0,
+            lote: event.product.lotId ?? '',
+            cantidad: event.product.quantitySeparate ?? 0,
+            novedad: event.product.observation ?? 'Sin novedad',
+            timeLine: event.product.timeSeparate == null
+                ? 30.0
+                : event.product.timeSeparate.toDouble(),
+            muelle: event.product.muelleId ?? 0,
+            idOperario: userid,
+            fechaTransaccion: event.product.fechaTransaccion ?? '',
+          ),
+        ],
+      );
 
-          final response = await DataBaseSqlite()
-              .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
-          final List<ProductsBatch> products = response!.products!
-              .where((product) => product.quantitySeparate != product.quantity ||
-                  product.isSendOdoo == 0)
-              .toList();
-          batchWithProducts.products = response.products;
-          filteredProducts.clear();
-          filteredProducts.addAll(products);
+      if (response.result?.code == 200) {
+        // Recorrer todos los resultados de la respuesta
+        await db.setFieldTableBatchProducts(
+          event.product.batchId ?? 0,
+          event.product.idProduct ?? 0,
+          'is_send_odoo',
+          'true',
+          event.product.idMove ?? 0,
+        );
 
-          emit(SendProductOdooSuccess());
-        } else {
-          //elementos que no se pudieron enviar a odoo
-          await db.setFieldTableBatchProducts(
-            event.product.batchId ?? 0,
-            event.product.idProduct ?? 0,
-            'is_send_odoo',
-            'false',
-            event.product.idMove ?? 0,
-          );
-          emit(SendProductOdooError());
-        }
-      } catch (e, s) {
+        final response = await DataBaseSqlite()
+            .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
+        final List<ProductsBatch> products = response!.products!
+            .where((product) =>
+                product.quantitySeparate != product.quantity ||
+                product.isSendOdoo == 0)
+            .toList();
+        batchWithProducts.products = response.products;
+        filteredProducts.clear();
+        filteredProducts.addAll(products);
+
+        emit(SendProductOdooSuccess());
+      } else {
+        // Elementos que no se pudieron enviar a Odoo
+        await db.setFieldTableBatchProducts(
+          event.product.batchId ?? 0,
+          event.product.idProduct ?? 0,
+          'is_send_odoo',
+          'false',
+          event.product.idMove ?? 0,
+        );
         emit(SendProductOdooError());
-        print("❌ Error en el senProductWms $e ->$s ");
       }
     } catch (e, s) {
       emit(SendProductOdooError());
-      print("❌ Error en el SendProductOdooEvent :$e->$s");
+      print("❌ Error en el SendProductOdooEvent: $e ->$s");
+    } finally {
+      _isProcessing =
+          false; // Resetear la bandera una vez que el proceso termine
     }
   }
 
@@ -260,6 +361,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     isKeyboardVisible = false;
     shouldRunDependencies = true;
     index = 0;
+    scannedValue1 = '';
+    scannedValue2 = '';
+    scannedValue3 = '';
+    scannedValue4 = '';
+    viewQuantity = false;
+    isProcessing = false;
+    _isProcessing = false;
+    
+
     emit(BatchInitial());
   }
 
@@ -299,6 +409,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       novedades.clear();
       if (response != null) {
         novedades = response;
+
         print("novedades: ${novedades.length}");
       }
       emit(NovedadesLoadedState(listOfNovedades: novedades));
@@ -307,17 +418,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
-//*evento para validar si se deben ejecutar las dependencias
-  void _onIsShouldRunDependenciesEvent(
-      IsShouldRunDependencies event, Emitter<BatchState> emit) {
-    try {
-      shouldRunDependencies = event.shouldRunDependencies;
-      emit(ShouldRunDependenciesState(
-          shouldRunDependencies: shouldRunDependencies));
-    } catch (e, s) {
-      print("❌ Error en _onIsShouldRunDependenciesEvent: $e, $s");
-    }
-  }
+
 
 //*evento para mostrar el teclado
   void _onShowKeyboardEvent(ShowKeyboard event, Emitter<BatchState> emit) {
@@ -613,13 +714,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
       index = (batchWithProducts.batch?.indexList ?? 0);
       quantitySelected = currentProduct.quantitySeparate ?? 0;
-
-      print("locationIsOk: $locationIsOk \n"
-          "productIsOk: $productIsOk \n"
-          "locationDestIsOk: $locationDestIsOk \n"
-          "quantityIsOk: $quantityIsOk \n"
-          "index: $index \n"
-          "quantitySelected: $quantitySelected \n");
+      _isProcessing = false;
       emit(LoadDataInfoSuccess());
     } catch (e, s) {
       emit(LoadDataInfoError("Error al cargar las variables de estado"));
@@ -635,26 +730,18 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       final product = await db.getProductBatch(batchWithProducts.batch?.id ?? 0,
           currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0);
 
-      String? startTime; // Suponiendo que `startTime` es de tipo String o null
       double secondsDifference = 0.0;
 // Verificación si la fecha de inicio es nula o vacía
-      if (startTime == null || startTime.isEmpty) {
-        // Si está vacía o es nula, puedes manejar el caso aquí
-        print("La fecha de inicio no es válida.");
-      } else {
-        // Si `startTime` tiene un valor, continúa con el cálculo
-        try {
-          DateTime dateTimeStart =
-              DateTime.parse(startTime); // Parsear el String a DateTime
-          // Calcular la diferencia entre la fecha actual y la fecha de inicio
-          Duration difference = dateTimeActuality.difference(dateTimeStart);
-          // Obtener la diferencia en segundos
-          secondsDifference = difference.inMilliseconds / 1000.0;
-          print("Diferencia en segundos: $secondsDifference");
-        } catch (e) {
-          // Si ocurre algún error durante el parseo (por ejemplo, formato incorrecto)
-          print("❌ Error al parsear la fecha: $e");
-        }
+      // Si `startTime` tiene un valor, continúa con el cálculo
+      try {
+        // Calcular la diferencia entre la fecha actual y la fecha de inicio
+        Duration difference = dateTimeActuality.difference(DateTime.now());
+        // Obtener la diferencia en segundos
+        secondsDifference = difference.inMilliseconds / 1000.0;
+        print("Diferencia en segundos: $secondsDifference");
+      } catch (e) {
+        // Si ocurre algún error durante el parseo (por ejemplo, formato incorrecto)
+        print("❌ Error al parsear la fecha: $e");
       }
 
       final userid = await PrefUtils.getUserId();
@@ -891,6 +978,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onChangeCurrentProduct(
       ChangeCurrentProduct event, Emitter<BatchState> emit) async {
     try {
+      viewQuantity = false;
       emit(CurrentProductChangedStateLoading());
 
       // Desseleccionamos el producto ya separado
@@ -966,13 +1054,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         //   return e.isSeparate == 1 ? count + 1 : count;
         // });
 
-        int separateCount =
-            filteredProducts.where((e) => e.isSeparate == 1).length;
+        // int separateCount =
+        //     filteredProducts.where((e) => e.isSeparate == 1).length;
 
-        if (index >= separateCount) {
-          print('El index ES MAYOR 🍓');
-          index = separateCount + 1;
-        }
+        // if (index >= separateCount) {
+        //   print('El index ES MAYOR 🍓');
+        //   index = separateCount + 1;
+        // }
 
         if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
           print('El index ES DIFERENTE A INDEXLIST 🍓');
@@ -1098,6 +1186,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         );
 
         await db.setFieldTableBatchProducts(event.batchId, event.productId,
+            'is_quantity_is_ok', 'true', event.idMove);
+        quantityIsOk = event.productIsOk;
+
+        await db.setFieldTableBatchProducts(event.batchId, event.productId,
             'is_selected', 'true', event.idMove);
         await db.setFieldTableBatchProducts(event.batchId, event.productId,
             'product_is_ok', 'true', event.idMove);
@@ -1146,8 +1238,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       FetchBatchWithProductsEvent event, Emitter<BatchState> emit) async {
     try {
       batchWithProducts = BatchWithProducts();
-
-      add(LoadConfigurationsUser());
 
       final response =
           await DataBaseSqlite().getBatchWithProducts(event.batchId);

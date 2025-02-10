@@ -166,11 +166,7 @@ class ShowKeyboard extends BatchEvent {
 
   ShowKeyboard( this.showKeyboard);
 }
-class IsShouldRunDependencies extends BatchEvent {
-  final bool shouldRunDependencies;
 
-  IsShouldRunDependencies( this.shouldRunDependencies);
-}
 
 class LoadAllNovedadesEvent extends BatchEvent {
 }
@@ -198,4 +194,27 @@ class SendProductOdooEvent extends BatchEvent {
   final ProductsBatch product;
   final BuildContext context;
   SendProductOdooEvent(this.product, this.context);
+}
+
+
+class UpdateScannedValueEvent extends BatchEvent {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValueEvent(this.scannedValue, this.scan);
+}
+
+class ClearScannedValueEvent extends BatchEvent {
+  final String scan;
+  ClearScannedValueEvent(this.scan);
+}
+
+class ShowQuantityEvent extends BatchEvent {
+  final bool showQuantity;
+  ShowQuantityEvent(this.showQuantity);
+}
+
+
+class SetIsProcessingEvent extends BatchEvent {
+  final bool isProcessing;
+  SetIsProcessingEvent(this.isProcessing);
 }

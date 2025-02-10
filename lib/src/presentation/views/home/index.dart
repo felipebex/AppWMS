@@ -48,14 +48,12 @@ class _HomePageState extends State<HomePage> {
             final homeBloc = context.read<HomeBloc>();
             return RefreshIndicator(
               onRefresh: () async {
-                //borramos la informacion de las tablas de picking y packing
+                context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+
                 await DataBaseSqlite().deleteBD();
 
                 //peticion para la configuracion
                 if (!mounted) return;
-                context.read<UserBloc>().add(GetConfigurations(context));
-                //esperamos 1 segundo y luego hacemos la peticion de los batchs
-                await Future.delayed(const Duration(seconds: 1));
                 final String rol = await PrefUtils.getUserRol();
                 //peticion segun el rol del usuario
                 if (rol == 'picking') {
@@ -77,18 +75,10 @@ class _HomePageState extends State<HomePage> {
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(true, context));
                 }
+                // }
               },
               child: Scaffold(
-                // floatingActionButton: FloatingActionButton(onPressed: () {
-                //   //mostramos un modal para actualizar la app
-                //   showDialog(
-                //       //no se puede cerrar el modal
-                //       barrierDismissible: false,
-                //       context: context,
-                //       builder: (context) {
-                //         return const DialogUpdateApp();
-                //       });
-                // }),
+              
                 body: Container(
                   width: size.width,
                   height: size.height,
@@ -145,8 +135,7 @@ class _HomePageState extends State<HomePage> {
                                           GestureDetector(
                                             onTap: () {
                                               context.read<UserBloc>().add(
-                                                  GetConfigurationsUser(
-                                                      context));
+                                                  GetConfigurations(context));
                                               showDialog(
                                                   context: context,
                                                   builder: (context) {
@@ -161,7 +150,7 @@ class _HomePageState extends State<HomePage> {
                                                   const Duration(
                                                       milliseconds: 300), () {
                                                 Navigator.pop(context);
-                                                Navigator.pushNamed(
+                                                Navigator.pushReplacementNamed(
                                                     context, 'user');
                                               });
                                             },
@@ -320,10 +309,23 @@ class _HomePageState extends State<HomePage> {
                                                     const Duration(
                                                         milliseconds: 300), () {
                                                   Navigator.pop(context);
-                                                  Navigator.pushNamed(
-                                                      context, 'wms-picking',
-                                                      arguments: 0);
+                                                  Navigator
+                                                      .pushReplacementNamed(
+                                                          context,
+                                                          'wms-picking',
+                                                          arguments: 0);
                                                 });
+                                              } else if (rol == '' ||
+                                                  rol == null) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Cargue la configuración de su usuario"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
                                               } else {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
@@ -400,9 +402,20 @@ class _HomePageState extends State<HomePage> {
                                                   const Duration(seconds: 1),
                                                   () {
                                                 Navigator.pop(context);
-                                                Navigator.pushNamed(
+                                                Navigator.pushReplacementNamed(
                                                     context, 'wms-packing');
                                               });
+                                            } else if (rol == '' ||
+                                                rol == null) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Cargue la configuración de su usuario"),
+                                                  duration:
+                                                      Duration(seconds: 4),
+                                                ),
+                                              );
                                             } else {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
@@ -470,9 +483,6 @@ class _HomePageState extends State<HomePage> {
                                         children: [
                                           GestureDetector(
                                             onTap: () async {
-                                              context.read<UserBloc>().add(
-                                                  LoadInfoDeviceEventUser());
-                                              //verficamos que rol tiene el usuario
                                               final String rol =
                                                   await PrefUtils.getUserRol();
 
@@ -492,15 +502,25 @@ class _HomePageState extends State<HomePage> {
                                                               'Cargando batchs...');
                                                     });
 
-                                                // Esperar 3 segundos antes de continuar
-                                                Future.delayed(
-                                                    const Duration(
-                                                        milliseconds: 300), () {
-                                                  Navigator.pop(context);
-                                                  Navigator.pushNamed(
-                                                      context, 'wms-picking',
-                                                      arguments: 0);
-                                                });
+                                                await Future.delayed(const Duration(
+                                                    seconds:
+                                                        1)); // Ajusta el tiempo si es necesario
+
+                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                    context, 'wms-picking',
+                                                    arguments: 0);
+                                              } else if (rol == '' ||
+                                                  rol == null) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                        "Cargue la configuración de su usuario"),
+                                                    duration:
+                                                        Duration(seconds: 4),
+                                                  ),
+                                                );
                                               } else {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
@@ -544,8 +564,10 @@ class _HomePageState extends State<HomePage> {
                                                     const Duration(seconds: 1),
                                                     () {
                                                   Navigator.pop(context);
-                                                  Navigator.pushNamed(
-                                                      context, 'wms-packing');
+                                                  Navigator
+                                                      .pushReplacementNamed(
+                                                          context,
+                                                          'wms-packing');
                                                 });
                                               } else {
                                                 ScaffoldMessenger.of(context)

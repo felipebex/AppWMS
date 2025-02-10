@@ -32,7 +32,7 @@ class PopupMenuButtonWidget extends StatelessWidget {
                       .configurations.result?.result?.showDetallesPicking ==
                   true) {
                 //cambiamos el estado de la variable de si se deben correr las dependencias
-                batchBloc.add(IsShouldRunDependencies(false));
+                // batchBloc.add(IsShouldRunDependencies(false));
                 //cerramos el focus
                 FocusScope.of(context).unfocus();
                 batchBloc.isSearch = true;
@@ -40,7 +40,7 @@ class PopupMenuButtonWidget extends StatelessWidget {
                   batchBloc.batchWithProducts.batch?.id ?? 0,
                 ));
 
-                Navigator.pushNamed(
+                Navigator.pushReplacementNamed(
                   context,
                   'batch-detail',
                 );
@@ -111,7 +111,7 @@ class PopupMenuButtonWidget extends StatelessWidget {
                       ),
                     );
                   });
-            } 
+            }
           },
           itemBuilder: (BuildContext context) {
             return [
@@ -126,7 +126,6 @@ class PopupMenuButtonWidget extends StatelessWidget {
                   ],
                 ),
               ),
-             
               if (batchBloc.locationIsOk == true &&
                   batchBloc.index + 1 <
                       batchBloc.batchWithProducts.products!.length &&

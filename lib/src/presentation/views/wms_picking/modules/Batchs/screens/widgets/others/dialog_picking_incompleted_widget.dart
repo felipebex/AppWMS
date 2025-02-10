@@ -124,7 +124,8 @@ class DialogPickingIncompleted extends StatelessWidget {
                     context.read<BatchBloc>().index = 0;
                     context.read<BatchBloc>().isSearch = true;
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, 'wms-picking', arguments: 1);
+                    Navigator.pushReplacementNamed(context, 'wms-picking',
+                        arguments: 1);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,

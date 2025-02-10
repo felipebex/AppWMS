@@ -202,3 +202,28 @@ class SendProductOdooLoading extends BatchState {}
 class SendProductOdooSuccess extends BatchState {}
 
 class SendProductOdooError extends BatchState {}
+
+
+
+//*estado para actualizar el valor escaneado
+
+
+class UpdateScannedValueState extends BatchState {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValueState(this.scannedValue, this.scan);
+}
+
+class ClearScannedValueState extends BatchState {}
+
+
+class ShowQuantityState extends BatchState {
+  final bool showQuantity;
+  ShowQuantityState(this.showQuantity);
+}
+
+
+class SetIsProcessingState extends BatchState {
+  final bool isProcessing;
+  SetIsProcessingState(this.isProcessing);
+}

@@ -32,14 +32,14 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         emit(ConfigurationLoading());
         final response = await userRepository.configurations(event.context);
         if (response != null) {
+        
         final int userId = await PrefUtils.getUserId();
         await db.insertConfiguration(response, userId );
+
         final Configurations? responsebd = await db.getConfiguration(userId);
           PrefUtils.setUserRol(response.result?.result?.rol ?? '');
           configurations = Configurations();
           configurations = responsebd ?? response;
-          await db.insertConfiguration(configurations, userId);
-          await db.getConfiguration(userId);
           await PrefUtils.setUserRol(responsebd?.result?.result?.rol ?? '');
           emit(ConfigurationLoaded(responsebd ?? configurations));
         } else {
@@ -49,28 +49,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         print('Error en GetConfigurations.dart: $e =>$s');
       }
     });
-    on<GetConfigurationsUser>((event, emit) async {
-      try {
-        emit(ConfigurationLoading());
-        final response = await userRepository.configurations(event.context);
-        if (response != null) {
-        final int userId = await PrefUtils.getUserId();
-        await db.insertConfiguration(response, userId );
-        final Configurations? responsebd = await db.getConfiguration(userId);
-          PrefUtils.setUserRol(response.result?.result?.rol ?? '');
-          configurations = Configurations();
-          configurations = responsebd ?? response;
-          await db.insertConfiguration(configurations, userId);
-          await db.getConfiguration(userId);
-          await PrefUtils.setUserRol(responsebd?.result?.result?.rol ?? '');
-          emit(ConfigurationLoadedUser(responsebd ?? configurations));
-        } else {
-          emit(ConfigurationError('Error al cargar configuraciones'));
-        }
-      } catch (e, s) {
-        print('Error en GetConfigurations.dart: $e =>$s');
-      }
-    });
+    
     //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEventUser>(_onLoadInfoDeviceEventUser);
     add(LoadInfoDeviceEventUser());
