@@ -183,3 +183,22 @@ class UnPackingEvent extends WmsPackingEvent {
   final int pedidoId;
   UnPackingEvent(this.request, this.context, this.pedidoId);
 }
+
+
+
+class ClearScannedValuePackEvent extends WmsPackingEvent {
+final String scan;
+  ClearScannedValuePackEvent(this.scan);
+}
+
+class UpdateScannedValuePackEvent extends WmsPackingEvent {
+    final String scannedValue;
+  final String scan;
+  UpdateScannedValuePackEvent(this.scannedValue, this.scan);
+}
+
+
+class ShowQuantityPackEvent extends WmsPackingEvent {
+  final bool showQuantity;
+  ShowQuantityPackEvent(this.showQuantity);
+}

@@ -19,6 +19,11 @@ part 'wms_packing_event.dart';
 part 'wms_packing_state.dart';
 
 class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
+  String scannedValue1 = '';
+  String scannedValue2 = '';
+  String scannedValue3 = '';
+  String scannedValue4 = '';
+
   //*lista de batchs para packing
   List<BatchPackingModel> listOfBatchs = [];
   List<BatchPackingModel> listOfBatchsDB = [];
@@ -73,6 +78,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   bool locationDestIsOk = false;
   bool quantityIsOk = false;
   bool isKeyboardVisible = false;
+  bool viewQuantity = false;
 
   //* ultima ubicacion
   String oldLocation = '';
@@ -162,13 +168,94 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
     //*metodo para desempacar productos
     on<UnPackingEvent>(_onUnPackingEvent);
+    //*evento para actualizar el valor del scan
+    on<UpdateScannedValuePackEvent>(_onUpdateScannedValueEvent);
+    on<ClearScannedValuePackEvent>(_onClearScannedValueEvent);
+    //*evento para ver la cantidad
+    on<ShowQuantityPackEvent>(_onShowQuantityEvent);
+
+  }
+
+
+  //*evento para ver la cantidad
+  void _onShowQuantityEvent(ShowQuantityPackEvent event, Emitter<WmsPackingState> emit) {
+    try {
+      viewQuantity = !viewQuantity;
+      emit(ShowQuantityPackState(viewQuantity));
+    } catch (e, s) {
+      print("❌ Error en _onShowQuantityEvent: $e, $s");
+    }
+  }
+
+//*evento para limpiar el valor del scan
+  void _onClearScannedValueEvent(
+      ClearScannedValuePackEvent event, Emitter<WmsPackingState> emit) {
+    try {
+      switch (event.scan) {
+        case 'location':
+          scannedValue1 = '';
+          emit(ClearScannedValuePackState());
+          break;
+        case 'product':
+          scannedValue2 = '';
+          emit(ClearScannedValuePackState());
+          break;
+        case 'quantity':
+          scannedValue3 = '';
+          emit(ClearScannedValuePackState());
+          break;
+        case 'muelle':
+          scannedValue4 = '';
+          emit(ClearScannedValuePackState());
+          break;
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+      emit(ClearScannedValuePackState());
+    } catch (e, s) {
+      print("❌ Error en _onClearScannedValueEvent: $e, $s");
+    }
+  }
+
+  //*evento para actualizar el valor del scan
+  void _onUpdateScannedValueEvent(
+      UpdateScannedValuePackEvent event, Emitter<WmsPackingState> emit) {
+    try {
+      switch (event.scan) {
+        case 'location':
+          // Acumulador de valores escaneados
+          scannedValue1 += event.scannedValue;
+          print('scannedValue1: $scannedValue1');
+          emit(UpdateScannedValuePackState(scannedValue1, event.scan));
+          break;
+        case 'product':
+          scannedValue2 += event.scannedValue;
+          print('scannedValue2: $scannedValue2');
+          emit(UpdateScannedValuePackState(scannedValue2, event.scan));
+          break;
+        case 'quantity':
+          scannedValue3 += event.scannedValue;
+          print('scannedValue3: $scannedValue3');
+          emit(UpdateScannedValuePackState(scannedValue3, event.scan));
+          break;
+        case 'muelle':
+          print('scannedValue4: $scannedValue4');
+          scannedValue4 += event.scannedValue;
+          emit(UpdateScannedValuePackState(scannedValue4, event.scan));
+          break;
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+    } catch (e, s) {
+      print("❌ Error en _onUpdateScannedValueEvent: $e, $s");
+    }
   }
 
   //metodo para desempacar productos
   void _onUnPackingEvent(
       UnPackingEvent event, Emitter<WmsPackingState> emit) async {
     try {
-      //realizamos la peticion a la api
+      emit(UnPackingLoading());
 
       final responseUnPacking = await wmsPackingRepository.unPacking(
         event.request,
@@ -212,7 +299,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               null,
               product.idMove,
               event.request.idPaquete);
-        
+
           //actualizamos el valor de is_location
           await db.setFieldTableProductosPedidosUnPacking(
               event.pedidoId,
@@ -221,7 +308,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               null,
               product.idMove,
               event.request.idPaquete);
-          
+
           //actualizamos el valor de quantity_separate
           await db.setFieldTableProductosPedidosUnPacking(
               event.pedidoId,
@@ -230,7 +317,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               null,
               product.idMove,
               event.request.idPaquete);
-          
+
           //actualizamos el valor de is_selected
           await db.setFieldTableProductosPedidosUnPacking(
               event.pedidoId,
@@ -239,7 +326,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               null,
               product.idMove,
               event.request.idPaquete);
-          
+
           //actualizamos el valor de product_is_ok
           await db.setFieldTableProductosPedidosUnPacking(
               event.pedidoId,
@@ -267,7 +354,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               product.idMove,
               event.request.idPaquete);
 
-
           //acrtualizamos el valor del id_paquete en el producto
           await db.setFieldTableProductosPedidosUnPacking(
               event.pedidoId,
@@ -276,8 +362,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
               null,
               product.idMove,
               event.request.idPaquete);
-
-          
         }
 
         //restamos la cantidad de productos desempacados a un paquete
@@ -296,20 +380,22 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         }
 
         //actualizamos la lista de productos
-        emit(UnPackignSuccess("Desempaquetado del producto exitoso"));
         add(LoadAllProductsFromPedidoEvent(event.pedidoId));
+        emit(UnPackignSuccess("Desempaquetado del producto exitoso"));
       } else {
-        emit(WmsPackingErrorState('Error al desempacar los productos'));
+        emit(UnPackignError('Error al desempacar los productos'));
       }
     } catch (e, s) {
       print('Error en el  _onUnPackingEvent: $e, $s');
-      emit(WmsPackingError(e.toString()));
+      emit(UnPackignError(e.toString()));
     }
   }
 
+  //*metdo para dividir el producto
   void _onSetPickingsSplitEvent(
       SetPickingSplitEvent event, Emitter<WmsPackingState> emit) async {
     try {
+      emit(SplitProductLoading());
       //actualizamos el estado del producto como separado
       await db.setFieldTableProductosPedidos3(
           event.pedidoId, event.productId, "is_separate", "true", event.idMove);
@@ -333,43 +419,49 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       quantitySelected = 0;
       //actualizamos la lista de productos
       add(LoadAllProductsFromPedidoEvent(event.pedidoId));
+      emit(SplitProductSuccess());
     } catch (e, s) {
       print('Error en el  _onSetPickingsSplitEvent: $e, $s');
-      emit(WmsPackingError(e.toString()));
+      emit(SplitProductError(e.toString()));
     }
   }
 
+//*metodo para cargar la configuracion del usuario
   void _onLoadConfigurationsUserEvent(
       LoadConfigurationsUserPack event, Emitter<WmsPackingState> emit) async {
     try {
+      emit(ConfigurationLoadingPack());
       int userId = await PrefUtils.getUserId();
       final response = await db.getConfiguration(userId);
 
       if (response != null) {
-        emit(ConfigurationLoadedPack(response));
         configurations = response;
-        print('configurations: ${configurations.toMap()}');
+        emit(ConfigurationLoadedPack(response));
       } else {
         emit(ConfigurationErrorPack('Error al cargar configuraciones'));
       }
     } catch (e, s) {
+      emit(ConfigurationErrorPack(e.toString()));
       print('Error en GetConfigurations.dart: $e =>$s');
     }
   }
 
+//*meotod para cargar todas las novedades
   void _onLoadAllNovedadesEvent(
       LoadAllNovedadesPackingEvent event, Emitter<WmsPackingState> emit) async {
     try {
+      emit(NovedadesPackingLoadingState());
       final response = await db.getAllNovedades();
-      novedades.clear();
       if (response != null) {
+        novedades.clear();
         novedades = response;
         print("novedades: ${novedades.length}");
+        emit(NovedadesPackingLoadedState(listOfNovedades: novedades));
       }
     } catch (e, s) {
       print("Error en __onLoadAllNovedadesEvent: $e, $s");
+      emit(NovedadesPackingErrorState(e.toString()));
     }
-    emit(NovedadesPackingLoadedState(listOfNovedades: novedades));
   }
 
   //*metodo para seleccionar un producto sin certificar
@@ -520,7 +612,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         emit(
             WmsPackingLoadingState()); // Estado de carga mientras creas el paquete
 
-      
         // if (packageId != null) {
         DateTime fechaTransaccion = DateTime.now();
         String fechaFormateada = formatoFecha(fechaTransaccion);
@@ -701,6 +792,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
       //actualizamos la cantidad se mparada
       quantitySelected = 0;
+      viewQuantity = false;
       add(LoadAllProductsFromPedidoEvent(event.pedidoId));
     } catch (e, s) {
       print('Error en el  _onSetPickingsEvent: $e, $s');

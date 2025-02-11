@@ -10,7 +10,6 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
 
-
 class AppRoutes {
   // Mapa estático de rutas
   static const String enterprice = 'enterprice';
@@ -45,20 +44,48 @@ class AppRoutes {
 
       // WMS Picking
       wmsPicking: (context) => WMSPickingPage(
-        indexSelected: ModalRoute.of(context)!.settings.arguments as int,
-      ),
+            indexSelected: ModalRoute.of(context)!.settings.arguments as int,
+          ),
       batch: (_) => const BatchScreen(),
       batchDetail: (_) => const BatchDetailScreen(),
 
       // WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),
       packingList: (context) => PakingListScreen(
-        batchModel: ModalRoute.of(context)!.settings.arguments as BatchPackingModel?,
-      ),
-      packing: (_) => const PackingScreen(),
-      packingDetail: (context) => PackingDetailScreen(
-        packingModel: ModalRoute.of(context)!.settings.arguments as PedidoPacking?,
-      ),
+            batchModel: ModalRoute.of(context)!.settings.arguments
+                as BatchPackingModel?,
+          ),
+      // packing: (cotext) => const PackingScreen(),
+
+       packing: (context) {
+        // Obtener los argumentos (una lista)
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final packingModel = arguments[0] as PedidoPacking?;
+        final batchModel = arguments[1] as BatchPackingModel?;
+
+        return PackingScreen(
+          packingModel: packingModel,
+          batchModel: batchModel,
+        );
+      },
+
+      packingDetail: (context) {
+        // Obtener los argumentos (una lista)
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final packingModel = arguments[0] as PedidoPacking?;
+        final batchModel = arguments[1] as BatchPackingModel?;
+
+        return PackingDetailScreen(
+          packingModel: packingModel,
+          batchModel: batchModel,
+        );
+      },
 
       // Otros
       yms: (_) => const YMSPage(),

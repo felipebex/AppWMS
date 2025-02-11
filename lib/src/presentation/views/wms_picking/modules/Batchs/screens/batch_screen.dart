@@ -59,6 +59,13 @@ class _BatchDetailScreenState extends State<BatchScreen>
   @override
   void initState() {
     super.initState();
+
+    //esperamos 1 segundo y ejecutamos el _handleDependencies()
+    Future.delayed(const Duration(seconds: 1), () {
+      print("onpoint");
+      _handleDependencies();
+    });
+
     // Añadimos el observer para escuchar el ciclo de vida de la app.
     WidgetsBinding.instance.addObserver(this);
   }
@@ -238,11 +245,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
       return;
     }
     if (scan == currentProduct.barcode?.toLowerCase()) {
-      // batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
       batchBloc.add(AddQuantitySeparate(
           currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0, 1, false));
-      context.read<BatchBloc>().add(ClearScannedValueEvent('quantity'));
-
       context.read<BatchBloc>().add(ClearScannedValueEvent('quantity'));
     } else {
       validateScannedBarcode(scan, batchBloc.currentProduct, batchBloc, false);
@@ -1742,7 +1746,11 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
     if (cantidad == currentProduct.quantity) {
       batchBloc.add(ChangeQuantitySeparate(
-          cantidad, currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0));
+        cantidad,
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0,
+      ));
+
     } else {
       FocusScope.of(context).unfocus();
       if (cantidad < (currentProduct.quantity ?? 0).toInt()) {
@@ -1754,7 +1762,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
                   cantidad: cantidad,
                   batchId: batchBloc.batchWithProducts.batch?.id ?? 0,
                   onAccepted: () async {
-                    // batchBloc.add(IsShouldRunDependencies(true));
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
                         currentProduct.idProduct ?? 0,
@@ -1912,7 +1919,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
             false));
       }
       return false;
-    } else {}
+    }
     return false;
   }
 

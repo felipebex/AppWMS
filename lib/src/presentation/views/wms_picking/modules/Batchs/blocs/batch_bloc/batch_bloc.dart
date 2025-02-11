@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously, prefer_if_null_operators
 
-
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
@@ -37,6 +36,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   bool isProductOk = true;
   bool isLocationDestOk = true;
   bool isQuantityOk = true;
+
   bool _isProcessing = false; // Bandera para controlar el estado del proceso
   bool isProcessing = false; // Bandera para controlar el estado del proceso
 
@@ -90,7 +90,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
   bool isPdaZebra = false;
   bool isKeyboardVisible = false;
-  bool shouldRunDependencies = true;
+
   bool viewQuantity = false;
 
   //*indice del producto actual
@@ -162,20 +162,18 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<ShowQuantityEvent>(_onShowQuantityEvent);
   }
 
-
-
   //*evento para establecer un proceso en ejecucion
   void _onSetIsProcessingEvent(
       SetIsProcessingEvent event, Emitter<BatchState> emit) {
     try {
-      print("------------------------------===============-------------========================");
+      print(
+          "------------------------------===============-------------========================");
       isProcessing = event.isProcessing;
       emit(SetIsProcessingState(isProcessing));
     } catch (e, s) {
       print("❌ Error en _onSetIsProcessingEvent: $e, $s");
     }
   }
-
 
   //*evento para ver la cantidad
   void _onShowQuantityEvent(ShowQuantityEvent event, Emitter<BatchState> emit) {
@@ -359,7 +357,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     quantitySelected = 0;
     isSearch = true;
     isKeyboardVisible = false;
-    shouldRunDependencies = true;
+
     index = 0;
     scannedValue1 = '';
     scannedValue2 = '';
@@ -368,7 +366,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     viewQuantity = false;
     isProcessing = false;
     _isProcessing = false;
-    
+
+    isLocationOk = true;
+    isProductOk = true;
+    isLocationDestOk = true;
+    isQuantityOk = true;
 
     emit(BatchInitial());
   }
@@ -417,8 +419,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       print("❌ Error en __onLoadAllNovedadesEvent: $e, $s");
     }
   }
-
-
 
 //*evento para mostrar el teclado
   void _onShowKeyboardEvent(ShowKeyboard event, Emitter<BatchState> emit) {

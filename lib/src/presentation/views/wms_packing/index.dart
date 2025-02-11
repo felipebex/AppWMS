@@ -162,7 +162,9 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             context
                                                 .read<WmsPackingBloc>()
                                                 .add(ShowKeyboardEvent(false));
-                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                      context, 'home',
+                                      );
                                           },
                                         ),
                                         Padding(

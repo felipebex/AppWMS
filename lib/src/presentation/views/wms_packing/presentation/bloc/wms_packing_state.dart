@@ -76,12 +76,21 @@ class WmsPackingErrorState extends WmsPackingState {
   WmsPackingErrorState(this.message);
 }
 
-
+//*estados para cargar las novedades
 class NovedadesPackingLoadedState  extends WmsPackingState {
   final List<Novedad> listOfNovedades;
   NovedadesPackingLoadedState({required this.listOfNovedades});
 }
 
+class NovedadesPackingLoadingState extends WmsPackingState {}
+
+class NovedadesPackingErrorState extends WmsPackingState {
+  final String message;
+  NovedadesPackingErrorState(this.message);
+}
+
+
+//*estasos para cargar la configuracion del usuario
 
 class ConfigurationLoadingPack extends WmsPackingState {}
 
@@ -98,7 +107,45 @@ class ConfigurationErrorPack extends WmsPackingState {
 }
 
 
+
+
+//*estados para desempacar
 class UnPackignSuccess extends WmsPackingState {
   final String message;
   UnPackignSuccess(this.message);
+}
+
+class UnPackignError extends WmsPackingState {
+  final String message;
+  UnPackignError(this.message);
+}
+
+class UnPackingLoading extends WmsPackingState {}
+
+
+//*estaos para dividir un producto
+class SplitProductSuccess extends WmsPackingState {
+}
+
+class SplitProductError extends WmsPackingState {
+  final String message;
+  SplitProductError(this.message);
+}
+
+class SplitProductLoading extends WmsPackingState {}
+
+
+
+class ClearScannedValuePackState extends WmsPackingState {}
+
+
+class UpdateScannedValuePackState  extends WmsPackingState {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValuePackState(this.scannedValue, this.scan);
+}
+
+class ShowQuantityPackState extends WmsPackingState {
+  final bool showQuantity;
+  ShowQuantityPackState(this.showQuantity);
 }

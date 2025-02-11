@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
@@ -10,7 +11,10 @@ import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2Screen extends StatelessWidget {
-  const Tab2Screen({super.key});
+  const Tab2Screen({super.key, this.packingModel, this.batchModel});
+
+  final PedidoPacking? packingModel;
+  final BatchPackingModel? batchModel;
 
   @override
   Widget build(BuildContext context) {
@@ -307,6 +311,10 @@ class Tab2Screen extends StatelessWidget {
                                                 Navigator.pushReplacementNamed(
                                                   context,
                                                   'Packing',
+                                                  arguments: [
+                                                    packingModel,
+                                                    batchModel
+                                                  ],
                                                 );
                                               });
                                             },

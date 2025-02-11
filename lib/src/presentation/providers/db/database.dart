@@ -1,8 +1,5 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks
 
-import 'dart:io';
-
-import 'package:path_provider/path_provider.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/models/recent_url_model.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -1606,6 +1603,7 @@ class DataBaseSqlite {
 
     await db.delete('tblbatch_products');
   }
+
   Future<void> deleteBDCloseSession() async {
     final db = await getDatabaseInstance();
     //picking
@@ -1626,7 +1624,6 @@ class DataBaseSqlite {
 
     await db.delete('tblbatch_products');
   }
-
 
   //todo: Metodos para actualizar los campos de las tablas
 
@@ -1929,10 +1926,10 @@ class DataBaseSqlite {
       int batchId, int productId, int idMove, int quantity) async {
     final db = await getDatabaseInstance();
     return await db!.transaction((txn) async {
-      // Primero, obtenemos el valor actual de product_separate_qty
+      // Primero, obtenemos el valor actual de quantity_separate y quantity
       final result = await txn.query(
         'tblbatch_products',
-        columns: ['quantity_separate'],
+        columns: ['quantity_separate', 'quantity'],
         where: 'batch_id = ? AND id_product = ? AND id_move = ?',
         whereArgs: [
           batchId,
@@ -1942,16 +1939,23 @@ class DataBaseSqlite {
       );
 
       if (result.isNotEmpty) {
-        // Extraemos el valor actual
-        int currentQty = (result.first['quantity_separate'] as int?) ?? 0;
+        // Extraemos los valores actuales
+        int currentQtySeparate =
+            (result.first['quantity_separate'] as int?) ?? 0;
+        int currentQty = (result.first['quantity'] as int?) ?? 0;
 
-        // Incrementamos la cantidad
-        int newQty = currentQty + quantity;
+        // Incrementamos la cantidad de quantity_separate
+        int newQtySeparate = currentQtySeparate + quantity;
+
+        // Validamos que quantity_separate no sea mayor que quantity
+        if (newQtySeparate > currentQty) {
+          newQtySeparate = currentQty; // Si es mayor, lo igualamos a quantity
+        }
 
         // Actualizamos la tabla
         return await txn.update(
           'tblbatch_products',
-          {'quantity_separate': newQty},
+          {'quantity_separate': newQtySeparate},
           where: 'batch_id = ? AND id_product = ? AND id_move = ?',
           whereArgs: [
             batchId,

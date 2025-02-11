@@ -96,7 +96,10 @@ class PakingListScreen extends StatelessWidget {
                                             .read<WmsPackingBloc>()
                                             .searchControllerPedido
                                             .clear();
-                                        Navigator.pop(context);
+                                        Navigator.pushReplacementNamed(
+                                          context,
+                                          'wms-packing',
+                                        );
                                       },
                                     ),
                                     Padding(
@@ -116,7 +119,7 @@ class PakingListScreen extends StatelessWidget {
                       ),
                     ),
 
-                    Container(
+                    SizedBox(
                       width: size.width,
                       child: SingleChildScrollView(
                         child: Column(
@@ -430,7 +433,7 @@ class PakingListScreen extends StatelessWidget {
                                           // Viajamos a la vista de detalle de un pedido
                                           Navigator.pushReplacementNamed(
                                               context, 'packing-detail',
-                                              arguments: packing);
+                                              arguments: [packing, batchModel]);
                                           print(
                                               'Pedido seleccionado: ${packing.toMap()}');
                                         },

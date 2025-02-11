@@ -24,6 +24,7 @@ class SelectEnterpricePage extends StatelessWidget {
       create: (context) => EntrepriseBloc(),
       child: BlocConsumer<EntrepriseBloc, EntrepriseState>(
         listener: (context, state) {
+          print('state $state');
           if (state is EntrepriseInitial) {
             context.read<UserBloc>().add(LoadInfoDeviceEventUser());
           }

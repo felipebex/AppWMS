@@ -13,9 +13,10 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class PackingDetailScreen extends StatefulWidget {
-  const PackingDetailScreen({super.key, required this.packingModel});
+  const PackingDetailScreen({super.key, required this.packingModel, this.batchModel});
 
   final PedidoPacking? packingModel;
+  final BatchPackingModel? batchModel;
 
   @override
   State<PackingDetailScreen> createState() => _PackingDetailScreenState();
@@ -51,7 +52,9 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                         .add(LoadAllPedidosFromBatchEvent(
                           widget.packingModel?.batchId ?? 0,
                         ));
-                    Navigator.pop(context);
+                     Navigator.pushReplacementNamed(
+                                      context, 'packing-list',
+                                      arguments: widget.batchModel);
                   },
                 ),
                 title: const Text('PACKING - DETAIL',
@@ -113,7 +116,10 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                   Tab1Screen(
                       size: size,
                       packingModel: widget.packingModel ?? PedidoPacking()),
-                  const Tab2Screen(),
+                   Tab2Screen(
+                    packingModel: widget.packingModel ?? PedidoPacking(),
+                    batchModel: widget.batchModel ?? BatchPackingModel(),
+                  ),
                   const Tab3Screen(),
                   const Tab4Screen(),
                 ],

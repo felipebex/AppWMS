@@ -1,20 +1,19 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, avoid_print
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/location/location_card_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/product/product_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
@@ -24,80 +23,72 @@ import 'package:wms_app/src/utils/theme/input_decoration.dart';
 class PackingScreen extends StatefulWidget {
   const PackingScreen({
     super.key,
+    this.packingModel,
+    this.batchModel,
   });
+
+  final PedidoPacking? packingModel;
+  final BatchPackingModel? batchModel;
 
   @override
   State<PackingScreen> createState() => _PackingScreenState();
 }
 
 class _PackingScreenState extends State<PackingScreen> {
-  String scannedValue1 = '';
-  String scannedValue2 = '';
-  String scannedValue3 = '';
-
-  String alerta = "";
-  String? focoLocation = 'ubicacion';
-
   FocusNode focusNode1 = FocusNode(); // ubicacion  de origen
   FocusNode focusNode2 = FocusNode(); // producto
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
   FocusNode focusNode4 = FocusNode(); //cantidad textformfield
-  FocusNode focusNode5 = FocusNode(); //cantidad muelle
 
-  bool viewQuantity = false;
   String? selectedLocation;
 
   //controller
   final TextEditingController _controllerLocation = TextEditingController();
   final TextEditingController _controllerProduct = TextEditingController();
   final TextEditingController _controllerQuantity = TextEditingController();
-  // final TextEditingController _controllerMuelle = TextEditingController();
   final TextEditingController cantidadController = TextEditingController();
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _handleDependencies();
+  }
 
+  void _handleDependencies() {
     final batchBloc = context.read<WmsPackingBloc>();
     if (!batchBloc.locationIsOk && //false
         !batchBloc.productIsOk && //false
         !batchBloc.quantityIsOk && //false
         !batchBloc.locationDestIsOk) //false
     {
-      setState(() {
-        focoLocation = 'ubicacion';
-      });
+      print('❤️‍🔥 location');
       FocusScope.of(context).requestFocus(focusNode1);
+      focusNode2.unfocus();
+      focusNode3.unfocus();
+      focusNode4.unfocus();
     }
     if (batchBloc.locationIsOk && //true
         !batchBloc.productIsOk && //false
         !batchBloc.quantityIsOk && //false
         !batchBloc.locationDestIsOk) //false
     {
-      setState(() {
-        focoLocation = 'producto';
-      });
+      print('❤️‍🔥 product');
       FocusScope.of(context).requestFocus(focusNode2);
+      focusNode1.unfocus();
+      focusNode3.unfocus();
+      focusNode4.unfocus();
     }
     if (batchBloc.locationIsOk && //true
         batchBloc.productIsOk && //true
         batchBloc.quantityIsOk && //ttrue
         !batchBloc.locationDestIsOk && //false
-        !viewQuantity) //false
+        !batchBloc.viewQuantity) //false
     {
-      setState(() {
-        focoLocation = 'cantidad';
-      });
+      print('❤️‍🔥 quantity');
       FocusScope.of(context).requestFocus(focusNode3);
-    }
-    if (batchBloc.locationIsOk &&
-        batchBloc.productIsOk &&
-        !batchBloc.quantityIsOk &&
-        !batchBloc.locationDestIsOk) {
-      setState(() {
-        focoLocation = 'muelle';
-      });
-      FocusScope.of(context).requestFocus(focusNode5);
+      focusNode1.unfocus();
+      focusNode2.unfocus();
+      focusNode4.unfocus();
     }
   }
 
@@ -107,45 +98,41 @@ class _PackingScreenState extends State<PackingScreen> {
     focusNode2.dispose();
     focusNode3.dispose();
     focusNode4.dispose();
-    focusNode5.dispose();
     super.dispose();
   }
 
-  void validateLocation(String barcode) {
-    setState(() {
-      scannedValue1 = barcode.toLowerCase();
-    });
-    _controllerLocation.text = "";
+  void validateLocation(String value) {
     final batchBloc = context.read<WmsPackingBloc>();
+
+    String scan = batchBloc.scannedValue1.toLowerCase() == ""
+        ? value.toLowerCase()
+        : batchBloc.scannedValue1.toLowerCase();
+
+    _controllerLocation.text = "";
     final currentProduct = batchBloc.currentProduct;
-    if (scannedValue1.toLowerCase() ==
-        currentProduct.barcodeLocation.toString().toLowerCase()) {
+    if (scan == currentProduct.barcodeLocation.toString().toLowerCase()) {
       batchBloc.add(ValidateFieldsPackingEvent(field: "location", isOk: true));
       batchBloc.add(ChangeLocationIsOkEvent(currentProduct.idProduct ?? 0,
           currentProduct.pedidoId ?? 0, currentProduct.idMove ?? 0));
+      batchBloc.add(ClearScannedValuePackEvent('location'));
     } else {
       batchBloc.add(ValidateFieldsPackingEvent(field: "location", isOk: false));
-      setState(() {
-        scannedValue1 = "";
-      });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 1000),
-        content: const Text('Ubicación errónea'),
-        backgroundColor: Colors.red[200],
-      ));
+      batchBloc.add(ClearScannedValuePackEvent('location'));
     }
   }
 
-  void validateProduct(String barcode) {
-    setState(() {
-      scannedValue2 = barcode.toLowerCase();
-    });
+  void validateProduct(String value) {
+    final batchBloc = context.read<WmsPackingBloc>();
+
+    String scan = batchBloc.scannedValue2.toLowerCase() == ""
+        ? value.toLowerCase()
+        : batchBloc.scannedValue2.toLowerCase();
 
     _controllerProduct.text = "";
-    final batchBloc = context.read<WmsPackingBloc>();
     final currentProduct = batchBloc.currentProduct;
-    if (scannedValue2.toLowerCase() == currentProduct.barcode?.toLowerCase()) {
+
+    if (scan == currentProduct.barcode?.toLowerCase()) {
       batchBloc.add(ValidateFieldsPackingEvent(field: "product", isOk: true));
 
       batchBloc.add(ChangeQuantitySeparate(0, currentProduct.idProduct ?? 0,
@@ -154,45 +141,34 @@ class _PackingScreenState extends State<PackingScreen> {
           currentProduct.pedidoId ?? 0, 0, currentProduct.idMove ?? 0));
       batchBloc.add(ChangeIsOkQuantity(true, currentProduct.idProduct ?? 0,
           currentProduct.pedidoId ?? 0, currentProduct.idMove ?? 0));
+      batchBloc.add(ClearScannedValuePackEvent('product'));
     } else {
-      final isok = validateScannedBarcode(scannedValue2.toLowerCase(),
-          batchBloc.currentProduct, batchBloc, true);
+      final isok = validateScannedBarcode(
+          scan, batchBloc.currentProduct, batchBloc, true);
       if (!isok) {
         batchBloc
             .add(ValidateFieldsPackingEvent(field: "product", isOk: false));
-        setState(() {
-          scannedValue2 = ""; //limpiamos el valor escaneado
-        });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(milliseconds: 1000),
-          content: const Text('Producto erroneo'),
-          backgroundColor: Colors.red[200],
-        ));
+        batchBloc.add(ClearScannedValuePackEvent('product'));
       }
     }
   }
 
-  void validateQuantity(String barcode) {
-    setState(() {
-      scannedValue3 = barcode.toLowerCase();
-    });
+  void validateQuantity(String value) {
+    final batchBloc = context.read<WmsPackingBloc>();
+
+    String scan = batchBloc.scannedValue3.toLowerCase() == ""
+        ? value.toLowerCase()
+        : batchBloc.scannedValue3.toLowerCase();
 
     _controllerQuantity.text = "";
-    final batchBloc = context.read<WmsPackingBloc>();
     final currentProduct = batchBloc.currentProduct;
-    if (scannedValue3.toLowerCase() == currentProduct.barcode?.toLowerCase()) {
-      batchBloc.add(ValidateFieldsPackingEvent(field: "quantity", isOk: true));
+    if (scan == currentProduct.barcode?.toLowerCase()) {
       batchBloc.add(AddQuantitySeparate(1, currentProduct.idMove ?? 0,
           currentProduct.idProduct ?? 0, currentProduct.pedidoId ?? 0));
-      setState(() {
-        scannedValue3 = ""; //limpiamos el valor escaneado
-      });
+      batchBloc.add(ClearScannedValuePackEvent('quantity'));
     } else {
-      validateScannedBarcode(scannedValue3.toLowerCase(),
-          batchBloc.currentProduct, batchBloc, false);
-      setState(() {
-        scannedValue3 = ""; //limpiamos el valor escaneado
-      });
+      validateScannedBarcode(scan, batchBloc.currentProduct, batchBloc, false);
+      batchBloc.add(ClearScannedValuePackEvent('quantity'));
     }
   }
 
@@ -229,12 +205,6 @@ class _PackingScreenState extends State<PackingScreen> {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if ((matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected) >
             currentProduct.quantity!) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: const Duration(milliseconds: 1000),
-            content: Text(
-                'Error, el codigo es para una cantidad de : ${matchedBarcode.cantidad} '),
-            backgroundColor: Colors.red[200],
-          ));
           return false;
         }
         batchBloc.add(AddQuantitySeparate(
@@ -245,11 +215,6 @@ class _PackingScreenState extends State<PackingScreen> {
       }
       return false;
     }
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      duration: const Duration(milliseconds: 1000),
-      content: const Text('Codigo de cantidad incorrecto'),
-      backgroundColor: Colors.red[200],
-    ));
     return false;
   }
 
@@ -263,7 +228,6 @@ class _PackingScreenState extends State<PackingScreen> {
       },
       child: BlocBuilder<WmsPackingBloc, WmsPackingState>(
         builder: (context, state) {
-          log("focoLocation: $focoLocation");
           final packinghBloc = context.read<WmsPackingBloc>();
 
           return Scaffold(
@@ -278,30 +242,35 @@ class _PackingScreenState extends State<PackingScreen> {
                       create: (context) => ConnectionStatusCubit(),
                       child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
                         listener: (context, state) {
+                          print('❤️‍🔥 state: $state ');
+
                           if (state is ChangeQuantitySeparateState) {
                             if (state.quantity ==
                                 packinghBloc.currentProduct.quantity.toInt()) {
                               _finichPackingProduct(context);
+                              Navigator.pushReplacementNamed(
+                                context,
+                                'packing-detail',
+                                arguments: [
+                                  widget.packingModel,
+                                  widget.batchModel
+                                ],
+                              );
                             }
-                            print("hola");
                           }
 
                           if (state is ChangeLocationPackingIsOkState) {
-                            setState(() {
-                              focoLocation = 'producto';
-                            });
                             Future.delayed(const Duration(seconds: 1), () {
                               FocusScope.of(context).requestFocus(focusNode2);
                             });
+                            _handleDependencies();
                           }
 
                           if (state is ChangeProductPackingIsOkState) {
-                            setState(() {
-                              focoLocation = 'cantidad';
-                            });
                             Future.delayed(const Duration(seconds: 1), () {
                               FocusScope.of(context).requestFocus(focusNode3);
                             });
+                            _handleDependencies();
                           }
                         },
                         builder: (context, state) {
@@ -323,7 +292,14 @@ class _PackingScreenState extends State<PackingScreen> {
                                                 packinghBloc.currentProduct
                                                         .pedidoId ??
                                                     0));
-                                        Navigator.pop(context);
+                                        Navigator.pushReplacementNamed(
+                                          context,
+                                          'packing-detail',
+                                          arguments: [
+                                            widget.packingModel,
+                                            widget.batchModel
+                                          ],
+                                        );
                                       },
                                       icon: const Icon(Icons.arrow_back,
                                           color: Colors.white, size: 30),
@@ -382,7 +358,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                     child: Container(
                                       width: size.width * 0.85,
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 10),
+                                          horizontal: 10, vertical: 2),
                                       child: context
                                               .read<UserBloc>()
                                               .fabricante
@@ -425,7 +401,9 @@ class _PackingScreenState extends State<PackingScreen> {
                                                     focusNode: focusNode1,
                                                     onChanged: (value) {
                                                       // Llamamos a la validación al cambiar el texto
-                                                      validateLocation(value);
+                                                      validateLocation(
+                                                          _controllerLocation
+                                                              .text);
                                                     },
                                                     decoration: InputDecoration(
                                                       hintText: packinghBloc
@@ -452,19 +430,16 @@ class _PackingScreenState extends State<PackingScreen> {
                                                   if (event.logicalKey ==
                                                       LogicalKeyboardKey
                                                           .enter) {
-                                                    if (scannedValue1
-                                                        .isNotEmpty) {
-                                                      validateLocation(
-                                                          scannedValue1);
-                                                    }
-
+                                                    validateLocation(
+                                                        packinghBloc
+                                                            .scannedValue1);
                                                     return KeyEventResult
                                                         .handled;
                                                   } else {
-                                                    setState(() {
-                                                      scannedValue1 +=
-                                                          event.data.keyLabel;
-                                                    });
+                                                    packinghBloc.add(
+                                                        UpdateScannedValuePackEvent(
+                                                            event.data.keyLabel,
+                                                            'location'));
                                                     return KeyEventResult
                                                         .handled;
                                                   }
@@ -521,7 +496,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                     child: Container(
                                       width: size.width * 0.85,
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 10),
+                                          horizontal: 10, vertical: 2),
                                       child: context
                                               .read<UserBloc>()
                                               .fabricante
@@ -542,43 +517,85 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       .currentProduct,
                                                   isPDA: false,
                                                 ),
-                                                Container(
-                                                  height: 15,
-                                                  margin: const EdgeInsets.only(
-                                                      bottom: 5),
-                                                  child: TextFormField(
-                                                    showCursor: false,
-                                                    enabled: packinghBloc
-                                                            .locationIsOk && //true
-                                                        !packinghBloc
-                                                            .productIsOk && //false
-                                                        !packinghBloc
-                                                            .quantityIsOk && //false
-                                                        !packinghBloc
-                                                            .locationDestIsOk,
+                                                TextFormField(
+                                                  showCursor: false,
+                                                  enabled: packinghBloc
+                                                          .locationIsOk && //true
+                                                      !packinghBloc
+                                                          .productIsOk && //false
+                                                      !packinghBloc
+                                                          .quantityIsOk,
 
-                                                    controller:
-                                                        _controllerProduct, // Controlador que maneja el texto
-                                                    focusNode: focusNode2,
-                                                    onChanged: (value) {
-                                                      validateProduct(value);
-                                                    },
-                                                    decoration: InputDecoration(
-                                                      hintText: packinghBloc
-                                                          .currentProduct
-                                                          .productId
-                                                          .toString(),
-                                                      disabledBorder:
-                                                          InputBorder.none,
-                                                      hintStyle:
-                                                          const TextStyle(
-                                                              fontSize: 14,
-                                                              color: black),
-                                                      border: InputBorder.none,
-                                                    ),
+                                                  controller:
+                                                      _controllerProduct, // Controlador que maneja el texto
+                                                  focusNode: focusNode2,
+                                                  onChanged: (value) {
+                                                    validateProduct(value);
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    hintText: packinghBloc
+                                                        .currentProduct
+                                                        .productId
+                                                        .toString(),
+                                                    disabledBorder:
+                                                        InputBorder.none,
+                                                    hintMaxLines: 2,
+                                                    hintStyle: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                    border: InputBorder.none,
                                                   ),
                                                 ),
                                                 // Lote/Numero de serie
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Row(
+                                                    children: [
+                                                      Image.asset(
+                                                        "assets/icons/barcode.png",
+                                                        color: primaryColorApp,
+                                                        width: 20,
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Text(
+                                                        packinghBloc
+                                                                        .currentProduct
+                                                                        .barcode ==
+                                                                    false ||
+                                                                packinghBloc
+                                                                        .currentProduct
+                                                                        .barcode ==
+                                                                    null ||
+                                                                packinghBloc
+                                                                        .currentProduct
+                                                                        .barcode ==
+                                                                    ""
+                                                            ? "Sin codigo de barras"
+                                                            : packinghBloc
+                                                                .currentProduct
+                                                                .barcode,
+                                                        textAlign:
+                                                            TextAlign.start,
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: packinghBloc.currentProduct
+                                                                            .barcode ==
+                                                                        false ||
+                                                                    packinghBloc
+                                                                            .currentProduct
+                                                                            .barcode ==
+                                                                        null ||
+                                                                    packinghBloc
+                                                                            .currentProduct
+                                                                            .barcode ==
+                                                                        ""
+                                                                ? red
+                                                                : black),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
                                                 Column(
                                                   children: [
                                                     ExpiryDateWidget(
@@ -599,62 +616,67 @@ class _PackingScreenState extends State<PackingScreen> {
                                                                 ""
                                                             ? true
                                                             : false),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Visibility(
-                                                        visible: packinghBloc
-                                                                    .currentProduct
-                                                                    .barcode ==
-                                                                false ||
-                                                            packinghBloc
-                                                                    .currentProduct
-                                                                    .barcode ==
-                                                                null ||
-                                                            packinghBloc
-                                                                    .currentProduct
-                                                                    .barcode ==
-                                                                "",
-                                                        child: const Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top: 10),
-                                                          child: Text(
-                                                            "Sin código de barras",
-                                                            textAlign:
-                                                                TextAlign.start,
-                                                            style: TextStyle(
-                                                                fontSize: 14,
-                                                                color:
-                                                                    Colors.red),
+                                                    if (packinghBloc
+                                                            .currentProduct
+                                                            .loteId !=
+                                                        null)
+                                                      Row(
+                                                        children: [
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                              'Lote/serie',
+                                                              style: TextStyle(
+                                                                  fontSize: 14,
+                                                                  color:
+                                                                      primaryColorApp),
+                                                            ),
                                                           ),
-                                                        ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                              packinghBloc
+                                                                      .currentProduct
+                                                                      .lotId ??
+                                                                  '',
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          13,
+                                                                      color:
+                                                                          black),
+                                                            ),
+                                                          ),
+                                                          const Spacer(),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return DialogBarcodes(
+                                                                        listOfBarcodes:
+                                                                            packinghBloc.listOfBarcodes);
+                                                                  });
+                                                            },
+                                                            child: Visibility(
+                                                              visible: packinghBloc
+                                                                  .listOfBarcodes
+                                                                  .isNotEmpty,
+                                                              child: Image.asset(
+                                                                  "assets/icons/package_barcode.png",
+                                                                  color:
+                                                                      primaryColorApp,
+                                                                  width: 20),
+                                                            ),
+                                                          ),
+                                                        ],
                                                       ),
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        'Lote/Numero de serie',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color:
-                                                                primaryColorApp),
-                                                      ),
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        packinghBloc
-                                                                .currentProduct
-                                                                .lotId ??
-                                                            '',
-                                                        style: const TextStyle(
-                                                            fontSize: 14,
-                                                            color: black),
-                                                      ),
-                                                    ),
                                                   ],
                                                 ),
                                               ],
@@ -667,18 +689,15 @@ class _PackingScreenState extends State<PackingScreen> {
                                                   if (event.logicalKey ==
                                                       LogicalKeyboardKey
                                                           .enter) {
-                                                    if (scannedValue2
-                                                        .isNotEmpty) {
-                                                      validateProduct(
-                                                          scannedValue2);
-                                                    }
+                                                    validateProduct(packinghBloc
+                                                        .scannedValue2);
                                                     return KeyEventResult
                                                         .handled;
                                                   } else {
-                                                    setState(() {
-                                                      scannedValue2 +=
-                                                          event.data.keyLabel;
-                                                    });
+                                                    packinghBloc.add(
+                                                        UpdateScannedValuePackEvent(
+                                                            event.data.keyLabel,
+                                                            'product'));
                                                     return KeyEventResult
                                                         .handled;
                                                   }
@@ -830,13 +849,13 @@ class _PackingScreenState extends State<PackingScreen> {
                   //todo: cantidad
                   SizedBox(
                     width: size.width,
-                    height: viewQuantity == true &&
+                    height: packinghBloc.viewQuantity == true &&
                             context
                                 .read<UserBloc>()
                                 .fabricante
                                 .contains("Zebra")
                         ? 345
-                        : !viewQuantity
+                        : !packinghBloc.viewQuantity
                             ? 110
                             : 150,
                     child: Column(
@@ -929,19 +948,18 @@ class _PackingScreenState extends State<PackingScreen> {
                                                       if (event.logicalKey ==
                                                           LogicalKeyboardKey
                                                               .enter) {
-                                                        if (scannedValue3
-                                                            .isNotEmpty) {
-                                                          validateQuantity(
-                                                              scannedValue3);
-                                                        }
+                                                        validateQuantity(
+                                                            packinghBloc
+                                                                .scannedValue3);
 
                                                         return KeyEventResult
                                                             .handled;
                                                       } else {
-                                                        setState(() {
-                                                          scannedValue3 += event
-                                                              .data.keyLabel;
-                                                        });
+                                                        packinghBloc.add(
+                                                            UpdateScannedValuePackEvent(
+                                                                event.data
+                                                                    .keyLabel,
+                                                                'quantity'));
                                                         return KeyEventResult
                                                             .handled;
                                                       }
@@ -971,10 +989,10 @@ class _PackingScreenState extends State<PackingScreen> {
                                                             .quantitySelected >=
                                                         0
                                                 ? () {
-                                                    setState(() {
-                                                      viewQuantity =
-                                                          !viewQuantity;
-                                                    });
+                                                    packinghBloc.add(
+                                                        ShowQuantityPackEvent(
+                                                            !packinghBloc
+                                                                .viewQuantity));
                                                     Future.delayed(
                                                         const Duration(
                                                             milliseconds: 100),
@@ -994,7 +1012,7 @@ class _PackingScreenState extends State<PackingScreen> {
                           ),
                         ),
                         Visibility(
-                          visible: viewQuantity,
+                          visible: packinghBloc.viewQuantity,
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 2),
@@ -1040,11 +1058,9 @@ class _PackingScreenState extends State<PackingScreen> {
                                   labelText: 'Cantidad',
                                   suffixIconButton: IconButton(
                                     onPressed: () {
-                                      setState(() {
-                                        viewQuantity = !viewQuantity;
-                                      });
+                                      packinghBloc.add(ShowQuantityPackEvent(
+                                          !packinghBloc.viewQuantity));
                                       cantidadController.clear();
-
                                       //cambiamos el foco pa leer por pda la cantidad
                                       Future.delayed(
                                           const Duration(milliseconds: 100),
@@ -1056,189 +1072,6 @@ class _PackingScreenState extends State<PackingScreen> {
                                     icon: const Icon(Icons.clear),
                                   ),
                                 ),
-                                // //al dar enter
-                                // onFieldSubmitted: (value) {
-                                //   setState(() {
-                                //     //validamos que el texto no este vacio
-                                //     if (value.isNotEmpty) {
-                                //       if (int.parse(value) >
-                                //           (packinghBloc.currentProduct
-                                //                       .quantity ??
-                                //                   0)
-                                //               .toInt()) {
-                                //         //todo: cantidad fuera del rango
-                                //         packinghBloc.add(
-                                //             ValidateFieldsPackingEvent(
-                                //                 field: "quantity",
-                                //                 isOk: false));
-                                //         cantidadController.clear();
-                                //         ScaffoldMessenger.of(context)
-                                //             .showSnackBar(SnackBar(
-                                //           duration: const Duration(seconds: 1),
-                                //           content:
-                                //               const Text('Cantidad incorrecta'),
-                                //           backgroundColor: Colors.red[200],
-                                //         ));
-                                //       } else {
-                                //         //todo: cantidad dentro del rango
-
-                                //         if (int.parse(value) ==
-                                //            packinghBloc
-                                //                     .currentProduct.quantity) {
-                                //           //*cantidad correcta
-
-                                //           //guardamos la cantidad en la bd
-                                //           packinghBloc
-                                //               .add(ChangeQuantitySeparate(
-                                //             int.parse(value),
-                                //             packinghBloc
-                                //                     .currentProduct.idProduct ??
-                                //                 0,
-                                //             packinghBloc
-                                //                     .currentProduct.pedidoId ??
-                                //                 0,
-                                //             packinghBloc
-                                //                     .currentProduct.idMove ??
-                                //                 0,
-                                //           ));
-
-                                //           packinghBloc.add(SetPickingsEvent(
-                                //             packinghBloc
-                                //                     .currentProduct.idProduct ??
-                                //                 0,
-                                //             packinghBloc
-                                //                     .currentProduct.pedidoId ??
-                                //                 0,
-                                //             packinghBloc
-                                //                     .currentProduct.idMove ??
-                                //                 0,
-                                //           ));
-
-                                //           cantidadController.clear();
-                                //           setState(() {
-                                //             viewQuantity = false;
-                                //           });
-
-                                //           showDialog(
-                                //               barrierDismissible: false,
-                                //               context: context,
-                                //               builder: (context) {
-                                //                 return const DialogLoadingPacking();
-                                //               });
-                                //           Future.delayed(
-                                //               const Duration(seconds: 1), () {
-                                //             Navigator.pop(context);
-                                //             Navigator.pop(context);
-                                //             packinghBloc.add(
-                                //                 LoadAllProductsFromPedidoEvent(
-                                //                     packinghBloc.currentProduct
-                                //                             .pedidoId ??
-                                //                         0));
-                                //           });
-                                //           return;
-
-                                //           // _nextProduct(currentProduct, batchBloc);
-                                //         } else {
-                                //           //todo cantidad menor a la cantidad pedida
-
-                                //           showDialog(
-                                //               context: context,
-                                //               builder: (context) {
-                                //                 return DialogPackingAdvetenciaCantidadScreen(
-                                //                     currentProduct: packinghBloc
-                                //                         .currentProduct,
-                                //                     cantidad: int.parse(
-                                //                         cantidadController
-                                //                             .text),
-                                //                     onAccepted: () {
-                                //                       packinghBloc.add(
-                                //                           ChangeQuantitySeparate(
-                                //                         int.parse(value),
-                                //                         packinghBloc
-                                //                                 .currentProduct
-                                //                                 .idProduct ??
-                                //                             0,
-                                //                         packinghBloc
-                                //                                 .currentProduct
-                                //                                 .pedidoId ??
-                                //                             0,
-                                //                         packinghBloc
-                                //                                 .currentProduct
-                                //                                 .idMove ??
-                                //                             0,
-                                //                       ));
-
-                                //                       packinghBloc
-                                //                           .add(SetPickingsEvent(
-                                //                         packinghBloc
-                                //                                 .currentProduct
-                                //                                 .idProduct ??
-                                //                             0,
-                                //                         packinghBloc
-                                //                                 .currentProduct
-                                //                                 .pedidoId ??
-                                //                             0,
-                                //                         packinghBloc
-                                //                                 .currentProduct
-                                //                                 .idMove ??
-                                //                             0,
-                                //                       ));
-
-                                //                       cantidadController
-                                //                           .clear();
-                                //                       setState(() {
-                                //                         viewQuantity = false;
-                                //                       });
-
-                                //                       showDialog(
-                                //                           barrierDismissible:
-                                //                               false,
-                                //                           context: context,
-                                //                           builder: (context) {
-                                //                             return const DialogLoadingPacking();
-                                //                           });
-                                //                       Future.delayed(
-                                //                           const Duration(
-                                //                               seconds: 1), () {
-                                //                         packinghBloc.add(
-                                //                             LoadAllProductsFromPedidoEvent(
-                                //                                 packinghBloc
-                                //                                         .currentProduct
-                                //                                         .pedidoId ??
-                                //                                     0));
-                                //                       });
-                                //                       Navigator.pop(context);
-                                //                       Navigator.pop(context);
-                                //                       return;
-                                //                     },
-                                //                     onSplit: () {
-                                //                       packinghBloc.add(ChangeQuantitySeparate(
-                                //                           int.parse(value),
-                                //                           packinghBloc
-                                //                                   .currentProduct
-                                //                                   .idProduct ??
-                                //                               0,
-                                //                           packinghBloc
-                                //                                   .currentProduct
-                                //                                   .pedidoId ??
-                                //                               0,
-                                //                           packinghBloc
-                                //                                   .currentProduct
-                                //                                   .idMove ??
-                                //                               0));
-                                //                       cantidadController
-                                //                           .clear();
-                                //                       _finichPackingProductSplit(
-                                //                           context,
-                                //                           int.parse(value));
-                                //                     });
-                                //               });
-                                //         }
-                                //       }
-                                //     }
-                                //     viewQuantity = false;
-                                //   });
-                                // },
                               ),
                             ),
                           ),
@@ -1270,7 +1103,7 @@ class _PackingScreenState extends State<PackingScreen> {
                               ),
                             )),
                         Visibility(
-                          visible: viewQuantity &&
+                          visible: packinghBloc.viewQuantity &&
                               context
                                   .read<UserBloc>()
                                   .fabricante
@@ -1293,7 +1126,6 @@ class _PackingScreenState extends State<PackingScreen> {
   }
 
   void _finichPackingProduct(BuildContext context) async {
-    final DataBaseSqlite db = DataBaseSqlite();
     //marcamos el producto como terminado
     final batchBloc = context.read<WmsPackingBloc>();
     batchBloc.add(SetPickingsEvent(
@@ -1304,7 +1136,7 @@ class _PackingScreenState extends State<PackingScreen> {
     //cerramos el dialogo de carga
     batchBloc.add(
         LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
-    Navigator.pop(context);
+    // Navigator.pop(context);
   }
 
   void _finichPackingProductSplit(BuildContext context, int cantidad) async {
