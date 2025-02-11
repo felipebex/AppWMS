@@ -3,7 +3,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogLoadingNetwork extends StatelessWidget {
@@ -26,12 +25,8 @@ class DialogLoadingNetwork extends StatelessWidget {
               height: 100,
               width: 200,
               child: Image.asset(
-                Environment.flavor.appName == "BexPicking"
-                    ? "assets/icons/iconBex.png"
-                    : "assets/images/icono.jpeg",
-                fit: Environment.flavor.appName == "BexPicking"
-                    ? BoxFit.contain
-                    : BoxFit.cover,
+                "assets/images/icono.jpeg",
+                fit: BoxFit.cover,
               ),
             ),
             Align(

@@ -1,3 +1,87 @@
+// plugins {
+//     id "com.android.application"
+//     id "kotlin-android"
+//     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+//     id "dev.flutter.flutter-gradle-plugin"
+// }
+
+// android {
+//     namespace = "com.example.appwms"
+//     compileSdk = flutter.compileSdkVersion
+//     ndkVersion = "25.1.8937393"
+
+//     compileOptions {
+//         sourceCompatibility = JavaVersion.VERSION_1_8
+//         targetCompatibility = JavaVersion.VERSION_1_8
+//     }
+
+//     kotlinOptions {
+//         jvmTarget = JavaVersion.VERSION_1_8
+//     }
+
+//     defaultConfig {
+//         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+//         applicationId = "com.example.appwms"
+//         // You can update the following values to match your application needs.
+//         // For more information, see: https://flutter.dev/to/review-gradle-config.
+//         minSdk = flutter.minSdkVersion
+//         targetSdk = flutter.targetSdkVersion
+//         versionCode = flutter.versionCode
+//         versionName = flutter.versionName
+//         multiDexEnabled true
+//         // ndk {
+//         //     abiFilters "armeabi-v7a" // Incluye solo 32 bits
+//         // }
+//     }
+
+//    flavorDimensions "app"
+
+//     productFlavors {
+//         // Flavor name that is decided in .vscode/launch.json
+//         onpoint { 
+//             dimension "app"
+//             resValue "string", "app_name", "On Point" // Application NAME
+//             applicationId "com.example.onpoint" // Bundle ID
+//             applicationIdSuffix ""
+//         }
+//         // Flavor name that is decided in .vscode/launch.json
+//         bexpicking { 
+//             dimension "app"
+//             resValue "string", "app_name", "BexPicking" // Application NAME
+//             applicationId "com.example.bexpicking" // Bundle ID
+//             applicationIdSuffix ""
+//         }
+//     }
+
+    
+
+
+//     buildTypes {
+//         release {
+//             // TODO: Add your own signing config for the release build.
+//             // Signing with the debug keys for now, so `flutter run --release` works.
+//             signingConfig = signingConfigs.debug
+//             debuggable false
+//             // minifyEnabled false  // Desactivar la minificación
+//         }
+//     }
+// }
+
+// flutter {
+//     source = "../.."
+// }
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Asegúrate de usar una versión de AGP compatible con Gradle 8.3
+        classpath 'com.android.tools.build:gradle:7.4.2'  // Versión recomendada para Gradle 8.x
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.21"  // Actualiza si es necesario
+    }
+}
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
@@ -20,48 +104,19 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.appwms"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         multiDexEnabled true
-        // ndk {
-        //     abiFilters "armeabi-v7a" // Incluye solo 32 bits
-        // }
     }
-
-   flavorDimensions "app"
-
-    productFlavors {
-        // Flavor name that is decided in .vscode/launch.json
-        onpoint { 
-            dimension "app"
-            resValue "string", "app_name", "On Point" // Application NAME
-            applicationId "com.example.onpoint" // Bundle ID
-            applicationIdSuffix ""
-        }
-        // Flavor name that is decided in .vscode/launch.json
-        bexpicking { 
-            dimension "app"
-            resValue "string", "app_name", "BexPicking" // Application NAME
-            applicationId "com.example.bexpicking" // Bundle ID
-            applicationIdSuffix ""
-        }
-    }
-
 
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
             debuggable false
-            // minifyEnabled false  // Desactivar la minificación
         }
     }
 }

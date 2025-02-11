@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
@@ -25,12 +24,8 @@ class _DialogUpdateAppState extends State<DialogUpdateApp> {
         height: 100,
         width: 200,
         child: Image.asset(
-          Environment.flavor.appName == "BexPicking"
-              ? "assets/icons/iconBex.png"
-              : "assets/images/icono.jpeg",
-          fit: Environment.flavor.appName == "BexPicking"
-              ? BoxFit.contain
-              : BoxFit.cover,
+          "assets/images/icono.jpeg",
+          fit: BoxFit.cover,
         ),
       ),
       decoration: PageDecoration(
@@ -84,12 +79,12 @@ class _DialogUpdateAppState extends State<DialogUpdateApp> {
           skip: const Text("Saltar"),
           done: const Text("Listo"),
           //estilo de texto
-          onDone: () async{
+          onDone: () async {
             // On button pressed
-                  await launchUrl(
-                      Uri.parse(
-                          'https://drive.google.com/drive/folders/19I2uEWxRUUpsrh8G4_J_cSFaBphGfgl-?usp=drive_link'),
-                      mode: LaunchMode.inAppWebView);
+            await launchUrl(
+                Uri.parse(
+                    'https://drive.google.com/drive/folders/19I2uEWxRUUpsrh8G4_J_cSFaBphGfgl-?usp=drive_link'),
+                mode: LaunchMode.inAppWebView);
           },
           dotsDecorator: DotsDecorator(
             size: const Size.square(10.0),

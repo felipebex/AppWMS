@@ -60,12 +60,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
   void initState() {
     super.initState();
 
-    //esperamos 1 segundo y ejecutamos el _handleDependencies()
-    Future.delayed(const Duration(seconds: 1), () {
-      print("onpoint");
-      _handleDependencies();
-    });
-
     // Añadimos el observer para escuchar el ciclo de vida de la app.
     WidgetsBinding.instance.addObserver(this);
   }
@@ -100,12 +94,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
   void _handleDependencies() {
     //mostremos que focus estan activos
-    print("🚼 focusNode1.hasFocus : ${focusNode1.hasFocus}");
-    print("🚼 focusNode2.hasFocus : ${focusNode2.hasFocus}");
-    print("🚼 focusNode3.hasFocus : ${focusNode3.hasFocus}");
-    print("🚼 focusNode4.hasFocus : ${focusNode4.hasFocus}");
-    print("🚼 focusNode5.hasFocus : ${focusNode5.hasFocus}");
-    print("🚼 focusNode6.hasFocus : ${focusNode6.hasFocus}");
 
     final batchBloc = context.read<BatchBloc>();
 
@@ -281,6 +269,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
         return false;
       },
       child: BlocBuilder<BatchBloc, BatchState>(builder: (context, state) {
+        final batchBloc = context.read<BatchBloc>();
+
         int totalTasks = context.read<BatchBloc>().filteredProducts.length;
 
         double progress = totalTasks > 0
@@ -289,8 +279,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
                 }).length /
                 totalTasks
             : 0.0;
-
-        final batchBloc = context.read<BatchBloc>();
 
         final currentProduct = batchBloc.currentProduct;
 
@@ -416,6 +404,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                       ));
                     }
                   }, builder: (context, status) {
+                    
+
                     return Column(
                       children: [
                         const WarningWidgetCubit(),
@@ -542,8 +532,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                               focusNode: focusNode1,
                                               onChanged: (value) {
                                                 // Llamamos a la validación al cambiar el texto
-                                                validateLocation(
-                                                    _controllerLocation.text);
+                                                validateLocation(value);
                                               },
                                               decoration: InputDecoration(
                                                 hintText: batchBloc
@@ -1750,7 +1739,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
       ));
-
     } else {
       FocusScope.of(context).unfocus();
       if (cantidad < (currentProduct.quantity ?? 0).toInt()) {

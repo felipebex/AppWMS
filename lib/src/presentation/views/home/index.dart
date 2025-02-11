@@ -1,7 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:wms_app/environment/environment.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
@@ -23,6 +23,49 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+ 
+ 
+ 
+ 
+  // Función para mostrar el dialog con el QR
+  void _showQRDialog(BuildContext context, String data) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Código QR"),
+          content: SizedBox(
+            height: 250, // Establecemos el tamaño del dialogo
+            width: 250,
+            child: Column(
+              mainAxisSize:
+                  MainAxisSize.min, // Esto hace que el contenido sea flexible
+              children: [
+                QrImageView(
+                  data: data,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                ),
+                const SizedBox(height: 20),
+                Text("Escanea este código QR"),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cerrar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -78,7 +121,16 @@ class _HomePageState extends State<HomePage> {
                 // }
               },
               child: Scaffold(
-              
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () async {
+                    _showQRDialog(context, "https://www.ejemplo.com");
+                  },
+                  backgroundColor: primaryColorApp,
+                  child: const Icon(
+                    Icons.print,
+                    color: white,
+                  ),
+                ),
                 body: Container(
                   width: size.width,
                   height: size.height,
@@ -126,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                                                       fontSize: 18,
                                                       color: white)),
                                               // Text('WMS',
-                                              Text(Environment.flavor.appName,
+                                              Text('OnPoint',
                                                   style: const TextStyle(
                                                       fontSize: 18,
                                                       color: white)),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wms_app/environment/environment.dart';
 
 const Color primary = Color.fromARGB(255, 235, 238, 240);
 const Color primaryListBuilder = Color.fromARGB(255, 214, 209, 209);
@@ -20,13 +19,9 @@ const Color buttoncolor =
 const Color mainFontColor = Color.fromARGB(255, 78, 119, 237);
 
 const Color arrowbgColor = Color(0xffe4e9f7);
-Color primaryColorApp = Environment.flavor.appName == 'BexPicking'
-    ? const Color.fromARGB(255, 237, 131, 78)
-    : const Color.fromARGB(255, 23, 62, 108);
+Color primaryColorApp =  const Color.fromARGB(255, 23, 62, 108);
 
-Color primaryColorAppLigth = Environment.flavor.appName == 'BexPicking'
-    ? const Color.fromARGB(255, 250, 212, 186)
-    : const Color.fromARGB(255, 186, 202, 250);
+Color primaryColorAppLigth =  const Color.fromARGB(255, 186, 202, 250);
 
 //color de acciones
 

@@ -1,5 +1,4 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:wms_app/environment/environment.dart';
 
 final class LocalNotificationsService {
 // Instancia global del plugin de notificaciones
@@ -22,10 +21,7 @@ static Future<void> reqyestPermissionsLocalNotifications() async {
   Future<void> initializeNotifications() async {
     AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings(
-        Environment.flavor.appName == "BexPicking"
-            ?
-             'ic_launcherbex'
-            : 'ic_launcher'
+        'ic_launcher'
             ); // Asegúrate de tener el icono en la carpeta de recursos
     InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,

@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -76,7 +75,7 @@ class UserScreen extends StatelessWidget {
                                                 fontSize: 14,
                                                 color: primaryColorApp)),
                                         // Text('WMS',
-                                        Text(Environment.flavor.appName,
+                                        Text('OnPoint',
                                             style: const TextStyle(
                                                 fontSize: 14, color: black))
                                       ],

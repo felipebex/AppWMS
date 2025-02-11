@@ -1,9 +1,8 @@
-
 name: wms_app
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -43,10 +42,6 @@ dependencies:
   connectivity_plus: ^6.0.3
   provider: ^6.1.2
 
-
-
-
-
   url_launcher: ^6.3.1
   bloc: ^9.0.0
   get_it: ^7.2.0
@@ -67,12 +62,18 @@ dependencies:
   odoo_rpc: ^0.5.4
   uuid: ^4.5.0
 
+  # print
+  # blue_thermal_printer: ^1.2.3
+  # blue_thermal_printer: any
+  # qr
+  qr_flutter: ^4.1.0
+
   # dailogos
   get: ^4.6.6
 
   # http client
-  http: ^1.3.0
- 
+  http:
+    ^1.3.0
 
     # others
   device_info_plus: ^9.0.1
@@ -87,17 +88,30 @@ dependencies:
   introduction_screen: ^3.1.14
   path_provider: ^2.1.5
 
-
+  flutter_launcher_icons: ^0.13.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.9.0
+  
   flutter_test:
     sdk: flutter
 
-  # The "flutter_lints" package below contains a set of recommended lints to
+
+flutter_launcher_icons:
+  android: true
+  image_path: 'assets/icons/icon360.png'
+  remove_alpha_ios: true
+  flutter_icons:
+    android: true
+    ios: true
+    image_path: "assets/icons/icon360.png"
+    min_sdk_android: 21
+
+    
+
+  # The "flutter_lints" package below conains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint

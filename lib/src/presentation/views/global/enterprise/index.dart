@@ -2,7 +2,6 @@
 
 import 'dart:io';
 
-import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/widgets/list_database.dart';
@@ -64,7 +63,7 @@ class SelectEnterpricePage extends StatelessWidget {
                       children: [
                         Center(
                             child: Text(
-                          "Bienvenido a ${Environment.flavor.appName} ",
+                          "Bienvenido a OnPoint",
                           style: const TextStyle(
                               color: Colors.white, fontSize: 22),
                         )),

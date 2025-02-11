@@ -1136,7 +1136,13 @@ class _PackingScreenState extends State<PackingScreen> {
     //cerramos el dialogo de carga
     batchBloc.add(
         LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
-    // Navigator.pop(context);
+
+    //Mensaje de confirmacion
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      duration: const Duration(milliseconds: 1000),
+      content: const Text('Producto certificado, revisa en preparados'),
+      backgroundColor: Colors.green[200],
+    ));
   }
 
   void _finichPackingProductSplit(BuildContext context, int cantidad) async {

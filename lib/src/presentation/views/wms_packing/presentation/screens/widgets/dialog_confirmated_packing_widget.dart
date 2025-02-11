@@ -4,7 +4,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/environment/environment.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -34,9 +33,7 @@ class DialogConfirmatedPacking extends StatelessWidget {
               height: 100,
               width: 150,
               child: Image.asset(
-                Environment.flavor.appName == "BexPicking"
-                    ? "assets/icons/iconBex.png"
-                    : "assets/images/icono.jpeg",
+                 "assets/images/icono.jpeg",
                 fit: BoxFit.cover,
               ),
             ),
