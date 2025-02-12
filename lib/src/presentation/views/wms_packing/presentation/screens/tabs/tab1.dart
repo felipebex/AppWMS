@@ -16,10 +16,12 @@ class Tab1Screen extends StatelessWidget {
     super.key,
     required this.size,
     required this.packingModel,
+    this.batchModel,
   });
 
   final Size size;
   final PedidoPacking? packingModel;
+  final BatchPackingModel? batchModel;
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +148,9 @@ class Tab1Screen extends StatelessWidget {
                                             ));
 
                                         Navigator.of(context).pop();
-                                        Navigator.of(context).pop();
+                                        Navigator.pushReplacementNamed(
+                                            context, 'packing-list',
+                                            arguments: [batchModel]);
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: primaryColorApp,

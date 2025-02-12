@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/domain/new_package_response.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/response_sedn_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/sen_packing_request.dart';
@@ -46,7 +45,24 @@ class WmsPackingRepository {
           // Mapea los datos decodificados a una lista de BatchsModel
           List<BatchPackingModel> batchs =
               batches.map((data) => BatchPackingModel.fromMap(data)).toList();
-          return batchs;
+
+          if (batchs.isNotEmpty) {
+            return batchs;
+          } else {
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      "No tienes batches de packing asignados",
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return [];
+          }
         }
       } else {}
     } on SocketException catch (e) {
@@ -59,10 +75,11 @@ class WmsPackingRepository {
     return [];
   }
 
-  
 //endpoint para desempacar productos de su caja
   Future<UnPacking> unPacking(
-      UnPackingRequest request, BuildContext context,) async {
+    UnPackingRequest request,
+    BuildContext context,
+  ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -79,8 +96,7 @@ class WmsPackingRepository {
           "params": {
             "id_batch": request.idBatch,
             "id_paquete": request.idPaquete,
-            "list_item":
-                request.listItem.map((item) => item.toMap()).toList(),
+            "list_item": request.listItem.map((item) => item.toMap()).toList(),
           },
         },
         isLoadinDialog: true,

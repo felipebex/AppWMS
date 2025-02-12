@@ -23,10 +23,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
- 
- 
- 
- 
   // Función para mostrar el dialog con el QR
   void _showQRDialog(BuildContext context, String data) {
     showDialog(
@@ -63,8 +59,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +103,11 @@ class _HomePageState extends State<HomePage> {
                   context
                       .read<WMSPickingBloc>()
                       .add(LoadAllBatchsEvent(context, true));
+                  //esperamos 1 segundo y realizamos la otra peticion
+                  await Future.delayed(const Duration(seconds: 1));
                   context
                       .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(true, context));
+                      .add(LoadAllPackingEvent(false, context));
                 } else if (rol == 'packing') {
                   if (!mounted) return;
                   context
@@ -121,16 +117,16 @@ class _HomePageState extends State<HomePage> {
                 // }
               },
               child: Scaffold(
-                floatingActionButton: FloatingActionButton(
-                  onPressed: () async {
-                    _showQRDialog(context, "https://www.ejemplo.com");
-                  },
-                  backgroundColor: primaryColorApp,
-                  child: const Icon(
-                    Icons.print,
-                    color: white,
-                  ),
-                ),
+                // floatingActionButton: FloatingActionButton(
+                //   onPressed: () async {
+                //     _showQRDialog(context, "https://www.ejemplo.com");
+                //   },
+                //   backgroundColor: primaryColorApp,
+                //   child: const Icon(
+                //     Icons.print,
+                //     color: white,
+                //   ),
+                // ),
                 body: Container(
                   width: size.width,
                   height: size.height,

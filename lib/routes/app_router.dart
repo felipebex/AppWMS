@@ -51,13 +51,17 @@ class AppRoutes {
 
       // WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),
-      packingList: (context) => PakingListScreen(
-            batchModel: ModalRoute.of(context)!.settings.arguments
-                as BatchPackingModel?,
-          ),
-      // packing: (cotext) => const PackingScreen(),
 
-       packing: (context) {
+      packingList: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final batchModel = arguments[0] as BatchPackingModel?;
+        return PakingListScreen(
+          batchModel: batchModel,
+        );
+      },
+
+      packing: (context) {
         // Obtener los argumentos (una lista)
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;

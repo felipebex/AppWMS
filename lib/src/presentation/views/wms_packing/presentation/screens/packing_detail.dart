@@ -54,7 +54,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                         ));
                      Navigator.pushReplacementNamed(
                                       context, 'packing-list',
-                                      arguments: widget.batchModel);
+                                      arguments: [widget.batchModel]);
                   },
                 ),
                 title: const Text('PACKING - DETAIL',
@@ -115,7 +115,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
                 children: [
                   Tab1Screen(
                       size: size,
-                      packingModel: widget.packingModel ?? PedidoPacking()),
+                      packingModel: widget.packingModel ?? PedidoPacking(), batchModel: widget.batchModel ?? BatchPackingModel()),
                    Tab2Screen(
                     packingModel: widget.packingModel ?? PedidoPacking(),
                     batchModel: widget.batchModel ?? BatchPackingModel(),

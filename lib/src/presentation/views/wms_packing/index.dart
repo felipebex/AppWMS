@@ -348,7 +348,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                       Navigator.pushReplacementNamed(
                                         context,
                                         'packing-list',
-                                        arguments: batch,
+                                        arguments: [batch],
                                       );
                                     },
                                     child: Card(

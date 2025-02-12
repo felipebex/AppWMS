@@ -18,7 +18,6 @@ class PakingListScreen extends StatelessWidget {
       : super(key: key);
 
   final BatchPackingModel? batchModel;
-  //  LoadBatchPackingFromDBEvent
 
   @override
   Widget build(BuildContext context) {

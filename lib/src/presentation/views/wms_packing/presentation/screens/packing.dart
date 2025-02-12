@@ -259,6 +259,24 @@ class _PackingScreenState extends State<PackingScreen> {
                             }
                           }
 
+                          if (state is SetPickingPackingOkState) {
+                            //Mensaje de confirmacion
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              duration: const Duration(milliseconds: 1000),
+                              content: const Text(
+                                  'Producto certificado, revisa en preparados'),
+                              backgroundColor: Colors.green[200],
+                            ));
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'packing-detail',
+                              arguments: [
+                                widget.packingModel,
+                                widget.batchModel
+                              ],
+                            );
+                          }
+
                           if (state is ChangeLocationPackingIsOkState) {
                             Future.delayed(const Duration(seconds: 1), () {
                               FocusScope.of(context).requestFocus(focusNode2);
@@ -1126,23 +1144,17 @@ class _PackingScreenState extends State<PackingScreen> {
   }
 
   void _finichPackingProduct(BuildContext context) async {
+    
+    
+    //cerramos el foco
+    FocusScope.of(context).unfocus();
     //marcamos el producto como terminado
+
     final batchBloc = context.read<WmsPackingBloc>();
     batchBloc.add(SetPickingsEvent(
         batchBloc.currentProduct.idProduct ?? 0,
         batchBloc.currentProduct.pedidoId ?? 0,
         batchBloc.currentProduct.idMove ?? 0));
-
-    //cerramos el dialogo de carga
-    batchBloc.add(
-        LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
-
-    //Mensaje de confirmacion
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      duration: const Duration(milliseconds: 1000),
-      content: const Text('Producto certificado, revisa en preparados'),
-      backgroundColor: Colors.green[200],
-    ));
   }
 
   void _finichPackingProductSplit(BuildContext context, int cantidad) async {

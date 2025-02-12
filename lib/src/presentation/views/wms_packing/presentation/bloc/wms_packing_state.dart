@@ -149,3 +149,16 @@ class ShowQuantityPackState extends WmsPackingState {
   final bool showQuantity;
   ShowQuantityPackState(this.showQuantity);
 }
+
+
+
+//* metodo que se encarga para realizar el picking del packing
+
+class SetPickingPackingOkState extends WmsPackingState {}
+
+class SetPickingPackingErrorState extends WmsPackingState {
+  final String message;
+  SetPickingPackingErrorState(this.message);
+}
+
+class SetPickingPackingLoadingState extends WmsPackingState {}
