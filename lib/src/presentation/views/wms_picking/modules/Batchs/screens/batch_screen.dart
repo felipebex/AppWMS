@@ -308,26 +308,30 @@ class _BatchDetailScreenState extends State<BatchScreen>
                         barrierDismissible:
                             false, // No permitir que el usuario cierre el diálogo manualmente
                         builder: (context) => const DialogLoading(
-                            message: 'Cargando productos...'),
+                          message: 'Cargando producto...',
+                        ),
                       );
                     }
 
                     if (state is LoadDataInfoSuccess) {
-                      _handleDependencies();
-                      Navigator.pop(context);
+                      //esperamos 1 segundo y cerramos
+                      Future.delayed(const Duration(seconds: 1), () {
+                        _handleDependencies();
+                        Navigator.pop(context);
+                      });
                     }
 
-                    if (state is CurrentProductChangedStateLoading) {
-                      showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const DialogLoading();
-                          });
-                    }
-                    if (state is CurrentProductChangedState) {
-                      //cerramos el modal
-                      Navigator.pop(context);
-                    }
+                    // if (state is CurrentProductChangedStateLoading) {
+                    //   showDialog(
+                    //       context: context,
+                    //       builder: (context) {
+                    //         return const DialogLoading();
+                    //       });
+                    // }
+                    // if (state is CurrentProductChangedState) {
+                    //   //cerramos el modal
+                    //   Navigator.pop(context);
+                    // }
 
                     if (state is ChangeQuantitySeparateStateError) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -404,8 +408,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
                       ));
                     }
                   }, builder: (context, status) {
-                    
-
                     return Column(
                       children: [
                         const WarningWidgetCubit(),
