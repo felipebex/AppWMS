@@ -94,7 +94,7 @@ class LoginPage extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
-                          top: 25, left: 20, right: 20, bottom: 5),
+                          top: 15, left: 20, right: 20, bottom: 5),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -104,9 +104,7 @@ class LoginPage extends StatelessWidget {
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 22),
                           )),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                         
                           const Center(
                             child: Text("Version: 1.0.0",
                                 style: TextStyle(
@@ -349,9 +347,9 @@ class _LoginFormState extends State<_LoginForm> {
                     ),
                     onPressed: () {
                       // Limpiamos los campos
-                      context.read<LoginBloc>().email.clear();
+                      // context.read<LoginBloc>().email.clear();
                       context.read<LoginBloc>().password.clear();
-                      Navigator.pushNamed(context, 'enterprice');
+                      Navigator.pushReplacementNamed(context, 'enterprice');
                     },
                     child: Container(
                       width: 220,

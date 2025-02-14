@@ -36,8 +36,10 @@ class _DetailClientSaleState extends State<DetailClientSale> {
               padding: const EdgeInsets.symmetric(vertical: 6.0), // Similar a gapH12
               child: SlideAction(
                 onSubmit: () {
+                  Navigator.of(context).pop();
                   Preferences.nameDatabase = element;
-                  Navigator.pushNamed(context, 'auth');
+                  Navigator.pushReplacementNamed(context, 'auth');
+                  
                   return null;
                 },
                 text: element,

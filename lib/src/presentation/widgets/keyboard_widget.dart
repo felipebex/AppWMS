@@ -140,7 +140,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
   Widget _buildConfirmButton() {
     return GestureDetector(
       onTap: () {
-        context.read<KeyboardBloc>().add(ConfirmPressedEvent(widget.controller));
+        context.read<KeyboardBloc>().add(KeyPressedEvent('.com', widget.controller));
       },
       child: Container(
         width: 50,
@@ -151,7 +151,7 @@ class _CustomKeyboardState extends State<CustomKeyboard> {
           borderRadius: BorderRadius.circular(5),
         ),
         child: const Center(
-          child: Text('OK', style: TextStyle(color: Colors.white, fontSize: 16)),
+          child: Text('.com', style: TextStyle(color: Colors.white, fontSize: 16)),
         ),
       ),
     );

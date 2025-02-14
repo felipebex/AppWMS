@@ -311,14 +311,19 @@ class _BatchDetailScreenState extends State<BatchScreen>
                           message: 'Cargando producto...',
                         ),
                       );
+                      Future.delayed(const Duration(seconds: 1), () {
+                        // _handleDependencies();
+                        Navigator.pop(context);
+                      });
+
                     }
 
                     if (state is LoadDataInfoSuccess) {
                       //esperamos 1 segundo y cerramos
-                      Future.delayed(const Duration(seconds: 1), () {
+                      // Future.delayed(const Duration(seconds: 1), () {
                         _handleDependencies();
-                        Navigator.pop(context);
-                      });
+                        // Navigator.pop(context);
+                      // });
                     }
 
                     // if (state is CurrentProductChangedStateLoading) {

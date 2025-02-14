@@ -1,6 +1,5 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, avoid_print
 
-import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -11,10 +10,8 @@ class CheckAuthPage extends StatelessWidget {
   Future<bool> validateSession() async {
     bool? token = await PrefUtils.getIsLoggedIn();
     if (!token) {
-      print('No hay token, sesión no válida');
       return false; // No hay token, sesión no válida
     } else {
-      print('La sesión es válida');
       return true; // La sesión es válida
     }
   }
@@ -40,25 +37,12 @@ class CheckAuthPage extends StatelessWidget {
               } else if (snapshot.hasData) {
                 if (snapshot.data == false) {
                   Future.microtask(() {
-                    Navigator.pushReplacement(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (_, __, ___) =>
-                            const SelectEnterpricePage(),
-                        transitionDuration: const Duration(seconds: 0),
-                      ),
-                    );
+                    Navigator.pushReplacementNamed(context, 'enterprice');
                   });
                   return Container();
                 } else {
                   Future.microtask(() {
-                    Navigator.pushReplacement(
-                      context,
-                      PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => const HomePage(),
-                        transitionDuration: const Duration(seconds: 0),
-                      ),
-                    );
+                    Navigator.pushReplacementNamed(context, 'home');
                   });
                 }
               }

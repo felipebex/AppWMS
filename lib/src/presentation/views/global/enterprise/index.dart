@@ -57,7 +57,7 @@ class SelectEnterpricePage extends StatelessWidget {
                     height: 10,
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(25),
+                    padding: const EdgeInsets.only(top: 25, bottom: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -67,9 +67,7 @@ class SelectEnterpricePage extends StatelessWidget {
                           style: const TextStyle(
                               color: Colors.white, fontSize: 22),
                         )),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        
                         const Center(
                           child: Text("Version: 1.0.0",
                               style:
@@ -82,12 +80,12 @@ class SelectEnterpricePage extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.only(top: 15),
+                      padding: const EdgeInsets.only(top: 5),
                       decoration: const BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(60),
-                              topRight: Radius.circular(60))),
+                              topLeft: Radius.circular(40),
+                              topRight: Radius.circular(40))),
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -152,10 +150,7 @@ class _loginForm extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: TextFormField(
                     autocorrect: false,
-                    // readOnly:
-                    //     context.read<UserBloc>().fabricante.contains("Zebra")
-                    //         ? true
-                    //         : false,
+                   
                     controller:
                         context.read<EntrepriseBloc>().entrepriceController,
                     style: const TextStyle(fontSize: 12),

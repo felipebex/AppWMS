@@ -590,7 +590,8 @@ class UserScreen extends StatelessWidget {
                                                       "Base de datos eliminada correctamente"),
                                                 ));
                                                 Navigator.pop(context);
-                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                    context, 'home');
                                               },
                                               child: const Text("Aceptar")),
                                         ],
