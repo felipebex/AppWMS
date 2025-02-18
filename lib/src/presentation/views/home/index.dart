@@ -117,16 +117,7 @@ class _HomePageState extends State<HomePage> {
                 // }
               },
               child: Scaffold(
-                // floatingActionButton: FloatingActionButton(
-                //   onPressed: () async {
-                //     _showQRDialog(context, "https://www.ejemplo.com");
-                //   },
-                //   backgroundColor: primaryColorApp,
-                //   child: const Icon(
-                //     Icons.print,
-                //     color: white,
-                //   ),
-                // ),
+               
                 body: Container(
                   width: size.width,
                   height: size.height,
