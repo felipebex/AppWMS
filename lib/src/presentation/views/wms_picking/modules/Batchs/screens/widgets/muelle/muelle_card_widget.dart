@@ -105,11 +105,11 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                     widget.batchBloc.currentProduct.locationDestId ?? "",
                     style: const TextStyle(fontSize: 14, color: black),
                   ),
-                  const Text("/"),
-                  Text(
-                    widget.batchBloc.batchWithProducts.batch?.muelle ?? "",
-                    style: TextStyle(fontSize: 14, color: primaryColorApp),
-                  )
+                  // const Text("/"),
+                  // Text(
+                  //   widget.batchBloc.batchWithProducts.batch?.muelle ?? "",
+                  //   style: TextStyle(fontSize: 14, color: primaryColorApp),
+                  // )
                 ],
               ),
             ),

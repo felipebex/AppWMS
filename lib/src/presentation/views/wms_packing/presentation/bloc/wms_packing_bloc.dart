@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/domain/sen_packing_re
 import 'package:wms_app/src/presentation/views/wms_packing/domain/un_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/services/notification_service.dart';
 import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -1004,6 +1005,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           event.isLoadinDialog, event.context);
 
       if (response != null && response is List) {
+
+          if(response.isNotEmpty){
+          LocalNotificationsService().showNotification('Nuevos batchs',
+              'Se han agregado nuevos batchs para packing', '');
+        }
+
         print('response batchs packing: ${response.length}');
         listOfBatchs.clear();
         listOfBatchs.addAll(response);

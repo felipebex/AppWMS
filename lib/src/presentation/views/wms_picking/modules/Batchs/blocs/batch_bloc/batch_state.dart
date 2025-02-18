@@ -130,10 +130,10 @@ class PickingOkLoading extends BatchState {}
 
 class ConfigurationLoading extends BatchState {}
 
-class ConfigurationLoaded extends BatchState {
+class ConfigurationPickingLoaded extends BatchState {
   final Configurations configurations;
 
-  ConfigurationLoaded(this.configurations);
+  ConfigurationPickingLoaded(this.configurations);
 }
 
 class ConfigurationError extends BatchState {

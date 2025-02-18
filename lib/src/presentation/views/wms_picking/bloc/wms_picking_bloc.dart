@@ -115,38 +115,10 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       );
 
       if (response != null && response is List) {
-        // validamos que si hace la petición cada 3 minutos
-        if (event.isLoadinDialog) {
-          final int userid = await PrefUtils.getUserId();
-          final intBacths = await DataBaseSqlite().getAllBatchs(userid);
 
-          final todayBatches = intBacths.where((batch) {
-            // Convierte `scheduleddate` a DateTime
-            final scheduledDate = DateTime.parse(batch.scheduleddate);
-
-            // Obtén la fecha actual
-            final today = DateTime.now();
-
-            // Compara día, mes y año
-            return scheduledDate.year == today.year &&
-                scheduledDate.month == today.month &&
-                scheduledDate.day == today.day;
-          }).toList();
-
-          final todayBatchesOdoo = response.where((batch) {
-            // Convierte `scheduleddate` a DateTime
-            final scheduledDate = DateTime.parse(batch.scheduleddate);
-            final today = DateTime.now();
-            return scheduledDate.year == today.year &&
-                scheduledDate.month == today.month &&
-                scheduledDate.day == today.day;
-          }).toList();
-
-          if (todayBatchesOdoo.length > todayBatches.length) {
-            //mostramos una notificación
-            LocalNotificationsService().showNotification('Nuevos batchs',
-                'Se han agregado nuevos batchs para picking', '');
-          }
+        if(response.isNotEmpty){
+          LocalNotificationsService().showNotification('Nuevos batchs',
+              'Se han agregado nuevos batchs para picking', '');
         }
 
         PrefUtils.setPickingBatchs(response.length);

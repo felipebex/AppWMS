@@ -453,7 +453,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       final response = await db.getConfiguration(userId);
 
       if (response != null) {
-        emit(ConfigurationLoaded(response));
+        emit(ConfigurationPickingLoaded(response));
         configurations = response;
       } else {
         emit(ConfigurationError('Error al cargar LoadConfigurationsUser'));

@@ -295,6 +295,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                   child: BlocConsumer<BatchBloc, BatchState>(
                       listener: (context, state) {
                     print("❤️‍🔥 state : $state");
+
                     // * validamos en todo cambio de estado de cantidad separada
                     if (state is ChangeQuantitySeparateStateSuccess) {
                       if (state.quantity == currentProduct.quantity.toInt()) {
@@ -302,7 +303,25 @@ class _BatchDetailScreenState extends State<BatchScreen>
                       }
                     }
 
-                    if (state is LoadDataInfoLoading) {
+                    if (state is ConfigurationPickingLoaded) {
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        showDialog(
+                          context: context,
+                          barrierDismissible:
+                              false, // No permitir que el usuario cierre el diálogo manualmente
+                          builder: (context) => const DialogLoading(
+                            message: 'Cargando interfaz...',
+                          ),
+                        );
+                        //cerramos
+                        Future.delayed(const Duration(milliseconds: 1500), () {
+                          Navigator.pop(context);
+                        });
+                      });
+
+                    }
+
+                    if (state is CurrentProductChangedStateLoading) {
                       showDialog(
                         context: context,
                         barrierDismissible:
@@ -311,32 +330,14 @@ class _BatchDetailScreenState extends State<BatchScreen>
                           message: 'Cargando producto...',
                         ),
                       );
+                    }
+
+                    if (state is CurrentProductChangedState) {
                       Future.delayed(const Duration(seconds: 1), () {
                         // _handleDependencies();
                         Navigator.pop(context);
                       });
-
                     }
-
-                    if (state is LoadDataInfoSuccess) {
-                      //esperamos 1 segundo y cerramos
-                      // Future.delayed(const Duration(seconds: 1), () {
-                        _handleDependencies();
-                        // Navigator.pop(context);
-                      // });
-                    }
-
-                    // if (state is CurrentProductChangedStateLoading) {
-                    //   showDialog(
-                    //       context: context,
-                    //       builder: (context) {
-                    //         return const DialogLoading();
-                    //       });
-                    // }
-                    // if (state is CurrentProductChangedState) {
-                    //   //cerramos el modal
-                    //   Navigator.pop(context);
-                    // }
 
                     if (state is ChangeQuantitySeparateStateError) {
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
