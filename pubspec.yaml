@@ -35,12 +35,27 @@ dependencies:
 
   #state management
   flutter_bloc: ^9.0.0
+  talker_bloc_logger: ^4.6.12
+
   flutter_lints: ^5.0.0
 
   mobile_scanner: ^5.1.1
   permission_handler: ^11.2.0
   connectivity_plus: ^6.0.3
   provider: ^6.1.2
+  # print
+  print_bluetooth_thermal: ^1.1.6
+  flutter_esc_pos_utils: ^1.0.1
+
+
+  image: ^4.5.2
+
+
+
+
+  
+
+
 
   url_launcher: ^6.3.1
   bloc: ^9.0.0

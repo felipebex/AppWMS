@@ -293,7 +293,13 @@ class _BatchDetailScreenState extends State<BatchScreen>
                 child: BlocProvider(
                   create: (context) => ConnectionStatusCubit(),
                   child: BlocConsumer<BatchBloc, BatchState>(
-                      listener: (context, state) {
+                      listenWhen: (previous, current) {
+                    if (current is LoadingFetchBatch) {
+                      print("------------entramos------------");
+                      return true;
+                    }
+                    return true;
+                  }, listener: (context, state) {
                     print("❤️‍🔥 state : $state");
 
                     // * validamos en todo cambio de estado de cantidad separada
@@ -303,7 +309,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                       }
                     }
 
-                    if (state is ConfigurationPickingLoaded) {
+                    if (state is BarcodesProductLoadedState) {
+                      
                       Future.delayed(const Duration(milliseconds: 500), () {
                         showDialog(
                           context: context,
@@ -315,10 +322,10 @@ class _BatchDetailScreenState extends State<BatchScreen>
                         );
                         //cerramos
                         Future.delayed(const Duration(milliseconds: 1500), () {
+                          _handleDependencies();
                           Navigator.pop(context);
                         });
                       });
-
                     }
 
                     if (state is CurrentProductChangedStateLoading) {
@@ -432,8 +439,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                         '',
                                       ));
 
-                                  // batchBloc.add(IsShouldRunDependencies(false));
-
                                   Navigator.pushReplacementNamed(
                                       context, 'wms-picking',
                                       arguments: 0);
@@ -526,6 +531,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                             margin: const EdgeInsets.only(
                                                 bottom: 5),
                                             child: TextFormField(
+                                              autofocus: true,
                                               showCursor: false,
                                               controller:
                                                   _controllerLocation, // Asignamos el controlador

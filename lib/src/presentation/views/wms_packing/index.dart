@@ -9,7 +9,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
@@ -53,73 +53,10 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                     controller.index));
                           },
                         )
-                      : AnimatedNotchBottomBar(
-                          /// Provide NotchBottomBarController
-                          notchBottomBarController: controller,
-                          color: Colors.white,
-                          showLabel: true,
-                          textOverflow: TextOverflow.visible,
-                          maxLine: 1,
-                          shadowElevation: 3,
-                          kBottomRadius: 8.0,
-                          notchColor: primaryColorApp,
-                          removeMargins: false,
-                          showShadow: false,
-                          durationInMilliSeconds: 300,
-                          itemLabelStyle: const TextStyle(fontSize: 10),
-                          elevation: 12,
-                          bottomBarItems: [
-                            BottomBarItem(
-                              inActiveItem: Icon(
-                                Icons.batch_prediction,
-                                color: primaryColorApp,
-                              ),
-                              activeItem: const Icon(
-                                Icons.batch_prediction,
-                                color: white,
-                              ),
-                              itemLabel: 'En Proceso',
-                            ),
-                            const BottomBarItem(
-                              inActiveItem: Icon(
-                                Icons.batch_prediction,
-                                color: green,
-                              ),
-                              activeItem: Icon(
-                                Icons.batch_prediction,
-                                color: white,
-                              ),
-                              itemLabel: 'Hechos',
-                            ),
-                          ],
-                          onTap: (index) {
-                            setState(() {
-                              controller.index = index;
-                            });
-                            switch (index) {
-                              case 0:
-                                context
-                                    .read<WmsPackingBloc>()
-                                    .add(FilterBatchPackingStatusEvent(
-                                      '',
-                                    ));
-                                break;
-                              case 1:
-                                context
-                                    .read<WmsPackingBloc>()
-                                    .add(FilterBatchPackingStatusEvent(
-                                      'done',
-                                    ));
-                                break;
-
-                              default:
-                            }
-                          },
-                          kIconSize: 24.0,
-                        ),
-              body: SizedBox(
+                      : null,
+              body: Container(
+                margin: const EdgeInsets.only(bottom: 10),
                 width: size.width * 1,
-                height: size.height * 0.87,
                 child:
 
                     ///*listado de bacths

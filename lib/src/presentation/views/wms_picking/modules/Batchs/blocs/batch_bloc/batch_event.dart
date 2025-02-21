@@ -218,3 +218,6 @@ class SetIsProcessingEvent extends BatchEvent {
   final bool isProcessing;
   SetIsProcessingEvent(this.isProcessing);
 }
+
+
+class CloseStateEvent extends BatchEvent{}

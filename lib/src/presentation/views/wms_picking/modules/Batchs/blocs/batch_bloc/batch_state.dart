@@ -227,3 +227,8 @@ class SetIsProcessingState extends BatchState {
   final bool isProcessing;
   SetIsProcessingState(this.isProcessing);
 }
+
+class CloseState extends BatchState {}
+
+
+class LoadingFetchBatch extends BatchState {}

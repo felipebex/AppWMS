@@ -7,8 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/bloc/wms_packing_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/widgets/dialog_unPacking.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/dialog_unPacking.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/print_screen.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab1Screen extends StatelessWidget {
@@ -43,135 +44,146 @@ class Tab1Screen extends StatelessWidget {
             },
             child: Scaffold(
               backgroundColor: white,
-              floatingActionButton: packingModel?.isTerminate == 1
-                  ? null
-                  : FloatingActionButton(
-                      onPressed: () {
-                        if (context.read<WmsPackingBloc>().packages.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                'No se puede confirmar un pedido sin empaques',
-                                style: TextStyle(color: white),
-                              ),
-                              backgroundColor: Colors.red[200],
-                            ),
-                          );
-                          return;
-                        } else if (context
-                                .read<WmsPackingBloc>()
-                                .productsDone
-                                .isNotEmpty &&
-                            context
-                                .read<WmsPackingBloc>()
-                                .listOfProductosProgress
-                                .isNotEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: const Text(
-                                'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
-                                style: TextStyle(color: white),
-                              ),
-                              backgroundColor: Colors.red[200],
-                            ),
-                          );
-                          return;
-                        }
+              floatingActionButton:
 
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                                child: AlertDialog(
-                                  backgroundColor: Colors.white,
-                                  actionsAlignment: MainAxisAlignment.center,
-                                  title: Text(
-                                    'Confirmar pedido',
-                                    style: TextStyle(
-                                        color: primaryColorApp, fontSize: 16),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        height: 100,
-                                        width: 200,
-                                        child: Image.asset(
-                                          "assets/images/icono.jpeg",
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      const Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          '¿Estás seguro de confirmar el pedido y dejarlo listo para ser enviado?',
-                                          style: TextStyle(
-                                              color: black, fontSize: 14),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  actions: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: grey,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Cancelar',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () async {
-                                        await DataBaseSqlite()
-                                            .setFieldTablePedidosPacking(
-                                          packingModel?.batchId ?? 0,
-                                          packingModel?.id ?? 0,
-                                          "is_terminate",
-                                          "true",
-                                        );
+                  // packingModel?.isTerminate == 1
+                  //     ? null
+                  //     :
 
-                                        context
-                                            .read<WmsPackingBloc>()
-                                            .add(LoadAllPedidosFromBatchEvent(
-                                              packingModel?.batchId ?? 0,
-                                            ));
+                  FloatingActionButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return const PrintDialog();
+                    },
+                  );
 
-                                        Navigator.of(context).pop();
-                                        Navigator.pushReplacementNamed(
-                                            context, 'packing-list',
-                                            arguments: [batchModel]);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: primaryColorApp,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Aceptar',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            });
-                      },
-                      backgroundColor: primaryColorApp,
-                      child: const Icon(Icons.check, color: white),
-                    ),
+                  // if (context.read<WmsPackingBloc>().packages.isEmpty) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //       content: const Text(
+                  //         'No se puede confirmar un pedido sin empaques',
+                  //         style: TextStyle(color: white),
+                  //       ),
+                  //       backgroundColor: Colors.red[200],
+                  //     ),
+                  //   );
+                  //   return;
+                  // } else if (context
+                  //         .read<WmsPackingBloc>()
+                  //         .productsDone
+                  //         .isNotEmpty &&
+                  //     context
+                  //         .read<WmsPackingBloc>()
+                  //         .listOfProductosProgress
+                  //         .isNotEmpty) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //       content: const Text(
+                  //         'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
+                  //         style: TextStyle(color: white),
+                  //       ),
+                  //       backgroundColor: Colors.red[200],
+                  //     ),
+                  //   );
+                  //   return;
+                  // }
+
+                  // showDialog(
+                  //     context: context,
+                  //     builder: (context) {
+                  //       return BackdropFilter(
+                  //         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  //         child: AlertDialog(
+                  //           backgroundColor: Colors.white,
+                  //           actionsAlignment: MainAxisAlignment.center,
+                  //           title: Text(
+                  //             'Confirmar pedido',
+                  //             style: TextStyle(
+                  //                 color: primaryColorApp, fontSize: 16),
+                  //             textAlign: TextAlign.center,
+                  //           ),
+                  //           content: Column(
+                  //             mainAxisSize: MainAxisSize.min,
+                  //             children: [
+                  //               SizedBox(
+                  //                 height: 100,
+                  //                 width: 200,
+                  //                 child: Image.asset(
+                  //                   "assets/images/icono.jpeg",
+                  //                   fit: BoxFit.cover,
+                  //                 ),
+                  //               ),
+                  //               const Align(
+                  //                 alignment: Alignment.center,
+                  //                 child: Text(
+                  //                   '¿Estás seguro de confirmar el pedido y dejarlo listo para ser enviado?',
+                  //                   style: TextStyle(
+                  //                       color: black, fontSize: 14),
+                  //                   textAlign: TextAlign.center,
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           actions: [
+                  //             ElevatedButton(
+                  //               onPressed: () {
+                  //                 Navigator.pop(context);
+                  //               },
+                  //               style: ElevatedButton.styleFrom(
+                  //                 backgroundColor: grey,
+                  //                 shape: RoundedRectangleBorder(
+                  //                   borderRadius:
+                  //                       BorderRadius.circular(10),
+                  //                 ),
+                  //               ),
+                  //               child: const Text(
+                  //                 'Cancelar',
+                  //                 style: TextStyle(color: Colors.white),
+                  //               ),
+                  //             ),
+                  //             ElevatedButton(
+                  //               onPressed: () async {
+                  //                 await DataBaseSqlite()
+                  //                     .setFieldTablePedidosPacking(
+                  //                   packingModel?.batchId ?? 0,
+                  //                   packingModel?.id ?? 0,
+                  //                   "is_terminate",
+                  //                   "true",
+                  //                 );
+
+                  //                 context
+                  //                     .read<WmsPackingBloc>()
+                  //                     .add(LoadAllPedidosFromBatchEvent(
+                  //                       packingModel?.batchId ?? 0,
+                  //                     ));
+
+                  //                 Navigator.of(context).pop();
+                  //                 Navigator.pushReplacementNamed(
+                  //                     context, 'packing-list',
+                  //                     arguments: [batchModel]);
+                  //               },
+                  //               style: ElevatedButton.styleFrom(
+                  //                 backgroundColor: primaryColorApp,
+                  //                 shape: RoundedRectangleBorder(
+                  //                   borderRadius:
+                  //                       BorderRadius.circular(10),
+                  //                 ),
+                  //               ),
+                  //               child: const Text(
+                  //                 'Aceptar',
+                  //                 style: TextStyle(color: Colors.white),
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       );
+                  //     });
+                },
+                backgroundColor: primaryColorApp,
+                child: const Icon(Icons.check, color: white),
+              ),
               body: Column(
                 children: [
                   const WarningWidgetCubit(),

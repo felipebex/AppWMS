@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing_detail.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/screens/packing_list.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_detail.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_list.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/print_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
 
@@ -33,6 +34,7 @@ class AppRoutes {
   static const String home = 'home';
   static const String ventor = 'ventor';
   static const String user = 'user';
+  // static const String print = 'print';
 
   // Mapa de rutas
   static Map<String, Widget Function(BuildContext)> get routes {
@@ -97,6 +99,7 @@ class AppRoutes {
       home: (_) => const HomePage(),
       ventor: (_) => const VentorHome(),
       user: (_) => const UserScreen(),
+      // print: (_) => const PrintScreen(),
     };
   }
 }
