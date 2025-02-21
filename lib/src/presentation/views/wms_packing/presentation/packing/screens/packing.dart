@@ -1144,8 +1144,6 @@ class _PackingScreenState extends State<PackingScreen> {
   }
 
   void _finichPackingProduct(BuildContext context) async {
-    
-    
     //cerramos el foco
     FocusScope.of(context).unfocus();
     //marcamos el producto como terminado
@@ -1173,7 +1171,11 @@ class _PackingScreenState extends State<PackingScreen> {
     //cerramos el dialogo de carga
     batchBloc.add(
         LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
-    Navigator.pop(context);
+    Navigator.pushReplacementNamed(
+      context,
+      'packing-detail',
+      arguments: [widget.packingModel, widget.batchModel],
+    );
   }
 
   void _validatebuttonquantity() {

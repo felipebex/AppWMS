@@ -7,9 +7,10 @@ import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_respon
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_list.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/print_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/history/screens/history_detail_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/history/screens/list_batchs_history_screen.dart';
 
 class AppRoutes {
   // Mapa estático de rutas
@@ -21,6 +22,8 @@ class AppRoutes {
   static const String wmsPicking = 'wms-picking';
   static const String batch = 'batch';
   static const String batchDetail = 'batch-detail';
+  static const String historyLits = 'history-list';
+  static const String historyDetail = 'history-detail';
 
   // WMS Packing
   static const String wmsPacking = 'wms-packing';
@@ -50,6 +53,8 @@ class AppRoutes {
           ),
       batch: (_) => const BatchScreen(),
       batchDetail: (_) => const BatchDetailScreen(),
+      historyLits: (_) => const HistoryListScreen(),
+      historyDetail: (_) => const HistoryDetailScreen(),
 
       // WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),

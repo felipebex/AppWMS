@@ -27,10 +27,23 @@ final class BatchsPickingErrorState extends PickingState {
 
 
 
+final class BatchHistoryLoadingState extends PickingState {}
+final class BatchHistoryLoadedState extends PickingState {
+  final HistoryBatchId batch;
+  BatchHistoryLoadedState(this.batch);
+}
+
+
+
 final class LoadBatchsSuccesState extends PickingState {
   final List<BatchsModel> listOfBatchs;
 
   LoadBatchsSuccesState({required this.listOfBatchs});
+}
+final class LoadHistoryBatchState extends PickingState {
+  final List<HistoryBatch> listOfBatchs;
+
+  LoadHistoryBatchState({required this.listOfBatchs});
 }
 
 

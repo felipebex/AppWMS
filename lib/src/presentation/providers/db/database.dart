@@ -672,7 +672,7 @@ class DataBaseSqlite {
         "is_quantity_is_ok": 0,
         "location_dest_is_ok": 0,
         "product_is_ok": 0,
-        "observation": "",
+        "observation": "sin novedad",
         //variables de packing
         "is_selected": 0,
         // "is_separate": 0,

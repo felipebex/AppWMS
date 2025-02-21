@@ -246,7 +246,7 @@ class ApiRequestService {
         }
       }
       return http.Response('Error de red', 404);
-    } on TimeoutException catch (e,s ) {
+    } on TimeoutException catch (e, s) {
       print('La solicitud superó el tiempo de espera: $e');
       return http.Response('La solicitud superó el tiempo de espera', 408);
     } on SocketException catch (e) {
@@ -462,6 +462,139 @@ class ApiRequestService {
 
           var request = http.Request('GET', Uri.parse(url));
           request.body = json.encode({"params": {}});
+
+          request.headers.addAll(headers);
+
+          final response = await request.send();
+
+          // Cerrar el diálogo de carga cuando la solicitud se haya completado
+          if (isLoadinDialog) {
+            Get.back();
+          }
+
+          print("--------------------------------------------");
+          print('Petición GET a $endpoint');
+          print('Cuerpo de la solicitud: $url');
+          print('headers: $headers');
+          print('status code: ${response.statusCode}');
+          print("--------------------------------------------");
+          return http.Response.fromStream(response);
+        } else {
+          Get.snackbar(
+            'Error de red',
+            'No se pudo conectar al servidor',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            duration: const Duration(seconds: 5),
+            leftBarIndicatorColor: yellow,
+            icon: Icon(
+              Icons.error,
+              color: primaryColorApp,
+            ),
+          );
+        }
+      }
+      return http.Response('Error de red', 404);
+    } on SocketException catch (e) {
+      // Manejo de error de red
+      print('Error de red: $e');
+      Get.snackbar(
+        'Error de red',
+        'No se pudo conectar al servidor',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(seconds: 5),
+        leftBarIndicatorColor: yellow,
+        icon: Icon(
+          Icons.error,
+          color: primaryColorApp,
+        ),
+      );
+      // Cerrar el diálogo de carga incluso en caso de error de red
+      Get.back();
+      rethrow; // Re-lanzamos la excepción para que sea manejada en el repositorio
+    } catch (e) {
+      // Manejo de otros errores
+      print('Error desconocido en la solicitud: $e');
+      // Cerrar el diálogo de carga incluso en caso de otros errores
+      Get.back();
+      rethrow; // Re-lanzamos la excepción para manejarla en el repositorio
+    }
+  }
+
+  Future<http.Response> getWithParams({
+    required String endpoint,
+    required bool isLoadinDialog,
+    required BuildContext context,
+    required bool isunecodePath,
+  }) async {
+    var url = await PrefUtils.getEnterprise();
+    var cookie = await PrefUtils.getCookie();
+
+    // Extraer el session_id de la cookie
+    String sessionId = '';
+    List<String> cookies = cookie.split(',');
+    for (var c in cookies) {
+      if (c.contains('session_id=')) {
+        sessionId = c.split(';')[0].trim();
+        break; // Detener la búsqueda después de encontrar el session_id
+      }
+    }
+
+    if (sessionId == "" || sessionId == null) {
+      Get.snackbar('Error de red', 'No se pudo conectar al servidor',
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          duration: const Duration(seconds: 5),
+          leftBarIndicatorColor: yellow,
+          icon: Icon(
+            Icons.error,
+            color: primaryColorApp,
+          ));
+      return http.Response('Error de red', 404);
+    }
+
+    var headers = {
+      'Content-Type': 'application/json',
+      'Cookie': '$sessionId',
+    };
+
+    try {
+      var connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        // Si no hay conexión, retornar una lista vacía
+        Get.snackbar('Error de red', 'No se pudo conectar al servidor',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            duration: const Duration(seconds: 5),
+            leftBarIndicatorColor: yellow,
+            icon: Icon(
+              Icons.error,
+              color: primaryColorApp,
+            ));
+      } else {
+        final result = await InternetAddress.lookup('example.com');
+        if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+          if (isLoadinDialog) {
+            // Mostrar el diálogo de carga con Get.dialog
+            Get.dialog(
+              const DialogLoadingNetwork(),
+              barrierDismissible:
+                  false, // No permitir cerrar tocando fuera del diálogo
+            );
+          }
+
+          url =
+              url + (isunecodePath ? '$unencodePath/$endpoint' : '/$endpoint');
+
+          //
+
+          // Intentar hacer la solicitud HTTP
+
+          var request = http.Request('GET', Uri.parse(url));
+          request.body = json.encode({
+            "params": {"fecha_batch": "2024-10-10"}
+          });
 
           request.headers.addAll(headers);
 

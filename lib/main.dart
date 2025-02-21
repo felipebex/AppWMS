@@ -19,6 +19,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repo
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/services/notification_service.dart';
+// import 'package:wms_app/src/services/permission_service.dart';
 
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -33,21 +34,23 @@ final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-  ErrorWidget.builder = (FlutterErrorDetails details) =>  Scaffold(
-    body: SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-
-      child: Center(
+  ErrorWidget.builder = (FlutterErrorDetails details) => Scaffold(
+        body: SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
             child: Card(
                 color: white,
                 elevation: 2,
-                child: Text('Ocurrió un error inesperado, por favor reinicia la aplicación')),
+                child: Text(
+                    'Ocurrió un error inesperado, por favor reinicia la aplicación')),
           ),
-    ),
-  );
+        ),
+      );
 
   WidgetsFlutterBinding.ensureInitialized();
+  // await PermissionManager.requestAllPermissions();
+
   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
 
   await LocalNotificationsService()
@@ -59,9 +62,6 @@ void main() async {
   });
   // Inicializar la base de datos SQLite
   await Preferences.init();
-
-
-
 
   // cron
   var cron = Cron();
@@ -76,8 +76,6 @@ void main() async {
       }
     } on SocketException catch (_) {}
   });
-
-
 }
 
 class AppState extends StatelessWidget {

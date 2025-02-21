@@ -10,7 +10,6 @@ class LoadAllProductsEvent extends PickingEvent {
   LoadAllProductsEvent();
 }
 
-
 //*evento para cargar todos los batchs por fecha
 class FilterBatchsByDateEvent extends PickingEvent {
   final DateTime date;
@@ -18,15 +17,25 @@ class FilterBatchsByDateEvent extends PickingEvent {
   FilterBatchsByDateEvent(this.date, this.indexMenu);
 }
 
-
-
-
 //*evento para cargar todos los batchs de odoo
 
 class LoadAllBatchsEvent extends PickingEvent {
-  BuildContext context; 
+  BuildContext context;
   bool isLoadinDialog;
   LoadAllBatchsEvent(this.context, this.isLoadinDialog);
+}
+//*evento para cargar hisotural de  los batchs de odoo
+
+class LoadHistoryBatchsEvent extends PickingEvent {
+  BuildContext context;
+  bool isLoadinDialog;
+  LoadHistoryBatchsEvent(this.context, this.isLoadinDialog);
+}
+class LoadHistoryBatchIdEvent extends PickingEvent {
+  BuildContext context;
+  bool isLoadinDialog;
+  int batchId;
+  LoadHistoryBatchIdEvent(this.context, this.isLoadinDialog, this.batchId);
 }
 
 //*evento para buscar un producto
@@ -51,6 +60,12 @@ class SearchBatchEvent extends PickingEvent {
   final int indexMenu;
 
   SearchBatchEvent(this.query, this.indexMenu);
+}
+
+class SearchBatchHistoryEvent extends PickingEvent {
+  final String query;
+
+  SearchBatchHistoryEvent(this.query);
 }
 
 //*evento para cargar los batchs de la base de datos
@@ -92,15 +107,13 @@ class FilterBatchesByTypeEvent extends PickingEvent {
   FilterBatchesByTypeEvent(this.isWave, this.indexMenu);
 }
 
-
-
 class ShowKeyboardEvent extends PickingEvent {
   final bool showKeyboard;
 
-  ShowKeyboardEvent( this.showKeyboard);
+  ShowKeyboardEvent(this.showKeyboard);
 }
 
 class LoadAllNovedades extends PickingEvent {
- final  BuildContext context;
+  final BuildContext context;
   LoadAllNovedades(this.context);
 }

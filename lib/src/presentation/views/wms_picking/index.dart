@@ -155,7 +155,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 style: TextStyle(
                                                     color: white,
                                                     fontSize: 16,
-                                                    fontWeight: FontWeight.bold),
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
                                             ),
                                             const Spacer(),
@@ -167,9 +168,9 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               .read<WMSPickingBloc>()
                                               .batchsDone
                                               .where((element) {
-                                            return DateTime.parse(
-                                                        element.timeSeparateEnd ??
-                                                            "")
+                                            return DateTime.parse(element
+                                                            .timeSeparateEnd ??
+                                                        "")
                                                     .toString()
                                                     .substring(0, 10) ==
                                                 DateTime.now()
@@ -189,7 +190,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                             }),
                           ),
                         ),
-                  
+
                         Container(
                           padding: const EdgeInsets.only(top: 3),
                           child: Row(
@@ -217,15 +218,18 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       Text(
                                         'En Proceso',
                                         style: TextStyle(
-                                            color: primaryColorApp, fontSize: 12),
+                                            color: primaryColorApp,
+                                            fontSize: 12),
                                       )
                                     ],
                                   )),
                               ElevatedButton(
                                   onPressed: () {
-                                    context
-                                        .read<WMSPickingBloc>()
-                                        .add(FilterBatchesBStatusEvent('done'));
+                                    context.read<WMSPickingBloc>().add(
+                                        LoadHistoryBatchsEvent(context, true));
+
+                                    Navigator.pushNamed(
+                                        context, 'history-list');
                                   },
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: white,
@@ -243,16 +247,17 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       Text(
                                         'Hechos',
                                         style: TextStyle(
-                                            color: primaryColorApp, fontSize: 12),
+                                            color: primaryColorApp,
+                                            fontSize: 12),
                                       )
                                     ],
                                   ))
                             ],
                           ),
                         ),
-                  
+
                         //*barra de buscar
-                  
+
                         SizedBox(
                             // color: Colors.amber,
                             height: 60, //120
@@ -287,8 +292,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       .clear();
                                                   context
                                                       .read<WMSPickingBloc>()
-                                                      .add(SearchBatchEvent(
-                                                          '', controller.index));
+                                                      .add(SearchBatchEvent('',
+                                                          controller.index));
                                                   FocusScope.of(context)
                                                       .unfocus();
                                                 },
@@ -310,7 +315,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 const OutlineInputBorder(),
                                             hintText: "Buscar batch",
                                             hintStyle: const TextStyle(
-                                                color: Colors.grey, fontSize: 12),
+                                                color: Colors.grey,
+                                                fontSize: 12),
                                             border: InputBorder.none,
                                           ),
                                           onChanged: (value) {
@@ -319,7 +325,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                     value, controller.index));
                                           },
                                           style: const TextStyle(
-                                              color: Colors.black, fontSize: 14),
+                                              color: Colors.black,
+                                              fontSize: 14),
                                           onTap: !context
                                                   .read<UserBloc>()
                                                   .fabricante
@@ -336,9 +343,9 @@ class _PickingPageState extends State<WMSPickingPage> {
                                 ),
                               ],
                             )),
-                  
+
                         //filtro por tipo de batch
-                  
+
                         //*listado de batchs
                         Expanded(
                           child: context
@@ -359,7 +366,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                         .read<WMSPickingBloc>()
                                         .filteredBatchs[index];
                                     //convertimos la fecha
-                  
+
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 10,
@@ -369,16 +376,17 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           // Agrupar eventos de BatchBloc si es necesario
                                           final batchBloc =
                                               context.read<BatchBloc>();
-                  
+
                                           try {
                                             // Disparar eventos de BatchBloc
                                             batchBloc.add(
                                                 FetchBatchWithProductsEvent(
                                                     batch.id ?? 0));
-                                            batchBloc.add(LoadInfoDeviceEvent());
+                                            batchBloc
+                                                .add(LoadInfoDeviceEvent());
                                             batchBloc
                                                 .add(LoadConfigurationsUser());
-                  
+
                                             // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
                                             if (batch.isSeparate == 1) {
                                               batchBloc.isSearch = true;
@@ -386,13 +394,13 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   context, 'batch-detail');
                                             } else {
                                               //   // Cerrar el diálogo de carga inmediatamente
-                  
+
                                               Navigator.pushReplacementNamed(
                                                   context, 'batch');
                                             }
                                           } catch (e) {
                                             // Manejo de errores, por si ocurre algún problema
-                  
+
                                             ScaffoldMessenger.of(context)
                                                 .showSnackBar(
                                               const SnackBar(
@@ -421,7 +429,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   color: Colors.white,
                                                   borderRadius:
                                                       BorderRadius.circular(10),
-                  
+
                                                   //sombras
                                                   boxShadow: const [
                                                     BoxShadow(
@@ -447,7 +455,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   MainAxisAlignment.start,
                                               children: [
                                                 const Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text(
                                                       "Tipo de operación:",
                                                       style: TextStyle(
@@ -455,7 +464,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                           color: grey)),
                                                 ),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Text(
                                                     batch.pickingTypeId
                                                         .toString(),
@@ -468,7 +478,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   ),
                                                 ),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
                                                       Icon(
@@ -494,7 +505,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   ),
                                                 ),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
                                                       Icon(
@@ -507,9 +519,10 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                         child: Text(
                                                           batch.userName ??
                                                               "Sin usuario",
-                                                          style: const TextStyle(
-                                                              fontSize: 14,
-                                                              color: black),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color: black),
                                                           maxLines: 2,
                                                           overflow: TextOverflow
                                                               .ellipsis,
@@ -519,7 +532,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   ),
                                                 ),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
                                                       Icon(
@@ -534,8 +548,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                             fontSize: 14,
                                                             color: black),
                                                         maxLines: 2,
-                                                        overflow:
-                                                            TextOverflow.ellipsis,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                       Expanded(
                                                         child: Text(
@@ -554,7 +568,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   ),
                                                 ),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
                                                       Icon(
@@ -569,12 +584,13 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                             fontSize: 14,
                                                             color: black),
                                                         maxLines: 2,
-                                                        overflow:
-                                                            TextOverflow.ellipsis,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                       Expanded(
                                                         child: Text(
-                                                          batch.totalQuantityItems
+                                                          batch
+                                                              .totalQuantityItems
                                                               .toString(),
                                                           style: TextStyle(
                                                               fontSize: 14,

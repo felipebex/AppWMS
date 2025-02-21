@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -5,12 +7,15 @@ import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:image/image.dart' as img;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/mode_print_model.dart';
 import 'dart:ui' as ui;
 
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class PrintDialog extends StatefulWidget {
-  const PrintDialog({Key? key}) : super(key: key);
+  const PrintDialog({Key? key, required this.model}) : super(key: key);
+
+  final PrintModel model;
 
   @override
   State<PrintDialog> createState() => _PrintDialogState();
@@ -18,21 +23,13 @@ class PrintDialog extends StatefulWidget {
 
 class _PrintDialogState extends State<PrintDialog> {
   String _info = "";
-  String _msj = 'Activa el bluetooth para buscar impresoras';
+  String _msj =
+      'Activa el bluetooth o concede el permiso de dispsotivos cercanos para buscar impresoras';
   bool connected = false;
   List<BluetoothInfo> items = [];
-  // final List<String> _options = [
-  //   "Permiso bluetooth concedido",
-  //   "bluetooth activado",
-  //   "connection status",
-  //   "update info"
-  // ];
 
   bool _progress = false;
   String _msjprogress = "";
-
-  String optionprinttype = "58 mm";
-  List<String> options = ["58 mm", "80 mm"];
 
   @override
   void initState() {
@@ -48,54 +45,61 @@ class _PrintDialogState extends State<PrintDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_msj, style: TextStyle(color: black),),
+            Text(
+              _msj,
+              style: TextStyle(color: black),
+            ),
             const SizedBox(height: 10),
             Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  
-                  getBluetoots();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: grey,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Visibility(
-                      visible: _progress,
-                      child: const SizedBox(
-                        width: 25,
-                        height: 25,
-                        child: CircularProgressIndicator.adaptive(
-                            strokeWidth: 1, backgroundColor: primary),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      getBluetoots();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Text(
-                      _progress ? _msjprogress : "Buscar",
-                      style: TextStyle(color: Colors.white),
+                    child: Row(
+                      children: [
+                        Visibility(
+                          visible: _progress,
+                          child: const SizedBox(
+                            width: 25,
+                            height: 25,
+                            child: CircularProgressIndicator.adaptive(
+                                strokeWidth: 1, backgroundColor: primary),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          _progress ? _msjprogress : "Buscar",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  ElevatedButton(
+                      onPressed: connected ? disconnect : null,
+                      style: ElevatedButton.styleFrom(
+                        maximumSize: const Size(100, 50),
+                        backgroundColor: grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.print_disabled,
+                        color: Colors.white,
+                        size: 30,
+                      )),
+                ],
               ),
             ),
-              // ElevatedButton(
-                //   onPressed: connected ? disconnect : null,
-                //   style: ElevatedButton.styleFrom(
-                //     maximumSize: const Size(100, 50),
-                //     backgroundColor: grey,
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(10),
-                //     ),
-                //   ),
-                //   child: const Text(
-                //     'Desconectar',
-                //     style: TextStyle(color: Colors.white),
-                //   ),
-                // ),
             Container(
                 height: 200,
                 decoration: BoxDecoration(
@@ -122,12 +126,6 @@ class _PrintDialogState extends State<PrintDialog> {
         ),
       ),
       actions: <Widget>[
-        // TextButton(
-        //   child: const Text('Cerrar'),
-        //   onPressed: () {
-        //     Navigator.of(context).pop();
-        //   },
-        // ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: grey,
@@ -256,10 +254,27 @@ class _PrintDialogState extends State<PrintDialog> {
     bytes += generator.reset();
 
     // Texto
-    bytes += generator.text('Texto de ejemplo',
+    bytes += generator.text('OnPoint',
         styles: const PosStyles(align: PosAlign.center, bold: true));
-    bytes += generator.text('https://example.com',
+
+    bytes += generator.text('Batch: ${widget.model.batchName}',
         styles: const PosStyles(align: PosAlign.center));
+    bytes += generator.text('Operacion: ${widget.model.pickingTypeId}',
+        styles: const PosStyles(align: PosAlign.center));
+
+    bytes += generator.text('Pedido: ${widget.model.namePedido}',
+        styles: const PosStyles(align: PosAlign.center));
+    bytes += generator.text('Referencia: ${widget.model.referencia}',
+        styles: const PosStyles(align: PosAlign.center));
+    bytes += generator.text('Contacto: ${widget.model.contactoName}',
+        styles: const PosStyles(align: PosAlign.center));
+    bytes += generator.text('Empaque: ${widget.model.namePaquete}',
+        styles: const PosStyles(align: PosAlign.center));
+    bytes += generator.text(
+        'Cant productos empaque: ${widget.model.cantProductoPack}',
+        styles: const PosStyles(align: PosAlign.center));
+    bytes +=
+        generator.text('', styles: const PosStyles(align: PosAlign.center));
 
     // Generar el código QR como Uint8List
     final Uint8List qrUint8List = await _generateQrUint8List();
@@ -269,7 +284,8 @@ class _PrintDialogState extends State<PrintDialog> {
 
     // Agregar la imagen del código QR a los bytes de impresión
     if (qrImage != null) {
-      bytes += generator.image(qrImage);
+      // Asegúrate de que la imagen esté centrada
+      bytes += generator.image(qrImage, align: PosAlign.center);
     }
 
     bytes += generator.feed(2);
@@ -278,20 +294,23 @@ class _PrintDialogState extends State<PrintDialog> {
   }
 
   Future<Uint8List> _generateQrUint8List() async {
+    // Definir el tamaño del código QR (ajusta según el ancho del papel)
+    const qrSize = 200.0; // Tamaño en píxeles
+
     // Crear un PictureRecorder para capturar la imagen
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
     // Generar el código QR
     final qrPainter = QrPainter(
-      data: 'https://example.com',
+      data:
+          'https://example.com', // Cambia esto por el dato que quieras codificar
       version: QrVersions.auto,
       color: Colors.black,
       emptyColor: Colors.white,
     );
 
-    // Definir el tamaño del código QR
-    const qrSize = 200.0;
+    // Pintar el código QR en el canvas
     qrPainter.paint(canvas, const Size(qrSize, qrSize));
 
     // Convertir el PictureRecorder en una imagen

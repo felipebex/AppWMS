@@ -3,6 +3,8 @@
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/batch_history_id_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/hisotry_done_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
 import 'package:bloc/bloc.dart';
@@ -20,14 +22,20 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   List<BatchsModel> listOfBatchs = [];
   List<BatchsModel> filteredBatchs = []; // Lista para los productos filtrados
   List<BatchsModel> batchsDone = []; // Lista para los productos filtrados
+  List<HistoryBatch> historyBatchs = []; // Lista para los productos filtrados
+  List<HistoryBatch> filtersHistoryBatchs =
+      []; // Lista para los productos filtrados
 
   List<Novedad> listOfNovedades = [];
   bool isKeyboardVisible = false;
+
+  HistoryBatchId historyBatchId = HistoryBatchId();
 
   WmsPickingRepository wmsPickingRepository = WmsPickingRepository();
 
   //*controller para la busqueda
   TextEditingController searchController = TextEditingController();
+  TextEditingController searchHistoryController = TextEditingController();
 
   //*instancia de la base de datos
   final DataBaseSqlite _databas = DataBaseSqlite();
@@ -37,8 +45,12 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
     //*obtener todos los batchs desde odoo
     on<LoadAllBatchsEvent>(_onLoadAllBatchsEvent);
+    on<LoadHistoryBatchsEvent>(_onLoadHistoryBatchsEvent);
+    on<LoadHistoryBatchIdEvent>(_onLoadHistoryBatchIdEvent);
     //*buscar un batch
     on<SearchBatchEvent>(_onSearchBacthEvent);
+    //*Buscar un batch en el historial
+    on<SearchBatchHistoryEvent>(_onSearchBacthHistoryEvent);
     // *filtrar por estado los batchs desde SQLite
     on<FilterBatchesBStatusEvent>(_onFilterBatchesBStatusEvent);
     //evento para mostrar el teclado
@@ -115,8 +127,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       );
 
       if (response != null && response is List) {
-
-        if(response.isNotEmpty){
+        if (response.isNotEmpty) {
           LocalNotificationsService().showNotification('Nuevos batchs',
               'Se han agregado nuevos batchs para picking', '');
         }
@@ -208,26 +219,54 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     }
   }
 
-  // void _onLoadBatchsFromDBEvent(
-  //     LoadBatchsFromDBEvent event, Emitter<PickingState> emit) async {
-  //   try {
-  //     final int userId = await PrefUtils.getUserId();
+  void _onLoadHistoryBatchsEvent(
+      LoadHistoryBatchsEvent event, Emitter<PickingState> emit) async {
+    try {
+      emit(BatchsPickingLoadingState());
 
-  //     batchsDone.clear();
-  //     emit(BatchsPickingLoadingState());
-  //     final batchsFromDB = await _databas.getAllBatchs(userId);
+      final response = await wmsPickingRepository.resBatchsHistory(
+        event.isLoadinDialog,
+        event.context,
+      );
 
-  //     filteredBatchs = batchsFromDB;
+      if (response != null && response is List) {
+        historyBatchs.clear();
+        filtersHistoryBatchs.clear();
+        historyBatchs.addAll(response);
+        filtersHistoryBatchs.addAll(response);
 
-  //     batchsDone =
-  //         batchsFromDB.where((batch) => batch.isSeparate == 1).toList();
+        emit(LoadHistoryBatchState(listOfBatchs: filtersHistoryBatchs));
+      } else {
+        print('Error resHistoryBatchs: response is null');
+      }
+    } catch (e, s) {
+      print('Error LoadHistoryBatchsEvent: $e, $s');
+      emit(BatchsPickingErrorState(e.toString()));
+    }
+  }
+  void _onLoadHistoryBatchIdEvent(
+      LoadHistoryBatchIdEvent event, Emitter<PickingState> emit) async {
+    try {
+      emit(BatchHistoryLoadingState());
 
-  //     emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
-  //   } catch (e) {
-  //     print('Error loading batchs from DB: $e');
-  //     emit(BatchsPickingErrorState(e.toString()));
-  //   }
-  // }
+      final response = await wmsPickingRepository.getBatchById(
+        event.isLoadinDialog,
+        event.context,
+        event.batchId,
+      );
+
+      if (response != null && response is HistoryBatchId) {
+        historyBatchId = HistoryBatchId();
+        historyBatchId = response;
+        emit(BatchHistoryLoadedState(historyBatchId));
+      } else {
+        print('Error resHistoryBatchs: response is null');
+      }
+    } catch (e, s) {
+      print('Error LoadHistoryBatchsEvent: $e, $s');
+      emit(BatchsPickingErrorState(e.toString()));
+    }
+  }
 
   void _onSearchBacthEvent(
       SearchBatchEvent event, Emitter<PickingState> emit) async {
@@ -257,5 +296,20 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       }
     }
     emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
+  }
+
+  void _onSearchBacthHistoryEvent(
+      SearchBatchHistoryEvent event, Emitter<PickingState> emit) async {
+    final query = event.query.toLowerCase();
+
+    if (query.isEmpty) {
+      filtersHistoryBatchs = historyBatchs;
+    } else {
+      filtersHistoryBatchs = historyBatchs.where((batch) {
+        return batch.name?.toLowerCase().contains(query) ?? false;
+      }).toList();
+    }
+
+    emit(LoadHistoryBatchState(listOfBatchs: filtersHistoryBatchs));
   }
 }
