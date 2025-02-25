@@ -65,6 +65,7 @@ class AppRoutes {
         final batchModel = arguments[0] as BatchPackingModel?;
         return PakingListScreen(
           batchModel: batchModel,
+
         );
       },
 
@@ -91,10 +92,12 @@ class AppRoutes {
         // Asegurarnos de que la lista tenga al menos dos elementos
         final packingModel = arguments[0] as PedidoPacking?;
         final batchModel = arguments[1] as BatchPackingModel?;
+        final initialTabIndex = arguments[2] as int;
 
         return PackingDetailScreen(
           packingModel: packingModel,
           batchModel: batchModel,
+          initialTabIndex: initialTabIndex,
         );
       },
 

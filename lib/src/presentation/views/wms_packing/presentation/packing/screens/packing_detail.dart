@@ -11,18 +11,43 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab2.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab4.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
-
 class PackingDetailScreen extends StatefulWidget {
-  const PackingDetailScreen({super.key, required this.packingModel, this.batchModel});
+  const PackingDetailScreen({
+    super.key,
+    required this.packingModel,
+    this.batchModel,
+    this.initialTabIndex = 0, // Valor por defecto es 0
+  });
 
   final PedidoPacking? packingModel;
   final BatchPackingModel? batchModel;
+  final int initialTabIndex; // Nueva propiedad para la posición inicial
 
   @override
   State<PackingDetailScreen> createState() => _PackingDetailScreenState();
 }
 
-class _PackingDetailScreenState extends State<PackingDetailScreen> {
+class _PackingDetailScreenState extends State<PackingDetailScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar el TabController con la longitud de las pestañas
+    _tabController = TabController(
+      length: 4,
+      vsync: this,
+      initialIndex: widget.initialTabIndex, // Posición inicial
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose(); // Desechar el TabController
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
@@ -33,97 +58,100 @@ class _PackingDetailScreenState extends State<PackingDetailScreen> {
           onWillPop: () async {
             return true;
           },
-          child: DefaultTabController(
-            length: 4,
-            child: Scaffold(
-              backgroundColor: Colors.white,
-              appBar: 
-              
-              AppBar(
-                centerTitle: true,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: white),
-                  onPressed: () {
-                    context
-                        .read<WmsPackingBloc>()
-                        .listOfProductsForPacking.clear();
-                    context
-                        .read<WmsPackingBloc>()
-                        .add(LoadAllPedidosFromBatchEvent(
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              centerTitle: true,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  context.read<WmsPackingBloc>().listOfProductsForPacking.clear();
+                  context.read<WmsPackingBloc>().add(
+                        LoadAllPedidosFromBatchEvent(
                           widget.packingModel?.batchId ?? 0,
-                        ));
-                     Navigator.pushReplacementNamed(
-                                      context, 'packing-list',
-                                      arguments: [widget.batchModel]);
-                  },
-                ),
-                title: const Text('PACKING - DETAIL',
-                    style: TextStyle(color: white, fontSize: 16)),
-                bottom: const TabBar(
-                  indicatorWeight: 3,
-                  indicatorPadding: EdgeInsets.symmetric(vertical: 5),
-                  labelStyle: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  unselectedLabelStyle: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  tabs: [
-                    Tab(
-                        text: 'Detalles',
-                        icon: Icon(
-                          Icons.details,
-                          color: Colors.white,
-                          size: 20,
-                        )),
-                    Tab(
-                        text: 'Por hacer',
-                        icon: Icon(
-                          Icons.pending_actions,
-                          color: Colors.white,
-                          size: 20,
-                        )),
-                    Tab(
-                        text: 'Preparado',
-                        icon: Icon(
-                          Icons.star,
-                          color: Colors.white,
-                          size: 20,
-                        )),
-                    Tab(
-                        text: 'Listo',
-                        icon: Icon(
-                          Icons.done,
-                          color: Colors.white,
-                          size: 20,
-                        )),
-                  ],
-                ),
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(20),
-                )),
+                        ),
+                      );
+                  Navigator.pushReplacementNamed(
+                    context,
+                    'packing-list',
+                    arguments: [widget.batchModel],
+                  );
+                },
               ),
-
-
-              
-              body: TabBarView(
-                children: [
-                  Tab1Screen(
-                      size: size,
-                      packingModel: widget.packingModel ?? PedidoPacking(), batchModel: widget.batchModel ?? BatchPackingModel()),
-                   Tab2Screen(
-                    packingModel: widget.packingModel ?? PedidoPacking(),
-                    batchModel: widget.batchModel ?? BatchPackingModel(),
+              title: const Text(
+                'PACKING - DETAIL',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              bottom: TabBar(
+                controller: _tabController, // Asignar el TabController
+                indicatorWeight: 3,
+                indicatorPadding: EdgeInsets.symmetric(vertical: 5),
+                labelStyle: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                unselectedLabelStyle: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                tabs: const [
+                  Tab(
+                    text: 'Detalles',
+                    icon: Icon(
+                      Icons.details,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
-                  const Tab3Screen(),
-                  const Tab4Screen(),
+                  Tab(
+                    text: 'Por hacer',
+                    icon: Icon(
+                      Icons.pending_actions,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  Tab(
+                    text: 'Preparado',
+                    icon: Icon(
+                      Icons.star,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  Tab(
+                    text: 'Listo',
+                    icon: Icon(
+                      Icons.done,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
                 ],
               ),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(20),
+                ),
+              ),
+            ),
+            body: TabBarView(
+              controller: _tabController, // Asignar el TabController
+              children: [
+                Tab1Screen(
+                  size: size,
+                  packingModel: widget.packingModel ?? PedidoPacking(),
+                  batchModel: widget.batchModel ?? BatchPackingModel(),
+                ),
+                Tab2Screen(
+                  packingModel: widget.packingModel ?? PedidoPacking(),
+                  batchModel: widget.batchModel ?? BatchPackingModel(),
+                ),
+                const Tab3Screen(),
+                const Tab4Screen(),
+              ],
             ),
           ),
         );

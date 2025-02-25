@@ -156,6 +156,7 @@ class WmsPickingRepository {
         if (jsonResponse.containsKey('result')) {
           if (jsonResponse['result']['code'] == 400) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              
                 backgroundColor: Colors.amber[200],
                 content: SizedBox(
                   width: double.infinity,

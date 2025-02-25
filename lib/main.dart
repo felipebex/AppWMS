@@ -19,6 +19,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repo
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/services/notification_service.dart';
+import 'package:wms_app/src/services/permission_service.dart';
 // import 'package:wms_app/src/services/permission_service.dart';
 
 import 'package:wms_app/src/services/preferences.dart';
@@ -49,7 +50,7 @@ void main() async {
       );
 
   WidgetsFlutterBinding.ensureInitialized();
-  // await PermissionManager.requestAllPermissions();
+  await PermissionManager.requestAllPermissions();
 
   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
 

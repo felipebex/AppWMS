@@ -253,7 +253,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                 'packing-detail',
                                 arguments: [
                                   widget.packingModel,
-                                  widget.batchModel
+                                  widget.batchModel,
+                                  1
                                 ],
                               );
                             }
@@ -272,7 +273,8 @@ class _PackingScreenState extends State<PackingScreen> {
                               'packing-detail',
                               arguments: [
                                 widget.packingModel,
-                                widget.batchModel
+                                widget.batchModel,
+                                1
                               ],
                             );
                           }
@@ -315,7 +317,8 @@ class _PackingScreenState extends State<PackingScreen> {
                                           'packing-detail',
                                           arguments: [
                                             widget.packingModel,
-                                            widget.batchModel
+                                            widget.batchModel,
+                                            1
                                           ],
                                         );
                                       },
@@ -1174,7 +1177,11 @@ class _PackingScreenState extends State<PackingScreen> {
     Navigator.pushReplacementNamed(
       context,
       'packing-detail',
-      arguments: [widget.packingModel, widget.batchModel],
+      arguments: [
+        widget.packingModel,
+        widget.batchModel,
+        1,
+      ],
     );
   }
 

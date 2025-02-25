@@ -200,7 +200,7 @@ class HistoryDetailScreen extends StatelessWidget {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: 'Total Items : ',
+                                    text: 'Total productos : ',
                                     style: TextStyle(
                                         fontSize: 14,
                                         color:
@@ -246,7 +246,7 @@ class HistoryDetailScreen extends StatelessWidget {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: 'Items separados : ',
+                                    text: 'Productos separados : ',
                                     style: TextStyle(
                                         fontSize: 14,
                                         color:

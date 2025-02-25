@@ -153,6 +153,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
       focusNode4.unfocus();
       focusNode6.unfocus();
     }
+    setState(() {
+      
+    });
   }
 
   @override
@@ -309,24 +312,24 @@ class _BatchDetailScreenState extends State<BatchScreen>
                       }
                     }
 
-                    if (state is BarcodesProductLoadedState) {
+                    // if (state is BarcodesProductLoadedState) {
                       
-                      Future.delayed(const Duration(milliseconds: 500), () {
-                        showDialog(
-                          context: context,
-                          barrierDismissible:
-                              false, // No permitir que el usuario cierre el diálogo manualmente
-                          builder: (context) => const DialogLoading(
-                            message: 'Cargando interfaz...',
-                          ),
-                        );
-                        //cerramos
-                        Future.delayed(const Duration(milliseconds: 1500), () {
-                          _handleDependencies();
-                          Navigator.pop(context);
-                        });
-                      });
-                    }
+                    //   Future.delayed(const Duration(milliseconds: 500), () {
+                    //     showDialog(
+                    //       context: context,
+                    //       barrierDismissible:
+                    //           false, // No permitir que el usuario cierre el diálogo manualmente
+                    //       builder: (context) => const DialogLoading(
+                    //         message: 'Cargando interfaz...',
+                    //       ),
+                    //     );
+                    //     //cerramos
+                    //     Future.delayed(const Duration(milliseconds: 1500), () {
+                    //       _handleDependencies();
+                    //       Navigator.pop(context);
+                    //     });
+                    //   });
+                    // }
 
                     if (state is CurrentProductChangedStateLoading) {
                       showDialog(

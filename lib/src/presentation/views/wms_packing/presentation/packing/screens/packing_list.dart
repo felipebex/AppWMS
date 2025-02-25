@@ -432,7 +432,11 @@ class PakingListScreen extends StatelessWidget {
                                           // Viajamos a la vista de detalle de un pedido
                                           Navigator.pushReplacementNamed(
                                               context, 'packing-detail',
-                                              arguments: [packing, batchModel]);
+                                              arguments: [
+                                                packing,
+                                                batchModel,
+                                                0
+                                              ]);
                                           print(
                                               'Pedido seleccionado: ${packing.toMap()}');
                                         },

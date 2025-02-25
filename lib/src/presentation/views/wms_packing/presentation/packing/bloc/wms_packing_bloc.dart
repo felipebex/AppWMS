@@ -24,6 +24,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   String scannedValue2 = '';
   String scannedValue3 = '';
   String scannedValue4 = '';
+  String scannedValue5 = ''; /// valor en por hacer
 
   //*lista de batchs para packing
   List<BatchPackingModel> listOfBatchs = [];
@@ -209,6 +210,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           scannedValue4 = '';
           emit(ClearScannedValuePackState());
           break;
+
+        case 'toDo':
+          scannedValue5 = '';
+          emit(ClearScannedValuePackState());
+          break;
+
         default:
           print('Scan type not recognized: ${event.scan}');
       }
@@ -244,6 +251,13 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           scannedValue4 += event.scannedValue;
           emit(UpdateScannedValuePackState(scannedValue4, event.scan));
           break;
+
+        case 'toDo':
+          print('scannedValue5: $scannedValue5');
+          scannedValue5 += event.scannedValue;
+          emit(UpdateScannedValuePackState(scannedValue5, event.scan));
+          break;
+
         default:
           print('Scan type not recognized: ${event.scan}');
       }

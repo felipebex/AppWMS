@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -223,13 +224,43 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       )
                                     ],
                                   )),
+                              // ElevatedButton(
+                              //     onPressed: () {
+                              //       context.read<WMSPickingBloc>().add(
+                              //           LoadHistoryBatchsEvent(context, true));
+
+                              //       Navigator.pushNamed(
+                              //           context, 'history-list');
+                              //     },
+                              //     style: ElevatedButton.styleFrom(
+                              //         backgroundColor: white,
+                              //         shape: RoundedRectangleBorder(
+                              //             borderRadius:
+                              //                 BorderRadius.circular(10))),
+                              //     child: Row(
+                              //       children: [
+                              //         const Icon(
+                              //           Icons.history,
+                              //           color: green,
+                              //           size: 20,
+                              //         ),
+                              //         const SizedBox(width: 5),
+                              //         Text(
+                              //           'Historico',
+                              //           style: TextStyle(
+                              //               color: primaryColorApp,
+                              //               fontSize: 12),
+                              //         )
+                              //       ],
+                              //     ))
+
+
+
                               ElevatedButton(
                                   onPressed: () {
-                                    context.read<WMSPickingBloc>().add(
-                                        LoadHistoryBatchsEvent(context, true));
-
-                                    Navigator.pushNamed(
-                                        context, 'history-list');
+                                    context
+                                        .read<WMSPickingBloc>()
+                                        .add(FilterBatchesBStatusEvent('done'));
                                   },
                                   style: ElevatedButton.styleFrom(
                                       backgroundColor: white,
@@ -247,8 +278,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       Text(
                                         'Hechos',
                                         style: TextStyle(
-                                            color: primaryColorApp,
-                                            fontSize: 12),
+                                            color: primaryColorApp, fontSize: 12),
                                       )
                                     ],
                                   ))
@@ -386,6 +416,20 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 .add(LoadInfoDeviceEvent());
                                             batchBloc
                                                 .add(LoadConfigurationsUser());
+
+                                            //mostramos un dialogo de carga y despues
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible:
+                                                  false, // No permitir que el usuario cierre el diálogo manualmente
+                                              builder: (context) =>
+                                                  const DialogLoading(
+                                                message: 'Cargando interfaz...',
+                                              ),
+                                            );
+
+                                            await Future.delayed(
+                                                const Duration(seconds: 1));
 
                                             // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
                                             if (batch.isSeparate == 1) {
