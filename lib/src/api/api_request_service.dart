@@ -527,6 +527,7 @@ class ApiRequestService {
     required bool isLoadinDialog,
     required BuildContext context,
     required bool isunecodePath,
+    required String date,
   }) async {
     var url = await PrefUtils.getEnterprise();
     var cookie = await PrefUtils.getCookie();
@@ -593,7 +594,7 @@ class ApiRequestService {
 
           var request = http.Request('GET', Uri.parse(url));
           request.body = json.encode({
-            "params": {"fecha_batch": "2024-10-10"}
+            "params": {"fecha_batch": "$date"}
           });
 
           request.headers.addAll(headers);

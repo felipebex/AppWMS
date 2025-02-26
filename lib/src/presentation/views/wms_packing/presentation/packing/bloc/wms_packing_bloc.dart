@@ -24,7 +24,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   String scannedValue2 = '';
   String scannedValue3 = '';
   String scannedValue4 = '';
-  String scannedValue5 = ''; /// valor en por hacer
+  String scannedValue5 = '';
+
+  /// valor en por hacer
 
   //*lista de batchs para packing
   List<BatchPackingModel> listOfBatchs = [];
@@ -175,12 +177,11 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ClearScannedValuePackEvent>(_onClearScannedValueEvent);
     //*evento para ver la cantidad
     on<ShowQuantityPackEvent>(_onShowQuantityEvent);
-
   }
 
-
   //*evento para ver la cantidad
-  void _onShowQuantityEvent(ShowQuantityPackEvent event, Emitter<WmsPackingState> emit) {
+  void _onShowQuantityEvent(
+      ShowQuantityPackEvent event, Emitter<WmsPackingState> emit) {
     try {
       viewQuantity = !viewQuantity;
       emit(ShowQuantityPackState(viewQuantity));
@@ -457,7 +458,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       }
     } catch (e, s) {
       emit(ConfigurationErrorPack(e.toString()));
-      print('Error en GetConfigurations.dart: $e =>$s');
+      print('Error en LoadConfigurationsUserPack.dart: $e =>$s');
     }
   }
 
@@ -797,7 +798,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onSetPickingsEvent(
       SetPickingsEvent event, Emitter<WmsPackingState> emit) async {
     try {
-
       emit(SetPickingPackingLoadingState());
 
       //actualizamos el estado del producto como separado
@@ -813,7 +813,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       viewQuantity = false;
       add(LoadAllProductsFromPedidoEvent(event.pedidoId));
       emit(SetPickingPackingOkState());
-
     } catch (e, s) {
       print('Error en el  _onSetPickingsEvent: $e, $s');
       emit(SetPickingPackingErrorState(e.toString()));
@@ -879,13 +878,11 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           : currentProduct.quantitySeparate ?? 0;
       products();
 
-      print(
-          "variables : locationIsOk: $locationIsOk, productIsOk: $productIsOk, :locationDestIsOk $locationDestIsOk, quantityIsOk: $quantityIsOk");
-
-      print(
-          "vairbales de vista: isLocationOk: $isLocationOk , isProductOk: $isProductOk, isLocationDestOk: $isLocationDestOk, isQuantityOk: $isQuantityOk");
-
-      print("currentProduct: ${currentProduct.toMap()}");
+      // print(
+      //     "variables : locationIsOk: $locationIsOk, productIsOk: $productIsOk, :locationDestIsOk $locationDestIsOk, quantityIsOk: $quantityIsOk");
+      // print(
+      //     "vairbales de vista: isLocationOk: $isLocationOk , isProductOk: $isProductOk, isLocationDestOk: $isLocationDestOk, isQuantityOk: $isQuantityOk");
+      // print("currentProduct: ${currentProduct.toMap()}");
       emit(WmsProductInfoLoaded());
     } catch (e, s) {
       print('Error en el  _onFetchProductEvent: $e, $s');
@@ -897,6 +894,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       Emitter<WmsPackingState> emit) async {
     try {
       emit(WmsPackingLoading());
+
+      add(LoadConfigurationsUserPack());
 
       final response =
           await DataBaseSqlite().getProductosPedido(event.pedidoId);
@@ -1019,8 +1018,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           event.isLoadinDialog, event.context);
 
       if (response != null && response is List) {
-
-          if(response.isNotEmpty){
+        if (response.isNotEmpty) {
           LocalNotificationsService().showNotification('Nuevos batchs',
               'Se han agregado nuevos batchs para packing', '');
         }

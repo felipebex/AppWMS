@@ -11,6 +11,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/mo
 import 'dart:ui' as ui;
 
 import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class PrintDialog extends StatefulWidget {
   const PrintDialog({Key? key, required this.model}) : super(key: key);
@@ -301,10 +302,14 @@ class _PrintDialogState extends State<PrintDialog> {
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
 
+    var url = await PrefUtils.getEnterprise();
+
+    url = '$url/package/info/${widget.model.namePaquete}';
+
     // Generar el código QR
     final qrPainter = QrPainter(
-      data:
-          'https://example.com', // Cambia esto por el dato que quieras codificar
+      data: url,
+
       version: QrVersions.auto,
       color: Colors.black,
       emptyColor: Colors.white,

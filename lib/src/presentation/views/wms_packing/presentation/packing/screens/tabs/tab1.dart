@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
@@ -12,6 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/mode_print_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/print_screen.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class Tab1Screen extends StatelessWidget {
   const Tab1Screen({
@@ -24,6 +26,58 @@ class Tab1Screen extends StatelessWidget {
   final Size size;
   final PedidoPacking? packingModel;
   final BatchPackingModel? batchModel;
+
+  void _showQRDialog(BuildContext context, String data) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          actionsAlignment: MainAxisAlignment.center,
+          title: Center(
+              child: Text(
+            "Información del paquete",
+            style: TextStyle(
+              color: primaryColorApp,
+              fontSize: 16,
+            ),
+          )),
+          content: SizedBox(
+            height: 200, // Establecemos el tamaño del dialogo
+            width: 200,
+            child: Column(
+              mainAxisSize:
+                  MainAxisSize.min, // Esto hace que el contenido sea flexible
+              children: [
+                QrImageView(
+                  data: data,
+                  version: QrVersions.auto,
+                  size: 200.0,
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: grey,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,8 +230,6 @@ class Tab1Screen extends StatelessWidget {
                     ),
               body: Column(
                 children: [
-                  const WarningWidgetCubit(),
-
                   //*detalles del batch
                   Container(
                     padding:
@@ -375,10 +427,21 @@ class Tab1Screen extends StatelessWidget {
                                             ),
                                             const Spacer(),
                                             if (package.isSticker == true)
-                                              Icon(
-                                                Icons.print,
-                                                color: primaryColorApp,
-                                                size: 20,
+                                              GestureDetector(
+                                                onTap: () async {
+                                                  var url = await PrefUtils
+                                                      .getEnterprise();
+
+                                                  url =
+                                                      '$url/package/info/${package.name}';
+
+                                                  _showQRDialog(context, url);
+                                                },
+                                                child: Icon(
+                                                  Icons.print,
+                                                  color: primaryColorApp,
+                                                  size: 20,
+                                                ),
                                               )
                                           ],
                                         ),

@@ -60,7 +60,6 @@ class _Tab2ScreenState extends State<Tab2Screen> {
 
     if (product.idMove != null) {
       // Si el producto existe, ejecutar los estados necesarios
-      bloc.add(LoadConfigurationsUserPack());
       bloc.add(
           FetchProductEvent(product)); // Pasar el producto encontrado al evento
 
@@ -72,6 +71,12 @@ class _Tab2ScreenState extends State<Tab2Screen> {
           );
         },
       );
+
+      bloc.add(ChangeProductIsOkEvent(true, product.idProduct ?? 0,
+          product.pedidoId ?? 0, 0, product.idMove ?? 0));
+
+      bloc.add(ChangeIsOkQuantity(true, product.idProduct ?? 0,
+          product.pedidoId ?? 0, product.idMove ?? 0));
 
       Future.delayed(const Duration(seconds: 1), () {
         // Cerrar el diálogo de carga
@@ -89,7 +94,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
     } else {
       // Mostrar alerta de error si el producto no se encuentra
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text("Código de barras incorrecto"),
+        content: const Text("Código erroneo"),
         backgroundColor: Colors.red[200],
         duration: const Duration(milliseconds: 500),
       ));
@@ -268,31 +273,57 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                       //   ),
                       // ),
 
-                      //*focus para leer los productos
-                      Focus(
-                          focusNode: focusNode1,
-                          autofocus: true,
-                          onKey: (FocusNode node, RawKeyEvent event) {
-                            if (event is RawKeyDownEvent) {
-                              if (event.logicalKey ==
-                                  LogicalKeyboardKey.enter) {
-                                validateBarcode(
-                                    context
-                                        .read<WmsPackingBloc>()
-                                        .scannedValue5,
-                                    context);
-                                return KeyEventResult.handled;
-                              } else {
-                                context.read<WmsPackingBloc>().add(
-                                    UpdateScannedValuePackEvent(
-                                        event.data.keyLabel, 'toDo'));
-                                return KeyEventResult.handled;
-                              }
-                            }
-                            return KeyEventResult.ignored;
-                          },
-                          child: Container(
-                          )),
+                      //*espacio para escanear y buscar el producto
+                      context.read<UserBloc>().fabricante.contains("Zebra")
+                          ? Container(
+                              height: 15,
+                              margin: const EdgeInsets.only(bottom: 5),
+                              child: TextFormField(
+                                autofocus: true,
+                                showCursor: false,
+                                controller:_controllerToDo,
+
+                                focusNode: focusNode1,
+                                onChanged: (value) {
+                                  // Llamamos a la validación al cambiar el texto
+                                  validateBarcode(value, context);
+                                },
+                                decoration: InputDecoration(
+                                  // hintText:
+                                  //     batchBloc.currentProduct.locationId.toString(),
+                                  disabledBorder: InputBorder.none,
+                                  hintStyle: const TextStyle(
+                                      fontSize: 14, color: black),
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            )
+                          :
+
+                          //*focus para leer los productos
+                          Focus(
+                              focusNode: focusNode1,
+                              autofocus: true,
+                              onKey: (FocusNode node, RawKeyEvent event) {
+                                if (event is RawKeyDownEvent) {
+                                  if (event.logicalKey ==
+                                      LogicalKeyboardKey.enter) {
+                                    validateBarcode(
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .scannedValue5,
+                                        context);
+                                    return KeyEventResult.handled;
+                                  } else {
+                                    context.read<WmsPackingBloc>().add(
+                                        UpdateScannedValuePackEvent(
+                                            event.data.keyLabel, 'toDo'));
+                                    return KeyEventResult.handled;
+                                  }
+                                }
+                                return KeyEventResult.ignored;
+                              },
+                              child: Container()),
 
                       (context
                               .read<WmsPackingBloc>()
@@ -350,29 +381,39 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                             horizontal: 12, vertical: 10),
                                         child: Row(
                                           children: [
-                                            // Checkbox para seleccionar o deseleccionar el producto
-                                            Checkbox(
-                                              value: context
-                                                  .read<WmsPackingBloc>()
-                                                  .listOfProductsForPacking
-                                                  .contains(product),
-                                              onChanged: (bool? selected) {
-                                                if (selected == true) {
-                                                  // Seleccionar producto
-                                                  context
+                                            //* Checkbox para seleccionar o deseleccionar el producto
+                                            //* se activa segun el permiso
+                                            Visibility(
+                                              visible: context
                                                       .read<WmsPackingBloc>()
-                                                      .add(
-                                                          SelectProductPackingEvent(
-                                                              product));
-                                                } else {
-                                                  // Deseleccionar producto
-                                                  context
-                                                      .read<WmsPackingBloc>()
-                                                      .add(
-                                                          UnSelectProductPackingEvent(
-                                                              product));
-                                                }
-                                              },
+                                                      .configurations
+                                                      .result
+                                                      ?.result
+                                                      ?.scanProduct ??
+                                                  false,
+                                              child: Checkbox(
+                                                value: context
+                                                    .read<WmsPackingBloc>()
+                                                    .listOfProductsForPacking
+                                                    .contains(product),
+                                                onChanged: (bool? selected) {
+                                                  if (selected == true) {
+                                                    // Seleccionar producto
+                                                    context
+                                                        .read<WmsPackingBloc>()
+                                                        .add(
+                                                            SelectProductPackingEvent(
+                                                                product));
+                                                  } else {
+                                                    // Deseleccionar producto
+                                                    context
+                                                        .read<WmsPackingBloc>()
+                                                        .add(
+                                                            UnSelectProductPackingEvent(
+                                                                product));
+                                                  }
+                                                },
+                                              ),
                                             ),
                                             Expanded(
                                               child: GestureDetector(
@@ -395,11 +436,6 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                     ));
                                                     return;
                                                   }
-
-                                                  context
-                                                      .read<WmsPackingBloc>()
-                                                      .add(
-                                                          LoadConfigurationsUserPack());
 
                                                   context
                                                       .read<WmsPackingBloc>()

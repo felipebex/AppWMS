@@ -1,10 +1,10 @@
-// ignore_for_file: deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
@@ -23,43 +23,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Función para mostrar el dialog con el QR
-  void _showQRDialog(BuildContext context, String data) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Código QR"),
-          content: SizedBox(
-            height: 250, // Establecemos el tamaño del dialogo
-            width: 250,
-            child: Column(
-              mainAxisSize:
-                  MainAxisSize.min, // Esto hace que el contenido sea flexible
-              children: [
-                QrImageView(
-                  data: data,
-                  version: QrVersions.auto,
-                  size: 200.0,
-                ),
-                const SizedBox(height: 20),
-                Text("Escanea este código QR"),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cerrar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -85,39 +48,58 @@ class _HomePageState extends State<HomePage> {
             final homeBloc = context.read<HomeBloc>();
             return RefreshIndicator(
               onRefresh: () async {
+                //verficiar si tenemos algun producto sin enviar
+                DataBaseSqlite db = DataBaseSqlite();
+                //traemos todos los productos
                 context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-
-                await DataBaseSqlite().deleteBD();
-
-                //peticion para la configuracion
-                if (!mounted) return;
-                final String rol = await PrefUtils.getUserRol();
-                //peticion segun el rol del usuario
-                if (rol == 'picking') {
+                final products = await db.getProducts();
+                final productsNoSendOdoo = products
+                    .where((element) => element.isSendOdoo == 0)
+                    .toList();
+                if (productsNoSendOdoo.isEmpty) {
+                  await DataBaseSqlite().deleteBD();
+                  //peticion para la configuracion
                   if (!mounted) return;
-                  context
-                      .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent(context, true));
-                } else if (rol == 'admin') {
-                  if (!mounted) return;
-                  context
-                      .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent(context, true));
-                  //esperamos 1 segundo y realizamos la otra peticion
-                  await Future.delayed(const Duration(seconds: 1));
-                  context
-                      .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(false, context));
-                } else if (rol == 'packing') {
-                  if (!mounted) return;
-                  context
-                      .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(true, context));
+                  final String rol = await PrefUtils.getUserRol();
+                  //peticion segun el rol del usuario
+                  if (rol == 'picking') {
+                    if (!mounted) return;
+                    context
+                        .read<WMSPickingBloc>()
+                        .add(LoadAllBatchsEvent(context, true));
+                  } else if (rol == 'admin') {
+                    if (!mounted) return;
+                    context
+                        .read<WMSPickingBloc>()
+                        .add(LoadAllBatchsEvent(context, true));
+                    //esperamos 1 segundo y realizamos la otra peticion
+                    await Future.delayed(const Duration(seconds: 1));
+                    context
+                        .read<WmsPackingBloc>()
+                        .add(LoadAllPackingEvent(false, context));
+                  } else if (rol == 'packing') {
+                    if (!mounted) return;
+                    context
+                        .read<WmsPackingBloc>()
+                        .add(LoadAllPackingEvent(true, context));
+                  } else if (rol == "" || rol == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text("El usuario no tiene cargado los permisos"),
+                        duration: Duration(seconds: 4),
+                      ),
+                    );
+                  }
+                } else {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return const DialogProductsNotSends();
+                      });
                 }
-                // }
               },
               child: Scaffold(
-               
                 body: Container(
                   width: size.width,
                   height: size.height,

@@ -5,7 +5,9 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class WarningWidgetCubit extends StatelessWidget {
-  const WarningWidgetCubit({super.key});
+  const WarningWidgetCubit({super.key, this.isTop = true});
+
+  final bool isTop;
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +18,17 @@ class WarningWidgetCubit extends StatelessWidget {
         return Visibility(
           visible: status != ConnectionStatus.online,
           child: Container(
-            padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
+            padding: EdgeInsets.only(top: isTop ? 20 : 5, left: 16, right: 16),
             height: 60,
             color: grey,
-            child:  Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.wifi_off, color: primaryColorApp, size: 30,),
+                Icon(
+                  Icons.wifi_off,
+                  color: primaryColorApp,
+                  size: 30,
+                ),
                 const SizedBox(width: 8),
                 const Text('No hay conexión a internet',
                     style: TextStyle(color: Colors.white, fontSize: 16)),

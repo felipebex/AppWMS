@@ -87,253 +87,256 @@ class Tab3Screen extends StatelessWidget {
                 ),
           body: Column(
             children: [
-              Container(
-                margin: const EdgeInsets.only(top: 5, bottom: 10),
-                width: double.infinity,
-                height: size.height * 0.7,
-                child: (context.read<WmsPackingBloc>().productsDone.isEmpty)
-                    ? const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('No hay productos preparados',
-                                style: TextStyle(fontSize: 14, color: grey)),
-                            Text('Intente con otro pedido o batch',
-                                style: TextStyle(fontSize: 12, color: grey)),
-                          ],
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount:
-                            context.read<WmsPackingBloc>().productsDone.length,
-                        itemBuilder: (context, index) {
-                          final product = context
-                              .read<WmsPackingBloc>()
-                              .productsDone[index];
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: GestureDetector(
-                              onTap: () {
-                                print("Producto: ${product.toJson()}");
-                              },
-                              child: Card(
-                                  color: product.isSeparate == 1
-                                      ? Colors.green[100]
-                                      : Colors.white,
-                                  elevation: 5,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 10),
-                                    child: Column(
-                                      children: [
-                                        Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                "Producto:",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: primaryColorApp,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: size.width * 0.65,
-                                                child: Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Text(
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        " ${product.productId}",
-                                                        style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: black))),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-
-                                        Card(
-                                          elevation: 3,
-                                          color: product.quantity ==
-                                                  product.quantitySeparate
-                                              ? white
-                                              : Colors.amber[100],
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
+              Expanded(
+                child: Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.only(top: 5, bottom: 10),
+                  // width: double.infinity,
+                  // height: size.height * 0.7,
+                  child: (context.read<WmsPackingBloc>().productsDone.isEmpty)
+                      ? const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('No hay productos preparados',
+                                  style: TextStyle(fontSize: 14, color: grey)),
+                              Text('Intente con otro pedido o batch',
+                                  style: TextStyle(fontSize: 12, color: grey)),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount:
+                              context.read<WmsPackingBloc>().productsDone.length,
+                          itemBuilder: (context, index) {
+                            final product = context
+                                .read<WmsPackingBloc>()
+                                .productsDone[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: GestureDetector(
+                                onTap: () {
+                                  print("Producto: ${product.toJson()}");
+                                },
+                                child: Card(
+                                    color: product.isSeparate == 1
+                                        ? Colors.green[100]
+                                        : Colors.white,
+                                    elevation: 5,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 10),
+                                      child: Column(
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
                                               children: [
-                                                Row(
-                                                  children: [
-                                                
-                                                    Text(
-                                                      "Unidades: ",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp,
-                                                      ),
-                                                    ),
-                                                    Text("${product.unidades}",
-                                                        style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: black)),
-                                                  ],
+                                                Text(
+                                                  "Producto:",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
                                                 ),
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      "Cantidad a empacar: ",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                        "${product.quantitySeparate}",
-                                                        style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: black)),
-                                                  ],
+                                                SizedBox(
+                                                  width: size.width * 0.65,
+                                                  child: Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          " ${product.productId}",
+                                                          style: const TextStyle(
+                                                              fontSize: 12,
+                                                              color: black))),
                                                 ),
-                                                if (product.observation != null && product.isProductSplit == null)
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        "Novedad: ",
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              primaryColorApp,
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width:
-                                                            size.width * 0.55,
-                                                        child: Text(
-                                                            "${product.observation}",
-                                                            maxLines: 2,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black)),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                if (product.observation != null && product.isProductSplit == 1)
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        "Novedad: ",
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              primaryColorApp,
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width:
-                                                            size.width * 0.55,
-                                                        child: Text(
-                                                            "${product.observation}",
-                                                            maxLines: 2,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black)),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                if (product.isProductSplit == 1)
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        "Novedad: ",
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              primaryColorApp,
-                                                        ),
-                                                      ),
-                                                      const Text(
-                                                        "Producto en diferentes paquetes",
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color: black,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
                                               ],
                                             ),
                                           ),
-                                        ),
-
-                                        if (product.tracking != false)
+                
+                                          Card(
+                                            elevation: 3,
+                                            color: product.quantity ==
+                                                    product.quantitySeparate
+                                                ? white
+                                                : Colors.amber[100],
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                  
+                                                      Text(
+                                                        "Unidades: ",
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: primaryColorApp,
+                                                        ),
+                                                      ),
+                                                      Text("${product.unidades}",
+                                                          style: const TextStyle(
+                                                              fontSize: 12,
+                                                              color: black)),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "Cantidad a empacar: ",
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: primaryColorApp,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                          "${product.quantitySeparate}",
+                                                          style: const TextStyle(
+                                                              fontSize: 12,
+                                                              color: black)),
+                                                    ],
+                                                  ),
+                                                  if (product.observation != null && product.isProductSplit == null)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Novedad: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width:
+                                                              size.width * 0.55,
+                                                          child: Text(
+                                                              "${product.observation}",
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          black)),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  if (product.observation != null && product.isProductSplit == 1)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Novedad: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width:
+                                                              size.width * 0.55,
+                                                          child: Text(
+                                                              "${product.observation}",
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          black)),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  if (product.isProductSplit == 1)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Novedad: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
+                                                        ),
+                                                        const Text(
+                                                          "Producto en diferentes paquetes",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: black,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                
+                                          if (product.tracking != false)
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "Numero de serie/lote: ",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+                                                Text(
+                                                    "${product.tracking} / ${product.lotId}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                              ],
+                                            ),
+                
                                           Row(
                                             children: [
                                               Text(
-                                                "Numero de serie/lote: ",
+                                                "Peso: ",
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   color: primaryColorApp,
                                                 ),
                                               ),
-                                              Text(
-                                                  "${product.tracking} / ${product.lotId}",
+                                              Text("${product.weight}",
                                                   style: const TextStyle(
                                                       fontSize: 12,
                                                       color: black)),
                                             ],
                                           ),
-
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Peso: ",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: primaryColorApp,
-                                              ),
-                                            ),
-                                            Text("${product.weight}",
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: black)),
-                                          ],
-                                        ),
-                                        // if (product.expirationDate != false)
-                                        //   Row(
-                                        //     children: [
-                                        //       const Text(
-                                        //         "Fecha de caducidad: ",
-                                        //         style: TextStyle(
-                                        //           fontSize: 16,
-                                        //           color: primaryColorApp,
-                                        //         ),
-                                        //       ),
-                                        //       Text("${product.expirationDate}",
-                                        //           style: const TextStyle(
-                                        //               fontSize: 16, color: black)),
-                                        //     ],
-                                        //   )
-                                      ],
-                                    ),
-                                  )),
-                            ),
-                          );
-                        }),
+                                          // if (product.expirationDate != false)
+                                          //   Row(
+                                          //     children: [
+                                          //       const Text(
+                                          //         "Fecha de caducidad: ",
+                                          //         style: TextStyle(
+                                          //           fontSize: 16,
+                                          //           color: primaryColorApp,
+                                          //         ),
+                                          //       ),
+                                          //       Text("${product.expirationDate}",
+                                          //           style: const TextStyle(
+                                          //               fontSize: 16, color: black)),
+                                          //     ],
+                                          //   )
+                                        ],
+                                      ),
+                                    )),
+                              ),
+                            );
+                          }),
+                ),
               ),
             ],
           ),

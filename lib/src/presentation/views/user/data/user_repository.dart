@@ -27,7 +27,6 @@ class UserRepository {
           context: context);
 
       if (response.statusCode < 400) {
-        
         return Configurations.fromMap(jsonDecode(response.body));
       } else {
         Get.snackbar('Error', 'Error al obtener las configuraciones');

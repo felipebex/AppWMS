@@ -222,11 +222,14 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   void _onLoadHistoryBatchsEvent(
       LoadHistoryBatchsEvent event, Emitter<PickingState> emit) async {
     try {
+
+      print('date: ${event.date}');
       emit(BatchsPickingLoadingState());
 
       final response = await wmsPickingRepository.resBatchsHistory(
         event.isLoadinDialog,
         event.context,
+        event.date,
       );
 
       if (response != null && response is List) {

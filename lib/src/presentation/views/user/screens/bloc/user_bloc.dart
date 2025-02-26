@@ -67,7 +67,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       fabricante = androidInfo.manufacturer;
       emit(LoadInfoDeviceStateUser());
     } catch (e, s) {
-      print('Error en GetConfigurations.dart: $e =>$s');
+      print('Error en LoadInfoDeviceEventUser.dart: $e =>$s');
     }
   }
 }

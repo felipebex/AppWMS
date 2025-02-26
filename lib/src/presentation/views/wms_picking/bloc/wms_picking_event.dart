@@ -29,7 +29,8 @@ class LoadAllBatchsEvent extends PickingEvent {
 class LoadHistoryBatchsEvent extends PickingEvent {
   BuildContext context;
   bool isLoadinDialog;
-  LoadHistoryBatchsEvent(this.context, this.isLoadinDialog);
+  String date;
+  LoadHistoryBatchsEvent(this.context, this.isLoadinDialog, this.date);
 }
 class LoadHistoryBatchIdEvent extends PickingEvent {
   BuildContext context;

@@ -543,6 +543,40 @@ class UserScreen extends StatelessWidget {
                                                     color: primaryColorApp))
                                           ],
                                         ),
+
+
+                                        Row(
+                                          children: [
+                                            const Text("Escanear producto: ",
+                                                style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: black)),
+                                            const Spacer(),
+                                            Checkbox(
+                                                value: config.result?.result
+                                                        ?.scanProduct ??
+                                                    false,
+                                                onChanged: null),
+                                            IconButton(
+                                                onPressed: () {
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (context) {
+                                                        return const DialogInfo(
+                                                          title:
+                                                              "Escanear producto para packing",
+                                                          body:
+                                                              "Permite escanear el producto en el proceso del packing desde la lista de por hacer",
+                                                        );
+                                                      });
+                                                },
+                                                icon: Icon(Icons.help,
+                                                    color: primaryColorApp))
+                                          ],
+                                        ),
+
+
+                                        
                                       ],
                                     ),
                                   ),

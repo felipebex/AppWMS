@@ -224,13 +224,67 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       )
                                     ],
                                   )),
+
+                              ElevatedButton(
+                                onPressed: () async {
+                                  // Mostrar el DatePicker para que el usuario seleccione una fecha
+                                  final DateTime? pickedDate =
+                                      await showDatePicker(
+                                    context: context,
+                                    initialDate:
+                                        DateTime.now(), // Fecha inicial (hoy)
+                                    firstDate: DateTime(2000), // Fecha mínima
+                                    lastDate: DateTime(2101), // Fecha máxima
+                                  );
+
+                                  // Verificar si el usuario seleccionó una fecha
+                                  if (pickedDate != null) {
+                                    // Formatear la fecha al formato "yyyy-MM-dd"
+                                    final formattedDate =
+                                        DateFormat('yyyy-MM-dd')
+                                            .format(pickedDate);
+
+                                    // Disparar el evento con la fecha seleccionada
+                                    context.read<WMSPickingBloc>().add(
+                                          LoadHistoryBatchsEvent(
+                                              context, true, formattedDate),
+                                        );
+
+                                    // Navegar a la pantalla de historial
+                                    Navigator.pushNamed(
+                                        context, 'history-list');
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.history,
+                                      color: green,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'Histórico',
+                                      style: TextStyle(
+                                        color: primaryColorApp,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
                               // ElevatedButton(
                               //     onPressed: () {
-                              //       context.read<WMSPickingBloc>().add(
-                              //           LoadHistoryBatchsEvent(context, true));
-
-                              //       Navigator.pushNamed(
-                              //           context, 'history-list');
+                              //       context
+                              //           .read<WMSPickingBloc>()
+                              //           .add(FilterBatchesBStatusEvent('done'));
                               //     },
                               //     style: ElevatedButton.styleFrom(
                               //         backgroundColor: white,
@@ -240,48 +294,18 @@ class _PickingPageState extends State<WMSPickingPage> {
                               //     child: Row(
                               //       children: [
                               //         const Icon(
-                              //           Icons.history,
+                              //           Icons.batch_prediction,
                               //           color: green,
                               //           size: 20,
                               //         ),
                               //         const SizedBox(width: 5),
                               //         Text(
-                              //           'Historico',
+                              //           'Hechos',
                               //           style: TextStyle(
-                              //               color: primaryColorApp,
-                              //               fontSize: 12),
+                              //               color: primaryColorApp, fontSize: 12),
                               //         )
                               //       ],
                               //     ))
-
-
-
-                              ElevatedButton(
-                                  onPressed: () {
-                                    context
-                                        .read<WMSPickingBloc>()
-                                        .add(FilterBatchesBStatusEvent('done'));
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: white,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10))),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.batch_prediction,
-                                        color: green,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        'Hechos',
-                                        style: TextStyle(
-                                            color: primaryColorApp, fontSize: 12),
-                                      )
-                                    ],
-                                  ))
                             ],
                           ),
                         ),

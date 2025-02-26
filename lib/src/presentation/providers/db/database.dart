@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks
+// ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks, unnecessary_null_comparison
 
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/models/recent_url_model.dart';
@@ -252,7 +252,8 @@ class DataBaseSqlite {
       show_next_locations_in_details_pack INTEGER,
       manual_product_selection_pack INTEGER,
       manual_quantity_pack INTEGER,
-      manual_spring_selection_pack INTEGER
+      manual_spring_selection_pack INTEGER,
+      scan_product INTEGER
     )
     ''');
 
@@ -547,6 +548,7 @@ class DataBaseSqlite {
             _boolToInt(configuration.result?.result?.manualQuantityPack),
         "manual_spring_selection_pack":
             _boolToInt(configuration.result?.result?.manualSpringSelectionPack),
+        'scan_product': _boolToInt(configuration.result?.result?.scanProduct),
       };
 
       // Realizar la inserción o actualización usando INSERT OR REPLACE
@@ -615,6 +617,7 @@ class DataBaseSqlite {
             showNextLocationsInDetailsPack:
                 _intToBool(map['show_next_locations_in_details_pack']),
             locationPackManual: _intToBool(map['location_pack_manual']),
+            scanProduct: _intToBool(map['scan_product']),
           ),
         ),
       );
@@ -627,8 +630,8 @@ class DataBaseSqlite {
 
 // Función para convertir valores enteros (0, 1) en booleanos
   bool _intToBool(int value) {
-    return value == 1;
-  }
+      return value == 1;
+    }
 
   Future<void> insertDuplicateProductoPedido(
       PorductoPedido producto, int cantidad) async {

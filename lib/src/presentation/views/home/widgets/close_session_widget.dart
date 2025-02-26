@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -57,19 +58,32 @@ class CloseSession extends StatelessWidget {
               ),
             ),
             onPressed: () async {
+              // Mostrar el diálogo de carga
+              showDialog(
+                context: context,
+                barrierDismissible:
+                    false, // No permitir que el usuario cierre el diálogo manualmente
+                builder: (context) => const DialogLoading(
+                  message: 'Cerrando sesión...',
+                ),
+              );
+
+              // Ejecutar los procesos de cierre de sesión
               PrefUtils.clearPrefs();
-              //limpiamos toda la base de datos
-
               Preferences.removeUrlWebsite();
-
-              //borramos la bd y la cerramos
               await DataBaseSqlite().deleteBD();
-              //esperamos 1 segundo
               await Future.delayed(const Duration(seconds: 1));
-
               PrefUtils.setIsLoggedIn(false);
+
+              // Cerrar el diálogo de carga
+              Navigator.pop(context);
+
+              // Navegar a la pantalla de inicio
               Navigator.pushNamedAndRemoveUntil(
-                  context, 'enterprice', (route) => false);
+                context,
+                'enterprice',
+                (route) => false,
+              );
             },
             child: const Text(
               'Aceptar',

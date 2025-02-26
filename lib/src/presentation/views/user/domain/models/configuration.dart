@@ -71,6 +71,7 @@ class DataConfig {
     final bool? manualProductSelectionPack;
     final bool? manualQuantityPack;
     final bool? manualSpringSelectionPack;
+    final bool? scanProduct;
 
     DataConfig({
         this.name,
@@ -91,6 +92,7 @@ class DataConfig {
         this.manualProductSelectionPack,
         this.manualQuantityPack,
         this.manualSpringSelectionPack,
+        this.scanProduct,
     });
 
     factory DataConfig.fromJson(String str) => DataConfig.fromMap(json.decode(str));
@@ -116,6 +118,8 @@ class DataConfig {
         manualProductSelectionPack: json["manual_product_selection_pack"],
         manualQuantityPack: json["manual_quantity_pack"],
         manualSpringSelectionPack: json["manual_spring_selection_pack"],
+                scanProduct: json["scan_product"],
+
     );
 
     Map<String, dynamic> toMap() => {
@@ -137,5 +141,6 @@ class DataConfig {
         "manual_product_selection_pack": manualProductSelectionPack,
         "manual_quantity_pack": manualQuantityPack,
         "manual_spring_selection_pack": manualSpringSelectionPack,
+        "scan_product": scanProduct,
     };
 }

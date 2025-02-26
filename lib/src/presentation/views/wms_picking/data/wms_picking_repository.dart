@@ -131,6 +131,7 @@ class WmsPickingRepository {
   Future<List<HistoryBatch>> resBatchsHistory(
     bool isLoadinDialog,
     BuildContext context,
+    String date,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -145,7 +146,9 @@ class WmsPickingRepository {
           endpoint: 'batchs_done',
           isunecodePath: true,
           isLoadinDialog: isLoadinDialog,
-          context: context);
+          context: context,
+          date: date
+          );
 
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa

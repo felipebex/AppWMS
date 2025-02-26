@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab1.dart';
@@ -11,6 +12,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab2.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab4.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
+
 class PackingDetailScreen extends StatefulWidget {
   const PackingDetailScreen({
     super.key,
@@ -65,7 +67,10 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
-                  context.read<WmsPackingBloc>().listOfProductsForPacking.clear();
+                  context
+                      .read<WmsPackingBloc>()
+                      .listOfProductsForPacking
+                      .clear();
                   context.read<WmsPackingBloc>().add(
                         LoadAllPedidosFromBatchEvent(
                           widget.packingModel?.batchId ?? 0,
@@ -137,20 +142,27 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
                 ),
               ),
             ),
-            body: TabBarView(
-              controller: _tabController, // Asignar el TabController
+            body: Column(
               children: [
-                Tab1Screen(
-                  size: size,
-                  packingModel: widget.packingModel ?? PedidoPacking(),
-                  batchModel: widget.batchModel ?? BatchPackingModel(),
+                const WarningWidgetCubit(isTop: false),
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController, // Asignar el TabController
+                    children: [
+                      Tab1Screen(
+                        size: size,
+                        packingModel: widget.packingModel ?? PedidoPacking(),
+                        batchModel: widget.batchModel ?? BatchPackingModel(),
+                      ),
+                      Tab2Screen(
+                        packingModel: widget.packingModel ?? PedidoPacking(),
+                        batchModel: widget.batchModel ?? BatchPackingModel(),
+                      ),
+                      const Tab3Screen(),
+                      const Tab4Screen(),
+                    ],
+                  ),
                 ),
-                Tab2Screen(
-                  packingModel: widget.packingModel ?? PedidoPacking(),
-                  batchModel: widget.batchModel ?? BatchPackingModel(),
-                ),
-                const Tab3Screen(),
-                const Tab4Screen(),
               ],
             ),
           ),
@@ -171,7 +183,7 @@ class DialogNewPackage extends StatelessWidget {
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
       child: AlertDialog(
         actionsAlignment: MainAxisAlignment.center,
-        title:  Center(
+        title: Center(
           child: Text(
             'Agregar empaque',
             style: TextStyle(
