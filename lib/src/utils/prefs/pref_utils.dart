@@ -82,33 +82,6 @@ static Future<void> setUserPass(String pass) async {
   await preferences.setString(PrefKeys.pass, pass);
 }
 
-//todo informacion de los batchs
-
-//guardamos la cantidad de los batch de picking
-static Future<void> setPickingBatchs(int batchs) async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.setInt(PrefKeys.pickingBatchs, batchs);
-}
-
-//guarmos la cantidad de los batch de packing
-static Future<void> setPackingBatchs(int batchs) async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  await preferences.setInt(PrefKeys.packingBatchs, batchs);
-}
-
-//obtenemos la cantidad de los batch de picking
-static Future<int> getPickingBatchs() async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  return preferences.getInt(PrefKeys.pickingBatchs) ?? 0;
-}
-
-//obtenemos la cantidad de los batch de packing
-static Future<int> getPackingBatchs() async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  return preferences.getInt(PrefKeys.packingBatchs) ?? 0;
-}
-
-
 //*obtenemos los datos del usuario
 static Future<String> getUserName() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();

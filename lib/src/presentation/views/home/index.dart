@@ -366,16 +366,6 @@ class _HomePageState extends State<HomePage> {
                                               value: context
                                                   .read<WMSPickingBloc>()
                                                   .listOfBatchs
-                                                  .where((element) {
-                                                    return DateTime.parse(element
-                                                                    .scheduleddate ??
-                                                                "")
-                                                            .toString()
-                                                            .substring(0, 10) ==
-                                                        DateTime.now()
-                                                            .toString()
-                                                            .substring(0, 10);
-                                                  })
                                                   .length
                                                   .toString(),
                                             ),

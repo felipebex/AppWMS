@@ -148,7 +148,10 @@ class _loginForm extends StatelessWidget {
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: TextFormField(
+                  child: 
+                  
+                  
+                  TextFormField(
                     autocorrect: false,
                    
                     controller:
@@ -174,6 +177,9 @@ class _loginForm extends StatelessWidget {
                             ))),
                     validator: ((value) => Validator.isEmpty(value, context)),
                   ),
+
+
+
                 ),
               ],
             ),
@@ -228,6 +234,9 @@ class _loginForm extends StatelessWidget {
               },
             ),
           ),
+         
+         
+         
           MaterialButton(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),

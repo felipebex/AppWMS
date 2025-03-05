@@ -19,7 +19,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repo
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/services/notification_service.dart';
-import 'package:wms_app/src/services/permission_service.dart';
 // import 'package:wms_app/src/services/permission_service.dart';
 
 import 'package:wms_app/src/services/preferences.dart';
@@ -49,22 +48,22 @@ void main() async {
         ),
       );
 
-  WidgetsFlutterBinding.ensureInitialized();
-  await PermissionManager.requestAllPermissions();
+  WidgetsFlutterBinding.ensureInitialized();  // Asegurarse de que Flutter está preparado.
 
   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
+  await LocalNotificationsService().initializeNotifications();
 
-  await LocalNotificationsService()
-      .initializeNotifications(); // Llama a la función de inicialización
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]).then((_) {
+
+
+  // Otras inicializaciones, como configuraciones de orientación y preferencias
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) async {
+    await Preferences.init();  // Inicializa preferencias.
+    
+    // Luego se inicia la app
     runApp(const AppState());
   });
-  // Inicializar la base de datos SQLite
-  await Preferences.init();
 
-  // cron
+  // Cron para verificar conexión e interacción con Odoo
   var cron = Cron();
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
     try {
@@ -78,6 +77,7 @@ void main() async {
     } on SocketException catch (_) {}
   });
 }
+
 
 class AppState extends StatelessWidget {
   const AppState({super.key});

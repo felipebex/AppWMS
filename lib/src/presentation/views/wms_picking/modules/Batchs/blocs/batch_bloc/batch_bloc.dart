@@ -1,6 +1,9 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously, prefer_if_null_operators
 
+import 'dart:math';
+
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -99,6 +102,11 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   BatchBloc() : super(BatchInitial()) {
     on<LoadConfigurationsUser>(_onLoadConfigurationsUserEvent);
 
+    //* empezar el tiempo de separacion
+    on<StartTimePick>(_onStartTimePickEvent);
+    //* terminar el tiempo de separacion
+    on<EndTimePick>(_onEndTimePickEvent);
+
     // //* Buscar un producto en un lote en SQLite
     on<SearchProductsBatchEvent>(_onSearchBacthEvent);
     // //* Limpiar la búsqueda
@@ -162,12 +170,81 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     on<ShowQuantityEvent>(_onShowQuantityEvent);
   }
 
+  //*evento para empezar el tiempo de separacion
+  void _onStartTimePickEvent(
+      StartTimePick event, Emitter<BatchState> emit) async {
+    try {
+      DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      String formattedDate = formatter.format(event.time);
+      final userid = await PrefUtils.getUserId();
+
+      await repository.timePickingUser(
+        event.batchId,
+        event.context,
+        formattedDate,
+        'start_time_batch_user',
+        'start_time',
+        userid,
+      );
+      final responseTimeBatch = await repository.timePickingBatch(
+        event.batchId,
+        event.context,
+        formattedDate,
+        'update_start_time',
+        'start_time_pick',
+        'start_time'
+      );
+
+      if (responseTimeBatch) {
+        await db.startStopwatchBatch(event.batchId, formattedDate);
+        emit(TimeSeparateSuccess(formattedDate));
+      } else {
+        emit(TimeSeparateError('Error al iniciar el tiempo de separacion'));
+      }
+    } catch (e, s) {
+      print("❌ Error en _onStartTimePickEvent: $e, $s");
+    }
+  }
+
+  void _onEndTimePickEvent(EndTimePick event, Emitter<BatchState> emit) async {
+    try {
+      DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      String formattedDate = formatter.format(event.time);
+      final userid = await PrefUtils.getUserId();
+
+      await repository.timePickingUser(
+        event.batchId,
+        event.context,
+        formattedDate,
+        'end_time_batch_user',
+        'end_time',
+        userid,
+      );
+
+      final responseTimeBatch = await repository.timePickingBatch(
+        event.batchId,
+        event.context,
+        formattedDate,
+        'update_end_time',
+        'end_time_pick',
+        'end_time'
+      );
+
+      if (responseTimeBatch) {
+        await db.endStopwatchBatch(event.batchId, formattedDate);
+        emit(TimeSeparateSuccess(formattedDate));
+      } else {
+        emit(TimeSeparateError('Error al terminar el tiempo de separacion'));
+      }
+    } catch (e, s) {
+      print("❌ Error en _onStartTimePickEvent: $e, $s");
+    }
+  }
+
   //*evento para establecer un proceso en ejecucion
   void _onSetIsProcessingEvent(
       SetIsProcessingEvent event, Emitter<BatchState> emit) {
     try {
-      print(
-          "------------------------------===============-------------========================");
       isProcessing = event.isProcessing;
       emit(SetIsProcessingState(isProcessing));
     } catch (e, s) {
@@ -380,11 +457,17 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       FetchBarcodesProductEvent event, Emitter<BatchState> emit) async {
     try {
       listOfBarcodes.clear();
-      listOfBarcodes = await db.getBarcodesProduct(
+
+      final responseList = await db.barcodesPackagesRepository.getAllBarcodes();
+
+      print("responseList: ${responseList.length}");
+
+      listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
         batchWithProducts.batch?.id ?? 0,
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
       );
+      print("listOfBarcodes: ${listOfBarcodes.length}");
     } catch (e, s) {
       print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
     }
@@ -407,7 +490,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onLoadAllNovedadesEvent(
       LoadAllNovedadesEvent event, Emitter<BatchState> emit) async {
     try {
-      final response = await db.getAllNovedades();
+      final response = await db.novedadesRepository.getAllNovedades();
       novedades.clear();
       if (response != null) {
         novedades = response;
@@ -450,7 +533,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       LoadConfigurationsUser event, Emitter<BatchState> emit) async {
     try {
       int userId = await PrefUtils.getUserId();
-      final response = await db.getConfiguration(userId);
+      final response =
+          await db.configurationsRepository.getConfiguration(userId);
 
       if (response != null) {
         emit(ConfigurationPickingLoaded(response));
@@ -464,90 +548,183 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
 //*evento para asignar el submuelle
-  void _onAssignSubmuelleEvent(
-      AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
-    try {
-      for (var i = 0; i < event.productsSeparate.length; i++) {
-        //actualizamos el valor de que se le asigno un submuelle
-        await db.setFieldTableBatchProducts(
-            event.productsSeparate[i].batchId ?? 0,
-            event.productsSeparate[i].idProduct ?? 0,
-            'is_muelle',
-            'true',
-            event.productsSeparate[i].idMove ?? 0);
+  // void _onAssignSubmuelleEvent(
+  //     AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
+  //   try {
+  //     for (var i = 0; i < event.productsSeparate.length; i++) {
+  //       //actualizamos el valor de que se le asigno un submuelle
+  //       await db.setFieldTableBatchProducts(
+  //           event.productsSeparate[i].batchId ?? 0,
+  //           event.productsSeparate[i].idProduct ?? 0,
+  //           'is_muelle',
+  //           'true',
+  //           event.productsSeparate[i].idMove ?? 0);
 
-        //actualziamos el muelle del producto
-        await db.setFieldTableBatchProducts(
-            event.productsSeparate[i].batchId ?? 0,
-            event.productsSeparate[i].idProduct ?? 0,
-            'muelle_id',
-            event.muelle.id ?? 0,
-            event.productsSeparate[i].idMove ?? 0);
+  //       //actualziamos el muelle del producto
+  //       await db.setFieldTableBatchProducts(
+  //           event.productsSeparate[i].batchId ?? 0,
+  //           event.productsSeparate[i].idProduct ?? 0,
+  //           'muelle_id',
+  //           event.muelle.id ?? 0,
+  //           event.productsSeparate[i].idMove ?? 0);
 
-        //actualizamos el nombre del muelle del producto
-        await db.setFieldStringTableBatchProducts(
-            event.productsSeparate[i].batchId ?? 0,
-            event.productsSeparate[i].idProduct ?? 0,
-            'location_dest_id',
-            event.muelle.completeName ?? '',
-            event.productsSeparate[i].idMove ?? 0);
+  //       //actualizamos el nombre del muelle del producto
+  //       await db.setFieldStringTableBatchProducts(
+  //           event.productsSeparate[i].batchId ?? 0,
+  //           event.productsSeparate[i].idProduct ?? 0,
+  //           'location_dest_id',
+  //           event.muelle.completeName ?? '',
+  //           event.productsSeparate[i].idMove ?? 0);
 
-        //enviamos el producto a odoo
 
-        DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
-        //traemos un producto de la base de datos  ya anteriormente guardado
+  //       //enviamos el producto a odoo
 
-        //todo: tiempor por batch
-        //tiempo de separacion del producto, lo traemos de la bd
-        final starTime = await db.getFieldTableBtach(
-            event.productsSeparate[i].batchId ?? 0, 'time_separate_start');
-        DateTime dateTimeStart = DateTime.parse(starTime);
-        // Calcular la diferencia
-        Duration difference = dateTimeActuality.difference(dateTimeStart);
-        // Obtener la diferencia en segundos
-        double secondsDifference = difference.inMilliseconds / 1000.0;
+  //       DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
+  //       //traemos un producto de la base de datos  ya anteriormente guardado
 
-        final userid = await PrefUtils.getUserId();
+  //       //todo: tiempor por batch
+  //       //tiempo de separacion del producto, lo traemos de la bd
+  //       final starTime = await db.getFieldTableBtach(
+  //           event.productsSeparate[i].batchId ?? 0, 'start_time_pick');
 
-        final response = await repository.sendPicking(
-            context: event.context,
-            idBatch: event.productsSeparate[i].batchId ?? 0,
-            timeTotal: secondsDifference,
-            cantItemsSeparados:
-                batchWithProducts.batch?.productSeparateQty ?? 0,
-            listItem: [
-              Item(
-                idMove: event.productsSeparate[i].idMove ?? 0,
-                productId: event.productsSeparate[i].idProduct ?? 0,
-                lote: event.productsSeparate[i].lotId ?? '',
-                cantidad: (event.productsSeparate[i].quantitySeparate ?? 0) >
-                        (event.productsSeparate[i].quantity)
-                    ? event.productsSeparate[i].quantity
-                    : event.productsSeparate[i].quantitySeparate ?? 0,
-                novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
-                timeLine: event.productsSeparate[i].timeSeparate ?? 0,
-                muelle: event.muelle.id ?? 0,
-                idOperario: userid,
-                fechaTransaccion:
-                    event.productsSeparate[i].fechaTransaccion ?? '',
-              ),
-            ]);
+  //       DateTime dateTimeStart = DateTime.parse(starTime);
+  //       // Calcular la diferencia
+  //       Duration difference = dateTimeActuality.difference(dateTimeStart);
+  //       // Obtener la diferencia en segundos
+  //       double secondsDifference = difference.inMilliseconds / 1000.0;
 
-        if (response.result?.code == 200) {
-          add(FetchBatchWithProductsEvent(
-              event.productsSeparate[i].batchId ?? 0));
-          emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
-        } else {
-          emit(SubMuelleEditFail('Error al asignar el submuelle'));
-        }
-      }
-    } catch (e, s) {
-      emit(SubMuelleEditFail('Error al asignar el submuelle'));
-      print("❌ Error en el AssignSubmuelleEvent :$s ->$s");
+  //       final userid = await PrefUtils.getUserId();
+
+  //       final response = await repository.sendPicking(
+  //           context: event.context,
+  //           idBatch: event.productsSeparate[i].batchId ?? 0,
+  //           timeTotal: secondsDifference,
+  //           cantItemsSeparados:
+  //               batchWithProducts.batch?.productSeparateQty ?? 0,
+  //           listItem: [
+  //             Item(
+  //               idMove: event.productsSeparate[i].idMove ?? 0,
+  //               productId: event.productsSeparate[i].idProduct ?? 0,
+  //               lote: event.productsSeparate[i].lotId ?? '',
+  //               cantidad: (event.productsSeparate[i].quantitySeparate ?? 0) >
+  //                       (event.productsSeparate[i].quantity)
+  //                   ? event.productsSeparate[i].quantity
+  //                   : event.productsSeparate[i].quantitySeparate ?? 0,
+  //               novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
+  //               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
+  //               muelle: event.muelle.id ?? 0,
+  //               idOperario: userid,
+  //               fechaTransaccion:
+  //                   event.productsSeparate[i].fechaTransaccion ?? '',
+  //             ),
+  //           ]);
+
+  //       if (response.result?.code == 200) {
+  //         add(FetchBatchWithProductsEvent(
+  //             event.productsSeparate[i].batchId ?? 0));
+  //         emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
+  //       } else {
+  //         emit(SubMuelleEditFail('Error al asignar el submuelle'));
+  //       }
+  //     }
+  //   } catch (e, s) {
+  //     emit(SubMuelleEditFail('Error al asignar el submuelle'));
+  //     print("❌ Error en el AssignSubmuelleEvent :$s ->$s");
+  //   }
+
+  //   //emitimos el estado
+  // }
+
+
+
+
+
+
+
+void _onAssignSubmuelleEvent(
+    AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
+  try {
+    // Primero, actualizamos la base de datos para todos los productos
+    for (var product in event.productsSeparate) {
+      await db.setFieldTableBatchProducts(
+          product.batchId ?? 0,
+          product.idProduct ?? 0,
+          'is_muelle',
+          'true',
+          product.idMove ?? 0);
+
+      // Actualizamos el muelle del producto
+      await db.setFieldTableBatchProducts(
+          product.batchId ?? 0,
+          product.idProduct ?? 0,
+          'muelle_id',
+          event.muelle.id ?? 0,
+          product.idMove ?? 0);
+
+      // Actualizamos el nombre del muelle del producto
+      await db.setFieldStringTableBatchProducts(
+          product.batchId ?? 0,
+          product.idProduct ?? 0,
+          'location_dest_id',
+          event.muelle.completeName ?? '',
+          product.idMove ?? 0);
     }
 
-    //emitimos el estado
+    // Después, enviamos la petición a Odoo con todos los productos en una sola vez
+    
+    List<Item> itemsToSend = [];
+    for (var product in event.productsSeparate) {
+      // Traemos el tiempo de inicio de separación del producto desde la base de datos
+   
+      final userid = await PrefUtils.getUserId();
+
+      // Creamos los Item a enviar
+      itemsToSend.add(Item(
+        idMove: product.idMove ?? 0,
+        productId: product.idProduct ?? 0,
+        lote: product.lotId ?? '',
+        cantidad: (product.quantitySeparate ?? 0) > (product.quantity)
+            ? product.quantity
+            : product.quantitySeparate ?? 0,
+        novedad: product.observation ?? 'Sin novedad',
+        timeLine: product.timeSeparate ?? 0,
+        muelle: event.muelle.id ?? 0,
+        idOperario: userid,
+        fechaTransaccion: product.fechaTransaccion ?? '',
+      ));
+    }
+
+    // Enviamos la lista completa de items
+    final response = await repository.sendPicking(
+      context: event.context,
+      idBatch: event.productsSeparate[0].batchId ?? 0,
+      timeTotal: 0,
+      cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
+      listItem: itemsToSend,  // Enviamos todos los productos
+    );
+
+    if (response.result?.code == 200) {
+      add(FetchBatchWithProductsEvent(event.productsSeparate[0].batchId ?? 0));
+      emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
+    } else {
+      emit(SubMuelleEditFail('Error al asignar el submuelle'));
+    }
+  } catch (e, s) {
+    emit(SubMuelleEditFail('Error al asignar el submuelle'));
+    print("❌ Error en el AssignSubmuelleEvent :$s ->$s");
   }
+}
+
+
+
+
+
+
+
+
+
+
+
 
   //*evento para enviar un producto a odoo editado
   void _onSendProductEditOdooEvent(
@@ -640,9 +817,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       emit(PickingOkLoading());
       await db.setFieldTableBatch(event.batchId, 'is_separate', 'true');
       DateTime dateTimeEnd = DateTime.parse(DateTime.now().toString());
-      await db.endStopwatchBatch(event.batchId, dateTimeEnd.toString());
       final starTime =
-          await db.getFieldTableBtach(event.batchId, 'time_separate_start');
+          await db.getFieldTableBtach(event.batchId, 'start_time_pick');
       DateTime dateTimeStart = DateTime.parse(starTime);
       // Calcular la diferencia
       Duration difference = dateTimeEnd.difference(dateTimeStart);
@@ -803,7 +979,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     //todo: tiempor por batch
     //tiempo de separacion del producto, lo traemos de la bd
     final starTime = await db.getFieldTableBtach(
-        productEdit.batchId ?? 0, 'time_separate_start');
+        productEdit.batchId ?? 0, 'start_time_pick');
     DateTime dateTimeStart = starTime == "null" || starTime.isEmpty
         ? DateTime.now()
         : DateTime.parse(starTime);
@@ -944,7 +1120,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       submuelles.clear();
       final muellesdb =
           //todo cambiar al id de idMuelle
-          await db.getSubmuellesByLocationId(
+          await db.submuellesRepository.getSubmuellesByLocationId(
         batchWithProducts.batch?.idMuelle == ""
             ? 0
             : int.parse(batchWithProducts.batch?.idMuelle.toString() ?? '0'),
@@ -1130,10 +1306,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           'true',
           event.idMove,
         );
-        if (index == 0) {
-          await db.startStopwatchBatch(
-              event.batchId, DateTime.now().toString());
-        }
+
         //cuando se lea la ubicacion se selecciona el batch
         await db.setFieldTableBatch(event.batchId, 'is_selected', 'true');
         locationIsOk = true;
@@ -1282,7 +1455,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       final batch = batchWithProducts.batch;
 
       //traemos el batch actualizado
-      final batchUpdated = await db.getBatchById(batch?.id ?? 0);
+      final batchUpdated =
+          await db.batchPickingRepository.getBatchById(batch?.id ?? 0);
 
       //ORDENAMOS LOS PRODUCTOS SEGUN EL ORDENAMIENTO QUE DIGA EL BATCH
       switch (batchUpdated?.orderBy) {

@@ -281,8 +281,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                               child: TextFormField(
                                 autofocus: true,
                                 showCursor: false,
-                                controller:_controllerToDo,
-
+                                controller: _controllerToDo,
                                 focusNode: focusNode1,
                                 onChanged: (value) {
                                   // Llamamos a la validación al cambiar el texto
@@ -418,7 +417,9 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  //validamos si este articulo se encuentra en la lista de productos preparados
+                                                  print(
+                                                      "Producto seleccionado: ${product.toMap()}");
+                                                  // validamos si este articulo se encuentra en la lista de productos preparados
                                                   if (context
                                                       .read<WmsPackingBloc>()
                                                       .productsDone
@@ -498,16 +499,16 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                             color: black),
                                                       ),
                                                     ),
+                                                    Text(
+                                                      "Ubicación: ",
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: primaryColorApp,
+                                                      ),
+                                                    ),
+
                                                     Row(
                                                       children: [
-                                                        Text(
-                                                          "Ubicación: ",
-                                                          style: TextStyle(
-                                                            fontSize: 14,
-                                                            color:
-                                                                primaryColorApp,
-                                                          ),
-                                                        ),
                                                         Text(
                                                             "${product.locationId}",
                                                             style:
@@ -518,6 +519,11 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                                         black)),
                                                       ],
                                                     ),
+
+
+                                                    
+
+
                                                     Row(
                                                       children: [
                                                         Text(

@@ -116,6 +116,12 @@ class DialogPickingIncompleted extends StatelessWidget {
                     batchBloc.add(PickingOkEvent(
                         batchBloc.batchWithProducts.batch?.id ?? 0,
                         currentProduct.idProduct ?? 0));
+
+                    batchBloc.add(EndTimePick(
+                        context,
+                        batchBloc.batchWithProducts.batch?.id ?? 0,
+                        DateTime.now()));
+
                     context
                         .read<WMSPickingBloc>()
                         .add(FilterBatchesBStatusEvent(

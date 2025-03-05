@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison, unused_element, sort_child_properties_last
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison, unused_element, sort_child_properties_last, no_leading_underscores_for_local_identifiers
 
 import 'dart:async';
 
@@ -153,9 +153,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
       focusNode4.unfocus();
       focusNode6.unfocus();
     }
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
@@ -287,6 +285,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
         return Scaffold(
           backgroundColor: Colors.white,
+
           body: Column(
             children: [
               //todo: barra info
@@ -1909,34 +1908,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
     return false;
   }
 
-  bool validateScannedSubmuelle(
-    String scannedSubmuelle,
-    BatchBloc batchBloc,
-  ) {
-    // Buscar el barcode que coincida con el valor escaneado
-    Muelles? matchedSubmuelle = context.read<BatchBloc>().submuelles.firstWhere(
-        (submuelle) => submuelle.barcode?.toLowerCase() == scannedSubmuelle,
-        orElse: () =>
-            Muelles() // Si no se encuentra ningún match, devuelve null
-        );
-    if (matchedSubmuelle.completeName != null) {
-      print(
-          "Coincidencia encontrada: subMuelle = ${matchedSubmuelle.completeName}");
-
-      batchBloc.add(AssignSubmuelleEvent(
-          batchBloc.filteredProducts.where((e) {
-            return e.isMuelle == null && e.isSeparate == 1;
-          }).toList(),
-          matchedSubmuelle,
-          context));
-
-      return true;
-    } else {
-      print("Coincidencia no encontrada");
-      return false;
-    }
-  }
-
   void validatePicking(
       BatchBloc batchBloc, BuildContext context, ProductsBatch currentProduct) {
     batchBloc.add(FetchBatchWithProductsEvent(
@@ -2015,13 +1986,16 @@ class _BatchDetailScreenState extends State<BatchScreen>
             batchBloc.batchWithProducts.batch?.id ?? 0,
             currentProduct.idMove ?? 0));
 
+        batchBloc.add(EndTimePick(context,
+            batchBloc.batchWithProducts.batch?.id ?? 0, DateTime.now()));
+            
         batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
             currentProduct.idProduct ?? 0));
         context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
               '',
             ));
-        context.read<BatchBloc>().index = 0;
-        context.read<BatchBloc>().isSearch = true;
+        batchBloc.index = 0;
+        batchBloc.isSearch = true;
         Navigator.pushReplacementNamed(context, 'wms-picking', arguments: 0);
       }
     } else {

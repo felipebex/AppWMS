@@ -247,7 +247,7 @@ class ApiRequestService {
       }
       return http.Response('Error de red', 404);
     } on TimeoutException catch (e, s) {
-      print('La solicitud superó el tiempo de espera: $e');
+      print('La solicitud superó el tiempo de espera: $e => $s');
       return http.Response('La solicitud superó el tiempo de espera', 408);
     } on SocketException catch (e) {
       // Manejo de error de red
@@ -522,7 +522,7 @@ class ApiRequestService {
     }
   }
 
-  Future<http.Response> getWithParams({
+  Future<http.Response> getHistory({
     required String endpoint,
     required bool isLoadinDialog,
     required BuildContext context,
@@ -743,34 +743,6 @@ class ApiRequestService {
       // Captura de otros errores
       print("Error al obtener las bases de datos: $e\nStackTrace: $s");
       return [];
-    }
-  }
-
-  Future<dynamic> sendPacking({
-    required Map<String, String> headers,
-    required String body,
-    required String endpoint,
-  }) async {
-    try {
-      var url = await PrefUtils.getEnterprise();
-
-// le quitamos el http:// o https:// para que no de error
-      if (url.contains('http://')) {
-        url = url.replaceAll('http://', ''); // Asignar el nuevo valor a 'url'
-      } else if (url.contains('https://')) {
-        url = url.replaceAll('https://', ''); // Asignar el nuevo valor a 'url'
-      }
-      var request = http.post(
-        Uri.http(url, '$unencodePath/$endpoint'),
-        body: body,
-        headers: headers,
-      );
-      print("body: $body");
-      print('Petición enviada: $request');
-
-      return request;
-    } catch (e) {
-      print('Error en la petición: $e');
     }
   }
 }

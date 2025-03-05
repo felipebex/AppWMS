@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_question_mark
+
 import 'dart:convert';
 
 class HistorBatchId {
@@ -64,9 +66,8 @@ class HistoryBatchId {
     final String? state;
     final String? pickingTypeId;
     final String? observation;
-    final bool? isWave;
     final String? muelle;
-    final String? idMuelle;
+    final dynamic? idMuelle;
     final dynamic? countItems;
     final dynamic? totalQuantityItems;
     final dynamic? itemsSeparado;
@@ -84,7 +85,6 @@ class HistoryBatchId {
         this.state,
         this.pickingTypeId,
         this.observation,
-        this.isWave,
         this.muelle,
         this.idMuelle,
         this.countItems,
@@ -109,7 +109,6 @@ class HistoryBatchId {
         state: json["state"],
         pickingTypeId: json["picking_type_id"],
         observation: json["observation"],
-        isWave: json["is_wave"],
         muelle: json["muelle"],
         idMuelle: json["id_muelle"],
         countItems: json["count_items"],
@@ -130,7 +129,6 @@ class HistoryBatchId {
         "state": state,
         "picking_type_id": pickingTypeId,
         "observation": observation,
-        "is_wave": isWave,
         "muelle": muelle,
         "id_muelle": idMuelle,
         "count_items": countItems,
@@ -146,11 +144,9 @@ class ListItem {
     final int? pickingId;
     final int? idProduct;
     final List<dynamic>? productId;
-    final int? loteId;
+    final dynamic? loteId;
     final List<dynamic>? lotId;
-    final DateTime? expireDate;
     final List<dynamic>? locationId;
-    final dynamic? rimovalPriority;
     final String? barcodeLocation;
     final List<dynamic>? locationDestId;
     final String? barcodeLocationDest;
@@ -161,7 +157,6 @@ class ListItem {
     final String? timeLine;
     final int? operatorId;
     final bool? doneItem;
-    final String? barcode;
     final dynamic? weight;
     final String? unidades;
 
@@ -173,9 +168,7 @@ class ListItem {
         this.productId,
         this.loteId,
         this.lotId,
-        this.expireDate,
         this.locationId,
-        this.rimovalPriority,
         this.barcodeLocation,
         this.locationDestId,
         this.barcodeLocationDest,
@@ -186,7 +179,6 @@ class ListItem {
         this.timeLine,
         this.operatorId,
         this.doneItem,
-        this.barcode,
         this.weight,
         this.unidades,
     });
@@ -203,9 +195,7 @@ class ListItem {
         productId: json["product_id"] == null ? [] : List<dynamic>.from(json["product_id"]!.map((x) => x)),
         loteId: json["lote_id"],
         lotId: json["lot_id"] == null ? [] : List<dynamic>.from(json["lot_id"]!.map((x) => x)),
-        expireDate: json["expire_date"] == null ? null : DateTime.parse(json["expire_date"]),
         locationId: json["location_id"] == null ? [] : List<dynamic>.from(json["location_id"]!.map((x) => x)),
-        rimovalPriority: json["rimoval_priority"],
         barcodeLocation: json["barcode_location"],
         locationDestId: json["location_dest_id"] == null ? [] : List<dynamic>.from(json["location_dest_id"]!.map((x) => x)),
         barcodeLocationDest: json["barcode_location_dest"],
@@ -216,7 +206,6 @@ class ListItem {
         timeLine: json["time_line"],
         operatorId: json["operator_id"],
         doneItem: json["done_item"],
-        barcode: json["barcode"],
         weight: json["weight"],
         unidades: json["unidades"],
     );
@@ -229,9 +218,7 @@ class ListItem {
         "product_id": productId == null ? [] : List<dynamic>.from(productId!.map((x) => x)),
         "lote_id": loteId,
         "lot_id": lotId == null ? [] : List<dynamic>.from(lotId!.map((x) => x)),
-        "expire_date": expireDate?.toIso8601String(),
         "location_id": locationId == null ? [] : List<dynamic>.from(locationId!.map((x) => x)),
-        "rimoval_priority": rimovalPriority,
         "barcode_location": barcodeLocation,
         "location_dest_id": locationDestId == null ? [] : List<dynamic>.from(locationDestId!.map((x) => x)),
         "barcode_location_dest": barcodeLocationDest,
@@ -242,7 +229,6 @@ class ListItem {
         "time_line": timeLine,
         "operator_id": operatorId,
         "done_item": doneItem,
-        "barcode": barcode,
         "weight": weight,
         "unidades": unidades,
     };

@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_question_mark
+
 import 'dart:convert';
 
 class BatchModelResponse {
@@ -80,8 +82,6 @@ class BatchsModel {
   final int? productSeparateQty; //cantidad que se lleva separada
 
   final double? timeSeparateTotal;
-  final String? timeSeparateStart;
-  final String? timeSeparateEnd;
 
   final String? isSendOdoo;
   final String? isSendOdooDate;
@@ -89,6 +89,11 @@ class BatchsModel {
 
   final dynamic orderBy;
   final dynamic orderPicking;
+
+
+  final dynamic startTimePick;
+  final dynamic endTimePick;
+  final String? zonaEntrega;
 
   List<ProductsBatch>? listItems;
 
@@ -110,14 +115,15 @@ class BatchsModel {
     this.isSelected,
     this.productSeparateQty,
     this.timeSeparateTotal,
-    this.timeSeparateStart,
-    this.timeSeparateEnd,
     this.isSendOdoo,
     this.isSendOdooDate,
     this.observation,
     this.listItems,
     this.orderBy,
     this.orderPicking,
+    this.startTimePick,
+    this.endTimePick,
+    this.zonaEntrega,
   });
 
   factory BatchsModel.fromJson(String str) =>
@@ -143,8 +149,6 @@ class BatchsModel {
         isSelected: json['is_selected'],
         productSeparateQty: json['product_separate_qty'],
         timeSeparateTotal: json['time_separate_total'],
-        timeSeparateStart: json['time_separate_start'],
-        timeSeparateEnd: json['time_separate_end'],
         isSendOdoo: json['is_send_oddo'],
         isSendOdooDate: json['is_send_oddo_date'],
         observation: json['observation'],
@@ -154,6 +158,9 @@ class BatchsModel {
                 json["list_items"]!.map((x) => ProductsBatch.fromMap(x))),
         orderBy: json["order_by"],
         orderPicking: json["order_picking"],
+        startTimePick: json["start_time_pick"],
+        endTimePick: json["end_time_pick"],
+        zonaEntrega: json["zona_entrega"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -174,8 +181,6 @@ class BatchsModel {
         'is_selected': isSelected,
         'product_separate_qty': productSeparateQty,
         'time_separate_total': timeSeparateTotal,
-        'time_separate_start': timeSeparateStart,
-        'time_separate_end': timeSeparateEnd,
         'is_send_oddo': isSendOdoo,
         'is_send_oddo_date': isSendOdooDate,
         'observation': observation,
@@ -184,6 +189,9 @@ class BatchsModel {
             : List<dynamic>.from(listItems!.map((x) => x.toMap())),
         'order_by': orderBy,
         'order_picking': orderPicking,
+        'start_time_pick': startTimePick,
+        'end_time_pick': endTimePick,
+        'zona_entrega': zonaEntrega,
       };
 }
 
@@ -302,7 +310,6 @@ class ProductsBatch {
       idMove: map['id_move'],
       barcodeLocation: map['barcode_location'],
       barcodeLocationDest: map['barcode_location_dest'],
-      // pickingId: map['picking_id'],
       lotId: map['lot_id'],
       loteId: map['lote_id'],
       productPacking: map['product_packing'] == null

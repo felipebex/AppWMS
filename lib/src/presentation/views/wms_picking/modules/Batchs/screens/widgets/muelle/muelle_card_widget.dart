@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_picking_incompleted_widget.dart';
@@ -217,6 +216,9 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
             currentProduct.idProduct ?? 0,
             batchBloc.batchWithProducts.batch?.id ?? 0,
             currentProduct.idMove ?? 0));
+
+        batchBloc.add(EndTimePick(context,
+            batchBloc.batchWithProducts.batch?.id ?? 0, DateTime.now()));
 
         batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
             currentProduct.idProduct ?? 0));

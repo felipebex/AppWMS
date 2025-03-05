@@ -77,6 +77,7 @@ class BatchPackingModel {
   final double? timeSeparateTotal;
   final String? timeSeparateStart;
   final String? timeSeparateEnd;
+  final String? zonaEntrega;
 
   BatchPackingModel({
     this.id,
@@ -95,6 +96,7 @@ class BatchPackingModel {
     this.timeSeparateTotal,
     this.timeSeparateStart,
     this.timeSeparateEnd,
+    this.zonaEntrega,
   });
 
   factory BatchPackingModel.fromJson(String str) =>
@@ -122,6 +124,7 @@ class BatchPackingModel {
         timeSeparateTotal: json["time_separate_total"],
         timeSeparateStart: json["time_separate_start"],
         timeSeparateEnd: json["time_separate_end"],
+        zonaEntrega: json["zona_entrega"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -141,6 +144,7 @@ class BatchPackingModel {
         "time_separate_total": timeSeparateTotal,
         "time_separate_start": timeSeparateStart,
         "time_separate_end": timeSeparateEnd,
+        "zona_entrega": zonaEntrega,
       };
 }
 
@@ -160,6 +164,7 @@ class PedidoPacking {
   final int? numeroPaquetes;
   final List<PorductoPedido>? listaProductos;
   final List<Paquete>? listaPaquetes;
+  final String? zonaEntrega;
 
   PedidoPacking({
     this.id,
@@ -177,6 +182,7 @@ class PedidoPacking {
     this.listaPaquetes,
     this.isTerminate,
     this.contactoName,
+    this.zonaEntrega,
   });
 
   factory PedidoPacking.fromJson(String str) =>
@@ -207,6 +213,7 @@ class PedidoPacking {
             : List<Paquete>.from(
                 json["lista_paquetes"]!.map((x) => Paquete.fromMap(x))),
         isTerminate: json["is_terminate"],
+        zonaEntrega: json["zona_entrega"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -228,6 +235,7 @@ class PedidoPacking {
             ? []
             : List<dynamic>.from(listaPaquetes!.map((x) => x.toMap())),
         "is_terminate": isTerminate,
+        "zona_entrega": zonaEntrega,
       };
 }
 
@@ -237,8 +245,9 @@ class Paquete {
   final int? batchId;
   final int? pedidoId;
   final int? cantidadProductos;
-  final List<dynamic>? listaProductos;
+  final List<PorductoPedido>? listaProductosInPacking;
   final bool? isSticker;
+  final bool? isCertificate;
   // final DateTime? fechaCreacion;
   // final DateTime? fechaActualiazacion;
 
@@ -248,8 +257,9 @@ class Paquete {
     this.batchId,
     this.pedidoId,
     this.cantidadProductos,
-    this.listaProductos,
+    this.listaProductosInPacking,
     this.isSticker,
+    this.isCertificate,
     // this.fechaCreacion,
     // this.fechaActualiazacion,
   });
@@ -264,10 +274,12 @@ class Paquete {
       batchId: json["batch_id"],
       pedidoId: json["pedido_id"],
       cantidadProductos: json["cantidad_productos"],
-      listaProductos: json["lista_productos"] == null
+      listaProductosInPacking: json["lista_productos_in_packing"] == null
           ? []
-          : List<dynamic>.from(json["lista_productos"]!.map((x) => x)),
-      isSticker: json["is_sticker"]
+          : List<PorductoPedido>.from(
+              json["lista_productos_in_packing"]!.map((x) => PorductoPedido.fromMap(x))),
+      isSticker: json["is_sticker"],
+      isCertificate: json["is_certificate"],
       // fechaCreacion: json["fecha_creacion"] == null ? null : DateTime.parse(json["fecha_creacion"]),
       // fechaActualiazacion: json["fecha_actualiazacion"] == null ? null : DateTime.parse(json["fecha_actualiazacion"]),
       );
@@ -278,125 +290,12 @@ class Paquete {
         "batch_id": batchId,
         "pedido_id": pedidoId,
         "cantidad_productos": cantidadProductos,
-        "lista_productos": listaProductos == null
+        "lista_productos_in_packing": listaProductosInPacking == null
             ? []
-            : List<dynamic>.from(listaProductos!.map((x) => x)),
+            : List<dynamic>.from(listaProductosInPacking!.map((x) => x.toMap())),
         "is_sticker": isSticker,
+        "is_certificate": isCertificate,
         // "fecha_creacion"
         // "fecha_actualiazacion": "${fechaActualiazacion!.year.toString().padLeft(4, '0')}-${fechaActualiazacion!.month.toString().padLeft(2, '0')}-${fechaActualiazacion!.day.toString().padLeft(2, '0')}",
       };
 }
-
-// class ListaProducto {
-//   final int? productId;
-//   final int? batchId;
-//   final int? pedidoId;
-//   final List<dynamic>? idProduct;
-//   final int? loteId;
-//   final dynamic lotId;
-//   final List<dynamic>? locationId;
-//   final List<dynamic>? locationDestId;
-//   final double? quantity;
-//   final String? tracking;
-//   final dynamic barcode;
-//   final List<ProductPacking>? productPacking;
-//   final dynamic weight;
-//   final String? unidades;
-
-//   ListaProducto({
-//     this.productId,
-//     this.batchId,
-//     this.pedidoId,
-//     this.idProduct,
-//     this.loteId,
-//     this.lotId,
-//     this.locationId,
-//     this.locationDestId,
-//     this.quantity,
-//     this.tracking,
-//     this.barcode,
-//     this.productPacking,
-//     this.weight,
-//     this.unidades,
-//   });
-
-//   factory ListaProducto.fromJson(String str) =>
-//       ListaProducto.fromMap(json.decode(str));
-
-//   String toJson() => json.encode(toMap());
-
-//   factory ListaProducto.fromMap(Map<String, dynamic> json) => ListaProducto(
-//       productId: json["product_id"],
-//       batchId: json["batch_id"],
-//       pedidoId: json["pedido_id"],
-//       idProduct: json["id_product"] == null
-//           ? []
-//           : List<dynamic>.from(json["id_product"]!.map((x) => x)),
-//       loteId: json["lote_id"],
-//       lotId: json["lot_id"],
-//       locationId: json["location_id"] == null
-//           ? []
-//           : List<dynamic>.from(json["location_id"]!.map((x) => x)),
-//       locationDestId: json["location_dest_id"] == null
-//           ? []
-//           : List<dynamic>.from(json["location_dest_id"]!.map((x) => x)),
-//       quantity: json["quantity"],
-//       tracking: json["tracking"],
-//       barcode: json["barcode"],
-//       productPacking: json["product_packing"] == null
-//           ? []
-//           : List<ProductPacking>.from(
-//               json["product_packing"]!.map((x) => ProductPacking.fromMap(x))),
-//       weight: json["weight"],
-//       unidades: json["unidades"]);
-
-//   Map<String, dynamic> toMap() => {
-//         "product_id": productId,
-//         "batch_id": batchId,
-//         "pedido_id": pedidoId,
-//         "id_product": idProduct == null
-//             ? []
-//             : List<dynamic>.from(idProduct!.map((x) => x)),
-//         "lote_id": loteId,
-//         "lot_id": lotId,
-//         "location_id": locationId == null
-//             ? []
-//             : List<dynamic>.from(locationId!.map((x) => x)),
-//         "location_dest_id": locationDestId == null
-//             ? []
-//             : List<dynamic>.from(locationDestId!.map((x) => x)),
-//         "quantity": quantity,
-//         "tracking": tracking,
-//         "barcode": barcode,
-//         "product_packing": productPacking == null
-//             ? []
-//             : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
-//         "weight": weight,
-//         "unidades": unidades
-//       };
-// }
-
-// class ProductPacking {
-//   final dynamic barcode;
-//   final double? cantidad;
-
-//   ProductPacking({
-//     this.barcode,
-//     this.cantidad,
-//   });
-
-//   factory ProductPacking.fromJson(String str) =>
-//       ProductPacking.fromMap(json.decode(str));
-
-//   String toJson() => json.encode(toMap());
-
-//   factory ProductPacking.fromMap(Map<String, dynamic> json) => ProductPacking(
-//         barcode: json["barcode"],
-//         cantidad: json["cantidad"],
-//       );
-
-//   Map<String, dynamic> toMap() => {
-//         "barcode": barcode,
-//         "cantidad": cantidad,
-//       };
-// }

@@ -34,9 +34,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         if (response != null) {
         
         final int userId = await PrefUtils.getUserId();
-        await db.insertConfiguration(response, userId );
-
-        final Configurations? responsebd = await db.getConfiguration(userId);
+        await db.configurationsRepository.insertConfiguration(response, userId );
+        final Configurations? responsebd = await db.configurationsRepository.getConfiguration(userId);
           PrefUtils.setUserRol(response.result?.result?.rol ?? '');
           configurations = Configurations();
           configurations = responsebd ?? response;

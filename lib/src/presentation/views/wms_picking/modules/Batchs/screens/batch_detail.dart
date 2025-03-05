@@ -163,7 +163,7 @@ class BatchDetailScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 5),
-                  Container(
+                  SizedBox(
                     width: size.width,
                     height: context
                                 .read<BatchBloc>()
@@ -711,7 +711,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                             fontSize: 12,
                                                             color: black)),
                                                     const SizedBox(width: 5),
-                                                    Container(
+                                                    SizedBox(
                                                       width: size.width * 0.25,
                                                       child: Text(
                                                           productsBatch

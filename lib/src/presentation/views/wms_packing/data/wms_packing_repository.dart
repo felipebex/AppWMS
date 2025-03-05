@@ -13,7 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/domain/un_packing_req
 import 'package:wms_app/src/presentation/views/wms_packing/domain/unpacking_response_model.dart';
 
 class WmsPackingRepository {
-  //endpoint para obtener todos los batch de packing con sus pedidos y productos
+  //metodo para obtener todos los batch de packing con sus pedidos y productos
   Future<List<BatchPackingModel>> resBatchsPacking(
     bool isLoadinDialog,
     BuildContext context,

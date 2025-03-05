@@ -6,12 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
-import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/dialog_unPacking.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/mode_print_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/print_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/models/mode_print_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/screens/print_screen.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -58,21 +57,20 @@ class Tab1Screen extends StatelessWidget {
           ),
           actions: <Widget>[
             ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: grey,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Cerrar',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: grey,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Cerrar',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ],
         );
       },
@@ -190,12 +188,13 @@ class Tab1Screen extends StatelessWidget {
                                     ElevatedButton(
                                       onPressed: () async {
                                         await DataBaseSqlite()
+                                            .pedidosPackingRepository
                                             .setFieldTablePedidosPacking(
-                                          packingModel?.batchId ?? 0,
-                                          packingModel?.id ?? 0,
-                                          "is_terminate",
-                                          "true",
-                                        );
+                                              packingModel?.batchId ?? 0,
+                                              packingModel?.id ?? 0,
+                                              "is_terminate",
+                                              "true",
+                                            );
 
                                         context
                                             .read<WmsPackingBloc>()
@@ -426,16 +425,77 @@ class Tab1Screen extends StatelessWidget {
                                                   fontSize: 14, color: black),
                                             ),
                                             const Spacer(),
+                                            GestureDetector(
+                                              onTap: () async {
+                                                var url = await PrefUtils
+                                                    .getEnterprise();
+
+                                                url =
+                                                    '$url/package/info/${package.name}';
+
+                                                _showQRDialog(context, url);
+                                              },
+                                              child: Icon(
+                                                Icons.qr_code,
+                                                color: primaryColorApp,
+                                                size: 20,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
                                             if (package.isSticker == true)
                                               GestureDetector(
                                                 onTap: () async {
-                                                  var url = await PrefUtils
-                                                      .getEnterprise();
-
-                                                  url =
-                                                      '$url/package/info/${package.name}';
-
-                                                  _showQRDialog(context, url);
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return PrintDialog(
+                                                          model: PrintModel(
+                                                        batchName:
+                                                            batchModel?.name ??
+                                                                '',
+                                                        batchId:
+                                                            batchModel?.id ?? 0,
+                                                        pickingTypeId: batchModel
+                                                                ?.pickingTypeId ??
+                                                            '',
+                                                        cantidadPedidos: batchModel
+                                                                ?.cantidadPedidos ??
+                                                            0,
+                                                        //ddatos pedido
+                                                        namePedido: packingModel
+                                                                ?.name ??
+                                                            '',
+                                                        referencia: packingModel
+                                                                ?.referencia ??
+                                                            '',
+                                                        contacto: packingModel
+                                                                ?.contacto ??
+                                                            '0',
+                                                        contactoName: packingModel
+                                                                ?.contactoName ??
+                                                            '',
+                                                        tipoOperacion: packingModel
+                                                                ?.tipoOperacion ??
+                                                            '',
+                                                        cantidadProductos:
+                                                            packingModel
+                                                                    ?.cantidadProductos ??
+                                                                0,
+                                                        numeroPaquetes: context
+                                                            .read<
+                                                                WmsPackingBloc>()
+                                                            .packages
+                                                            .length,
+                                                        //datos paquete
+                                                        idPaquete: 0,
+                                                        namePaquete:
+                                                            package.name,
+                                                        cantProductoPack: package
+                                                            .cantidadProductos,
+                                                      ));
+                                                    },
+                                                  );
                                                 },
                                                 child: Icon(
                                                   Icons.print,
@@ -450,8 +510,7 @@ class Tab1Screen extends StatelessWidget {
                                     children: [
                                       // Aquí generamos la lista de productos filtrados
                                       SizedBox(
-                                        width: double.infinity,
-                                        height: 150,
+                                        height: 200,
                                         child: ListView.builder(
                                           itemCount: filteredProducts
                                               .length, // La cantidad de productos filtrados
@@ -483,25 +542,29 @@ class Tab1Screen extends StatelessWidget {
                                                                     color:
                                                                         black)),
                                                       ),
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          //mensaje de confirmacion de desempacar el producto
-                                                          showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return DialogUnPacking(
-                                                                  product:
-                                                                      product,
-                                                                  package:
-                                                                      package,
-                                                                );
-                                                              });
-                                                        },
-                                                        child: const Icon(
-                                                          Icons.delete,
-                                                          color: Colors.red,
-                                                          size: 20,
+                                                      Visibility(
+                                                        visible: product.barcode !=
+                                                            null  && product.isSendOdoo != null,
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            //mensaje de confirmacion de desempacar el producto
+                                                            showDialog(
+                                                                context: context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return DialogUnPacking(
+                                                                    product:
+                                                                        product,
+                                                                    package:
+                                                                        package,
+                                                                  );
+                                                                });
+                                                          },
+                                                          child: const Icon(
+                                                            Icons.delete,
+                                                            color: Colors.red,
+                                                            size: 20,
+                                                          ),
                                                         ),
                                                       ),
                                                     ],
@@ -743,79 +806,6 @@ class Tab1Screen extends StatelessWidget {
                                           },
                                         ),
                                       ),
-                                      if (package.isSticker == true)
-                                        ElevatedButton(
-                                            onPressed: () {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return PrintDialog(
-                                                      model: PrintModel(
-                                                    batchName:
-                                                        batchModel?.name ?? '',
-                                                    batchId:
-                                                        batchModel?.id ?? 0,
-                                                    pickingTypeId: batchModel
-                                                            ?.pickingTypeId ??
-                                                        '',
-                                                    cantidadPedidos: batchModel
-                                                            ?.cantidadPedidos ??
-                                                        0,
-                                                    //ddatos pedido
-                                                    namePedido:
-                                                        packingModel?.name ??
-                                                            '',
-                                                    referencia: packingModel
-                                                            ?.referencia ??
-                                                        '',
-                                                    contacto: packingModel
-                                                            ?.contacto ??
-                                                        '0',
-                                                    contactoName: packingModel
-                                                            ?.contactoName ??
-                                                        '',
-                                                    tipoOperacion: packingModel
-                                                            ?.tipoOperacion ??
-                                                        '',
-                                                    cantidadProductos: packingModel
-                                                            ?.cantidadProductos ??
-                                                        0,
-                                                    numeroPaquetes: context
-                                                        .read<WmsPackingBloc>()
-                                                        .packages
-                                                        .length,
-                                                    //datos paquete
-                                                    idPaquete: 0,
-                                                    namePaquete: package.name,
-                                                    cantProductoPack: package
-                                                        .cantidadProductos,
-                                                  ));
-                                                },
-                                              );
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    Colors.grey[300],
-                                                minimumSize:
-                                                    Size(size.width, 35),
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10))),
-                                            child: const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Icon(Icons.print),
-                                                SizedBox(width: 10),
-                                                Text(
-                                                  "Imprimir sticker",
-                                                  style:
-                                                      TextStyle(color: black),
-                                                )
-                                              ],
-                                            )),
                                     ],
                                   ),
                                 );

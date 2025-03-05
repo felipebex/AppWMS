@@ -32,6 +32,12 @@
       "languageVersion": "2.18"
     },
     {
+      "name": "auto_size_text",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/auto_size_text-3.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "awesome_dialog",
       "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/awesome_dialog-3.2.1",
       "packageUri": "lib/",
@@ -210,6 +216,12 @@
       "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_flavor-3.1.4",
       "packageUri": "lib/",
       "languageVersion": "3.5"
+    },
+    {
+      "name": "flutter_holo_date_picker",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/flutter_holo_date_picker-2.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
     },
     {
       "name": "flutter_keyboard_visibility",
@@ -962,7 +974,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-02-20T21:29:51.334949Z",
+  "generated": "2025-03-03T15:36:48.031829Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/estebanrodriguezmarles/Documents/flutter",

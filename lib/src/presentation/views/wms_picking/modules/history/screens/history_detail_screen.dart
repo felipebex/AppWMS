@@ -8,7 +8,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/history/scree
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class HistoryDetailScreen extends StatelessWidget {
-  const HistoryDetailScreen({Key? key}) : super(key: key);
+  const HistoryDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

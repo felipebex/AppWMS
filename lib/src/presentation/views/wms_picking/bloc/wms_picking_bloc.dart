@@ -3,8 +3,8 @@
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/batch_history_id_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/hisotry_done_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/batch_history_id_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/hisotry_done_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/product_template_model.dart';
 import 'package:bloc/bloc.dart';
@@ -45,7 +45,9 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
     //*obtener todos los batchs desde odoo
     on<LoadAllBatchsEvent>(_onLoadAllBatchsEvent);
+    //*obtener todos los batchs desde el historial de odoo
     on<LoadHistoryBatchsEvent>(_onLoadHistoryBatchsEvent);
+    //*obtener un batch por id del hisorial
     on<LoadHistoryBatchIdEvent>(_onLoadHistoryBatchIdEvent);
     //*buscar un batch
     on<SearchBatchEvent>(_onSearchBacthEvent);
@@ -73,7 +75,9 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       // Si hay novedades para insertar, ejecutar la inserción en batch
       if (listOfNovedades.isNotEmpty) {
         try {
-          await DataBaseSqlite().insertBatchNovedades(listOfNovedades);
+          await DataBaseSqlite()
+              .novedadesRepository
+              .insertBatchNovedades(listOfNovedades);
           print('Novedades insertadas con éxito.');
         } catch (e) {
           print('Error inserting batch of novedades: $e');
@@ -95,7 +99,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   void _onFilterBatchesBStatusEvent(
       FilterBatchesBStatusEvent event, Emitter<PickingState> emit) async {
     final int userId = await PrefUtils.getUserId();
-    final batchsFromDB = await _databas.getAllBatchs(userId);
+    final batchsFromDB =
+        await _databas.batchPickingRepository.getAllBatchs(userId);
 
     batchsDone = batchsFromDB.where((batch) => batch.isSeparate == 1).toList();
 
@@ -132,7 +137,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
               'Se han agregado nuevos batchs para picking', '');
         }
 
-        PrefUtils.setPickingBatchs(response.length);
         int userId = await PrefUtils.getUserId();
         listOfBatchs.clear();
         listOfBatchs.addAll(response);
@@ -140,23 +144,28 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         for (var batch in listOfBatchs) {
           try {
             if (batch.id != null && batch.name != null) {
-              await DataBaseSqlite().insertBatch(BatchsModel(
-                id: batch.id!,
-                name: batch.name ?? '',
-                scheduleddate: batch.scheduleddate.toString(),
-                pickingTypeId: batch.pickingTypeId,
-                muelle: batch.muelle,
-                idMuelle: batch.idMuelle,
-                state: batch.state,
-                userId: userId,
-                userName: batch.userName,
-                isWave: batch.isWave.toString(),
-                countItems: batch.countItems,
-                totalQuantityItems: batch.totalQuantityItems.toInt(),
-                orderBy: batch.orderBy,
-                orderPicking: batch.orderPicking,
-                indexList: 0,
-              ));
+              await DataBaseSqlite()
+                  .batchPickingRepository
+                  .insertBatch(BatchsModel(
+                    id: batch.id!,
+                    name: batch.name ?? '',
+                    scheduleddate: batch.scheduleddate.toString(),
+                    pickingTypeId: batch.pickingTypeId,
+                    muelle: batch.muelle,
+                    idMuelle: batch.idMuelle,
+                    state: batch.state,
+                    userId: userId,
+                    userName: batch.userName,
+                    isWave: batch.isWave.toString(),
+                    countItems: batch.countItems,
+                    totalQuantityItems: batch.totalQuantityItems.toInt(),
+                    orderBy: batch.orderBy,
+                    orderPicking: batch.orderPicking,
+                    indexList: 0,
+                    startTimePick: batch.startTimePick,
+                    endTimePick: batch.endTimePick,
+                    zonaEntrega: batch.zonaEntrega,
+                  ));
             }
           } catch (dbError, stackTrace) {
             print('Error inserting batch: $dbError  $stackTrace');
@@ -190,19 +199,26 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         print('barcodesToInsert: ${barcodesToInsert.length}');
         print('otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
 
-        await DataBaseSqlite().insertSubmuelles(responseMuelles);
+        await DataBaseSqlite()
+            .submuellesRepository
+            .insertSubmuelles(responseMuelles);
 
         // Enviar la lista agrupada a insertBatchProducts
         await DataBaseSqlite().insertBatchProducts(productsToInsert);
 
         if (barcodesToInsert.isNotEmpty) {
-          await DataBaseSqlite().insertBarcodesPackageProduct(barcodesToInsert);
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(barcodesToInsert);
         }
 
         if (otherBarcodesToInsert.isNotEmpty) {
           // Enviar la lista agrupada a insertBarcodesPackageProduct
           await DataBaseSqlite()
-              .insertBarcodesPackageProduct(otherBarcodesToInsert);
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(otherBarcodesToInsert);
+
+          
         }
 
         //* Carga los batches desde la base de datos
@@ -222,7 +238,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   void _onLoadHistoryBatchsEvent(
       LoadHistoryBatchsEvent event, Emitter<PickingState> emit) async {
     try {
-
       print('date: ${event.date}');
       emit(BatchsPickingLoadingState());
 
@@ -247,6 +262,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       emit(BatchsPickingErrorState(e.toString()));
     }
   }
+
   void _onLoadHistoryBatchIdEvent(
       LoadHistoryBatchIdEvent event, Emitter<PickingState> emit) async {
     try {
@@ -276,7 +292,8 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     print('event._onSearchBacthEvent: ${event.query}');
     final query = event.query.toLowerCase();
     final int userid = await PrefUtils.getUserId();
-    final batchsFromDB = await _databas.getAllBatchs(userid);
+    final batchsFromDB =
+        await _databas.batchPickingRepository.getAllBatchs(userid);
     if (event.indexMenu == 0) {
       if (query.isEmpty) {
         filteredBatchs = batchsFromDB;

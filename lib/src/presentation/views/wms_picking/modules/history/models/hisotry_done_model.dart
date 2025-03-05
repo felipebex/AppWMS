@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_question_mark
+
 import 'dart:convert';
 
 class HistoryPicking {
@@ -66,7 +68,7 @@ class HistoryBatch {
     final String? observation;
     final bool? isWave;
     final String? muelle;
-    final String? idMuelle;
+    final dynamic? idMuelle;
     final int? countItems;
     final dynamic? totalQuantityItems;
     final dynamic? itemsSeparado;

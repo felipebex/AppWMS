@@ -187,7 +187,7 @@ class _DialogAdvetenciaCantidadScreenState
                 if (selectedNovedad != null) {
                   DataBaseSqlite db = DataBaseSqlite();
 
-                  await db.updateNovedadPacking(
+                  await db.productosPedidosRepository.updateNovedadPacking(
                       widget.currentProduct.pedidoId ?? 0,
                       widget.currentProduct.idProduct ?? 0,
                       selectedNovedad ?? '');

@@ -4,7 +4,8 @@ part of 'batch_bloc.dart';
 
 @immutable
 sealed class BatchEvent {}
-class  InitialStateEvent extends BatchEvent {}
+
+class InitialStateEvent extends BatchEvent {}
 
 class LoadAllProductsBatchsEvent extends BatchEvent {
   int batchId;
@@ -40,12 +41,26 @@ class GetProductById extends BatchEvent {
   GetProductById(this.productId);
 }
 
+//*empezar el tiempo de separacion
+class StartTimePick extends BatchEvent {
+  final BuildContext context;
+  final int batchId;
+  final DateTime time;
+  StartTimePick(this.context, this.batchId, this.time);
+}
+class EndTimePick extends BatchEvent {
+  final BuildContext context;
+  final int batchId;
+  final DateTime time;
+  EndTimePick(this.context, this.batchId, this.time);
+}
+
 //* CAMBIAR VALORES DE VARIABLES
 class ChangeLocationIsOkEvent extends BatchEvent {
   final int productId;
   final int batchId;
   final int idMove;
-  ChangeLocationIsOkEvent( this.productId, this.batchId, this.idMove);
+  ChangeLocationIsOkEvent(this.productId, this.batchId, this.idMove);
 }
 
 class ChangeLocationDestIsOkEvent extends BatchEvent {
@@ -63,7 +78,8 @@ class ChangeProductIsOkEvent extends BatchEvent {
   final int batchId;
   final int quantity;
   final int idMove;
-  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.batchId, this.quantity, this.idMove);
+  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.batchId,
+      this.quantity, this.idMove);
 }
 
 class ChangeIsOkQuantity extends BatchEvent {
@@ -96,10 +112,7 @@ class ValidateFieldsEvent extends BatchEvent {
   ValidateFieldsEvent({required this.field, required this.isOk});
 }
 
-
-class LoadDataInfoEvent extends BatchEvent {
-}
-
+class LoadDataInfoEvent extends BatchEvent {}
 
 class ChangeQuantitySeparate extends BatchEvent {
   final int quantity;
@@ -107,6 +120,7 @@ class ChangeQuantitySeparate extends BatchEvent {
   final int idMove;
   ChangeQuantitySeparate(this.quantity, this.productId, this.idMove);
 }
+
 class AddQuantitySeparate extends BatchEvent {
   final int productId;
   final int idMove;
@@ -115,14 +129,12 @@ class AddQuantitySeparate extends BatchEvent {
   AddQuantitySeparate(this.productId, this.idMove, this.quantity, this.isOk);
 }
 
-
 class PickingOkEvent extends BatchEvent {
   final int batchId;
   final int productId;
 
   PickingOkEvent(this.batchId, this.productId);
 }
-
 
 class ProductPendingEvent extends BatchEvent {
   final int batchId;
@@ -131,21 +143,17 @@ class ProductPendingEvent extends BatchEvent {
   ProductPendingEvent(this.batchId, this.product);
 }
 
-
 class LoadConfigurationsUser extends BatchEvent {
   LoadConfigurationsUser();
 }
 
-
-class LoadProductEditEvent extends BatchEvent {
-
-}
+class LoadProductEditEvent extends BatchEvent {}
 
 class SendProductEditOdooEvent extends BatchEvent {
   final ProductsBatch product;
   final int cantidad;
   final BuildContext context;
-  SendProductEditOdooEvent(  this.product, this.cantidad, this.context);
+  SendProductEditOdooEvent(this.product, this.cantidad, this.context);
 }
 
 class AssignSubmuelleEvent extends BatchEvent {
@@ -155,39 +163,29 @@ class AssignSubmuelleEvent extends BatchEvent {
   AssignSubmuelleEvent(this.productsSeparate, this.muelle, this.context);
 }
 
-class ScanBarcodeEvent extends BatchEvent {
-}
+class ScanBarcodeEvent extends BatchEvent {}
 
-class LoadInfoDeviceEvent extends BatchEvent {
-}
+class LoadInfoDeviceEvent extends BatchEvent {}
 
 class ShowKeyboard extends BatchEvent {
   final bool showKeyboard;
 
-  ShowKeyboard( this.showKeyboard);
+  ShowKeyboard(this.showKeyboard);
 }
 
+class LoadAllNovedadesEvent extends BatchEvent {}
 
-class LoadAllNovedadesEvent extends BatchEvent {
-}
-
-class SelectedSubMuelleEvent extends BatchEvent{
+class SelectedSubMuelleEvent extends BatchEvent {
   final Muelles subMuelleSlected;
 
-
   SelectedSubMuelleEvent(this.subMuelleSlected);
-
 }
 
-class FetchBarcodesProductEvent extends BatchEvent {
-}
+class FetchBarcodesProductEvent extends BatchEvent {}
 
-class ResetValuesEvent extends BatchEvent {
-}
+class ResetValuesEvent extends BatchEvent {}
 
-class SortProductsByLocation extends BatchEvent {
-}
-
+class SortProductsByLocation extends BatchEvent {}
 
 //evento para enviar un producto a odoo
 class SendProductOdooEvent extends BatchEvent {
@@ -195,7 +193,6 @@ class SendProductOdooEvent extends BatchEvent {
   final BuildContext context;
   SendProductOdooEvent(this.product, this.context);
 }
-
 
 class UpdateScannedValueEvent extends BatchEvent {
   final String scannedValue;
@@ -213,11 +210,9 @@ class ShowQuantityEvent extends BatchEvent {
   ShowQuantityEvent(this.showQuantity);
 }
 
-
 class SetIsProcessingEvent extends BatchEvent {
   final bool isProcessing;
   SetIsProcessingEvent(this.isProcessing);
 }
 
-
-class CloseStateEvent extends BatchEvent{}
+class CloseStateEvent extends BatchEvent {}

@@ -7,11 +7,10 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/index.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/history/screens/history_detail_screen.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class HistoryListScreen extends StatelessWidget {
-  const HistoryListScreen({Key? key}) : super(key: key);
+  const HistoryListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +52,8 @@ class HistoryListScreen extends StatelessWidget {
                                     icon: const Icon(Icons.arrow_back,
                                         color: white),
                                     onPressed: () {
+
+                                      context.read<WMSPickingBloc>().filtersHistoryBatchs = [];
                                       Navigator.pushAndRemoveUntil(
                                           context,
                                           MaterialPageRoute(

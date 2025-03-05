@@ -2,17 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/routes/app_router.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/index.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogStartPickingWidget extends StatelessWidget {
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
 
-  const DialogStartPickingWidget({Key? key, required this.onAccepted})
-      : super(key: key);
+  const DialogStartPickingWidget({super.key, required this.onAccepted});
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +49,6 @@ class DialogStartPickingWidget extends StatelessWidget {
           ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                context.read<BatchBloc>().add(ResetValuesEvent());
-                context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
-                      '',
-                    ));
-
-                Navigator.pushReplacementNamed(context, 'wms-picking',
-                    arguments: 0);
-
               },
               style: ElevatedButton.styleFrom(
                   backgroundColor: grey,

@@ -232,3 +232,14 @@ class CloseState extends BatchState {}
 
 
 class LoadingFetchBatch extends BatchState {}
+
+//*tiempo de separacion
+class TimeSeparateSuccess extends BatchState {
+  final String time;
+  TimeSeparateSuccess(this.time);
+}
+
+class TimeSeparateError extends BatchState {
+  final String msg;
+  TimeSeparateError(this.msg);
+}

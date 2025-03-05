@@ -100,8 +100,9 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                 .read<WmsPackingBloc>()
                                                 .add(ShowKeyboardEvent(false));
                                             Navigator.pushReplacementNamed(
-                                      context, 'home',
-                                      );
+                                              context,
+                                              'home',
+                                            );
                                           },
                                         ),
                                         Padding(
@@ -270,6 +271,11 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                       horizontal: 10, vertical: 5),
                                   child: GestureDetector(
                                     onTap: () async {
+//permisos de usuario
+                                      context
+                                          .read<WmsPackingBloc>()
+                                          .add(LoadConfigurationsUserPack());
+
                                       //mandamos a traer de la base de datos los pedidos del batch
                                       context
                                           .read<WmsPackingBloc>()
@@ -324,9 +330,17 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             width: 24,
                                           ),
                                         ),
-                                        title: Text(batch.name ?? '',
-                                            style:
-                                                const TextStyle(fontSize: 14)),
+                                        title: Row(
+                                          children: [
+                                            Text(batch.name ?? '',
+                                                style: const TextStyle(
+                                                    fontSize: 14)),
+                                            Spacer(),
+                                            Text(batch.zonaEntrega ?? '',
+                                                style: const TextStyle(
+                                                    fontSize: 14, color: black)),
+                                          ],
+                                        ),
                                         subtitle: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,

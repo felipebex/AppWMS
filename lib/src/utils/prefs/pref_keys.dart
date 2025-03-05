@@ -2,8 +2,6 @@ class PrefKeys {
   PrefKeys._();
 
   static const String user = "user";
-  static const String pickingBatchs = "pickingBatchs";
-  static const String packingBatchs = "packingBatchs";
 
   static const String email = "email";
   static const String rol = "rol";

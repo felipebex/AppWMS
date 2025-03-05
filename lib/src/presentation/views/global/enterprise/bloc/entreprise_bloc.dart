@@ -20,14 +20,13 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
   EntrepriceRepository entrepriceRepository = EntrepriceRepository();
 
   EntrepriseBloc() : super(EntrepriseInitial()) {
-    final DataBaseSqlite databas = DataBaseSqlite();
-
     on<LoadUrlFromDB>((event, emit) async {
       try {
-        // await _databas.deleteAllUrlsRecientes();
+        final database = DataBaseSqlite();
         emit(EntrepriseLoading());
         recentUrls = [];
-        recentUrls = await databas.getAllUrlsRecientes();
+        recentUrls =
+            await database.urlsRecientesRepository.getAllUrlsRecientes();
         print(recentUrls.length);
         emit(UpdateListUrls(recentUrls));
       } catch (e, s) {
@@ -40,13 +39,12 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
 
     on<EntrepriseButtonPressed>((event, emit) async {
       try {
+        final database = DataBaseSqlite();
         emit(EntrepriseLoading());
 
         final session = await entrepriceRepository.searchEnterprice(
           entrepriceController.text,
         );
-
-        print('session: $session');
 
         if (session.isNotEmpty) {
           Preferences.setUrlWebsite = entrepriceController.text;
@@ -54,7 +52,7 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
               entrepriceController.text); // Guardar la URL en las preferencias
 
           // Agregar la URL a la lista de recientes
-          await databas.insertUrlReciente(RecentUrl(
+          await database.urlsRecientesRepository.insertUrlReciente(RecentUrl(
             url: entrepriceController.text,
             fecha: //guardar la fecha en formato 22/09/2021
                 DateTime.now().day.toString() +
@@ -84,9 +82,10 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
 
     on<DeleteUrl>((event, emit) async {
       try {
+        final database = DataBaseSqlite();
         emit(EntrepriseLoading());
         recentUrls.removeAt(event.index);
-        await databas.deleteUrlReciente(event.url);
+        await database.urlsRecientesRepository.deleteUrlReciente(event.url);
         emit(UpdateListUrls(recentUrls));
       } catch (e, s) {
         print('Error en DeleteUrl: $e $s');

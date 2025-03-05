@@ -118,7 +118,7 @@ class DataConfig {
         manualProductSelectionPack: json["manual_product_selection_pack"],
         manualQuantityPack: json["manual_quantity_pack"],
         manualSpringSelectionPack: json["manual_spring_selection_pack"],
-                scanProduct: json["scan_product"],
+        scanProduct: json["scan_product"],
 
     );
 

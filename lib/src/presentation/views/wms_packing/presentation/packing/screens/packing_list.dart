@@ -409,8 +409,8 @@ class PakingListScreen extends StatelessWidget {
                                     horizontal: 10,
                                   ),
                                   child: ListView.builder(
-                                    itemCount: sortedPedidos
-                                        .length, // Usamos la lista ordenada
+                                    itemCount: packingBloc
+                                    .listOfPedidosFilters.length, // Usamos la lista ordenada
                                     itemBuilder: (context, index) {
                                       final PedidoPacking packing =
                                           sortedPedidos[index];
@@ -464,6 +464,26 @@ class PakingListScreen extends StatelessWidget {
                                                       width: size.width * 0.65,
                                                       child: Text(
                                                           packing.name ?? " ",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color:
+                                                                      black)),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text("Zona:",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                primaryColorApp)),
+                                                    const SizedBox(width: 10),
+                                                    SizedBox(
+                                                      width: size.width * 0.65,
+                                                      child: Text(
+                                                          packing.zonaEntrega ?? " ",
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14,

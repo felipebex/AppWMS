@@ -36,7 +36,7 @@ class PorductoPedido {
   final List<Barcodes>? otherBarcode;
 
   final dynamic barcodeLocation;
-  final int? quantitySeparate;
+  final dynamic? quantitySeparate;
   final dynamic isSelected;
   final dynamic isSeparate;
   final dynamic

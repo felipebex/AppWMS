@@ -1,14 +1,19 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:flutter_holo_date_picker/date_picker.dart';
+import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_star_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -56,13 +61,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                 context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
                       '',
                     ));
-
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   const SnackBar(
-                //     content: Text('Separación realizada con éxito'),
-                //     backgroundColor: Colors.green,
-                //   ),
-                // );
               }
             },
           ),
@@ -74,10 +72,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                     .listOfBatchs
                     .isNotEmpty
                 ? context.read<WMSPickingBloc>().batchsDone.where((element) {
-                      return DateTime.parse(element.timeSeparateEnd ?? "")
-                              .toString()
-                              .substring(0, 10) ==
-                          DateTime.now().toString().substring(0, 10);
+                      return element.isSeparate == 1;
                     }).length /
                     context.read<WMSPickingBloc>().listOfBatchs.length
                 : 0.0;
@@ -104,335 +99,332 @@ class _PickingPageState extends State<WMSPickingPage> {
                     : null,
                 body: Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: primaryColorApp,
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(20),
-                            ),
-                          ),
-                          child: BlocProvider(
-                            create: (context) => ConnectionStatusCubit(),
-                            child: BlocBuilder<ConnectionStatusCubit,
-                                ConnectionStatus>(builder: (context, status) {
-                              return Column(
-                                children: [
-                                  const WarningWidgetCubit(),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        left: 10,
-                                        right: 10,
-                                        top: status != ConnectionStatus.online
-                                            ? 20
-                                            : 20,
-                                        bottom: 10),
-                                    child: Column(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            IconButton(
-                                              icon: const Icon(Icons.arrow_back,
-                                                  color: white),
-                                              onPressed: () {
-                                                context
-                                                    .read<WMSPickingBloc>()
-                                                    .searchController
-                                                    .clear();
-                                                Navigator.pushReplacementNamed(
-                                                    context, 'home');
-                                              },
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: size.width * 0.27),
-                                              child: const Text(
-                                                'BATCHS',
-                                                style: TextStyle(
-                                                    color: white,
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                            const Spacer(),
-                                          ],
-                                        ),
-                                        ProgressIndicatorWidget(
-                                          progress: progress,
-                                          completed: context
-                                              .read<WMSPickingBloc>()
-                                              .batchsDone
-                                              .where((element) {
-                                            return DateTime.parse(element
-                                                            .timeSeparateEnd ??
-                                                        "")
-                                                    .toString()
-                                                    .substring(0, 10) ==
-                                                DateTime.now()
-                                                    .toString()
-                                                    .substring(0, 10);
-                                          }).length,
-                                          total: context
-                                              .read<WMSPickingBloc>()
-                                              .listOfBatchs
-                                              .length,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }),
+                  child: Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: primaryColorApp,
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
                           ),
                         ),
-
-                        Container(
-                          padding: const EdgeInsets.only(top: 3),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              ElevatedButton(
-                                  onPressed: () {
-                                    context
-                                        .read<WMSPickingBloc>()
-                                        .add(FilterBatchesBStatusEvent(''));
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: white,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10))),
-                                  child: Row(
+                        child: BlocProvider(
+                          create: (context) => ConnectionStatusCubit(),
+                          child: BlocBuilder<ConnectionStatusCubit,
+                              ConnectionStatus>(builder: (context, status) {
+                            return Column(
+                              children: [
+                                const WarningWidgetCubit(),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 10,
+                                      right: 10,
+                                      top: status != ConnectionStatus.online
+                                          ? 20
+                                          : 20,
+                                      bottom: 10),
+                                  child: Column(
                                     children: [
-                                      Icon(
-                                        Icons.batch_prediction,
-                                        color: primaryColorApp,
-                                        size: 20,
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.arrow_back,
+                                                color: white),
+                                            onPressed: () {
+                                              context
+                                                  .read<WMSPickingBloc>()
+                                                  .searchController
+                                                  .clear();
+                                              Navigator.pushReplacementNamed(
+                                                  context, 'home');
+                                            },
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                left: size.width * 0.27),
+                                            child: const Text(
+                                              'BATCHS',
+                                              style: TextStyle(
+                                                  color: white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                        ],
                                       ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        'En Proceso',
-                                        style: TextStyle(
-                                            color: primaryColorApp,
-                                            fontSize: 12),
-                                      )
+                                      ProgressIndicatorWidget(
+                                        progress: progress,
+                                        completed: context
+                                            .read<WMSPickingBloc>()
+                                            .batchsDone
+                                            .where((element) {
+                                          return element.isSeparate == 1;
+                                        }).length,
+                                        total: context
+                                            .read<WMSPickingBloc>()
+                                            .listOfBatchs
+                                            .length,
+                                      ),
                                     ],
-                                  )),
-
-                              ElevatedButton(
-                                onPressed: () async {
-                                  // Mostrar el DatePicker para que el usuario seleccione una fecha
-                                  final DateTime? pickedDate =
-                                      await showDatePicker(
-                                    context: context,
-                                    initialDate:
-                                        DateTime.now(), // Fecha inicial (hoy)
-                                    firstDate: DateTime(2000), // Fecha mínima
-                                    lastDate: DateTime(2101), // Fecha máxima
-                                  );
-
-                                  // Verificar si el usuario seleccionó una fecha
-                                  if (pickedDate != null) {
-                                    // Formatear la fecha al formato "yyyy-MM-dd"
-                                    final formattedDate =
-                                        DateFormat('yyyy-MM-dd')
-                                            .format(pickedDate);
-
-                                    // Disparar el evento con la fecha seleccionada
-                                    context.read<WMSPickingBloc>().add(
-                                          LoadHistoryBatchsEvent(
-                                              context, true, formattedDate),
-                                        );
-
-                                    // Navegar a la pantalla de historial
-                                    Navigator.pushNamed(
-                                        context, 'history-list');
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
+                              ],
+                            );
+                          }),
+                        ),
+                      ),
+
+                      Container(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                                onPressed: () {
+                                  context
+                                      .read<WMSPickingBloc>()
+                                      .add(FilterBatchesBStatusEvent(''));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.batch_prediction,
+                                      color: primaryColorApp,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'En Proceso',
+                                      style: TextStyle(
+                                          color: primaryColorApp, fontSize: 12),
+                                    )
+                                  ],
+                                )),
+
+                            //                         ElevatedButton(
+                            //                           onPressed: () async {
+                            //                             // Primero, asegúrate de que el FocusNode esté activo
+                            // FocusScope.of(context).unfocus();
+                            //                             var pickedDate =
+                            //                                 await DatePicker.showSimpleDatePicker(
+                            //                               titleText: 'Seleccione una fecha',
+                            //                               context,
+                            //                               confirmText: 'Buscar',
+                            //                               cancelText: 'Cancelar',
+                            //                               // initialDate: DateTime(2020),
+                            //                               firstDate:
+                            //                                   //un mes atras
+                            //                                   DateTime.now()
+                            //                                       .subtract(const Duration(days: 30)),
+                            //                               lastDate: DateTime.now(),
+                            //                               dateFormat: "dd-MMMM-yyyy",
+                            //                               locale: DateTimePickerLocale.es,
+                            //                               looping: false,
+                            //                             );
+
+                            //                             // Verificar si el usuario seleccionó una fecha
+                            //                             if (pickedDate != null) {
+                            //                               // Formatear la fecha al formato "yyyy-MM-dd"
+                            //                               final formattedDate = DateFormat('yyyy-MM-dd')
+                            //                                   .format(pickedDate);
+
+                            //                               // Disparar el evento con la fecha seleccionada
+                            //                               context.read<WMSPickingBloc>().add(
+                            //                                     LoadHistoryBatchsEvent(
+                            //                                         context, true, formattedDate),
+                            //                                   );
+
+                            //                               // Navegar a la pantalla de historial
+                            //                               Navigator.pushNamed(context, 'history-list');
+                            //                             }
+                            //                           },
+                            //                           style: ElevatedButton.styleFrom(
+                            //                             backgroundColor: white,
+                            //                             shape: RoundedRectangleBorder(
+                            //                               borderRadius: BorderRadius.circular(10),
+                            //                             ),
+                            //                           ),
+                            //                           child: Row(
+                            //                             children: [
+                            //                               const Icon(
+                            //                                 Icons.history,
+                            //                                 color: green,
+                            //                                 size: 20,
+                            //                               ),
+                            //                               const SizedBox(width: 5),
+                            //                               Text(
+                            //                                 'Histórico',
+                            //                                 style: TextStyle(
+                            //                                   color: primaryColorApp,
+                            //                                   fontSize: 12,
+                            //                                 ),
+                            //                               ),
+                            //                             ],
+                            //                           ),
+                            //                         ),
+
+                            ElevatedButton(
+                                onPressed: () {
+                                  context
+                                      .read<WMSPickingBloc>()
+                                      .add(FilterBatchesBStatusEvent('done'));
+                                },
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10))),
                                 child: Row(
                                   children: [
                                     const Icon(
-                                      Icons.history,
+                                      Icons.batch_prediction,
                                       color: green,
                                       size: 20,
                                     ),
                                     const SizedBox(width: 5),
                                     Text(
-                                      'Histórico',
+                                      'Hechos',
                                       style: TextStyle(
-                                        color: primaryColorApp,
-                                        fontSize: 12,
-                                      ),
-                                    ),
+                                          color: primaryColorApp, fontSize: 12),
+                                    )
                                   ],
-                                ),
-                              ),
-
-                              // ElevatedButton(
-                              //     onPressed: () {
-                              //       context
-                              //           .read<WMSPickingBloc>()
-                              //           .add(FilterBatchesBStatusEvent('done'));
-                              //     },
-                              //     style: ElevatedButton.styleFrom(
-                              //         backgroundColor: white,
-                              //         shape: RoundedRectangleBorder(
-                              //             borderRadius:
-                              //                 BorderRadius.circular(10))),
-                              //     child: Row(
-                              //       children: [
-                              //         const Icon(
-                              //           Icons.batch_prediction,
-                              //           color: green,
-                              //           size: 20,
-                              //         ),
-                              //         const SizedBox(width: 5),
-                              //         Text(
-                              //           'Hechos',
-                              //           style: TextStyle(
-                              //               color: primaryColorApp, fontSize: 12),
-                              //         )
-                              //       ],
-                              //     ))
-                            ],
-                          ),
+                                ))
+                          ],
                         ),
+                      ),
 
-                        //*barra de buscar
+                      //*barra de buscar
 
-                        SizedBox(
-                            // color: Colors.amber,
-                            height: 60, //120
-                            width: size.width * 1,
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 10,
-                                    right: 10,
-                                  ),
-                                  child: SizedBox(
-                                    width: size.width * 0.95,
-                                    height: 55,
-                                    child: Card(
-                                      color: Colors.white,
-                                      elevation: 3,
-                                      child: TextFormField(
-                                          textAlignVertical:
-                                              TextAlignVertical.center,
-                                          controller: context
-                                              .read<WMSPickingBloc>()
-                                              .searchController,
-                                          decoration: InputDecoration(
-                                            prefixIcon: const Icon(Icons.search,
-                                                color: grey, size: 20),
-                                            suffixIcon: IconButton(
+                      SizedBox(
+                          // color: Colors.amber,
+                          height: 60, //120
+                          width: size.width * 1,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 10,
+                                  right: 10,
+                                ),
+                                child: SizedBox(
+                                  width: size.width * 0.95,
+                                  height: 55,
+                                  child: Card(
+                                    color: Colors.white,
+                                    elevation: 3,
+                                    child: TextFormField(
+                                        textAlignVertical:
+                                            TextAlignVertical.center,
+                                        controller: context
+                                            .read<WMSPickingBloc>()
+                                            .searchController,
+                                        decoration: InputDecoration(
+                                          prefixIcon: const Icon(Icons.search,
+                                              color: grey, size: 20),
+                                          suffixIcon: IconButton(
+                                              onPressed: () {
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .searchController
+                                                    .clear();
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .add(SearchBatchEvent(
+                                                        '', controller.index));
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                              },
+                                              icon: IconButton(
                                                 onPressed: () {
+                                                  context
+                                                      .read<WMSPickingBloc>()
+                                                      .add(ShowKeyboardEvent(
+                                                          false));
                                                   context
                                                       .read<WMSPickingBloc>()
                                                       .searchController
                                                       .clear();
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .add(SearchBatchEvent('',
-                                                          controller.index));
-                                                  FocusScope.of(context)
-                                                      .unfocus();
                                                 },
-                                                icon: IconButton(
-                                                  onPressed: () {
-                                                    context
-                                                        .read<WMSPickingBloc>()
-                                                        .add(ShowKeyboardEvent(
-                                                            false));
-                                                    context
-                                                        .read<WMSPickingBloc>()
-                                                        .searchController
-                                                        .clear();
-                                                  },
-                                                  icon: const Icon(Icons.close,
-                                                      color: grey, size: 20),
-                                                )),
-                                            disabledBorder:
-                                                const OutlineInputBorder(),
-                                            hintText: "Buscar batch",
-                                            hintStyle: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 12),
-                                            border: InputBorder.none,
-                                          ),
-                                          onChanged: (value) {
-                                            context.read<WMSPickingBloc>().add(
-                                                SearchBatchEvent(
-                                                    value, controller.index));
-                                          },
-                                          style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 14),
-                                          onTap: !context
-                                                  .read<UserBloc>()
-                                                  .fabricante
-                                                  .contains("Zebra")
-                                              ? null
-                                              : () {
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .add(ShowKeyboardEvent(
-                                                          true));
-                                                }),
-                                    ),
+                                                icon: const Icon(Icons.close,
+                                                    color: grey, size: 20),
+                                              )),
+                                          disabledBorder:
+                                              const OutlineInputBorder(),
+                                          hintText: "Buscar batch",
+                                          hintStyle: const TextStyle(
+                                              color: Colors.grey, fontSize: 12),
+                                          border: InputBorder.none,
+                                        ),
+                                        onChanged: (value) {
+                                          context.read<WMSPickingBloc>().add(
+                                              SearchBatchEvent(
+                                                  value, controller.index));
+                                        },
+                                        style: const TextStyle(
+                                            color: Colors.black, fontSize: 14),
+                                        onTap: !context
+                                                .read<UserBloc>()
+                                                .fabricante
+                                                .contains("Zebra")
+                                            ? null
+                                            : () {
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .add(ShowKeyboardEvent(
+                                                        true));
+                                              }),
                                   ),
                                 ),
-                              ],
-                            )),
+                              ),
+                            ],
+                          )),
 
-                        //filtro por tipo de batch
+                      //filtro por tipo de batch
 
-                        //*listado de batchs
-                        Expanded(
-                          child: context
-                                  .read<WMSPickingBloc>()
-                                  .filteredBatchs
-                                  .isNotEmpty
-                              ? ListView.builder(
-                                  padding: EdgeInsets.only(
-                                      top: 10, bottom: size.height * 0.15),
-                                  shrinkWrap: true,
-                                  physics: const ScrollPhysics(),
-                                  itemCount: context
+                      //*listado de batchs
+                      Expanded(
+                        child: context
+                                .read<WMSPickingBloc>()
+                                .filteredBatchs
+                                .isNotEmpty
+                            ? ListView.builder(
+                                padding: EdgeInsets.only(
+                                    top: 10, bottom: size.height * 0.15),
+                                shrinkWrap: true,
+                                physics: const ScrollPhysics(),
+                                itemCount: context
+                                    .read<WMSPickingBloc>()
+                                    .filteredBatchs
+                                    .length,
+                                itemBuilder: (contextBuilder, index) {
+                                  final batch = context
                                       .read<WMSPickingBloc>()
-                                      .filteredBatchs
-                                      .length,
-                                  itemBuilder: (context, index) {
-                                    final batch = context
-                                        .read<WMSPickingBloc>()
-                                        .filteredBatchs[index];
-                                    //convertimos la fecha
+                                      .filteredBatchs[index];
+                                  //convertimos la fecha
 
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          // Agrupar eventos de BatchBloc si es necesario
-                                          final batchBloc =
-                                              context.read<BatchBloc>();
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                    ),
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        // Agrupar eventos de BatchBloc si es necesario
+                                        final batchBloc =
+                                            context.read<BatchBloc>();
 
-                                          try {
-                                            // Disparar eventos de BatchBloc
+                                        try {
+                                          print(batch.toMap());
+
+                                          if (batch.startTimePick != "") {
                                             batchBloc.add(
                                                 FetchBatchWithProductsEvent(
                                                     batch.id ?? 0));
@@ -441,268 +433,329 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             batchBloc
                                                 .add(LoadConfigurationsUser());
 
-                                            //mostramos un dialogo de carga y despues
+                                            goBatchInfo(contextBuilder,
+                                                batchBloc, batch);
+                                          } else {
                                             showDialog(
                                               context: context,
                                               barrierDismissible:
                                                   false, // No permitir que el usuario cierre el diálogo manualmente
                                               builder: (context) =>
-                                                  const DialogLoading(
-                                                message: 'Cargando interfaz...',
-                                              ),
-                                            );
+                                                  DialogStartPickingWidget(
+                                                onAccepted: () async {
+                                                  // Disparar eventos de BatchBloc
+                                                  batchBloc.add(
+                                                      FetchBatchWithProductsEvent(
+                                                          batch.id ?? 0));
+                                                  batchBloc.add(
+                                                      LoadInfoDeviceEvent());
+                                                  batchBloc.add(
+                                                      LoadConfigurationsUser());
 
-                                            await Future.delayed(
-                                                const Duration(seconds: 1));
+                                                  batchBloc.add(StartTimePick(
+                                                      context,
+                                                      batch.id ?? 0,
+                                                      DateTime.now()));
 
-                                            // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
-                                            if (batch.isSeparate == 1) {
-                                              batchBloc.isSearch = true;
-                                              Navigator.pushReplacementNamed(
-                                                  context, 'batch-detail');
-                                            } else {
-                                              //   // Cerrar el diálogo de carga inmediatamente
+                                                  Navigator.pop(context);
 
-                                              Navigator.pushReplacementNamed(
-                                                  context, 'batch');
-                                            }
-                                          } catch (e) {
-                                            // Manejo de errores, por si ocurre algún problema
-
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                    'Error al cargar los datos'),
-                                                duration: Duration(seconds: 4),
+                                                  goBatchInfo(contextBuilder,
+                                                      batchBloc, batch);
+                                                },
                                               ),
                                             );
                                           }
-                                        },
-                                        child: Card(
-                                          color: batch.isSeparate == 1
-                                              ? Colors.green[100]
-                                              : batch.isSelected == 1
-                                                  ? primaryColorAppLigth
-                                                  : Colors.white,
-                                          elevation: 3,
-                                          child: ListTile(
-                                            trailing: Icon(
-                                              Icons.arrow_forward_ios,
-                                              color: primaryColorApp,
-                                            ),
-                                            leading: Container(
-                                              padding: const EdgeInsets.all(5),
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
+                                        } catch (e) {
+                                          // Manejo de errores, por si ocurre algún problema
 
-                                                  //sombras
-                                                  boxShadow: const [
-                                                    BoxShadow(
-                                                        color: Colors.black12,
-                                                        blurRadius: 5,
-                                                        offset: Offset(0, 2))
-                                                  ]),
-                                              child: Image.asset(
-                                                "assets/icons/producto.png",
-                                                color: batch.state == 'done'
-                                                    ? Colors.green
-                                                    : batch.state == 'cancel'
-                                                        ? Colors.red
-                                                        : primaryColorApp,
-                                                width: 24,
-                                              ),
+                                          ScaffoldMessenger.of(contextBuilder)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                  'Error al cargar los datos'),
+                                              duration: Duration(seconds: 4),
                                             ),
-                                            title: Text(batch.name ?? '',
-                                                style: const TextStyle(
-                                                    fontSize: 14)),
-                                            subtitle: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              children: [
-                                                const Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                      "Tipo de operación:",
+                                          );
+                                        }
+                                      },
+                                      child: Card(
+                                        color: batch.isSeparate == 1
+                                            ? Colors.green[100]
+                                            : batch.isSelected == 1
+                                                ? primaryColorAppLigth
+                                                : Colors.white,
+                                        elevation: 3,
+                                        child: ListTile(
+                                          trailing: Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: primaryColorApp,
+                                          ),
+                                          leading: Container(
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+
+                                                //sombras
+                                                boxShadow: const [
+                                                  BoxShadow(
+                                                      color: Colors.black12,
+                                                      blurRadius: 5,
+                                                      offset: Offset(0, 2))
+                                                ]),
+                                            child: Image.asset(
+                                              "assets/icons/producto.png",
+                                              color: batch.state == 'done'
+                                                  ? Colors.green
+                                                  : batch.state == 'cancel'
+                                                      ? Colors.red
+                                                      : primaryColorApp,
+                                              width: 24,
+                                            ),
+                                          ),
+                                          title: Row(
+                                            children: [
+                                              Text(batch.name ?? '',
+                                                  style: const TextStyle(
+                                                      fontSize: 14)),
+                                              //icono de start time
+                                              Spacer(),
+                                              Text(batch.zonaEntrega ?? '',
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black)),
+                                            ],
+                                          ),
+                                          subtitle: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text(
+                                                        "Tipo de operación:",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: grey)),
+                                                  ),
+                                                  Spacer(),
+                                                  batch.startTimePick != ""
+                                                      ? GestureDetector(
+                                                          onTap: () {
+                                                            showDialog(
+                                                                context: context,
+                                                                builder:
+                                                                    (context) =>
+                                                                        DialogInfo(
+                                                                          title:
+                                                                              'Tiempo de inicio',
+                                                                          body:
+                                                                              'Este batch fue iniciado a las ${batch.startTimePick}',
+                                                                        ));
+                                                          },
+                                                          child: Icon(
+                                                            Icons.timer_sharp,
+                                                            color: primaryColorApp,
+                                                            size: 15,
+                                                          ),
+                                                        )
+                                                      : const SizedBox(),
+                                                ],
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  batch.pickingTypeId
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .calendar_month_sharp,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      batch.scheduleddate !=
+                                                              null
+                                                          ? DateFormat(
+                                                                  'dd/MM/yyyy')
+                                                              .format(DateTime
+                                                                  .parse(batch
+                                                                      .scheduleddate!))
+                                                          : "Sin fecha",
+                                                      style: const TextStyle(
+                                                          fontSize: 14),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.person,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Expanded(
+                                                      child: Text(
+                                                        batch.userName ??
+                                                            "Sin usuario",
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.add,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    const Text(
+                                                      "Cantidad Productos: ",
                                                       style: TextStyle(
                                                           fontSize: 14,
-                                                          color: grey)),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                    batch.pickingTypeId
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: primaryColorApp),
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons
-                                                            .calendar_month_sharp,
-                                                        color: primaryColorApp,
-                                                        size: 15,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        batch.scheduleddate !=
-                                                                null
-                                                            ? DateFormat(
-                                                                    'dd/MM/yyyy')
-                                                                .format(DateTime
-                                                                    .parse(batch
-                                                                        .scheduleddate!))
-                                                            : "Sin fecha",
-                                                        style: const TextStyle(
-                                                            fontSize: 14),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.person,
-                                                        color: primaryColorApp,
-                                                        size: 15,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Expanded(
-                                                        child: Text(
-                                                          batch.userName ??
-                                                              "Sin usuario",
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: black),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.add,
-                                                        color: primaryColorApp,
-                                                        size: 15,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      const Text(
-                                                        "Cantidad Productos: ",
+                                                          color: black),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    Expanded(
+                                                      child: Text(
+                                                        batch.countItems
+                                                            .toString(),
                                                         style: TextStyle(
                                                             fontSize: 14,
-                                                            color: black),
+                                                            color:
+                                                                primaryColorApp),
                                                         maxLines: 2,
                                                         overflow: TextOverflow
                                                             .ellipsis,
                                                       ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          batch.countItems
-                                                              .toString(),
-                                                          style: TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  primaryColorApp),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.add,
-                                                        color: primaryColorApp,
-                                                        size: 15,
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      const Text(
-                                                        "Cantidad unidades: ",
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.add,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    const Text(
+                                                      "Cantidad unidades: ",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: black),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    Expanded(
+                                                      child: Text(
+                                                        batch.totalQuantityItems
+                                                            .toString(),
                                                         style: TextStyle(
                                                             fontSize: 14,
-                                                            color: black),
+                                                            color:
+                                                                primaryColorApp),
                                                         maxLines: 2,
                                                         overflow: TextOverflow
                                                             .ellipsis,
                                                       ),
-                                                      Expanded(
-                                                        child: Text(
-                                                          batch
-                                                              .totalQuantityItems
-                                                              .toString(),
-                                                          style: TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  primaryColorApp),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
-                                    );
-                                  },
-                                )
-                              : const Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(height: 10),
-                                      Text('No se encontraron resultados',
-                                          style: TextStyle(
-                                              fontSize: 18, color: grey)),
-                                      Text('Intenta con otra búsqueda',
-                                          style: TextStyle(
-                                              fontSize: 14, color: grey)),
-                                    ],
-                                  ),
+                                    ),
+                                  );
+                                },
+                              )
+                            : const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(height: 10),
+                                    Text('No se encontraron resultados',
+                                        style: TextStyle(
+                                            fontSize: 18, color: grey)),
+                                    Text('Intenta con otra búsqueda',
+                                        style: TextStyle(
+                                            fontSize: 14, color: grey)),
+                                  ],
                                 ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
-                    ),
+                              ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
                   ),
                 ));
           },
         ),
       ),
     );
+  }
+
+  void goBatchInfo(
+      BuildContext context, BatchBloc batchBloc, BatchsModel batch) async {
+    // mostramos un dialogo de carga y despues
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // No permitir que el usuario cierre el diálogo manualmente
+      builder: (_) => const DialogLoading(
+        message: 'Cargando interfaz...',
+      ),
+    );
+
+    await Future.delayed(const Duration(seconds: 1));
+    Navigator.pop(context);
+
+    // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
+    if (batch.isSeparate == 1) {
+      batchBloc.isSearch = true;
+      Navigator.pushReplacementNamed(context, 'batch-detail');
+    } else {
+      //   // Cerrar el diálogo de carga inmediatamente
+
+      Navigator.pushReplacementNamed(context, 'batch');
+    }
   }
 }

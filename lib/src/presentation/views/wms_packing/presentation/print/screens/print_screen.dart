@@ -7,14 +7,14 @@ import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
 import 'package:image/image.dart' as img;
 import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/mode_print_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/models/mode_print_model.dart';
 import 'dart:ui' as ui;
 
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 class PrintDialog extends StatefulWidget {
-  const PrintDialog({Key? key, required this.model}) : super(key: key);
+  const PrintDialog({super.key, required this.model});
 
   final PrintModel model;
 
