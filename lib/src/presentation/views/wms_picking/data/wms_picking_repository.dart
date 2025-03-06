@@ -108,18 +108,18 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          action: SnackBarAction(
-            label: 'Cerrar', // Este es el texto del botón de acción
-            textColor: Colors.black, // Color del texto de la acción
-            onPressed: () {
-              // Esto se ejecuta cuando el usuario presiona "Cerrar"
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
+          // action: SnackBarAction(
+          //   label: 'Cerrar', // Este es el texto del botón de acción
+          //   textColor: Colors.black, // Color del texto de la acción
+          //   onPressed: () {
+          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
+          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //   },
+          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(days: 365), // Esto hace que no se cierre solo
+              const Duration(seconds:5), // Esto hace que no se cierre solo
         ),
       );
 
@@ -217,18 +217,18 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          action: SnackBarAction(
-            label: 'Cerrar', // Este es el texto del botón de acción
-            textColor: Colors.black, // Color del texto de la acción
-            onPressed: () {
-              // Esto se ejecuta cuando el usuario presiona "Cerrar"
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
+          // action: SnackBarAction(
+          //   label: 'Cerrar', // Este es el texto del botón de acción
+          //   textColor: Colors.black, // Color del texto de la acción
+          //   onPressed: () {
+          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
+          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //   },
+          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(days: 365), // Esto hace que no se cierre solo
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
         ),
       );
 
@@ -287,18 +287,18 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          action: SnackBarAction(
-            label: 'Cerrar', // Este es el texto del botón de acción
-            textColor: Colors.black, // Color del texto de la acción
-            onPressed: () {
-              // Esto se ejecuta cuando el usuario presiona "Cerrar"
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
+          // action: SnackBarAction(
+          //   label: 'Cerrar', // Este es el texto del botón de acción
+          //   textColor: Colors.black, // Color del texto de la acción
+          //   onPressed: () {
+          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
+          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //   },
+          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(days: 365), // Esto hace que no se cierre solo
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
         ),
       );
 
@@ -360,18 +360,18 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          action: SnackBarAction(
-            label: 'Cerrar', // Este es el texto del botón de acción
-            textColor: Colors.black, // Color del texto de la acción
-            onPressed: () {
-              // Esto se ejecuta cuando el usuario presiona "Cerrar"
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
+          // action: SnackBarAction(
+          //   label: 'Cerrar', // Este es el texto del botón de acción
+          //   textColor: Colors.black, // Color del texto de la acción
+          //   onPressed: () {
+          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
+          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //   },
+          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(days: 365), // Esto hace que no se cierre solo
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
         ),
       );
       // Manejo de otros errores
@@ -427,7 +427,7 @@ class WmsPickingRepository {
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(days: 365), // Esto hace que no se cierre solo
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
         ),
       );
       // Manejo de otros errores
@@ -491,18 +491,18 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          action: SnackBarAction(
-            label: 'Cerrar', // Este es el texto del botón de acción
-            textColor: Colors.black, // Color del texto de la acción
-            onPressed: () {
-              // Esto se ejecuta cuando el usuario presiona "Cerrar"
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
+          // action: SnackBarAction(
+          //   label: 'Cerrar', // Este es el texto del botón de acción
+          //   textColor: Colors.black, // Color del texto de la acción
+          //   onPressed: () {
+          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
+          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //   },
+          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(days: 365), // Esto hace que no se cierre solo
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
         ),
       );
       // Manejo de otros errores
@@ -570,18 +570,18 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          action: SnackBarAction(
-            label: 'Cerrar', // Este es el texto del botón de acción
-            textColor: Colors.black, // Color del texto de la acción
-            onPressed: () {
-              // Esto se ejecuta cuando el usuario presiona "Cerrar"
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
+          // action: SnackBarAction(
+          //   label: 'Cerrar', // Este es el texto del botón de acción
+          //   textColor: Colors.black, // Color del texto de la acción
+          //   onPressed: () {
+          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
+          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //   },
+          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(days: 365), // Esto hace que no se cierre solo
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
         ),
       );
 
@@ -648,18 +648,18 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          action: SnackBarAction(
-            label: 'Cerrar', // Este es el texto del botón de acción
-            textColor: Colors.black, // Color del texto de la acción
-            onPressed: () {
-              // Esto se ejecuta cuando el usuario presiona "Cerrar"
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
+          // action: SnackBarAction(
+          //   label: 'Cerrar', // Este es el texto del botón de acción
+          //   textColor: Colors.black, // Color del texto de la acción
+          //   onPressed: () {
+          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
+          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          //   },
+          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(days: 365), // Esto hace que no se cierre solo
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
         ),
       );
 

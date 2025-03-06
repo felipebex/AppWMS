@@ -493,6 +493,9 @@ class Tab1Screen extends StatelessWidget {
                                                             package.name,
                                                         cantProductoPack: package
                                                             .cantidadProductos,
+                                                        zonaEntregaTms: batchModel
+                                                                ?.zonaEntregaTms ??
+                                                            '',
                                                       ));
                                                     },
                                                   );
@@ -542,14 +545,14 @@ class Tab1Screen extends StatelessWidget {
                                                                     color:
                                                                         black)),
                                                       ),
-                                                      Visibility(
-                                                        visible: product.barcode !=
-                                                            null  && product.isSendOdoo != null,
-                                                        child: GestureDetector(
+                                                      if (product.barcode !=
+                                                          null)
+                                                        GestureDetector(
                                                           onTap: () {
                                                             //mensaje de confirmacion de desempacar el producto
                                                             showDialog(
-                                                                context: context,
+                                                                context:
+                                                                    context,
                                                                 builder:
                                                                     (context) {
                                                                   return DialogUnPacking(
@@ -566,7 +569,6 @@ class Tab1Screen extends StatelessWidget {
                                                             size: 20,
                                                           ),
                                                         ),
-                                                      ),
                                                     ],
                                                   ), // Muestra el nombre del producto
                                                   subtitle: Column(

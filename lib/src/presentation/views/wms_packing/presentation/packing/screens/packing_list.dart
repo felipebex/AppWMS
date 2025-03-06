@@ -409,11 +409,25 @@ class PakingListScreen extends StatelessWidget {
                                     horizontal: 10,
                                   ),
                                   child: ListView.builder(
-                                    itemCount: packingBloc
-                                    .listOfPedidosFilters.length, // Usamos la lista ordenada
+                                    itemCount: packingBloc.listOfPedidosFilters
+                                        .length, // Usamos la lista ordenada
                                     itemBuilder: (context, index) {
+                                      // Asegúrate de que 'sortedPedidos' esté ordenado por 'orderTms'
+                                      sortedPedidos.sort((a, b) {
+                                        var orderA = a.orderTms;
+                                        var orderB = b.orderTms;
+
+                                        // Comprobamos si 'orderTms' es un número representado como String
+                                        return (int.tryParse(orderA ?? '0') ??
+                                                0)
+                                            .compareTo(
+                                                int.tryParse(orderB ?? '0') ??
+                                                    0);
+                                      });
+
                                       final PedidoPacking packing =
                                           sortedPedidos[index];
+
                                       return GestureDetector(
                                         onTap: () {
                                           // Limpiamos la lista de paquetes
@@ -424,9 +438,7 @@ class PakingListScreen extends StatelessWidget {
                                           context.read<WmsPackingBloc>().add(
                                               LoadAllProductsFromPedidoEvent(
                                                   packing.id ?? 0));
-
                                           //cerramos el teclado focus
-
                                           FocusScope.of(context).unfocus();
 
                                           // Viajamos a la vista de detalle de un pedido
@@ -483,7 +495,29 @@ class PakingListScreen extends StatelessWidget {
                                                     SizedBox(
                                                       width: size.width * 0.65,
                                                       child: Text(
-                                                          packing.zonaEntrega ?? " ",
+                                                          packing.zonaEntrega ??
+                                                              " ",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 14,
+                                                                  color:
+                                                                      black)),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text("Zona TMS:",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                primaryColorApp)),
+                                                    const SizedBox(width: 10),
+                                                    SizedBox(
+                                                      width: size.width * 0.6,
+                                                      child: Text(
+                                                          packing.zonaEntregaTms ??
+                                                              " ",
                                                           style:
                                                               const TextStyle(
                                                                   fontSize: 14,

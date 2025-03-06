@@ -17,6 +17,8 @@ class PedidosPackingTable {
   static const String columnIsSelected = 'is_selected';
   static const String columnIsTerminate = 'is_terminate';
   static const String columnIsZonaEntrega = 'zona_entrega';
+  static const String columnIsZonaEntregaTms = 'zona_entrega_tms';
+
 
 
   // Método para crear la tabla
@@ -36,6 +38,7 @@ class PedidosPackingTable {
         $columnIsSelected INTEGER,
         $columnIsTerminate INTEGER,
         $columnIsZonaEntrega TEXT,
+        $columnIsZonaEntregaTms TEXT,
         FOREIGN KEY ($columnBatchId) REFERENCES tblbatchs_packing (id)
       )
     ''';

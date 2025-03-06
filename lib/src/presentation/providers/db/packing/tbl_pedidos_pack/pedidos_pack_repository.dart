@@ -41,6 +41,8 @@ class PedidosPackingRepository {
                 PedidosPackingTable.columnNumeroPaquetes: pedido.numeroPaquetes,
                 PedidosPackingTable.columnContactoName: pedido.contactoName,
                 PedidosPackingTable.columnIsZonaEntrega: pedido.zonaEntrega,
+                PedidosPackingTable.columnIsZonaEntregaTms: pedido.zonaEntregaTms,
+
 
               },
               where: '${PedidosPackingTable.columnId} = ?',
@@ -64,6 +66,7 @@ class PedidosPackingRepository {
                 PedidosPackingTable.columnNumeroPaquetes: pedido.numeroPaquetes,
                 PedidosPackingTable.columnContactoName: pedido.contactoName,
                 PedidosPackingTable.columnIsZonaEntrega: pedido.zonaEntrega,
+                PedidosPackingTable.columnIsZonaEntregaTms: pedido.zonaEntregaTms,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );

@@ -1,131 +1,194 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
+import 'package:wms_app/src/presentation/views/home/domain/models/app_version_model.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
-import 'package:introduction_screen/introduction_screen.dart';
 
-class DialogUpdateApp extends StatefulWidget {
-  const DialogUpdateApp({
+class UpdateAppDialog extends StatefulWidget {
+  const UpdateAppDialog({
     super.key,
   });
 
   @override
-  State<DialogUpdateApp> createState() => _DialogUpdateAppState();
+  _UpdateAppDialogState createState() => _UpdateAppDialogState();
 }
 
-class _DialogUpdateAppState extends State<DialogUpdateApp> {
-  List<PageViewModel> listPagesViewModel = [
-    PageViewModel(
-      title: "",
-      body:
-          "Actualiza a la nueva versión para seguir disfrutando de todas las funcionalidades de la aplicación",
-      image: SizedBox(
-        height: 100,
-        width: 200,
-        child: Image.asset(
-          "assets/images/icono.jpeg",
-          fit: BoxFit.cover,
-        ),
-      ),
-      decoration: PageDecoration(
-        pageColor: white,
-        imagePadding: const EdgeInsets.all(0),
-        titlePadding: const EdgeInsets.all(0),
-        bodyPadding: const EdgeInsets.only(top: 5),
-        footerPadding: const EdgeInsets.all(0),
-        titleTextStyle: TextStyle(color: primaryColorApp, fontSize: 14.0),
-        bodyTextStyle: const TextStyle(color: black, fontSize: 14.0),
-      ),
-    ),
-    PageViewModel(
-      title: "",
-      body:
-          "Para actualizar la aplicación, presiona el botón de actualizar y descarga la nueva versión de la aplicación, una vez descargada, desinstala la versión actual y procede a instalar la nueva versión, recuerda que debes volver a iniciar sesión.",
-      decoration: PageDecoration(
-        pageColor: white,
-        imagePadding: const EdgeInsets.all(0),
-        titlePadding: const EdgeInsets.all(0),
-        bodyPadding: const EdgeInsets.only(top: 5),
-        footerPadding: const EdgeInsets.all(0),
-        titleTextStyle: TextStyle(color: primaryColorApp, fontSize: 14.0),
-        bodyTextStyle: const TextStyle(color: black, fontSize: 14.0),
-        bodyAlignment: Alignment.centerLeft,
-      ),
-    )
-  ];
+class _UpdateAppDialogState extends State<UpdateAppDialog> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0; // Para saber en qué página estamos
 
   @override
   Widget build(BuildContext context) {
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-      child: AlertDialog(
-        actionsAlignment: MainAxisAlignment.center,
-        backgroundColor: white,
-        contentPadding: const EdgeInsets.all(10),
-        title: Center(
-            child: Text('Nueva versión disponible',
-                style: TextStyle(color: primaryColorApp, fontSize: 16))),
-        // content: const Text(
-        //     'Actualiza a la nueva versión para seguir disfrutando de todas las funcionalidades de la aplicación',
-        //     textAlign: TextAlign.justify,
-        //     style: TextStyle(color: black, fontSize: 14)),
-        content: IntroductionScreen(
-          pages: listPagesViewModel,
-          showSkipButton: true,
-          showNextButton: false,
-          isProgress: true,
-
-          skip: const Text("Saltar"),
-          done: const Text("Listo"),
-          //estilo de texto
-          onDone: () async {
-            // On button pressed
-            await launchUrl(
-                Uri.parse(
-                    'https://drive.google.com/drive/folders/19I2uEWxRUUpsrh8G4_J_cSFaBphGfgl-?usp=drive_link'),
-                mode: LaunchMode.inAppWebView);
+    return AlertDialog(
+      // actionsAlignment: MainAxisAlignment.center,
+      backgroundColor: Colors.white,
+      title: Center(
+        child: Text(
+          'Nueva Actualización Disponible',
+          style: TextStyle(color: primaryColorApp, fontSize: 16),
+        ),
+      ),
+      content: SizedBox(
+        width: double.maxFinite, // Ajustamos el ancho del dialogo
+        height: 300,
+        child: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _currentPage = index;
+            });
           },
-          dotsDecorator: DotsDecorator(
-            size: const Size.square(10.0),
-            activeSize: const Size(20.0, 10.0),
-            activeColor: Theme.of(context).colorScheme.secondary,
-            color: white,
-            spacing: const EdgeInsets.symmetric(horizontal: 3.0),
-            activeShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25.0)),
+          children: [
+            // Primera página: Novedades de la actualización
+            _buildNewFeaturesPage(),
+            // Segunda página: Instrucciones para actualizar
+            _buildInstructionsPage(),
+          ],
+        ),
+      ),
+      actions: [
+        if (_currentPage == 1) ...[
+          // Solo mostramos los botones cuando estamos en la página de instrucciones
+          Center(
+            child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: grey,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  minimumSize: Size(200, 40),
+                ),
+                child: Text(
+                  "Recordar Más Tarde",
+                  style: TextStyle(color: white, fontSize: 14),
+                )),
+          ),
+
+          Center(
+            child: ElevatedButton(
+                onPressed: () async {
+                  print(context
+                      .read<HomeBloc>()
+                      .appVersion
+                      .result
+                      ?.result
+                      ?.urlDownload);
+
+                  //abrimos el navegador con la url de descarga
+                  await launch(context
+                          .read<HomeBloc>()
+                          .appVersion
+                          .result
+                          ?.result
+                          ?.urlDownload ??
+                      '');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  minimumSize: Size(200, 40),
+                ),
+                child: Text(
+                  "Actualizar",
+                  style: TextStyle(color: white, fontSize: 14),
+                )),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // Función para mostrar las novedades
+  Widget _buildNewFeaturesPage() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          "Novedades de la actualizacion ${context.read<HomeBloc>().appVersion.result?.result?.version ?? ''}",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          _formatDate(context
+              .read<HomeBloc>()
+              .appVersion
+              .result
+              ?.result
+              ?.releaseDate
+              .toString()),
+          style: TextStyle(fontSize: 12, color: black),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            context.read<HomeBloc>().appVersion.result?.result?.notes ?? '',
+            textAlign: TextAlign.left,
+            style: TextStyle(fontSize: 14),
           ),
         ),
-        // actions: [
-        //   const SizedBox(width: 10),
-        //   ElevatedButton(
-        //     style: ElevatedButton.styleFrom(
-        //       // minimumSize: const Size(100, 40),
-        //       backgroundColor: primaryColorApp,
-        //       shape: RoundedRectangleBorder(
-        //         borderRadius: BorderRadius.circular(10),
-        //       ),
-        //     ),
-        //     onPressed: () async {
-        //       // await launchUrl(
-        //       //     Uri.parse(
-        //       //         'https://drive.google.com/drive/folders/19I2uEWxRUUpsrh8G4_J_cSFaBphGfgl-?usp=drive_link'),
-        //       //     mode: LaunchMode.inAppWebView);
-        //       //cerramos el dialogo
-        //       Navigator.of(context).pop();
-        //     },
-        //     child: const Text(
-        //       'Actualizar',
-        //       style: TextStyle(
-        //         color: white,
-        //         fontSize: 14,
-        //         fontFamily: 'Poppins',
-        //         fontWeight: FontWeight.w500,
-        //       ),
-        //     ),
-        //   ),
-        // ],
-      ),
+        Spacer(),
+        Center(
+          child: ElevatedButton(
+              onPressed: () {
+                _pageController.nextPage(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColorApp,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text(
+                "Siguiente",
+                style: TextStyle(color: white, fontSize: 14),
+              )),
+        )
+      ],
+    );
+  }
+
+  String _formatDate(String? releaseDate) {
+    if (releaseDate == null) return '';
+
+    // Si la fecha está en formato String, convertirla a DateTime
+    DateTime dateTime = DateTime.parse(releaseDate);
+
+    // Usar DateFormat para formatear la fecha
+    String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+
+    return formattedDate;
+  }
+
+  // Función para mostrar las instrucciones para la actualización
+  Widget _buildInstructionsPage() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          "Instrucciones para actualizar:",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        SizedBox(height: 10),
+        Text(
+          "Para actualizar la aplicación, presiona el botón de actualizar y descarga la nueva versión de la aplicación, "
+          "una vez descargada, desinstala la versión actual y procede a instalar la nueva versión, recuerda que debes volver a iniciar sesión.",
+          textAlign: TextAlign.justify,
+          style: TextStyle(fontSize: 14),
+        ),
+        SizedBox(height: 20),
+      ],
     );
   }
 }

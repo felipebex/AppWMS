@@ -12,6 +12,7 @@ import 'package:wms_app/src/api/http_response_handler.dart';
 import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -96,6 +97,9 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => UserBloc(),
+        ),
+        BlocProvider(
+          create: (_) => HomeBloc(),
         ),
         BlocProvider(
           create: (_) => WMSPickingBloc(),

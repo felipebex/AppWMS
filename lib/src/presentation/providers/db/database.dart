@@ -118,6 +118,7 @@ class DataBaseSqlite {
         pedido_separate_qty INTEGER,
         index_list INTEGER,
         zona_entrega TEXT,
+        zona_entrega_tms TEXT,
         time_separate_total DECIMAL(10,2),
         time_separate_start VARCHAR(255),
         time_separate_end VARCHAR(255)
@@ -210,6 +211,7 @@ class DataBaseSqlite {
               'cantidad_pedidos': batch.cantidadPedidos,
               'user_name': batch.userName,
               'zona_entrega': batch.zonaEntrega,
+              "zona_entrega_tms": batch.zonaEntregaTms
             },
             where: 'id = ?',
             whereArgs: [batch.id],
@@ -228,6 +230,7 @@ class DataBaseSqlite {
               'cantidad_pedidos': batch.cantidadPedidos,
               'user_name': batch.userName,
               'zona_entrega': batch.zonaEntrega,
+              "zona_entrega_tms": batch.zonaEntregaTms
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );

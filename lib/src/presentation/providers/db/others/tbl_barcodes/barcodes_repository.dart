@@ -114,8 +114,8 @@ class BarcodesRepository {
       });
 
       // Imprimimos el número de registros insertados y actualizados
-      print("Total de registros insertados: $insertedCount");
-      print("Total de registros actualizados: $updatedCount");
+      print("Total de registros insertOrUpdateBarcodes: $insertedCount");
+      print("Total de registros insertOrUpdateBarcodes: $updatedCount");
     } catch (e, s) {
       print("Error al insertar/actualizar barcodes: $e => $s");
     }
@@ -124,6 +124,8 @@ class BarcodesRepository {
   //metodo para obtener todos los barcodes
   Future<List<Barcodes>> getAllBarcodes() async {
     try {
+      //mostrar todos los barcodes
+
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
       // Realizamos la consulta para obtener los barcodes

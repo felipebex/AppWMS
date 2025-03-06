@@ -78,6 +78,7 @@ class BatchPackingModel {
   final String? timeSeparateStart;
   final String? timeSeparateEnd;
   final String? zonaEntrega;
+  final String? zonaEntregaTms;
 
   BatchPackingModel({
     this.id,
@@ -97,6 +98,7 @@ class BatchPackingModel {
     this.timeSeparateStart,
     this.timeSeparateEnd,
     this.zonaEntrega,
+    this.zonaEntregaTms,
   });
 
   factory BatchPackingModel.fromJson(String str) =>
@@ -125,6 +127,7 @@ class BatchPackingModel {
         timeSeparateStart: json["time_separate_start"],
         timeSeparateEnd: json["time_separate_end"],
         zonaEntrega: json["zona_entrega"],
+        zonaEntregaTms: json["zona_entrega_tms"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -145,6 +148,7 @@ class BatchPackingModel {
         "time_separate_start": timeSeparateStart,
         "time_separate_end": timeSeparateEnd,
         "zona_entrega": zonaEntrega,
+        "zona_entrega_tms": zonaEntregaTms,
       };
 }
 
@@ -165,6 +169,8 @@ class PedidoPacking {
   final List<PorductoPedido>? listaProductos;
   final List<Paquete>? listaPaquetes;
   final String? zonaEntrega;
+  final String? zonaEntregaTms;
+  final String? orderTms;
 
   PedidoPacking({
     this.id,
@@ -183,6 +189,8 @@ class PedidoPacking {
     this.isTerminate,
     this.contactoName,
     this.zonaEntrega,
+    this.zonaEntregaTms,
+    this.orderTms,
   });
 
   factory PedidoPacking.fromJson(String str) =>
@@ -214,6 +222,8 @@ class PedidoPacking {
                 json["lista_paquetes"]!.map((x) => Paquete.fromMap(x))),
         isTerminate: json["is_terminate"],
         zonaEntrega: json["zona_entrega"],
+        zonaEntregaTms: json["zona_entrega_tms"],
+        orderTms: json["order_tms"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -236,6 +246,8 @@ class PedidoPacking {
             : List<dynamic>.from(listaPaquetes!.map((x) => x.toMap())),
         "is_terminate": isTerminate,
         "zona_entrega": zonaEntrega,
+        "zona_entrega_tms": zonaEntrega,
+        "order_tms": orderTms,
       };
 }
 

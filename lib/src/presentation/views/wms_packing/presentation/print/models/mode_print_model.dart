@@ -17,6 +17,7 @@ class PrintModel {
   final int? idPaquete;
   final String? namePaquete;
   final int? cantProductoPack;
+  final String? zonaEntregaTms;
 
   PrintModel({
     this.batchName,
@@ -33,6 +34,7 @@ class PrintModel {
     this.idPaquete,
     this.namePaquete,
     this.cantProductoPack,
+    this.zonaEntregaTms,
   });
 
   factory PrintModel.fromJson(String str) =>
@@ -55,6 +57,7 @@ class PrintModel {
         idPaquete: json["id_paquete"],
         namePaquete: json["name_paquete"],
         cantProductoPack: json["cant_producto_pack"],
+        zonaEntregaTms: json["zona_entrega_tms"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -72,5 +75,6 @@ class PrintModel {
         "id_paquete": idPaquete,
         "name_paquete": namePaquete,
         "cant_producto_pack": cantProductoPack,
+        "zona_entrega_tms": zonaEntregaTms,
       };
 }

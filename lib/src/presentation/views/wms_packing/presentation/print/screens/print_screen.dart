@@ -260,6 +260,8 @@ class _PrintDialogState extends State<PrintDialog> {
 
     bytes += generator.text('Batch: ${widget.model.batchName}',
         styles: const PosStyles(align: PosAlign.center));
+    bytes += generator.text('Zona TMS: ${widget.model.zonaEntregaTms}',
+        styles: const PosStyles(align: PosAlign.center));
     bytes += generator.text('Operacion: ${widget.model.pickingTypeId}',
         styles: const PosStyles(align: PosAlign.center));
 

@@ -1122,7 +1122,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
         print('pedidosToInsert Packing : ${pedidosToInsert.length}');
         print('productsToInsert Packing : ${productsToInsert.length}');
-        print('barcodesToInsert Packing : ${barcodesToInsert.length}');
+        print('barcode product Packing : ${barcodesToInsert.length}');
         print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');
         print('packagesToInsert Packing : ${packagesToInsert.length}');
 

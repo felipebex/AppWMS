@@ -210,94 +210,94 @@ class _PickingPageState extends State<WMSPickingPage> {
                                   ],
                                 )),
 
-                            //                         ElevatedButton(
-                            //                           onPressed: () async {
-                            //                             // Primero, asegúrate de que el FocusNode esté activo
-                            // FocusScope.of(context).unfocus();
-                            //                             var pickedDate =
-                            //                                 await DatePicker.showSimpleDatePicker(
-                            //                               titleText: 'Seleccione una fecha',
-                            //                               context,
-                            //                               confirmText: 'Buscar',
-                            //                               cancelText: 'Cancelar',
-                            //                               // initialDate: DateTime(2020),
-                            //                               firstDate:
-                            //                                   //un mes atras
-                            //                                   DateTime.now()
-                            //                                       .subtract(const Duration(days: 30)),
-                            //                               lastDate: DateTime.now(),
-                            //                               dateFormat: "dd-MMMM-yyyy",
-                            //                               locale: DateTimePickerLocale.es,
-                            //                               looping: false,
-                            //                             );
-
-                            //                             // Verificar si el usuario seleccionó una fecha
-                            //                             if (pickedDate != null) {
-                            //                               // Formatear la fecha al formato "yyyy-MM-dd"
-                            //                               final formattedDate = DateFormat('yyyy-MM-dd')
-                            //                                   .format(pickedDate);
-
-                            //                               // Disparar el evento con la fecha seleccionada
-                            //                               context.read<WMSPickingBloc>().add(
-                            //                                     LoadHistoryBatchsEvent(
-                            //                                         context, true, formattedDate),
-                            //                                   );
-
-                            //                               // Navegar a la pantalla de historial
-                            //                               Navigator.pushNamed(context, 'history-list');
-                            //                             }
-                            //                           },
-                            //                           style: ElevatedButton.styleFrom(
-                            //                             backgroundColor: white,
-                            //                             shape: RoundedRectangleBorder(
-                            //                               borderRadius: BorderRadius.circular(10),
-                            //                             ),
-                            //                           ),
-                            //                           child: Row(
-                            //                             children: [
-                            //                               const Icon(
-                            //                                 Icons.history,
-                            //                                 color: green,
-                            //                                 size: 20,
-                            //                               ),
-                            //                               const SizedBox(width: 5),
-                            //                               Text(
-                            //                                 'Histórico',
-                            //                                 style: TextStyle(
-                            //                                   color: primaryColorApp,
-                            //                                   fontSize: 12,
-                            //                                 ),
-                            //                               ),
-                            //                             ],
-                            //                           ),
-                            //                         ),
-
                             ElevatedButton(
-                                onPressed: () {
-                                  context
-                                      .read<WMSPickingBloc>()
-                                      .add(FilterBatchesBStatusEvent('done'));
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: white,
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.batch_prediction,
-                                      color: green,
-                                      size: 20,
+                              onPressed: () async {
+                                // Primero, asegúrate de que el FocusNode esté activo
+                                FocusScope.of(context).unfocus();
+                                var pickedDate =
+                                    await DatePicker.showSimpleDatePicker(
+                                  titleText: 'Seleccione una fecha',
+                                  context,
+                                  confirmText: 'Buscar',
+                                  cancelText: 'Cancelar',
+                                  // initialDate: DateTime(2020),
+                                  firstDate:
+                                      //un mes atras
+                                      DateTime.now()
+                                          .subtract(const Duration(days: 30)),
+                                  lastDate: DateTime.now(),
+                                  dateFormat: "dd-MMMM-yyyy",
+                                  locale: DateTimePickerLocale.es,
+                                  looping: false,
+                                );
+
+                                // Verificar si el usuario seleccionó una fecha
+                                if (pickedDate != null) {
+                                  // Formatear la fecha al formato "yyyy-MM-dd"
+                                  final formattedDate = DateFormat('yyyy-MM-dd')
+                                      .format(pickedDate);
+
+                                  // Disparar el evento con la fecha seleccionada
+                                  context.read<WMSPickingBloc>().add(
+                                        LoadHistoryBatchsEvent(
+                                            context, true, formattedDate),
+                                      );
+
+                                  // Navegar a la pantalla de historial
+                                  Navigator.pushNamed(context, 'history-list');
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.history,
+                                    color: green,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    'Histórico',
+                                    style: TextStyle(
+                                      color: primaryColorApp,
+                                      fontSize: 12,
                                     ),
-                                    const SizedBox(width: 5),
-                                    Text(
-                                      'Hechos',
-                                      style: TextStyle(
-                                          color: primaryColorApp, fontSize: 12),
-                                    )
-                                  ],
-                                ))
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // ElevatedButton(
+                            //     onPressed: () {
+                            //       context
+                            //           .read<WMSPickingBloc>()
+                            //           .add(FilterBatchesBStatusEvent('done'));
+                            //     },
+                            //     style: ElevatedButton.styleFrom(
+                            //         backgroundColor: white,
+                            //         shape: RoundedRectangleBorder(
+                            //             borderRadius:
+                            //                 BorderRadius.circular(10))),
+                            //     child: Row(
+                            //       children: [
+                            //         const Icon(
+                            //           Icons.batch_prediction,
+                            //           color: green,
+                            //           size: 20,
+                            //         ),
+                            //         const SizedBox(width: 5),
+                            //         Text(
+                            //           'Hechos',
+                            //           style: TextStyle(
+                            //               color: primaryColorApp, fontSize: 12),
+                            //         )
+                            //       ],
+                            //     ))
                           ],
                         ),
                       ),
@@ -420,7 +420,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                         // Agrupar eventos de BatchBloc si es necesario
                                         final batchBloc =
                                             context.read<BatchBloc>();
-
+                                        print(batch.toMap());
                                         try {
                                           print(batch.toMap());
 
@@ -547,7 +547,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       ? GestureDetector(
                                                           onTap: () {
                                                             showDialog(
-                                                                context: context,
+                                                                context:
+                                                                    context,
                                                                 builder:
                                                                     (context) =>
                                                                         DialogInfo(
@@ -559,7 +560,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                           },
                                                           child: Icon(
                                                             Icons.timer_sharp,
-                                                            color: primaryColorApp,
+                                                            color:
+                                                                primaryColorApp,
                                                             size: 15,
                                                           ),
                                                         )
