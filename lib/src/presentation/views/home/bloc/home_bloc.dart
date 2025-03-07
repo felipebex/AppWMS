@@ -41,6 +41,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(AppVersionLoadingState());
       try {
         final response = await homeRepository.getAppVersion(event.context);
+        if(response.result == null) {
+          emit(AppVersionLoadErrorState('Error al obtener la versión de la app'));
+          return;
+        }
         appVersion = response;
         //obtenemos la versión de la app
         PackageInfo packageInfo = await PackageInfo.fromPlatform();

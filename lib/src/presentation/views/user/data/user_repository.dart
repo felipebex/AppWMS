@@ -25,9 +25,29 @@ class UserRepository {
           isunecodePath: true,
           isLoadinDialog: false,
           context: context);
-
       if (response.statusCode < 400) {
-        return Configurations.fromMap(jsonDecode(response.body));
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse.containsKey('result')) {
+          if (jsonResponse['result']['code'] == 200) {
+            return Configurations.fromMap(jsonDecode(response.body));
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return Configurations();
+          }
+        }
       } else {
         Get.snackbar('Error', 'Error al obtener las configuraciones');
         return Configurations();

@@ -69,8 +69,6 @@ class WmsPickingRepository {
             } else if (jsonResponse['result'].containsKey('msg')) {
               // Si contiene 'msg', podrías manejar el mensaje de alguna forma
               String msg = jsonResponse['result']['msg'];
-              // Aquí puedes manejar el mensaje de error o información según sea necesario
-
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                   backgroundColor: Colors.amber[200],
                   content: SizedBox(
@@ -85,6 +83,21 @@ class WmsPickingRepository {
                   )));
               return [];
             }
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return [];
           }
         }
       } else {}
@@ -108,18 +121,10 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          // action: SnackBarAction(
-          //   label: 'Cerrar', // Este es el texto del botón de acción
-          //   textColor: Colors.black, // Color del texto de la acción
-          //   onPressed: () {
-          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
-          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //   },
-          // ),
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
-              const Duration(seconds:5), // Esto hace que no se cierre solo
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
         ),
       );
 
@@ -195,6 +200,21 @@ class WmsPickingRepository {
               return [];
             }
           }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return [];
+          }
         }
       } else {}
     } on SocketException catch (e) {
@@ -217,14 +237,7 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          // action: SnackBarAction(
-          //   label: 'Cerrar', // Este es el texto del botón de acción
-          //   textColor: Colors.black, // Color del texto de la acción
-          //   onPressed: () {
-          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
-          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //   },
-          // ),
+
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
@@ -267,6 +280,21 @@ class WmsPickingRepository {
           // Mapea los datos decodificados a una lista de BatchsModel
           HistoryBatchId historyBatchId = HistoryBatchId.fromMap(batches);
           return historyBatchId;
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return HistoryBatchId();
+          }
         }
       } else {}
     } on SocketException catch (e) {
@@ -287,14 +315,7 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          // action: SnackBarAction(
-          //   label: 'Cerrar', // Este es el texto del botón de acción
-          //   textColor: Colors.black, // Color del texto de la acción
-          //   onPressed: () {
-          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
-          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //   },
-          // ),
+
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
@@ -360,14 +381,7 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          // action: SnackBarAction(
-          //   label: 'Cerrar', // Este es el texto del botón de acción
-          //   textColor: Colors.black, // Color del texto de la acción
-          //   onPressed: () {
-          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
-          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //   },
-          // ),
+
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
@@ -469,6 +483,21 @@ class WmsPickingRepository {
           List<Novedad> novedades =
               result.map((data) => Novedad.fromMap(data)).toList();
           return novedades;
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return [];
+          }
         }
       } else {
         print('Error getnovedades: response is null');
@@ -548,6 +577,21 @@ class WmsPickingRepository {
           } else if (jsonResponse['result']['code'] == 200) {
             return true;
           }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return false;
+          }
         }
       } else {}
     } on SocketException catch (e) {
@@ -626,6 +670,21 @@ class WmsPickingRepository {
           } else if (jsonResponse['result']['code'] == 200) {
             return true;
           }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return false;
+          }
         }
       } else {}
     } on SocketException catch (e) {
@@ -648,14 +707,7 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          // action: SnackBarAction(
-          //   label: 'Cerrar', // Este es el texto del botón de acción
-          //   textColor: Colors.black, // Color del texto de la acción
-          //   onPressed: () {
-          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
-          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //   },
-          // ),
+         
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:

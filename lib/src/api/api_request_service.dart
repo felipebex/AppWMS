@@ -455,29 +455,24 @@ class ApiRequestService {
 
           url =
               url + (isunecodePath ? '$unencodePath/$endpoint' : '/$endpoint');
-
-          //
-
           // Intentar hacer la solicitud HTTP
-
           var request = http.Request('GET', Uri.parse(url));
           request.body = json.encode({"params": {}});
-
           request.headers.addAll(headers);
-
           final response = await request.send();
-
           // Cerrar el diálogo de carga cuando la solicitud se haya completado
           if (isLoadinDialog) {
             Get.back();
           }
-
           print("--------------------------------------------");
           print('Petición GET a $endpoint');
           print('Cuerpo de la solicitud: $url');
           print('headers: $headers');
           print('status code: ${response.statusCode}');
           print("--------------------------------------------");
+
+
+
           return http.Response.fromStream(response);
         } else {
           Get.snackbar(

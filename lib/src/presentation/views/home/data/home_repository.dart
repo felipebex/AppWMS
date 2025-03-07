@@ -24,9 +24,9 @@ class HomeRepository {
           context: context);
 
       if (response.statusCode < 400) {
-        // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
+        // Decodifica la respuesta JSON a un mapa
         if (jsonResponse.containsKey('result')) {
           if (jsonResponse['result']['code'] == 400) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -42,6 +42,21 @@ class HomeRepository {
                 )));
           } else if (jsonResponse['result']['code'] == 200) {
             return AppVersion.fromMap(jsonDecode(response.body));
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return AppVersion();
           }
         }
         return AppVersion();

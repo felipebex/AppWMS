@@ -64,6 +64,22 @@ class WmsPackingRepository {
             return [];
           }
         }
+         else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return [];
+          }
+        }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');

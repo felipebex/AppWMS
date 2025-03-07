@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
-import 'package:wms_app/src/presentation/views/home/domain/models/app_version_model.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class UpdateAppDialog extends StatefulWidget {
@@ -21,85 +20,89 @@ class _UpdateAppDialogState extends State<UpdateAppDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      // actionsAlignment: MainAxisAlignment.center,
-      backgroundColor: Colors.white,
-      title: Center(
-        child: Text(
-          'Nueva Actualización Disponible',
-          style: TextStyle(color: primaryColorApp, fontSize: 16),
-        ),
-      ),
-      content: SizedBox(
-        width: double.maxFinite, // Ajustamos el ancho del dialogo
-        height: 300,
-        child: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _currentPage = index;
-            });
-          },
-          children: [
-            // Primera página: Novedades de la actualización
-            _buildNewFeaturesPage(),
-            // Segunda página: Instrucciones para actualizar
-            _buildInstructionsPage(),
-          ],
-        ),
-      ),
-      actions: [
-        if (_currentPage == 1) ...[
-          // Solo mostramos los botones cuando estamos en la página de instrucciones
-          Center(
-            child: ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: grey,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  minimumSize: Size(200, 40),
-                ),
-                child: Text(
-                  "Recordar Más Tarde",
-                  style: TextStyle(color: white, fontSize: 14),
-                )),
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        return AlertDialog(
+          // actionsAlignment: MainAxisAlignment.center,
+          backgroundColor: Colors.white,
+          title: Center(
+            child: Text(
+              'Nueva Actualización Disponible',
+              style: TextStyle(color: primaryColorApp, fontSize: 16),
+            ),
           ),
+          content: SizedBox(
+            width: double.maxFinite, // Ajustamos el ancho del dialogo
+            height: 300,
+            child: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              children: [
+                // Primera página: Novedades de la actualización
+                _buildNewFeaturesPage(),
+                // Segunda página: Instrucciones para actualizar
+                _buildInstructionsPage(),
+              ],
+            ),
+          ),
+          actions: [
+            if (_currentPage == 1) ...[
+              // Solo mostramos los botones cuando estamos en la página de instrucciones
+              Center(
+                child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: grey,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      minimumSize: Size(200, 40),
+                    ),
+                    child: Text(
+                      "Recordar Más Tarde",
+                      style: TextStyle(color: white, fontSize: 14),
+                    )),
+              ),
 
-          Center(
-            child: ElevatedButton(
-                onPressed: () async {
-                  print(context
-                      .read<HomeBloc>()
-                      .appVersion
-                      .result
-                      ?.result
-                      ?.urlDownload);
-
-                  //abrimos el navegador con la url de descarga
-                  await launch(context
+              Center(
+                child: ElevatedButton(
+                    onPressed: () async {
+                      print(context
                           .read<HomeBloc>()
                           .appVersion
                           .result
                           ?.result
-                          ?.urlDownload ??
-                      '');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  minimumSize: Size(200, 40),
-                ),
-                child: Text(
-                  "Actualizar",
-                  style: TextStyle(color: white, fontSize: 14),
-                )),
-          ),
-        ],
-      ],
+                          ?.urlDownload);
+
+                      //abrimos el navegador con la url de descarga
+                      await launch(context
+                              .read<HomeBloc>()
+                              .appVersion
+                              .result
+                              ?.result
+                              ?.urlDownload ??
+                          '');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColorApp,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      minimumSize: Size(200, 40),
+                    ),
+                    child: Text(
+                      "Actualizar",
+                      style: TextStyle(color: white, fontSize: 14),
+                    )),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 

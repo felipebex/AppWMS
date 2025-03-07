@@ -23,9 +23,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+  @override
   void initState() {
     super.initState();
-
     // Añadimos el observer para escuchar el ciclo de vida de la app.
     WidgetsBinding.instance.addObserver(this);
   }
