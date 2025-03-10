@@ -134,6 +134,7 @@ class PedidosPackingRepository {
       );
 
       // Devolver la cantidad de filas afectadas
+      print("update setFieldTablePedidosPacking  ($field)  pedido $pedidoId batch $batchId => $resUpdate");
       return resUpdate;
     } catch (e) {
       print("Error al actualizar el campo $field: $e");

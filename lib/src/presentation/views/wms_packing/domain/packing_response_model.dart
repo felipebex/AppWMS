@@ -163,7 +163,7 @@ class PedidoPacking {
   final dynamic contacto;
   final String? tipoOperacion;
   final String? contactoName;
-  final int? isTerminate;
+  final dynamic isTerminate;
   final int? cantidadProductos;
   final int? numeroPaquetes;
   final List<PorductoPedido>? listaProductos;

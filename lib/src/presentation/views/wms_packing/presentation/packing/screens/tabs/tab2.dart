@@ -388,8 +388,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                       .configurations
                                                       .result
                                                       ?.result
-                                                      ?.scanProduct ??
-                                                  false,
+                                                      ?.scanProduct == false ? true : false,
                                               child: Checkbox(
                                                 value: context
                                                     .read<WmsPackingBloc>()
@@ -506,7 +505,6 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-
                                                     Row(
                                                       children: [
                                                         Text(
@@ -519,11 +517,6 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                                         black)),
                                                       ],
                                                     ),
-
-
-                                                    
-
-
                                                     Row(
                                                       children: [
                                                         Text(
@@ -588,7 +581,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                     ),
                                                     if (product.tracking !=
                                                         false)
-                                                      Row(
+                                                      Column(
                                                         children: [
                                                           Text(
                                                             "Número de serie/lote: ",

@@ -349,12 +349,18 @@ class ProductosPedidosRepository {
       String field, dynamic setValue, int idMove) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-      "UPDATE ${ProductosPedidosTable.tableName} SET $field = '$setValue' WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 1 AND ${ProductosPedidosTable.columnIsPackage} = 1",
+      "UPDATE ${ProductosPedidosTable.tableName} SET $field = '$setValue' WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 0 AND ${ProductosPedidosTable.columnIsPackage} = 1",
       [productId, pedidoId, idMove],
     );
-    print("update separated tblproductos_pedidos (certificate): $resUpdate");
+    print("update separated tblproductos_pedidos ($field): $resUpdate");
     return resUpdate;
   }
+
+
+
+
+
+
   //*metodo para actualizar la tabla de productos de un pedido
 
   // Método: Actualizar un campo específico en la tabla productos_pedidos

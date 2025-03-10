@@ -765,13 +765,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
             }
           } else if (event.isCertificate == false) {
             for (var product in event.productos) {
-              await db.productosPedidosRepository
-                  .setFieldTableProductosPedidos3String(
-                      product.pedidoId ?? 0,
-                      product.idProduct ?? 0,
-                      "package_name",
-                      responsePacking.result?.result?[0].namePaquete ?? '',
-                      product.idMove ?? 0);
               //actualizamos el estado del producto como separado
               await db.productosPedidosRepository
                   .setFieldTableProductosPedidos3(
@@ -805,6 +798,14 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                       ''
                       "is_certificate",
                       0,
+                      product.idMove ?? 0);
+
+              await db.productosPedidosRepository
+                  .setFieldTableProductosPedidos3String(
+                      product.pedidoId ?? 0,
+                      product.idProduct ?? 0,
+                      "package_name",
+                      responsePacking.result?.result?[0].namePaquete ?? '',
                       product.idMove ?? 0);
             }
             listOfProductsForPacking = [];

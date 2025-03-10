@@ -186,7 +186,7 @@ class _UpdateAppDialogState extends State<UpdateAppDialog> {
         SizedBox(height: 10),
         Text(
           "Para actualizar la aplicación, presiona el botón de actualizar y descarga la nueva versión de la aplicación, "
-          "una vez descargada, desinstala la versión actual y procede a instalar la nueva versión, recuerda que debes volver a iniciar sesión.",
+          "una vez descargada, desinstala la versión actual y cierra sesion para agrantizar una actualizacion correcta despues procede a instalar la nueva versión.",
           textAlign: TextAlign.justify,
           style: TextStyle(fontSize: 14),
         ),
