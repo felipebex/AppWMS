@@ -3,6 +3,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/data/user_repository.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -23,6 +24,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   //*Datos de dive
   String modelo = '';
   String version = '';
+  String versionApp = '';
   String fabricante = '';
 
   UserBloc() : super(UserInitial()) {
@@ -32,10 +34,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         emit(ConfigurationLoading());
         final response = await userRepository.configurations(event.context);
         if (response != null) {
-        
-        final int userId = await PrefUtils.getUserId();
-        await db.configurationsRepository.insertConfiguration(response, userId );
-        final Configurations? responsebd = await db.configurationsRepository.getConfiguration(userId);
+          final int userId = await PrefUtils.getUserId();
+          await db.configurationsRepository
+              .insertConfiguration(response, userId);
+          final Configurations? responsebd =
+              await db.configurationsRepository.getConfiguration(userId);
           PrefUtils.setUserRol(response.result?.result?.rol ?? '');
           configurations = Configurations();
           configurations = responsebd ?? response;
@@ -48,7 +51,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         print('Error en GetConfigurations.dart: $e =>$s');
       }
     });
-    
+
     //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEventUser>(_onLoadInfoDeviceEventUser);
     add(LoadInfoDeviceEventUser());
@@ -61,9 +64,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       //cargamos la informacion del dispositivo
       DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
       AndroidDeviceInfo androidInfo = await deviceInfoPlugin.androidInfo;
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
       modelo = androidInfo.model;
       version = androidInfo.version.release;
       fabricante = androidInfo.manufacturer;
+
+      versionApp = packageInfo.version; // Versión de la app
       emit(LoadInfoDeviceStateUser());
     } catch (e, s) {
       print('Error en LoadInfoDeviceEventUser.dart: $e =>$s');

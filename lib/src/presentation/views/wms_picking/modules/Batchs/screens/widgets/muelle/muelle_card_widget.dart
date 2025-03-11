@@ -57,7 +57,11 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
               DropdownMenuItem(
                 value: widget.batchBloc.currentProduct.barcodeLocationDest,
                 child: Text(
-                  widget.batchBloc.currentProduct.locationDestId ?? "",
+                  widget.batchBloc.configurations.result?.result
+                              ?.muelleOption ==
+                          "multiple"
+                      ? widget.batchBloc.currentProduct.locationDestId ?? ""
+                      : widget.batchBloc.batchWithProducts.batch?.muelle ?? "",
                   style: const TextStyle(fontSize: 14, color: black),
                 ),
               ),
@@ -71,9 +75,15 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                         widget.batchBloc.productIsOk
                     ? (String? newValue) {
                         print("Muelle seleccionado: $newValue");
-                        if (newValue ==
-                            widget
-                                .batchBloc.currentProduct.barcodeLocationDest) {
+                        if (widget.batchBloc.configurations.result?.result
+                                    ?.muelleOption ==
+                                "multiple"
+                            ? newValue ==
+                                widget.batchBloc.currentProduct
+                                    .barcodeLocationDest
+                            : newValue ==
+                                widget.batchBloc.batchWithProducts.batch
+                                    ?.barcodeMuelle) {
                           // Validación correcta
                           validatePicking(
                             widget.batchBloc,
@@ -98,28 +108,32 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
             visible: widget.isPda,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Row(
-                children: [
-                  Text(
-                    widget.batchBloc.currentProduct.locationDestId ?? "",
-                    style: const TextStyle(fontSize: 14, color: black),
-                  ),
-                  // const Text("/"),
-                  // Text(
-                  //   widget.batchBloc.batchWithProducts.batch?.muelle ?? "",
-                  //   style: TextStyle(fontSize: 14, color: primaryColorApp),
-                  // )
-                ],
+              child: Text(
+                widget.batchBloc.configurations.result?.result?.muelleOption ==
+                        "multiple"
+                    ? widget.batchBloc.currentProduct.locationDestId ?? ""
+                    : widget.batchBloc.batchWithProducts.batch?.muelle ?? "",
+                style: const TextStyle(fontSize: 14, color: black),
               ),
             ),
           ),
           Align(
             alignment: Alignment.centerLeft,
             child: Visibility(
-              visible: widget.batchBloc.currentProduct.barcodeLocationDest ==
-                      false ||
-                  widget.batchBloc.currentProduct.barcodeLocationDest == null ||
-                  widget.batchBloc.currentProduct.barcodeLocationDest == "",
+              visible: widget.batchBloc.configurations.result?.result
+                          ?.muelleOption ==
+                      "multiple"
+                  ? widget.batchBloc.currentProduct.barcodeLocationDest ==
+                          false ||
+                      widget.batchBloc.currentProduct.barcodeLocationDest ==
+                          null ||
+                      widget.batchBloc.currentProduct.barcodeLocationDest == ""
+                  : widget.batchBloc.batchWithProducts.batch?.barcodeMuelle ==
+                          false ||
+                      widget.batchBloc.batchWithProducts.batch?.barcodeMuelle ==
+                          null ||
+                      widget.batchBloc.batchWithProducts.batch?.barcodeMuelle ==
+                          "",
               child: const Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: Text(

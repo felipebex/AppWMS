@@ -27,8 +27,9 @@ class _UpdateAppDialogState extends State<UpdateAppDialog> {
           backgroundColor: Colors.white,
           title: Center(
             child: Text(
-              'Nueva Actualización Disponible',
+              'Nueva Actualización Disponible ${context.read<HomeBloc>().appVersion.result?.result?.version ?? ''}',
               style: TextStyle(color: primaryColorApp, fontSize: 16),
+              textAlign: TextAlign.center,
             ),
           ),
           content: SizedBox(
@@ -112,23 +113,16 @@ class _UpdateAppDialogState extends State<UpdateAppDialog> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          "Novedades de la actualizacion ${context.read<HomeBloc>().appVersion.result?.result?.version ?? ''}",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.center,
+        SizedBox(
+          height: 100,
+          width: 200,
+          child: Image.asset(
+            "assets/images/icono2.jpeg",
+            fit: BoxFit.cover,
+          ),
         ),
-        Text(
-          _formatDate(context
-              .read<HomeBloc>()
-              .appVersion
-              .result
-              ?.result
-              ?.releaseDate
-              .toString()),
-          style: TextStyle(fontSize: 12, color: black),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 10),
+      
+       
         Align(
           alignment: Alignment.centerLeft,
           child: Text(

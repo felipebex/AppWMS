@@ -75,11 +75,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           }
 
           if (state is AppVersionUpdateState) {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return UpdateAppDialog();
-                });
+            //esperamos 2 segundos y mostramos el dialogo
+            Future.delayed(const Duration(seconds: 2), () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return UpdateAppDialog();
+                  });
+            });
           }
         },
         builder: (context, state) {
@@ -392,6 +395,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                           child: ItemList(
                                             size: size,
                                             color: primaryColorApp,
+                                             urlImg: "picking.png",
                                             title: 'BATCH PICKING En Proceso',
                                             value: (context
                                                         .read<WMSPickingBloc>()
@@ -477,6 +481,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                           size: size,
                                           color: primaryColorApp,
                                           title: 'BATCH PACKING En Proceso',
+                                           urlImg: "packing.png",
                                           value: (context
                                                       .read<WmsPackingBloc>()
                                                       .listOfBatchs

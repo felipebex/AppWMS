@@ -252,7 +252,11 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
     _controllerMuelle.text = "";
     final currentProduct = batchBloc.currentProduct;
-    if (scan == currentProduct.barcodeLocationDest?.toLowerCase()) {
+    if (scan ==
+        (batchBloc.configurations.result?.result?.muelleOption == "multiple"
+            ? currentProduct.barcodeLocationDest?.toLowerCase()
+            : batchBloc.batchWithProducts.batch?.barcodeMuelle
+                ?.toLowerCase())) {
       validatePicking(batchBloc, context, currentProduct);
       context.read<BatchBloc>().add(ClearScannedValueEvent('muelle'));
     } else {
@@ -285,7 +289,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
         return Scaffold(
           backgroundColor: Colors.white,
-
           body: Column(
             children: [
               //todo: barra info
@@ -1988,7 +1991,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
         batchBloc.add(EndTimePick(context,
             batchBloc.batchWithProducts.batch?.id ?? 0, DateTime.now()));
-            
+
         batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
             currentProduct.idProduct ?? 0));
         context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(

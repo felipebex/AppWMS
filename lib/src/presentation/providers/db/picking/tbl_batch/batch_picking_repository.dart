@@ -33,6 +33,7 @@ class BatchPickingRepository {
               BatchPickingTable.columnUserName: batch.userName,
               BatchPickingTable.columnIsWave: batch.isWave,
               BatchPickingTable.columnMuelle: batch.muelle,
+              BatchPickingTable.columnBarcodeMuelle: batch.barcodeMuelle,
               BatchPickingTable.columnIdMuelle: batch.idMuelle,
               BatchPickingTable.columnOrderBy: batch.orderBy,
               BatchPickingTable.columnOrderPicking: batch.orderPicking,
@@ -42,7 +43,6 @@ class BatchPickingRepository {
               BatchPickingTable.columnStartTimePick: batch.startTimePick,
               BatchPickingTable.columnEndTimePick: batch.endTimePick,
               BatchPickingTable.columnZonaEntrega: batch.zonaEntrega,
-
             },
             where: '${BatchPickingTable.columnId} = ?',
             whereArgs: [batch.id],
@@ -61,6 +61,7 @@ class BatchPickingRepository {
               BatchPickingTable.columnUserName: batch.userName,
               BatchPickingTable.columnIsWave: batch.isWave,
               BatchPickingTable.columnMuelle: batch.muelle,
+              BatchPickingTable.columnBarcodeMuelle: batch.barcodeMuelle,
               BatchPickingTable.columnIdMuelle: batch.idMuelle,
               BatchPickingTable.columnOrderBy: batch.orderBy,
               BatchPickingTable.columnOrderPicking: batch.orderPicking,

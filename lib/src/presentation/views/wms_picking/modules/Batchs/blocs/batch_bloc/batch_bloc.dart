@@ -187,13 +187,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         userid,
       );
       final responseTimeBatch = await repository.timePickingBatch(
-        event.batchId,
-        event.context,
-        formattedDate,
-        'update_start_time',
-        'start_time_pick',
-        'start_time'
-      );
+          event.batchId,
+          event.context,
+          formattedDate,
+          'update_start_time',
+          'start_time_pick',
+          'start_time');
 
       if (responseTimeBatch) {
         await db.startStopwatchBatch(event.batchId, formattedDate);
@@ -222,13 +221,12 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       );
 
       final responseTimeBatch = await repository.timePickingBatch(
-        event.batchId,
-        event.context,
-        formattedDate,
-        'update_end_time',
-        'end_time_pick',
-        'end_time'
-      );
+          event.batchId,
+          event.context,
+          formattedDate,
+          'update_end_time',
+          'end_time_pick',
+          'end_time');
 
       if (responseTimeBatch) {
         await db.endStopwatchBatch(event.batchId, formattedDate);
@@ -576,7 +574,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   //           event.muelle.completeName ?? '',
   //           event.productsSeparate[i].idMove ?? 0);
 
-
   //       //enviamos el producto a odoo
 
   //       DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
@@ -635,96 +632,83 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   //   //emitimos el estado
   // }
 
+  void _onAssignSubmuelleEvent(
+      AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
+    try {
+      // Primero, actualizamos la base de datos para todos los productos
+      for (var product in event.productsSeparate) {
+        await db.setFieldTableBatchProducts(product.batchId ?? 0,
+            product.idProduct ?? 0, 'is_muelle', 'true', product.idMove ?? 0);
 
+        // Actualizamos el muelle del producto
+        await db.setFieldTableBatchProducts(
+            product.batchId ?? 0,
+            product.idProduct ?? 0,
+            'muelle_id',
+            event.muelle.id ?? 0,
+            product.idMove ?? 0);
 
+        // Actualizamos el nombre del muelle del producto
+        await db.setFieldStringTableBatchProducts(
+            product.batchId ?? 0,
+            product.idProduct ?? 0,
+            'location_dest_id',
+            event.muelle.completeName ?? '',
+            product.idMove ?? 0);
+        //Actualizamos el barcode del muelle del producto
+        await db.setFieldStringTableBatchProducts(
+            product.batchId ?? 0,
+            product.idProduct ?? 0,
+            'barcode_location_dest',
+            event.muelle.barcode ?? '',
+            product.idMove ?? 0);
+      }
 
+      // Después, enviamos la petición a Odoo con todos los productos en una sola vez
 
+      List<Item> itemsToSend = [];
+      for (var product in event.productsSeparate) {
+        // Traemos el tiempo de inicio de separación del producto desde la base de datos
 
+        final userid = await PrefUtils.getUserId();
 
-void _onAssignSubmuelleEvent(
-    AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
-  try {
-    // Primero, actualizamos la base de datos para todos los productos
-    for (var product in event.productsSeparate) {
-      await db.setFieldTableBatchProducts(
-          product.batchId ?? 0,
-          product.idProduct ?? 0,
-          'is_muelle',
-          'true',
-          product.idMove ?? 0);
+        // Creamos los Item a enviar
+        itemsToSend.add(Item(
+          idMove: product.idMove ?? 0,
+          productId: product.idProduct ?? 0,
+          lote: product.lotId ?? '',
+          cantidad: (product.quantitySeparate ?? 0) > (product.quantity)
+              ? product.quantity
+              : product.quantitySeparate ?? 0,
+          novedad: product.observation ?? 'Sin novedad',
+          timeLine: product.timeSeparate ?? 0,
+          muelle: event.muelle.id ?? 0,
+          idOperario: userid,
+          fechaTransaccion: product.fechaTransaccion ?? '',
+        ));
+      }
 
-      // Actualizamos el muelle del producto
-      await db.setFieldTableBatchProducts(
-          product.batchId ?? 0,
-          product.idProduct ?? 0,
-          'muelle_id',
-          event.muelle.id ?? 0,
-          product.idMove ?? 0);
+      // Enviamos la lista completa de items
+      final response = await repository.sendPicking(
+        context: event.context,
+        idBatch: event.productsSeparate[0].batchId ?? 0,
+        timeTotal: 0,
+        cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
+        listItem: itemsToSend, // Enviamos todos los productos
+      );
 
-      // Actualizamos el nombre del muelle del producto
-      await db.setFieldStringTableBatchProducts(
-          product.batchId ?? 0,
-          product.idProduct ?? 0,
-          'location_dest_id',
-          event.muelle.completeName ?? '',
-          product.idMove ?? 0);
-    }
-
-    // Después, enviamos la petición a Odoo con todos los productos en una sola vez
-    
-    List<Item> itemsToSend = [];
-    for (var product in event.productsSeparate) {
-      // Traemos el tiempo de inicio de separación del producto desde la base de datos
-   
-      final userid = await PrefUtils.getUserId();
-
-      // Creamos los Item a enviar
-      itemsToSend.add(Item(
-        idMove: product.idMove ?? 0,
-        productId: product.idProduct ?? 0,
-        lote: product.lotId ?? '',
-        cantidad: (product.quantitySeparate ?? 0) > (product.quantity)
-            ? product.quantity
-            : product.quantitySeparate ?? 0,
-        novedad: product.observation ?? 'Sin novedad',
-        timeLine: product.timeSeparate ?? 0,
-        muelle: event.muelle.id ?? 0,
-        idOperario: userid,
-        fechaTransaccion: product.fechaTransaccion ?? '',
-      ));
-    }
-
-    // Enviamos la lista completa de items
-    final response = await repository.sendPicking(
-      context: event.context,
-      idBatch: event.productsSeparate[0].batchId ?? 0,
-      timeTotal: 0,
-      cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
-      listItem: itemsToSend,  // Enviamos todos los productos
-    );
-
-    if (response.result?.code == 200) {
-      add(FetchBatchWithProductsEvent(event.productsSeparate[0].batchId ?? 0));
-      emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
-    } else {
+      if (response.result?.code == 200) {
+        add(FetchBatchWithProductsEvent(
+            event.productsSeparate[0].batchId ?? 0));
+        emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
+      } else {
+        emit(SubMuelleEditFail('Error al asignar el submuelle'));
+      }
+    } catch (e, s) {
       emit(SubMuelleEditFail('Error al asignar el submuelle'));
+      print("❌ Error en el AssignSubmuelleEvent :$s ->$s");
     }
-  } catch (e, s) {
-    emit(SubMuelleEditFail('Error al asignar el submuelle'));
-    print("❌ Error en el AssignSubmuelleEvent :$s ->$s");
   }
-}
-
-
-
-
-
-
-
-
-
-
-
 
   //*evento para enviar un producto a odoo editado
   void _onSendProductEditOdooEvent(

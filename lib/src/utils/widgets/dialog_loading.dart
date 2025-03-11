@@ -25,7 +25,7 @@ class DialogLoadingNetwork extends StatelessWidget {
               height: 100,
               width: 200,
               child: Image.asset(
-                "assets/images/icono.jpeg",
+                "assets/images/icono2.jpeg",
                 fit: BoxFit.cover,
               ),
             ),

@@ -8,12 +8,14 @@ class ItemList extends StatelessWidget {
     required this.color,
     required this.title,
     required this.value,
+    required this.urlImg,
   });
 
   final Size size;
   final Color color;
   final String title;
   final String value;
+  final String urlImg ;
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +26,7 @@ class ItemList extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.batch_prediction,
-              color: color,
-              size: 20,
-            ),
+            Image.asset("assets/icons/$urlImg", fit: BoxFit.cover, width: 20, color: primaryColorApp,),
             const SizedBox(width: 5),
             Text(title, style: const TextStyle(fontSize: 14)),
             const SizedBox(width: 5),

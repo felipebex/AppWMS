@@ -152,6 +152,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
                     scheduleddate: batch.scheduleddate.toString(),
                     pickingTypeId: batch.pickingTypeId,
                     muelle: batch.muelle,
+                    barcodeMuelle: batch.barcodeMuelle,
                     idMuelle: batch.idMuelle,
                     state: batch.state,
                     userId: userId,

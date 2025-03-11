@@ -176,7 +176,9 @@ class UserScreen extends StatelessWidget {
                                                   fontSize: 14,
                                                   color: primaryColorApp)),
                                           // Text('WMS',
-                                          Text(context.read<HomeBloc>().versionApp,
+                                          Text(  context
+                                                      .read<UserBloc>()
+                                                      .versionApp,
                                               style: const TextStyle(
                                                   fontSize: 14, color: black))
                                         ],
