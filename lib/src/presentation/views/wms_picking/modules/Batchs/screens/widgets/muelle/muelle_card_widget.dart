@@ -55,7 +55,11 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
             value: widget.selectedMuelle,
             items: [
               DropdownMenuItem(
-                value: widget.batchBloc.currentProduct.barcodeLocationDest,
+                value: widget.batchBloc.configurations.result?.result
+                            ?.muelleOption ==
+                        "multiple"
+                    ? widget.batchBloc.currentProduct.barcodeLocationDest
+                    : widget.batchBloc.batchWithProducts.batch?.barcodeMuelle,
                 child: Text(
                   widget.batchBloc.configurations.result?.result
                               ?.muelleOption ==

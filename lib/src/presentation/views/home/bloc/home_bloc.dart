@@ -1,7 +1,5 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -41,19 +39,28 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       emit(AppVersionLoadingState());
       try {
         final response = await homeRepository.getAppVersion(event.context);
-        if(response.result == null) {
-          emit(AppVersionLoadErrorState('Error al obtener la versión de la app'));
+        if (response.result == null) {
+          emit(AppVersionLoadErrorState(
+              'Error al obtener la versión de la app'));
           return;
         }
         appVersion = response;
-        //obtenemos la versión de la app
+        // Obtenemos la versión de la app
         PackageInfo packageInfo = await PackageInfo.fromPlatform();
         String version = packageInfo.version; // Versión de la app
-        // String buildNumber = packageInfo.buildNumber; // Número del build
-        //validamos si las versiones son diferentes
-        if (version == appVersion.result?.result?.version) {
+
+        // Comparamos las versiones
+        String currentVersion = appVersion.result?.result?.version ?? '';
+
+        if (version == currentVersion) {
+          // Si las versiones son iguales, la app está actualizada
           emit(AppVersionLoadedState(appVersion));
-        } else {
+        } else if (version.compareTo(currentVersion) > 0) {
+          // Si la versión local es mayor (es decir, está más actualizada)
+
+          emit(AppVersionLoadedState(appVersion)); // Ya está actualizada
+        } else if (version.compareTo(currentVersion) < 0) {
+          // Si la versión local es menor, hay una actualización disponible
           emit(AppVersionUpdateState(appVersion));
         }
       } catch (e) {

@@ -22,31 +22,12 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class _HomePageState extends State<HomePage> {
+  @override
   @override
   void initState() {
     super.initState();
-    // Añadimos el observer para escuchar el ciclo de vida de la app.
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    if (state == AppLifecycleState.resumed) {
-      if (mounted) {
-        // Aquí se ejecutan las acciones solo si la pantalla aún está montada
-        context.read<HomeBloc>().add(AppVersionEvent(context));
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    // Eliminamos el observer para evitar fugas de memoria.
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
+    context.read<HomeBloc>().add(AppVersionEvent(context));
   }
 
   @override
@@ -70,10 +51,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             );
           }
 
-          if (state is HomeLoadedState) {
-            context.read<HomeBloc>().add(AppVersionEvent(context));
-          }
-
+       
           if (state is AppVersionUpdateState) {
             //esperamos 2 segundos y mostramos el dialogo
             Future.delayed(const Duration(seconds: 2), () {
@@ -395,7 +373,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                           child: ItemList(
                                             size: size,
                                             color: primaryColorApp,
-                                             urlImg: "picking.png",
+                                            urlImg: "picking.png",
                                             title: 'BATCH PICKING En Proceso',
                                             value: (context
                                                         .read<WMSPickingBloc>()
@@ -481,7 +459,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                           size: size,
                                           color: primaryColorApp,
                                           title: 'BATCH PACKING En Proceso',
-                                           urlImg: "packing.png",
+                                          urlImg: "packing.png",
                                           value: (context
                                                       .read<WmsPackingBloc>()
                                                       .listOfBatchs

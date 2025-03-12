@@ -45,6 +45,15 @@ class UserScreen extends StatelessWidget {
                           return UpdateAppDialog();
                         });
                   }
+
+                  if (state is AppVersionLoadedState) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("No hay actualizaciones disponibles"),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
                 },
                 child: BlocBuilder<UserBloc, UserState>(
                   builder: (context, state) {
@@ -176,9 +185,10 @@ class UserScreen extends StatelessWidget {
                                                   fontSize: 14,
                                                   color: primaryColorApp)),
                                           // Text('WMS',
-                                          Text(  context
-                                                      .read<UserBloc>()
-                                                      .versionApp,
+                                          Text(
+                                              context
+                                                  .read<UserBloc>()
+                                                  .versionApp,
                                               style: const TextStyle(
                                                   fontSize: 14, color: black))
                                         ],

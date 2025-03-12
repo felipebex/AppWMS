@@ -245,6 +245,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
   }
 
   void validateMuelle(String value) {
+
+
     final batchBloc = context.read<BatchBloc>();
     String scan = batchBloc.scannedValue4.toLowerCase() == ""
         ? value.toLowerCase()
@@ -263,6 +265,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
       batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: false));
       context.read<BatchBloc>().add(ClearScannedValueEvent('muelle'));
     }
+
+
+
   }
 
   @override
@@ -501,6 +506,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                 child: batchBloc.isPdaZebra
                                     ? Column(
                                         children: [
+
+                                          
                                           LocationDropdownWidget(
                                             isPDA: false,
                                             selectedLocation: selectedLocation,
@@ -512,6 +519,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                             batchBloc: batchBloc,
                                             currentProduct: currentProduct,
                                           ),
+
+
+
                                           Container(
                                             height: 15,
                                             margin: const EdgeInsets.only(
@@ -966,106 +976,117 @@ class _BatchDetailScreenState extends State<BatchScreen>
                         if (batchBloc.batchWithProducts.batch?.indexList ==
                                 (batchBloc.filteredProducts.length) - 1 ||
                             batchBloc.filteredProducts.length == 1)
-                          Row(
-                            children: [
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 10),
-                                child: Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color: batchBloc.locationDestIsOk
-                                        ? green
-                                        : yellow,
-                                    shape: BoxShape.circle,
-                                  ),
+                        Row(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: batchBloc.locationDestIsOk
+                                      ? green
+                                      : yellow,
+                                  shape: BoxShape.circle,
                                 ),
                               ),
-                              Card(
-                                color: batchBloc.isLocationDestOk
-                                    ? batchBloc.locationDestIsOk
-                                        ? Colors.green[100]
-                                        : Colors.grey[300]
-                                    : Colors.red[200],
-                                elevation: 5,
-                                child: Container(
-                                  width: size.width * 0.85,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 10),
-                                  child: batchBloc.isPdaZebra
-                                      ? Column(
-                                          children: [
-                                            MuelleDropdownWidget(
-                                              selectedMuelle: selectedMuelle,
-                                              batchBloc: batchBloc,
-                                              currentProduct: currentProduct,
-                                              isPda: false,
-                                            ),
-                                            Container(
-                                              height: 15,
-                                              margin: const EdgeInsets.only(
-                                                  bottom: 5),
-                                              child: TextFormField(
-                                                showCursor: false,
-                                                enabled: batchBloc
-                                                        .locationIsOk &&
-                                                    batchBloc.productIsOk &&
-                                                    !batchBloc.quantityIsOk &&
-                                                    !batchBloc.locationDestIsOk,
-                                                controller:
-                                                    _controllerMuelle, // Controlador que maneja el texto
-                                                focusNode: focusNode5,
-                                                onChanged: (value) {
-                                                  validateMuelle(value);
-                                                },
-                                                decoration: InputDecoration(
-                                                  hintText: batchBloc
-                                                      .currentProduct
-                                                      .locationDestId
-                                                      .toString(),
-                                                  disabledBorder:
-                                                      InputBorder.none,
-                                                  hintStyle: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: black),
-                                                  border: InputBorder.none,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : Focus(
-                                          focusNode: focusNode5,
-                                          onKey: (FocusNode node,
-                                              RawKeyEvent event) {
-                                            if (event is RawKeyDownEvent) {
-                                              if (event.logicalKey ==
-                                                  LogicalKeyboardKey.enter) {
-                                                validateMuelle(context
-                                                    .read<BatchBloc>()
-                                                    .scannedValue4);
-                                                return KeyEventResult.handled;
-                                              } else {
-                                                context.read<BatchBloc>().add(
-                                                    UpdateScannedValueEvent(
-                                                        event.data.keyLabel,
-                                                        'muelle'));
-                                                return KeyEventResult.handled;
-                                              }
-                                            }
-                                            return KeyEventResult.ignored;
-                                          },
-                                          child: MuelleDropdownWidget(
+                            ),
+                            Card(
+                              color: batchBloc.isLocationDestOk
+                                  ? batchBloc.locationDestIsOk
+                                      ? Colors.green[100]
+                                      : Colors.grey[300]
+                                  : Colors.red[200],
+                              elevation: 5,
+                              child: Container(
+                                width: size.width * 0.85,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 10),
+                                child: batchBloc.isPdaZebra
+                                    ? Column(
+                                        children: [
+                                          MuelleDropdownWidget(
                                             selectedMuelle: selectedMuelle,
                                             batchBloc: batchBloc,
                                             currentProduct: currentProduct,
-                                            isPda: true,
-                                          )),
-                                ),
+                                            isPda: false,
+                                          ),
+                                          Container(
+                                            height: 15,
+                                            margin: const EdgeInsets.only(
+                                                bottom: 5),
+                                            child: TextFormField(
+                                              showCursor: false,
+                                              enabled: batchBloc.locationIsOk &&
+                                                  batchBloc.productIsOk &&
+                                                  !batchBloc.quantityIsOk &&
+                                                  !batchBloc.locationDestIsOk,
+                                              controller:
+                                                  _controllerMuelle, // Controlador que maneja el texto
+                                              focusNode: focusNode5,
+                                              onChanged: (value) {
+                                                validateMuelle(value);
+                                              },
+                                              decoration: InputDecoration(
+                                                hintText: 
+                                                
+                                                batchBloc
+                                                            .configurations
+                                                            .result
+                                                            ?.result
+                                                            ?.muelleOption ==
+                                                        "multiple"
+
+
+                                                    ? batchBloc.currentProduct
+                                                        .locationDestId
+                                                        .toString()
+                                                    : batchBloc
+                                                        .batchWithProducts
+                                                        .batch
+                                                        ?.muelle,
+                                                disabledBorder:
+                                                    InputBorder.none,
+                                                hintStyle: const TextStyle(
+                                                    fontSize: 14, color: black),
+                                                border: InputBorder.none,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Focus(
+                                        focusNode: focusNode5,
+                                        onKey: (FocusNode node,
+                                            RawKeyEvent event) {
+                                          if (event is RawKeyDownEvent) {
+                                            if (event.logicalKey ==
+                                                LogicalKeyboardKey.enter) {
+                                              validateMuelle(context
+                                                  .read<BatchBloc>()
+                                                  .scannedValue4);
+                                              return KeyEventResult.handled;
+                                            } else {
+                                              context.read<BatchBloc>().add(
+                                                  UpdateScannedValueEvent(
+                                                      event.data.keyLabel,
+                                                      'muelle'));
+                                              return KeyEventResult.handled;
+                                            }
+                                          }
+                                          return KeyEventResult.ignored;
+                                        },
+                                        child: MuelleDropdownWidget(
+                                          selectedMuelle: selectedMuelle,
+                                          batchBloc: batchBloc,
+                                          currentProduct: currentProduct,
+                                          isPda: true,
+                                        )),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
