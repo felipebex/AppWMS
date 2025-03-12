@@ -1811,7 +1811,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
           batch.id ?? 0,
           currentProduct.idProduct ?? 0,
           'is_separate',
-          'true',
+          1,
           currentProduct.idMove ?? 0,
         );
 
@@ -1839,7 +1839,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
             batch.id ?? 0,
             currentProduct.idProduct ?? 0,
             'is_quantity_is_ok',
-            'false',
+            0,
             currentProduct.idMove ?? 0,
           );
 
@@ -2031,19 +2031,16 @@ class _BatchDetailScreenState extends State<BatchScreen>
                 cantidad: unidadesSeparadas,
                 batchBloc: batchBloc,
                 onAccepted: () {
-                  // Navigator.pop(context);
                   if (batchBloc
                           .configurations.result?.result?.showDetallesPicking ==
                       true) {
                     //cerramos el focus
                     batchBloc.isSearch = false;
                     batchBloc.add(LoadProductEditEvent());
-                    // batchBloc.add(IsShouldRunDependencies(false));
                     Navigator.pushReplacementNamed(
                       context,
                       'batch-detail',
                     ).then((_) {
-                      // batchBloc.add(IsShouldRunDependencies(true));
                     });
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(

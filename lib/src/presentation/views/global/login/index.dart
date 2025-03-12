@@ -39,7 +39,9 @@ class LoginPage extends StatelessWidget {
               }
               if (state is LoginSuccess) {
                 context.read<UserBloc>().add(GetConfigurations(context));
+                context.read<HomeBloc>().add(HomeLoadData());
                 context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
+
               }
               if (state is LoginFailure) {
                 Get.back();

@@ -129,4 +129,83 @@ class BatchPickingRepository {
     }
     return [];
   }
+
+  // Método para actualizar un campo específico de un batch de picking
+  Future<int?> setFieldTableBatch(
+      int batchId, String field, dynamic setValue) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Usamos rawUpdate para actualizar el campo específico
+      final resUpdate = await db.rawUpdate(
+          'UPDATE ${BatchPickingTable.tableName} SET $field = ? WHERE ${BatchPickingTable.columnId} = ?',
+          [setValue, batchId]);
+
+      return resUpdate;
+    } catch (e) {
+      print("Error al actualizar el campo $field en tblbatchs: $e");
+      return null;
+    }
+  }
+
+// Método para obtener el valor de un campo específico de un batch de picking
+  Future<String> getFieldTableBatch(int batchId, String field) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Ejecutar consulta raw para obtener el valor del campo
+      final res = await db.rawQuery('''
+      // SELECT $field FROM ${BatchPickingTable.tableName} WHERE ${BatchPickingTable.columnId} = ? LIMIT 1
+    ''', [batchId]);
+
+      if (res.isNotEmpty) {
+        // Devuelve el valor del campo como String
+        return res[0][field].toString();
+      }
+      return "";
+    } catch (e) {
+      print("Error al obtener el campo $field de tblbatchs: $e");
+      return "";
+    }
+  }
+
+  // Método para iniciar el cronómetro de un batch de picking
+  Future<int?> startStopwatchBatch(int batchId, String date) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Actualiza el campo 'start_time_pick' con la fecha proporcionada
+      final resUpdate = await db.rawUpdate(
+          "UPDATE ${BatchPickingTable.tableName} SET ${BatchPickingTable.columnStartTimePick} = ? WHERE ${BatchPickingTable.columnId} = ?",
+          [date, batchId]);
+
+      print("startStopwatchBatch: $resUpdate");
+      return resUpdate;
+    } catch (e) {
+      print("Error al iniciar el cronómetro para el batch $batchId: $e");
+      return null;
+    }
+  }
+
+  // Método para finalizar el cronómetro de un batch de picking
+  Future<int?> endStopwatchBatch(int batchId, String date) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Actualiza el campo 'end_time_pick' con la fecha proporcionada
+      final resUpdate = await db.rawUpdate(
+          "UPDATE ${BatchPickingTable.tableName} SET ${BatchPickingTable.columnEndTimePick} = ? WHERE ${BatchPickingTable.columnId} = ?",
+          [date, batchId]);
+
+      print("endStopwatchBatch: $resUpdate");
+      return resUpdate;
+    } catch (e) {
+      print("Error al finalizar el cronómetro para el batch $batchId: $e");
+      return null;
+    }
+  }
+
+
+  
+
 }

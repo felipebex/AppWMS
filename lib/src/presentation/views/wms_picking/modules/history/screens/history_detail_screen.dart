@@ -106,6 +106,29 @@ class HistoryDetailScreen extends StatelessWidget {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
+                                    text: 'Zona entrega : ',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color:
+                                            primaryColorApp), // Color rojo para la primera parte
+                                  ),
+                                  TextSpan(
+                                    text: batch.zonaEntrega ?? '',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color:
+                                            black), // Color negro para el valor
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
                                     text: 'Responsable : ',
                                     style: TextStyle(
                                         fontSize: 14,
@@ -246,7 +269,7 @@ class HistoryDetailScreen extends StatelessWidget {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: 'Productos separados : ',
+                                    text: 'Unidades separadas : ',
                                     style: TextStyle(
                                         fontSize: 14,
                                         color:
@@ -254,6 +277,52 @@ class HistoryDetailScreen extends StatelessWidget {
                                   ),
                                   TextSpan(
                                     text: batch.itemsSeparado.toString(),
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color:
+                                            black), // Color negro para el valor
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Inicio de proceso : ',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color:
+                                            primaryColorApp), // Color rojo para la primera parte
+                                  ),
+                                  TextSpan(
+                                    text: batch.startTimePick??"",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color:
+                                            black), // Color negro para el valor
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: 'Fin de proceso : ',
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color:
+                                            primaryColorApp), // Color rojo para la primera parte
+                                  ),
+                                  TextSpan(
+                                    text: batch.endTimePick ??"",
                                     style: TextStyle(
                                         fontSize: 14,
                                         color:

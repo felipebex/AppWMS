@@ -3,7 +3,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -69,6 +71,7 @@ class CloseSession extends StatelessWidget {
               );
 
               // Ejecutar los procesos de cierre de sesión
+              context.read<HomeBloc>().add(ClearDataEvent());
               PrefUtils.clearPrefs();
               Preferences.removeUrlWebsite();
               await DataBaseSqlite().deleteBD();

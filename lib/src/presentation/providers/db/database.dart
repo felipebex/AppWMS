@@ -2,6 +2,8 @@
 
 import 'package:wms_app/src/presentation/providers/db/others/tbl_barcodes/barcodes_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_barcodes/barcodes_table.dart';
+import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_packing_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_package_pack/package_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_package_pack/package_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_products_pedido/productos_pedido_pack_repository.dart';
@@ -18,7 +20,6 @@ import 'package:wms_app/src/presentation/providers/db/picking/tbl_submuelles/sub
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_submuelles/submuelles_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_urlrecientes/urlrecientes_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_urlrecientes/urlrecientes_table.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
@@ -101,31 +102,7 @@ class DataBaseSqlite {
      ''');
 
     //* tabla de batchs de packing
-    await db.execute('''
-      CREATE TABLE tblbatchs_packing (
-
-        id INTEGER PRIMARY KEY,
-        name VARCHAR(255),
-        scheduleddate VARCHAR(255),
-        picking_type_id VARCHAR(255),
-        state VARCHAR(255),
-        user_id INTEGER,
-        user_name VARCHAR(255),
-        cantidad_pedidos INTEGER,
-
-        is_separate INTEGER, 
-        is_selected INTEGER, 
-        pedido_separate_qty INTEGER,
-        index_list INTEGER,
-        zona_entrega TEXT,
-        zona_entrega_tms TEXT,
-        time_separate_total DECIMAL(10,2),
-        time_separate_start VARCHAR(255),
-        time_separate_end VARCHAR(255)
-
-      )
-    ''');
-
+    await db.execute(BatchPackingTable.createTable());
     //*tabla de productos de un pedido de packing
     await db.execute(ProductosPedidosTable.createTable());
     //*tabla de barcodes de los productos
@@ -148,7 +125,7 @@ class DataBaseSqlite {
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 6) {
-      await db.execute('ALTER TABLE tblbatchs ADD COLUMN id_muelle INTEGER');
+      // await db.execute('ALTER TABLE tblbatchs ADD COLUMN id_muelle INTEGER');
     }
   }
 
@@ -175,6 +152,9 @@ class DataBaseSqlite {
   //metodo  para obtener una instancia del repositorio de productos de un pedido
   ProductosPedidosRepository get productosPedidosRepository =>
       ProductosPedidosRepository();
+  //metodo  para obtener una instancia del repositorio de batchs para packing
+  BatchPackingRepository get batchPackingRepository => BatchPackingRepository();
+  
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -184,79 +164,8 @@ class DataBaseSqlite {
     return _database!;
   }
 
-  //todo insertar btach de packing
-  Future<void> insertBatchPacking(BatchPackingModel batch) async {
-    try {
-      final db = await getDatabaseInstance();
+ 
 
-      await db!.transaction((txn) async {
-        // Verificar si el batch ya existe
-        final List<Map<String, dynamic>> existingBatch = await txn.query(
-          'tblbatchs_packing',
-          where: 'id = ?',
-          whereArgs: [batch.id],
-        );
-
-        if (existingBatch.isNotEmpty) {
-          // Actualizar el batch
-          await txn.update(
-            'tblbatchs_packing',
-            {
-              "id": batch.id,
-              "name": batch.name,
-              "scheduleddate": batch.scheduleddate.toString(),
-              "picking_type_id": batch.pickingTypeId,
-              "state": batch.state,
-              "user_id": batch.userId,
-              'cantidad_pedidos': batch.cantidadPedidos,
-              'user_name': batch.userName,
-              'zona_entrega': batch.zonaEntrega,
-              "zona_entrega_tms": batch.zonaEntregaTms
-            },
-            where: 'id = ?',
-            whereArgs: [batch.id],
-          );
-        } else {
-          // Insertar nuevo batch
-          await txn.insert(
-            'tblbatchs_packing',
-            {
-              "id": batch.id,
-              "name": batch.name,
-              "scheduleddate": batch.scheduleddate.toString(),
-              "picking_type_id": batch.pickingTypeId,
-              "state": batch.state,
-              "user_id": batch.userId,
-              'cantidad_pedidos': batch.cantidadPedidos,
-              'user_name': batch.userName,
-              'zona_entrega': batch.zonaEntrega,
-              "zona_entrega_tms": batch.zonaEntregaTms
-            },
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-        }
-      });
-    } catch (e) {
-      print("Error al insertar tblbatchs_packing: $e");
-    }
-  }
-
-  //* Obtener todos los batchs del packing
-  Future<List<BatchPackingModel>> getAllBatchsPacking() async {
-    try {
-      final db = await getDatabaseInstance();
-      final List<Map<String, dynamic>> maps =
-          await db!.query('tblbatchs_packing');
-
-      final List<BatchPackingModel> batchs = maps.map((map) {
-        return BatchPackingModel.fromMap(map);
-      }).toList();
-      return batchs;
-    } catch (e, s) {
-      print("Error tblbatchs_packing: $e => $s");
-    }
-    return [];
-  }
 
   //Todo: Métodos para batchs_products
 
@@ -454,27 +363,9 @@ class DataBaseSqlite {
     await db.delete('tblbatch_products');
   }
 
-  //*metodo para actualizar la tabla de batch de un packing
-  Future<int?> setFieldTableBatchPacking(
-      int batchId, String field, dynamic setValue) async {
-    final db = await getDatabaseInstance();
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatchs_packing SET $field = $setValue WHERE id = $batchId');
-    // print("update tblbatchs_packing ($field): $resUpdate");
+ 
 
-    return resUpdate;
-  }
-
-  //*metodo para actualizar la tabla tblbatchs
-  Future<int?> setFieldTableBatch(
-      int batchId, String field, dynamic setValue) async {
-    final db = await getDatabaseInstance();
-    final resUpdate = await db!.rawUpdate(
-        ' UPDATE tblbatchs SET $field = $setValue WHERE id = $batchId');
-    // print("update tblbatchs ($field): $resUpdate");
-
-    return resUpdate;
-  }
+ 
 
   //*metodo para actualizar la tabla de productos de un batch
   Future<int?> setFieldTableBatchProducts(int batchId, int productId,
@@ -497,17 +388,6 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
-  Future<String> getFieldTableBtach(int batchId, String field) async {
-    final db = await getDatabaseInstance();
-    final res = await db!.rawQuery('''
-      SELECT $field FROM tblbatchs WHERE id = $batchId LIMIT 1
-    ''');
-    if (res.isNotEmpty) {
-      String responsefield = res[0]['${field}'].toString();
-      return responsefield;
-    }
-    return "";
-  }
 
   //obtener el tiempo de inicio de la separacion de la tabla product
   Future<String> getFieldTableProducts(
@@ -548,22 +428,7 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
-  Future<int?> startStopwatchBatch(int batchId, String date) async {
-    final db = await getDatabaseInstance();
-    final resUpdate = await db!.rawUpdate(
-        "UPDATE tblbatchs SET start_time_pick = '$date' WHERE id = $batchId ");
-    print("startStopwatchBatch: $resUpdate");
-    return resUpdate;
-  }
-
-  Future<int?> endStopwatchBatch(int batchId, String date) async {
-    final db = await getDatabaseInstance();
-    final resUpdate = await db!.rawUpdate(
-        "UPDATE tblbatchs SET end_time_pick = '$date' WHERE id = $batchId ");
-    print("startStopwatchBatch: $resUpdate");
-    return resUpdate;
-  }
-
+ 
   Future<int?> endStopwatchProduct(
       int batchId, String date, int productId, int moveId) async {
     final db = await getDatabaseInstance();
@@ -584,13 +449,7 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
-  Future<int?> totalStopwatchBatch(int batchId, double time) async {
-    final db = await getDatabaseInstance();
-    final resUpdate = await db!.rawUpdate(
-        "UPDATE tblbatchs SET time_separate_total = $time WHERE id = $batchId ");
-    print("endStopwatchBatch: $resUpdate");
-    return resUpdate;
-  }
+ 
 
   Future<int?> updateNovedad(
     int batchId,

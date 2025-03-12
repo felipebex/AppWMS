@@ -20,7 +20,6 @@ class BatchPickingTable {
   static const String columnProductSeparateQty = 'product_separate_qty';
   static const String columnProductQty = 'product_qty';
   static const String columnIndexList = 'index_list';
-  static const String columnTimeSeparateTotal = 'time_separate_total';
   static const String columnIsSendOddo = 'is_send_oddo';
   static const String columnIsSendOddoDate = 'is_send_oddo_date';
   static const String columnOrderBy = 'order_by';
@@ -54,7 +53,6 @@ class BatchPickingTable {
         $columnProductSeparateQty INTEGER,
         $columnProductQty INTEGER,
         $columnIndexList INTEGER,
-        $columnTimeSeparateTotal DECIMAL(10,2),
         $columnIsSendOddo INTEGER,
         $columnIsSendOddoDate VARCHAR(255),
         $columnOrderBy TEXT,

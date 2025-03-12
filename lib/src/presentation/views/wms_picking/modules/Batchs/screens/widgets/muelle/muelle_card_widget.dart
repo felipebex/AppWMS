@@ -197,13 +197,10 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                         //cerramos el focus
                         batchBloc.isSearch = false;
                         batchBloc.add(LoadProductEditEvent());
-                        // batchBloc.add(IsShouldRunDependencies(false));
                         Navigator.pushReplacementNamed(
                           context,
                           'batch-detail',
-                        ).then((_) {
-                          // batchBloc.add(IsShouldRunDependencies(true));
-                        });
+                        );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -265,11 +262,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                     batchBloc.isSearch = false;
                     batchBloc.add(LoadProductEditEvent());
 
-                    // Comprobamos si el widget aún está montado antes de hacer setState
-                    if (mounted) {
-                      // batchBloc.add(IsShouldRunDependencies(false));
-                    }
-
+                  
                     Navigator.pushReplacementNamed(
                       context,
                       'batch-detail',

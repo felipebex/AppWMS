@@ -555,7 +555,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onFilterBatchesBStatusEvent(FilterBatchPackingStatusEvent event,
       Emitter<WmsPackingState> emit) async {
     if (event.status == '') {
-      final batchsFromDB = await db.getAllBatchsPacking();
+      final batchsFromDB = await db.batchPackingRepository.getAllBatchsPacking();
       listOfBatchsDB = batchsFromDB;
       listOfBatchsDB = listOfBatchsDB
           .where((element) => element.isSeparate == null)
@@ -575,7 +575,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onSearchBacthEvent(
       SearchBatchPackingEvent event, Emitter<WmsPackingState> emit) async {
     final query = event.query.toLowerCase();
-    final batchsFromDB = await db.getAllBatchsPacking();
+    final batchsFromDB = await db.batchPackingRepository.getAllBatchsPacking();
 
     if (event.indexMenu == 0) {
       if (query.isEmpty) {
@@ -722,7 +722,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           );
 
           //actualizamos el estado del batch como seleccionado
-          await db.setFieldTableBatchPacking(
+          await db.batchPackingRepository.setFieldTableBatchPacking(
             event.productos[0].batchId ?? 0,
             "is_selected",
             1,
@@ -1073,7 +1073,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         for (var batch in listOfBatchs) {
           try {
             if (batch.id != null && batch.name != null) {
-              await DataBaseSqlite().insertBatchPacking(BatchPackingModel(
+              await DataBaseSqlite().batchPackingRepository.insertBatchPacking(BatchPackingModel(
                 id: batch.id!,
                 name: batch.name ?? '',
                 scheduleddate: batch.scheduleddate.toString(),
@@ -1083,6 +1083,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
                 userName: batch.userName,
                 cantidadPedidos: batch.cantidadPedidos,
                 zonaEntrega: batch.zonaEntrega,
+                startTimePack: batch.startTimePack,
+                endTimePack: batch.endTimePack,
               ));
             }
           } catch (dbError, stackTrace) {
@@ -1170,7 +1172,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadBatchPackingFromDBEvent event, Emitter<WmsPackingState> emit) async {
     try {
       emit(BatchsPackingLoadingState());
-      final batchsFromDB = await db.getAllBatchsPacking();
+      final batchsFromDB = await db.batchPackingRepository.getAllBatchsPacking();
       listOfBatchsDB.clear();
       listOfBatchsDB.addAll(batchsFromDB);
       emit(WmsPackingLoaded());
@@ -1210,7 +1212,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     if (isLocationOk) {
       //*actualizamos la seleccion del batch, pedido y producto
       //actualizamos el estado de seleccion de un batch
-      await db.setFieldTableBatchPacking(
+      await db.batchPackingRepository.setFieldTableBatchPacking(
           currentProduct.batchId ?? 0, "is_selected", 1);
       //actualizamos el estado del pedido como seleccionado
       await db.pedidosPackingRepository.setFieldTablePedidosPacking(

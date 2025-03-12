@@ -68,5 +68,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             AppVersionLoadErrorState('Error al obtener la versión de la app '));
       }
     });
+
+   
   }
 }

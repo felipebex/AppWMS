@@ -3,59 +3,67 @@ import 'dart:convert';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/lista_product_packing.dart';
 
 class PackingModelResponse {
-    final String? jsonrpc;
-    final dynamic id;
-    final PackingModelResponseResult? result;
+  final String? jsonrpc;
+  final dynamic id;
+  final PackingModelResponseResult? result;
 
-    PackingModelResponse({
-        this.jsonrpc,
-        this.id,
-        this.result,
-    });
+  PackingModelResponse({
+    this.jsonrpc,
+    this.id,
+    this.result,
+  });
 
-    factory PackingModelResponse.fromJson(String str) => PackingModelResponse.fromMap(json.decode(str));
+  factory PackingModelResponse.fromJson(String str) =>
+      PackingModelResponse.fromMap(json.decode(str));
 
-    String toJson() => json.encode(toMap());
+  String toJson() => json.encode(toMap());
 
-    factory PackingModelResponse.fromMap(Map<String, dynamic> json) => PackingModelResponse(
+  factory PackingModelResponse.fromMap(Map<String, dynamic> json) =>
+      PackingModelResponse(
         jsonrpc: json["jsonrpc"],
         id: json["id"],
-        result: json["result"] == null ? null : PackingModelResponseResult.fromMap(json["result"]),
-    );
+        result: json["result"] == null
+            ? null
+            : PackingModelResponseResult.fromMap(json["result"]),
+      );
 
-    Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() => {
         "jsonrpc": jsonrpc,
         "id": id,
         "result": result?.toMap(),
-    };
+      };
 }
 
 class PackingModelResponseResult {
-    final int? code;
-    final List<BatchPackingModel>? result;
+  final int? code;
+  final List<BatchPackingModel>? result;
 
-    PackingModelResponseResult({
-        this.code,
-        this.result,
-    });
+  PackingModelResponseResult({
+    this.code,
+    this.result,
+  });
 
-    factory PackingModelResponseResult.fromJson(String str) => PackingModelResponseResult.fromMap(json.decode(str));
+  factory PackingModelResponseResult.fromJson(String str) =>
+      PackingModelResponseResult.fromMap(json.decode(str));
 
-    String toJson() => json.encode(toMap());
+  String toJson() => json.encode(toMap());
 
-    factory PackingModelResponseResult.fromMap(Map<String, dynamic> json) => PackingModelResponseResult(
+  factory PackingModelResponseResult.fromMap(Map<String, dynamic> json) =>
+      PackingModelResponseResult(
         code: json["code"],
-        result: json["result"] == null ? [] : List<BatchPackingModel>.from(json["result"]!.map((x) => BatchPackingModel.fromMap(x))),
-    );
+        result: json["result"] == null
+            ? []
+            : List<BatchPackingModel>.from(
+                json["result"]!.map((x) => BatchPackingModel.fromMap(x))),
+      );
 
-    Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() => {
         "code": code,
-        "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toMap())),
-    };
+        "result": result == null
+            ? []
+            : List<dynamic>.from(result!.map((x) => x.toMap())),
+      };
 }
-
-
-
 
 class BatchPackingModel {
   final int? id;
@@ -79,6 +87,8 @@ class BatchPackingModel {
   final String? timeSeparateEnd;
   final String? zonaEntrega;
   final String? zonaEntregaTms;
+  final dynamic startTimePack;
+  final dynamic endTimePack;
 
   BatchPackingModel({
     this.id,
@@ -99,6 +109,8 @@ class BatchPackingModel {
     this.timeSeparateEnd,
     this.zonaEntrega,
     this.zonaEntregaTms,
+    this.startTimePack,
+    this.endTimePack,
   });
 
   factory BatchPackingModel.fromJson(String str) =>
@@ -128,6 +140,8 @@ class BatchPackingModel {
         timeSeparateEnd: json["time_separate_end"],
         zonaEntrega: json["zona_entrega"],
         zonaEntregaTms: json["zona_entrega_tms"],
+        startTimePack: json["start_time_pack"],
+        endTimePack: json["end_time_pack"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -149,6 +163,8 @@ class BatchPackingModel {
         "time_separate_end": timeSeparateEnd,
         "zona_entrega": zonaEntrega,
         "zona_entrega_tms": zonaEntregaTms,
+        'start_time_pack': startTimePack,
+        'end_time_pack': endTimePack,
       };
 }
 
@@ -281,19 +297,19 @@ class Paquete {
   String toJson() => json.encode(toMap());
 
   factory Paquete.fromMap(Map<String, dynamic> json) => Paquete(
-      id: json["id"],
-      name: json["name"],
-      batchId: json["batch_id"],
-      pedidoId: json["pedido_id"],
-      cantidadProductos: json["cantidad_productos"],
-      listaProductosInPacking: json["lista_productos_in_packing"] == null
-          ? []
-          : List<PorductoPedido>.from(
-              json["lista_productos_in_packing"]!.map((x) => PorductoPedido.fromMap(x))),
-      isSticker: json["is_sticker"],
-      isCertificate: json["is_certificate"],
-      // fechaCreacion: json["fecha_creacion"] == null ? null : DateTime.parse(json["fecha_creacion"]),
-      // fechaActualiazacion: json["fecha_actualiazacion"] == null ? null : DateTime.parse(json["fecha_actualiazacion"]),
+        id: json["id"],
+        name: json["name"],
+        batchId: json["batch_id"],
+        pedidoId: json["pedido_id"],
+        cantidadProductos: json["cantidad_productos"],
+        listaProductosInPacking: json["lista_productos_in_packing"] == null
+            ? []
+            : List<PorductoPedido>.from(json["lista_productos_in_packing"]!
+                .map((x) => PorductoPedido.fromMap(x))),
+        isSticker: json["is_sticker"],
+        isCertificate: json["is_certificate"],
+        // fechaCreacion: json["fecha_creacion"] == null ? null : DateTime.parse(json["fecha_creacion"]),
+        // fechaActualiazacion: json["fecha_actualiazacion"] == null ? null : DateTime.parse(json["fecha_actualiazacion"]),
       );
 
   Map<String, dynamic> toMap() => {
@@ -304,7 +320,8 @@ class Paquete {
         "cantidad_productos": cantidadProductos,
         "lista_productos_in_packing": listaProductosInPacking == null
             ? []
-            : List<dynamic>.from(listaProductosInPacking!.map((x) => x.toMap())),
+            : List<dynamic>.from(
+                listaProductosInPacking!.map((x) => x.toMap())),
         "is_sticker": isSticker,
         "is_certificate": isCertificate,
         // "fecha_creacion"

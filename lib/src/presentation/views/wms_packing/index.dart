@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
@@ -338,19 +339,49 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             Spacer(),
                                             Text(batch.zonaEntrega ?? '',
                                                 style: const TextStyle(
-                                                    fontSize: 14, color: black)),
+                                                    fontSize: 14,
+                                                    color: black)),
                                           ],
                                         ),
                                         subtitle: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
                                           children: [
-                                            const Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text("Tipo de operación:",
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: grey)),
+                                            Row(
+                                              children: [
+                                                const Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                      "Tipo de operación:",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: grey)),
+                                                ),
+                                                Spacer(),
+                                                batch.startTimePack != ""
+                                                    ? GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) =>
+                                                                      DialogInfo(
+                                                                        title:
+                                                                            'Tiempo de inicio',
+                                                                        body:
+                                                                            'Este batch fue iniciado a las ${batch.startTimePack}',
+                                                                      ));
+                                                        },
+                                                        child: Icon(
+                                                          Icons.timer_sharp,
+                                                          color:
+                                                              primaryColorApp,
+                                                          size: 15,
+                                                        ),
+                                                      )
+                                                    : const SizedBox(),
+                                              ],
                                             ),
                                             Align(
                                               alignment: Alignment.centerLeft,

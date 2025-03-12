@@ -96,6 +96,7 @@ class _UpdateAppDialogState extends State<UpdateAppDialog> {
 
                       //cerramos el dialogo
 
+                      context.read<HomeBloc>().add(ClearDataEvent());
                       PrefUtils.clearPrefs();
                       Preferences.removeUrlWebsite();
                       await DataBaseSqlite().deleteBD();

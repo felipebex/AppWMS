@@ -129,7 +129,6 @@ class BatchDetailScreen extends StatelessWidget {
                                             context, 'wms-picking',
                                             arguments: 1);
                                       } else {
-                                        //     .add(IsShouldRunDependencies(true));
                                         context.read<BatchBloc>().add(
                                             ClearSearchProudctsBatchEvent());
                                         context.read<BatchBloc>().add(
@@ -282,50 +281,8 @@ class BatchDetailScreen extends StatelessWidget {
                               )
                             ],
                           ),
-                          if (context
-                                  .read<BatchBloc>()
-                                  .batchWithProducts
-                                  .batch
-                                  ?.isSeparate ==
-                              1)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              child: Card(
-                                color: primaryColorAppLigth,
-                                elevation: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.timer,
-                                          color: primaryColorApp, size: 15),
-                                      const SizedBox(width: 10),
-                                      const Text("Tiempo total del picking:",
-                                          style: TextStyle(
-                                              fontSize: 13, color: black)),
-                                      Text(
-                                          context
-                                              .read<BatchBloc>()
-                                              .formatSecondsToHHMMSS(context
-                                                      .read<BatchBloc>()
-                                                      .batchWithProducts
-                                                      .batch
-                                                      ?.timeSeparateTotal ??
-                                                  0.0),
-                                          style: const TextStyle(
-                                              fontSize: 13, color: black)),
-                                    ],
-                                  ),
-                                  //     }
-                                  //   },
-                                  // )),
-                                ),
-                              ),
-                            ),
-                          //*widget de busqueda
+                     
+                          // //*widget de busqueda
 
                           Visibility(
                             visible: context.read<BatchBloc>().isSearch,

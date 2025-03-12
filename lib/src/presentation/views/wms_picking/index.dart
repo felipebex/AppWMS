@@ -13,7 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_star_picking_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -209,7 +209,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                     )
                                   ],
                                 )),
-
                             ElevatedButton(
                               onPressed: () async {
                                 // Primero, asegúrate de que el FocusNode esté activo
@@ -271,33 +270,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                 ],
                               ),
                             ),
-
-                            // ElevatedButton(
-                            //     onPressed: () {
-                            //       context
-                            //           .read<WMSPickingBloc>()
-                            //           .add(FilterBatchesBStatusEvent('done'));
-                            //     },
-                            //     style: ElevatedButton.styleFrom(
-                            //         backgroundColor: white,
-                            //         shape: RoundedRectangleBorder(
-                            //             borderRadius:
-                            //                 BorderRadius.circular(10))),
-                            //     child: Row(
-                            //       children: [
-                            //         const Icon(
-                            //           Icons.batch_prediction,
-                            //           color: green,
-                            //           size: 20,
-                            //         ),
-                            //         const SizedBox(width: 5),
-                            //         Text(
-                            //           'Hechos',
-                            //           style: TextStyle(
-                            //               color: primaryColorApp, fontSize: 12),
-                            //         )
-                            //       ],
-                            //     ))
                           ],
                         ),
                       ),
@@ -751,13 +723,8 @@ class _PickingPageState extends State<WMSPickingPage> {
     Navigator.pop(context);
 
     // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
-    if (batch.isSeparate == 1) {
-      batchBloc.isSearch = true;
-      Navigator.pushReplacementNamed(context, 'batch-detail');
-    } else {
-      //   // Cerrar el diálogo de carga inmediatamente
-
+    if (batch.isSeparate != 1) {
       Navigator.pushReplacementNamed(context, 'batch');
-    }
+    } else {}
   }
 }

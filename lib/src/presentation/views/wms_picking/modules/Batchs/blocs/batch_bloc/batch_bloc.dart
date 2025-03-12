@@ -195,7 +195,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           'start_time');
 
       if (responseTimeBatch) {
-        await db.startStopwatchBatch(event.batchId, formattedDate);
+        await db.batchPickingRepository
+            .startStopwatchBatch(event.batchId, formattedDate);
         emit(TimeSeparateSuccess(formattedDate));
       } else {
         emit(TimeSeparateError('Error al iniciar el tiempo de separacion'));
@@ -229,7 +230,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           'end_time');
 
       if (responseTimeBatch) {
-        await db.endStopwatchBatch(event.batchId, formattedDate);
+        await db.batchPickingRepository
+            .endStopwatchBatch(event.batchId, formattedDate);
         emit(TimeSeparateSuccess(formattedDate));
       } else {
         emit(TimeSeparateError('Error al terminar el tiempo de separacion'));
@@ -376,7 +378,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           event.product.batchId ?? 0,
           event.product.idProduct ?? 0,
           'is_send_odoo',
-          'true',
+          1,
           event.product.idMove ?? 0,
         );
 
@@ -398,7 +400,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           event.product.batchId ?? 0,
           event.product.idProduct ?? 0,
           'is_send_odoo',
-          'false',
+          0,
           event.product.idMove ?? 0,
         );
         emit(SendProductOdooError());
@@ -545,100 +547,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
-//*evento para asignar el submuelle
-  // void _onAssignSubmuelleEvent(
-  //     AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
-  //   try {
-  //     for (var i = 0; i < event.productsSeparate.length; i++) {
-  //       //actualizamos el valor de que se le asigno un submuelle
-  //       await db.setFieldTableBatchProducts(
-  //           event.productsSeparate[i].batchId ?? 0,
-  //           event.productsSeparate[i].idProduct ?? 0,
-  //           'is_muelle',
-  //           'true',
-  //           event.productsSeparate[i].idMove ?? 0);
-
-  //       //actualziamos el muelle del producto
-  //       await db.setFieldTableBatchProducts(
-  //           event.productsSeparate[i].batchId ?? 0,
-  //           event.productsSeparate[i].idProduct ?? 0,
-  //           'muelle_id',
-  //           event.muelle.id ?? 0,
-  //           event.productsSeparate[i].idMove ?? 0);
-
-  //       //actualizamos el nombre del muelle del producto
-  //       await db.setFieldStringTableBatchProducts(
-  //           event.productsSeparate[i].batchId ?? 0,
-  //           event.productsSeparate[i].idProduct ?? 0,
-  //           'location_dest_id',
-  //           event.muelle.completeName ?? '',
-  //           event.productsSeparate[i].idMove ?? 0);
-
-  //       //enviamos el producto a odoo
-
-  //       DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
-  //       //traemos un producto de la base de datos  ya anteriormente guardado
-
-  //       //todo: tiempor por batch
-  //       //tiempo de separacion del producto, lo traemos de la bd
-  //       final starTime = await db.getFieldTableBtach(
-  //           event.productsSeparate[i].batchId ?? 0, 'start_time_pick');
-
-  //       DateTime dateTimeStart = DateTime.parse(starTime);
-  //       // Calcular la diferencia
-  //       Duration difference = dateTimeActuality.difference(dateTimeStart);
-  //       // Obtener la diferencia en segundos
-  //       double secondsDifference = difference.inMilliseconds / 1000.0;
-
-  //       final userid = await PrefUtils.getUserId();
-
-  //       final response = await repository.sendPicking(
-  //           context: event.context,
-  //           idBatch: event.productsSeparate[i].batchId ?? 0,
-  //           timeTotal: secondsDifference,
-  //           cantItemsSeparados:
-  //               batchWithProducts.batch?.productSeparateQty ?? 0,
-  //           listItem: [
-  //             Item(
-  //               idMove: event.productsSeparate[i].idMove ?? 0,
-  //               productId: event.productsSeparate[i].idProduct ?? 0,
-  //               lote: event.productsSeparate[i].lotId ?? '',
-  //               cantidad: (event.productsSeparate[i].quantitySeparate ?? 0) >
-  //                       (event.productsSeparate[i].quantity)
-  //                   ? event.productsSeparate[i].quantity
-  //                   : event.productsSeparate[i].quantitySeparate ?? 0,
-  //               novedad: event.productsSeparate[i].observation ?? 'Sin novedad',
-  //               timeLine: event.productsSeparate[i].timeSeparate ?? 0,
-  //               muelle: event.muelle.id ?? 0,
-  //               idOperario: userid,
-  //               fechaTransaccion:
-  //                   event.productsSeparate[i].fechaTransaccion ?? '',
-  //             ),
-  //           ]);
-
-  //       if (response.result?.code == 200) {
-  //         add(FetchBatchWithProductsEvent(
-  //             event.productsSeparate[i].batchId ?? 0));
-  //         emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
-  //       } else {
-  //         emit(SubMuelleEditFail('Error al asignar el submuelle'));
-  //       }
-  //     }
-  //   } catch (e, s) {
-  //     emit(SubMuelleEditFail('Error al asignar el submuelle'));
-  //     print("❌ Error en el AssignSubmuelleEvent :$s ->$s");
-  //   }
-
-  //   //emitimos el estado
-  // }
-
   void _onAssignSubmuelleEvent(
       AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
     try {
       // Primero, actualizamos la base de datos para todos los productos
       for (var product in event.productsSeparate) {
         await db.setFieldTableBatchProducts(product.batchId ?? 0,
-            product.idProduct ?? 0, 'is_muelle', 'true', product.idMove ?? 0);
+            product.idProduct ?? 0, 'is_muelle', 1, product.idMove ?? 0);
 
         // Actualizamos el muelle del producto
         await db.setFieldTableBatchProducts(
@@ -772,7 +687,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           batchWithProducts.batch?.id ?? 0,
           event.product.idProduct ?? 0,
           'is_pending',
-          'true',
+          1,
           event.product.idMove ?? 0);
 
       //deseleccionamos el producto actual
@@ -781,7 +696,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             batchWithProducts.batch?.id ?? 0,
             event.product.idProduct ?? 0,
             'product_is_ok',
-            'false',
+            0,
             event.product.idMove ?? 0);
       }
 
@@ -799,16 +714,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onPickingOkEvent(PickingOkEvent event, Emitter<BatchState> emit) async {
     try {
       emit(PickingOkLoading());
-      await db.setFieldTableBatch(event.batchId, 'is_separate', 'true');
-      DateTime dateTimeEnd = DateTime.parse(DateTime.now().toString());
-      final starTime =
-          await db.getFieldTableBtach(event.batchId, 'start_time_pick');
-      DateTime dateTimeStart = DateTime.parse(starTime);
-      // Calcular la diferencia
-      Duration difference = dateTimeEnd.difference(dateTimeStart);
-      // Obtener la diferencia en segundos
-      double secondsDifference = difference.inMilliseconds / 1000.0;
-      await db.totalStopwatchBatch(event.batchId, secondsDifference);
+      await db.batchPickingRepository
+          .setFieldTableBatch(event.batchId, 'is_separate', 1);
+
       emit(PickingOkState());
     } catch (e, s) {
       emit(PickingOkError());
@@ -934,7 +842,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             resultProduct.idBatch ?? 0,
             resultProduct.idProduct ?? 0,
             'is_send_odoo',
-            'true',
+            1,
             resultProduct.idMove ?? 0,
           );
         }
@@ -944,7 +852,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           product?.batchId ?? 0,
           product?.idProduct ?? 0,
           'is_send_odoo',
-          'false',
+          0,
           product?.idMove ?? 0,
         );
       }
@@ -962,8 +870,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //todo: tiempor por batch
     //tiempo de separacion del producto, lo traemos de la bd
-    final starTime = await db.getFieldTableBtach(
-        productEdit.batchId ?? 0, 'start_time_pick');
+    final starTime = await db.batchPickingRepository
+        .getFieldTableBatch(productEdit.batchId ?? 0, 'start_time_pick');
     DateTime dateTimeStart = starTime == "null" || starTime.isEmpty
         ? DateTime.now()
         : DateTime.parse(starTime);
@@ -1015,7 +923,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           resultProduct.idBatch ?? 0,
           resultProduct.idProduct ?? 0,
           'is_send_odoo',
-          'true',
+          1,
           resultProduct.idMove ?? 0,
         );
       }
@@ -1027,7 +935,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         product?.batchId ?? 0,
         product?.idProduct ?? 0,
         'is_send_odoo',
-        'false',
+        0,
         product?.idMove ?? 0,
       );
       return false;
@@ -1146,7 +1054,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           batchWithProducts.batch?.id ?? 0,
           event.currentProduct.idProduct ?? 0,
           'is_selected',
-          'false',
+          0,
           currentProduct.idMove ?? 0);
 
       DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
@@ -1188,7 +1096,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       // Validamos si es el último producto
       if (filteredProducts.length == index + 1) {
         // Actualizamos el index de la lista de productos
-        await db.setFieldTableBatch(
+        await db.batchPickingRepository.setFieldTableBatch(
             batchWithProducts.batch?.id ?? 0, 'index_list', index);
 
         if (currentProduct.locationId == oldLocation) {
@@ -1208,27 +1116,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         // Solo incrementamos el índice si no ha sido incrementado previamente
         index = (batchWithProducts.batch?.indexList ?? 0) + 1;
 
-        // Calcular la longitud una sola vez
-        // Contar los productos con isSeparate == 1 usando fold
-        // int separateCount = filteredProducts.fold(0, (count, e) {
-        //   return e.isSeparate == 1 ? count + 1 : count;
-        // });
-
-        // int separateCount =
-        //     filteredProducts.where((e) => e.isSeparate == 1).length;
-
-        // if (index >= separateCount) {
-        //   print('El index ES MAYOR 🍓');
-        //   index = separateCount + 1;
-        // }
-
         if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
           print('El index ES DIFERENTE A INDEXLIST 🍓');
           index = (batchWithProducts.batch?.indexList ?? 0) + 1;
         }
 
         // Actualizamos el index de la lista de productos
-        await db.setFieldTableBatch(
+        await db.batchPickingRepository.setFieldTableBatch(
             batchWithProducts.batch?.id ?? 0, 'index_list', index);
 
         currentProduct = filteredProducts[index];
@@ -1268,7 +1162,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     try {
       if (event.isOk) {
         await db.setFieldTableBatchProducts(event.batchId, event.productId,
-            'is_quantity_is_ok', 'true', event.idMove);
+            'is_quantity_is_ok', 1, event.idMove);
       }
       quantityIsOk = event.isOk;
       emit(ChangeQuantityIsOkState(
@@ -1287,12 +1181,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           event.batchId,
           event.productId,
           'is_location_is_ok',
-          'true',
+          1,
           event.idMove,
         );
 
         //cuando se lea la ubicacion se selecciona el batch
-        await db.setFieldTableBatch(event.batchId, 'is_selected', 'true');
+        await db.batchPickingRepository
+            .setFieldTableBatch(event.batchId, 'is_selected', 1);
         locationIsOk = true;
         emit(ChangeLocationIsOkState(
           locationIsOk,
@@ -1308,7 +1203,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     try {
       if (event.locationDestIsOk) {
         await db.setFieldTableBatchProducts(event.batchId, event.productId,
-            'location_dest_is_ok', 'true', event.idMove);
+            'location_dest_is_ok', 1, event.idMove);
       }
       locationDestIsOk = event.locationDestIsOk;
       emit(ChangeLocationDestIsOkState(
@@ -1343,13 +1238,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         );
 
         await db.setFieldTableBatchProducts(event.batchId, event.productId,
-            'is_quantity_is_ok', 'true', event.idMove);
+            'is_quantity_is_ok', 1, event.idMove);
         quantityIsOk = event.productIsOk;
 
-        await db.setFieldTableBatchProducts(event.batchId, event.productId,
-            'is_selected', 'true', event.idMove);
-        await db.setFieldTableBatchProducts(event.batchId, event.productId,
-            'product_is_ok', 'true', event.idMove);
+        await db.setFieldTableBatchProducts(
+            event.batchId, event.productId, 'is_selected', 1, event.idMove);
+        await db.setFieldTableBatchProducts(
+            event.batchId, event.productId, 'product_is_ok', 1, event.idMove);
       }
       productIsOk = event.productIsOk;
       emit(ChangeProductIsOkState(
