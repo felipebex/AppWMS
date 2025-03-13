@@ -249,6 +249,28 @@ class Tab1Screen extends StatelessWidget {
                                       color: primaryColorApp,
                                       fontWeight: FontWeight.bold),
                                 )),
+                            Row(
+                              children: [
+                                 const Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Referencia: ',
+                                      style:
+                                          TextStyle(fontSize: 14, color: black),
+                                    )),
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      packingModel?.referencia ?? '',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: black,
+                                          ),
+                                    )),
+                              ],
+                            ),
+
+
                             const Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -262,6 +284,7 @@ class Tab1Screen extends StatelessWidget {
                                   style: TextStyle(
                                       fontSize: 14, color: primaryColorApp),
                                 )),
+
                             Row(
                               children: [
                                 const Align(

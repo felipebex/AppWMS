@@ -212,4 +212,181 @@ class WmsPackingRepository {
     }
     return ResponseSendPacking(); // Retornamos un objeto vacío en caso de error de red
   }
+
+
+
+
+  Future<bool> timePackingUser(int batchId, BuildContext context, String time,
+      String endpoint, String type, int userId) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return false; // Si no hay conexión, retornar una lista vacía
+    }
+
+    try {
+      var response = await ApiRequestService().postPicking(
+          endpoint: endpoint,
+          isunecodePath: true,
+          isLoadinDialog: false,
+          context: context,
+          body: {
+            "params": {
+              "id_batch": "$batchId",
+              "user_id": "$userId",
+              type: time,
+              "operation_type": "packing"
+            }
+          });
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          if (jsonResponse['result']['code'] == 400) {
+            return false;
+          } else if (jsonResponse['result']['code'] == 200) {
+            return true;
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return false;
+          }
+        }
+      } else {}
+    } on SocketException catch (e) {
+      // Manejo de error de red
+      print('Error de red: $e');
+      return false;
+    } catch (e, s) {
+      // Manejo de otros errores
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.amber[200],
+          content: SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: SingleChildScrollView(
+              child: Text(
+                'Error en resBatchs: $e $s',
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+          ),
+          
+          behavior: SnackBarBehavior
+              .floating, // Hace que no se cierre automáticamente
+          duration:
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
+        ),
+      );
+
+      print('Error resBatchs: $e, $s');
+    }
+    return false;
+  }
+
+  Future<bool> timePackingBatch(int batchId, BuildContext context, String time,
+      String endpoint, String field, String type) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return false; // Si no hay conexión, retornar una lista vacía
+    }
+
+    try {
+      var response = await ApiRequestService().postPicking(
+          endpoint: endpoint,
+          isunecodePath: true,
+          isLoadinDialog: false,
+          context: context,
+          body: {
+            "params": {
+              "picking_id": "$batchId",
+              type: time,
+              "field_name": field,
+            }
+          });
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          if (jsonResponse['result']['code'] == 400) {
+            return false;
+          } else if (jsonResponse['result']['code'] == 200) {
+            return true;
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.amber[200],
+                content: SizedBox(
+                  width: double.infinity,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      'Sesion expirada, por favor inicie sesión nuevamente',
+                      style: const TextStyle(color: Colors.black, fontSize: 12),
+                    ),
+                  ),
+                )));
+            return false;
+          }
+        }
+      } else {}
+    } on SocketException catch (e) {
+      // Manejo de error de red
+      print('Error de red: $e');
+      return false;
+    } catch (e, s) {
+      // Manejo de otros errores
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.amber[200],
+          content: SizedBox(
+            width: double.infinity,
+            height: 150,
+            child: SingleChildScrollView(
+              child: Text(
+                'Error en resBatchs: $e $s',
+                style: const TextStyle(color: Colors.black, fontSize: 12),
+              ),
+            ),
+          ),
+         
+          behavior: SnackBarBehavior
+              .floating, // Hace que no se cierre automáticamente
+          duration:
+              const Duration(seconds: 5), // Esto hace que no se cierre solo
+        ),
+      );
+
+      print('Error timePackingBatch: $e, $s');
+    }
+    return false;
+  }
+
 }

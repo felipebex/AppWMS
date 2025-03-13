@@ -614,14 +614,7 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          // action: SnackBarAction(
-          //   label: 'Cerrar', // Este es el texto del botón de acción
-          //   textColor: Colors.black, // Color del texto de la acción
-          //   onPressed: () {
-          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
-          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //   },
-          // ),
+          
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
@@ -715,7 +708,7 @@ class WmsPickingRepository {
         ),
       );
 
-      print('Error resBatchs: $e, $s');
+      print('Error timePickingBatch: $e, $s');
     }
     return false;
   }

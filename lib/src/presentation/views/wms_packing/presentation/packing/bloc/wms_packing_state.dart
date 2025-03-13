@@ -56,7 +56,6 @@ class ShowKeyboardState extends WmsPackingState {
   ShowKeyboardState({required this.showKeyboard});
 }
 
-
 class ListOfProductsForPackingState extends WmsPackingState {
   final List<PorductoPedido> productos;
   ListOfProductsForPackingState(this.productos);
@@ -65,8 +64,7 @@ class ListOfProductsForPackingState extends WmsPackingState {
 //estado de carga mientras se hace el packing
 class WmsPackingLoadingState extends WmsPackingState {}
 
-
- class WmsPackingSuccessState extends WmsPackingState {
+class WmsPackingSuccessState extends WmsPackingState {
   final String message;
   WmsPackingSuccessState(this.message);
 }
@@ -77,7 +75,7 @@ class WmsPackingErrorState extends WmsPackingState {
 }
 
 //*estados para cargar las novedades
-class NovedadesPackingLoadedState  extends WmsPackingState {
+class NovedadesPackingLoadedState extends WmsPackingState {
   final List<Novedad> listOfNovedades;
   NovedadesPackingLoadedState({required this.listOfNovedades});
 }
@@ -88,7 +86,6 @@ class NovedadesPackingErrorState extends WmsPackingState {
   final String message;
   NovedadesPackingErrorState(this.message);
 }
-
 
 //*estasos para cargar la configuracion del usuario
 
@@ -106,9 +103,6 @@ class ConfigurationErrorPack extends WmsPackingState {
   ConfigurationErrorPack(this.error);
 }
 
-
-
-
 //*estados para desempacar
 class UnPackignSuccess extends WmsPackingState {
   final String message;
@@ -122,10 +116,8 @@ class UnPackignError extends WmsPackingState {
 
 class UnPackingLoading extends WmsPackingState {}
 
-
 //*estaos para dividir un producto
-class SplitProductSuccess extends WmsPackingState {
-}
+class SplitProductSuccess extends WmsPackingState {}
 
 class SplitProductError extends WmsPackingState {
   final String message;
@@ -134,12 +126,9 @@ class SplitProductError extends WmsPackingState {
 
 class SplitProductLoading extends WmsPackingState {}
 
-
-
 class ClearScannedValuePackState extends WmsPackingState {}
 
-
-class UpdateScannedValuePackState  extends WmsPackingState {
+class UpdateScannedValuePackState extends WmsPackingState {
   final String scannedValue;
   final String scan;
   UpdateScannedValuePackState(this.scannedValue, this.scan);
@@ -149,8 +138,6 @@ class ShowQuantityPackState extends WmsPackingState {
   final bool showQuantity;
   ShowQuantityPackState(this.showQuantity);
 }
-
-
 
 //* metodo que se encarga para realizar el picking del packing
 
@@ -162,3 +149,14 @@ class SetPickingPackingErrorState extends WmsPackingState {
 }
 
 class SetPickingPackingLoadingState extends WmsPackingState {}
+
+//*tiempo de separacion
+class TimeSeparatePackSuccess extends WmsPackingState {
+  final String time;
+  TimeSeparatePackSuccess(this.time);
+}
+
+class TimeSeparatePackError extends WmsPackingState {
+  final String msg;
+  TimeSeparatePackError(this.msg);
+}

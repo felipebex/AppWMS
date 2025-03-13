@@ -2,6 +2,7 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -105,6 +106,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   List<Novedad> novedades = [];
 
   WmsPackingBloc() : super(WmsPackingInitial()) {
+    //* empezar el tiempo de separacion
+    on<StartTimePack>(_onStartTimePickEvent);
     //obtener las configuraciones y permisos del usuario desde la bd
     on<LoadConfigurationsUserPack>(_onLoadConfigurationsUserEvent);
     //*obtener todos los batchs para packing de odoo
@@ -178,6 +181,46 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     //*evento para ver la cantidad
     on<ShowQuantityPackEvent>(_onShowQuantityEvent);
   }
+
+
+  //*evento para empezar el tiempo de separacion
+  void _onStartTimePickEvent(
+      StartTimePack event, Emitter<WmsPackingState> emit) async {
+    try {
+      DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      String formattedDate = formatter.format(event.time);
+      final userid = await PrefUtils.getUserId();
+
+      await wmsPackingRepository.timePackingUser(
+        event.batchId,
+        event.context,
+        formattedDate,
+        'start_time_batch_user',
+        'start_time',
+        userid,
+      );
+      final responseTimeBatch = await wmsPackingRepository.timePackingBatch(
+          event.batchId,
+          event.context,
+          formattedDate,
+          'update_start_time',
+          'start_time_pack',
+          'start_time');
+
+      if (responseTimeBatch) {
+        await db.batchPackingRepository
+            .startStopwatchBatch(event.batchId, formattedDate);
+        emit(TimeSeparatePackSuccess(formattedDate));
+      } else {
+        emit(TimeSeparatePackError('Error al iniciar el tiempo de separacion'));
+      }
+    } catch (e, s) {
+      print("❌ Error en _onStartTimePickEvent: $e, $s");
+    }
+  }
+
+
+
 
   //*evento para ver la cantidad
   void _onShowQuantityEvent(
@@ -555,7 +598,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onFilterBatchesBStatusEvent(FilterBatchPackingStatusEvent event,
       Emitter<WmsPackingState> emit) async {
     if (event.status == '') {
-      final batchsFromDB = await db.batchPackingRepository.getAllBatchsPacking();
+      final batchsFromDB =
+          await db.batchPackingRepository.getAllBatchsPacking();
       listOfBatchsDB = batchsFromDB;
       listOfBatchsDB = listOfBatchsDB
           .where((element) => element.isSeparate == null)
@@ -1073,19 +1117,21 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         for (var batch in listOfBatchs) {
           try {
             if (batch.id != null && batch.name != null) {
-              await DataBaseSqlite().batchPackingRepository.insertBatchPacking(BatchPackingModel(
-                id: batch.id!,
-                name: batch.name ?? '',
-                scheduleddate: batch.scheduleddate.toString(),
-                pickingTypeId: batch.pickingTypeId,
-                state: batch.state,
-                userId: batch.userId.toString(),
-                userName: batch.userName,
-                cantidadPedidos: batch.cantidadPedidos,
-                zonaEntrega: batch.zonaEntrega,
-                startTimePack: batch.startTimePack,
-                endTimePack: batch.endTimePack,
-              ));
+              await DataBaseSqlite()
+                  .batchPackingRepository
+                  .insertBatchPacking(BatchPackingModel(
+                    id: batch.id!,
+                    name: batch.name ?? '',
+                    scheduleddate: batch.scheduleddate.toString(),
+                    pickingTypeId: batch.pickingTypeId,
+                    state: batch.state,
+                    userId: batch.userId.toString(),
+                    userName: batch.userName,
+                    cantidadPedidos: batch.cantidadPedidos,
+                    zonaEntrega: batch.zonaEntrega,
+                    startTimePack: batch.startTimePack,
+                    endTimePack: batch.endTimePack,
+                  ));
             }
           } catch (dbError, stackTrace) {
             print('Error insertBatchPacking: $dbError  $stackTrace');
@@ -1172,7 +1218,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadBatchPackingFromDBEvent event, Emitter<WmsPackingState> emit) async {
     try {
       emit(BatchsPackingLoadingState());
-      final batchsFromDB = await db.batchPackingRepository.getAllBatchsPacking();
+      final batchsFromDB =
+          await db.batchPackingRepository.getAllBatchsPacking();
       listOfBatchsDB.clear();
       listOfBatchsDB.addAll(batchsFromDB);
       emit(WmsPackingLoaded());

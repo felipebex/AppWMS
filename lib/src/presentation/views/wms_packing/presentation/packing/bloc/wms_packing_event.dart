@@ -202,3 +202,19 @@ class ShowQuantityPackEvent extends WmsPackingEvent {
   final bool showQuantity;
   ShowQuantityPackEvent(this.showQuantity);
 }
+
+
+
+//*empezar el tiempo de separacion
+class StartTimePack extends WmsPackingEvent {
+  final BuildContext context;
+  final int batchId;
+  final DateTime time;
+  StartTimePack(this.context, this.batchId, this.time);
+}
+class EndTimePack extends WmsPackingEvent {
+  final BuildContext context;
+  final int batchId;
+  final DateTime time;
+  EndTimePack(this.context, this.batchId, this.time);
+}

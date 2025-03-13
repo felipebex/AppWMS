@@ -102,4 +102,28 @@ class BatchPackingRepository {
       return null;
     }
   }
+
+
+
+
+  // Método para iniciar el cronómetro de un batch de picking
+  Future<int?> startStopwatchBatch(int batchId, String date) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Actualiza el campo 'start_time_pick' con la fecha proporcionada
+      final resUpdate = await db.rawUpdate(
+          "UPDATE ${BatchPackingTable.tableName} SET ${BatchPackingTable.columnStartTimePack} = ? WHERE ${BatchPackingTable.columnId} = ?",
+          [date, batchId]);
+
+      print("startStopwatchBatchPack: $resUpdate");
+      return resUpdate;
+    } catch (e) {
+      print("Error al iniciar el cronómetro para el batch en pack: $batchId: $e");
+      return null;
+    }
+  }
+
+
+
 }

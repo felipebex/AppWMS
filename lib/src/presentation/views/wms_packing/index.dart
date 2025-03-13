@@ -1,4 +1,4 @@
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +11,8 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_start_packing_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
@@ -246,7 +248,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                   .read<WmsPackingBloc>()
                                   .listOfBatchsDB
                                   .length,
-                              itemBuilder: (context, index) {
+                              itemBuilder: (contextBuilder, index) {
                                 final List<BatchPackingModel>
                                     inProgressBatches = context
                                         .read<WmsPackingBloc>()
@@ -272,28 +274,65 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                       horizontal: 10, vertical: 5),
                                   child: GestureDetector(
                                     onTap: () async {
-//permisos de usuario
                                       context
                                           .read<WmsPackingBloc>()
                                           .add(LoadConfigurationsUserPack());
 
-                                      //mandamos a traer de la base de datos los pedidos del batch
-                                      context
-                                          .read<WmsPackingBloc>()
-                                          .add(LoadAllPedidosFromBatchEvent(
-                                            batch.id ?? 0,
-                                          ));
+                                      print("batch: ${batch.toMap()}");
 
-                                      context
-                                          .read<WmsPackingBloc>()
-                                          .add(ShowKeyboardEvent(false));
+                                      if (batch.startTimePack != "") {
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .add(LoadAllPedidosFromBatchEvent(
+                                              batch.id ?? 0,
+                                            ));
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .add(ShowKeyboardEvent(false));
+                                        goBatchInfo(
+                                            contextBuilder,
+                                            context.read<WmsPackingBloc>(),
+                                            batch);
+                                      } else {
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible:
+                                              false, // No permitir que el usuario cierre el diálogo manualmente
+                                          builder: (context) =>
+                                              DialogStartPackingWidget(
+                                            onAccepted: () async {
+                                              // Disparar eventos de BatchBloc
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(
+                                                      LoadAllPedidosFromBatchEvent(
+                                                    batch.id ?? 0,
+                                                  ));
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(
+                                                      ShowKeyboardEvent(false));
+                                              // viajamos a la vista de detalles del batch con sus pedidos
 
-                                      // viajamos a la vista de detalles del batch con sus pedidos
-                                      Navigator.pushReplacementNamed(
-                                        context,
-                                        'packing-list',
-                                        arguments: [batch],
-                                      );
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(StartTimePack(
+                                                      context,
+                                                      batch.id ?? 0,
+                                                      DateTime.now()));
+
+                                              Navigator.pop(context);
+
+                                              goBatchInfo(
+                                                  contextBuilder,
+                                                  context
+                                                      .read<WmsPackingBloc>(),
+                                                  batch);
+                                            },
+                                          ),
+                                        );
+                                      }
+//permisos de usuario
                                     },
                                     child: Card(
                                       color: batch.isSeparate == 1
@@ -505,5 +544,27 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                 ),
               ));
         });
+  }
+
+  void goBatchInfo(BuildContext context, WmsPackingBloc batchBloc,
+      BatchPackingModel batch) async {
+    // mostramos un dialogo de carga y despues
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // No permitir que el usuario cierre el diálogo manualmente
+      builder: (_) => const DialogLoading(
+        message: 'Cargando interfaz...',
+      ),
+    );
+
+    await Future.delayed(const Duration(seconds: 1));
+    Navigator.pop(context);
+
+    Navigator.pushReplacementNamed(
+      context,
+      'packing-list',
+      arguments: [batch],
+    );
   }
 }

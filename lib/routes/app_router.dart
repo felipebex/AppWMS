@@ -31,13 +31,27 @@ class AppRoutes {
   static const String packing = 'Packing';
   static const String packingDetail = 'packing-detail';
 
-  // Otros
-  static const String yms = 'yms';
-  static const String counter = 'counter';
+
+  //inventario
+  static const String inventario = 'inventario';
+
+
+  // Global
   static const String home = 'home';
-  static const String ventor = 'ventor';
   static const String user = 'user';
-  // static const String print = 'print';
+
+
+  // Operaciones
+  static const String operaciones = 'operaciones';
+
+  //info rapida
+  static const String infoRapida = 'info-rapida';
+
+
+
+
+
+
 
   // Mapa de rutas
   static Map<String, Widget Function(BuildContext)> get routes {
@@ -101,13 +115,18 @@ class AppRoutes {
         );
       },
 
-      // Otros
-      yms: (_) => const YMSPage(),
-      counter: (_) => const CounterPage(),
+      // global
       home: (_) => const HomePage(),
-      ventor: (_) => const VentorHome(),
       user: (_) => const UserScreen(),
-      // print: (_) => const PrintScreen(),
+
+      // inventario
+      inventario: (_) => const InventarioScreen(),
+      // Operaciones
+      operaciones: (_) => const OperacionesScreen(),
+
+      //info rapida
+      infoRapida: (_) => const InfoRapidaScreen(),
+
     };
   }
 }

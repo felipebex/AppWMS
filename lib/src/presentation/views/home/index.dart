@@ -23,8 +23,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -46,7 +44,6 @@ class _HomePageState extends State<HomePage> {
             );
           }
 
-       
           if (state is AppVersionUpdateState) {
             //esperamos 2 segundos y mostramos el dialogo
             Future.delayed(const Duration(seconds: 2), () {
@@ -493,7 +490,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
+                                  horizontal: 10,
                                 ),
                                 width: size.width,
                                 height: size.height * 0.55,
@@ -557,10 +554,10 @@ class _HomePageState extends State<HomePage> {
                                           },
                                           child: const ImteModule(
                                             urlImg: "picking.png",
-                                            title: 'WMS Picking',
+                                            title: 'Picking',
                                           ),
                                         ),
-                                        const SizedBox(width: 5),
+                                        const SizedBox(width: 2),
                                         GestureDetector(
                                           onTap: () async {
                                             context
@@ -604,24 +601,95 @@ class _HomePageState extends State<HomePage> {
                                           },
                                           child: const ImteModule(
                                             urlImg: "packing.png",
-                                            title: 'WMS Packing',
+                                            title: 'Packing',
+                                          ),
+                                        ),
+                                        const SizedBox(width: 2),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando interfaz...');
+                                                });
+
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
+
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'info-rapida',
+                                            );
+                                          },
+                                          child: const ImteModule(
+                                            urlImg: "info.png",
+                                            title: 'Info Rapida',
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 5),
-                                    const Row(
+                                    Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        ImteModule(
-                                          urlImg: "inventario.png",
-                                          title: 'WMS Conteo',
+                                        GestureDetector(
+                                           onTap: () async {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando inventario rapido...');
+                                                });
+
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
+
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'inventario',
+                                            );
+                                          },
+                                          child: ImteModule(
+                                            urlImg: "inventario.png",
+                                            title: 'Inventario',
+                                          ),
                                         ),
                                         SizedBox(width: 5),
-                                        ImteModule(
-                                          urlImg: "yms.png",
-                                          title: 'YMS',
+
+
+
+
+                                        GestureDetector(
+                                          onTap: () async {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando operaciones...');
+                                                });
+
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
+
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'operaciones',
+                                            );
+                                          },
+                                          child: ImteModule(
+                                            urlImg: "yms.png",
+                                            title: 'Operaciones',
+                                          ),
                                         ),
                                       ],
                                     ),
