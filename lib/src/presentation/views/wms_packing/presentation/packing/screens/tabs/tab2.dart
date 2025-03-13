@@ -613,26 +613,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                 },
                               ),
                             ),
-                      Visibility(
-                        visible:
-                            context.read<WmsPackingBloc>().isKeyboardVisible &&
-                                context
-                                    .read<UserBloc>()
-                                    .fabricante
-                                    .contains("Zebra"),
-                        child: CustomKeyboard(
-                          controller: context
-                              .read<WmsPackingBloc>()
-                              .searchControllerProduct,
-                          onchanged: () {
-                            context.read<WmsPackingBloc>().add(
-                                SearchProductPackingEvent(context
-                                    .read<WmsPackingBloc>()
-                                    .searchControllerProduct
-                                    .text));
-                          },
-                        ),
-                      )
+                   
                     ],
                   ));
             },

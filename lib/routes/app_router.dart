@@ -1,6 +1,8 @@
 // app_routes.dart
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
@@ -31,27 +33,20 @@ class AppRoutes {
   static const String packing = 'Packing';
   static const String packingDetail = 'packing-detail';
 
-
   //inventario
   static const String inventario = 'inventario';
-
 
   // Global
   static const String home = 'home';
   static const String user = 'user';
 
-
   // Operaciones
   static const String operaciones = 'operaciones';
+  static const String recepcion = 'recepcion';
+  static const String listOrdenesCompra = 'list-ordenes-compra';
 
   //info rapida
   static const String infoRapida = 'info-rapida';
-
-
-
-
-
-
 
   // Mapa de rutas
   static Map<String, Widget Function(BuildContext)> get routes {
@@ -79,7 +74,6 @@ class AppRoutes {
         final batchModel = arguments[0] as BatchPackingModel?;
         return PakingListScreen(
           batchModel: batchModel,
-
         );
       },
 
@@ -124,9 +118,23 @@ class AppRoutes {
       // Operaciones
       operaciones: (_) => const OperacionesScreen(),
 
+      recepcion: (context) {
+        // Obtener los argumentos (una lista)
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final ordenCompraArg = arguments[0] as OrdenCompra?;
+        return RecepcionScreen(
+          ordenCompra:
+              ordenCompraArg 
+        );
+      },
+
+      
+      listOrdenesCompra: (_) => const ListOrdenesCompraScreen(),
+
       //info rapida
       infoRapida: (_) => const InfoRapidaScreen(),
-
     };
   }
 }
