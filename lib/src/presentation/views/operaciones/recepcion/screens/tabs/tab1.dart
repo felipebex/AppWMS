@@ -1,6 +1,5 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -83,7 +82,8 @@ class Tab1ScreenRecep extends StatelessWidget {
                                                 ordenCompra?.scheduledDate ??
                                                     ''))
                                         : "Sin fecha",
-                                    style: const TextStyle(fontSize: 14),
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
                                   ),
                                 ],
                               ),
@@ -115,9 +115,11 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 5),
                                   Text(
-                                    ordenCompra?.purchaseOrderName ??
-                                        'Sin orden de compra',
-                                    style: const TextStyle(fontSize: 14),
+                                    ordenCompra?.purchaseOrderName == ""
+                                        ? 'Sin orden de compra'
+                                        : ordenCompra?.purchaseOrderName ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
                                   ),
                                 ],
                               ),
@@ -145,8 +147,6 @@ class Tab1ScreenRecep extends StatelessWidget {
                                 )
                               ],
                             ),
-                        
-                           
                             Row(
                               children: [
                                 const Align(
@@ -159,7 +159,8 @@ class Tab1ScreenRecep extends StatelessWidget {
                                 Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      ordenCompra?.numeroLineas.toString() ?? '0',
+                                      ordenCompra?.numeroLineas.toString() ??
+                                          '0',
                                       style: TextStyle(
                                           fontSize: 14, color: primaryColorApp),
                                     )),
@@ -177,13 +178,14 @@ class Tab1ScreenRecep extends StatelessWidget {
                                 Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      ordenCompra?.numeroItems.toString() ?? '0',
+                                      ordenCompra?.numeroItems.toString() ??
+                                          '0',
                                       style: TextStyle(
                                           fontSize: 14, color: primaryColorApp),
                                     )),
                               ],
                             ),
-                             Align(
+                            Align(
                               alignment: Alignment.centerLeft,
                               child: Row(
                                 children: [
@@ -194,9 +196,11 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 5),
                                   Text(
-                                    ordenCompra?.responsable ??
-                                        'Sin responsable',
-                                    style: const TextStyle(fontSize: 14),
+                                    ordenCompra?.responsable == false
+                                        ? 'Sin responsable'
+                                        : ordenCompra?.responsable ?? '',
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
                                   ),
                                 ],
                               ),

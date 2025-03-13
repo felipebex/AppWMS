@@ -10,15 +10,46 @@ part 'recepcion_state.dart';
 
 class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   //listado de ordenes de compra
-  List<OrdenCompra> ordenesCompra = [];
+  List<OrdenCompra> listOrdenesCompra = [];
+  List<OrdenCompra> listFiltersOrdenesCompra = [];
   //repositorio
   final RecepcionRepository _recepcionRepository = RecepcionRepository();
+  //controller de busqueda
+  TextEditingController searchControllerOrderC = TextEditingController();
+  bool isKeyboardVisible = false;
 
   RecepcionBloc() : super(RecepcionInitial()) {
     on<RecepcionEvent>((event, emit) {});
-
+    //*obtener todas las ordenes de compra
     on<FetchOrdenesCompra>(_onFetchOrdenesCompra);
+    //*activar el teclado
+    on<ShowKeyboardEvent>(_onShowKeyboardEvent);
+    //* buscar una orden de compra
+    on<SearchOrdenCompraEvent>(_onSearchPedidoEvent);
   }
+
+  void _onSearchPedidoEvent(
+      SearchOrdenCompraEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      listFiltersOrdenesCompra = [];
+      listFiltersOrdenesCompra = listOrdenesCompra;
+
+      final query = event.query.toLowerCase();
+
+      if (query.isEmpty) {
+        listFiltersOrdenesCompra = listOrdenesCompra;
+      } else {
+        listFiltersOrdenesCompra = listFiltersOrdenesCompra
+            .where((element) => element.purchaseOrderName!.contains(query))
+            .toList();
+      }
+      emit(SearchOrdenCompraSuccess(listFiltersOrdenesCompra));
+    } catch (e, s) {
+      emit(SearchOrdenCompraFailure('Error al buscar la orden de compra'));
+      print('Error en el _onSearchPedidoEvent: $e, $s');
+    }
+  }
+
   void _onFetchOrdenesCompra(
       FetchOrdenesCompra event, Emitter<RecepcionState> emit) async {
     try {
@@ -26,9 +57,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       final response =
           await _recepcionRepository.resBatchsPacking(false, event.context);
       if (response != null && response is List) {
-        ordenesCompra = response;
-        print('ordenesCompra: ${ordenesCompra.length}');
-        emit(FetchOrdenesCompraSuccess(ordenesCompra));
+        listOrdenesCompra = response;
+        listFiltersOrdenesCompra = response;
+        print('ordenesCompra: ${listFiltersOrdenesCompra.length}');
+        emit(FetchOrdenesCompraSuccess(listFiltersOrdenesCompra));
       } else {
         emit(FetchOrdenesCompraFailure(
             'Error al obtener las ordenes de compra'));
@@ -36,5 +68,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     } catch (e, s) {
       print('Error en RecepcionBloc: $e, $s');
     }
+  }
+
+  void _onShowKeyboardEvent(
+      ShowKeyboardEvent event, Emitter<RecepcionState> emit) {
+    isKeyboardVisible = event.showKeyboard;
+    emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
   }
 }

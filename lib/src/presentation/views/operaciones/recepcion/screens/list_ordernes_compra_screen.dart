@@ -5,10 +5,12 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ListOrdenesCompraScreen extends StatelessWidget {
-  const ListOrdenesCompraScreen({Key? key}) : super(key: key);
+  const ListOrdenesCompraScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,212 +28,234 @@ class ListOrdenesCompraScreen extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        final ordenCompra = context.read<RecepcionBloc>().ordenesCompra;
+        final ordenCompra =
+            context.read<RecepcionBloc>().listFiltersOrdenesCompra;
         return Scaffold(
+            bottomNavigationBar: context.read<RecepcionBloc>().isKeyboardVisible
+                ? CustomKeyboard(
+                    controller:
+                        context.read<RecepcionBloc>().searchControllerOrderC,
+                    onchanged: () {
+                      context.read<RecepcionBloc>().add(SearchOrdenCompraEvent(
+                            context
+                                .read<RecepcionBloc>()
+                                .searchControllerOrderC
+                                .text,
+                          ));
+                    },
+                  )
+                : null,
             body: SizedBox(
-          width: size.width * 1,
-          height: size.height * 1,
-          child: Column(
-            children: [
-              //* appbar
-              AppBar(size: size),
-              Container(
-                  margin: const EdgeInsets.only(top: 5, bottom: 5),
-                  height: 55,
-                  width: size.width * 1,
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      left: 10,
-                      right: 10,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          width: size.width * 0.9,
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 3,
-                            child: TextFormField(
-                              // readOnly: context
-                              //         .read<UserBloc>()
-                              //         .fabricante
-                              //         .contains("Zebra")
-                              //     ? true
-                              //     : false,
-                              textAlignVertical: TextAlignVertical.center,
-                              // controller: context
-                              //     .read<WmsPackingBloc>()
-                              //     .searchControllerPedido,
-                              decoration: InputDecoration(
-                                prefixIcon: const Icon(
-                                  Icons.search,
-                                  color: grey,
-                                  size: 20,
-                                ),
-                                suffixIcon: IconButton(
-                                    onPressed: () {
-                                      // context
-                                      //     .read<WmsPackingBloc>()
-                                      //     .searchControllerPedido
-                                      //     .clear();
-
-                                      // context
-                                      //     .read<WmsPackingBloc>()
-                                      //     .add(
-                                      //         SearchPedidoPackingEvent(
-                                      //             '',
-                                      //             batchModel
-                                      //                     ?.id ??
-                                      //                 0));
-
-                                      // context
-                                      //     .read<WmsPackingBloc>()
-                                      //     .add(ShowKeyboardEvent(
-                                      //         false));
-
-                                      FocusScope.of(context).unfocus();
-                                    },
-                                    icon: const Icon(
-                                      Icons.close,
-                                      color: grey,
-                                      size: 20,
-                                    )),
-                                disabledBorder: const OutlineInputBorder(),
-                                hintText: "Buscar orden de compra",
-                                hintStyle: const TextStyle(
-                                    color: Colors.grey, fontSize: 14),
-                                border: InputBorder.none,
-                              ),
-                              onChanged: (value) {
-                                // context
-                                //     .read<WmsPackingBloc>()
-                                //     .add(SearchPedidoPackingEvent(
-                                //         value,
-                                //         batchModel?.id ?? 0));
-                              },
-                              // onTap: !context
-                              //         .read<UserBloc>()
-                              //         .fabricante
-                              //         .contains("Zebra")
-                              //     ? null
-                              //     : () {
-                              //         context
-                              //             .read<WmsPackingBloc>()
-                              //             .add(ShowKeyboardEvent(
-                              //                 true));
-                              //       },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
-              Expanded(
-                child: ListView.builder(
-                    padding: const EdgeInsets.only(top: 2),
-                    itemCount: ordenCompra.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Padding(
+              width: size.width * 1,
+              height: size.height * 1,
+              child: Column(
+                children: [
+                  //* appbar
+                  AppBar(size: size),
+                  Container(
+                      margin: const EdgeInsets.only(top: 5, bottom: 5),
+                      height: 55,
+                      width: size.width * 1,
+                      child: Padding(
                         padding: const EdgeInsets.only(
                           left: 10,
                           right: 10,
                         ),
-                        child: Card(
-                          elevation: 3,
-                          color: white,
-                          child: ListTile(
-                            trailing: Icon(Icons.arrow_forward_ios,
-                                color: primaryColorApp),
-                            title: Text(ordenCompra[index].name ?? '',
-                                style: TextStyle(
-                                    color: primaryColorApp,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold)),
-                            subtitle: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_month_sharp,
-                                        color: primaryColorApp,
-                                        size: 15,
-                                      ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        ordenCompra[index].scheduledDate != null
-                                            ? DateFormat('dd/MM/yyyy hh:mm ')
-                                                .format(DateTime.parse(
-                                                    ordenCompra[index]
-                                                        .scheduledDate!))
-                                            : "Sin fecha",
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
-                                    ],
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: size.width * 0.9,
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 3,
+                                child: TextFormField(
+                                  readOnly: context
+                                          .read<UserBloc>()
+                                          .fabricante
+                                          .contains("Zebra")
+                                      ? true
+                                      : false,
+                                  textAlignVertical: TextAlignVertical.center,
+                                  controller: context
+                                      .read<RecepcionBloc>()
+                                      .searchControllerOrderC,
+                                  decoration: InputDecoration(
+                                    prefixIcon: const Icon(
+                                      Icons.search,
+                                      color: grey,
+                                      size: 20,
+                                    ),
+                                    suffixIcon: IconButton(
+                                        onPressed: () {
+                                          context
+                                              .read<RecepcionBloc>()
+                                              .searchControllerOrderC
+                                              .clear();
+
+                                          context
+                                              .read<RecepcionBloc>()
+                                              .add(SearchOrdenCompraEvent(
+                                                '',
+                                              ));
+
+                                          context
+                                              .read<RecepcionBloc>()
+                                              .add(ShowKeyboardEvent(false));
+
+                                          FocusScope.of(context).unfocus();
+                                        },
+                                        icon: const Icon(
+                                          Icons.close,
+                                          color: grey,
+                                          size: 20,
+                                        )),
+                                    disabledBorder: const OutlineInputBorder(),
+                                    hintText: "Buscar orden de compra",
+                                    hintStyle: const TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                    border: InputBorder.none,
                                   ),
+                                  onChanged: (value) {
+                                    context
+                                        .read<RecepcionBloc>()
+                                        .add(SearchOrdenCompraEvent(
+                                          value,
+                                        ));
+                                  },
+                                  onTap: !context
+                                          .read<UserBloc>()
+                                          .fabricante
+                                          .contains("Zebra")
+                                      ? null
+                                      : () {
+                                          context
+                                              .read<RecepcionBloc>()
+                                              .add(ShowKeyboardEvent(true));
+                                        },
                                 ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child:
-                                      Text(ordenCompra[index].proveedor ?? '',
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                  Expanded(
+                    child: ListView.builder(
+                        padding: const EdgeInsets.only(top: 2),
+                        itemCount: ordenCompra.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              left: 10,
+                              right: 10,
+                            ),
+                            child: Card(
+                              elevation: 3,
+                              color: white,
+                              child: ListTile(
+                                trailing: Icon(Icons.arrow_forward_ios,
+                                    color: primaryColorApp),
+                                title: Text(ordenCompra[index].name ?? '',
+                                    style: TextStyle(
+                                        color: primaryColorApp,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold)),
+                                subtitle: Column(
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.calendar_month_sharp,
+                                            color: primaryColorApp,
+                                            size: 15,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            ordenCompra[index].scheduledDate !=
+                                                    null
+                                                ? DateFormat(
+                                                        'dd/MM/yyyy hh:mm ')
+                                                    .format(DateTime.parse(
+                                                        ordenCompra[index]
+                                                            .scheduledDate!))
+                                                : "Sin fecha",
+                                            style: const TextStyle(
+                                                fontSize: 14, color: black),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                          ordenCompra[index].proveedor ?? '',
                                           style: TextStyle(
                                             color: black,
                                             fontSize: 14,
                                           )),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    'Ubicacion destino: ',
-                                    style: TextStyle(
-                                        fontSize: 14, color: primaryColorApp),
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    ordenCompra[index].locationDestName ?? '',
-                                    style: const TextStyle(
-                                        fontSize: 14, color: black),
-                                  ),
-                                ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.download_for_offline_rounded,
-                                        color: primaryColorApp,
-                                        size: 15,
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Ubicacion destino: ',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: primaryColorApp),
                                       ),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        ordenCompra[index].purchaseOrderName ??
-                                            'Sin orden de compra',
-                                        style: const TextStyle(fontSize: 14),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        ordenCompra[index].locationDestName ??
+                                            '',
+                                        style: const TextStyle(
+                                            fontSize: 14, color: black),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.download_for_offline_rounded,
+                                            color: primaryColorApp,
+                                            size: 15,
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            ordenCompra[index]
+                                                        .purchaseOrderName ==
+                                                    ""
+                                                ? 'Sin orden de compra'
+                                                : ordenCompra[index]
+                                                        .purchaseOrderName ??
+                                                    '',
+                                            style: const TextStyle(
+                                                fontSize: 14, color: black),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                                onTap: () async {
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    'recepcion',
+                                    arguments: [ordenCompra[index]],
+                                  );
+                                },
+                              ),
                             ),
-                            onTap: () async {
-                              Navigator.pushReplacementNamed(
-                                context,
-                                'recepcion',
-                                arguments: [ordenCompra[index]],
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    }),
-              )
-            ],
-          ),
-        ));
+                          );
+                        }),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ));
       },
     );
   }

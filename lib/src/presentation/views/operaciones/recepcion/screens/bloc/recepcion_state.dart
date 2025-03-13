@@ -18,3 +18,22 @@ class FetchOrdenesCompraFailure extends RecepcionState {
   final String error;
   FetchOrdenesCompraFailure(this.error);
 }
+
+
+class ShowKeyboardState extends RecepcionState {
+  final bool showKeyboard;
+  ShowKeyboardState({required this.showKeyboard});
+}
+
+//estados para buscar una  orden de compra
+
+
+class SearchOrdenCompraSuccess extends RecepcionState {
+  final List<OrdenCompra> ordenesCompra;
+  SearchOrdenCompraSuccess(this.ordenesCompra);
+}
+
+class SearchOrdenCompraFailure extends RecepcionState {
+  final String error;
+  SearchOrdenCompraFailure(this.error);
+}
