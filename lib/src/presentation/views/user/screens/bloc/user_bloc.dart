@@ -26,6 +26,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   String version = '';
   String versionApp = '';
   String fabricante = '';
+  String idDispositivo = '';
 
   UserBloc() : super(UserInitial()) {
     //*evento para obtener la configuracion de odoo para el usuario y la app
@@ -68,6 +69,10 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       modelo = androidInfo.model;
       version = androidInfo.version.release;
       fabricante = androidInfo.manufacturer;
+
+      idDispositivo =
+          androidInfo.id; // Este es el ID único para dispositivos Android
+      print('idDispositivo: $idDispositivo');
 
       versionApp = packageInfo.version; // Versión de la app
       emit(LoadInfoDeviceStateUser());

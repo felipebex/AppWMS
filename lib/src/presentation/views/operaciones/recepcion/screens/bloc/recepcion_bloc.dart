@@ -26,7 +26,33 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     on<ShowKeyboardEvent>(_onShowKeyboardEvent);
     //* buscar una orden de compra
     on<SearchOrdenCompraEvent>(_onSearchPedidoEvent);
+
+    //*asignar un usuario a una orden de compra
+    on<AssignUserToOrder>(_onAssignUserToOrder);
   }
+
+  void _onAssignUserToOrder(
+      AssignUserToOrder event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(AssignUserToOrderLoading());
+      // final response = await _recepcionRepository.assignUserToOrder(
+      //     event.idOrder, event.idUser, event.context);
+      // if (response != null && response is bool) {
+      //   if (response) {
+      //     emit(AssignUserToOrderSuccess());
+      //   } else {
+      //     emit(AssignUserToOrderFailure('Error al asignar el usuario'));
+      //   }
+      // } else {
+      //   emit(AssignUserToOrderFailure('Error al asignar el usuario'));
+      // }
+    } catch (e, s) {
+      emit(AssignUserToOrderFailure('Error al asignar el usuario'));
+      print('Error en el _onAssignUserToOrder: $e, $s');
+    }
+  }
+
+
 
   void _onSearchPedidoEvent(
       SearchOrdenCompraEvent event, Emitter<RecepcionState> emit) async {

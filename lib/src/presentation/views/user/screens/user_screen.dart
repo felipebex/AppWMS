@@ -285,6 +285,22 @@ class UserScreen extends StatelessWidget {
                                                       color: black))
                                             ],
                                           ),
+                                          Row(
+                                            children: [
+                                              Text("Id PDA: ",
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp)),
+                                              // Text('WMS',
+                                              Text(
+                                                  context
+                                                      .read<UserBloc>()
+                                                      .idDispositivo,
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black))
+                                            ],
+                                          ),
                                         ],
                                       ))),
                               const SizedBox(height: 20),

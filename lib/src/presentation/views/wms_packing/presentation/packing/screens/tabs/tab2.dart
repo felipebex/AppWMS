@@ -125,85 +125,95 @@ class _Tab2ScreenState extends State<Tab2Screen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton: context
-                      .read<WmsPackingBloc>()
-                      .isKeyboardVisible ||
-                  context.read<WmsPackingBloc>().listOfProductosProgress.isEmpty
-              ? null
-              : Stack(
-                  children: [
-                    // El FloatingActionButton
-                    Positioned(
-                      bottom:
-                          0.0, // Ajusta según sea necesario para colocar en la parte inferior
-                      right:
-                          0.0, // Ajusta según sea necesario para colocar en la parte derecha
-                      child: FloatingActionButton(
-                        onPressed: context
-                                .read<WmsPackingBloc>()
-                                .listOfProductosProgress
-                                .isEmpty
-                            ? null
-                            : () {
-                                //cerramos el teclado
-                                context
-                                    .read<WmsPackingBloc>()
-                                    .add(ChangeStickerEvent(false));
+          floatingActionButton:
 
-                                FocusScope.of(context).unfocus();
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return DialogConfirmatedPacking(
-                                        productos: context
-                                            .read<WmsPackingBloc>()
-                                            .listOfProductsForPacking,
-                                        isCertificate: false,
-                                      );
-                                    });
-                              },
-                        backgroundColor: primaryColorApp,
-                        child: Image.asset(
-                          'assets/icons/packing.png',
-                          width: 30,
-                          height: 30,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    // El número de productos seleccionados
-                    Positioned(
-                      bottom: 40.0, // Posición hacia arriba
-                      right: 0.0, // Posición hacia la derecha
-                      child: context
-                              .read<WmsPackingBloc>()
-                              .listOfProductsForPacking
-                              .isNotEmpty
-                          ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                context
+              //  context
+              //             .read<WmsPackingBloc>()
+              //             .isKeyboardVisible ||
+              //         context.read<WmsPackingBloc>().listOfProductosProgress.isEmpty
+
+              context
+                          .read<WmsPackingBloc>()
+                          .configurations
+                          .result
+                          ?.result
+                          ?.scanProduct ==
+                      false
+                  ? Stack(
+                      children: [
+                        // El FloatingActionButton
+                        Positioned(
+                          bottom:
+                              0.0, // Ajusta según sea necesario para colocar en la parte inferior
+                          right:
+                              0.0, // Ajusta según sea necesario para colocar en la parte derecha
+                          child: FloatingActionButton(
+                            onPressed: context
                                     .read<WmsPackingBloc>()
-                                    .listOfProductsForPacking
-                                    .length
-                                    .toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            )
-                          : const SizedBox
-                              .shrink(), // No mostrar el número si no hay productos seleccionados
-                    ),
-                  ],
-                ),
+                                    .listOfProductosProgress
+                                    .isEmpty
+                                ? null
+                                : () {
+                                    //cerramos el teclado
+                                    context
+                                        .read<WmsPackingBloc>()
+                                        .add(ChangeStickerEvent(false));
+
+                                    FocusScope.of(context).unfocus();
+                                    showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return DialogConfirmatedPacking(
+                                            productos: context
+                                                .read<WmsPackingBloc>()
+                                                .listOfProductsForPacking,
+                                            isCertificate: false,
+                                          );
+                                        });
+                                  },
+                            backgroundColor: primaryColorApp,
+                            child: Image.asset(
+                              'assets/icons/packing.png',
+                              width: 30,
+                              height: 30,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        // El número de productos seleccionados
+                        Positioned(
+                          bottom: 40.0, // Posición hacia arriba
+                          right: 0.0, // Posición hacia la derecha
+                          child: context
+                                  .read<WmsPackingBloc>()
+                                  .listOfProductsForPacking
+                                  .isNotEmpty
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    context
+                                        .read<WmsPackingBloc>()
+                                        .listOfProductsForPacking
+                                        .length
+                                        .toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox
+                                  .shrink(), // No mostrar el número si no hay productos seleccionados
+                        ),
+                      ],
+                    )
+                  : null,
           body: BlocBuilder<WmsPackingBloc, WmsPackingState>(
             builder: (context, state) {
               return Container(
@@ -384,11 +394,15 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                             //* se activa segun el permiso
                                             Visibility(
                                               visible: context
-                                                      .read<WmsPackingBloc>()
-                                                      .configurations
-                                                      .result
-                                                      ?.result
-                                                      ?.scanProduct == false ? true : false,
+                                                          .read<
+                                                              WmsPackingBloc>()
+                                                          .configurations
+                                                          .result
+                                                          ?.result
+                                                          ?.scanProduct ==
+                                                      false
+                                                  ? true
+                                                  : false,
                                               child: Checkbox(
                                                 value: context
                                                     .read<WmsPackingBloc>()
@@ -613,7 +627,6 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                 },
                               ),
                             ),
-                   
                     ],
                   ));
             },

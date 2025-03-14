@@ -70,8 +70,6 @@ class CloseSession extends StatelessWidget {
                 ),
               );
 
-              // Ejecutar los procesos de cierre de sesión
-              context.read<HomeBloc>().add(ClearDataEvent());
               PrefUtils.clearPrefs();
               Preferences.removeUrlWebsite();
               await DataBaseSqlite().deleteBD();

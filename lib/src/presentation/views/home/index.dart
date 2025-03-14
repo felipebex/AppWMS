@@ -24,6 +24,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   @override
+  void initState() {
+    super.initState();
+    _onDataUser();
+  }
+
+  void _onDataUser() async {
+    context.read<HomeBloc>().add(HomeLoadData());
+  }
+
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
@@ -42,17 +52,6 @@ class _HomePageState extends State<HomePage> {
                 duration: Duration(seconds: 3),
               ),
             );
-          }
-
-          if (state is AppVersionUpdateState) {
-            //esperamos 2 segundos y mostramos el dialogo
-            Future.delayed(const Duration(seconds: 2), () {
-              showDialog(
-                  context: context,
-                  builder: (context) {
-                    return UpdateAppDialog();
-                  });
-            });
           }
         },
         builder: (context, state) {
@@ -165,6 +164,11 @@ class _HomePageState extends State<HomePage> {
                                           onTap: () {
                                             context.read<UserBloc>().add(
                                                 GetConfigurations(context));
+
+
+                                            context.read<UserBloc>().add(
+                                                LoadInfoDeviceEventUser());
+
                                             showDialog(
                                                 context: context,
                                                 builder: (context) {
@@ -637,7 +641,7 @@ class _HomePageState extends State<HomePage> {
                                           MainAxisAlignment.center,
                                       children: [
                                         GestureDetector(
-                                           onTap: () async {
+                                          onTap: () async {
                                             showDialog(
                                                 context: context,
                                                 builder: (context) {
@@ -662,10 +666,6 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ),
                                         SizedBox(width: 5),
-
-
-
-
                                         GestureDetector(
                                           onTap: () async {
                                             showDialog(

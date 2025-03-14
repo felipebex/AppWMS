@@ -18,3 +18,9 @@ class SearchOrdenCompraEvent extends RecepcionEvent {
   final String query;
   SearchOrdenCompraEvent(this.query);
 }
+
+class AssignUserToOrder extends RecepcionEvent {
+  final String idOrder;
+  final String idUser;
+  AssignUserToOrder(this.idOrder, this.idUser);
+}

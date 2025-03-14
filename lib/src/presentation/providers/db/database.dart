@@ -154,7 +154,6 @@ class DataBaseSqlite {
       ProductosPedidosRepository();
   //metodo  para obtener una instancia del repositorio de batchs para packing
   BatchPackingRepository get batchPackingRepository => BatchPackingRepository();
-  
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -163,9 +162,6 @@ class DataBaseSqlite {
     _database = await initDB(); // Intenta abrir la base de datos
     return _database!;
   }
-
- 
-
 
   //Todo: Métodos para batchs_products
 
@@ -330,42 +326,34 @@ class DataBaseSqlite {
   Future<void> deleteBD() async {
     final db = await getDatabaseInstance();
     //picking
-    await db.delete('tblbatchs');
+    await db.delete(BatchPickingTable.tableName);
     //packing
-    await db.delete('tblbatchs_packing');
-    await db.delete('tblpedidos_packing');
-    await db.delete('tblproductos_pedidos');
-    await db.delete('tblpackages');
-    //others
-    await db.delete('tblbarcodes_packages');
-
+    await db.delete(PedidosPackingTable.tableName);
+    await db.delete(ProductosPedidosTable.tableName);
+    await db.delete(PackagesTable.tableName);
+    await db.delete(BarcodesPackagesTable.tableName);
     await db.delete('tblbatch_products');
+    await db.delete(BatchPackingTable.tableName);
+
+    // await db.delete(SubmuellesTable.tableName);
+    // await db.delete(ConfigurationsTable.tableName);
+    // await db.delete(NovedadesTable.tableName);
   }
 
   Future<void> deleteBDCloseSession() async {
     final db = await getDatabaseInstance();
-    //picking
-    await db.delete('tblbatchs');
+    await db.delete(BatchPickingTable.tableName);
     //packing
-    await db.delete('tblbatchs_packing');
-    await db.delete('tblpedidos_packing');
-    await db.delete('tblproductos_pedidos');
-    await db.delete('tblpackages');
-    //configuraciones
-    await db.delete('tblconfigurations');
-    //novedades
-    await db.delete('tblnovedades');
-    //muelles
-    await db.delete('tblsubmuelles');
-    //others
-    await db.delete('tblbarcodes_packages');
-
+    await db.delete(PedidosPackingTable.tableName);
+    await db.delete(ProductosPedidosTable.tableName);
+    await db.delete(PackagesTable.tableName);
+    await db.delete(BarcodesPackagesTable.tableName);
     await db.delete('tblbatch_products');
+    await db.delete(BatchPackingTable.tableName);
+    await db.delete(SubmuellesTable.tableName);
+    await db.delete(ConfigurationsTable.tableName);
+    await db.delete(NovedadesTable.tableName);
   }
-
- 
-
- 
 
   //*metodo para actualizar la tabla de productos de un batch
   Future<int?> setFieldTableBatchProducts(int batchId, int productId,
@@ -387,7 +375,6 @@ class DataBaseSqlite {
 
     return resUpdate;
   }
-
 
   //obtener el tiempo de inicio de la separacion de la tabla product
   Future<String> getFieldTableProducts(
@@ -428,7 +415,6 @@ class DataBaseSqlite {
     return resUpdate;
   }
 
- 
   Future<int?> endStopwatchProduct(
       int batchId, String date, int productId, int moveId) async {
     final db = await getDatabaseInstance();
@@ -448,8 +434,6 @@ class DataBaseSqlite {
     print("dateTransaccionProduct: $resUpdate");
     return resUpdate;
   }
-
- 
 
   Future<int?> updateNovedad(
     int batchId,
