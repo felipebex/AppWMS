@@ -166,6 +166,7 @@ class LineasRecepcion {
     int? id;
     int? productId;
     int? idRecepcion;
+    int? idMove;
     String? productName;
     String? productCode;
     String? productBarcode;
@@ -189,6 +190,7 @@ class LineasRecepcion {
     LineasRecepcion({
         this.id,
         this.productId,
+        this.idMove,
         this.idRecepcion,
         this.productName,
         this.productCode,
@@ -214,6 +216,7 @@ class LineasRecepcion {
         id: json["id"],
         productId: json["product_id"],
         idRecepcion: json["id_recepcion"],
+        idMove: json["id_move"],
         productName: json["product_name"],
         productCode: json["product_code"],
         productBarcode: json["product_barcode"],
@@ -238,6 +241,7 @@ class LineasRecepcion {
         "id": id,
         "product_id": productId,
         "id_recepcion": idRecepcion,
+        "id_move": idMove,
         "product_name": productName,
         "product_code": productCode,
         "product_barcode": productBarcode,

@@ -2,6 +2,7 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
@@ -32,6 +33,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   bool isProductOk = true;
   bool isLocationDestOk = true;
   bool isQuantityOk = true;
+
+//*base de datos
+  DataBaseSqlite db = DataBaseSqlite();
 
   //*configuracion del usuario //permisos
   Configurations configurations = Configurations();
@@ -102,9 +106,23 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           await _recepcionRepository.resBatchsPacking(false, event.context);
       if (response != null && response is List) {
         listOrdenesCompra = response;
-        listFiltersOrdenesCompra = response;
-        print('ordenesCompra: ${listFiltersOrdenesCompra.length}');
-        emit(FetchOrdenesCompraSuccess(listFiltersOrdenesCompra));
+
+        //todo: agregamos la lista de entradas a la bd
+        await db.entradasRepository.insertEntrada(listOrdenesCompra);
+
+        // Convertir el mapa en una lista de productos únicos con cantidades sumadas
+        List<LineasRecepcion> productsToInsert = listOrdenesCompra
+            .expand((batch) => batch.lineasRecepcion!)
+            .toList();
+
+        print('productsToInsert: ${productsToInsert.length}');
+
+        // Enviar la lista agrupada a insertBatchProducts
+        await db.productEntradaRepository
+            .insertarProductoEntrada(productsToInsert);
+
+        print('ordenesCompra: ${listOrdenesCompra.length}');
+        emit(FetchOrdenesCompraSuccess(listOrdenesCompra));
       } else {
         emit(FetchOrdenesCompraFailure(
             'Error al obtener las ordenes de compra'));

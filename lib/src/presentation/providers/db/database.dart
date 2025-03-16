@@ -20,6 +20,10 @@ import 'package:wms_app/src/presentation/providers/db/picking/tbl_submuelles/sub
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_submuelles/submuelles_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_urlrecientes/urlrecientes_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_urlrecientes/urlrecientes_table.dart';
+import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_entradas/entradas_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_entradas/entradas_table.dart';
+import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_product_entrada/product_entrada_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_product_entrada/product_entrada_table.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
@@ -121,6 +125,11 @@ class DataBaseSqlite {
     await db.execute(SubmuellesTable.createTable());
     //tabla para novedades
     await db.execute(NovedadesTable.createTable());
+
+    //tabla para las entradas de mercancia
+    await db.execute(ProductEntradaTable.createTable());
+    //tabla para las entradas de mercancia
+    await db.execute(EntradasRepeccionTable.createTable());
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -154,6 +163,14 @@ class DataBaseSqlite {
       ProductosPedidosRepository();
   //metodo  para obtener una instancia del repositorio de batchs para packing
   BatchPackingRepository get batchPackingRepository => BatchPackingRepository();
+
+  //metodo  para obtener una instancia del repositorio de productos de entradas de recepcion
+  ProductsEntradaRepository get productEntradaRepository =>
+      ProductsEntradaRepository();
+
+  //metodo  para obtener una instancia del repositorio  de entradas de recepcion
+
+  EntradasRepository get entradasRepository => EntradasRepository();
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -325,25 +342,19 @@ class DataBaseSqlite {
   //Todo: Eliminar todos los registros
   Future<void> deleteBD() async {
     final db = await getDatabaseInstance();
-    //picking
     await db.delete(BatchPickingTable.tableName);
-    //packing
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
     await db.delete(BarcodesPackagesTable.tableName);
     await db.delete('tblbatch_products');
     await db.delete(BatchPackingTable.tableName);
-
-    // await db.delete(SubmuellesTable.tableName);
-    // await db.delete(ConfigurationsTable.tableName);
-    // await db.delete(NovedadesTable.tableName);
+    await db.delete(ProductEntradaTable.tableName);
   }
 
   Future<void> deleteBDCloseSession() async {
     final db = await getDatabaseInstance();
     await db.delete(BatchPickingTable.tableName);
-    //packing
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
@@ -353,6 +364,7 @@ class DataBaseSqlite {
     await db.delete(SubmuellesTable.tableName);
     await db.delete(ConfigurationsTable.tableName);
     await db.delete(NovedadesTable.tableName);
+    await db.delete(ProductEntradaTable.tableName);
   }
 
   //*metodo para actualizar la tabla de productos de un batch

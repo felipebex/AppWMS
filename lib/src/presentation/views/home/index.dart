@@ -6,6 +6,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -86,6 +87,12 @@ class _HomePageState extends State<HomePage> {
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(false, context));
+
+                  await Future.delayed(const Duration(seconds: 1));
+
+                  context
+                      .read<RecepcionBloc>()
+                      .add(FetchOrdenesCompra(context));
                 } else if (rol == 'packing') {
                   if (!mounted) return;
                   context
