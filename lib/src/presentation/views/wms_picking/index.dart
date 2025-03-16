@@ -78,6 +78,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                 : 0.0;
 
             return Scaffold(
+              backgroundColor: white,
                 bottomNavigationBar: context
                         .read<WMSPickingBloc>()
                         .isKeyboardVisible
@@ -478,31 +479,24 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 ]),
                                             child: Image.asset(
                                               "assets/icons/producto.png",
-                                              color: batch.state == 'done'
-                                                  ? Colors.green
-                                                  : batch.state == 'cancel'
-                                                      ? Colors.red
-                                                      : primaryColorApp,
+                                              color: primaryColorApp,
                                               width: 24,
                                             ),
                                           ),
-                                          title: Row(
-                                            children: [
-                                              Text(batch.name ?? '',
-                                                  style: const TextStyle(
-                                                      fontSize: 14)),
-                                              //icono de start time
-                                              Spacer(),
-                                              Text(batch.zonaEntrega ?? '',
-                                                  style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: black)),
-                                            ],
-                                          ),
+                                          title: Text(batch.name ?? '',
+                                              style: const TextStyle(
+                                                  fontSize: 14)),
                                           subtitle: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(batch.zonaEntrega ?? '',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                              ),
                                               Row(
                                                 children: [
                                                   const Align(
@@ -511,7 +505,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                     child: Text(
                                                         "Tipo de operación:",
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color: grey)),
                                                   ),
                                                   Spacer(),
@@ -546,7 +540,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   batch.pickingTypeId
                                                       .toString(),
                                                   style: TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 12,
                                                       color: primaryColorApp),
                                                   maxLines: 2,
                                                   overflow:
@@ -574,7 +568,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                                       .scheduleddate!))
                                                           : "Sin fecha",
                                                       style: const TextStyle(
-                                                          fontSize: 14),
+                                                          fontSize: 12),
                                                     ),
                                                   ],
                                                 ),
@@ -594,7 +588,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                         batch.userName ??
                                                             "Sin usuario",
                                                         style: const TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color: black),
                                                         maxLines: 2,
                                                         overflow: TextOverflow
@@ -617,7 +611,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                     const Text(
                                                       "Cantidad Productos: ",
                                                       style: TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color: black),
                                                       maxLines: 2,
                                                       overflow:
@@ -628,7 +622,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                         batch.countItems
                                                             .toString(),
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp),
                                                         maxLines: 2,
@@ -652,7 +646,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                     const Text(
                                                       "Cantidad unidades: ",
                                                       style: TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color: black),
                                                       maxLines: 2,
                                                       overflow:
@@ -663,7 +657,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                         batch.totalQuantityItems
                                                             .toString(),
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp),
                                                         maxLines: 2,

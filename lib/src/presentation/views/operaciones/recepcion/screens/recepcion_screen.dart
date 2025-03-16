@@ -11,7 +11,7 @@ class RecepcionScreen extends StatefulWidget {
     required this.ordenCompra,
   });
 
-  final OrdenCompra? ordenCompra;
+  final ResultEntrada? ordenCompra;
 
   @override
   State<RecepcionScreen> createState() => _RecepcionScreenState();

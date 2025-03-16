@@ -4,19 +4,37 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 
 part 'recepcion_event.dart';
 part 'recepcion_state.dart';
 
 class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   //listado de ordenes de compra
-  List<OrdenCompra> listOrdenesCompra = [];
-  List<OrdenCompra> listFiltersOrdenesCompra = [];
+  List<ResultEntrada> listOrdenesCompra = [];
+  List<ResultEntrada> listFiltersOrdenesCompra = [];
   //repositorio
   final RecepcionRepository _recepcionRepository = RecepcionRepository();
   //controller de busqueda
   TextEditingController searchControllerOrderC = TextEditingController();
+
+  //variables para scan valdiar
+  //*variables para validar
+  bool locationIsOk = false;
+  bool productIsOk = false;
+  bool locationDestIsOk = false;
+  bool quantityIsOk = false;
   bool isKeyboardVisible = false;
+  bool viewQuantity = false;
+
+  // //*validaciones de campos del estado de la vista
+  bool isLocationOk = true;
+  bool isProductOk = true;
+  bool isLocationDestOk = true;
+  bool isQuantityOk = true;
+
+  //*configuracion del usuario //permisos
+  Configurations configurations = Configurations();
 
   RecepcionBloc() : super(RecepcionInitial()) {
     on<RecepcionEvent>((event, emit) {});
@@ -29,6 +47,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     //*asignar un usuario a una orden de compra
     on<AssignUserToOrder>(_onAssignUserToOrder);
+    //*obtener las configuraciones y permisos del usuario desde la bd
+    on<LoadConfigurationsUserOrder>(_onLoadConfigurationsUserEvent);
   }
 
   void _onAssignUserToOrder(
@@ -51,8 +71,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       print('Error en el _onAssignUserToOrder: $e, $s');
     }
   }
-
-
 
   void _onSearchPedidoEvent(
       SearchOrdenCompraEvent event, Emitter<RecepcionState> emit) async {
@@ -100,5 +118,26 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       ShowKeyboardEvent event, Emitter<RecepcionState> emit) {
     isKeyboardVisible = event.showKeyboard;
     emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
+  }
+
+  //*metodo para cargar la configuracion del usuario
+  void _onLoadConfigurationsUserEvent(
+      LoadConfigurationsUserOrder event, Emitter<RecepcionState> emit) async {
+    // try {
+    //   emit(ConfigurationLoadingPack());
+    //   int userId = await PrefUtils.getUserId();
+    //   final response =
+    //       await db.configurationsRepository.getConfiguration(userId);
+
+    //   if (response != null) {
+    //     configurations = response;
+    //     emit(ConfigurationLoadedPack(response));
+    //   } else {
+    //     emit(ConfigurationErrorPack('Error al cargar configuraciones'));
+    //   }
+    // } catch (e, s) {
+    //   emit(ConfigurationErrorPack(e.toString()));
+    //   print('Error en LoadConfigurationsUserPack.dart: $e =>$s');
+    // }
   }
 }

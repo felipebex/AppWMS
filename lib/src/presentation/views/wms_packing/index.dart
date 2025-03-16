@@ -41,6 +41,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
         listener: (context, state) {},
         builder: (context, state) {
           return Scaffold(
+            backgroundColor: white,
               bottomNavigationBar:
                   context.read<WmsPackingBloc>().isKeyboardVisible
                       ? CustomKeyboard(

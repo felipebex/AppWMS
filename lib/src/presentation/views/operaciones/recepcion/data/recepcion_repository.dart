@@ -11,7 +11,7 @@ import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/rece
 class RecepcionRepository {
 //metodo para obtener todas las ordenes de compra
 
-  Future<List<OrdenCompra>> resBatchsPacking(
+  Future<List<ResultEntrada>> resBatchsPacking(
     bool isLoadinDialog,
     BuildContext context,
   ) async {
@@ -40,8 +40,8 @@ class RecepcionRepository {
         if (jsonResponse.containsKey('result')) {
           List<dynamic> batches = jsonResponse['result']['result'];
           // Mapea los datos decodificados a una lista de BatchsModel
-          List<OrdenCompra> ordenes =
-              batches.map((data) => OrdenCompra.fromMap(data)).toList();
+          List<ResultEntrada> ordenes =
+              batches.map((data) => ResultEntrada.fromMap(data)).toList();
 
           if (ordenes.isNotEmpty) {
             return ordenes;
@@ -88,7 +88,7 @@ class RecepcionRepository {
 
 
   //metodo para asignar un usuario a una orden de compra
-  Future<List<OrdenCompra>> assignUserToOrder(
+  Future<List<ResultEntrada>> assignUserToOrder(
     bool isLoadinDialog,
     BuildContext context,
   ) async {
@@ -117,8 +117,8 @@ class RecepcionRepository {
         if (jsonResponse.containsKey('result')) {
           List<dynamic> batches = jsonResponse['result']['result'];
           // Mapea los datos decodificados a una lista de BatchsModel
-          List<OrdenCompra> ordenes =
-              batches.map((data) => OrdenCompra.fromMap(data)).toList();
+          List<ResultEntrada> ordenes =
+              batches.map((data) => ResultEntrada.fromMap(data)).toList();
 
           if (ordenes.isNotEmpty) {
             return ordenes;

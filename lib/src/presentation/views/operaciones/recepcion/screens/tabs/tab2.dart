@@ -13,7 +13,7 @@ class Tab2ScreenRecep extends StatelessWidget {
     required this.ordenCompra,
   });
 
-  final OrdenCompra? ordenCompra;
+  final ResultEntrada? ordenCompra;
 
   @override
   Widget build(BuildContext context) {
@@ -42,128 +42,135 @@ class Tab2ScreenRecep extends StatelessWidget {
                 height: size.height * 0.8,
                 child: Column(
                   children: [
-
-
                     (ordenCompra?.lineasRecepcion?.isEmpty ?? true)
-                    ?
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          const Text('No hay productos',
-                              style: TextStyle(fontSize: 14, color: grey)),
-                          const Text('Intente buscar otro producto',
-                              style: TextStyle(fontSize: 12, color: grey)),
-                          Visibility(
-                            visible: context
-                                .read<UserBloc>()
-                                .fabricante
-                                .contains("Zebra"),
-                            child: Container(
-                              height: 60,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-
-                    :
-
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: ordenCompra?.lineasRecepcion?.length,
-                        itemBuilder: (context, index) {
-                          final product = ordenCompra?.lineasRecepcion?[index];
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8,),
-                            child: Card(
-                              // Cambia el color de la tarjeta si el producto está seleccionado
-                              // color: context
-                              //         .read<WmsPackingBloc>()
-                              //         .listOfProductsForPacking
-                              //         .contains(product)
-                              //     ? primaryColorAppLigth // Color amarillo si está seleccionado
-                              //     : Colors
-                              //         .white, // Color blanco si no está seleccionado
-                              elevation: 5,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () {},
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          "Producto:",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: primaryColorApp,
-                                          ),
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          "${product?.productName}",
-                                          style: const TextStyle(
-                                              fontSize: 14, color: black),
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Codigo: ",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: primaryColorApp,
-                                            ),
-                                          ),
-                                          Text("${product?.productCode}",
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: black)),
-                                        ],
-                                      ),
-                                      Text(
-                                        "Ubicación: ",
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: primaryColorApp,
-                                        ),
-                                      ),
-                                      Text("",
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              color: black)),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "Cantidad: ",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: primaryColorApp,
-                                            ),
-                                          ),
-                                          Text("${product?.quantityOrdered}",
-                                              style: const TextStyle(
-                                                  fontSize: 16,
-                                                  color: black)),
-                                        ],
-                                      ),
-                                    ],
+                        ? Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                const Text('No hay productos',
+                                    style:
+                                        TextStyle(fontSize: 14, color: grey)),
+                                const Text('Intente buscar otro producto',
+                                    style:
+                                        TextStyle(fontSize: 12, color: grey)),
+                                Visibility(
+                                  visible: context
+                                      .read<UserBloc>()
+                                      .fabricante
+                                      .contains("Zebra"),
+                                  child: Container(
+                                    height: 60,
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-                    ),
+                          )
+                        : Expanded(
+                            child: ListView.builder(
+                              itemCount: ordenCompra?.lineasRecepcion?.length,
+                              itemBuilder: (context, index) {
+                                final product =
+                                    ordenCompra?.lineasRecepcion?[index];
+
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                  child: Card(
+                                    color: white,
+                                    // Cambia el color de la tarjeta si el producto está seleccionado
+                                    // color: context
+                                    //         .read<WmsPackingBloc>()
+                                    //         .listOfProductsForPacking
+                                    //         .contains(product)
+                                    //     ? primaryColorAppLigth // Color amarillo si está seleccionado
+                                    //     : Colors
+                                    //         .white, // Color blanco si no está seleccionado
+                                    elevation: 5,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            'scan-product-order',
+                                            arguments: [ordenCompra, product],
+                                          );
+                                        },
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "Producto:",
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "${product?.productName}",
+                                                style: const TextStyle(
+                                                    fontSize: 14, color: black),
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "Codigo: ",
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+                                                Text("${product?.productCode}",
+                                                    style: const TextStyle(
+                                                        fontSize: 16,
+                                                        color: black)),
+                                              ],
+                                            ),
+                                            Text(
+                                              "Ubicación: ",
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                color: primaryColorApp,
+                                              ),
+                                            ),
+                                            Text("${product?.locationName}",
+                                                style: const TextStyle(
+                                                    fontSize: 16,
+                                                    color: black)),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "Cantidad: ",
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+                                                Text(
+                                                    "${product?.quantityOrdered}",
+                                                    style: const TextStyle(
+                                                        fontSize: 16,
+                                                        color: black)),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                   ],
                 ),
               ),

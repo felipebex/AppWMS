@@ -13,7 +13,7 @@ class Tab1ScreenRecep extends StatelessWidget {
     required this.ordenCompra,
   });
 
-  final OrdenCompra? ordenCompra;
+  final ResultEntrada? ordenCompra;
 
   @override
   Widget build(BuildContext context) {
@@ -76,10 +76,10 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   ),
                                   const SizedBox(width: 5),
                                   Text(
-                                    ordenCompra?.scheduledDate != null
+                                    ordenCompra?.fechaCreacion != null
                                         ? DateFormat('dd/MM/yyyy hh:mm ')
                                             .format(DateTime.parse(
-                                                ordenCompra?.scheduledDate ??
+                                                ordenCompra?.fechaCreacion ??
                                                     ''))
                                         : "Sin fecha",
                                     style: const TextStyle(

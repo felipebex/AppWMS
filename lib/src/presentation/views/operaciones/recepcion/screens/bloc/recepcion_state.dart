@@ -10,7 +10,7 @@ final class RecepcionInitial extends RecepcionState {}
 class FetchOrdenesCompraLoading extends RecepcionState {}
 
 class FetchOrdenesCompraSuccess extends RecepcionState {
-  final List<OrdenCompra> ordenesCompra;
+  final List<ResultEntrada> ordenesCompra;
   FetchOrdenesCompraSuccess(this.ordenesCompra);
 }
 
@@ -29,7 +29,7 @@ class ShowKeyboardState extends RecepcionState {
 
 
 class SearchOrdenCompraSuccess extends RecepcionState {
-  final List<OrdenCompra> ordenesCompra;
+  final List<ResultEntrada> ordenesCompra;
   SearchOrdenCompraSuccess(this.ordenesCompra);
 }
 

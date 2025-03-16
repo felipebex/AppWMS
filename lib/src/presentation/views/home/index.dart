@@ -165,9 +165,9 @@ class _HomePageState extends State<HomePage> {
                                             context.read<UserBloc>().add(
                                                 GetConfigurations(context));
 
-
-                                            context.read<UserBloc>().add(
-                                                LoadInfoDeviceEventUser());
+                                            context
+                                                .read<UserBloc>()
+                                                .add(LoadInfoDeviceEventUser());
 
                                             showDialog(
                                                 context: context,
@@ -611,22 +611,30 @@ class _HomePageState extends State<HomePage> {
                                         const SizedBox(width: 2),
                                         GestureDetector(
                                           onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando interfaz...');
-                                                });
+                                            // showDialog(
+                                            //     context: context,
+                                            //     builder: (context) {
+                                            //       return const DialogLoading(
+                                            //           message:
+                                            //               'Cargando interfaz...');
+                                            //     });
 
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
+                                            // await Future.delayed(const Duration(
+                                            //     seconds:
+                                            //         1)); // Ajusta el tiempo si es necesario
 
-                                            Navigator.pop(context);
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'info-rapida',
+                                            // Navigator.pop(context);
+                                            // Navigator.pushReplacementNamed(
+                                            //   context,
+                                            //   'info-rapida',
+                                            // );
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    "Su usuario no tiene permisos para acceder a este módulo"),
+                                                duration: Duration(seconds: 4),
+                                              ),
                                             );
                                           },
                                           child: const ImteModule(
@@ -642,22 +650,31 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando inventario rapido...');
-                                                });
+                                            // showDialog(
+                                            //     context: context,
+                                            //     builder: (context) {
+                                            //       return const DialogLoading(
+                                            //           message:
+                                            //               'Cargando inventario rapido...');
+                                            //     });
 
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
+                                            // await Future.delayed(const Duration(
+                                            //     seconds:
+                                            //         1)); // Ajusta el tiempo si es necesario
 
-                                            Navigator.pop(context);
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'inventario',
+                                            // Navigator.pop(context);
+                                            // Navigator.pushReplacementNamed(
+                                            //   context,
+                                            //   'inventario',
+                                            // );
+
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    "Su usuario no tiene permisos para acceder a este módulo"),
+                                                duration: Duration(seconds: 4),
+                                              ),
                                             );
                                           },
                                           child: ImteModule(
@@ -685,6 +702,14 @@ class _HomePageState extends State<HomePage> {
                                               context,
                                               'operaciones',
                                             );
+                                            // ScaffoldMessenger.of(context)
+                                            //     .showSnackBar(
+                                            //   const SnackBar(
+                                            //     content: Text(
+                                            //         "Su usuario no tiene permisos para acceder a este módulo"),
+                                            //     duration: Duration(seconds: 4),
+                                            //   ),
+                                            // );
                                           },
                                           child: ImteModule(
                                             urlImg: "yms.png",

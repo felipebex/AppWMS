@@ -1,3 +1,5 @@
+
+
 // To parse this JSON data, do
 //
 //     final recepcionresponse = recepcionresponseFromMap(jsonString);
@@ -34,7 +36,7 @@ class Recepcionresponse {
 
 class RecepcionresponseResult {
     int? code;
-    List<OrdenCompra>? result;
+    List<ResultEntrada>? result;
 
     RecepcionresponseResult({
         this.code,
@@ -43,7 +45,7 @@ class RecepcionresponseResult {
 
     factory RecepcionresponseResult.fromMap(Map<String, dynamic> json) => RecepcionresponseResult(
         code: json["code"],
-        result: json["result"] == null ? [] : List<OrdenCompra>.from(json["result"]!.map((x) => OrdenCompra.fromMap(x))),
+        result: json["result"] == null ? [] : List<ResultEntrada>.from(json["result"]!.map((x) => ResultEntrada.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
@@ -52,11 +54,10 @@ class RecepcionresponseResult {
     };
 }
 
-class OrdenCompra {
+class ResultEntrada {
     int? id;
     String? name;
     String? fechaCreacion;
-    String? scheduledDate;
     int? proveedorId;
     String? proveedor;
     int? locationDestId;
@@ -65,25 +66,24 @@ class OrdenCompra {
     String? purchaseOrderName;
     String? numeroEntrada;
     double? pesoTotal;
-    dynamic numeroLineas;
-    dynamic numeroItems;
+    dynamic? numeroLineas;
+    dynamic? numeroItems;
     String? state;
-    dynamic origin;
+    String? origin;
     String? priority;
     int? warehouseId;
     String? warehouseName;
     int? locationId;
     String? locationName;
-    dynamic responsableId;
-    dynamic responsable;
+    int? responsableId;
+    String? responsable;
     String? pickingType;
     List<LineasRecepcion>? lineasRecepcion;
 
-    OrdenCompra({
+    ResultEntrada({
         this.id,
         this.name,
         this.fechaCreacion,
-        this.scheduledDate,
         this.proveedorId,
         this.proveedor,
         this.locationDestId,
@@ -107,11 +107,10 @@ class OrdenCompra {
         this.lineasRecepcion,
     });
 
-    factory OrdenCompra.fromMap(Map<String, dynamic> json) => OrdenCompra(
+    factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
         id: json["id"],
         name: json["name"],
         fechaCreacion: json["fecha_creacion"],
-        scheduledDate: json["scheduled_date"],
         proveedorId: json["proveedor_id"],
         proveedor: json["proveedor"],
         locationDestId: json["location_dest_id"],
@@ -139,7 +138,6 @@ class OrdenCompra {
         "id": id,
         "name": name,
         "fecha_creacion": fechaCreacion,
-        "scheduled_date": scheduledDate,
         "proveedor_id": proveedorId,
         "proveedor": proveedor,
         "location_dest_id": locationDestId,
@@ -167,151 +165,121 @@ class OrdenCompra {
 class LineasRecepcion {
     int? id;
     int? productId;
+    int? idRecepcion;
     String? productName;
     String? productCode;
     String? productBarcode;
     String? productTracking;
-    List<dynamic>? otherBarcodes;
+    String? fechaVencimiento;
+    
+    int? diasVencimiento;
+    List<OtherBarcode>? otherBarcodes;
     List<dynamic>? productPacking;
-    dynamic quantityOrdered;
-    dynamic quantityToReceive;
-    dynamic quantityDone;
-    dynamic priceUnit;
+    dynamic? quantityOrdered;
+    dynamic? quantityToReceive;
+    dynamic? quantityDone;
     String? uom;
+    int? locationDestId;
+    String? locationDestName;
+    String? locationBarcode;
+    int? locationId;
+    String? locationName;
     double? weight;
-    List<DetalleLinea>? detalleLineas;
 
     LineasRecepcion({
         this.id,
         this.productId,
+        this.idRecepcion,
         this.productName,
         this.productCode,
         this.productBarcode,
         this.productTracking,
+        this.fechaVencimiento,
+        this.diasVencimiento,
         this.otherBarcodes,
         this.productPacking,
         this.quantityOrdered,
         this.quantityToReceive,
         this.quantityDone,
-        this.priceUnit,
         this.uom,
+        this.locationDestId,
+        this.locationDestName,
+        this.locationBarcode,
+        this.locationId,
+        this.locationName,
         this.weight,
-        this.detalleLineas,
     });
 
     factory LineasRecepcion.fromMap(Map<String, dynamic> json) => LineasRecepcion(
         id: json["id"],
         productId: json["product_id"],
+        idRecepcion: json["id_recepcion"],
         productName: json["product_name"],
         productCode: json["product_code"],
         productBarcode: json["product_barcode"],
         productTracking: json["product_tracking"],
-        otherBarcodes: json["other_barcodes"] == null ? [] : List<dynamic>.from(json["other_barcodes"]!.map((x) => x)),
+        fechaVencimiento: json["fecha_vencimiento"],
+        diasVencimiento: json["dias_vencimiento"],
+        otherBarcodes: json["other_barcodes"] == null ? [] : List<OtherBarcode>.from(json["other_barcodes"]!.map((x) => OtherBarcode.fromMap(x))),
         productPacking: json["product_packing"] == null ? [] : List<dynamic>.from(json["product_packing"]!.map((x) => x)),
         quantityOrdered: json["quantity_ordered"],
         quantityToReceive: json["quantity_to_receive"],
         quantityDone: json["quantity_done"],
-        priceUnit: json["price_unit"],
         uom: json["uom"],
+        locationDestId: json["location_dest_id"],
+        locationDestName: json["location_dest_name"],
+        locationBarcode: json["location_barcode"],
+        locationId: json["location_id"],
+        locationName: json["location_name"],
         weight: json["weight"]?.toDouble(),
-        detalleLineas: json["detalle_lineas"] == null ? [] : List<DetalleLinea>.from(json["detalle_lineas"]!.map((x) => DetalleLinea.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
         "id": id,
         "product_id": productId,
+        "id_recepcion": idRecepcion,
         "product_name": productName,
         "product_code": productCode,
         "product_barcode": productBarcode,
         "product_tracking": productTracking,
-        "other_barcodes": otherBarcodes == null ? [] : List<dynamic>.from(otherBarcodes!.map((x) => x)),
+        "fecha_vencimiento": fechaVencimiento,
+        "dias_vencimiento": diasVencimiento,
+        "other_barcodes": otherBarcodes == null ? [] : List<dynamic>.from(otherBarcodes!.map((x) => x.toMap())),
         "product_packing": productPacking == null ? [] : List<dynamic>.from(productPacking!.map((x) => x)),
         "quantity_ordered": quantityOrdered,
         "quantity_to_receive": quantityToReceive,
         "quantity_done": quantityDone,
-        "price_unit": priceUnit,
         "uom": uom,
+        "location_dest_id": locationDestId,
+        "location_dest_name": locationDestName,
+        "location_barcode": locationBarcode,
+        "location_id": locationId,
+        "location_name": locationName,
         "weight": weight,
-        "detalle_lineas": detalleLineas == null ? [] : List<dynamic>.from(detalleLineas!.map((x) => x.toMap())),
     };
 }
 
-class DetalleLinea {
-    int? id;
-    dynamic qtyDone;
-    dynamic qtyTodo;
-    dynamic productUomQty;
-    dynamic lotId;
-    String? lotName;
-    String? expirationDate;
-    int? locationId;
-    String? locationName;
-    String? locationBarcode;
-    int? locationDestId;
-    String? locationDestName;
-    String? locationDestBarcode;
-    int? packageId;
-    String? packageName;
-    int? resultPackageId;
-    String? resultPackageName;
+class OtherBarcode {
+    String? barcode;
+    int? idMove;
+    int? idProduct;
 
-    DetalleLinea({
-        this.id,
-        this.qtyDone,
-        this.qtyTodo,
-        this.productUomQty,
-        this.lotId,
-        this.lotName,
-        this.expirationDate,
-        this.locationId,
-        this.locationName,
-        this.locationBarcode,
-        this.locationDestId,
-        this.locationDestName,
-        this.locationDestBarcode,
-        this.packageId,
-        this.packageName,
-        this.resultPackageId,
-        this.resultPackageName,
+    OtherBarcode({
+        this.barcode,
+        this.idMove,
+        this.idProduct,
     });
 
-    factory DetalleLinea.fromMap(Map<String, dynamic> json) => DetalleLinea(
-        id: json["id"],
-        qtyDone: json["qty_done"],
-        qtyTodo: json["qty_todo"],
-        productUomQty: json["product_uom_qty"],
-        lotId: json["lot_id"],
-        lotName: json["lot_name"],
-        expirationDate: json["expiration_date"],
-        locationId: json["location_id"],
-        locationName: json["location_name"],
-        locationBarcode: json["location_barcode"],
-        locationDestId: json["location_dest_id"],
-        locationDestName: json["location_dest_name"],
-        locationDestBarcode: json["location_dest_barcode"],
-        packageId: json["package_id"],
-        packageName: json["package_name"],
-        resultPackageId: json["result_package_id"],
-        resultPackageName: json["result_package_name"],
+    factory OtherBarcode.fromMap(Map<String, dynamic> json) => OtherBarcode(
+        barcode: json["barcode"],
+        idMove: json["id_move"],
+        idProduct: json["id_product"],
     );
 
     Map<String, dynamic> toMap() => {
-        "id": id,
-        "qty_done": qtyDone,
-        "qty_todo": qtyTodo,
-        "product_uom_qty": productUomQty,
-        "lot_id": lotId,
-        "lot_name": lotName,
-        "expiration_date": expirationDate,
-        "location_id": locationId,
-        "location_name": locationName,
-        "location_barcode": locationBarcode,
-        "location_dest_id": locationDestId,
-        "location_dest_name": locationDestName,
-        "location_dest_barcode": locationDestBarcode,
-        "package_id": packageId,
-        "package_name": packageName,
-        "result_package_id": resultPackageId,
-        "result_package_name": resultPackageName,
+        "barcode": barcode,
+        "id_move": idMove,
+        "id_product": idProduct,
     };
 }
+

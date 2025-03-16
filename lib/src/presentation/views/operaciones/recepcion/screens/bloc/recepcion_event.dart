@@ -24,3 +24,7 @@ class AssignUserToOrder extends RecepcionEvent {
   final String idUser;
   AssignUserToOrder(this.idOrder, this.idUser);
 }
+
+
+class LoadConfigurationsUserOrder  extends RecepcionEvent {
+}

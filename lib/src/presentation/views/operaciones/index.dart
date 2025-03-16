@@ -17,6 +17,7 @@ class OperacionesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return Scaffold(
+      backgroundColor: white,
       body: SizedBox(
           width: size.width * 1,
           height: size.height * 1,
