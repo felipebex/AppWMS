@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -17,6 +18,8 @@ class Tab2ScreenRecep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final recepcionBloc = context.read<RecepcionBloc>();
+
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
@@ -42,7 +45,7 @@ class Tab2ScreenRecep extends StatelessWidget {
                 height: size.height * 0.8,
                 child: Column(
                   children: [
-                    (ordenCompra?.lineasRecepcion?.isEmpty ?? true)
+                    (recepcionBloc.listProductsEntrada.isEmpty ?? true)
                         ? Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -68,10 +71,11 @@ class Tab2ScreenRecep extends StatelessWidget {
                           )
                         : Expanded(
                             child: ListView.builder(
-                              itemCount: ordenCompra?.lineasRecepcion?.length,
+                              itemCount:
+                                  recepcionBloc.listProductsEntrada.length,
                               itemBuilder: (context, index) {
                                 final product =
-                                    ordenCompra?.lineasRecepcion?[index];
+                                    recepcionBloc.listProductsEntrada[index];
 
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -115,7 +119,7 @@ class Tab2ScreenRecep extends StatelessWidget {
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                "${product?.productName}",
+                                                "${product.productName}",
                                                 style: const TextStyle(
                                                     fontSize: 14, color: black),
                                               ),
@@ -129,7 +133,7 @@ class Tab2ScreenRecep extends StatelessWidget {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-                                                Text("${product?.productCode}",
+                                                Text("${product.productCode}",
                                                     style: const TextStyle(
                                                         fontSize: 16,
                                                         color: black)),
@@ -142,7 +146,7 @@ class Tab2ScreenRecep extends StatelessWidget {
                                                 color: primaryColorApp,
                                               ),
                                             ),
-                                            Text("${product?.locationName}",
+                                            Text("${product.locationName}",
                                                 style: const TextStyle(
                                                     fontSize: 16,
                                                     color: black)),
@@ -156,7 +160,7 @@ class Tab2ScreenRecep extends StatelessWidget {
                                                   ),
                                                 ),
                                                 Text(
-                                                    "${product?.quantityOrdered}",
+                                                    "${product.quantityOrdered}",
                                                     style: const TextStyle(
                                                         fontSize: 16,
                                                         color: black)),

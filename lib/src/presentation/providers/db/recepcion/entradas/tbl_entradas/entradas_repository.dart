@@ -5,6 +5,7 @@ import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_ent
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
 
 class EntradasRepository {
+  //metodo para insertar todas las entradas
   Future<void> insertEntrada(List<ResultEntrada> entradas) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
@@ -35,6 +36,8 @@ class EntradasRepository {
             batch.update(
               EntradasRepeccionTable.tableName,
               {
+                //id
+                EntradasRepeccionTable.columnId: entrada.id,
                 EntradasRepeccionTable.columnName: entrada.name,
                 EntradasRepeccionTable.columnFechaCreacion:
                     entrada.fechaCreacion,
@@ -74,6 +77,7 @@ class EntradasRepository {
             batch.insert(
               EntradasRepeccionTable.tableName,
               {
+                EntradasRepeccionTable.columnId: entrada.id,
                 EntradasRepeccionTable.columnName: entrada.name,
                 EntradasRepeccionTable.columnFechaCreacion:
                     entrada.fechaCreacion,
@@ -115,6 +119,39 @@ class EntradasRepository {
       print('Entradas insertadas correctamente');
     } catch (e, s) {
       print('Error en insertEntrada: $e ->$s');
+    }
+  }
+
+  //metodo para obtener todas las entradas
+  Future<List<ResultEntrada>> getAllEntradas() async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> entradas = await db.query(
+        EntradasRepeccionTable.tableName,
+      );
+      return entradas.map((e) => ResultEntrada.fromMap(e)).toList();
+    } catch (e, s) {
+      print('Error en getAllEntradas: $e ->$s');
+      return [];
+    }
+  }
+
+  //metodo para obtener una entrada por id
+  Future<ResultEntrada?> getEntradaById(int id) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> entradas = await db.query(
+        EntradasRepeccionTable.tableName,
+        where: '${EntradasRepeccionTable.columnId} = ?',
+        whereArgs: [id],
+      );
+      if (entradas.isNotEmpty) {
+        return ResultEntrada.fromMap(entradas.first);
+      }
+      return null;
+    } catch (e, s) {
+      print('Error en getEntradaById: $e ->$s');
+      return null;
     }
   }
 }

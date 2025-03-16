@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/tabs/tab1.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/tabs/tab2.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -47,13 +49,16 @@ class _RecepcionScreenState extends State<RecepcionScreen>
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
+            //volvemos a llamar las entradas que tenemos guardadas en la bd
+            context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd(context));
+
             Navigator.pushReplacementNamed(
               context,
               'list-ordenes-compra',
             );
           },
         ),
-        title:  Text(
+        title: Text(
           'RECEPCIÓN',
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),

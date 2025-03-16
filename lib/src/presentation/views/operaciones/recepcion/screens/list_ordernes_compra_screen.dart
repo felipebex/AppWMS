@@ -6,7 +6,6 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -19,6 +18,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
 
     return BlocConsumer<RecepcionBloc, RecepcionState>(
       listener: (context, state) {
+        print('State ❤️‍🔥 $state');
+
         if (state is FetchOrdenesCompraFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -27,7 +28,6 @@ class ListOrdenesCompraScreen extends StatelessWidget {
             ),
           );
         }
-     
       },
       builder: (context, state) {
         final ordenCompra =
@@ -143,7 +143,9 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                         ),
                       )),
 
-                  (state is FetchOrdenesCompraSuccess)
+                  (state is FetchOrdenesCompraOfBdSuccess ||
+                          state is ShowKeyboardState ||
+                          state is SearchOrdenCompraSuccess)
                       ? Expanded(
                           child: ListView.builder(
                               padding: const EdgeInsets.only(top: 2),
@@ -187,6 +189,27 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                               ordenCompra[index]
                                                                   .fechaCreacion!))
                                                       : "Sin fecha",
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Text('Tipo de entrada: ',
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color:
+                                                            primaryColorApp)),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  ordenCompra[index]
+                                                          .pickingType ??
+                                                      "",
                                                   style: const TextStyle(
                                                       fontSize: 14,
                                                       color: black),
@@ -252,6 +275,11 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                         ],
                                       ),
                                       onTap: () async {
+                                        // mandamos a traer todos los productos de la entrada
+                                        context.read<RecepcionBloc>().add(
+                                            GetPorductsToEntrada(
+                                                ordenCompra[index].id ?? 0));
+
                                         Navigator.pushReplacementNamed(
                                           context,
                                           'recepcion',
@@ -263,7 +291,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                 );
                               }),
                         )
-                      : state is FetchOrdenesCompraLoading
+                      : state is FetchOrdenesCompraOfBdLoading
                           ? Container(
                               margin: EdgeInsets.only(top: size.height * 0.15),
                               child: Column(
@@ -292,7 +320,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                 ],
                               ),
                             )
-                          : state is FetchOrdenesCompraFailure
+                          : state is FetchOrdenesCompraOfBdFailure
                               ? Center(
                                   child: Text(state.error),
                                 )

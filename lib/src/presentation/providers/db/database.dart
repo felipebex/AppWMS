@@ -350,6 +350,7 @@ class DataBaseSqlite {
     await db.delete('tblbatch_products');
     await db.delete(BatchPackingTable.tableName);
     await db.delete(ProductEntradaTable.tableName);
+    await db.delete(EntradasRepeccionTable.tableName);
   }
 
   Future<void> deleteBDCloseSession() async {
@@ -365,6 +366,7 @@ class DataBaseSqlite {
     await db.delete(ConfigurationsTable.tableName);
     await db.delete(NovedadesTable.tableName);
     await db.delete(ProductEntradaTable.tableName);
+    await db.delete(EntradasRepeccionTable.tableName);
   }
 
   //*metodo para actualizar la tabla de productos de un batch

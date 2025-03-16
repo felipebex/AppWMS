@@ -79,16 +79,16 @@ class _HomePageState extends State<HomePage> {
                       .add(LoadAllBatchsEvent(context, true));
                 } else if (rol == 'admin') {
                   if (!mounted) return;
-                  context
-                      .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent(context, true));
-                  //esperamos 1 segundo y realizamos la otra peticion
-                  await Future.delayed(const Duration(seconds: 1));
-                  context
-                      .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(false, context));
+                  // context
+                  //     .read<WMSPickingBloc>()
+                  //     .add(LoadAllBatchsEvent(context, true));
+                  // //esperamos 1 segundo y realizamos la otra peticion
+                  // await Future.delayed(const Duration(seconds: 1));
+                  // context
+                  //     .read<WmsPackingBloc>()
+                  //     .add(LoadAllPackingEvent(false, context));
 
-                  await Future.delayed(const Duration(seconds: 1));
+                  // await Future.delayed(const Duration(seconds: 1));
 
                   context
                       .read<RecepcionBloc>()

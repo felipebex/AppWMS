@@ -59,6 +59,23 @@ class Tab1ScreenRecep extends StatelessWidget {
                             ),
                             Align(
                               alignment: Alignment.centerLeft,
+                              child: Row(
+                                children: [
+                                  Text('Tipo de entrada: ',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: primaryColorApp)),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    ordenCompra?.pickingType ?? "",
+                                    style: const TextStyle(
+                                        fontSize: 14, color: black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
                               child: Text(ordenCompra?.proveedor ?? '',
                                   style: TextStyle(
                                     color: black,
@@ -126,12 +143,12 @@ class Tab1ScreenRecep extends StatelessWidget {
                             ),
                             Row(
                               children: [
-                                const Align(
+                                Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       'Peso: ',
-                                      style:
-                                          TextStyle(fontSize: 14, color: black),
+                                      style: TextStyle(
+                                          fontSize: 14, color: primaryColorApp),
                                     )),
                                 Align(
                                   alignment: Alignment.centerLeft,
@@ -149,12 +166,12 @@ class Tab1ScreenRecep extends StatelessWidget {
                             ),
                             Row(
                               children: [
-                                const Align(
+                                 Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       'Total productos : ',
                                       style:
-                                          TextStyle(fontSize: 14, color: black),
+                                          TextStyle(fontSize: 14, color: primaryColorApp),
                                     )),
                                 Align(
                                     alignment: Alignment.centerLeft,
@@ -162,18 +179,18 @@ class Tab1ScreenRecep extends StatelessWidget {
                                       ordenCompra?.numeroLineas.toString() ??
                                           '0',
                                       style: TextStyle(
-                                          fontSize: 14, color: primaryColorApp),
+                                          fontSize: 14, color: black),
                                     )),
                               ],
                             ),
                             Row(
                               children: [
-                                const Align(
+                                 Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
                                       'Total de unidades: ',
                                       style:
-                                          TextStyle(fontSize: 14, color: black),
+                                          TextStyle(fontSize: 14, color: primaryColorApp),
                                     )),
                                 Align(
                                     alignment: Alignment.centerLeft,
@@ -181,7 +198,7 @@ class Tab1ScreenRecep extends StatelessWidget {
                                       ordenCompra?.numeroItems.toString() ??
                                           '0',
                                       style: TextStyle(
-                                          fontSize: 14, color: primaryColorApp),
+                                          fontSize: 14, color: black),
                                     )),
                               ],
                             ),

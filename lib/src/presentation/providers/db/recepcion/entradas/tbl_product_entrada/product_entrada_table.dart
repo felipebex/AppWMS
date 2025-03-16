@@ -17,6 +17,7 @@ class ProductEntradaTable {
   static const String columnUom = 'uom';
   static const String columnLocationDestId = 'location_dest_id';
   static const String columnLocationDestName = 'location_dest_name';
+  static const String columnLocationDestBarcode = 'location_dest_barcode';
   static const String columnLocationBarcode = 'location_barcode';
   static const String columnLocationId = 'location_id';
   static const String columnLocationName = 'location_name';
@@ -54,6 +55,7 @@ class ProductEntradaTable {
       $columnUom TEXT,
       $columnLocationDestId INTEGER,
       $columnLocationDestName TEXT,
+      $columnLocationDestBarcode TEXT,
       $columnLocationBarcode TEXT,
       $columnLocationId INTEGER,
       $columnLocationName TEXT,
@@ -66,7 +68,9 @@ class ProductEntradaTable {
       $columnIsLocationIsOk INTEGER,
       $columnProductIsOk INTEGER,
       $columnIsQuantityIsOk INTEGER,
-      $columnLocationDestIsOk INTEGER
+      $columnLocationDestIsOk INTEGER,
+      FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion ($columnId)
+
     )
   ''';
   }

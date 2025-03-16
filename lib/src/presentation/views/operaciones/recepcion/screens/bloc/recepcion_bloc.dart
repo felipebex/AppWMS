@@ -11,15 +11,18 @@ part 'recepcion_event.dart';
 part 'recepcion_state.dart';
 
 class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
-  //listado de ordenes de compra
+  //*listado de entradas
   List<ResultEntrada> listOrdenesCompra = [];
   List<ResultEntrada> listFiltersOrdenesCompra = [];
-  //repositorio
+
+  //*listado de productos de una entrada
+  List<LineasRecepcion> listProductsEntrada = [];
+
+  //*repositorio
   final RecepcionRepository _recepcionRepository = RecepcionRepository();
-  //controller de busqueda
+  //*controller de busqueda
   TextEditingController searchControllerOrderC = TextEditingController();
 
-  //variables para scan valdiar
   //*variables para validar
   bool locationIsOk = false;
   bool productIsOk = false;
@@ -34,6 +37,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   bool isLocationDestOk = true;
   bool isQuantityOk = true;
 
+  int quantitySelected = 0;
+
 //*base de datos
   DataBaseSqlite db = DataBaseSqlite();
 
@@ -47,14 +52,42 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     //*activar el teclado
     on<ShowKeyboardEvent>(_onShowKeyboardEvent);
     //* buscar una orden de compra
-    on<SearchOrdenCompraEvent>(_onSearchPedidoEvent);
+    on<SearchOrdenCompraEvent>(_onSearchOrderEvent);
+    //*obtener las ordenes de compra de la bd
+    on<FetchOrdenesCompraOfBd>(_onFetchOrdenesCompraOfBd);
 
     //*asignar un usuario a una orden de compra
     on<AssignUserToOrder>(_onAssignUserToOrder);
     //*obtener las configuraciones y permisos del usuario desde la bd
     on<LoadConfigurationsUserOrder>(_onLoadConfigurationsUserEvent);
+    //*obtener todos los productos de una entrada
+    on<GetPorductsToEntrada>(_onGetProductsToEntrada);
   }
 
+  //metodo para obtener los productos de una entrada por id
+  void _onGetProductsToEntrada(
+      GetPorductsToEntrada event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(GetProductsToEntradaLoading());
+      final response = await db.productEntradaRepository
+          .getProductsByRecepcionId(event.idEntrada);
+
+      if (response != null && response is List) {
+        listProductsEntrada = [];
+        listProductsEntrada = response;
+        emit(GetProductsToEntradaSuccess(response));
+      } else {
+        emit(GetProductsToEntradaFailure(
+            'Error al obtener los productos de la entrada'));
+      }
+    } catch (e, s) {
+      emit(GetProductsToEntradaFailure(
+          'Error al obtener los productos de la entrada'));
+      print('Error en el _onGetProductsToEntrada: $e, $s');
+    }
+  }
+
+//*metodo para obtener los permisos del usuario
   void _onAssignUserToOrder(
       AssignUserToOrder event, Emitter<RecepcionState> emit) async {
     try {
@@ -76,7 +109,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     }
   }
 
-  void _onSearchPedidoEvent(
+  //*metodo para buscar una entrada
+  void _onSearchOrderEvent(
       SearchOrdenCompraEvent event, Emitter<RecepcionState> emit) async {
     try {
       listFiltersOrdenesCompra = [];
@@ -88,7 +122,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         listFiltersOrdenesCompra = listOrdenesCompra;
       } else {
         listFiltersOrdenesCompra = listFiltersOrdenesCompra
-            .where((element) => element.purchaseOrderName!.contains(query))
+            .where((element) => element.name!.contains(query))
             .toList();
       }
       emit(SearchOrdenCompraSuccess(listFiltersOrdenesCompra));
@@ -98,6 +132,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     }
   }
 
+  //*metodo para obtener las entradas desde wms
   void _onFetchOrdenesCompra(
       FetchOrdenesCompra event, Emitter<RecepcionState> emit) async {
     try {
@@ -105,15 +140,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       final response =
           await _recepcionRepository.resBatchsPacking(false, event.context);
       if (response != null && response is List) {
-        listOrdenesCompra = response;
-
         //todo: agregamos la lista de entradas a la bd
-        await db.entradasRepository.insertEntrada(listOrdenesCompra);
-
+        await db.entradasRepository.insertEntrada(response);
         // Convertir el mapa en una lista de productos únicos con cantidades sumadas
-        List<LineasRecepcion> productsToInsert = listOrdenesCompra
-            .expand((batch) => batch.lineasRecepcion!)
-            .toList();
+        List<LineasRecepcion> productsToInsert =
+            response.expand((batch) => batch.lineasRecepcion!).toList();
 
         print('productsToInsert: ${productsToInsert.length}');
 
@@ -121,8 +152,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         await db.productEntradaRepository
             .insertarProductoEntrada(productsToInsert);
 
-        print('ordenesCompra: ${listOrdenesCompra.length}');
-        emit(FetchOrdenesCompraSuccess(listOrdenesCompra));
+        print('ordenesCompra: ${response.length}');
+        emit(FetchOrdenesCompraSuccess(response));
       } else {
         emit(FetchOrdenesCompraFailure(
             'Error al obtener las ordenes de compra'));
@@ -132,6 +163,29 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     }
   }
 
+  //*metodo para obtener las entradas desde la bd
+  void _onFetchOrdenesCompraOfBd(
+      FetchOrdenesCompraOfBd event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(FetchOrdenesCompraOfBdLoading());
+      final listbd = await db.entradasRepository.getAllEntradas();
+      if (listbd != null && listbd.isNotEmpty) {
+        listOrdenesCompra = listbd;
+        listFiltersOrdenesCompra = listbd;
+      } else {
+        emit(FetchOrdenesCompraOfBdFailure(
+            'No hay ordenes de compra en la base de datos'));
+      }
+
+      emit(FetchOrdenesCompraOfBdSuccess(listFiltersOrdenesCompra));
+    } catch (e, s) {
+      emit(FetchOrdenesCompraOfBdFailure(
+          'Error al obtener las ordenes de compra'));
+      print('Error en el _onFetchOrdenesCompraOfBd: $e, $s');
+    }
+  }
+
+  //*metodo para ocultar y mostrar el teclado
   void _onShowKeyboardEvent(
       ShowKeyboardEvent event, Emitter<RecepcionState> emit) {
     isKeyboardVisible = event.showKeyboard;

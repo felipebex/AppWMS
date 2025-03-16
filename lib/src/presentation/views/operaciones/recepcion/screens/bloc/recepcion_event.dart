@@ -8,6 +8,10 @@ class FetchOrdenesCompra extends RecepcionEvent {
   BuildContext context;
   FetchOrdenesCompra(this.context);
 }
+class FetchOrdenesCompraOfBd extends RecepcionEvent {
+  BuildContext context;
+  FetchOrdenesCompraOfBd(this.context);
+}
 
 class ShowKeyboardEvent extends RecepcionEvent {
   final bool showKeyboard;
@@ -27,4 +31,10 @@ class AssignUserToOrder extends RecepcionEvent {
 
 
 class LoadConfigurationsUserOrder  extends RecepcionEvent {
+}
+
+
+class GetPorductsToEntrada extends RecepcionEvent {
+  final int idEntrada;
+  GetPorductsToEntrada(this.idEntrada);
 }

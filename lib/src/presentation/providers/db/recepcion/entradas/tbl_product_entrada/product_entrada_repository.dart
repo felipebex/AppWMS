@@ -4,6 +4,7 @@ import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_pro
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
 
 class ProductsEntradaRepository {
+  //metodo para insertar todas las entradas
   Future<void> insertarProductoEntrada(List<LineasRecepcion> products) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
@@ -65,6 +66,8 @@ class ProductsEntradaRepository {
                       LineasRecepcion.locationDestId,
                   ProductEntradaTable.columnLocationDestName:
                       LineasRecepcion.locationDestName,
+                  ProductEntradaTable.columnLocationDestBarcode:
+                      LineasRecepcion.locationDestBarcode,
                   ProductEntradaTable.columnLocationBarcode:
                       LineasRecepcion.locationBarcode,
                   ProductEntradaTable.columnLocationId:
@@ -120,6 +123,8 @@ class ProductsEntradaRepository {
                       LineasRecepcion.locationId,
                   ProductEntradaTable.columnLocationName:
                       LineasRecepcion.locationName,
+                  ProductEntradaTable.columnLocationDestBarcode:
+                      LineasRecepcion.locationDestBarcode,
                   ProductEntradaTable.columnWeight: LineasRecepcion.weight,
                 },
                 conflictAlgorithm: ConflictAlgorithm.replace,
@@ -132,6 +137,43 @@ class ProductsEntradaRepository {
       print('Productos de entragas insertados con éxito.');
     } catch (e, s) {
       print('Error en el insertarProductoEntrada: $e, $s');
+    }
+  }
+
+  //metodo para obtener todos los productos de la entrada
+  Future<List<LineasRecepcion>> getAllProductsEntrada() async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> products = await db.query(
+        ProductEntradaTable.tableName,
+      );
+      return products
+          .map((product) => LineasRecepcion.fromMap(product))
+          .toList();
+    } catch (e, s) {
+      print('Error en getAllProductsEntrada: $e, $s');
+      return [];
+    }
+  }
+
+//*Método para obtener todos los productos de una entrada por idRecepcion
+  Future<List<LineasRecepcion>> getProductsByRecepcionId(
+      int idRecepcion) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      // Consulta para obtener los productos con el idRecepcion correspondiente
+      final List<Map<String, dynamic>> products = await db.query(
+        ProductEntradaTable.tableName,
+        where: '${ProductEntradaTable.columnIdRecepcion} = ?',
+        whereArgs: [idRecepcion],
+      );
+      // Convertir los resultados de la consulta en objetos de tipo LineasRecepcion
+      return products
+          .map((product) => LineasRecepcion.fromMap(product))
+          .toList();
+    } catch (e, s) {
+      print('Error en getProductsByRecepcionId: $e, $s');
+      return [];
     }
   }
 }

@@ -47,3 +47,32 @@ class AssignUserToOrderFailure extends RecepcionState {
   final String error;
   AssignUserToOrderFailure(this.error);
 }
+
+
+
+//metodo para obtener todas las entradas de recepcion dsde la bd
+class FetchOrdenesCompraOfBdLoading extends RecepcionState {}
+
+class FetchOrdenesCompraOfBdSuccess extends RecepcionState {
+  final List<ResultEntrada> ordenesCompra;
+  FetchOrdenesCompraOfBdSuccess(this.ordenesCompra);
+}
+
+class FetchOrdenesCompraOfBdFailure extends RecepcionState {
+  final String error;
+  FetchOrdenesCompraOfBdFailure(this.error);
+}
+
+
+//metodo para obtener los productos de una entrada
+class GetProductsToEntradaLoading extends RecepcionState {}
+
+class GetProductsToEntradaSuccess extends RecepcionState {
+  final List<LineasRecepcion> productos;
+  GetProductsToEntradaSuccess(this.productos);
+}
+
+class GetProductsToEntradaFailure extends RecepcionState {
+  final String error;
+  GetProductsToEntradaFailure(this.error);
+}

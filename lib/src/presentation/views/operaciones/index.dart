@@ -50,7 +50,7 @@ class OperacionesScreen extends StatelessWidget {
                         style: TextStyle(color: black, fontSize: 12),
                       ),
                       onTap: () async {
-                        context.read<RecepcionBloc>().add(FetchOrdenesCompra(
+                        context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd(
                             context)); // Llama al evento FetchOrdenesCompra
                         showDialog(
                             context: context,

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,10 +9,12 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/location/location_card_widget.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/muelle/muelle_card_widget.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/product/product_card_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
 class ScanProductOrderScreen extends StatefulWidget {
   const ScanProductOrderScreen(
@@ -34,6 +38,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen> {
   FocusNode focusNode5 = FocusNode(); //ubicacion destino
 
   String? selectedLocation;
+  String? selectedMuelle;
 
   //controller
   final TextEditingController _controllerLocation = TextEditingController();
@@ -541,9 +546,382 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen> {
                               ),
                             ],
                           ),
+
+                          //todo: ubicacion destino
+
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: recepcionBloc.locationDestIsOk
+                                        ? green
+                                        : yellow,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Card(
+                                color: recepcionBloc.isLocationDestOk
+                                    ? recepcionBloc.locationDestIsOk
+                                        ? Colors.green[100]
+                                        : Colors.grey[300]
+                                    : Colors.red[200],
+                                elevation: 5,
+                                child: Container(
+                                  width: size.width * 0.85,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 10),
+                                  child: context
+                                          .read<UserBloc>()
+                                          .fabricante
+                                          .contains("Zebra")
+                                      ? Column(
+                                          children: [
+                                            MuelleOrderDropdownWidget(
+                                              selectedMuelle: selectedMuelle,
+                                              currentProduct:
+                                                  widget.currentProduct!,
+                                              isPda: false,
+                                            ),
+                                            Container(
+                                              height: 15,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 5),
+                                              child: TextFormField(
+                                                showCursor: false,
+                                                enabled: recepcionBloc
+                                                        .locationIsOk &&
+                                                    recepcionBloc.productIsOk &&
+                                                    !recepcionBloc
+                                                        .quantityIsOk &&
+                                                    !recepcionBloc
+                                                        .locationDestIsOk,
+                                                controller:
+                                                    _controllerLocationDest, // Controlador que maneja el texto
+                                                focusNode: focusNode5,
+                                                onChanged: (value) {
+                                                  // validateMuelle(value);
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: widget
+                                                          .currentProduct
+                                                          ?.locationDestName ??
+                                                      "",
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  border: InputBorder.none,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Focus(
+                                          focusNode: focusNode5,
+                                          onKey: (FocusNode node,
+                                              RawKeyEvent event) {
+                                            if (event is RawKeyDownEvent) {
+                                              if (event.logicalKey ==
+                                                  LogicalKeyboardKey.enter) {
+                                                // validateMuelle(context
+                                                //     .read<BatchBloc>()
+                                                //     .scannedValue4);
+                                                return KeyEventResult.handled;
+                                              } else {
+                                                // context.read<BatchBloc>().add(
+                                                //     UpdateScannedValueEvent(
+                                                //         event.data.keyLabel,
+                                                //         'muelle'));
+                                                return KeyEventResult.handled;
+                                              }
+                                            }
+                                            return KeyEventResult.ignored;
+                                          },
+                                          child: MuelleOrderDropdownWidget(
+                                            selectedMuelle: selectedMuelle,
+                                            currentProduct:
+                                                widget.currentProduct!,
+                                            isPda: true,
+                                          )),
+                                ),
+                              ),
+                            ],
+                          ),
                         ]),
                       )),
-                )
+                ),
+
+                //todo: cantidad
+                SizedBox(
+                  width: size.width,
+                  height: recepcionBloc.viewQuantity == true &&
+                          context.read<UserBloc>().fabricante.contains("Zebra")
+                      ? 345
+                      : !recepcionBloc.viewQuantity
+                          ? 110
+                          : 150,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        child: Card(
+                          color: recepcionBloc.isQuantityOk
+                              ? recepcionBloc.quantityIsOk
+                                  ? white
+                                  : Colors.grey[300]
+                              : Colors.red[200],
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                            ),
+                            child: Center(
+                              child: Row(
+                                children: [
+                                  const Text('Recoger:',
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 14)),
+                                  Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      child: Text(
+                                        widget.currentProduct?.quantityOrdered
+                                                ?.toString() ??
+                                            "",
+                                        style: TextStyle(
+                                          color: primaryColorApp,
+                                          fontSize: 14,
+                                        ),
+                                      )),
+                                  Text(widget.currentProduct?.uom ?? "",
+                                      style: const TextStyle(
+                                          color: Colors.black, fontSize: 14)),
+                                  const Spacer(),
+                                  Expanded(
+                                    child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        alignment: Alignment.center,
+                                        child: context
+                                                .read<UserBloc>()
+                                                .fabricante
+                                                .contains("Zebra")
+                                            ? TextFormField(
+                                                showCursor: false,
+                                                textAlign: TextAlign.center,
+                                                enabled: recepcionBloc
+                                                        .locationIsOk && //true
+                                                    recepcionBloc
+                                                        .productIsOk && //true
+                                                    recepcionBloc
+                                                        .quantityIsOk && //true
+
+                                                    !recepcionBloc
+                                                        .locationDestIsOk,
+                                                // showCursor: false,
+                                                controller:
+                                                    _controllerQuantity, // Controlador que maneja el texto
+                                                focusNode: focusNode3,
+                                                onChanged: (value) {
+                                                  // validateQuantity(value);
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: recepcionBloc
+                                                      .quantitySelected
+                                                      .toString(),
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  border: InputBorder.none,
+                                                ),
+                                              )
+                                            : Focus(
+                                                focusNode: focusNode3,
+                                                onKey: (FocusNode node,
+                                                    RawKeyEvent event) {
+                                                  if (event
+                                                      is RawKeyDownEvent) {
+                                                    if (event.logicalKey ==
+                                                        LogicalKeyboardKey
+                                                            .enter) {
+                                                      // validateQuantity(
+                                                      //     packinghBloc
+                                                      //         .scannedValue3);
+
+                                                      return KeyEventResult
+                                                          .handled;
+                                                    } else {
+                                                      // packinghBloc.add(
+                                                      //     UpdateScannedValuePackEvent(
+                                                      //         event.data
+                                                      //             .keyLabel,
+                                                      //         'quantity'));
+                                                      return KeyEventResult
+                                                          .handled;
+                                                    }
+                                                  }
+                                                  return KeyEventResult.ignored;
+                                                },
+                                                child: Text(
+                                                    recepcionBloc
+                                                        .quantitySelected
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 14)),
+                                              )),
+                                  ),
+                                  IconButton(
+                                      onPressed: recepcionBloc
+                                                  .configurations
+                                                  .result
+                                                  ?.result
+                                                  ?.manualQuantityPack ==
+                                              false
+                                          ? null
+                                          : recepcionBloc.quantityIsOk &&
+                                                  recepcionBloc
+                                                          .quantitySelected >=
+                                                      0
+                                              ? () {
+                                                  // packinghBloc.add(
+                                                  //     ShowQuantityPackEvent(
+                                                  //         !packinghBloc
+                                                  //             .viewQuantity));
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          milliseconds: 100),
+                                                      () {
+                                                    FocusScope.of(context)
+                                                        .requestFocus(
+                                                            focusNode4);
+                                                  });
+                                                }
+                                              : null,
+                                      icon: Icon(Icons.edit_note_rounded,
+                                          color: primaryColorApp, size: 30)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: recepcionBloc.viewQuantity,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 2),
+                          child: SizedBox(
+                            height: 40,
+                            child: TextFormField(
+                              //tmano del campo
+
+                              focusNode: focusNode4,
+                              inputFormatters: [
+                                FilteringTextInputFormatter
+                                    .digitsOnly, // Solo permite dígitos
+                              ],
+                              showCursor: true,
+                              onChanged: (value) {
+                                // Verifica si el valor no está vacío y si es un número válido
+                                if (value.isNotEmpty) {
+                                  try {
+                                    recepcionBloc.quantitySelected =
+                                        int.parse(value);
+                                  } catch (e) {
+                                    // Manejo de errores si la conversión falla
+                                    print('Error al convertir a entero: $e');
+                                    // Aquí puedes mostrar un mensaje al usuario o manejar el error de otra forma
+                                  }
+                                } else {
+                                  // Si el valor está vacío, puedes establecer un valor por defecto
+                                  recepcionBloc.quantitySelected =
+                                      0; // O cualquier valor que consideres adecuado
+                                }
+                              },
+                              controller: _cantidadController,
+                              keyboardType: TextInputType.number,
+                              readOnly: context
+                                      .read<UserBloc>()
+                                      .fabricante
+                                      .contains("Zebra")
+                                  ? true
+                                  : false,
+                              decoration: InputDecorations.authInputDecoration(
+                                hintText: 'Cantidad',
+                                labelText: 'Cantidad',
+                                suffixIconButton: IconButton(
+                                  onPressed: () {
+                                    // packinghBloc.add(ShowQuantityPackEvent(
+                                    //     !packinghBloc.viewQuantity));
+                                    _cantidadController.clear();
+                                    //cambiamos el foco pa leer por pda la cantidad
+                                    Future.delayed(
+                                        const Duration(milliseconds: 100), () {
+                                      FocusScope.of(context)
+                                          .requestFocus(focusNode3);
+                                    });
+                                  },
+                                  icon: const Icon(Icons.clear),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                          child: ElevatedButton(
+                            onPressed: recepcionBloc.quantityIsOk &&
+                                    recepcionBloc.quantitySelected >= 0
+                                ? () {
+                                    //cerramos el teclado
+                                    FocusScope.of(context).unfocus();
+                                    // _validatebuttonquantity();
+                                  }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColorApp,
+                              minimumSize: Size(size.width * 0.93, 35),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              'APLICAR CANTIDAD',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
+                            ),
+                          )),
+                      Visibility(
+                        visible: recepcionBloc.viewQuantity &&
+                            context
+                                .read<UserBloc>()
+                                .fabricante
+                                .contains("Zebra"),
+                        child: CustomKeyboardNumber(
+                          controller: _cantidadController,
+                          onchanged: () {
+                            // _validatebuttonquantity();
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

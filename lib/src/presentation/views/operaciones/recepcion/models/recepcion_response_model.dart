@@ -62,6 +62,7 @@ class ResultEntrada {
     String? proveedor;
     int? locationDestId;
     String? locationDestName;
+    String? locationDestBarode;
     int? purchaseOrderId;
     String? purchaseOrderName;
     String? numeroEntrada;
@@ -88,6 +89,7 @@ class ResultEntrada {
         this.proveedor,
         this.locationDestId,
         this.locationDestName,
+        this.locationDestBarode,
         this.purchaseOrderId,
         this.purchaseOrderName,
         this.numeroEntrada,
@@ -115,6 +117,7 @@ class ResultEntrada {
         proveedor: json["proveedor"],
         locationDestId: json["location_dest_id"],
         locationDestName: json["location_dest_name"],
+        locationDestBarode: json["location_dest_barode"],
         purchaseOrderId: json["purchase_order_id"],
         purchaseOrderName: json["purchase_order_name"],
         numeroEntrada: json["numero_entrada"],
@@ -142,6 +145,7 @@ class ResultEntrada {
         "proveedor": proveedor,
         "location_dest_id": locationDestId,
         "location_dest_name": locationDestName,
+        "location_dest_barode": locationDestBarode,
         "purchase_order_id": purchaseOrderId,
         "purchase_order_name": purchaseOrderName,
         "numero_entrada": numeroEntrada,
@@ -164,16 +168,16 @@ class ResultEntrada {
 
 class LineasRecepcion {
     int? id;
-    int? productId;
-    int? idRecepcion;
-    int? idMove;
+    dynamic? productId;
+    dynamic? idRecepcion;
+    dynamic? idMove;
     String? productName;
     String? productCode;
     String? productBarcode;
     String? productTracking;
     String? fechaVencimiento;
     
-    int? diasVencimiento;
+    dynamic? diasVencimiento;
     List<OtherBarcode>? otherBarcodes;
     List<dynamic>? productPacking;
     dynamic? quantityOrdered;
@@ -182,6 +186,7 @@ class LineasRecepcion {
     String? uom;
     int? locationDestId;
     String? locationDestName;
+    String? locationDestBarcode;
     String? locationBarcode;
     int? locationId;
     String? locationName;
