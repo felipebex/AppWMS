@@ -15,14 +15,24 @@ class ConfigurationsTable {
   static const String columnManualQuantity = 'manual_quantity';
   static const String columnManualSpringSelection = 'manual_spring_selection';
   static const String columnShowDetallesPicking = 'show_detalles_picking';
-  static const String columnShowNextLocationsInDetails = 'show_next_locations_in_details';
+  static const String columnShowNextLocationsInDetails =
+      'show_next_locations_in_details';
   static const String columnLocationPackManual = 'location_pack_manual';
   static const String columnShowDetallesPack = 'show_detalles_pack';
-  static const String columnShowNextLocationsInDetailsPack = 'show_next_locations_in_details_pack';
-  static const String columnManualProductSelectionPack = 'manual_product_selection_pack';
+  static const String columnShowNextLocationsInDetailsPack =
+      'show_next_locations_in_details_pack';
+  static const String columnManualProductSelectionPack =
+      'manual_product_selection_pack';
   static const String columnManualQuantityPack = 'manual_quantity_pack';
-  static const String columnManualSpringSelectionPack = 'manual_spring_selection_pack';
+  static const String columnManualSpringSelectionPack =
+      'manual_spring_selection_pack';
   static const String columnScanProduct = 'scan_product';
+
+  static const String columnAllowMoveExcess = 'allow_move_excess';
+  static const String columnHideExpectedQty = 'hide_expected_qty';
+  static const String columnManualProductReading = 'manual_product_reading';
+  static const String columnManualSourceLocation = 'manual_source_location';
+  static const String columnShowOwnerField = 'show_owner_field';
 
   // Método para crear la tabla
   static String createTable() {
@@ -46,7 +56,12 @@ class ConfigurationsTable {
         $columnManualProductSelectionPack INTEGER,
         $columnManualQuantityPack INTEGER,
         $columnManualSpringSelectionPack INTEGER,
-        $columnScanProduct INTEGER
+        $columnScanProduct INTEGER,
+        $columnAllowMoveExcess INTEGER,
+        $columnHideExpectedQty INTEGER,
+        $columnManualProductReading INTEGER,
+        $columnManualSourceLocation INTEGER,
+        $columnShowOwnerField INTEGER
       )
     ''';
   }

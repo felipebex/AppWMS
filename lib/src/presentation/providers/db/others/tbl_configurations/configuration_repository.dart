@@ -48,6 +48,16 @@ class ConfigurationsRepository {
             _boolToInt(configuration.result?.result?.manualSpringSelectionPack),
         ConfigurationsTable.columnScanProduct:
             _boolToInt(configuration.result?.result?.scanProduct),
+        ConfigurationsTable.columnAllowMoveExcess:
+            _boolToInt(configuration.result?.result?.allowMoveExcess),
+        ConfigurationsTable.columnHideExpectedQty:
+            _boolToInt(configuration.result?.result?.hideExpectedQty),
+        ConfigurationsTable.columnManualProductReading:
+            _boolToInt(configuration.result?.result?.manualProductReading),
+        ConfigurationsTable.columnManualSourceLocation:
+            _boolToInt(configuration.result?.result?.manualSourceLocation),
+        ConfigurationsTable.columnShowOwnerField:
+            _boolToInt(configuration.result?.result?.showOwnerField),
       };
 
       // Realizar la inserción o actualización usando INSERT OR REPLACE
@@ -121,6 +131,16 @@ class ConfigurationsRepository {
                   _intToBool(map[ConfigurationsTable.columnLocationPackManual]),
               scanProduct:
                   _intToBool(map[ConfigurationsTable.columnScanProduct]),
+              allowMoveExcess:
+                  _intToBool(map[ConfigurationsTable.columnAllowMoveExcess]),
+              hideExpectedQty:
+                  _intToBool(map[ConfigurationsTable.columnHideExpectedQty]),
+              manualProductReading: _intToBool(
+                  map[ConfigurationsTable.columnManualProductReading]),
+              manualSourceLocation: _intToBool(
+                  map[ConfigurationsTable.columnManualSourceLocation]),
+              showOwnerField:
+                  _intToBool(map[ConfigurationsTable.columnShowOwnerField]),
             ),
           ),
         );

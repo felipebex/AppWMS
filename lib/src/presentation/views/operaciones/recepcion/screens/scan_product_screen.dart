@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/wid
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/muelle/muelle_card_widget.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/product/product_card_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
@@ -282,7 +283,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen> {
                                                 border: InputBorder.none,
                                               ),
                                             ),
-                                            // Lote/Numero de serie
+                                            // CODIGO DE BARRAS DEL PRODUCTO
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Row(
@@ -326,24 +327,25 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen> {
                                             ),
                                             Column(
                                               children: [
-                                                // ExpiryDateWidget(
-                                                //     expireDate: packinghBloc
-                                                //                 .currentProduct
-                                                //                 .expireDate ==
-                                                //             ""
-                                                //         ? DateTime.now()
-                                                //         : DateTime.parse(
-                                                //             packinghBloc
-                                                //                 .currentProduct
-                                                //                 .expireDate),
-                                                //     size: size,
-                                                //     isDetaild: false,
-                                                //     isNoExpireDate: packinghBloc
-                                                //                 .currentProduct
-                                                //                 .expireDate ==
-                                                //             ""
-                                                //         ? true
-                                                //         : false),
+                                                ExpiryDateWidget(
+                                                    expireDate: widget
+                                                                .currentProduct
+                                                                ?.fechaVencimiento ==
+                                                            ""
+                                                        ? DateTime.now()
+                                                        : DateTime.parse(
+                                                            widget.currentProduct
+                                                                    ?.fechaVencimiento ??
+                                                                '',
+                                                          ),
+                                                    size: size,
+                                                    isDetaild: false,
+                                                    isNoExpireDate: widget
+                                                                .currentProduct
+                                                                ?.fechaVencimiento ==
+                                                            ""
+                                                        ? true
+                                                        : false),
                                                 // if (widget.currentProduct
                                                 //         .loteId !=
                                                 //     null)
@@ -460,24 +462,45 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen> {
                                                             fontSize: 14,
                                                             color: black),
                                                       ),
-                                                      Visibility(
-                                                        visible: widget
-                                                                    .currentProduct
-                                                                    ?.productBarcode ==
-                                                                false ||
-                                                            widget.currentProduct
-                                                                    ?.productBarcode ==
-                                                                null ||
-                                                            widget.currentProduct
-                                                                    ?.productBarcode ==
-                                                                "",
-                                                        child: const Text(
-                                                          "Sin codigo de barras",
-                                                          textAlign:
-                                                              TextAlign.start,
-                                                          style: TextStyle(
-                                                              fontSize: 14,
-                                                              color: red),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Row(
+                                                          children: [
+                                                            Image.asset(
+                                                              "assets/icons/barcode.png",
+                                                              color:
+                                                                  primaryColorApp,
+                                                              width: 20,
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 10),
+                                                            Text(
+                                                              widget.currentProduct?.productBarcode == false ||
+                                                                      widget.currentProduct
+                                                                              ?.productBarcode ==
+                                                                          null ||
+                                                                      widget.currentProduct
+                                                                              ?.productBarcode ==
+                                                                          ""
+                                                                  ? "Sin codigo de barras"
+                                                                  : widget.currentProduct
+                                                                          ?.productBarcode ??
+                                                                      "",
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .start,
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: widget.currentProduct?.productBarcode == false ||
+                                                                          widget.currentProduct?.productBarcode ==
+                                                                              null ||
+                                                                          widget.currentProduct?.productBarcode ==
+                                                                              ""
+                                                                      ? red
+                                                                      : black),
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
                                                     ],
@@ -518,26 +541,25 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen> {
                                                 //       ),
                                                 //     ],
                                                 //   ),
-                                                // ExpiryDateWidget(
-                                                //     expireDate: packinghBloc
-                                                //                 .currentProduct
-                                                //                 .expireDate ==
-                                                //             ""
-                                                //         ? DateTime.now()
-                                                //         : DateTime.parse(
-                                                //             packinghBloc
-                                                //                     .currentProduct
-                                                //                     .expireDate ??
-                                                //                 '',
-                                                //           ),
-                                                //     size: size,
-                                                //     isDetaild: false,
-                                                //     isNoExpireDate: packinghBloc
-                                                //                 .currentProduct
-                                                //                 .expireDate ==
-                                                //             ""
-                                                //         ? true
-                                                //         : false),
+                                                ExpiryDateWidget(
+                                                    expireDate: widget
+                                                                .currentProduct
+                                                                ?.fechaVencimiento ==
+                                                            ""
+                                                        ? DateTime.now()
+                                                        : DateTime.parse(
+                                                            widget.currentProduct
+                                                                    ?.fechaVencimiento ??
+                                                                '',
+                                                          ),
+                                                    size: size,
+                                                    isDetaild: false,
+                                                    isNoExpireDate: widget
+                                                                .currentProduct
+                                                                ?.fechaVencimiento ==
+                                                            ""
+                                                        ? true
+                                                        : false),
                                               ],
                                             ),
                                           ),

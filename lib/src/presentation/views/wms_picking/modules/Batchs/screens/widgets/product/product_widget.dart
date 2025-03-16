@@ -78,7 +78,7 @@ class ProductDropdownWidget extends StatelessWidget {
                           if (newValue == currentProduct.productId.toString()) {
                             batchBloc.add(ValidateFieldsEvent(
                                 field: "product", isOk: true));
-    
+
                             batchBloc.add(ChangeProductIsOkEvent(
                                 true,
                                 currentProduct.idProduct ?? 0,
@@ -92,9 +92,9 @@ class ProductDropdownWidget extends StatelessWidget {
                         }
                       : null,
             ),
-      
+
             // Información del producto
-      
+
             if (isPDA)
               Align(
                 alignment: Alignment.centerLeft,
@@ -110,7 +110,7 @@ class ProductDropdownWidget extends StatelessWidget {
                   ),
                 ),
               ),
-      
+
             // Lote/Numero de serie
             if (isPDA)
               if (currentProductId.isNotEmpty)
@@ -122,7 +122,8 @@ class ProductDropdownWidget extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           'Lote/Numero de serie',
-                          style: TextStyle(fontSize: 14, color: primaryColorApp),
+                          style:
+                              TextStyle(fontSize: 14, color: primaryColorApp),
                         ),
                       ),
                       Align(

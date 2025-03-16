@@ -1,19 +1,24 @@
+
+// To parse this JSON data, do
+//
+//     final configurations = configurationsFromMap(jsonString);
+
 import 'dart:convert';
 
+Configurations configurationsFromMap(String str) => Configurations.fromMap(json.decode(str));
+
+String configurationsToMap(Configurations data) => json.encode(data.toMap());
+
 class Configurations {
-    final String? jsonrpc;
-    final dynamic id;
-    final ConfigurationsResult? result;
+    String? jsonrpc;
+    dynamic id;
+    ConfigurationsResult? result;
 
     Configurations({
         this.jsonrpc,
         this.id,
         this.result,
     });
-
-    factory Configurations.fromJson(String str) => Configurations.fromMap(json.decode(str));
-
-    String toJson() => json.encode(toMap());
 
     factory Configurations.fromMap(Map<String, dynamic> json) => Configurations(
         jsonrpc: json["jsonrpc"],
@@ -29,17 +34,13 @@ class Configurations {
 }
 
 class ConfigurationsResult {
-    final int? code;
-    final DataConfig? result;
+    int? code;
+    DataConfig? result;
 
     ConfigurationsResult({
         this.code,
         this.result,
     });
-
-    factory ConfigurationsResult.fromJson(String str) => ConfigurationsResult.fromMap(json.decode(str));
-
-    String toJson() => json.encode(toMap());
 
     factory ConfigurationsResult.fromMap(Map<String, dynamic> json) => ConfigurationsResult(
         code: json["code"],
@@ -53,25 +54,34 @@ class ConfigurationsResult {
 }
 
 class DataConfig {
-    final String? name;
-    final int? id;
-    final String? lastName;
-    final String? email;
-    final String? rol;
-    final String? muelleOption;
-    final bool? locationPickingManual;
-    final bool? manualProductSelection;
-    final bool? manualQuantity;
-    final bool? manualSpringSelection;
-    final bool? showDetallesPicking;
-    final bool? showNextLocationsInDetails;
-    final bool? locationPackManual;
-    final bool? showDetallesPack;
-    final bool? showNextLocationsInDetailsPack;
-    final bool? manualProductSelectionPack;
-    final bool? manualQuantityPack;
-    final bool? manualSpringSelectionPack;
-    final bool? scanProduct;
+    String? name;
+    int? id;
+    String? lastName;
+    String? email;
+    String? rol;
+    String? muelleOption;
+    bool? locationPickingManual;
+    bool? manualProductSelection;
+    bool? manualQuantity;
+    bool? manualSpringSelection;
+    bool? showDetallesPicking;
+    bool? showNextLocationsInDetails;
+    bool? locationPackManual;
+    bool? showDetallesPack;
+    bool? showNextLocationsInDetailsPack;
+    bool? manualProductSelectionPack;
+    bool? manualQuantityPack;
+    bool? manualSpringSelectionPack;
+    bool? scanProduct;
+    bool? allowMoveExcess;
+    bool? hideExpectedQty;
+    bool? manualProductReading;
+    bool? manualSourceLocation;
+    bool? showOwnerField;
+
+
+
+
 
     DataConfig({
         this.name,
@@ -93,11 +103,12 @@ class DataConfig {
         this.manualQuantityPack,
         this.manualSpringSelectionPack,
         this.scanProduct,
+        this.allowMoveExcess,
+        this.hideExpectedQty,
+        this.manualProductReading,
+        this.manualSourceLocation,
+        this.showOwnerField,
     });
-
-    factory DataConfig.fromJson(String str) => DataConfig.fromMap(json.decode(str));
-
-    String toJson() => json.encode(toMap());
 
     factory DataConfig.fromMap(Map<String, dynamic> json) => DataConfig(
         name: json["name"],
@@ -119,7 +130,11 @@ class DataConfig {
         manualQuantityPack: json["manual_quantity_pack"],
         manualSpringSelectionPack: json["manual_spring_selection_pack"],
         scanProduct: json["scan_product"],
-
+        allowMoveExcess: json["allow_move_excess"],
+        hideExpectedQty: json["hide_expected_qty"],
+        manualProductReading: json["manual_product_reading"],
+        manualSourceLocation: json["manual_source_location"],
+        showOwnerField: json["show_owner_field"],
     );
 
     Map<String, dynamic> toMap() => {
@@ -142,5 +157,10 @@ class DataConfig {
         "manual_quantity_pack": manualQuantityPack,
         "manual_spring_selection_pack": manualSpringSelectionPack,
         "scan_product": scanProduct,
+        "allow_move_excess": allowMoveExcess,
+        "hide_expected_qty": hideExpectedQty,
+        "manual_product_reading": manualProductReading,
+        "manual_source_location": manualSourceLocation,
+        "show_owner_field": showOwnerField,
     };
 }
