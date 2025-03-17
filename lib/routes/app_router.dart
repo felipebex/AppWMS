@@ -139,7 +139,10 @@ class AppRoutes {
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
         // Asegurarnos de que la lista tenga al menos dos elementos
         final ordenCompraArg = arguments[0] as ResultEntrada?;
-        return RecepcionScreen(ordenCompra: ordenCompraArg);
+        final initialTabIndexArg = arguments[1] as int?;
+        return RecepcionScreen(
+            ordenCompra: ordenCompraArg,
+            initialTabIndex: initialTabIndexArg ?? 0);
       },
 
       listOrdenesCompra: (_) => const ListOrdenesCompraScreen(),

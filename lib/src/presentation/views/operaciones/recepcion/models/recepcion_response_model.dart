@@ -1,115 +1,124 @@
-
-
 // To parse this JSON data, do
 //
 //     final recepcionresponse = recepcionresponseFromMap(jsonString);
 
 import 'dart:convert';
 
-Recepcionresponse recepcionresponseFromMap(String str) => Recepcionresponse.fromMap(json.decode(str));
+Recepcionresponse recepcionresponseFromMap(String str) =>
+    Recepcionresponse.fromMap(json.decode(str));
 
-String recepcionresponseToMap(Recepcionresponse data) => json.encode(data.toMap());
+String recepcionresponseToMap(Recepcionresponse data) =>
+    json.encode(data.toMap());
 
 class Recepcionresponse {
-    String? jsonrpc;
-    dynamic id;
-    RecepcionresponseResult? result;
+  String? jsonrpc;
+  dynamic id;
+  RecepcionresponseResult? result;
 
-    Recepcionresponse({
-        this.jsonrpc,
-        this.id,
-        this.result,
-    });
+  Recepcionresponse({
+    this.jsonrpc,
+    this.id,
+    this.result,
+  });
 
-    factory Recepcionresponse.fromMap(Map<String, dynamic> json) => Recepcionresponse(
+  factory Recepcionresponse.fromMap(Map<String, dynamic> json) =>
+      Recepcionresponse(
         jsonrpc: json["jsonrpc"],
         id: json["id"],
-        result: json["result"] == null ? null : RecepcionresponseResult.fromMap(json["result"]),
-    );
+        result: json["result"] == null
+            ? null
+            : RecepcionresponseResult.fromMap(json["result"]),
+      );
 
-    Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() => {
         "jsonrpc": jsonrpc,
         "id": id,
         "result": result?.toMap(),
-    };
+      };
 }
 
 class RecepcionresponseResult {
-    int? code;
-    List<ResultEntrada>? result;
+  int? code;
+  List<ResultEntrada>? result;
 
-    RecepcionresponseResult({
-        this.code,
-        this.result,
-    });
+  RecepcionresponseResult({
+    this.code,
+    this.result,
+  });
 
-    factory RecepcionresponseResult.fromMap(Map<String, dynamic> json) => RecepcionresponseResult(
+  factory RecepcionresponseResult.fromMap(Map<String, dynamic> json) =>
+      RecepcionresponseResult(
         code: json["code"],
-        result: json["result"] == null ? [] : List<ResultEntrada>.from(json["result"]!.map((x) => ResultEntrada.fromMap(x))),
-    );
+        result: json["result"] == null
+            ? []
+            : List<ResultEntrada>.from(
+                json["result"]!.map((x) => ResultEntrada.fromMap(x))),
+      );
 
-    Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() => {
         "code": code,
-        "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toMap())),
-    };
+        "result": result == null
+            ? []
+            : List<dynamic>.from(result!.map((x) => x.toMap())),
+      };
 }
 
 class ResultEntrada {
-    int? id;
-    String? name;
-    String? fechaCreacion;
-    int? proveedorId;
-    String? proveedor;
-    int? locationDestId;
-    String? locationDestName;
-    String? locationDestBarode;
-    int? purchaseOrderId;
-    String? purchaseOrderName;
-    String? numeroEntrada;
-    double? pesoTotal;
-    dynamic? numeroLineas;
-    dynamic? numeroItems;
-    String? state;
-    String? origin;
-    String? priority;
-    int? warehouseId;
-    String? warehouseName;
-    int? locationId;
-    String? locationName;
-    int? responsableId;
-    String? responsable;
-    String? pickingType;
-    List<LineasRecepcion>? lineasRecepcion;
+  int? id;
+  String? name;
+  String? fechaCreacion;
+  int? proveedorId;
+  String? proveedor;
+  int? locationDestId;
+  String? locationDestName;
+  String? locationDestBarode;
+  int? purchaseOrderId;
+  String? purchaseOrderName;
+  String? numeroEntrada;
+  double? pesoTotal;
+  dynamic? numeroLineas;
+  dynamic? numeroItems;
+  String? state;
+  String? origin;
+  String? priority;
+  int? warehouseId;
+  String? warehouseName;
+  int? locationId;
+  String? locationName;
+  int? responsableId;
+  String? responsable;
+  String? pickingType;
+  List<LineasRecepcion>? lineasRecepcion;
 
-    ResultEntrada({
-        this.id,
-        this.name,
-        this.fechaCreacion,
-        this.proveedorId,
-        this.proveedor,
-        this.locationDestId,
-        this.locationDestName,
-        this.locationDestBarode,
-        this.purchaseOrderId,
-        this.purchaseOrderName,
-        this.numeroEntrada,
-        this.pesoTotal,
-        this.numeroLineas,
-        this.numeroItems,
-        this.state,
-        this.origin,
-        this.priority,
-        this.warehouseId,
-        this.warehouseName,
-        this.locationId,
-        this.locationName,
-        this.responsableId,
-        this.responsable,
-        this.pickingType,
-        this.lineasRecepcion,
-    });
+  ResultEntrada({
+    this.id,
+    this.name,
+    this.fechaCreacion,
+    this.proveedorId,
+    this.proveedor,
+    this.locationDestId,
+    this.locationDestName,
+    this.locationDestBarode,
+    this.purchaseOrderId,
+    this.purchaseOrderName,
+    this.numeroEntrada,
+    this.pesoTotal,
+    this.numeroLineas,
+    this.numeroItems,
+    this.state,
+    this.origin,
+    this.priority,
+    this.warehouseId,
+    this.warehouseName,
+    this.locationId,
+    this.locationName,
+    this.responsableId,
+    this.responsable,
+    this.pickingType,
+    this.lineasRecepcion,
+  });
 
-    factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
+  factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
         id: json["id"],
         name: json["name"],
         fechaCreacion: json["fecha_creacion"],
@@ -134,10 +143,13 @@ class ResultEntrada {
         responsableId: json["responsable_id"],
         responsable: json["responsable"],
         pickingType: json["picking_type"],
-        lineasRecepcion: json["lineas_recepcion"] == null ? [] : List<LineasRecepcion>.from(json["lineas_recepcion"]!.map((x) => LineasRecepcion.fromMap(x))),
-    );
+        lineasRecepcion: json["lineas_recepcion"] == null
+            ? []
+            : List<LineasRecepcion>.from(json["lineas_recepcion"]!
+                .map((x) => LineasRecepcion.fromMap(x))),
+      );
 
-    Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() => {
         "id": id,
         "name": name,
         "fecha_creacion": fechaCreacion,
@@ -162,62 +174,91 @@ class ResultEntrada {
         "responsable_id": responsableId,
         "responsable": responsable,
         "picking_type": pickingType,
-        "lineas_recepcion": lineasRecepcion == null ? [] : List<dynamic>.from(lineasRecepcion!.map((x) => x.toMap())),
-    };
+        "lineas_recepcion": lineasRecepcion == null
+            ? []
+            : List<dynamic>.from(lineasRecepcion!.map((x) => x.toMap())),
+      };
 }
 
 class LineasRecepcion {
-    int? id;
-    dynamic? productId;
-    dynamic? idRecepcion;
-    dynamic? idMove;
-    String? productName;
-    String? productCode;
-    String? productBarcode;
-    String? productTracking;
-    String? fechaVencimiento;
-    
-    dynamic? diasVencimiento;
-    List<OtherBarcode>? otherBarcodes;
-    List<dynamic>? productPacking;
-    dynamic? quantityOrdered;
-    dynamic? quantityToReceive;
-    dynamic? quantityDone;
-    String? uom;
-    int? locationDestId;
-    String? locationDestName;
-    String? locationDestBarcode;
-    String? locationBarcode;
-    int? locationId;
-    String? locationName;
-    double? weight;
+  int? id;
+  dynamic? productId;
+  dynamic? idRecepcion;
+  dynamic? idMove;
+  String? productName;
+  String? productCode;
+  String? productBarcode;
+  String? productTracking;
+  String? fechaVencimiento;
 
-    LineasRecepcion({
-        this.id,
-        this.productId,
-        this.idMove,
-        this.idRecepcion,
-        this.productName,
-        this.productCode,
-        this.productBarcode,
-        this.productTracking,
-        this.fechaVencimiento,
-        this.diasVencimiento,
-        this.otherBarcodes,
-        this.productPacking,
-        this.quantityOrdered,
-        this.quantityToReceive,
-        this.quantityDone,
-        this.uom,
-        this.locationDestId,
-        this.locationDestName,
-        this.locationBarcode,
-        this.locationId,
-        this.locationName,
-        this.weight,
-    });
+  dynamic? diasVencimiento;
+  List<OtherBarcode>? otherBarcodes;
+  List<dynamic>? productPacking;
+  dynamic? quantityOrdered;
+  dynamic? quantityToReceive;
+  dynamic? quantityDone;
+  String? uom;
 
-    factory LineasRecepcion.fromMap(Map<String, dynamic> json) => LineasRecepcion(
+
+  int? locationDestId;
+  String? locationDestName;
+  String? locationDestBarcode;
+
+  int? locationId;
+  String? locationName;
+  String? locationBarcode;
+  double? weight;
+
+  final dynamic isLocationIsOk;
+  final dynamic productIsOk;
+  final dynamic locationDestIsOk;
+  final dynamic isQuantityIsOk;
+  final dynamic quantitySeparate;
+
+  final dynamic isSelected;
+  final dynamic isSeparate;
+  final dynamic isProductSplit;
+
+  LineasRecepcion({
+    this.id,
+    this.productId,
+    this.idMove,
+    this.idRecepcion,
+    this.productName,
+    this.productCode,
+    this.productBarcode,
+    this.productTracking,
+    this.fechaVencimiento,
+    this.diasVencimiento,
+    this.otherBarcodes,
+    this.productPacking,
+    this.quantityOrdered,
+    this.quantityToReceive,
+    this.quantityDone,
+    this.uom,
+
+    this.locationDestId,
+    this.locationDestName,
+    this.locationDestBarcode,
+
+    this.locationId,
+    this.locationName,
+    this.locationBarcode,
+
+
+    this.weight,
+
+    this.isLocationIsOk,
+    this.productIsOk,
+    this.locationDestIsOk,
+    this.isQuantityIsOk,
+    this.quantitySeparate,
+    this.isSelected,
+    this.isSeparate,
+    this.isProductSplit,
+  });
+
+  factory LineasRecepcion.fromMap(Map<String, dynamic> json) => LineasRecepcion(
         id: json["id"],
         productId: json["product_id"],
         idRecepcion: json["id_recepcion"],
@@ -228,21 +269,39 @@ class LineasRecepcion {
         productTracking: json["product_tracking"],
         fechaVencimiento: json["fecha_vencimiento"],
         diasVencimiento: json["dias_vencimiento"],
-        otherBarcodes: json["other_barcodes"] == null ? [] : List<OtherBarcode>.from(json["other_barcodes"]!.map((x) => OtherBarcode.fromMap(x))),
-        productPacking: json["product_packing"] == null ? [] : List<dynamic>.from(json["product_packing"]!.map((x) => x)),
+        otherBarcodes: json["other_barcodes"] == null
+            ? []
+            : List<OtherBarcode>.from(
+                json["other_barcodes"]!.map((x) => OtherBarcode.fromMap(x))),
+        productPacking: json["product_packing"] == null
+            ? []
+            : List<dynamic>.from(json["product_packing"]!.map((x) => x)),
         quantityOrdered: json["quantity_ordered"],
         quantityToReceive: json["quantity_to_receive"],
         quantityDone: json["quantity_done"],
         uom: json["uom"],
+
         locationDestId: json["location_dest_id"],
         locationDestName: json["location_dest_name"],
-        locationBarcode: json["location_barcode"],
+        locationDestBarcode: json["location_dest_barcode"],
+
         locationId: json["location_id"],
         locationName: json["location_name"],
+        locationBarcode: json["location_barcode"],
         weight: json["weight"]?.toDouble(),
-    );
 
-    Map<String, dynamic> toMap() => {
+        isLocationIsOk: json["is_location_is_ok"],
+        productIsOk: json["product_is_ok"],
+        locationDestIsOk: json["location_dest_is_ok"],
+        isQuantityIsOk: json["is_quantity_is_ok"],
+        quantitySeparate: json["quantity_separate"],
+        isSelected: json["is_selected"],
+        isSeparate: json["is_separate"],
+        isProductSplit: json["is_product_split"],
+
+      );
+
+  Map<String, dynamic> toMap() => {
         "id": id,
         "product_id": productId,
         "id_recepcion": idRecepcion,
@@ -253,42 +312,57 @@ class LineasRecepcion {
         "product_tracking": productTracking,
         "fecha_vencimiento": fechaVencimiento,
         "dias_vencimiento": diasVencimiento,
-        "other_barcodes": otherBarcodes == null ? [] : List<dynamic>.from(otherBarcodes!.map((x) => x.toMap())),
-        "product_packing": productPacking == null ? [] : List<dynamic>.from(productPacking!.map((x) => x)),
+        "other_barcodes": otherBarcodes == null
+            ? []
+            : List<dynamic>.from(otherBarcodes!.map((x) => x.toMap())),
+        "product_packing": productPacking == null
+            ? []
+            : List<dynamic>.from(productPacking!.map((x) => x)),
         "quantity_ordered": quantityOrdered,
         "quantity_to_receive": quantityToReceive,
         "quantity_done": quantityDone,
         "uom": uom,
         "location_dest_id": locationDestId,
         "location_dest_name": locationDestName,
-        "location_barcode": locationBarcode,
+        "location_dest_barcode": locationBarcode,
+
         "location_id": locationId,
         "location_name": locationName,
+        "location_barcode": locationBarcode,
         "weight": weight,
-    };
+
+        "is_location_is_ok": isLocationIsOk,
+        "product_is_ok": productIsOk,
+        "location_dest_is_ok": locationDestIsOk,
+        "is_quantity_is_ok": isQuantityIsOk,
+        "quantity_separate": quantitySeparate,
+        "is_selected": isSelected,
+        "is_separate": isSeparate,
+        "is_product_split": isProductSplit,
+        
+      };
 }
 
 class OtherBarcode {
-    String? barcode;
-    int? idMove;
-    int? idProduct;
+  String? barcode;
+  int? idMove;
+  int? idProduct;
 
-    OtherBarcode({
-        this.barcode,
-        this.idMove,
-        this.idProduct,
-    });
+  OtherBarcode({
+    this.barcode,
+    this.idMove,
+    this.idProduct,
+  });
 
-    factory OtherBarcode.fromMap(Map<String, dynamic> json) => OtherBarcode(
+  factory OtherBarcode.fromMap(Map<String, dynamic> json) => OtherBarcode(
         barcode: json["barcode"],
         idMove: json["id_move"],
         idProduct: json["id_product"],
-    );
+      );
 
-    Map<String, dynamic> toMap() => {
+  Map<String, dynamic> toMap() => {
         "barcode": barcode,
         "id_move": idMove,
         "id_product": idProduct,
-    };
+      };
 }
-

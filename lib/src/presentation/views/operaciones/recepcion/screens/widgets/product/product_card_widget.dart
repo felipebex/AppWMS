@@ -48,21 +48,19 @@ class ProductDropdownOrderWidget extends StatelessWidget {
               value: selectedProduct,
               items: listOfProductsName.map((LineasRecepcion product) {
                 return DropdownMenuItem<String>(
-                  value: product.productId.toString(),
+                  value: product.productName.toString(),
                   child: Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      color:
-                      //  currentProduct.idMove == product.idMove
-                      //     ? Colors.green[100]
-                      //     :
-                           Colors.white,
+                      color: currentProduct.idMove == product.idMove
+                          ? Colors.green[100]
+                          : Colors.white,
                     ),
                     width: MediaQuery.of(context).size.width * 0.9,
                     child: Text(
-                      product.productId.toString(),
+                      product.productName.toString(),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -74,36 +72,37 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                 );
               }).toList(),
               onChanged: recepcionBloc.configurations.result?.result
-                          ?.manualProductSelectionPack ==
+                          ?.manualProductReading ==
                       false
                   ? null
                   : recepcionBloc.locationIsOk && !recepcionBloc.productIsOk
                       ? (String? newValue) {
-                          if (newValue == currentProduct.productId.toString()) {
-                            // batchBloc.add(ValidateFieldsPackingEvent(
-                            //     field: "product", isOk: true));
+                          if (newValue == currentProduct.productName.toString()) {
+                            recepcionBloc.add(ValidateFieldsOrderEvent(
+                                field: "product", isOk: true));
 
-                            // batchBloc.add(ChangeQuantitySeparate(
-                            //     0,
-                            //     currentProduct.idProduct ?? 0,
-                            //     currentProduct.pedidoId ?? 0,
-                            //     currentProduct.idMove ?? 0));
+                            recepcionBloc.add(ChangeQuantitySeparate(
+                              0,
+                              int.parse(currentProduct.productId),
+                              currentProduct.idRecepcion ?? 0,
+                              currentProduct.idMove ?? 0,
+                            ));
 
-                            // batchBloc.add(ChangeProductIsOkEvent(
-                            //     true,
-                            //     currentProduct.idProduct ?? 0,
-                            //     currentProduct.pedidoId ?? 0,
-                            //     0,
-                            //     currentProduct.idMove ?? 0));
+                            recepcionBloc.add(ChangeProductIsOkEvent(
+                                currentProduct.idRecepcion ?? 0,
+                                true,
+                                int.parse(currentProduct.productId),
+                                0,
+                                currentProduct.idMove ?? 0));
 
-                            // batchBloc.add(ChangeIsOkQuantity(
-                            //     true,
-                            //     currentProduct.idProduct ?? 0,
-                            //     currentProduct.pedidoId ?? 0,
-                            //     currentProduct.idMove ?? 0));
+                            recepcionBloc.add(ChangeIsOkQuantity(
+                                currentProduct.idRecepcion ?? 0,
+                                true,
+                                int.parse(currentProduct.productId),
+                                currentProduct.idMove ?? 0));
                           } else {
-                            // batchBloc.add(ValidateFieldsPackingEvent(
-                            //     field: "product", isOk: false));
+                            recepcionBloc.add(ValidateFieldsOrderEvent(
+                                field: "product", isOk: false));
 
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               duration: const Duration(milliseconds: 1000),

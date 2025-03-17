@@ -129,128 +129,128 @@ class _MuelleDropdownWidgetState extends State<MuelleOrderDropdownWidget> {
   }
 
   void validatePicking(
-    BatchBloc batchBloc,
+    RecepcionBloc bloc,
     BuildContext context,
     ProductsBatch currentProduct,
   ) async {
-    batchBloc.add(FetchBatchWithProductsEvent(
-        batchBloc.batchWithProducts.batch?.id ?? 0));
+    // batchBloc.add(FetchBatchWithProductsEvent(
+    //     batchBloc.batchWithProducts.batch?.id ?? 0));
 
-    // Validamos que la cantidad de productos separados sea igual a la cantidad de productos pedidos
-    final double unidadesSeparadas =
-        double.parse(batchBloc.calcularUnidadesSeparadas());
+    // // Validamos que la cantidad de productos separados sea igual a la cantidad de productos pedidos
+    // final double unidadesSeparadas =
+    //     double.parse(batchBloc.calcularUnidadesSeparadas());
 
-    if (unidadesSeparadas == "100.0" || unidadesSeparadas >= 100.0) {
-      var productsToSend = batchBloc.filteredProducts
-          .where((element) => element.isSendOdoo == 0)
-          .toList();
+    // if (unidadesSeparadas == "100.0" || unidadesSeparadas >= 100.0) {
+    //   var productsToSend = batchBloc.filteredProducts
+    //       .where((element) => element.isSendOdoo == 0)
+    //       .toList();
 
-      // Si hay productos pendientes de enviar a Odoo, mostramos un modal
-      if (productsToSend.isNotEmpty) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            backgroundColor: Colors.white,
-            title: const Center(
-              child: Text("Advertencia",
-                  style: TextStyle(color: yellow, fontSize: 16)),
-            ),
-            content: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                    "Tienes productos que no han sido enviados al wms. revisa la lista de productos y envíalos antes de continuar.",
-                    style: TextStyle(color: black, fontSize: 14)),
-                const SizedBox(height: 15),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      if (batchBloc.configurations.result?.result
-                              ?.showDetallesPicking ==
-                          true) {
-                        //cerramos el focus
-                        batchBloc.isSearch = false;
-                        batchBloc.add(LoadProductEditEvent());
-                        Navigator.pushReplacementNamed(
-                          context,
-                          'batch-detail',
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            duration: Duration(milliseconds: 1000),
-                            content:
-                                Text('No tienes permisos para ver detalles'),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 3,
-                    ),
-                    child: Text('Ver productos',
-                        style: TextStyle(color: primaryColorApp, fontSize: 12)))
-              ],
-            ),
-          ),
-        );
-      } else {
-        batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
-        batchBloc.add(ChangeLocationDestIsOkEvent(
-            true,
-            currentProduct.idProduct ?? 0,
-            batchBloc.batchWithProducts.batch?.id ?? 0,
-            currentProduct.idMove ?? 0));
+    //   // Si hay productos pendientes de enviar a Odoo, mostramos un modal
+    //   if (productsToSend.isNotEmpty) {
+    //     showDialog(
+    //       context: context,
+    //       builder: (context) => AlertDialog(
+    //         backgroundColor: Colors.white,
+    //         title: const Center(
+    //           child: Text("Advertencia",
+    //               style: TextStyle(color: yellow, fontSize: 16)),
+    //         ),
+    //         content: Column(
+    //           mainAxisAlignment: MainAxisAlignment.center,
+    //           mainAxisSize: MainAxisSize.min,
+    //           children: [
+    //             const Text(
+    //                 "Tienes productos que no han sido enviados al wms. revisa la lista de productos y envíalos antes de continuar.",
+    //                 style: TextStyle(color: black, fontSize: 14)),
+    //             const SizedBox(height: 15),
+    //             ElevatedButton(
+    //                 onPressed: () {
+    //                   Navigator.pop(context);
+    //                   if (batchBloc.configurations.result?.result
+    //                           ?.showDetallesPicking ==
+    //                       true) {
+    //                     //cerramos el focus
+    //                     batchBloc.isSearch = false;
+    //                     batchBloc.add(LoadProductEditEvent());
+    //                     Navigator.pushReplacementNamed(
+    //                       context,
+    //                       'batch-detail',
+    //                     );
+    //                   } else {
+    //                     ScaffoldMessenger.of(context).showSnackBar(
+    //                       const SnackBar(
+    //                         duration: Duration(milliseconds: 1000),
+    //                         content:
+    //                             Text('No tienes permisos para ver detalles'),
+    //                       ),
+    //                     );
+    //                   }
+    //                 },
+    //                 style: ElevatedButton.styleFrom(
+    //                   backgroundColor: Colors.white,
+    //                   shape: RoundedRectangleBorder(
+    //                     borderRadius: BorderRadius.circular(10),
+    //                   ),
+    //                   elevation: 3,
+    //                 ),
+    //                 child: Text('Ver productos',
+    //                     style: TextStyle(color: primaryColorApp, fontSize: 12)))
+    //           ],
+    //         ),
+    //       ),
+    //     );
+    //   } else {
+    //     batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+    //     batchBloc.add(ChangeLocationDestIsOkEvent(
+    //         true,
+    //         currentProduct.idProduct ?? 0,
+    //         batchBloc.batchWithProducts.batch?.id ?? 0,
+    //         currentProduct.idMove ?? 0));
 
-        batchBloc.add(EndTimePick(context,
-            batchBloc.batchWithProducts.batch?.id ?? 0, DateTime.now()));
+    //     batchBloc.add(EndTimePick(context,
+    //         batchBloc.batchWithProducts.batch?.id ?? 0, DateTime.now()));
 
-        batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
-            currentProduct.idProduct ?? 0));
-        context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
-              '',
-            ));
-        context.read<BatchBloc>().index = 0;
-        context.read<BatchBloc>().isSearch = true;
+    //     batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,
+    //         currentProduct.idProduct ?? 0));
+    //     context.read<WMSPickingBloc>().add(FilterBatchesBStatusEvent(
+    //           '',
+    //         ));
+    //     context.read<BatchBloc>().index = 0;
+    //     context.read<BatchBloc>().isSearch = true;
 
-        Navigator.pushReplacementNamed(context, 'wms-picking', arguments: 0);
-      }
-    } else {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return DialogPickingIncompleted(
-                currentProduct: batchBloc.currentProduct,
-                cantidad: unidadesSeparadas,
-                batchBloc: batchBloc,
-                onAccepted: () {
-                  Navigator.pop(context);
-                  if (batchBloc
-                          .configurations.result?.result?.showDetallesPicking ==
-                      true) {
-                    // Cerramos el foco
-                    batchBloc.isSearch = false;
-                    batchBloc.add(LoadProductEditEvent());
+    //     Navigator.pushReplacementNamed(context, 'wms-picking', arguments: 0);
+    //   }
+    // } else {
+    //   showDialog(
+    //       context: context,
+    //       builder: (context) {
+    //         return DialogPickingIncompleted(
+    //             currentProduct: batchBloc.currentProduct,
+    //             cantidad: unidadesSeparadas,
+    //             batchBloc: batchBloc,
+    //             onAccepted: () {
+    //               Navigator.pop(context);
+    //               if (batchBloc
+    //                       .configurations.result?.result?.showDetallesPicking ==
+    //                   true) {
+    //                 // Cerramos el foco
+    //                 batchBloc.isSearch = false;
+    //                 batchBloc.add(LoadProductEditEvent());
 
-                    Navigator.pushReplacementNamed(
-                      context,
-                      'batch-detail',
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        duration: Duration(milliseconds: 1000),
-                        content: Text('No tienes permisos para ver detalles'),
-                      ),
-                    );
-                  }
-                });
-          });
-    }
+    //                 Navigator.pushReplacementNamed(
+    //                   context,
+    //                   'batch-detail',
+    //                 );
+    //               } else {
+    //                 ScaffoldMessenger.of(context).showSnackBar(
+    //                   const SnackBar(
+    //                     duration: Duration(milliseconds: 1000),
+    //                     content: Text('No tienes permisos para ver detalles'),
+    //                   ),
+    //                 );
+    //               }
+    //             });
+    //       });
+    // }
   }
 }

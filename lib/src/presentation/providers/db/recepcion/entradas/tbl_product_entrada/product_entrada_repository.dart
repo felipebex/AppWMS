@@ -32,12 +32,14 @@ class ProductsEntradaRepository {
           }));
 
           // Recorrer todas las novedades y realizar insert o update según corresponda
+          // ignore: non_constant_identifier_names
           for (var LineasRecepcion in products) {
             if (existingIds.contains(LineasRecepcion.productId)) {
               // Si la novedad ya existe, la actualizamos
               batch.update(
                 ProductEntradaTable.tableName,
                 {
+                  ProductEntradaTable.columnId: LineasRecepcion.id,
                   ProductEntradaTable.columnIdMove: LineasRecepcion.idMove,
                   ProductEntradaTable.columnProductId:
                       LineasRecepcion.productId,
@@ -68,10 +70,10 @@ class ProductsEntradaRepository {
                       LineasRecepcion.locationDestName,
                   ProductEntradaTable.columnLocationDestBarcode:
                       LineasRecepcion.locationDestBarcode,
-                  ProductEntradaTable.columnLocationBarcode:
-                      LineasRecepcion.locationBarcode,
                   ProductEntradaTable.columnLocationId:
                       LineasRecepcion.locationId,
+                  ProductEntradaTable.columnLocationBarcode:
+                      LineasRecepcion.locationBarcode,
                   ProductEntradaTable.columnLocationName:
                       LineasRecepcion.locationName,
                   ProductEntradaTable.columnWeight: LineasRecepcion.weight,
@@ -117,14 +119,14 @@ class ProductsEntradaRepository {
                       LineasRecepcion.locationDestId,
                   ProductEntradaTable.columnLocationDestName:
                       LineasRecepcion.locationDestName,
-                  ProductEntradaTable.columnLocationBarcode:
-                      LineasRecepcion.locationBarcode,
-                  ProductEntradaTable.columnLocationId:
-                      LineasRecepcion.locationId,
-                  ProductEntradaTable.columnLocationName:
-                      LineasRecepcion.locationName,
                   ProductEntradaTable.columnLocationDestBarcode:
                       LineasRecepcion.locationDestBarcode,
+                  ProductEntradaTable.columnLocationId:
+                      LineasRecepcion.locationId,
+                  ProductEntradaTable.columnLocationBarcode:
+                      LineasRecepcion.locationBarcode,
+                  ProductEntradaTable.columnLocationName:
+                      LineasRecepcion.locationName,
                   ProductEntradaTable.columnWeight: LineasRecepcion.weight,
                 },
                 conflictAlgorithm: ConflictAlgorithm.replace,
@@ -176,4 +178,73 @@ class ProductsEntradaRepository {
       return [];
     }
   }
+
+  //*metodo para actualizar la tabla
+
+  // Método: Actualizar un campo específico en la tabla productos_pedidos
+  Future<int?> setFieldTableProductEntrada(int idEntrada, int productId,
+      String field, dynamic setValue, int idMove) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+
+    final resUpdate = await db.rawUpdate(
+        'UPDATE ${ProductEntradaTable.tableName} SET $field = ? WHERE ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ? AND ${ProductEntradaTable.columnIdRecepcion} = ?',
+        [setValue, productId, idMove, idEntrada]);
+
+    print(
+        "update TableProductEntrada (idProduct ----($productId)) -------($field): $resUpdate");
+
+    return resUpdate;
+  }
+
+
+  //METODO PARA OBTENER UN PRODUCTO POR SU ID
+  Future<LineasRecepcion?> getProductById(int idProduct) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> product = await db.query(
+        ProductEntradaTable.tableName,
+        where: '${ProductEntradaTable.columnProductId} = ?',
+        whereArgs: [idProduct],
+      );
+      return product.isNotEmpty
+          ? LineasRecepcion.fromMap(product.first)
+          : null;
+    } catch (e, s) {
+      print('Error en getProductById: $e, $s');
+      return null;
+    }
+  }
+
+
+    // Incrementar cantidad de producto separado para empaque
+  Future<int?> incremenQtytProductSeparatePacking(
+      int idRecepcion, int productId, int idMove, int quantity) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+    return await db.transaction((txn) async {
+      final result = await txn.query(
+        ProductEntradaTable.tableName,
+        columns: [(ProductEntradaTable.columnQuantitySeparate)],
+        where:
+            '${ProductEntradaTable.columnIdRecepcion} = ? AND ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ?',
+        whereArgs: [idRecepcion, productId, idMove],
+      );
+
+      if (result.isNotEmpty) {
+        int currentQty =
+            (result.first[ProductEntradaTable.columnQuantitySeparate] as int);
+
+        int newQty = currentQty + quantity;
+        return await txn.update(
+          ProductEntradaTable.tableName,
+          {ProductEntradaTable.columnQuantitySeparate: newQty},
+         where:
+            '${ProductEntradaTable.columnIdRecepcion} = ? AND ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ?',
+          whereArgs: [idRecepcion, productId, idMove],
+        );
+      }
+      return null; // No encontrado
+    });
+  }
+
+
 }

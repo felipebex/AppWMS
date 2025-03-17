@@ -11,9 +11,11 @@ class RecepcionScreen extends StatefulWidget {
   const RecepcionScreen({
     super.key,
     required this.ordenCompra,
+    this.initialTabIndex = 0, // Valor por defecto es 0
   });
 
   final ResultEntrada? ordenCompra;
+  final int initialTabIndex; // Nueva propiedad para la posición inicial
 
   @override
   State<RecepcionScreen> createState() => _RecepcionScreenState();
@@ -30,7 +32,7 @@ class _RecepcionScreenState extends State<RecepcionScreen>
     _tabController = TabController(
       length: 3,
       vsync: this,
-      initialIndex: 0, // Posición inicial
+     initialIndex: widget.initialTabIndex,  // Posición inicial
     );
   }
 

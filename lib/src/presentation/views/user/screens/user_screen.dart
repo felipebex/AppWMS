@@ -727,7 +727,7 @@ class UserScreen extends StatelessWidget {
                                           child: Column(
                                             children: [
                                               Center(
-                                                child: Text("Permisos Packing:",
+                                                child: Text("Permisos Recepcion:",
                                                     style: TextStyle(
                                                         fontSize: 14,
                                                         color:

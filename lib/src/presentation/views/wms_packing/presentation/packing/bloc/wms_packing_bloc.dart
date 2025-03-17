@@ -959,11 +959,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           : currentProduct.quantitySeparate ?? 0;
       products();
 
-      // print(
-      //     "variables : locationIsOk: $locationIsOk, productIsOk: $productIsOk, :locationDestIsOk $locationDestIsOk, quantityIsOk: $quantityIsOk");
-      // print(
-      //     "vairbales de vista: isLocationOk: $isLocationOk , isProductOk: $isProductOk, isLocationDestOk: $isLocationDestOk, isQuantityOk: $isQuantityOk");
-      // print("currentProduct: ${currentProduct.toMap()}");
+   
       emit(WmsProductInfoLoaded());
     } catch (e, s) {
       print('Error en el  _onFetchProductEvent: $e, $s');

@@ -6,6 +6,7 @@ import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/rece
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2ScreenRecep extends StatelessWidget {
@@ -82,25 +83,45 @@ class Tab2ScreenRecep extends StatelessWidget {
                                     horizontal: 8,
                                   ),
                                   child: Card(
-                                    color: white,
+                                    // color: white,
                                     // Cambia el color de la tarjeta si el producto está seleccionado
-                                    // color: context
-                                    //         .read<WmsPackingBloc>()
-                                    //         .listOfProductsForPacking
-                                    //         .contains(product)
-                                    //     ? primaryColorAppLigth // Color amarillo si está seleccionado
-                                    //     : Colors
-                                    //         .white, // Color blanco si no está seleccionado
+                                    color: product.isSelected == 1
+                                        ? primaryColorAppLigth // Color amarillo si está seleccionado
+                                        : Colors
+                                            .white, // Color blanco si no está seleccionado
                                     elevation: 5,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: GestureDetector(
                                         onTap: () async {
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            'scan-product-order',
-                                            arguments: [ordenCompra, product],
-                                          );
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return const DialogLoading(
+                                                  message:
+                                                      'Cargando información del producto',
+                                                );
+                                              });
+
+                                          context.read<RecepcionBloc>().add(
+                                              LoadConfigurationsUserOrder());
+
+                                          context
+                                              .read<RecepcionBloc>()
+                                              .add(FetchPorductOrder(product));
+
+                                          // Esperar 3 segundos antes de continuar
+                                          Future.delayed(
+                                              const Duration(milliseconds: 300),
+                                              () {
+                                            Navigator.pop(context);
+
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'scan-product-order',
+                                              arguments: [ordenCompra, product],
+                                            );
+                                          });
                                         },
                                         child: Column(
                                           crossAxisAlignment:

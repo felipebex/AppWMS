@@ -283,7 +283,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                         Navigator.pushReplacementNamed(
                                           context,
                                           'recepcion',
-                                          arguments: [ordenCompra[index]],
+                                          arguments: [ordenCompra[index], 0],
                                         );
                                       },
                                     ),

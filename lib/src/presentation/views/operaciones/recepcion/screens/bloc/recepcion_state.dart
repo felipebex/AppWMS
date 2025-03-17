@@ -76,3 +76,91 @@ class GetProductsToEntradaFailure extends RecepcionState {
   final String error;
   GetProductsToEntradaFailure(this.error);
 }
+
+//metodo para cargar la informacion del producto actual
+class FetchPorductOrderLoading extends RecepcionState {}
+
+class FetchPorductOrderSuccess extends RecepcionState {
+  final LineasRecepcion producto;
+  FetchPorductOrderSuccess(this.producto);
+}
+
+class FetchPorductOrderFailure extends RecepcionState {
+  final String error;
+  FetchPorductOrderFailure(this.error);
+}
+
+
+class ValidateFieldsOrderState extends RecepcionState {
+  final bool isOk;
+  ValidateFieldsOrderState({ required this.isOk});
+}
+
+
+class ClearScannedValueOrderState extends RecepcionState {}
+
+
+
+class UpdateScannedValueOrderState extends RecepcionState {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValueOrderState(this.scannedValue, this.scan);
+}
+
+
+
+class ChangeLocationOrderIsOkState extends RecepcionState {
+  final bool isOk;
+  ChangeLocationOrderIsOkState(this.isOk);
+}
+
+
+class ChangeIsOkState extends RecepcionState {
+  final bool isOk;
+  ChangeIsOkState(this.isOk);
+}
+
+class ChangeProductOrderIsOkState extends RecepcionState {
+  final bool isOk;
+  ChangeProductOrderIsOkState(this.isOk);
+}
+
+
+
+class ConfigurationLoadedOrder extends RecepcionState {
+  final Configurations configurations;
+
+  ConfigurationLoadedOrder(this.configurations);
+}
+
+class ConfigurationErrorOrder extends RecepcionState {
+  final String error;
+
+  ConfigurationErrorOrder(this.error);
+}
+
+
+class ChangeQuantitySeparateState extends RecepcionState {
+  final int quantity;
+  ChangeQuantitySeparateState(this.quantity);
+}
+
+
+
+class ShowQuantityOrderState extends RecepcionState {
+  final bool showQuantity;
+  ShowQuantityOrderState(this.showQuantity);
+}
+
+
+
+class ChangeQuantitySeparateOrder extends RecepcionState {
+  final int quantity;
+  ChangeQuantitySeparateOrder(this.quantity);
+}
+
+
+class ChangeQuantitySeparateErrorOrder extends RecepcionState {
+  final String error;
+  ChangeQuantitySeparateErrorOrder(this.error);
+}

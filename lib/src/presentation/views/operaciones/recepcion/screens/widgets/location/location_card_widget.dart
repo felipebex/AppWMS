@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
@@ -10,7 +12,6 @@ class LocationOrderDropdownWidget extends StatelessWidget {
   final String currentLocationId;
   final LineasRecepcion currentProduct;
   final bool isPDA;
-
 
   const LocationOrderDropdownWidget({
     super.key,
@@ -75,31 +76,27 @@ class LocationOrderDropdownWidget extends StatelessWidget {
               );
             }).toList(),
             onChanged: recepcionBloc
-                        .configurations.result?.result?.locationPickingManual ==
+                        .configurations.result?.result?.manualSourceLocation ==
                     false
                 ? null
                 : recepcionBloc.locationIsOk
                     ? null
                     : (String? newValue) {
-                        if (newValue == currentProduct.locationId.toString()) {
+                        if (newValue ==
+                            currentProduct.locationName.toString()) {
+                          recepcionBloc.add(ValidateFieldsOrderEvent(
+                              field: "location", isOk: true));
 
+                          recepcionBloc.add(ChangeLocationIsOkEvent(
+                              currentProduct.idRecepcion ?? 0,
+                              int.parse(currentProduct.productId),
+                              currentProduct.idMove ?? 0));
 
-                          // batchBloc.add(ValidateFieldsEvent(
-                          //     field: "location", isOk: true));
-                          // batchBloc.add(ChangeLocationIsOkEvent(
-                          //     currentProduct.idProduct ?? 0,
-                          //     batchBloc.batchWithProducts.batch?.id ?? 0,
-                          //     currentProduct.idMove ?? 0));
-
-                          // batchBloc.oldLocation =
-                          //     currentProduct.locationId.toString();
-
-
-
-
+                          recepcionBloc.oldLocation =
+                              currentProduct.locationId.toString();
                         } else {
-                          // batchBloc.add(ValidateFieldsEvent(
-                          //     field: "location", isOk: false));
+                          recepcionBloc.add(ValidateFieldsOrderEvent(
+                              field: "location", isOk: false));
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             duration: const Duration(milliseconds: 1000),
                             content: const Text('Ubicacion erronea'),
@@ -110,9 +107,9 @@ class LocationOrderDropdownWidget extends StatelessWidget {
           ),
 
           Visibility(
-            visible: currentProduct.productBarcode == false ||
-                currentProduct.productBarcode == null ||
-                currentProduct.productBarcode == "",
+            visible: currentProduct.locationBarcode == false ||
+                currentProduct.locationBarcode == null ||
+                currentProduct.locationBarcode == "",
             child: const Align(
               alignment: Alignment.centerLeft,
               child: Text(
