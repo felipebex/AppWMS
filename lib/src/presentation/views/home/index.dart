@@ -87,12 +87,6 @@ class _HomePageState extends State<HomePage> {
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(false, context));
-
-                  await Future.delayed(const Duration(seconds: 1));
-
-                  context
-                      .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra(context));
                 } else if (rol == 'packing') {
                   if (!mounted) return;
                   context
@@ -692,19 +686,24 @@ class _HomePageState extends State<HomePage> {
                                         SizedBox(width: 5),
                                         GestureDetector(
                                           onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando operaciones...');
-                                                });
+                                            context.read<RecepcionBloc>().add(
+                                                FetchOrdenesCompra(context));
 
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
+                                            // await Future.delayed(
+                                            //     const Duration(seconds: 1));
 
-                                            Navigator.pop(context);
+                                            // showDialog(
+                                            //     context: context,
+                                            //     builder: (context) {
+                                            //       return const DialogLoading(
+                                            //           message:
+                                            //               'Cargando operaciones...');
+                                            //     });
+
+                                            // await Future.delayed(const Duration(
+                                            //     seconds:
+                                            //         1)); // Ajusta el tiempo si es necesario
+
                                             Navigator.pushReplacementNamed(
                                               context,
                                               'operaciones',

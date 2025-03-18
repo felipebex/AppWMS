@@ -4,8 +4,11 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/home/domain/models/app_version_model.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
 
 class HomeRepository {
   Future<AppVersion> getAppVersion(BuildContext context) async {
@@ -45,17 +48,28 @@ class HomeRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return AppVersion();
           }
         }

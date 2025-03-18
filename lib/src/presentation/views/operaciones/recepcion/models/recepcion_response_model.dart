@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+
 Recepcionresponse recepcionresponseFromMap(String str) =>
     Recepcionresponse.fromMap(json.decode(str));
 
@@ -192,8 +194,8 @@ class LineasRecepcion {
   String? fechaVencimiento;
 
   dynamic? diasVencimiento;
-  List<OtherBarcode>? otherBarcodes;
-  List<dynamic>? productPacking;
+  List<Barcodes>? otherBarcodes;
+  List<Barcodes>? productPacking;
   dynamic? quantityOrdered;
   dynamic? quantityToReceive;
   dynamic? quantityDone;
@@ -271,11 +273,11 @@ class LineasRecepcion {
         diasVencimiento: json["dias_vencimiento"],
         otherBarcodes: json["other_barcodes"] == null
             ? []
-            : List<OtherBarcode>.from(
-                json["other_barcodes"]!.map((x) => OtherBarcode.fromMap(x))),
+            : List<Barcodes>.from(
+                json["other_barcodes"]!.map((x) => Barcodes.fromMap(x))),
         productPacking: json["product_packing"] == null
             ? []
-            : List<dynamic>.from(json["product_packing"]!.map((x) => x)),
+            : List<Barcodes>.from(json["product_packing"]!.map((x) => x)),
         quantityOrdered: json["quantity_ordered"],
         quantityToReceive: json["quantity_to_receive"],
         quantityDone: json["quantity_done"],
@@ -340,29 +342,5 @@ class LineasRecepcion {
         "is_separate": isSeparate,
         "is_product_split": isProductSplit,
         
-      };
-}
-
-class OtherBarcode {
-  String? barcode;
-  int? idMove;
-  int? idProduct;
-
-  OtherBarcode({
-    this.barcode,
-    this.idMove,
-    this.idProduct,
-  });
-
-  factory OtherBarcode.fromMap(Map<String, dynamic> json) => OtherBarcode(
-        barcode: json["barcode"],
-        idMove: json["id_move"],
-        idProduct: json["id_product"],
-      );
-
-  Map<String, dynamic> toMap() => {
-        "barcode": barcode,
-        "id_move": idMove,
-        "id_product": idProduct,
       };
 }

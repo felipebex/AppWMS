@@ -5,12 +5,14 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/response_sedn_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/sen_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/un_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/unpacking_response_model.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
 
 class WmsPackingRepository {
   //metodo para obtener todos los batch de packing con sus pedidos y productos
@@ -49,7 +51,6 @@ class WmsPackingRepository {
           if (batchs.isNotEmpty) {
             return batchs;
           } else {
-
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 backgroundColor: Colors.amber[200],
                 content: SizedBox(
@@ -63,20 +64,30 @@ class WmsPackingRepository {
                 )));
             return [];
           }
-        }
-         else if (jsonResponse.containsKey('error')) {
+        } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return [];
           }
         }
@@ -213,9 +224,6 @@ class WmsPackingRepository {
     return ResponseSendPacking(); // Retornamos un objeto vacío en caso de error de red
   }
 
-
-
-
   Future<bool> timePackingUser(int batchId, BuildContext context, String time,
       String endpoint, String type, int userId) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -255,17 +263,28 @@ class WmsPackingRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return false;
           }
         }
@@ -290,7 +309,7 @@ class WmsPackingRepository {
               ),
             ),
           ),
-          
+
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
@@ -341,17 +360,28 @@ class WmsPackingRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return false;
           }
         }
@@ -376,7 +406,7 @@ class WmsPackingRepository {
               ),
             ),
           ),
-         
+
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
@@ -388,5 +418,4 @@ class WmsPackingRepository {
     }
     return false;
   }
-
 }

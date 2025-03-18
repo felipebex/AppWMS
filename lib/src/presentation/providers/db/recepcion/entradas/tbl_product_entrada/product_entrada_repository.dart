@@ -196,7 +196,6 @@ class ProductsEntradaRepository {
     return resUpdate;
   }
 
-
   //METODO PARA OBTENER UN PRODUCTO POR SU ID
   Future<LineasRecepcion?> getProductById(int idProduct) async {
     try {
@@ -206,17 +205,14 @@ class ProductsEntradaRepository {
         where: '${ProductEntradaTable.columnProductId} = ?',
         whereArgs: [idProduct],
       );
-      return product.isNotEmpty
-          ? LineasRecepcion.fromMap(product.first)
-          : null;
+      return product.isNotEmpty ? LineasRecepcion.fromMap(product.first) : null;
     } catch (e, s) {
       print('Error en getProductById: $e, $s');
       return null;
     }
   }
 
-
-    // Incrementar cantidad de producto separado para empaque
+  // Incrementar cantidad de producto separado para empaque
   Future<int?> incremenQtytProductSeparatePacking(
       int idRecepcion, int productId, int idMove, int quantity) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
@@ -237,8 +233,8 @@ class ProductsEntradaRepository {
         return await txn.update(
           ProductEntradaTable.tableName,
           {ProductEntradaTable.columnQuantitySeparate: newQty},
-         where:
-            '${ProductEntradaTable.columnIdRecepcion} = ? AND ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ?',
+          where:
+              '${ProductEntradaTable.columnIdRecepcion} = ? AND ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ?',
           whereArgs: [idRecepcion, productId, idMove],
         );
       }
@@ -246,5 +242,19 @@ class ProductsEntradaRepository {
     });
   }
 
+  // Método: Actualizar la novedad (observación) en la tabla
+  Future<int?> updateNovedadOrder(
+    int idRecepcion,
+    int productId,
+    int idMove,
+    String novedad,
+  ) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+    final resUpdate = await db.rawUpdate(
+        "UPDATE ${ProductEntradaTable.tableName} SET ${ProductEntradaTable.columnObservation} = ? WHERE ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdRecepcion} = ? AND ${ProductEntradaTable.columnIdMove} = ?",
+        [novedad, productId, idRecepcion, idMove]);
 
+    print("updateNovedad: $resUpdate");
+    return resUpdate;
+  }
 }

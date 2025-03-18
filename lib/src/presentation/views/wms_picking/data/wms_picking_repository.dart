@@ -5,6 +5,7 @@
 // import 'package:wms_app/src/api/api_request_service.dart';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/batch_history_id_model.dart';
@@ -18,6 +19,7 @@ import 'dart:io';
 
 import 'package:wms_app/src/presentation/views/wms_picking/models/response_send_picking.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
 
 class WmsPickingRepository {
   //metodo para pedir los batchs
@@ -86,17 +88,28 @@ class WmsPickingRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return [];
           }
         }
@@ -202,17 +215,28 @@ class WmsPickingRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return [];
           }
         }
@@ -282,17 +306,28 @@ class WmsPickingRepository {
           return historyBatchId;
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return HistoryBatchId();
           }
         }
@@ -485,17 +520,28 @@ class WmsPickingRepository {
           return novedades;
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return [];
           }
         }
@@ -579,17 +625,28 @@ class WmsPickingRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return false;
           }
         }
@@ -614,7 +671,7 @@ class WmsPickingRepository {
               ),
             ),
           ),
-          
+
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:
@@ -665,17 +722,28 @@ class WmsPickingRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return false;
           }
         }
@@ -700,7 +768,7 @@ class WmsPickingRepository {
               ),
             ),
           ),
-         
+
           behavior: SnackBarBehavior
               .floating, // Hace que no se cierre automáticamente
           duration:

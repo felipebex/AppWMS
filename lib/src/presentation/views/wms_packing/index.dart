@@ -379,7 +379,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             Spacer(),
                                             Text(batch.zonaEntrega ?? '',
                                                 style: const TextStyle(
-                                                    fontSize: 14,
+                                                    fontSize: 12,
                                                     color: black)),
                                           ],
                                         ),
@@ -395,7 +395,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                   child: Text(
                                                       "Tipo de operación:",
                                                       style: TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color: grey)),
                                                 ),
                                                 Spacer(),
@@ -428,7 +428,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                               child: Text(
                                                 batch.pickingTypeId.toString(),
                                                 style: TextStyle(
-                                                    fontSize: 14,
+                                                    fontSize: 12,
                                                     color: primaryColorApp),
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
@@ -453,7 +453,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                                     .scheduleddate!))
                                                         : "Sin fecha",
                                                     style: const TextStyle(
-                                                        fontSize: 14),
+                                                        fontSize: 12),
                                                   ),
                                                 ],
                                               ),
@@ -473,7 +473,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                       batch.userName ??
                                                           "Sin usuario",
                                                       style: const TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color: black),
                                                       maxLines: 2,
                                                       overflow:
@@ -496,7 +496,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                   const Text(
                                                     "Cantidad pedidos: ",
                                                     style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 12,
                                                         color: black),
                                                     maxLines: 2,
                                                     overflow:
@@ -507,7 +507,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                       batch.cantidadPedidos
                                                           .toString(),
                                                       style: TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color:
                                                               primaryColorApp),
                                                       maxLines: 2,

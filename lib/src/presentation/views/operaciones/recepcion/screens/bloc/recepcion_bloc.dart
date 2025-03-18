@@ -1,7 +1,8 @@
-// ignore_for_file: unused_field, unnecessary_null_comparison, unnecessary_type_check
+// ignore_for_file: unused_field, unnecessary_null_comparison, unnecessary_type_check, use_build_context_synchronously
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
@@ -25,6 +26,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
   //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
+
+  //*lista de novedades
+  List<Novedad> novedades = [];
 
   //*producto acutal
 
@@ -109,6 +113,50 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     //*evento para ver la cantidad
     on<ShowQuantityOrderEvent>(_onShowQuantityEvent);
     on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+
+    //*evento para obtener las novedades
+    on<LoadAllNovedadesOrderEvent>(_onLoadAllNovedadesEvent);
+    add(LoadAllNovedadesOrderEvent());
+
+    //finalizarRececpcionProducto
+    on<FinalizarRecepcionProducto>(_onFinalizarRecepcionProducto);
+  }
+
+  //*Metodo pra finalizar un producto de se recepcion
+  void _onFinalizarRecepcionProducto(
+      FinalizarRecepcionProducto event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(FinalizarRecepcionProductoLoading());
+      //marcamos el producto como terminado
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "is_separate",
+          1,
+          currentProduct.idMove);
+    } catch (e, s) {
+      emit(FinalizarRecepcionProductoFailure(
+          'Error al finalizar la recepcion del producto'));
+      print('Error en el _onFinalizarRecepcionProducto: $e, $s');
+    }
+  }
+
+//*meotod para cargar todas las novedades
+  void _onLoadAllNovedadesEvent(
+      LoadAllNovedadesOrderEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(NovedadesOrderLoadingState());
+      final response = await db.novedadesRepository.getAllNovedades();
+      if (response != null) {
+        novedades.clear();
+        novedades = response;
+        print("novedades: ${novedades.length}");
+        emit(NovedadesOrderLoadedState(listOfNovedades: novedades));
+      }
+    } catch (e, s) {
+      print("Error en __onLoadAllNovedadesEvent: $e, $s");
+      emit(NovedadesOrderErrorState(e.toString()));
+    }
   }
 
   //*evento para aumentar la cantidad
@@ -121,7 +169,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         quantitySelected = quantitySelected + event.quantity;
         await db.productEntradaRepository.incremenQtytProductSeparatePacking(
             event.idRecepcion, event.productId, event.idMove, event.quantity);
-        emit(ChangeQuantitySeparateOrder(quantitySelected));
+        emit(ChangeQuantitySeparateState(quantitySelected));
       }
     } catch (e, s) {
       emit(ChangeQuantitySeparateErrorOrder('Error al aumentar cantidad'));
@@ -204,6 +252,12 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<RecepcionState> emit) async {
     if (event.productIsOk) {
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          event.idEntrada,
+          event.productId,
+          "is_selected",
+          1,
+          currentProduct.idMove ?? 0);
       //actualizamos el producto a true
       await db.productEntradaRepository.setFieldTableProductEntrada(
         event.idEntrada,
@@ -343,21 +397,23 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       emit(FetchPorductOrderLoading());
 
-      //traemos toda la lista de barcodes
-      //    listOfBarcodes.clear();
-      // listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
-      //   currentProduct.batchId ?? 0,
-      //   currentProduct.idProduct,
-      //   currentProduct.idMove ?? 0,
-      // );
-
+      // traemos toda la lista de barcodes
+      listOfBarcodes.clear();
+      print('listOfBarcodes: ${listOfBarcodes.length}');
       currentProduct = LineasRecepcion();
       currentProduct = event.product;
+      listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
+        currentProduct.idRecepcion ?? 0,
+        int.parse(currentProduct.productId),
+        currentProduct.idMove ?? 0,
+      );
 
       //cargamos la informacion de las variables de validacion
-      locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+      // locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+      locationIsOk = true;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
-      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
+      // locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
+      locationDestIsOk = true;
       quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
       quantitySelected = currentProduct.isProductSplit == 1
           ? 0
@@ -416,7 +472,19 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 //*metodo para obtener los permisos del usuario
   void _onAssignUserToOrder(
       AssignUserToOrder event, Emitter<RecepcionState> emit) async {
-    try {} catch (e, s) {
+    try {
+      int userId = await PrefUtils.getUserId();
+      emit(AssignUserToOrderLoading());
+      final response = await _recepcionRepository.assignUserToOrder(
+          true, userId, event.idOrder, event.context);
+
+      if (response) {
+        emit(AssignUserToOrderSuccess());
+      } else {
+        emit(AssignUserToOrderFailure(
+            "La recepción ya tiene un responsable asignado"));
+      }
+    } catch (e, s) {
       emit(AssignUserToOrderFailure('Error al asignar el usuario'));
       print('Error en el _onAssignUserToOrder: $e, $s');
     }
@@ -451,19 +519,40 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       emit(FetchOrdenesCompraLoading());
       final response =
-          await _recepcionRepository.resBatchsPacking(false, event.context);
+          await _recepcionRepository.resBatchsPacking(true, event.context);
       if (response != null && response is List) {
-        //todo: agregamos la lista de entradas a la bd
         await db.entradasRepository.insertEntrada(response);
+
         // Convertir el mapa en una lista de productos únicos con cantidades sumadas
         List<LineasRecepcion> productsToInsert =
             response.expand((batch) => batch.lineasRecepcion!).toList();
 
-        print('productsToInsert: ${productsToInsert.length}');
+        //Convertir el mapa en una lista los barcodes unicos de cada producto
+        List<Barcodes> barcodesToInsert = productsToInsert
+            .expand((product) => product.otherBarcodes!)
+            .toList();
+
+        //convertir el mapap en una lsita de los otros barcodes de cada producto
+        List<Barcodes> otherBarcodesToInsert = productsToInsert
+            .expand((product) => product.productPacking!)
+            .toList();
+
+        print('order productsToInsert: ${productsToInsert.length}');
+        print('order barcodesToInsert: ${barcodesToInsert.length}');
+        print('order otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
 
         // Enviar la lista agrupada a insertBatchProducts
         await db.productEntradaRepository
             .insertarProductoEntrada(productsToInsert);
+
+        // Enviar la lista agrupada de barcodes de un producto para packing
+        await DataBaseSqlite()
+            .barcodesPackagesRepository
+            .insertOrUpdateBarcodes(barcodesToInsert);
+        // Enviar la lista agrupada de otros barcodes de un producto para packing
+        await DataBaseSqlite()
+            .barcodesPackagesRepository
+            .insertOrUpdateBarcodes(otherBarcodesToInsert);
 
         print('ordenesCompra: ${response.length}');
         emit(FetchOrdenesCompraSuccess(response));

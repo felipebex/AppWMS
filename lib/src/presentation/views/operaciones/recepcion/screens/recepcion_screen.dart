@@ -5,6 +5,7 @@ import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/rece
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/tabs/tab1.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/tabs/tab2.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/tabs/tab3.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class RecepcionScreen extends StatefulWidget {
@@ -124,7 +125,7 @@ class _RecepcionScreenState extends State<RecepcionScreen>
                 Tab2ScreenRecep(
                   ordenCompra: widget.ordenCompra,
                 ),
-                Tab1ScreenRecep(
+                Tab3ScreenRecep(
                   ordenCompra: widget.ordenCompra,
                 ),
               ],

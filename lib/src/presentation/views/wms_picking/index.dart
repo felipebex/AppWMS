@@ -31,6 +31,10 @@ class WMSPickingPage extends StatefulWidget {
 class _PickingPageState extends State<WMSPickingPage> {
   NotchBottomBarController controller = NotchBottomBarController();
 
+
+  FocusNode focusNodeBuscar = FocusNode();
+
+
   @override
   void initState() {
     controller.index = widget.indexSelected;
@@ -277,89 +281,90 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                       //*barra de buscar
 
-                      SizedBox(
-                          // color: Colors.amber,
-                          height: 60, //120
-                          width: size.width * 1,
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 10,
-                                  right: 10,
-                                ),
-                                child: SizedBox(
-                                  width: size.width * 0.95,
-                                  height: 55,
-                                  child: Card(
-                                    color: Colors.white,
-                                    elevation: 3,
-                                    child: TextFormField(
-                                        textAlignVertical:
-                                            TextAlignVertical.center,
-                                        controller: context
-                                            .read<WMSPickingBloc>()
-                                            .searchController,
-                                        decoration: InputDecoration(
-                                          prefixIcon: const Icon(Icons.search,
-                                              color: grey, size: 20),
-                                          suffixIcon: IconButton(
-                                              onPressed: () {
-                                                context
-                                                    .read<WMSPickingBloc>()
-                                                    .searchController
-                                                    .clear();
-                                                context
-                                                    .read<WMSPickingBloc>()
-                                                    .add(SearchBatchEvent(
-                                                        '', controller.index));
-                                                FocusScope.of(context)
-                                                    .unfocus();
-                                              },
-                                              icon: IconButton(
-                                                onPressed: () {
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .add(ShowKeyboardEvent(
-                                                          false));
-                                                  context
-                                                      .read<WMSPickingBloc>()
-                                                      .searchController
-                                                      .clear();
-                                                },
-                                                icon: const Icon(Icons.close,
-                                                    color: grey, size: 20),
-                                              )),
-                                          disabledBorder:
-                                              const OutlineInputBorder(),
-                                          hintText: "Buscar batch",
-                                          hintStyle: const TextStyle(
-                                              color: Colors.grey, fontSize: 12),
-                                          border: InputBorder.none,
-                                        ),
-                                        onChanged: (value) {
-                                          context.read<WMSPickingBloc>().add(
-                                              SearchBatchEvent(
-                                                  value, controller.index));
-                                        },
-                                        style: const TextStyle(
-                                            color: Colors.black, fontSize: 14),
-                                        onTap: !context
-                                                .read<UserBloc>()
-                                                .fabricante
-                                                .contains("Zebra")
-                                            ? null
-                                            : () {
-                                                context
-                                                    .read<WMSPickingBloc>()
-                                                    .add(ShowKeyboardEvent(
-                                                        true));
-                                              }),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )),
+                      // SizedBox(
+                      //     // color: Colors.amber,
+                      //     height: 60, //120
+                      //     width: size.width * 1,
+                      //     child: Column(
+                      //       children: [
+                      //         Padding(
+                      //           padding: const EdgeInsets.only(
+                      //             left: 10,
+                      //             right: 10,
+                      //           ),
+                      //           child: SizedBox(
+                      //             width: size.width * 0.95,
+                      //             height: 55,
+                      //             child: Card(
+                      //               color: Colors.white,
+                      //               elevation: 3,
+                      //               child: TextFormField(
+                      //                 focusNode: focusNodeBuscar,
+                      //                   textAlignVertical:
+                      //                       TextAlignVertical.center,
+                      //                   controller: context
+                      //                       .read<WMSPickingBloc>()
+                      //                       .searchController,
+                      //                   decoration: InputDecoration(
+                      //                     prefixIcon: const Icon(Icons.search,
+                      //                         color: grey, size: 20),
+                      //                     suffixIcon: IconButton(
+                      //                         onPressed: () {
+                      //                           context
+                      //                               .read<WMSPickingBloc>()
+                      //                               .searchController
+                      //                               .clear();
+                      //                           context
+                      //                               .read<WMSPickingBloc>()
+                      //                               .add(SearchBatchEvent(
+                      //                                   '', controller.index));
+                      //                           FocusScope.of(context)
+                      //                               .unfocus();
+                      //                         },
+                      //                         icon: IconButton(
+                      //                           onPressed: () {
+                      //                             context
+                      //                                 .read<WMSPickingBloc>()
+                      //                                 .add(ShowKeyboardEvent(
+                      //                                     false));
+                      //                             context
+                      //                                 .read<WMSPickingBloc>()
+                      //                                 .searchController
+                      //                                 .clear();
+                      //                           },
+                      //                           icon: const Icon(Icons.close,
+                      //                               color: grey, size: 20),
+                      //                         )),
+                      //                     disabledBorder:
+                      //                         const OutlineInputBorder(),
+                      //                     hintText: "Buscar batch",
+                      //                     hintStyle: const TextStyle(
+                      //                         color: Colors.grey, fontSize: 12),
+                      //                     border: InputBorder.none,
+                      //                   ),
+                      //                   onChanged: (value) {
+                      //                     context.read<WMSPickingBloc>().add(
+                      //                         SearchBatchEvent(
+                      //                             value, controller.index));
+                      //                   },
+                      //                   style: const TextStyle(
+                      //                       color: Colors.black, fontSize: 14),
+                      //                   onTap: !context
+                      //                           .read<UserBloc>()
+                      //                           .fabricante
+                      //                           .contains("Zebra")
+                      //                       ? null
+                      //                       : () {
+                      //                           context
+                      //                               .read<WMSPickingBloc>()
+                      //                               .add(ShowKeyboardEvent(
+                      //                                   true));
+                      //                         }),
+                      //             ),
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     )),
 
                       //filtro por tipo de batch
 

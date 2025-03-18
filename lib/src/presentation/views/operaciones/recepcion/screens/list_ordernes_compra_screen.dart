@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +7,7 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -145,12 +148,15 @@ class ListOrdenesCompraScreen extends StatelessWidget {
 
                   (state is FetchOrdenesCompraOfBdSuccess ||
                           state is ShowKeyboardState ||
-                          state is SearchOrdenCompraSuccess)
+                          state is SearchOrdenCompraSuccess ||
+                          state is ConfigurationLoadedOrder ||
+                          state is AssignUserToOrderLoading)
                       ? Expanded(
                           child: ListView.builder(
                               padding: const EdgeInsets.only(top: 2),
                               itemCount: ordenCompra.length,
-                              itemBuilder: (BuildContext context, int index) {
+                              itemBuilder:
+                                  (BuildContext contextList, int index) {
                                 return Padding(
                                   padding: const EdgeInsets.only(
                                     left: 10,
@@ -189,6 +195,31 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                               ordenCompra[index]
                                                                   .fechaCreacion!))
                                                       : "Sin fecha",
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.person,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  ordenCompra[index]
+                                                              .responsable ==
+                                                          ""
+                                                      ? 'sin responsable'
+                                                      : ordenCompra[index]
+                                                              .responsable ??
+                                                          '',
                                                   style: const TextStyle(
                                                       fontSize: 14,
                                                       color: black),
@@ -275,16 +306,60 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                         ],
                                       ),
                                       onTap: () async {
-                                        // mandamos a traer todos los productos de la entrada
-                                        context.read<RecepcionBloc>().add(
-                                            GetPorductsToEntrada(
-                                                ordenCompra[index].id ?? 0));
+                                        //cargamos los permisos del usuario
+                                        context
+                                            .read<RecepcionBloc>()
+                                            .add(LoadConfigurationsUserOrder());
 
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          'recepcion',
-                                          arguments: [ordenCompra[index], 0],
-                                        );
+                                        //verficamos is la orden de entrada tiene ya un responsable
+                                        if (ordenCompra[index].responsableId ==
+                                                null ||
+                                            ordenCompra[index].responsableId ==
+                                                0) {
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible:
+                                                false, // No permitir que el usuario cierre el diálogo manualmente
+                                            builder: (context) =>
+                                                DialogAsignUserToOrderWidget(
+                                              onAccepted: () async {
+                                                // obtenemos los productos de esa entrada
+                                                context
+                                                    .read<RecepcionBloc>()
+                                                    .add(GetPorductsToEntrada(
+                                                        ordenCompra[index].id ??
+                                                            0));
+                                                //asignamos el responsable a esa orden de entrada
+                                                context
+                                                    .read<RecepcionBloc>()
+                                                    .add(AssignUserToOrder(
+                                                        ordenCompra[index].id ??
+                                                            0,
+                                                        contextList));
+                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                  context,
+                                                  'recepcion',
+                                                  arguments: [
+                                                    ordenCompra[index],
+                                                    0
+                                                  ],
+                                                );
+                                              },
+                                            ),
+                                          );
+                                        } else {
+                                          // mandamos a traer todos los productos de la entrada
+                                          context.read<RecepcionBloc>().add(
+                                              GetPorductsToEntrada(
+                                                  ordenCompra[index].id ?? 0));
+
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            'recepcion',
+                                            arguments: [ordenCompra[index], 0],
+                                          );
+                                        }
                                       },
                                     ),
                                   ),

@@ -24,9 +24,12 @@ class SearchOrdenCompraEvent extends RecepcionEvent {
 }
 
 class AssignUserToOrder extends RecepcionEvent {
-  final String idOrder;
-  final String idUser;
-  AssignUserToOrder(this.idOrder, this.idUser);
+  final int idOrder;
+  final BuildContext context;
+  AssignUserToOrder(
+    this.idOrder,
+    this.context,
+  );
 }
 
 class LoadConfigurationsUserOrder extends RecepcionEvent {}
@@ -113,5 +116,14 @@ class AddQuantitySeparate extends RecepcionEvent {
   final int idMove;
   final int quantity;
   AddQuantitySeparate(
-      this.idRecepcion, this.productId, this.idMove, this.quantity, );
+    this.idRecepcion,
+    this.productId,
+    this.idMove,
+    this.quantity,
+  );
+}
+
+class LoadAllNovedadesOrderEvent extends RecepcionEvent {}
+
+class FinalizarRecepcionProducto extends RecepcionEvent {
 }

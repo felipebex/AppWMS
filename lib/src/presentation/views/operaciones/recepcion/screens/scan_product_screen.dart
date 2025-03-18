@@ -8,11 +8,13 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/location/location_card_widget.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/muelle/muelle_card_widget.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/product/product_card_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
@@ -91,21 +93,13 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   void _handleDependencies() {
     final batchBloc = context.read<RecepcionBloc>();
 
-    if (!batchBloc.locationIsOk && //false
-        !batchBloc.productIsOk && //false
-        !batchBloc.quantityIsOk && //false
-        !batchBloc.locationDestIsOk) //false
-    {
-      print('❤️‍🔥 location');
-      FocusScope.of(context).requestFocus(focusNode1);
-      focusNode2.unfocus();
-      focusNode3.unfocus();
-      focusNode4.unfocus();
-    }
+    print(
+        'Vairbales :  locationIsOk: ${batchBloc.locationIsOk} productIsOk: ${batchBloc.productIsOk} quantityIsOk: ${batchBloc.quantityIsOk} locationDestIsOk: ${batchBloc.locationDestIsOk} viewQuantity: ${batchBloc.viewQuantity}');
+
     if (batchBloc.locationIsOk && //true
         !batchBloc.productIsOk && //false
         !batchBloc.quantityIsOk && //false
-        !batchBloc.locationDestIsOk) //false
+        batchBloc.locationDestIsOk) //true
     {
       print('❤️‍🔥 product');
       FocusScope.of(context).requestFocus(focusNode2);
@@ -116,7 +110,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     if (batchBloc.locationIsOk && //true
         batchBloc.productIsOk && //true
         batchBloc.quantityIsOk && //ttrue
-        !batchBloc.locationDestIsOk && //false
+        batchBloc.locationDestIsOk && //false
         !batchBloc.viewQuantity) //false
     {
       print('❤️‍🔥 quantity');
@@ -227,6 +221,23 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     }
   }
 
+  void validateMuelle(String value) {
+    final bloc = context.read<RecepcionBloc>();
+    String scan = bloc.scannedValue4.toLowerCase() == ""
+        ? value.toLowerCase()
+        : bloc.scannedValue4.toLowerCase();
+
+    _controllerLocationDest.text = "";
+    final currentProduct = bloc.currentProduct;
+    if (scan == currentProduct.locationDestBarcode.toString().toLowerCase()) {
+      bloc.add(ValidateFieldsOrderEvent(field: "locationDest", isOk: true));
+      bloc.add(ClearScannedValueOrderEvent('muelle'));
+    } else {
+      bloc.add(ValidateFieldsOrderEvent(field: "locationDest", isOk: false));
+      bloc.add(ClearScannedValueOrderEvent('muelle'));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -273,6 +284,20 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                             FocusScope.of(context).requestFocus(focusNode3);
                           });
                           _handleDependencies();
+                        }
+
+                        if (state is ChangeQuantitySeparateState) {
+                          if (state.quantity != 0) {
+                            if (state.quantity ==
+                                recepcionBloc.currentProduct.quantityOrdered
+                                    .toInt()) {
+                              //termianmso el proceso
+                              _finishSeprateProductOrder(context);
+                              Navigator.pushReplacementNamed(
+                                  context, 'recepcion',
+                                  arguments: [widget.ordenCompra, 1]);
+                            }
+                          }
                         }
                       }, builder: (context, status) {
                         return Column(
@@ -437,7 +462,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                               }
                                               return KeyEventResult.ignored;
                                             },
-                                            child: LocationOrderDropdownWidget(
+                                            child: 
+                                            
+                                            LocationOrderDropdownWidget(
                                                 isPDA: true,
                                                 selectedLocation:
                                                     selectedLocation,
@@ -581,6 +608,29 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                               ? red
                                                               : black),
                                                     ),
+                                                    const Spacer(),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return DialogBarcodes(
+                                                                  listOfBarcodes:
+                                                                      recepcionBloc
+                                                                          .listOfBarcodes);
+                                                            });
+                                                      },
+                                                      child: Visibility(
+                                                        visible: recepcionBloc
+                                                            .listOfBarcodes
+                                                            .isNotEmpty,
+                                                        child: Image.asset(
+                                                            "assets/icons/package_barcode.png",
+                                                            color:
+                                                                primaryColorApp,
+                                                            width: 20),
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
                                               ),
@@ -592,12 +642,14 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                                   .fechaVencimiento ==
                                                               ""
                                                           ? DateTime.now()
-                                                          : DateTime.parse(
-                                                              recepcionBloc
+                                                          : DateTime.parse(recepcionBloc
                                                                       .currentProduct
-                                                                      .fechaVencimiento ??
-                                                                  '',
-                                                            ),
+                                                                      .fechaVencimiento ==
+                                                                  null
+                                                              ? ''
+                                                              : recepcionBloc
+                                                                  .currentProduct
+                                                                  .fechaVencimiento!),
                                                       size: size,
                                                       isDetaild: false,
                                                       isNoExpireDate: recepcionBloc
@@ -710,6 +762,32 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                                         ? red
                                                                         : black),
                                                               ),
+                                                              const Spacer(),
+                                                              GestureDetector(
+                                                                onTap: () {
+                                                                  showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (context) {
+                                                                        return DialogBarcodes(
+                                                                            listOfBarcodes:
+                                                                                recepcionBloc.listOfBarcodes);
+                                                                      });
+                                                                },
+                                                                child:
+                                                                    Visibility(
+                                                                  visible: recepcionBloc
+                                                                      .listOfBarcodes
+                                                                      .isNotEmpty,
+                                                                  child: Image.asset(
+                                                                      "assets/icons/package_barcode.png",
+                                                                      color:
+                                                                          primaryColorApp,
+                                                                      width:
+                                                                          20),
+                                                                ),
+                                                              ),
                                                             ],
                                                           ),
                                                         ),
@@ -723,12 +801,14 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                                   .fechaVencimiento ==
                                                               ""
                                                           ? DateTime.now()
-                                                          : DateTime.parse(
-                                                              recepcionBloc
+                                                          : DateTime.parse(recepcionBloc
                                                                       .currentProduct
-                                                                      .fechaVencimiento ??
-                                                                  '',
-                                                            ),
+                                                                      .fechaVencimiento ==
+                                                                  null
+                                                              ? ''
+                                                              : recepcionBloc
+                                                                  .currentProduct
+                                                                  .fechaVencimiento!),
                                                       size: size,
                                                       isDetaild: false,
                                                       isNoExpireDate: recepcionBloc
@@ -890,25 +970,45 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                               child: Center(
                                 child: Row(
                                   children: [
-                                    const Text('Recoger:',
-                                        style: TextStyle(
-                                            color: Colors.black, fontSize: 14)),
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        child: Text(
-                                          recepcionBloc.currentProduct
-                                                  .quantityOrdered
-                                                  ?.toString() ??
-                                              "",
-                                          style: TextStyle(
-                                            color: primaryColorApp,
-                                            fontSize: 14,
-                                          ),
-                                        )),
-                                    Text(recepcionBloc.currentProduct.uom ?? "",
-                                        style: const TextStyle(
-                                            color: Colors.black, fontSize: 14)),
+                                    //*mostramos la cantidad a recoger si la configuracion lo permite
+                                    Visibility(
+                                      visible: recepcionBloc
+                                              .configurations
+                                              .result
+                                              ?.result
+                                              ?.hideExpectedQty ==
+                                          false,
+                                      child: Row(
+                                        children: [
+                                          const Text('Recoger:',
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 14)),
+                                          Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              child: Text(
+                                                recepcionBloc.currentProduct
+                                                        .quantityOrdered
+                                                        ?.toString() ??
+                                                    "",
+                                                style: TextStyle(
+                                                  color: primaryColorApp,
+                                                  fontSize: 14,
+                                                ),
+                                              )),
+                                          Text(
+                                              recepcionBloc
+                                                      .currentProduct.uom ??
+                                                  "",
+                                              style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 14)),
+                                        ],
+                                      ),
+                                    ),
+
                                     const Spacer(),
                                     Expanded(
                                       child: Container(
@@ -1149,42 +1249,48 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
             orElse: () =>
                 Barcodes() // Si no se encuentra ningún match, devuelve null
             );
-    // if (matchedBarcode.barcode != null) {
-    //   if (isProduct) {
-    //     batchBloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+    if (matchedBarcode.barcode != null) {
+      if (isProduct) {
+        batchBloc.add(ValidateFieldsOrderEvent(field: "product", isOk: true));
 
-    //     batchBloc.add(ChangeQuantitySeparate(
-    //         0, currentProduct.idProduct ?? 0, currentProduct.idMove ?? 0));
+        batchBloc.add(ChangeQuantitySeparate(
+          0,
+          int.parse(currentProduct.productId),
+          currentProduct.idRecepcion ?? 0,
+          currentProduct.idMove ?? 0,
+        ));
 
-    //     batchBloc.add(ChangeProductIsOkEvent(
-    //         true,
-    //         currentProduct.idProduct ?? 0,
-    //         batchBloc.batchWithProducts.batch?.id ?? 0,
-    //         0,
-    //         currentProduct.idMove ?? 0));
+        batchBloc.add(ChangeProductIsOkEvent(
+            currentProduct.idRecepcion ?? 0,
+            true,
+            int.parse(currentProduct.productId),
+            0,
+            currentProduct.idMove ?? 0));
 
-    //     batchBloc.add(ChangeIsOkQuantity(
-    //         true,
-    //         currentProduct.idProduct ?? 0,
-    //         batchBloc.batchWithProducts.batch?.id ?? 0,
-    //         currentProduct.idMove ?? 0));
+        batchBloc.add(ChangeIsOkQuantity(
+          currentProduct.idRecepcion ?? 0,
+          true,
+          int.parse(currentProduct.productId),
+          currentProduct.idMove ?? 0,
+        ));
 
-    //     return true;
-    //   } else {
-    //     //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-    //     if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
-    //         currentProduct.quantity!) {
-    //       return false;
-    //     }
+        return true;
+      } else {
+        //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
+        if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
+            currentProduct.quantityOrdered!) {
+          return false;
+        }
 
-    //     batchBloc.add(AddQuantitySeparate(
-    //         currentProduct.idProduct ?? 0,
-    //         currentProduct.idMove ?? 0,
-    //         matchedBarcode.cantidad.toInt(),
-    //         false));
-    //   }
-    //   return false;
-    // }
+        batchBloc.add(AddQuantitySeparate(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          currentProduct.idMove ?? 0,
+          matchedBarcode.cantidad.toInt(),
+        ));
+      }
+      return false;
+    }
     return false;
   }
 
@@ -1199,37 +1305,39 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     if (cantidad == currentProduct.quantityOrdered) {
       batchBloc.add(ChangeQuantitySeparate(
           cantidad,
-          int.parse(currentProduct.productId ),
-          currentProduct.idRecepcion??0,
+          int.parse(currentProduct.productId),
+          currentProduct.idRecepcion ?? 0,
           currentProduct.idMove ?? 0));
     } else {
       FocusScope.of(context).unfocus();
       if (cantidad < (currentProduct.quantityOrdered ?? 0).toInt()) {
-        // showDialog(
-        //     context: context,
-        //     builder: (context) {
-        //       return DialogPackingAdvetenciaCantidadScreen(
-        //           currentProduct: currentProduct,
-        //           cantidad: cantidad,
-        //           onAccepted: () async {
-        //             batchBloc.add(ChangeQuantitySeparate(
-        //                 cantidad,
-        //                 currentProduct.idProduct ?? 0,
-        //                 currentProduct.pedidoId ?? 0,
-        //                 currentProduct.idMove ?? 0));
-        //             cantidadController.clear();
-        //             _finichPackingProduct(context);
-        //           },
-        //           onSplit: () {
-        //             batchBloc.add(ChangeQuantitySeparate(
-        //                 cantidad,
-        //                 currentProduct.idProduct ?? 0,
-        //                 currentProduct.pedidoId ?? 0,
-        //                 currentProduct.idMove ?? 0));
-        //             cantidadController.clear();
-        //             _finichPackingProductSplit(context, cantidad);
-        //           });
-        //     });
+        showDialog(
+            context: context,
+            builder: (context) {
+              return DialogOrderAdvetenciaCantidadScreen(
+                  currentProduct: currentProduct,
+                  cantidad: cantidad,
+                  onAccepted: () async {
+                    batchBloc.add(ChangeQuantitySeparate(
+                        cantidad,
+                        int.parse(currentProduct.productId),
+                        currentProduct.idRecepcion ?? 0,
+                        currentProduct.idMove ?? 0));
+                    _cantidadController.clear();
+                    _finishSeprateProductOrder(context);
+                    Navigator.pushReplacementNamed(context, 'recepcion',
+                        arguments: [widget.ordenCompra, 1]);
+                  },
+                  onSplit: () {
+                    batchBloc.add(ChangeQuantitySeparate(
+                        cantidad,
+                        int.parse(currentProduct.productId),
+                        currentProduct.idRecepcion ?? 0,
+                        currentProduct.idMove ?? 0));
+                    _cantidadController.clear();
+                    // _finichPackingProductSplit(context, cantidad);
+                  });
+            });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           duration: const Duration(milliseconds: 1000),
@@ -1238,5 +1346,22 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         ));
       }
     }
+  }
+
+  void _finishSeprateProductOrder(
+    BuildContext context,
+  ) {
+    //entramos a terminar el prcoeso de recepcion de un producto
+    //cerramos el foco
+    FocusScope.of(context).unfocus();
+    //llamamos el evento de terminar
+    context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
+    context.read<RecepcionBloc>().add(ShowKeyboardEvent(false));
+    context.read<RecepcionBloc>().add(ShowQuantityOrderEvent(false));
+
+    //cargamos los productos nuevamente
+    context
+        .read<RecepcionBloc>()
+        .add(GetPorductsToEntrada(widget.ordenCompra?.id ?? 0));
   }
 }

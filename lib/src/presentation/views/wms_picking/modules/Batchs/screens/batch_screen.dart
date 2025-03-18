@@ -198,6 +198,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
         ? value.toLowerCase()
         : batchBloc.scannedValue2.toLowerCase();
 
+
+    print('scan product: $scan');
     _controllerProduct.text = "";
     final currentProduct = batchBloc.currentProduct;
     if (scan == currentProduct.barcode?.toLowerCase()) {

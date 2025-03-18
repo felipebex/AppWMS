@@ -5,7 +5,6 @@ sealed class RecepcionState {}
 
 final class RecepcionInitial extends RecepcionState {}
 
-
 //estados para obtener todas las orndes de compras
 class FetchOrdenesCompraLoading extends RecepcionState {}
 
@@ -19,14 +18,12 @@ class FetchOrdenesCompraFailure extends RecepcionState {
   FetchOrdenesCompraFailure(this.error);
 }
 
-
 class ShowKeyboardState extends RecepcionState {
   final bool showKeyboard;
   ShowKeyboardState({required this.showKeyboard});
 }
 
 //estados para buscar una  orden de compra
-
 
 class SearchOrdenCompraSuccess extends RecepcionState {
   final List<ResultEntrada> ordenesCompra;
@@ -48,8 +45,6 @@ class AssignUserToOrderFailure extends RecepcionState {
   AssignUserToOrderFailure(this.error);
 }
 
-
-
 //metodo para obtener todas las entradas de recepcion dsde la bd
 class FetchOrdenesCompraOfBdLoading extends RecepcionState {}
 
@@ -62,7 +57,6 @@ class FetchOrdenesCompraOfBdFailure extends RecepcionState {
   final String error;
   FetchOrdenesCompraOfBdFailure(this.error);
 }
-
 
 //metodo para obtener los productos de una entrada
 class GetProductsToEntradaLoading extends RecepcionState {}
@@ -90,16 +84,12 @@ class FetchPorductOrderFailure extends RecepcionState {
   FetchPorductOrderFailure(this.error);
 }
 
-
 class ValidateFieldsOrderState extends RecepcionState {
   final bool isOk;
-  ValidateFieldsOrderState({ required this.isOk});
+  ValidateFieldsOrderState({required this.isOk});
 }
 
-
 class ClearScannedValueOrderState extends RecepcionState {}
-
-
 
 class UpdateScannedValueOrderState extends RecepcionState {
   final String scannedValue;
@@ -107,13 +97,10 @@ class UpdateScannedValueOrderState extends RecepcionState {
   UpdateScannedValueOrderState(this.scannedValue, this.scan);
 }
 
-
-
 class ChangeLocationOrderIsOkState extends RecepcionState {
   final bool isOk;
   ChangeLocationOrderIsOkState(this.isOk);
 }
-
 
 class ChangeIsOkState extends RecepcionState {
   final bool isOk;
@@ -124,8 +111,6 @@ class ChangeProductOrderIsOkState extends RecepcionState {
   final bool isOk;
   ChangeProductOrderIsOkState(this.isOk);
 }
-
-
 
 class ConfigurationLoadedOrder extends RecepcionState {
   final Configurations configurations;
@@ -139,28 +124,46 @@ class ConfigurationErrorOrder extends RecepcionState {
   ConfigurationErrorOrder(this.error);
 }
 
-
 class ChangeQuantitySeparateState extends RecepcionState {
   final int quantity;
   ChangeQuantitySeparateState(this.quantity);
 }
-
-
 
 class ShowQuantityOrderState extends RecepcionState {
   final bool showQuantity;
   ShowQuantityOrderState(this.showQuantity);
 }
 
-
-
 class ChangeQuantitySeparateOrder extends RecepcionState {
   final int quantity;
   ChangeQuantitySeparateOrder(this.quantity);
 }
 
-
 class ChangeQuantitySeparateErrorOrder extends RecepcionState {
   final String error;
   ChangeQuantitySeparateErrorOrder(this.error);
+}
+
+//*estados para cargar las novedades
+class NovedadesOrderLoadedState extends RecepcionState {
+  final List<Novedad> listOfNovedades;
+  NovedadesOrderLoadedState({required this.listOfNovedades});
+}
+
+class NovedadesOrderLoadingState extends RecepcionState {}
+
+class NovedadesOrderErrorState extends RecepcionState {
+  final String message;
+  NovedadesOrderErrorState(this.message);
+}
+
+
+
+class FinalizarRecepcionProductoLoading extends RecepcionState {}
+
+class FinalizarRecepcionProductoSuccess extends RecepcionState {}
+
+class FinalizarRecepcionProductoFailure extends RecepcionState {
+  final String error;
+  FinalizarRecepcionProductoFailure(this.error);
 }

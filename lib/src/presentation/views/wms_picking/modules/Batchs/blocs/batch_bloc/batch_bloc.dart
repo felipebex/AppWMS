@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously, prefer_if_null_operators
 
-
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
@@ -1114,6 +1113,17 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
         // Solo incrementamos el índice si no ha sido incrementado previamente
         index = (batchWithProducts.batch?.indexList ?? 0) + 1;
+
+        // // Calcular la longitud una sola vez
+        // // Contar los productos con isSeparate == 1 usando fold
+        // int separateCount = filteredProducts.fold(0, (count, e) {
+        //   return e.isSeparate == 1 ? count + 1 : count;
+        // });
+
+        // if (index >= separateCount) {
+        //   print('El index ES MAYOR 🍓');
+        //   index = separateCount + 1;
+        // }
 
         if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
           print('El index ES DIFERENTE A INDEXLIST 🍓');

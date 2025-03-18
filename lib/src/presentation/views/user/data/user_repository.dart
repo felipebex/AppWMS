@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
 
 class UserRepository {
   Future<Configurations> configurations(
@@ -34,17 +35,28 @@ class UserRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Sesion expirada, por favor inicie sesión nuevamente',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
+          Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                )));
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
             return Configurations();
           }
         }
