@@ -35,29 +35,6 @@ class Tab2ScreenRecep extends StatelessWidget {
               height: size.height * 0.8,
               child: Column(
                 children: [
-                  // (recepcionBloc.listProductsEntrada.isEmpty)
-                  // ? Expanded(
-                  //     child: Column(
-                  //       mainAxisAlignment: MainAxisAlignment.center,
-                  //       mainAxisSize: MainAxisSize.max,
-                  //       children: [
-                  //         const Text('No hay productos',
-                  //             style: TextStyle(fontSize: 14, color: grey)),
-                  //         const Text('Intente buscar otro producto',
-                  //             style: TextStyle(fontSize: 12, color: grey)),
-                  //         Visibility(
-                  //           visible: context
-                  //               .read<UserBloc>()
-                  //               .fabricante
-                  //               .contains("Zebra"),
-                  //           child: Container(
-                  //             height: 60,
-                  //           ),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   )
-                  // :
                   (recepcionBloc.listProductsEntrada.where((element) {
                             return element.isSeparate == 0 ||
                                 element.isSeparate == null;
@@ -127,7 +104,7 @@ class Tab2ScreenRecep extends StatelessWidget {
 
                                         context
                                             .read<RecepcionBloc>()
-                                            .add(FetchPorductOrder(product));
+                                            .add(FetchPorductOrder(product, context));
 
                                         // Esperar 3 segundos antes de continuar
                                         Future.delayed(
@@ -176,14 +153,14 @@ class Tab2ScreenRecep extends StatelessWidget {
                                               ),
                                               Text("${product.productCode}",
                                                   style: const TextStyle(
-                                                      fontSize: 16,
+                                                      fontSize: 12,
                                                       color: black)),
                                             ],
                                           ),
                                           Text(
                                             "Ubicación de origen: ",
                                             style: TextStyle(
-                                              fontSize: 14,
+                                              fontSize: 12,
                                               color: primaryColorApp,
                                             ),
                                           ),

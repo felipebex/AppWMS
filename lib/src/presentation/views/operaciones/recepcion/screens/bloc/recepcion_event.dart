@@ -41,7 +41,8 @@ class GetPorductsToEntrada extends RecepcionEvent {
 
 class FetchPorductOrder extends RecepcionEvent {
   final LineasRecepcion product;
-  FetchPorductOrder(this.product);
+  final BuildContext  context;
+  FetchPorductOrder(this.product, this.context);
 }
 
 class ValidateFieldsOrderEvent extends RecepcionEvent {
@@ -62,21 +63,9 @@ class UpdateScannedValueOrderEvent extends RecepcionEvent {
 }
 
 //* CAMBIAR VALORES DE VARIABLES
-class ChangeLocationIsOkEvent extends RecepcionEvent {
-  final int idEntrada;
-  final int productId;
-  final int idMove;
-  ChangeLocationIsOkEvent(this.idEntrada, this.productId, this.idMove);
-}
 
-class ChangeLocationDestIsOkEvent extends RecepcionEvent {
-  final int idEntrada;
-  final int productId;
-  final int idMove;
-  final bool locationDestIsOk;
-  ChangeLocationDestIsOkEvent(
-      this.idEntrada, this.locationDestIsOk, this.productId, this.idMove);
-}
+
+
 
 class ChangeProductIsOkEvent extends RecepcionEvent {
   final int idEntrada;
@@ -86,6 +75,10 @@ class ChangeProductIsOkEvent extends RecepcionEvent {
   final int idMove;
   ChangeProductIsOkEvent(this.idEntrada, this.productIsOk, this.productId,
       this.quantity, this.idMove);
+}
+class SelectecLoteEvent extends RecepcionEvent {
+  final LotesProduct lote;
+  SelectecLoteEvent(this.lote);
 }
 
 class ChangeIsOkQuantity extends RecepcionEvent {
@@ -126,4 +119,33 @@ class AddQuantitySeparate extends RecepcionEvent {
 class LoadAllNovedadesOrderEvent extends RecepcionEvent {}
 
 class FinalizarRecepcionProducto extends RecepcionEvent {
+}
+
+
+class FinalizarRecepcionProductoSplit extends RecepcionEvent {
+
+  final int quantity;
+
+  FinalizarRecepcionProductoSplit(this.quantity);
+
+}
+
+
+class GetLotesProduct extends RecepcionEvent {
+  final BuildContext  context;
+
+  GetLotesProduct(this.context);
+}
+
+class SendProductToOrder extends RecepcionEvent {
+  final BuildContext context;
+  SendProductToOrder(this.context);
+}
+
+
+class CreateLoteProduct extends RecepcionEvent {
+  final BuildContext context;
+  final String nameLote;
+  final String fechaCaducidad;
+  CreateLoteProduct(this.context, this.nameLote, this.fechaCaducidad);
 }

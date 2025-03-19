@@ -80,9 +80,6 @@ dependencies:
   uuid: ^4.5.0
 
   # print
-  # blue_thermal_printer: ^1.2.3
-  # blue_thermal_printer: any
-  # qr
   qr_flutter: ^4.1.0
 
   # dailogos

@@ -84,6 +84,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   bool quantityIsOk = false;
   bool isKeyboardVisible = false;
   bool viewQuantity = false;
+  bool viewDetail = true;
 
   //* ultima ubicacion
   String oldLocation = '';
@@ -180,6 +181,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ClearScannedValuePackEvent>(_onClearScannedValueEvent);
     //*evento para ver la cantidad
     on<ShowQuantityPackEvent>(_onShowQuantityEvent);
+    on<ShowDetailvent>(_onShowDetailEvent);
   }
 
 
@@ -222,6 +224,16 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
 
 
+  //*evento para ver la cantidad
+  void _onShowDetailEvent(
+      ShowDetailvent event, Emitter<WmsPackingState> emit) {
+    try {
+      viewDetail = !viewDetail;
+      emit(ShowDetailState(viewDetail));
+    } catch (e, s) {
+      print("❌ Error en _onShowQuantityEvent: $e, $s");
+    }
+  }
   //*evento para ver la cantidad
   void _onShowQuantityEvent(
       ShowQuantityPackEvent event, Emitter<WmsPackingState> emit) {

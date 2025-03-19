@@ -211,15 +211,19 @@ class LineasRecepcion {
   String? locationBarcode;
   double? weight;
 
-  final dynamic isLocationIsOk;
+  final String? observation;
+
   final dynamic productIsOk;
-  final dynamic locationDestIsOk;
   final dynamic isQuantityIsOk;
+  final int? loteId;
+  final String? loteName;
   final dynamic quantitySeparate;
 
   final dynamic isSelected;
   final dynamic isSeparate;
   final dynamic isProductSplit;
+
+  final dynamic dateSeparate;
 
   LineasRecepcion({
     this.id,
@@ -250,14 +254,17 @@ class LineasRecepcion {
 
     this.weight,
 
-    this.isLocationIsOk,
+    this.loteId,
+    this.loteName,
     this.productIsOk,
-    this.locationDestIsOk,
     this.isQuantityIsOk,
     this.quantitySeparate,
     this.isSelected,
     this.isSeparate,
     this.isProductSplit,
+
+    this.observation,
+    this.dateSeparate,
   });
 
   factory LineasRecepcion.fromMap(Map<String, dynamic> json) => LineasRecepcion(
@@ -292,14 +299,17 @@ class LineasRecepcion {
         locationBarcode: json["location_barcode"],
         weight: json["weight"]?.toDouble(),
 
-        isLocationIsOk: json["is_location_is_ok"],
+        loteId: json["lote_id"],
+        loteName: json["lote_name"],
         productIsOk: json["product_is_ok"],
-        locationDestIsOk: json["location_dest_is_ok"],
         isQuantityIsOk: json["is_quantity_is_ok"],
         quantitySeparate: json["quantity_separate"],
         isSelected: json["is_selected"],
         isSeparate: json["is_separate"],
         isProductSplit: json["is_product_split"],
+
+        observation: json["observation"],
+        dateSeparate : json["date_separate"],
 
       );
 
@@ -333,14 +343,16 @@ class LineasRecepcion {
         "location_barcode": locationBarcode,
         "weight": weight,
 
-        "is_location_is_ok": isLocationIsOk,
+        "lote_id": loteId,
+        "lote_name": loteName,
         "product_is_ok": productIsOk,
-        "location_dest_is_ok": locationDestIsOk,
         "is_quantity_is_ok": isQuantityIsOk,
         "quantity_separate": quantitySeparate,
         "is_selected": isSelected,
         "is_separate": isSeparate,
         "is_product_split": isProductSplit,
         
+        "observation": observation,
+        "date_separate": dateSeparate,
       };
 }

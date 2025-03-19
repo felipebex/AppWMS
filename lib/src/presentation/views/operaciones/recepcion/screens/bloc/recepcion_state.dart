@@ -97,10 +97,6 @@ class UpdateScannedValueOrderState extends RecepcionState {
   UpdateScannedValueOrderState(this.scannedValue, this.scan);
 }
 
-class ChangeLocationOrderIsOkState extends RecepcionState {
-  final bool isOk;
-  ChangeLocationOrderIsOkState(this.isOk);
-}
 
 class ChangeIsOkState extends RecepcionState {
   final bool isOk;
@@ -110,6 +106,10 @@ class ChangeIsOkState extends RecepcionState {
 class ChangeProductOrderIsOkState extends RecepcionState {
   final bool isOk;
   ChangeProductOrderIsOkState(this.isOk);
+}
+class ChangeLoteOrderIsOkState extends RecepcionState {
+  final bool isOk;
+  ChangeLoteOrderIsOkState(this.isOk);
 }
 
 class ConfigurationLoadedOrder extends RecepcionState {
@@ -166,4 +166,50 @@ class FinalizarRecepcionProductoSuccess extends RecepcionState {}
 class FinalizarRecepcionProductoFailure extends RecepcionState {
   final String error;
   FinalizarRecepcionProductoFailure(this.error);
+}
+
+
+
+class FinalizarRecepcionProductoSplitLoading extends RecepcionState {}
+
+class FinalizarRecepcionProductoSplitSuccess extends RecepcionState {}
+
+class FinalizarRecepcionProductoSplitFailure extends RecepcionState {
+  final String error;
+  FinalizarRecepcionProductoSplitFailure(this.error);
+}
+
+
+
+class GetLotesProductLoading extends RecepcionState {}
+
+class GetLotesProductSuccess extends RecepcionState {
+  final List<LotesProduct> lotesProduct;
+  GetLotesProductSuccess(this.lotesProduct);
+}
+
+class GetLotesProductFailure extends RecepcionState {
+  final String error;
+  GetLotesProductFailure(this.error);
+}
+
+
+class SendProductToOrderLoading extends RecepcionState {}
+
+class SendProductToOrderSuccess extends RecepcionState {}
+
+class SendProductToOrderFailure extends RecepcionState {
+  final String error;
+  SendProductToOrderFailure(this.error);
+}
+
+
+
+class CreateLoteProductLoading extends RecepcionState {}
+
+class CreateLoteProductSuccess extends RecepcionState {}
+
+class CreateLoteProductFailure extends RecepcionState {
+  final String error;
+  CreateLoteProductFailure(this.error);
 }

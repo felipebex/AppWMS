@@ -87,6 +87,10 @@ class _HomePageState extends State<HomePage> {
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(false, context));
+                  await Future.delayed(const Duration(seconds: 1));
+                  context
+                      .read<RecepcionBloc>()
+                      .add(FetchOrdenesCompra(context));
                 } else if (rol == 'packing') {
                   if (!mounted) return;
                   context
@@ -483,7 +487,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
 
-                            //todo informativo para packing
+                            //todo informativo para los modulos
                             const Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
@@ -651,6 +655,81 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
+                                            context.read<RecepcionBloc>().add(
+                                                FetchOrdenesCompraOfBd(
+                                                    context)); // Llama al evento FetchOrdenesCompra
+
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando recepciones ...');
+                                                });
+
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
+
+                                            Navigator.pop(context);
+
+                                            //   Ajusta el tiempo si es necesario
+
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'list-ordenes-compra',
+                                            );
+                                            // ScaffoldMessenger.of(context)
+                                            //     .showSnackBar(
+                                            //   const SnackBar(
+                                            //     content: Text(
+                                            //         "Su usuario no tiene permisos para acceder a este módulo"),
+                                            //     duration: Duration(seconds: 4),
+                                            //   ),
+                                            // );
+                                          },
+                                          child: ImteModule(
+                                            urlImg: "recepcion.png",
+                                            title: 'Recepción',
+                                          ),
+                                        ),
+                                        SizedBox(width: 5),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            // showDialog(
+                                            //     context: context,
+                                            //     builder: (context) {
+                                            //       return const DialogLoading(
+                                            //           message:
+                                            //               'Cargando inventario rapido...');
+                                            //     });
+
+                                            // await Future.delayed(const Duration(
+                                            //     seconds:
+                                            //         1)); // Ajusta el tiempo si es necesario
+
+                                            // Navigator.pop(context);
+                                            // Navigator.pushReplacementNamed(
+                                            //   context,
+                                            //   'inventario',
+                                            // );
+
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                    "Su usuario no tiene permisos para acceder a este módulo"),
+                                                duration: Duration(seconds: 4),
+                                              ),
+                                            );
+                                          },
+                                          child: ImteModule(
+                                            urlImg: "transferencia.png",
+                                            title: 'Transferencia',
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () async {
                                             // showDialog(
                                             //     context: context,
                                             //     builder: (context) {
@@ -681,45 +760,6 @@ class _HomePageState extends State<HomePage> {
                                           child: ImteModule(
                                             urlImg: "inventario.png",
                                             title: 'Inventario',
-                                          ),
-                                        ),
-                                        SizedBox(width: 5),
-                                        GestureDetector(
-                                          onTap: () async {
-                                            context.read<RecepcionBloc>().add(
-                                                FetchOrdenesCompra(context));
-
-                                            // await Future.delayed(
-                                            //     const Duration(seconds: 1));
-
-                                            // showDialog(
-                                            //     context: context,
-                                            //     builder: (context) {
-                                            //       return const DialogLoading(
-                                            //           message:
-                                            //               'Cargando operaciones...');
-                                            //     });
-
-                                            // await Future.delayed(const Duration(
-                                            //     seconds:
-                                            //         1)); // Ajusta el tiempo si es necesario
-
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'operaciones',
-                                            );
-                                            // ScaffoldMessenger.of(context)
-                                            //     .showSnackBar(
-                                            //   const SnackBar(
-                                            //     content: Text(
-                                            //         "Su usuario no tiene permisos para acceder a este módulo"),
-                                            //     duration: Duration(seconds: 4),
-                                            //   ),
-                                            // );
-                                          },
-                                          child: ImteModule(
-                                            urlImg: "yms.png",
-                                            title: 'Operaciones',
                                           ),
                                         ),
                                       ],

@@ -75,7 +75,7 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                           ?.manualProductReading ==
                       false
                   ? null
-                  : recepcionBloc.locationIsOk && !recepcionBloc.productIsOk
+                  :  !recepcionBloc.productIsOk
                       ? (String? newValue) {
                           if (newValue == currentProduct.productName.toString()) {
                             recepcionBloc.add(ValidateFieldsOrderEvent(

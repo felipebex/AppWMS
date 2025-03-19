@@ -146,12 +146,14 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                         ),
                       )),
 
-                  (state is FetchOrdenesCompraOfBdSuccess ||
-                          state is ShowKeyboardState ||
-                          state is SearchOrdenCompraSuccess ||
-                          state is ConfigurationLoadedOrder ||
-                          state is AssignUserToOrderLoading)
-                      ? Expanded(
+                  // (state is FetchOrdenesCompraOfBdSuccess ||
+                  //         state is ShowKeyboardState ||
+                  //         state is SearchOrdenCompraSuccess ||
+                  //         state is ConfigurationLoadedOrder ||
+                  //         state is AssignUserToOrderLoading)
+                  //     ?
+                      
+                       Expanded(
                           child: ListView.builder(
                               padding: const EdgeInsets.only(top: 2),
                               itemCount: ordenCompra.length,
@@ -366,41 +368,41 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                 );
                               }),
                         )
-                      : state is FetchOrdenesCompraOfBdLoading
-                          ? Container(
-                              margin: EdgeInsets.only(top: size.height * 0.15),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    height: 100,
-                                    width: 200,
-                                    child: Image.asset(
-                                      "assets/images/icono2.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'Cargando Información...',
-                                      style: TextStyle(
-                                          color: primaryColorApp, fontSize: 16),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  Text("Cargando ordenes de compra...",
-                                      style: const TextStyle(
-                                          color: grey, fontSize: 14)),
-                                ],
-                              ),
-                            )
-                          : state is FetchOrdenesCompraOfBdFailure
-                              ? Center(
-                                  child: Text(state.error),
-                                )
-                              : Container(),
-                  const SizedBox(height: 10),
+                      // : state is FetchOrdenesCompraOfBdLoading
+                      //     ? Container(
+                      //         margin: EdgeInsets.only(top: size.height * 0.15),
+                      //         child: Column(
+                      //           mainAxisSize: MainAxisSize.min,
+                      //           children: [
+                      //             SizedBox(
+                      //               height: 100,
+                      //               width: 200,
+                      //               child: Image.asset(
+                      //                 "assets/images/icono2.png",
+                      //                 fit: BoxFit.cover,
+                      //               ),
+                      //             ),
+                      //             Align(
+                      //               alignment: Alignment.center,
+                      //               child: Text(
+                      //                 'Cargando Información...',
+                      //                 style: TextStyle(
+                      //                     color: primaryColorApp, fontSize: 16),
+                      //                 textAlign: TextAlign.center,
+                      //               ),
+                      //             ),
+                      //             Text("Cargando ordenes de compra...",
+                      //                 style: const TextStyle(
+                      //                     color: grey, fontSize: 14)),
+                      //           ],
+                      //         ),
+                      //       )
+                      //     : state is FetchOrdenesCompraOfBdFailure
+                      //         ? Center(
+                      //             child: Text(state.error),
+                      //           )
+                      //         : Container(),
+                  // const SizedBox(height: 10),
                 ],
               ),
             ));
@@ -447,7 +449,7 @@ class AppBar extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacementNamed(
                           context,
-                          'operaciones',
+                          'home',
                         );
                       },
                     ),

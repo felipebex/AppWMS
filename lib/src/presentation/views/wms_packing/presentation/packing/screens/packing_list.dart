@@ -103,7 +103,7 @@ class PakingListScreen extends StatelessWidget {
                                     ),
                                     Padding(
                                       padding: EdgeInsets.only(
-                                          left: size.width * 0.28),
+                                          left: size.width * 0.27),
                                       child: const Text("PACKING",
                                           style: TextStyle(
                                               color: white, fontSize: 18)),
@@ -143,7 +143,7 @@ class PakingListScreen extends StatelessWidget {
                                           child: Text(
                                             batchModel?.name ?? '',
                                             style: TextStyle(
-                                                fontSize: 20,
+                                                fontSize: 16,
                                                 color: primaryColorApp,
                                                 fontWeight: FontWeight.bold),
                                           )),
@@ -154,7 +154,7 @@ class PakingListScreen extends StatelessWidget {
                                               child: Text(
                                                 'Responsable: ',
                                                 style: TextStyle(
-                                                    fontSize: 14, color: black),
+                                                    fontSize: 12, color: black),
                                               )),
                                           Align(
                                               alignment: Alignment.centerLeft,
@@ -165,7 +165,7 @@ class PakingListScreen extends StatelessWidget {
                                                     ? 'Sin responsable'
                                                     : "${batchModel?.userName}",
                                                 style: TextStyle(
-                                                    fontSize: 14,
+                                                    fontSize: 12,
                                                     color: primaryColorApp),
                                               )),
                                         ],
@@ -175,7 +175,7 @@ class PakingListScreen extends StatelessWidget {
                                           child: Text(
                                             "Tipo de operación: ",
                                             style: TextStyle(
-                                                fontSize: 14, color: black),
+                                                fontSize: 12, color: black),
                                           )),
                                       SizedBox(
                                         width: size.width * 0.9,
@@ -184,7 +184,7 @@ class PakingListScreen extends StatelessWidget {
                                               ? 'Sin tipo de operación'
                                               : "${batchModel?.pickingTypeId}",
                                           style: TextStyle(
-                                              fontSize: 14,
+                                              fontSize: 12,
                                               color: primaryColorApp),
                                         ),
                                       ),
@@ -197,7 +197,7 @@ class PakingListScreen extends StatelessWidget {
                                               child: Text(
                                                 "Fecha programada:",
                                                 style: TextStyle(
-                                                    fontSize: 14, color: black),
+                                                    fontSize: 12, color: black),
                                               )),
                                           const SizedBox(width: 10),
                                           Builder(
@@ -233,7 +233,7 @@ class PakingListScreen extends StatelessWidget {
                                                 child: Text(
                                                   displayDate,
                                                   style: TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 12,
                                                       color: primaryColorApp),
                                                   textAlign: TextAlign.center,
                                                 ),
@@ -468,7 +468,7 @@ class PakingListScreen extends StatelessWidget {
                                                   children: [
                                                     Text("Nombre:",
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp)),
                                                     const SizedBox(width: 10),
@@ -478,7 +478,7 @@ class PakingListScreen extends StatelessWidget {
                                                           packing.name ?? " ",
                                                           style:
                                                               const TextStyle(
-                                                                  fontSize: 14,
+                                                                  fontSize: 12,
                                                                   color:
                                                                       black)),
                                                     ),
@@ -488,7 +488,7 @@ class PakingListScreen extends StatelessWidget {
                                                   children: [
                                                     Text("Zona:",
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp)),
                                                     const SizedBox(width: 10),
@@ -499,7 +499,7 @@ class PakingListScreen extends StatelessWidget {
                                                               " ",
                                                           style:
                                                               const TextStyle(
-                                                                  fontSize: 14,
+                                                                  fontSize: 12,
                                                                   color:
                                                                       black)),
                                                     ),
@@ -509,7 +509,7 @@ class PakingListScreen extends StatelessWidget {
                                                   children: [
                                                     Text("Zona TMS:",
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp)),
                                                     const SizedBox(width: 10),
@@ -520,7 +520,7 @@ class PakingListScreen extends StatelessWidget {
                                                               " ",
                                                           style:
                                                               const TextStyle(
-                                                                  fontSize: 14,
+                                                                  fontSize: 12,
                                                                   color:
                                                                       black)),
                                                     ),
@@ -531,7 +531,7 @@ class PakingListScreen extends StatelessWidget {
                                                     Text(
                                                         "Cantidad de productos:",
                                                         style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp)),
                                                     const SizedBox(width: 10),
@@ -542,7 +542,7 @@ class PakingListScreen extends StatelessWidget {
                                                               .toString(),
                                                           style:
                                                               const TextStyle(
-                                                                  fontSize: 14,
+                                                                  fontSize: 12,
                                                                   color:
                                                                       black)),
                                                     ),
@@ -551,7 +551,7 @@ class PakingListScreen extends StatelessWidget {
                                                           const EdgeInsets.only(
                                                               left: 10),
                                                       width: 85,
-                                                      height: 30,
+                                                      height: 20,
                                                       decoration: BoxDecoration(
                                                           color: packing
                                                                       .isTerminate ==
@@ -598,7 +598,7 @@ class PakingListScreen extends StatelessWidget {
                                                         style: TextStyle(
                                                             color:
                                                                 primaryColorApp,
-                                                            fontSize: 14)),
+                                                            fontSize: 12)),
                                                     const SizedBox(width: 10),
                                                     Expanded(
                                                       child: Text(
@@ -608,7 +608,7 @@ class PakingListScreen extends StatelessWidget {
                                                               const TextStyle(
                                                                   color: black,
                                                                   fontSize:
-                                                                      14)),
+                                                                      12)),
                                                     ),
                                                   ],
                                                 ),
@@ -618,7 +618,7 @@ class PakingListScreen extends StatelessWidget {
                                                   child: Text(
                                                       "Tipo de operación:",
                                                       style: TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color:
                                                               primaryColorApp)),
                                                 ),
@@ -629,7 +629,7 @@ class PakingListScreen extends StatelessWidget {
                                                       packing.tipoOperacion ??
                                                           " ",
                                                       style: const TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color: black)),
                                                 ),
                                                 Align(
@@ -637,7 +637,7 @@ class PakingListScreen extends StatelessWidget {
                                                       Alignment.centerLeft,
                                                   child: Text("Contacto:",
                                                       style: TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color:
                                                               primaryColorApp)),
                                                 ),
@@ -648,7 +648,7 @@ class PakingListScreen extends StatelessWidget {
                                                       packing.contactoName ??
                                                           " ",
                                                       style: const TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color: black)),
                                                 ),
                                               ],

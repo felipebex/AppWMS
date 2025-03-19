@@ -31,10 +31,14 @@ class ProductEntradaTable {
   static const String columnObservation = 'observation';
   static const String columnQuantitySeparate = 'quantity_separate';
 
-  static const String columnIsLocationIsOk = 'is_location_is_ok';
+  static const String columnLoteId = 'lote_id';
+  static const String columnLoteName = 'lote_name';
+  
   static const String columnProductIsOk = 'product_is_ok';
   static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
-  static const String columnLocationDestIsOk = 'location_dest_is_ok';
+ 
+
+  static const String columnDateSeparate = 'date_separate';
 
 //Meotdo para crar la tabla
   static String createTable() {
@@ -66,10 +70,12 @@ class ProductEntradaTable {
       $columnIsProductSplit INTEGER,
       $columnObservation TEXT,
       $columnQuantitySeparate INTEGER,
-      $columnIsLocationIsOk INTEGER,
+
+      $columnLoteId INTEGER,
+      $columnLoteName TEXT,
       $columnProductIsOk INTEGER,
       $columnIsQuantityIsOk INTEGER,
-      $columnLocationDestIsOk INTEGER,
+      $columnDateSeparate TEXT,
       FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion ($columnId)
 
     )

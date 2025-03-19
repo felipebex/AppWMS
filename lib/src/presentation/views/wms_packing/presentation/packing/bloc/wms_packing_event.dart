@@ -202,6 +202,10 @@ class ShowQuantityPackEvent extends WmsPackingEvent {
   final bool showQuantity;
   ShowQuantityPackEvent(this.showQuantity);
 }
+class ShowDetailvent extends WmsPackingEvent {
+  final bool show;
+  ShowDetailvent(this.show);
+}
 
 
 

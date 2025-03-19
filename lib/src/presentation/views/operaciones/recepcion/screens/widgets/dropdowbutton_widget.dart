@@ -54,25 +54,25 @@ class _DialogAdvetenciaCantidadScreenState
               text: TextSpan(
                 children: [
                   const TextSpan(
-                    text: 'La cantidad separada ',
+                    text: 'La cantidad recibida ',
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14), // Color del texto normal
+                        fontSize: 12), // Color del texto normal
                   ),
                   TextSpan(
                     text: '${widget.cantidad} ',
                     style: TextStyle(
                       color: primaryColorApp,
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                     // Color rojo para quantity
                   ),
                   const TextSpan(
-                    text: 'es menor a la cantidad a recoger ',
+                    text: 'es menor a la cantidad de la orden ',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 14,
+                      fontSize: 12,
                     ), // Color del texto normal
                   ),
                   if (context
@@ -95,7 +95,7 @@ class _DialogAdvetenciaCantidadScreenState
             ),
             const Text(
                 "Para continuar, seleccione la novedad o divida la cantidad del producto",
-                style: TextStyle(color: Colors.black, fontSize: 14)),
+                style: TextStyle(color: Colors.black, fontSize: 12)),
             const SizedBox(height: 10),
             Card(
               color: Colors.white,

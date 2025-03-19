@@ -142,6 +142,61 @@ class ProductsEntradaRepository {
     }
   }
 
+  Future<void> insertDuplicateProducto(
+      LineasRecepcion producto, int cantidad) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      Map<String, dynamic> productCopy = {
+        ProductEntradaTable.columnIdMove: producto.idMove,
+        ProductEntradaTable.columnProductId: producto.productId,
+        ProductEntradaTable.columnIdRecepcion: producto.idRecepcion,
+        ProductEntradaTable.columnProductName: producto.productName,
+        ProductEntradaTable.columnProductCode: producto.productCode,
+        ProductEntradaTable.columnProductBarcode: producto.productBarcode,
+        ProductEntradaTable.columnProductTracking: producto.productTracking,
+        ProductEntradaTable.columnFechaVencimiento: producto.fechaVencimiento,
+        ProductEntradaTable.columnDiasVencimiento: producto.diasVencimiento,
+        ProductEntradaTable.columnQuantityOrdered: cantidad,
+        ProductEntradaTable.columnQuantityToReceive: producto.quantityToReceive,
+        ProductEntradaTable.columnQuantityDone: producto.quantityDone,
+        ProductEntradaTable.columnUom: producto.uom,
+
+        ProductEntradaTable.columnLocationDestId: producto.locationDestId,
+        ProductEntradaTable.columnLocationDestName: producto.locationDestName,
+        ProductEntradaTable.columnLocationDestBarcode:
+            producto.locationDestBarcode,
+        ProductEntradaTable.columnLocationId: producto.locationId,
+        ProductEntradaTable.columnLocationBarcode: producto.locationBarcode,
+        ProductEntradaTable.columnLocationName: producto.locationName,
+        ProductEntradaTable.columnWeight: producto.weight,
+        //parametros para ver que es diferente
+        ProductEntradaTable.columnIsSeparate: 0,
+        ProductEntradaTable.columnIsProductSplit: 1,
+        ProductEntradaTable.columnDateSeparate: "",
+
+        ProductEntradaTable.columnIsSelected: 0,
+        ProductEntradaTable.columnObservation: producto.observation,
+
+        ProductEntradaTable.columnQuantitySeparate: 0,
+        ProductEntradaTable.columnLoteId: 0,
+        ProductEntradaTable.columnLoteName: "",
+
+        ProductEntradaTable.columnIsQuantityIsOk: 0,
+        ProductEntradaTable.columnProductIsOk: 0,
+      };
+
+      await db.insert(
+        ProductEntradaTable.tableName,
+        productCopy,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      print("Producto duplicado insertado con éxito.");
+    } catch (e, s) {
+      print("Error al insertar producto duplicado: $e ==> $s");
+    }
+  }
+
   //metodo para obtener todos los productos de la entrada
   Future<List<LineasRecepcion>> getAllProductsEntrada() async {
     try {
@@ -197,20 +252,34 @@ class ProductsEntradaRepository {
   }
 
   //METODO PARA OBTENER UN PRODUCTO POR SU ID
-  Future<LineasRecepcion?> getProductById(int idProduct) async {
-    try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
-      final List<Map<String, dynamic>> product = await db.query(
-        ProductEntradaTable.tableName,
-        where: '${ProductEntradaTable.columnProductId} = ?',
-        whereArgs: [idProduct],
-      );
-      return product.isNotEmpty ? LineasRecepcion.fromMap(product.first) : null;
-    } catch (e, s) {
-      print('Error en getProductById: $e, $s');
-      return null;
-    }
+Future<LineasRecepcion?> getProductById(
+    int idProduct, int idMove, int idRecepcion) async {
+  try {
+
+    print('idProduct: $idProduct, idMove: $idMove, idRecepcion: $idRecepcion');
+    // Obtener la instancia de la base de datos
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+    
+    // Convertir idProduct a String (porque en la tabla está como TEXT)
+    final List<Map<String, dynamic>> product = await db.query(
+      ProductEntradaTable.tableName,
+      where:
+          '${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ? AND ${ProductEntradaTable.columnIdRecepcion} = ?',
+      whereArgs: [
+        idProduct.toString(),  // Convertir idProduct a String
+        idMove, 
+        idRecepcion
+      ],
+    );
+
+    // Si hay datos, crear un objeto de LineasRecepcion, si no, retornar null
+    return product.isNotEmpty ? LineasRecepcion.fromMap(product.first) : null;
+  } catch (e, s) {
+    // Imprimir detalles del error para facilitar la depuración
+    print('Error en getProductById: $e, StackTrace: $s');
+    return null;
   }
+}
 
   // Incrementar cantidad de producto separado para empaque
   Future<int?> incremenQtytProductSeparatePacking(

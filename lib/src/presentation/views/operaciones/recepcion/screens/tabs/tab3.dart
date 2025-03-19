@@ -1,4 +1,4 @@
-// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,7 +6,6 @@ import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/rece
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab3ScreenRecep extends StatelessWidget {
@@ -46,7 +45,10 @@ class Tab3ScreenRecep extends StatelessWidget {
                 height: size.height * 0.8,
                 child: Column(
                   children: [
-                    (recepcionBloc.listProductsEntrada.isEmpty ?? true)
+                    (recepcionBloc.listProductsEntrada.where((element) {
+                            return element.isSeparate == 1 ;
+                          }).length ==
+                          0)
                         ? Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -86,85 +88,136 @@ class Tab3ScreenRecep extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 8,
                                   ),
-                                  child: Card(
-                                    // color: white,
-                                    // Cambia el color de la tarjeta si el producto está seleccionado
-                                    color: Colors.green[100], // Color blanco si no está seleccionado
-                                    elevation: 5,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              "Producto:",
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                color: primaryColorApp,
-                                              ),
-                                            ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              "${product.productName}",
-                                              style: const TextStyle(
-                                                  fontSize: 14, color: black),
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                "Codigo: ",
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      print('product: ${product.toMap()}');
+                                    },
+                                    child: Card(
+                                      color: Colors.green[
+                                          100], // Color blanco si no está seleccionado
+                                      elevation: 5,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "Producto:",
                                                 style: TextStyle(
-                                                  fontSize: 14,
+                                                  fontSize: 12,
                                                   color: primaryColorApp,
                                                 ),
                                               ),
-                                              Text("${product.productCode}",
-                                                  style: const TextStyle(
-                                                      fontSize: 16,
-                                                      color: black)),
-                                            ],
-                                          ),
-                                          Text(
-                                            "Ubicación: ",
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: primaryColorApp,
                                             ),
-                                          ),
-                                          Text("${product.locationName}",
-                                              style: const TextStyle(
-                                                  fontSize: 16, color: black)),
-                                          Visibility(
-                                            visible: recepcionBloc
-                                                    .configurations
-                                                    .result
-                                                    ?.result
-                                                    ?.hideExpectedQty ==
-                                                true,
-                                            child: Row(
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                "${product.productName}",
+                                                style: const TextStyle(
+                                                    fontSize: 12, color: black),
+                                              ),
+                                            ),
+                                            Row(
                                               children: [
                                                 Text(
-                                                  "Cantidad: ",
+                                                  "Codigo: ",
                                                   style: TextStyle(
-                                                    fontSize: 14,
+                                                    fontSize: 12,
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-                                                Text(
-                                                    "${product.quantityOrdered}",
+                                                Text("${product.productCode}",
                                                     style: const TextStyle(
-                                                        fontSize: 16,
+                                                        fontSize: 12,
                                                         color: black)),
                                               ],
                                             ),
-                                          ),
-                                        ],
+                                            Text(
+                                              "Ubicación de origen: ",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: primaryColorApp,
+                                              ),
+                                            ),
+                                            Text("${product.locationName}",
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: black)),
+                                            Row(
+                                              children: [
+                                                Visibility(
+                                                  visible: recepcionBloc
+                                                          .configurations
+                                                          .result
+                                                          ?.result
+                                                          ?.hideExpectedQty ==
+                                                      false,
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        "Cantidad pedida: ",
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                          "${product.quantityOrdered}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black)),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Spacer(),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "Cantidad recibida: ",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: primaryColorApp,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                        "${product.quantitySeparate}",
+                                                        style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: black)),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            Visibility(
+                                              visible:
+                                                  product.isProductSplit == 1,
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    "Novedad: ",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: black,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    "Producto dividido",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: primaryColorApp,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),

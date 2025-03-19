@@ -9,7 +9,6 @@ import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_respon
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2Screen extends StatefulWidget {
@@ -71,10 +70,14 @@ class _Tab2ScreenState extends State<Tab2Screen> {
           );
         },
       );
+//validamos la ubicacion de origen
+      bloc.add(ChangeLocationIsOkEvent(
+          product.idProduct ?? 0, product.pedidoId ?? 0, product.idMove ?? 0));
 
+      //validamos el producto
       bloc.add(ChangeProductIsOkEvent(true, product.idProduct ?? 0,
           product.pedidoId ?? 0, 0, product.idMove ?? 0));
-
+      //validamos la cantidad pa usarla
       bloc.add(ChangeIsOkQuantity(true, product.idProduct ?? 0,
           product.pedidoId ?? 0, product.idMove ?? 0));
 
@@ -125,95 +128,88 @@ class _Tab2ScreenState extends State<Tab2Screen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton:
-
-              //  context
-              //             .read<WmsPackingBloc>()
-              //             .isKeyboardVisible ||
-              //         context.read<WmsPackingBloc>().listOfProductosProgress.isEmpty
-
-              context
-                          .read<WmsPackingBloc>()
-                          .configurations
-                          .result
-                          ?.result
-                          ?.scanProduct ==
-                      false
-                  ? Stack(
-                      children: [
-                        // El FloatingActionButton
-                        Positioned(
-                          bottom:
-                              0.0, // Ajusta según sea necesario para colocar en la parte inferior
-                          right:
-                              0.0, // Ajusta según sea necesario para colocar en la parte derecha
-                          child: FloatingActionButton(
-                            onPressed: context
+          floatingActionButton: context
+                      .read<WmsPackingBloc>()
+                      .configurations
+                      .result
+                      ?.result
+                      ?.scanProduct ==
+                  false
+              ? Stack(
+                  children: [
+                    // El FloatingActionButton
+                    Positioned(
+                      bottom:
+                          0.0, // Ajusta según sea necesario para colocar en la parte inferior
+                      right:
+                          0.0, // Ajusta según sea necesario para colocar en la parte derecha
+                      child: FloatingActionButton(
+                        onPressed: context
+                                .read<WmsPackingBloc>()
+                                .listOfProductosProgress
+                                .isEmpty
+                            ? null
+                            : () {
+                                //cerramos el teclado
+                                context
                                     .read<WmsPackingBloc>()
-                                    .listOfProductosProgress
-                                    .isEmpty
-                                ? null
-                                : () {
-                                    //cerramos el teclado
-                                    context
-                                        .read<WmsPackingBloc>()
-                                        .add(ChangeStickerEvent(false));
+                                    .add(ChangeStickerEvent(false));
 
-                                    FocusScope.of(context).unfocus();
-                                    showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return DialogConfirmatedPacking(
-                                            productos: context
-                                                .read<WmsPackingBloc>()
-                                                .listOfProductsForPacking,
-                                            isCertificate: false,
-                                          );
-                                        });
-                                  },
-                            backgroundColor: primaryColorApp,
-                            child: Image.asset(
-                              'assets/icons/packing.png',
-                              width: 30,
-                              height: 30,
-                              color: Colors.white,
-                            ),
-                          ),
+                                FocusScope.of(context).unfocus();
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return DialogConfirmatedPacking(
+                                        productos: context
+                                            .read<WmsPackingBloc>()
+                                            .listOfProductsForPacking,
+                                        isCertificate: false,
+                                      );
+                                    });
+                              },
+                        backgroundColor: primaryColorApp,
+                        child: Image.asset(
+                          'assets/icons/packing.png',
+                          width: 30,
+                          height: 30,
+                          color: Colors.white,
                         ),
-                        // El número de productos seleccionados
-                        Positioned(
-                          bottom: 40.0, // Posición hacia arriba
-                          right: 0.0, // Posición hacia la derecha
-                          child: context
-                                  .read<WmsPackingBloc>()
-                                  .listOfProductsForPacking
-                                  .isNotEmpty
-                              ? Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    context
-                                        .read<WmsPackingBloc>()
-                                        .listOfProductsForPacking
-                                        .length
-                                        .toString(),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox
-                                  .shrink(), // No mostrar el número si no hay productos seleccionados
-                        ),
-                      ],
-                    )
-                  : null,
+                      ),
+                    ),
+                    // El número de productos seleccionados
+                    Positioned(
+                      bottom: 40.0, // Posición hacia arriba
+                      right: 0.0, // Posición hacia la derecha
+                      child: context
+                              .read<WmsPackingBloc>()
+                              .listOfProductsForPacking
+                              .isNotEmpty
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                context
+                                    .read<WmsPackingBloc>()
+                                    .listOfProductsForPacking
+                                    .length
+                                    .toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            )
+                          : const SizedBox
+                              .shrink(), // No mostrar el número si no hay productos seleccionados
+                    ),
+                  ],
+                )
+              : null,
           body: BlocBuilder<WmsPackingBloc, WmsPackingState>(
             builder: (context, state) {
               return Container(
@@ -222,67 +218,6 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                   height: size.height * 0.8,
                   child: Column(
                     children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(
-                      //     horizontal: 10,
-                      //   ),
-                      //   child: Card(
-                      //     color: Colors.white,
-                      //     elevation: 2,
-                      //     child: TextFormField(
-                      //       readOnly: context
-                      //               .read<UserBloc>()
-                      //               .fabricante
-                      //               .contains("Zebra")
-                      //           ? true
-                      //           : false,
-                      //       textAlignVertical: TextAlignVertical.center,
-                      //       onChanged: (value) {
-                      //         context
-                      //             .read<WmsPackingBloc>()
-                      //             .add(SearchProductPackingEvent(value));
-                      //       },
-                      //       onTap: !context
-                      //               .read<UserBloc>()
-                      //               .fabricante
-                      //               .contains("Zebra")
-                      //           ? null
-                      //           : () {
-                      //               context
-                      //                   .read<WmsPackingBloc>()
-                      //                   .add(ShowKeyboardEvent(true));
-                      //             },
-                      //       controller: context
-                      //           .read<WmsPackingBloc>()
-                      //           .searchControllerProduct,
-                      //       decoration: InputDecoration(
-                      //         prefixIcon: const Icon(Icons.search, color: grey),
-                      //         suffixIcon: IconButton(
-                      //             onPressed: () {
-                      //               context
-                      //                   .read<WmsPackingBloc>()
-                      //                   .add(SearchProductPackingEvent(""));
-                      //               context
-                      //                   .read<WmsPackingBloc>()
-                      //                   .searchControllerProduct
-                      //                   .clear();
-                      //               //cerramo el teclado
-                      //               FocusScope.of(context).unfocus();
-                      //               context
-                      //                   .read<WmsPackingBloc>()
-                      //                   .add(ShowKeyboardEvent(false));
-                      //             },
-                      //             icon: const Icon(Icons.close, color: grey)),
-                      //         disabledBorder: const OutlineInputBorder(),
-                      //         hintText: "Buscar productos",
-                      //         hintStyle:
-                      //             const TextStyle(color: Colors.grey, fontSize: 12),
-                      //         border: InputBorder.none,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-
                       //*espacio para escanear y buscar el producto
                       context.read<UserBloc>().fabricante.contains("Zebra")
                           ? Container(
@@ -481,7 +416,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                       'Packing',
                                                       arguments: [
                                                         widget.packingModel,
-                                                        widget.batchModel
+                                                        widget.batchModel,
                                                       ],
                                                     );
                                                   });
@@ -496,7 +431,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                       child: Text(
                                                         "Producto:",
                                                         style: TextStyle(
-                                                          fontSize: 14,
+                                                          fontSize: 12,
                                                           color:
                                                               primaryColorApp,
                                                         ),
@@ -508,14 +443,14 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                       child: Text(
                                                         " ${product.productId}",
                                                         style: const TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color: black),
                                                       ),
                                                     ),
                                                     Text(
                                                       "Ubicación: ",
                                                       style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 12,
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
@@ -526,7 +461,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
-                                                                        16,
+                                                                        12,
                                                                     color:
                                                                         black)),
                                                       ],
@@ -536,7 +471,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                         Text(
                                                           "Pedido: ",
                                                           style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp,
                                                           ),
@@ -546,7 +481,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
-                                                                        16,
+                                                                        12,
                                                                     color:
                                                                         black)),
                                                       ],
@@ -556,7 +491,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                         Text(
                                                           "Cantidad: ",
                                                           style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp,
                                                           ),
@@ -571,14 +506,14 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
-                                                                        14,
+                                                                        12,
                                                                     color:
                                                                         black)),
                                                         const Spacer(),
                                                         Text(
                                                           "Unidad de medida: ",
                                                           style: TextStyle(
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp,
                                                           ),
@@ -588,7 +523,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
-                                                                        14,
+                                                                        12,
                                                                     color:
                                                                         black)),
                                                       ],
@@ -597,22 +532,29 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                         false)
                                                       Column(
                                                         children: [
-                                                          Text(
-                                                            "Número de serie/lote: ",
-                                                            style: TextStyle(
-                                                              fontSize: 14,
-                                                              color:
-                                                                  primaryColorApp,
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                              "Número de serie/lote: ",
+                                                              style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    primaryColorApp,
+                                                              ),
                                                             ),
                                                           ),
-                                                          Text(
-                                                              "${product.lotId}",
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color:
-                                                                          black)),
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                                "${product.lotId}",
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                          ),
                                                         ],
                                                       ),
                                                   ],

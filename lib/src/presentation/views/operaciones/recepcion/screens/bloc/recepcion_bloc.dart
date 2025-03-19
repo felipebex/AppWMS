@@ -2,10 +2,13 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/repcion_requets_model.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
@@ -34,34 +37,36 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
   LineasRecepcion currentProduct = LineasRecepcion();
 
+  //lista de lotes de un producto
+  List<LotesProduct> listLotesProduct = [];
+
   //*valores de scanvalue
 
-  String scannedValue1 = '';
-  String scannedValue2 = '';
-  String scannedValue3 = '';
-  String scannedValue4 = '';
+  String scannedValue2 = ''; //producto
+  String scannedValue3 = ''; //cantidad
+  String scannedValue4 = ''; //lote
 
-  String oldLocation = '';
+  String selectLote = '';
+  String dateLote = '';
 
   //*repositorio
   final RecepcionRepository _recepcionRepository = RecepcionRepository();
   //*controller de busqueda
   TextEditingController searchControllerOrderC = TextEditingController();
+  TextEditingController newLoteController = TextEditingController();
+  TextEditingController dateLoteController = TextEditingController();
 
   //*variables para validar
-  bool locationIsOk = false;
   bool productIsOk = false;
-  bool locationDestIsOk = false;
+  bool loteIsOk = false;
   bool quantityIsOk = false;
   bool isKeyboardVisible = false;
   bool viewQuantity = false;
 
   // //*validaciones de campos del estado de la vista
-  bool isLocationOk = true;
   bool isProductOk = true;
-  bool isLocationDestOk = true;
   bool isQuantityOk = true;
-
+  bool isLoteOk = true;
   int quantitySelected = 0;
 
 //*base de datos
@@ -100,9 +105,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     on<UpdateScannedValueOrderEvent>(_onUpdateScannedValueEvent);
 
     //*cambiar el estado de las variables
-    on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
     on<ChangeProductIsOkEvent>(_onChangeProductIsOkEvent);
-    on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
+    on<SelectecLoteEvent>(_onChangeLoteIsOkEvent);
 
     //*cantidad
     on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
@@ -118,8 +122,190 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     on<LoadAllNovedadesOrderEvent>(_onLoadAllNovedadesEvent);
     add(LoadAllNovedadesOrderEvent());
 
-    //finalizarRececpcionProducto
+    //*finalizarRececpcionProducto
     on<FinalizarRecepcionProducto>(_onFinalizarRecepcionProducto);
+
+    //*finalizarRececpcionProductoSplit
+    on<FinalizarRecepcionProductoSplit>(_onFinalizarRecepcionProductoSplit);
+
+    //*metodo para obtener todos los lotes de un producto
+    on<GetLotesProduct>(_onGetLotesProduct);
+
+    //*metodo para enviar el producto a wms
+    on<SendProductToOrder>(_onSendProductToOrder);
+
+    //*metodo para crear un lote a un producto
+    on<CreateLoteProduct>(_onCreateLoteProduct);
+  }
+
+  //metodo pea crar un lote a un producto
+  void _onCreateLoteProduct(
+      CreateLoteProduct event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(CreateLoteProductLoading());
+      final response = await _recepcionRepository.createLote(
+          false,
+          int.parse(currentProduct.productId),
+          event.nameLote,
+          event.fechaCaducidad,
+          event.context);
+
+      if (response != null) {
+        //agregamos el nuevo lote a la lista de lotes
+        listLotesProduct.add(response.result?.result ?? LotesProduct());
+        selectLote = response.result?.result?.name ?? '';
+        dateLote = response.result?.result?.expirationDate ?? '';
+
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "lote_id",
+          response.result?.result?.id ?? 0,
+          currentProduct.idMove,
+        );
+        //actualizamos el lote name
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "lote_name",
+          response.result?.result?.name ?? '',
+          currentProduct.idMove,
+        );
+
+        loteIsOk = true;
+
+        dateLoteController.clear();
+        newLoteController.clear();
+
+        emit(CreateLoteProductSuccess());
+      } else {
+        emit(CreateLoteProductFailure('Error al crear el lote'));
+      }
+    } catch (e, s) {
+      emit(CreateLoteProductFailure('Error al crear el lote'));
+      print('Error en el _onCreateLoteProduct: $e, $s');
+    }
+  }
+
+  //metodo para enviar el producto a wms
+  void _onSendProductToOrder(
+      SendProductToOrder event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(SendProductToOrderLoading());
+
+      final userid = await PrefUtils.getUserId();
+
+      final productBD = await db.productEntradaRepository.getProductById(
+        int.parse(currentProduct.productId),
+        currentProduct.idMove,
+        currentProduct.idRecepcion,
+      );
+
+      final response = await _recepcionRepository.sendProductRecepcion(
+        RecepcionRequest(
+          idRecepcion: productBD?.idRecepcion ?? 0,
+          listItems: [
+            ListItem(
+              idProducto: int.parse(productBD?.productId),
+              idMove: productBD?.idMove ?? 0,
+              loteProducto: productBD?.loteId ?? 0,
+              ubicacionDestino: productBD?.locationDestId ?? 0,
+              cantidadSeparada: productBD?.quantitySeparate ?? 0,
+              observacion: productBD?.observation ?? '',
+              idOperario: userid,
+              timeLine: 30,
+
+              fechaTransaccion: DateFormat('yyyy-MM-dd HH:mm:ss')
+                  .format(DateTime.now()), // Formato de la fecha
+            )
+          ],
+        ),
+        false,
+        event.context,
+      );
+
+      // if (response) {
+      //   emit(SendProductToOrderSuccess());
+      // } else {
+      //   emit(SendProductToOrderFailure('Error al enviar el producto'));
+      // }
+    } catch (e, s) {
+      emit(SendProductToOrderFailure('Error al enviar el producto'));
+      print('Error en el _onSendProductToOrder: $e, $s');
+    }
+  }
+
+  getProduct() async {
+    final productBD = await db.productEntradaRepository.getProductById(
+      int.parse(currentProduct.productId),
+      currentProduct.idMove,
+      currentProduct.idRecepcion,
+    );
+
+    print('productBD: ${productBD?.toMap()}');
+  }
+
+  //*metodo para obtener todos los lotes de un producto
+  void _onGetLotesProduct(
+      GetLotesProduct event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(GetLotesProductLoading());
+      final response = await _recepcionRepository.fetchAllLotesProduct(
+          false, event.context, int.parse(currentProduct.productId));
+
+      if (response != null && response is List) {
+        listLotesProduct = response;
+        emit(GetLotesProductSuccess(response));
+      } else {
+        emit(GetLotesProductFailure('Error al obtener los lotes del producto'));
+      }
+    } catch (e, s) {
+      emit(GetLotesProductFailure('Error al obtener los lotes del producto'));
+      print('Error en el _onGetLotesProduct: $e, $s');
+    }
+  }
+
+  //*Metodo para finalizar un producto Split
+  void _onFinalizarRecepcionProductoSplit(FinalizarRecepcionProductoSplit event,
+      Emitter<RecepcionState> emit) async {
+    try {
+      emit(FinalizarRecepcionProductoSplitLoading());
+
+      //actualizamso el estado del producto como separado
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "is_separate",
+          1,
+          currentProduct.idMove);
+
+      //marcamos el producto como split
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "is_product_split",
+          1,
+          currentProduct.idMove);
+
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "date_separate",
+          DateTime.now().toString(),
+          currentProduct.idMove);
+
+      //calculamos la cantidad pendiente del producto
+      var pendingQuantity = (currentProduct.quantityOrdered - event.quantity);
+
+      //creamos un nuevo producto (duplicado) con la cantidad separada
+      await db.productEntradaRepository
+          .insertDuplicateProducto(currentProduct, pendingQuantity);
+
+      add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
+      emit(FinalizarRecepcionProductoSplitSuccess());
+    } catch (e, s) {
+      print('Error al finalizar la recepcion del producto split: $e, $s');
+    }
   }
 
   //*Metodo pra finalizar un producto de se recepcion
@@ -133,6 +319,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           int.parse(currentProduct.productId),
           "is_separate",
           1,
+          currentProduct.idMove);
+      //marcamos la fecha de separacion
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "date_separate",
+          DateTime.now().toString(),
           currentProduct.idMove);
     } catch (e, s) {
       emit(FinalizarRecepcionProductoFailure(
@@ -222,33 +415,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     }
   }
 
-  void _onChangeLocationIsOkEvent(
-      ChangeLocationIsOkEvent event, Emitter<RecepcionState> emit) async {
-    if (isLocationOk) {
-      //actualizamos el valor de la orden de entrada como seleccionada
-
-      // actualizamo el valor de que he seleccionado el producto
-      await db.productEntradaRepository.setFieldTableProductEntrada(
-          event.idEntrada,
-          event.productId,
-          "is_selected",
-          1,
-          currentProduct.idMove ?? 0);
-      //*actualizamos la ubicacion del producto a true
-      await db.productEntradaRepository.setFieldTableProductEntrada(
-          event.idEntrada,
-          event.productId,
-          "is_location_is_ok",
-          1,
-          currentProduct.idMove ?? 0);
-
-      locationIsOk = true;
-      emit(ChangeLocationOrderIsOkState(
-        locationIsOk,
-      ));
-    }
-  }
-
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<RecepcionState> emit) async {
     if (event.productIsOk) {
@@ -276,25 +442,38 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       );
     }
     productIsOk = event.productIsOk;
-    emit(ChangeLocationOrderIsOkState(
+    emit(ChangeProductOrderIsOkState(
       productIsOk,
     ));
   }
 
-  void _onChangeLocationDestIsOkEvent(
-      ChangeLocationDestIsOkEvent event, Emitter<RecepcionState> emit) async {
-    if (event.locationDestIsOk) {
-      await db.productEntradaRepository.setFieldTableProductEntrada(
-        event.idEntrada,
-        event.productId,
-        "location_dest_is_ok",
-        1,
-        event.idMove,
-      );
-    }
-    locationDestIsOk = event.locationDestIsOk;
-    emit(ChangeIsOkState(
-      locationDestIsOk,
+  void _onChangeLoteIsOkEvent(
+      SelectecLoteEvent event, Emitter<RecepcionState> emit) async {
+    //agregamos el lote al producto
+
+    selectLote = event.lote.name ?? '';
+    dateLote = event.lote.expirationDate ?? '';
+    //actualizamos el lote id
+    await db.productEntradaRepository.setFieldTableProductEntrada(
+      currentProduct.idRecepcion,
+      int.parse(currentProduct.productId),
+      "lote_id",
+      event.lote.id,
+      currentProduct.idMove,
+    );
+    //actualizamos el lote name
+    await db.productEntradaRepository.setFieldTableProductEntrada(
+      currentProduct.idRecepcion,
+      int.parse(currentProduct.productId),
+      "lote_name",
+      event.lote.name,
+      currentProduct.idMove,
+    );
+
+    loteIsOk = true;
+
+    emit(ChangeLoteOrderIsOkState(
+      loteIsOk,
     ));
   }
 
@@ -303,10 +482,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       ClearScannedValueOrderEvent event, Emitter<RecepcionState> emit) {
     try {
       switch (event.scan) {
-        case 'location':
-          scannedValue1 = '';
-          emit(ClearScannedValueOrderState());
-          break;
         case 'product':
           scannedValue2 = '';
           emit(ClearScannedValueOrderState());
@@ -315,7 +490,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           scannedValue3 = '';
           emit(ClearScannedValueOrderState());
           break;
-        case 'muelle':
+        case 'lote':
           scannedValue4 = '';
           emit(ClearScannedValueOrderState());
           break;
@@ -334,12 +509,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       UpdateScannedValueOrderEvent event, Emitter<RecepcionState> emit) {
     try {
       switch (event.scan) {
-        case 'location':
-          // Acumulador de valores escaneados
-          scannedValue1 += event.scannedValue;
-          print('scannedValue1: $scannedValue1');
-          emit(UpdateScannedValueOrderState(scannedValue1, event.scan));
-          break;
         case 'product':
           scannedValue2 += event.scannedValue;
           print('scannedValue2: $scannedValue2');
@@ -350,7 +519,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValueOrderState(scannedValue3, event.scan));
           break;
-        case 'muelle':
+        case 'lote':
           print('scannedValue4: $scannedValue4');
           scannedValue4 += event.scannedValue;
           emit(UpdateScannedValueOrderState(scannedValue4, event.scan));
@@ -368,21 +537,17 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onValidateFieldsOrder(
       ValidateFieldsOrderEvent event, Emitter<RecepcionState> emit) {
     switch (event.field) {
-      case 'location':
-        isLocationOk = event.isOk;
-        break;
       case 'product':
         isProductOk = event.isOk;
         break;
-      case 'locationDest':
-        isLocationDestOk = event.isOk;
+      case 'lote':
+        isLoteOk = event.isOk;
         break;
       case 'quantity':
         isQuantityOk = event.isOk;
         break;
     }
-    print(
-        'Location: $isLocationOk, Product: $isProductOk, LocationDest: $isLocationDestOk, Quantity: $isQuantityOk');
+    print(' Product: $isProductOk, lote: $isLoteOk, Quantity: $isQuantityOk');
     emit(ValidateFieldsOrderState(isOk: event.isOk));
   }
 
@@ -390,10 +555,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onFetchPorductOrder(
       FetchPorductOrder event, Emitter<RecepcionState> emit) async {
     try {
-      isLocationOk = true;
       isProductOk = true;
-      isLocationDestOk = true;
       isQuantityOk = true;
+      isLoteOk = true;
+      viewQuantity = false;
 
       emit(FetchPorductOrderLoading());
 
@@ -408,12 +573,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         currentProduct.idMove ?? 0,
       );
 
+      //validamos si el prodcuto tiene lote, si es asi llamamos los lotes de ese producto
+      if (currentProduct.productTracking == 'lot') {
+        add(GetLotesProduct(event.context));
+      }
+
       //cargamos la informacion de las variables de validacion
-      // locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
-      locationIsOk = true;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
-      // locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
-      locationDestIsOk = true;
       quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
       quantitySelected = currentProduct.isProductSplit == 1
           ? 0
@@ -431,6 +597,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
   products() {
     listOfProductsName.clear();
+
+    // filtramos la lista a productos que no esten separados
+    listProductsEntrada = listProductsEntrada
+        .where(
+            (element) => element.isSeparate == 0 || element.isSeparate == null)
+        .toList();
+
     // Recorremos los productos del batch
     for (var i = 0; i < listProductsEntrada.length; i++) {
       var product = listProductsEntrada[i];

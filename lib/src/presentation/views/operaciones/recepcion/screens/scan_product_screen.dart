@@ -7,10 +7,9 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
+
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/dropdowbutton_widget.dart';
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/location/location_card_widget.dart';
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/muelle/muelle_card_widget.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/product/product_card_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -68,21 +67,17 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
 //focus para escanear
 
-  FocusNode focusNode1 = FocusNode(); // ubicacion  de origen
   FocusNode focusNode2 = FocusNode(); // producto
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
   FocusNode focusNode4 = FocusNode(); //cantidad textformfieldƒ
-  FocusNode focusNode5 = FocusNode(); //ubicacion destino
 
   String? selectedLocation;
   String? selectedMuelle;
 
   //controller
-  final TextEditingController _controllerLocation = TextEditingController();
   final TextEditingController _controllerProduct = TextEditingController();
   final TextEditingController _controllerQuantity = TextEditingController();
   final TextEditingController _cantidadController = TextEditingController();
-  final TextEditingController _controllerLocationDest = TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -94,28 +89,25 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     final batchBloc = context.read<RecepcionBloc>();
 
     print(
-        'Vairbales :  locationIsOk: ${batchBloc.locationIsOk} productIsOk: ${batchBloc.productIsOk} quantityIsOk: ${batchBloc.quantityIsOk} locationDestIsOk: ${batchBloc.locationDestIsOk} viewQuantity: ${batchBloc.viewQuantity}');
+        'Vairbales :  productIsOk: ${batchBloc.productIsOk} lote: ${batchBloc.loteIsOk} quantityIsOk: ${batchBloc.quantityIsOk}  viewQuantity: ${batchBloc.viewQuantity}');
 
-    if (batchBloc.locationIsOk && //true
-        !batchBloc.productIsOk && //false
-        !batchBloc.quantityIsOk && //false
-        batchBloc.locationDestIsOk) //true
+    if (!batchBloc.productIsOk && //false
+        !batchBloc.quantityIsOk) //true
     {
       print('❤️‍🔥 product');
       FocusScope.of(context).requestFocus(focusNode2);
-      focusNode1.unfocus();
       focusNode3.unfocus();
       focusNode4.unfocus();
     }
-    if (batchBloc.locationIsOk && //true
-        batchBloc.productIsOk && //true
-        batchBloc.quantityIsOk && //ttrue
-        batchBloc.locationDestIsOk && //false
-        !batchBloc.viewQuantity) //false
+    //validamso si el producto tiene lote
+
+    if (batchBloc.productIsOk && //true
+            batchBloc.quantityIsOk && //ttrue
+            !batchBloc.viewQuantity //false
+        ) //false
     {
       print('❤️‍🔥 quantity');
       FocusScope.of(context).requestFocus(focusNode3);
-      focusNode1.unfocus();
       focusNode2.unfocus();
       focusNode4.unfocus();
     }
@@ -123,35 +115,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
   @override
   void dispose() {
-    focusNode1.dispose();
-    focusNode2.dispose();
-    focusNode3.dispose();
-    focusNode4.dispose();
-    focusNode5.dispose();
+    focusNode2.dispose(); //product
+    focusNode3.dispose(); //quantity
     super.dispose();
-  }
-
-  void validateLocation(String value) {
-    final bloc = context.read<RecepcionBloc>();
-
-    String scan = bloc.scannedValue1.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue1.toLowerCase();
-
-    _controllerLocation.text = "";
-
-    final currentProduct = bloc.currentProduct;
-    if (scan == currentProduct.locationBarcode.toString().toLowerCase()) {
-      bloc.add(ValidateFieldsOrderEvent(field: "location", isOk: true));
-      bloc.add(ChangeLocationIsOkEvent(currentProduct.idRecepcion ?? 0,
-          int.parse(currentProduct.productId), currentProduct.idMove ?? 0));
-
-      bloc.oldLocation = currentProduct.locationBarcode.toString();
-      bloc.add(ClearScannedValueOrderEvent('location'));
-    } else {
-      bloc.add(ValidateFieldsOrderEvent(field: "location", isOk: false));
-      bloc.add(ClearScannedValueOrderEvent('location'));
-    }
   }
 
   void validateProduct(String value) {
@@ -187,6 +153,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         int.parse(currentProduct.productId),
         currentProduct.idMove ?? 0,
       ));
+
       bloc.add(ClearScannedValueOrderEvent('product'));
     } else {
       final isok =
@@ -218,23 +185,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     } else {
       validateScannedBarcode(scan, currentProduct, bloc, false);
       bloc.add(ClearScannedValueOrderEvent('quantity'));
-    }
-  }
-
-  void validateMuelle(String value) {
-    final bloc = context.read<RecepcionBloc>();
-    String scan = bloc.scannedValue4.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue4.toLowerCase();
-
-    _controllerLocationDest.text = "";
-    final currentProduct = bloc.currentProduct;
-    if (scan == currentProduct.locationDestBarcode.toString().toLowerCase()) {
-      bloc.add(ValidateFieldsOrderEvent(field: "locationDest", isOk: true));
-      bloc.add(ClearScannedValueOrderEvent('muelle'));
-    } else {
-      bloc.add(ValidateFieldsOrderEvent(field: "locationDest", isOk: false));
-      bloc.add(ClearScannedValueOrderEvent('muelle'));
     }
   }
 
@@ -271,17 +221,12 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                       child: BlocConsumer<RecepcionBloc, RecepcionState>(
                           listener: (context, state) {
                         print('STATE ❤️‍🔥 $state');
-                        //*estado cando la ubicacion de origen es cambiada
-                        if (state is ChangeLocationOrderIsOkState) {
+
+                        //*estado cuando el producto es leido ok
+                        if (state is ChangeProductOrderIsOkState) {
+                          //pasamos al foco de lote
                           Future.delayed(const Duration(seconds: 1), () {
                             FocusScope.of(context).requestFocus(focusNode2);
-                          });
-                          _handleDependencies();
-                        }
-                        //*estado cuando el producto es leido ok
-                        if (state is ChangeLocationOrderIsOkState) {
-                          Future.delayed(const Duration(seconds: 1), () {
-                            FocusScope.of(context).requestFocus(focusNode3);
                           });
                           _handleDependencies();
                         }
@@ -293,9 +238,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                     .toInt()) {
                               //termianmso el proceso
                               _finishSeprateProductOrder(context);
-                              Navigator.pushReplacementNamed(
-                                  context, 'recepcion',
-                                  arguments: [widget.ordenCompra, 1]);
                             }
                           }
                         }
@@ -305,7 +247,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                             const WarningWidgetCubit(),
                             Padding(
                               padding: EdgeInsets.only(
-                                  bottom: 10,
+                                  // bottom: 5,
                                   top: status != ConnectionStatus.online
                                       ? 0
                                       : 35),
@@ -317,9 +259,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                     icon: const Icon(Icons.arrow_back,
                                         color: white),
                                     onPressed: () {
-                                      context.read<RecepcionBloc>().add(
-                                          GetPorductsToEntrada(
-                                              widget.ordenCompra?.id ?? 0));
+                                      termiateProcess();
 
                                       Navigator.pushReplacementNamed(
                                           context, 'recepcion',
@@ -357,130 +297,58 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                     width: 10,
                                     height: 10,
                                     decoration: BoxDecoration(
-                                      color: recepcionBloc.locationIsOk
-                                          ? green
-                                          : yellow,
+                                      color: green,
                                       shape: BoxShape.circle,
                                     ),
                                   ),
                                 ),
                                 Card(
-                                  color: recepcionBloc.isLocationOk
-                                      ? recepcionBloc.locationIsOk
-                                          ? Colors.green[100]
-                                          : Colors.grey[300]
-                                      : Colors.red[200],
+                                  color: Colors.green[100],
                                   elevation: 5,
                                   child: Container(
-                                    // color: Colors.amber,
-                                    width: size.width * 0.85,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 2),
-                                    child: context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? Column(
+                                      // color: Colors.amber,
+                                      width: size.width * 0.85,
+                                      padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                          top: 10,
+                                          bottom: 10),
+                                      child: Column(
+                                        children: [
+                                          Row(
                                             children: [
-                                              LocationOrderDropdownWidget(
-                                                  isPDA: false,
-                                                  selectedLocation:
-                                                      selectedLocation,
-                                                  positionsOrigen: [
-                                                    recepcionBloc.currentProduct
-                                                            .locationName ??
-                                                        ''
-                                                  ],
-                                                  currentLocationId:
-                                                      recepcionBloc
-                                                              .currentProduct
-                                                              .locationName ??
-                                                          '',
-                                                  currentProduct: recepcionBloc
-                                                      .currentProduct),
-                                              Container(
-                                                height: 15,
-                                                margin: const EdgeInsets.only(
-                                                    bottom: 5),
-                                                child: TextFormField(
-                                                  autofocus: true,
-                                                  showCursor: false,
-                                                  controller:
-                                                      _controllerLocation, // Asignamos el controlador
-                                                  enabled: !recepcionBloc
-                                                          .locationIsOk && // false
-                                                      !recepcionBloc
-                                                          .productIsOk && // false
-                                                      !recepcionBloc
-                                                          .quantityIsOk && // false
-                                                      !recepcionBloc
-                                                          .locationDestIsOk,
-
-                                                  focusNode: focusNode1,
-                                                  onChanged: (value) {
-                                                    // Llamamos a la validación al cambiar el texto
-                                                    validateLocation(value);
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    hintText: recepcionBloc
-                                                            .currentProduct
-                                                            .locationName ??
-                                                        '',
-                                                    disabledBorder:
-                                                        InputBorder.none,
-                                                    hintStyle: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
-                                                    border: InputBorder.none,
-                                                  ),
+                                              Text(
+                                                'Ubicación de origen',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: primaryColorApp,
                                                 ),
                                               ),
+                                              Spacer(),
+                                              Image.asset(
+                                                "assets/icons/ubicacion.png",
+                                                color: primaryColorApp,
+                                                width: 20,
+                                              ),
                                             ],
-                                          )
-                                        : Focus(
-                                            focusNode: focusNode1,
-                                            onKey: (FocusNode node,
-                                                RawKeyEvent event) {
-                                              if (event is RawKeyDownEvent) {
-                                                if (event.logicalKey ==
-                                                    LogicalKeyboardKey.enter) {
-                                                  validateLocation(
-                                                      //validamos la ubicacion
-                                                      context
-                                                          .read<RecepcionBloc>()
-                                                          .scannedValue1);
-
-                                                  return KeyEventResult.handled;
-                                                } else {
-                                                  context.read<RecepcionBloc>().add(
-                                                      UpdateScannedValueOrderEvent(
-                                                          event.data.keyLabel,
-                                                          'location'));
-
-                                                  return KeyEventResult.handled;
-                                                }
-                                              }
-                                              return KeyEventResult.ignored;
-                                            },
-                                            child: 
-                                            
-                                            LocationOrderDropdownWidget(
-                                                isPDA: true,
-                                                selectedLocation:
-                                                    selectedLocation,
-                                                positionsOrigen: [
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Text(
                                                   recepcionBloc.currentProduct
                                                           .locationName ??
-                                                      ''
-                                                ],
-                                                currentLocationId: recepcionBloc
-                                                        .currentProduct
-                                                        .locationName ??
-                                                    '',
-                                                currentProduct: recepcionBloc
-                                                    .currentProduct),
+                                                      '',
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                  ),
+                                        ],
+                                      )),
                                 ),
                               ],
                             ),
@@ -512,7 +380,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                   child: Container(
                                     width: size.width * 0.85,
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 2),
+                                        horizontal: 10),
                                     child: context
                                             .read<UserBloc>()
                                             .fabricante
@@ -536,11 +404,11 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                               ),
                                               TextFormField(
                                                 showCursor: false,
-                                                enabled: recepcionBloc
-                                                        .locationIsOk && //true
+                                                enabled: //true
                                                     !recepcionBloc
-                                                        .productIsOk && //false
-                                                    !recepcionBloc.quantityIsOk,
+                                                            .productIsOk && //false
+                                                        !recepcionBloc
+                                                            .quantityIsOk,
 
                                                 controller:
                                                     _controllerProduct, // Controlador que maneja el texto
@@ -826,6 +694,99 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                               ],
                             ),
 
+                            //todo: lotes
+
+                            Visibility(
+                              visible: recepcionBloc
+                                      .currentProduct.productTracking ==
+                                  "lot",
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: BoxDecoration(
+                                        color: recepcionBloc.loteIsOk
+                                            ? green
+                                            : yellow,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                                  Card(
+                                    color: recepcionBloc.isLoteOk
+                                        ? recepcionBloc.loteIsOk
+                                            ? Colors.green[100]
+                                            : Colors.grey[300]
+                                        : Colors.red[200],
+                                    elevation: 5,
+                                    child: Container(
+                                        width: size.width * 0.85,
+                                        padding: const EdgeInsets.only(
+                                            left: 10, right: 10, bottom: 10),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Lote del producto',
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp),
+                                                ),
+                                                Spacer(),
+                                                Image.asset(
+                                                  "assets/icons/barcode.png",
+                                                  color: primaryColorApp,
+                                                  width: 20,
+                                                ),
+                                                IconButton(
+                                                    onPressed: () {
+                                                      Navigator
+                                                          .pushReplacementNamed(
+                                                        context,
+                                                        'new-lote',
+                                                        arguments: [
+                                                          widget.ordenCompra,
+                                                          widget.currentProduct
+                                                        ],
+                                                      );
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.arrow_forward_ios,
+                                                      color: primaryColorApp,
+                                                      size: 20,
+                                                    ))
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  recepcionBloc.selectLote,
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                  recepcionBloc.dateLote,
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        )),
+                                  ),
+                                ],
+                              ),
+                            ),
+
                             //todo: ubicacion destino
 
                             Row(
@@ -837,100 +798,58 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                     width: 10,
                                     height: 10,
                                     decoration: BoxDecoration(
-                                      color: recepcionBloc.locationDestIsOk
-                                          ? green
-                                          : yellow,
+                                      color: green,
                                       shape: BoxShape.circle,
                                     ),
                                   ),
                                 ),
                                 Card(
-                                  color: recepcionBloc.isLocationDestOk
-                                      ? recepcionBloc.locationDestIsOk
-                                          ? Colors.green[100]
-                                          : Colors.grey[300]
-                                      : Colors.red[200],
+                                  color: Colors.green[100],
                                   elevation: 5,
                                   child: Container(
-                                    width: size.width * 0.85,
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 10),
-                                    child: context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? Column(
+                                      // color: Colors.amber,
+                                      width: size.width * 0.85,
+                                      padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                          top: 10,
+                                          bottom: 10),
+                                      child: Column(
+                                        children: [
+                                          Row(
                                             children: [
-                                              MuelleOrderDropdownWidget(
-                                                selectedMuelle: selectedMuelle,
-                                                currentProduct: recepcionBloc
-                                                    .currentProduct,
-                                                isPda: false,
-                                              ),
-                                              Container(
-                                                height: 15,
-                                                margin: const EdgeInsets.only(
-                                                    bottom: 5),
-                                                child: TextFormField(
-                                                  showCursor: false,
-                                                  enabled: recepcionBloc
-                                                          .locationIsOk &&
-                                                      recepcionBloc
-                                                          .productIsOk &&
-                                                      !recepcionBloc
-                                                          .quantityIsOk &&
-                                                      !recepcionBloc
-                                                          .locationDestIsOk,
-                                                  controller:
-                                                      _controllerLocationDest, // Controlador que maneja el texto
-                                                  focusNode: focusNode5,
-                                                  onChanged: (value) {
-                                                    // validateMuelle(value);
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    hintText: recepcionBloc
-                                                            .currentProduct
-                                                            .locationDestName ??
-                                                        "",
-                                                    disabledBorder:
-                                                        InputBorder.none,
-                                                    hintStyle: const TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
-                                                    border: InputBorder.none,
-                                                  ),
+                                              Text(
+                                                'Ubicación destino',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: primaryColorApp,
                                                 ),
                                               ),
+                                              Spacer(),
+                                              Image.asset(
+                                                "assets/icons/packing.png",
+                                                color: primaryColorApp,
+                                                width: 20,
+                                              ),
                                             ],
-                                          )
-                                        : Focus(
-                                            focusNode: focusNode5,
-                                            onKey: (FocusNode node,
-                                                RawKeyEvent event) {
-                                              if (event is RawKeyDownEvent) {
-                                                if (event.logicalKey ==
-                                                    LogicalKeyboardKey.enter) {
-                                                  // validateMuelle(context
-                                                  //     .read<BatchBloc>()
-                                                  //     .scannedValue4);
-                                                  return KeyEventResult.handled;
-                                                } else {
-                                                  // context.read<BatchBloc>().add(
-                                                  //     UpdateScannedValueEvent(
-                                                  //         event.data.keyLabel,
-                                                  //         'muelle'));
-                                                  return KeyEventResult.handled;
-                                                }
-                                              }
-                                              return KeyEventResult.ignored;
-                                            },
-                                            child: MuelleOrderDropdownWidget(
-                                              selectedMuelle: selectedMuelle,
-                                              currentProduct:
-                                                  recepcionBloc.currentProduct,
-                                              isPda: true,
-                                            )),
-                                  ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  recepcionBloc.currentProduct
+                                                          .locationDestName ??
+                                                      '',
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      )),
                                 ),
                               ],
                             ),
@@ -1023,14 +942,11 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                   showCursor: false,
                                                   textAlign: TextAlign.center,
                                                   enabled: recepcionBloc
-                                                          .locationIsOk && //true
-                                                      recepcionBloc
                                                           .productIsOk && //true
                                                       recepcionBloc
-                                                          .quantityIsOk && //true
+                                                          .quantityIsOk //true
 
-                                                      !recepcionBloc
-                                                          .locationDestIsOk,
+                                                  ,
                                                   // showCursor: false,
                                                   controller:
                                                       _controllerQuantity, // Controlador que maneja el texto
@@ -1325,6 +1241,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         currentProduct.idMove ?? 0));
                     _cantidadController.clear();
                     _finishSeprateProductOrder(context);
+
                     Navigator.pushReplacementNamed(context, 'recepcion',
                         arguments: [widget.ordenCompra, 1]);
                   },
@@ -1335,7 +1252,10 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         currentProduct.idRecepcion ?? 0,
                         currentProduct.idMove ?? 0));
                     _cantidadController.clear();
-                    // _finichPackingProductSplit(context, cantidad);
+                    Navigator.pushReplacementNamed(context, 'recepcion',
+                        arguments: [widget.ordenCompra, 1]);
+
+                    _finishSeprateProductOrderSplit(context, cantidad);
                   });
             });
       } else {
@@ -1351,15 +1271,47 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   void _finishSeprateProductOrder(
     BuildContext context,
   ) {
-    //entramos a terminar el prcoeso de recepcion de un producto
-    //cerramos el foco
-    FocusScope.of(context).unfocus();
-    //llamamos el evento de terminar
-    context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
-    context.read<RecepcionBloc>().add(ShowKeyboardEvent(false));
-    context.read<RecepcionBloc>().add(ShowQuantityOrderEvent(false));
+    if (context.read<RecepcionBloc>().selectLote == "") {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(milliseconds: 1000),
+        content: const Text('Seleccione un lote'),
+        backgroundColor: Colors.red[200],
+      ));
+      return;
+    }
 
-    //cargamos los productos nuevamente
+    context.read<RecepcionBloc>().add(SendProductToOrder(context));
+    context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
+    termiateProcess();
+
+    Navigator.pushReplacementNamed(context, 'recepcion',
+        arguments: [widget.ordenCompra, 1]);
+  }
+
+  void _finishSeprateProductOrderSplit(
+    BuildContext context,
+    int cantidad,
+  ) {
+    if (context.read<RecepcionBloc>().selectLote == "") {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(milliseconds: 1000),
+        content: const Text('Seleccione un lote'),
+        backgroundColor: Colors.red[200],
+      ));
+      return;
+    }
+    context.read<RecepcionBloc>().add(SendProductToOrder(context));
+    context
+        .read<RecepcionBloc>()
+        .add(FinalizarRecepcionProductoSplit(cantidad));
+    termiateProcess();
+  }
+
+  void termiateProcess() {
+    FocusScope.of(context).unfocus();
+    context.read<RecepcionBloc>().selectLote = "";
+    context.read<RecepcionBloc>().dateLote = "";
+    context.read<RecepcionBloc>().loteIsOk = false;
     context
         .read<RecepcionBloc>()
         .add(GetPorductsToEntrada(widget.ordenCompra?.id ?? 0));

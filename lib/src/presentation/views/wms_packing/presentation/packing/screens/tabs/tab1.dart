@@ -229,154 +229,157 @@ class Tab1Screen extends StatelessWidget {
               body: Column(
                 children: [
                   //*detalles del batch
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    width: double.infinity,
-                    child: Card(
-                      color: Colors.white,
-                      elevation: 5,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          children: [
-                            Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  packingModel?.name ?? '',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: primaryColorApp,
-                                      fontWeight: FontWeight.bold),
-                                )),
-                            Row(
-                              children: [
-                                 const Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Referencia: ',
-                                      style:
-                                          TextStyle(fontSize: 14, color: black),
-                                    )),
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      packingModel?.referencia ?? '',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: black,
-                                          ),
-                                    )),
-                              ],
-                            ),
-
-
-                            const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Contacto: ',
-                                  style: TextStyle(fontSize: 14, color: black),
-                                )),
-                            Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  packingModel?.contactoName ?? '',
-                                  style: TextStyle(
-                                      fontSize: 14, color: primaryColorApp),
-                                )),
-
-                            Row(
-                              children: [
-                                const Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Total productos del pedido: ',
-                                      style:
-                                          TextStyle(fontSize: 14, color: black),
-                                    )),
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      packingModel?.cantidadProductos
-                                              .toString() ??
-                                          "",
-                                      style: TextStyle(
-                                          fontSize: 14, color: primaryColorApp),
-                                    )),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Total productos empacados: ',
-                                      style:
-                                          TextStyle(fontSize: 14, color: black),
-                                    )),
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      context
-                                          .read<WmsPackingBloc>()
-                                          .listOfProductos
-                                          .where((element) =>
-                                              element.isPackage == 1)
-                                          .length
-                                          .toString(), // Convierte el número en un String
-                                      style: TextStyle(
-                                          fontSize: 14, color: primaryColorApp),
-                                    )),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Operacion: ',
-                                      style:
-                                          TextStyle(fontSize: 14, color: black),
-                                    )),
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      packingModel?.tipoOperacion ?? "",
-                                      style: TextStyle(
-                                          fontSize: 14, color: primaryColorApp),
-                                    )),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                const Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Numero de paquetes: ',
-                                      style:
-                                          TextStyle(fontSize: 14, color: black),
-                                    )),
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      context
-                                          .read<WmsPackingBloc>()
-                                          .packages
-                                          .length
-                                          .toString(),
-                                      style: TextStyle(
-                                          fontSize: 14, color: primaryColorApp),
-                                    )),
-                              ],
-                            ),
-                          ],
+                  Visibility(
+                    visible: !context.read<WmsPackingBloc>().viewDetail ,
+                    child: Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      width: double.infinity,
+                      child: Card(
+                        color: Colors.white,
+                        elevation: 5,
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          child: Column(
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    packingModel?.name ?? '',
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: primaryColorApp,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                              Row(
+                                children: [
+                                   const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Referencia: ',
+                                        style:
+                                            TextStyle(fontSize: 12, color: black),
+                                      )),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        packingModel?.referencia ?? '',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: black,
+                                            ),
+                                      )),
+                                ],
+                              ),
+                    
+                    
+                              const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Contacto: ',
+                                    style: TextStyle(fontSize: 12, color: black),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    packingModel?.contactoName ?? '',
+                                    style: TextStyle(
+                                        fontSize: 12, color: primaryColorApp),
+                                  )),
+                    
+                              Row(
+                                children: [
+                                  const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Total productos del pedido: ',
+                                        style:
+                                            TextStyle(fontSize: 12, color: black),
+                                      )),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        packingModel?.cantidadProductos
+                                                .toString() ??
+                                            "",
+                                        style: TextStyle(
+                                            fontSize: 12, color: primaryColorApp),
+                                      )),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Total productos empacados: ',
+                                        style:
+                                            TextStyle(fontSize: 12, color: black),
+                                      )),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .listOfProductos
+                                            .where((element) =>
+                                                element.isPackage == 1)
+                                            .length
+                                            .toString(), // Convierte el número en un String
+                                        style: TextStyle(
+                                            fontSize: 12, color: primaryColorApp),
+                                      )),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Operacion: ',
+                                        style:
+                                            TextStyle(fontSize: 12, color: black),
+                                      )),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        packingModel?.tipoOperacion ?? "",
+                                        style: TextStyle(
+                                            fontSize: 12, color: primaryColorApp),
+                                      )),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Numero de paquetes: ',
+                                        style:
+                                            TextStyle(fontSize: 12, color: black),
+                                      )),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .packages
+                                            .length
+                                            .toString(),
+                                        style: TextStyle(
+                                            fontSize: 12, color: primaryColorApp),
+                                      )),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                   Text("Listado de empaques",
                       style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           color: primaryColorApp,
                           fontWeight: FontWeight.bold)),
                   const SizedBox(height: 10),
@@ -429,6 +432,15 @@ class Tab1Screen extends StatelessWidget {
                                   color: Colors.white,
                                   child: ExpansionTile(
                                     childrenPadding: const EdgeInsets.all(5),
+                                    
+                                    onExpansionChanged: 
+                                    (bool expanded) {
+                                      if (expanded) {
+                                        context.read<WmsPackingBloc>().add(ShowDetailvent(true));
+                                      } else {
+                                        context.read<WmsPackingBloc>().add(ShowDetailvent(false));
+                                      }
+                                    },
                                     title: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -436,7 +448,7 @@ class Tab1Screen extends StatelessWidget {
                                         Text(
                                           "${package.name}",
                                           style: TextStyle(
-                                              fontSize: 14,
+                                              fontSize: 12,
                                               color: primaryColorApp),
                                         ),
                                         Row(
@@ -444,7 +456,7 @@ class Tab1Screen extends StatelessWidget {
                                             Text(
                                               "Cantidad de productos: ${package.cantidadProductos}",
                                               style: const TextStyle(
-                                                  fontSize: 14, color: black),
+                                                  fontSize: 12, color: black),
                                             ),
                                             const Spacer(),
                                             GestureDetector(

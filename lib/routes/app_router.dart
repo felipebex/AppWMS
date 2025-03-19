@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/scan_product_screen.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
@@ -42,10 +43,12 @@ class AppRoutes {
   static const String user = 'user';
 
   // Operaciones
-  static const String operaciones = 'operaciones';
   static const String recepcion = 'recepcion';
   static const String listOrdenesCompra = 'list-ordenes-compra';
   static const String scanProductOrder = 'scan-product-order';
+
+  //new lote
+  static const String newLote = 'new-lote';
 
   //info rapida
   static const String infoRapida = 'info-rapida';
@@ -118,7 +121,6 @@ class AppRoutes {
       // inventario
       inventario: (_) => const InventarioScreen(),
       // Operaciones
-      operaciones: (_) => const OperacionesScreen(),
 
       scanProductOrder: (context) {
         // Obtener los argumentos (una lista)
@@ -146,6 +148,18 @@ class AppRoutes {
       },
 
       listOrdenesCompra: (_) => const ListOrdenesCompraScreen(),
+      newLote: (context) {
+        // Obtener los argumentos (una lista)
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final ordenCompraArg = arguments[0] as ResultEntrada?;
+        final currentProducArg = arguments[1] as LineasRecepcion?;
+
+        return NewLoteScreen(
+            ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
+      },
 
       //info rapida
       infoRapida: (_) => const InfoRapidaScreen(),
