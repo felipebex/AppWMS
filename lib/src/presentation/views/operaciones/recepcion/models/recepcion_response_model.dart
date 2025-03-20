@@ -90,6 +90,16 @@ class ResultEntrada {
   int? responsableId;
   String? responsable;
   String? pickingType;
+
+  //  "start_time_reception": "",
+  dynamic startTimeReception;
+
+  // "end_time_reception": "",
+  dynamic endTimeReception;
+  dynamic isSelected;
+  dynamic isStarted;
+  dynamic isFinish;
+
   List<LineasRecepcion>? lineasRecepcion;
 
   ResultEntrada({
@@ -118,6 +128,12 @@ class ResultEntrada {
     this.responsable,
     this.pickingType,
     this.lineasRecepcion,
+    this.startTimeReception,
+    this.endTimeReception,
+    this.isSelected,
+    this.isStarted,
+    this.isFinish,
+
   });
 
   factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
@@ -145,6 +161,11 @@ class ResultEntrada {
         responsableId: json["responsable_id"],
         responsable: json["responsable"],
         pickingType: json["picking_type"],
+        startTimeReception: json["start_time_reception"],
+        endTimeReception: json["end_time_reception"],
+        isSelected: json["is_selected"],
+        isStarted: json["is_started"],
+        isFinish: json["is_finish"],
         lineasRecepcion: json["lineas_recepcion"] == null
             ? []
             : List<LineasRecepcion>.from(json["lineas_recepcion"]!
@@ -176,6 +197,11 @@ class ResultEntrada {
         "responsable_id": responsableId,
         "responsable": responsable,
         "picking_type": pickingType,
+        "start_time_reception": startTimeReception,
+        "end_time_reception": endTimeReception,
+        "is_selected": isSelected,
+        "is_started": isStarted,
+        "is_finish": isFinish,
         "lineas_recepcion": lineasRecepcion == null
             ? []
             : List<dynamic>.from(lineasRecepcion!.map((x) => x.toMap())),
@@ -201,7 +227,6 @@ class LineasRecepcion {
   dynamic? quantityDone;
   String? uom;
 
-
   int? locationDestId;
   String? locationDestName;
   String? locationDestBarcode;
@@ -217,6 +242,7 @@ class LineasRecepcion {
   final dynamic isQuantityIsOk;
   final int? loteId;
   final String? loteName;
+  final String? loteDate;
   final dynamic quantitySeparate;
 
   final dynamic isSelected;
@@ -242,27 +268,22 @@ class LineasRecepcion {
     this.quantityToReceive,
     this.quantityDone,
     this.uom,
-
     this.locationDestId,
     this.locationDestName,
     this.locationDestBarcode,
-
     this.locationId,
     this.locationName,
     this.locationBarcode,
-
-
     this.weight,
-
     this.loteId,
     this.loteName,
+    this.loteDate,
     this.productIsOk,
     this.isQuantityIsOk,
     this.quantitySeparate,
     this.isSelected,
     this.isSeparate,
     this.isProductSplit,
-
     this.observation,
     this.dateSeparate,
   });
@@ -289,28 +310,24 @@ class LineasRecepcion {
         quantityToReceive: json["quantity_to_receive"],
         quantityDone: json["quantity_done"],
         uom: json["uom"],
-
         locationDestId: json["location_dest_id"],
         locationDestName: json["location_dest_name"],
         locationDestBarcode: json["location_dest_barcode"],
-
         locationId: json["location_id"],
         locationName: json["location_name"],
         locationBarcode: json["location_barcode"],
         weight: json["weight"]?.toDouble(),
-
         loteId: json["lote_id"],
         loteName: json["lote_name"],
+        loteDate: json["lote_date"],
         productIsOk: json["product_is_ok"],
         isQuantityIsOk: json["is_quantity_is_ok"],
         quantitySeparate: json["quantity_separate"],
         isSelected: json["is_selected"],
         isSeparate: json["is_separate"],
         isProductSplit: json["is_product_split"],
-
         observation: json["observation"],
-        dateSeparate : json["date_separate"],
-
+        dateSeparate: json["date_separate"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -337,21 +354,19 @@ class LineasRecepcion {
         "location_dest_id": locationDestId,
         "location_dest_name": locationDestName,
         "location_dest_barcode": locationBarcode,
-
         "location_id": locationId,
         "location_name": locationName,
         "location_barcode": locationBarcode,
         "weight": weight,
-
         "lote_id": loteId,
         "lote_name": loteName,
+        "lote_date": loteDate,
         "product_is_ok": productIsOk,
         "is_quantity_is_ok": isQuantityIsOk,
         "quantity_separate": quantitySeparate,
         "is_selected": isSelected,
         "is_separate": isSeparate,
         "is_product_split": isProductSplit,
-        
         "observation": observation,
         "date_separate": dateSeparate,
       };

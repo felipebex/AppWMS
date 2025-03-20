@@ -96,6 +96,11 @@ class _HomePageState extends State<HomePage> {
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(true, context));
+                } else if (rol == "reception") {
+                  if (!mounted) return;
+                  context
+                      .read<RecepcionBloc>()
+                      .add(FetchOrdenesCompra(context));
                 } else if (rol == "" || rol == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -504,6 +509,7 @@ class _HomePageState extends State<HomePage> {
                                 width: size.width,
                                 height: size.height * 0.55,
                                 child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Row(
                                       mainAxisAlignment:
@@ -655,38 +661,43 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
-                                            context.read<RecepcionBloc>().add(
-                                                FetchOrdenesCompraOfBd(
-                                                    context)); // Llama al evento FetchOrdenesCompra
+                                            if (homeBloc.userRol ==
+                                                'reception' || homeBloc.userRol == 'admin') {
+                                              context.read<RecepcionBloc>().add(
+                                                  FetchOrdenesCompraOfBd(
+                                                      context)); // Llama al evento FetchOrdenesCompra
 
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando recepciones ...');
-                                                });
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogLoading(
+                                                        message:
+                                                            'Cargando recepciones ...');
+                                                  });
 
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
+                                              await Future.delayed(const Duration(
+                                                  seconds:
+                                                      1)); // Ajusta el tiempo si es necesario
 
-                                            Navigator.pop(context);
+                                              Navigator.pop(context);
 
-                                            //   Ajusta el tiempo si es necesario
+                                              //   Ajusta el tiempo si es necesario
 
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'list-ordenes-compra',
-                                            );
-                                            // ScaffoldMessenger.of(context)
-                                            //     .showSnackBar(
-                                            //   const SnackBar(
-                                            //     content: Text(
-                                            //         "Su usuario no tiene permisos para acceder a este módulo"),
-                                            //     duration: Duration(seconds: 4),
-                                            //   ),
-                                            // );
+                                              Navigator.pushReplacementNamed(
+                                                context,
+                                                'list-ordenes-compra',
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Su usuario no tiene permisos para acceder a este módulo"),
+                                                  duration:
+                                                      Duration(seconds: 4),
+                                                ),
+                                              );
+                                            }
                                           },
                                           child: ImteModule(
                                             urlImg: "recepcion.png",

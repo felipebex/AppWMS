@@ -61,7 +61,7 @@ class ResultElement {
     String? dateTransaction;
     String? newObservation;
     dynamic? time;
-    String? userOperatorId;
+    dynamic? userOperatorId;
     bool? isDoneItem;
 
     ResultElement({

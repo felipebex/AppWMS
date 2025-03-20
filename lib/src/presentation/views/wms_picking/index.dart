@@ -419,7 +419,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                               barrierDismissible:
                                                   false, // No permitir que el usuario cierre el diálogo manualmente
                                               builder: (context) =>
-                                                  DialogStartPickingWidget(
+                                                  DialogStartTimeWidget(
+                                                    
                                                 onAccepted: () async {
                                                   // Disparar eventos de BatchBloc
                                                   batchBloc.add(
@@ -439,7 +440,7 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                                                   goBatchInfo(contextBuilder,
                                                       batchBloc, batch);
-                                                },
+                                                }, title: 'Iniciar Picking',
                                               ),
                                             );
                                           }

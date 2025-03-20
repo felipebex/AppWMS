@@ -33,6 +33,7 @@ class ProductEntradaTable {
 
   static const String columnLoteId = 'lote_id';
   static const String columnLoteName = 'lote_name';
+  static const String columnLoteDate = 'lote_date';
   
   static const String columnProductIsOk = 'product_is_ok';
   static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
@@ -76,6 +77,7 @@ class ProductEntradaTable {
       $columnProductIsOk INTEGER,
       $columnIsQuantityIsOk INTEGER,
       $columnDateSeparate TEXT,
+      $columnLoteDate TEXT,
       FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion ($columnId)
 
     )

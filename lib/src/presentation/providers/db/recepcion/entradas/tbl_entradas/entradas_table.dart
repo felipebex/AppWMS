@@ -28,6 +28,12 @@ class EntradasRepeccionTable {
 
   static const String columnIsSelected = 'is_selected';
   static const String columnIsStarted = 'is_started';
+  static const String columnIsfinis = 'is_finish';
+
+  static const String columnDateFinish = 'end_time_reception';
+  static const String columnDateStart = 'start_time_reception';
+
+
 
   static String createTable() {
     return '''
@@ -54,7 +60,13 @@ class EntradasRepeccionTable {
       $columnLocationName TEXT,
       $columnResponsableId INTEGER,
       $columnResponsable TEXT,
-      $columnPickingType TEXT
+      $columnPickingType TEXT,
+      $columnIsSelected INTEGER,
+      $columnIsStarted INTEGER,
+      $columnDateFinish TEXT,
+      $columnDateStart TEXT,
+      $columnIsfinis INTEGER
+
     )
     ''';
   }

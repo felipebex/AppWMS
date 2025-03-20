@@ -37,6 +37,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
   LineasRecepcion currentProduct = LineasRecepcion();
 
+//*orden actual
+  ResultEntrada resultEntrada = ResultEntrada();
+
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
 
@@ -85,6 +88,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     on<SearchOrdenCompraEvent>(_onSearchOrderEvent);
     //*obtener las ordenes de compra de la bd
     on<FetchOrdenesCompraOfBd>(_onFetchOrdenesCompraOfBd);
+
+    on<CurrentOrdenesCompra>(_onCurrentOrdenesCompra);
 
     //*asignar un usuario a una orden de compra
     on<AssignUserToOrder>(_onAssignUserToOrder);
@@ -136,6 +141,99 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     //*metodo para crear un lote a un producto
     on<CreateLoteProduct>(_onCreateLoteProduct);
+
+    //*metodo para empezar o terminar timepo
+    on<StartOrStopTimeOrder>(_onStartOrStopTimeOrder);
+
+    //*metodo para crear barckorder o no
+    on<CreateBackOrderOrNot>(_onCreateBackOrder);
+  }
+
+  void _onCreateBackOrder(
+      CreateBackOrderOrNot event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(CreateBackOrderOrNotLoading());
+      final response = await _recepcionRepository.validateRecepcion(
+          event.idRecepcion, event.isBackOrder, false, event.context);
+
+      if (response.result?.code == 200) {
+        add(StartOrStopTimeOrder(
+            event.idRecepcion, 'end_time_reception', event.context));
+        emit(CreateBackOrderOrNotSuccess(event.isBackOrder));
+      } else {
+        emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
+      }
+    } catch (e, s) {
+      emit(CreateBackOrderOrNotFailure('Error al crear la backorder'));
+      print('Error en el _onCreateBackOrder: $e, $s');
+    }
+  }
+
+  void _onStartOrStopTimeOrder(
+      StartOrStopTimeOrder event, Emitter<RecepcionState> emit) async {
+    try {
+      final time = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+      print("time : $time");
+
+      if (event.value == "start_time_reception") {
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idRecepcion,
+          "start_time_reception",
+          time,
+        );
+      } else if (event.value == "end_time_reception") {
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idRecepcion,
+          "end_time_reception",
+          time,
+        );
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idRecepcion,
+          "is_finish",
+          1,
+        );
+      }
+
+      await db.entradasRepository.setFieldTableEntrada(
+        event.idRecepcion,
+        "is_selected",
+        1,
+      );
+      await db.entradasRepository.setFieldTableEntrada(
+        event.idRecepcion,
+        "is_started",
+        1,
+      );
+
+      //hacemos la peticion de mandar el tiempo
+      final response = await _recepcionRepository.sendTime(
+          event.idRecepcion, event.value, time, false, event.context);
+
+      if (response) {
+        emit(StartOrStopTimeOrderSuccess(event.value));
+      }
+    } catch (e, s) {
+      print('Error en el _onStartOrStopTimeOrder: $e, $s');
+    }
+  }
+
+  void _onCurrentOrdenesCompra(
+      CurrentOrdenesCompra event, Emitter<RecepcionState> emit) async {
+    try {
+      resultEntrada = ResultEntrada();
+      //traemos la orden de compra de la bd
+      final respnonseEntradaDb = await db.entradasRepository
+          .getEntradaById(event.resultEntrada.id ?? 0);
+      resultEntrada = respnonseEntradaDb ?? ResultEntrada();
+      print("-----------------");
+      print(resultEntrada.toMap());
+      print("-----------------");
+
+      emit(CurrentOrdenesCompraState(resultEntrada));
+    } catch (e, s) {
+      print('Error en _onCurrentOrdenesCompra: $e, $s');
+    }
   }
 
   //metodo pea crar un lote a un producto
@@ -171,6 +269,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           response.result?.result?.name ?? '',
           currentProduct.idMove,
         );
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "lote_date",
+          response.result?.result?.expirationDate ?? '',
+          currentProduct.idMove,
+        );
 
         loteIsOk = true;
 
@@ -201,7 +306,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         currentProduct.idRecepcion,
       );
 
-      final response = await _recepcionRepository.sendProductRecepcion(
+      await _recepcionRepository.sendProductRecepcion(
         RecepcionRequest(
           idRecepcion: productBD?.idRecepcion ?? 0,
           listItems: [
@@ -470,6 +575,14 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       currentProduct.idMove,
     );
 
+    await db.productEntradaRepository.setFieldTableProductEntrada(
+      currentProduct.idRecepcion,
+      int.parse(currentProduct.productId),
+      "lote_date",
+      event.lote.expirationDate ?? '',
+      currentProduct.idMove,
+    );
+
     loteIsOk = true;
 
     emit(ChangeLoteOrderIsOkState(
@@ -647,11 +760,33 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       AssignUserToOrder event, Emitter<RecepcionState> emit) async {
     try {
       int userId = await PrefUtils.getUserId();
+      String nameUser = await PrefUtils.getUserName();
       emit(AssignUserToOrderLoading());
       final response = await _recepcionRepository.assignUserToOrder(
           true, userId, event.idOrder, event.context);
 
       if (response) {
+        //actualizamos la tabla entrada:
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idOrder,
+          "responsable_id",
+          userId,
+        );
+
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idOrder,
+          "responsable",
+          nameUser,
+        );
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idOrder,
+          "is_selected",
+          1,
+        );
+
+        add(StartOrStopTimeOrder(
+            event.idOrder, "start_time_reception", event.context));
+
         emit(AssignUserToOrderSuccess());
       } else {
         emit(AssignUserToOrderFailure(

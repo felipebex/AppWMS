@@ -3,10 +3,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class DialogStartPickingWidget extends StatelessWidget {
+class DialogStartTimeWidget extends StatelessWidget {
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
+  final String title;
 
-  const DialogStartPickingWidget({super.key, required this.onAccepted});
+  const DialogStartTimeWidget({super.key, required this.onAccepted, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,7 @@ class DialogStartPickingWidget extends StatelessWidget {
         actionsAlignment: MainAxisAlignment.center,
         title: Center(
           child: Text(
-            'Iniciar proceso de picking',
+            title,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: primaryColorApp,

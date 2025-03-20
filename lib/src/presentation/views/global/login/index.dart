@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
+import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -63,10 +64,17 @@ class LoginPage extends StatelessWidget {
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(false, context));
+                  context
+                      .read<RecepcionBloc>()
+                      .add(FetchOrdenesCompra(context));
                 } else if (rol == 'packing') {
                   context
                       .read<WmsPackingBloc>()
                       .add(LoadAllPackingEvent(true, context));
+                } else if (rol == "reception") {
+                  context
+                      .read<RecepcionBloc>()
+                      .add(FetchOrdenesCompra(context));
                 }
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();
@@ -104,7 +112,7 @@ class LoginPage extends StatelessWidget {
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 22),
                           )),
-                         
+
                           const Center(
                             child: Text("Version: 1.0.0",
                                 style: TextStyle(

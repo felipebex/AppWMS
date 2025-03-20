@@ -13,6 +13,18 @@ class FetchOrdenesCompraOfBd extends RecepcionEvent {
   FetchOrdenesCompraOfBd(this.context);
 }
 
+
+
+class CurrentOrdenesCompra extends RecepcionEvent {
+  BuildContext context;
+  ResultEntrada resultEntrada;
+  CurrentOrdenesCompra(this.context, this.resultEntrada);
+}
+
+
+
+
+
 class ShowKeyboardEvent extends RecepcionEvent {
   final bool showKeyboard;
   ShowKeyboardEvent(this.showKeyboard);
@@ -148,4 +160,21 @@ class CreateLoteProduct extends RecepcionEvent {
   final String nameLote;
   final String fechaCaducidad;
   CreateLoteProduct(this.context, this.nameLote, this.fechaCaducidad);
+}
+
+
+
+class StartOrStopTimeOrder extends RecepcionEvent {
+  final int  idRecepcion;
+  final String value;
+  final BuildContext context;
+  StartOrStopTimeOrder(this.idRecepcion, this.value, this.context);
+}
+
+
+class CreateBackOrderOrNot extends RecepcionEvent {
+  final BuildContext context;
+  final int idRecepcion;
+  final bool isBackOrder;
+  CreateBackOrderOrNot(this.context, this.idRecepcion, this.isBackOrder);
 }

@@ -135,6 +135,26 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                         color: black)),
                                               ],
                                             ),
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  "Lote: ",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+                                                Text("${product.loteName}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                                Text("/${product.loteDate}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                              ],
+                                            ),
+                                            
                                             Text(
                                               "Ubicación de origen: ",
                                               style: TextStyle(

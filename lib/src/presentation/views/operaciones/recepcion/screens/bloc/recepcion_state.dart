@@ -213,3 +213,30 @@ class CreateLoteProductFailure extends RecepcionState {
   final String error;
   CreateLoteProductFailure(this.error);
 }
+
+
+class CurrentOrdenesCompraState extends RecepcionState {
+  final ResultEntrada ordenCompra;
+  CurrentOrdenesCompraState(this.ordenCompra);
+}
+
+
+
+class StartOrStopTimeOrderSuccess extends RecepcionState {
+  final String isStarted;
+  StartOrStopTimeOrderSuccess(this.isStarted);
+}
+
+
+class CreateBackOrderOrNotLoading extends RecepcionState {}
+
+
+class CreateBackOrderOrNotSuccess extends RecepcionState {
+  final bool isBackorder;
+  CreateBackOrderOrNotSuccess(this.isBackorder);
+}
+
+class CreateBackOrderOrNotFailure extends RecepcionState {
+  final String error;
+  CreateBackOrderOrNotFailure(this.error);
+}

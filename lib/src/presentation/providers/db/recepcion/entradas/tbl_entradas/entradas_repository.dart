@@ -68,6 +68,10 @@ class EntradasRepository {
                     entrada.responsableId,
                 EntradasRepeccionTable.columnResponsable: entrada.responsable,
                 EntradasRepeccionTable.columnPickingType: entrada.pickingType,
+                EntradasRepeccionTable.columnDateStart:
+                    entrada.startTimeReception,
+                EntradasRepeccionTable.columnDateFinish:
+                    entrada.endTimeReception,
               },
               where: '${EntradasRepeccionTable.columnId} = ?',
               whereArgs: [entrada.id],
@@ -108,6 +112,10 @@ class EntradasRepository {
                     entrada.responsableId,
                 EntradasRepeccionTable.columnResponsable: entrada.responsable,
                 EntradasRepeccionTable.columnPickingType: entrada.pickingType,
+                EntradasRepeccionTable.columnDateStart:
+                    entrada.startTimeReception,
+                EntradasRepeccionTable.columnDateFinish:
+                    entrada.endTimeReception,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -153,5 +161,23 @@ class EntradasRepository {
       print('Error en getEntradaById: $e ->$s');
       return null;
     }
+  }
+
+  // Método: Actualizar un campo específico en la tabla productos_pedidos
+  Future<int?> setFieldTableEntrada(
+    int idEntrada,
+    String field,
+    dynamic setValue,
+  ) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+
+    final resUpdate = await db.rawUpdate(
+        'UPDATE ${EntradasRepeccionTable.tableName} SET $field = ? WHERE ${EntradasRepeccionTable.columnId} = ?',
+        [setValue,idEntrada, ]);
+
+    print(
+        "update TableEntrada (idEntrada ----($idEntrada)) -------($field): $resUpdate");
+
+    return resUpdate;
   }
 }

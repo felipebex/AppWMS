@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -1272,11 +1273,13 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     BuildContext context,
   ) {
     if (context.read<RecepcionBloc>().selectLote == "") {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 1000),
-        content: const Text('Seleccione un lote'),
-        backgroundColor: Colors.red[200],
-      ));
+      Get.snackbar(
+        'Error',
+        "Seleccione un lote",
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.error, color: Colors.amber),
+      );
       return;
     }
 
@@ -1293,11 +1296,13 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     int cantidad,
   ) {
     if (context.read<RecepcionBloc>().selectLote == "") {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        duration: const Duration(milliseconds: 1000),
-        content: const Text('Seleccione un lote'),
-        backgroundColor: Colors.red[200],
-      ));
+      Get.snackbar(
+        'Error',
+        "Seleccione un lote",
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.error, color: Colors.amber),
+      );
       return;
     }
     context.read<RecepcionBloc>().add(SendProductToOrder(context));

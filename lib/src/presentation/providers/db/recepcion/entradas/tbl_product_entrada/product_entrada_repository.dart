@@ -181,6 +181,7 @@ class ProductsEntradaRepository {
         ProductEntradaTable.columnQuantitySeparate: 0,
         ProductEntradaTable.columnLoteId: 0,
         ProductEntradaTable.columnLoteName: "",
+        ProductEntradaTable.columnLoteDate: "",
 
         ProductEntradaTable.columnIsQuantityIsOk: 0,
         ProductEntradaTable.columnProductIsOk: 0,
