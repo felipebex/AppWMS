@@ -11,7 +11,7 @@ import 'package:wms_app/src/presentation/views/home/domain/models/app_version_mo
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class HomeRepository {
-  Future<AppVersion> getAppVersion(BuildContext context) async {
+  Future<AppVersion> getAppVersion() async {
     var connectivityResult = await Connectivity().checkConnectivity();
 
     if (connectivityResult == ConnectivityResult.none) {
@@ -21,10 +21,10 @@ class HomeRepository {
 
     try {
       var response = await ApiRequestService().get(
-          endpoint: 'last-version',
-          isunecodePath: true,
-          isLoadinDialog: true,
-          context: context);
+        endpoint: 'last-version',
+        isunecodePath: true,
+        isLoadinDialog: true,
+      );
 
       if (response.statusCode < 400) {
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
@@ -32,17 +32,13 @@ class HomeRepository {
         // Decodifica la respuesta JSON a un mapa
         if (jsonResponse.containsKey('result')) {
           if (jsonResponse['result']['code'] == 400) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Error : ${jsonResponse['result']['msg']}',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
-                    ),
-                  ),
-                )));
+            Get.snackbar(
+              'Error',
+              'Error : ${jsonResponse['result']['msg']}',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.check, color: Colors.red),
+            );
           } else if (jsonResponse['result']['code'] == 200) {
             return AppVersion.fromMap(jsonDecode(response.body));
           }

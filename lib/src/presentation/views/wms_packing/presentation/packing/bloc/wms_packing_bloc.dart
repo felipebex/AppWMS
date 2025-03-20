@@ -195,7 +195,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
       await wmsPackingRepository.timePackingUser(
         event.batchId,
-        event.context,
+       
         formattedDate,
         'start_time_batch_user',
         'start_time',
@@ -203,7 +203,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       );
       final responseTimeBatch = await wmsPackingRepository.timePackingBatch(
           event.batchId,
-          event.context,
+      
           formattedDate,
           'update_start_time',
           'start_time_pack',
@@ -330,7 +330,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
       final responseUnPacking = await wmsPackingRepository.unPacking(
         event.request,
-        event.context,
+        
       );
 
       if (responseUnPacking.result?.code == 200) {
@@ -744,7 +744,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         final responsePacking = await wmsPackingRepository.sendPackingRequest(
           packingRequest,
           true, // Muestra un diálogo de carga si es necesario
-          event.context,
+    
         );
 
         if (responsePacking.result?.code == 200) {
@@ -1110,7 +1110,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     emit(WmsPackingLoading());
     try {
       final response = await wmsPackingRepository.resBatchsPacking(
-          event.isLoadinDialog, event.context);
+          event.isLoadinDialog);
 
       if (response != null && response is List) {
         if (response.isNotEmpty) {

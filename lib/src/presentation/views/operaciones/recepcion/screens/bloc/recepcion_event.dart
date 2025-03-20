@@ -4,21 +4,16 @@ part of 'recepcion_bloc.dart';
 sealed class RecepcionEvent {}
 
 class FetchOrdenesCompra extends RecepcionEvent {
-  BuildContext context;
-  FetchOrdenesCompra(this.context);
 }
 
 class FetchOrdenesCompraOfBd extends RecepcionEvent {
-  BuildContext context;
-  FetchOrdenesCompraOfBd(this.context);
 }
 
 
 
 class CurrentOrdenesCompra extends RecepcionEvent {
-  BuildContext context;
   ResultEntrada resultEntrada;
-  CurrentOrdenesCompra(this.context, this.resultEntrada);
+  CurrentOrdenesCompra( this.resultEntrada);
 }
 
 
@@ -37,10 +32,8 @@ class SearchOrdenCompraEvent extends RecepcionEvent {
 
 class AssignUserToOrder extends RecepcionEvent {
   final int idOrder;
-  final BuildContext context;
   AssignUserToOrder(
     this.idOrder,
-    this.context,
   );
 }
 
@@ -53,8 +46,7 @@ class GetPorductsToEntrada extends RecepcionEvent {
 
 class FetchPorductOrder extends RecepcionEvent {
   final LineasRecepcion product;
-  final BuildContext  context;
-  FetchPorductOrder(this.product, this.context);
+  FetchPorductOrder(this.product,);
 }
 
 class ValidateFieldsOrderEvent extends RecepcionEvent {
@@ -144,22 +136,20 @@ class FinalizarRecepcionProductoSplit extends RecepcionEvent {
 
 
 class GetLotesProduct extends RecepcionEvent {
-  final BuildContext  context;
-
-  GetLotesProduct(this.context);
+  
 }
 
 class SendProductToOrder extends RecepcionEvent {
-  final BuildContext context;
-  SendProductToOrder(this.context);
+ 
+
 }
 
 
 class CreateLoteProduct extends RecepcionEvent {
-  final BuildContext context;
+ 
   final String nameLote;
   final String fechaCaducidad;
-  CreateLoteProduct(this.context, this.nameLote, this.fechaCaducidad);
+  CreateLoteProduct( this.nameLote, this.fechaCaducidad);
 }
 
 
@@ -167,14 +157,14 @@ class CreateLoteProduct extends RecepcionEvent {
 class StartOrStopTimeOrder extends RecepcionEvent {
   final int  idRecepcion;
   final String value;
-  final BuildContext context;
-  StartOrStopTimeOrder(this.idRecepcion, this.value, this.context);
+
+  StartOrStopTimeOrder(this.idRecepcion, this.value, );
 }
 
 
 class CreateBackOrderOrNot extends RecepcionEvent {
-  final BuildContext context;
+
   final int idRecepcion;
   final bool isBackOrder;
-  CreateBackOrderOrNot(this.context, this.idRecepcion, this.isBackOrder);
+  CreateBackOrderOrNot( this.idRecepcion, this.isBackOrder);
 }

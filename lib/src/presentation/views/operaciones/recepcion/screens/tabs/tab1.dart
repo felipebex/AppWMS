@@ -76,7 +76,7 @@ class Tab1ScreenRecep extends StatelessWidget {
           }
 
           if (state is CreateBackOrderOrNotSuccess) {
-            context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd(context));
+            context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
             //volvemos a llamar las entradas que tenemos guardadas en la bd
             if (state.isBackorder) {
               Get.snackbar("Exitoso", 'Se ha creado la backorder correctamente',
@@ -381,7 +381,7 @@ class Tab1ScreenRecep extends StatelessWidget {
                                     child: ElevatedButton(
                                       onPressed: () {
                                         context.read<RecepcionBloc>().add(
-                                            CreateBackOrderOrNot(context,
+                                            CreateBackOrderOrNot(
                                                 ordeCompraBd.id ?? 0, true));
                                         Navigator.pop(context);
                                       },
@@ -403,7 +403,7 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   ElevatedButton(
                                     onPressed: () async {
                                       context.read<RecepcionBloc>().add(
-                                          CreateBackOrderOrNot(context,
+                                          CreateBackOrderOrNot(
                                               ordeCompraBd.id ?? 0, false));
                                       Navigator.pop(context);
                                     },

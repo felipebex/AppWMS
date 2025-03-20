@@ -22,10 +22,10 @@ class UserRepository {
       }
 
       var response = await ApiRequestService().get(
-          endpoint: 'configurations',
-          isunecodePath: true,
-          isLoadinDialog: false,
-          context: context);
+        endpoint: 'configurations',
+        isunecodePath: true,
+        isLoadinDialog: false,
+      );
       if (response.statusCode < 400) {
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
@@ -35,7 +35,7 @@ class UserRepository {
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
-          Get.defaultDialog(
+            Get.defaultDialog(
               title: 'Alerta',
               titleStyle: TextStyle(color: Colors.red, fontSize: 18),
               middleText: 'Sesion expirada, por favor inicie sesión nuevamente',

@@ -232,7 +232,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
             batchBloc.batchWithProducts.batch?.id ?? 0,
             currentProduct.idMove ?? 0));
 
-        batchBloc.add(EndTimePick(context,
+        batchBloc.add(EndTimePick(
             batchBloc.batchWithProducts.batch?.id ?? 0, DateTime.now()));
 
         batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,

@@ -115,7 +115,7 @@ class DialogConfirmatedPacking extends StatelessWidget {
                     productos,
                     context.read<WmsPackingBloc>().isSticker,
                     isCertificate,
-                    context
+                  
                   ));
               Navigator.pop(context);
             },

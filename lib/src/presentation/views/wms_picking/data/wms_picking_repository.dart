@@ -1,6 +1,6 @@
 // // ignore_for_file: avoid_print
 
-// ignore_for_file: unrelated_type_equality_checks, avoid_print, use_build_context_synchronously
+// ignore_for_file: unrelated_type_equality_checks, avoid_print, 
 
 // import 'package:wms_app/src/api/api_request_service.dart';
 
@@ -25,7 +25,6 @@ class WmsPickingRepository {
   //metodo para pedir los batchs
   Future<List<BatchsModel>> resBatchs(
     bool isLoadinDialog,
-    BuildContext context,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -37,10 +36,10 @@ class WmsPickingRepository {
 
     try {
       var response = await ApiRequestService().get(
-          endpoint: 'batchs',
-          isunecodePath: true,
-          isLoadinDialog: isLoadinDialog,
-          context: context);
+        endpoint: 'batchs',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+      );
 
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
@@ -50,17 +49,13 @@ class WmsPickingRepository {
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
           if (jsonResponse['result']['code'] == 400) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Error : ${jsonResponse['result']['msg']}',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
-                    ),
-                  ),
-                )));
+            Get.snackbar(
+              'Error',
+              'Error : ${jsonResponse['result']['msg']}',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.check, color: Colors.red),
+            );
           } else if (jsonResponse['result']['code'] == 200) {
             if (jsonResponse['result'].containsKey('result')) {
               // Si contiene 'result', se procede con el mapeo
@@ -71,18 +66,13 @@ class WmsPickingRepository {
             } else if (jsonResponse['result'].containsKey('msg')) {
               // Si contiene 'msg', podrías manejar el mensaje de alguna forma
               String msg = jsonResponse['result']['msg'];
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  backgroundColor: Colors.amber[200],
-                  content: SizedBox(
-                    width: double.infinity,
-                    child: SingleChildScrollView(
-                      child: Text(
-                        msg,
-                        style:
-                            const TextStyle(color: Colors.black, fontSize: 12),
-                      ),
-                    ),
-                  )));
+              Get.snackbar(
+                'Error',
+                msg,
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.check, color: Colors.red),
+              );
               return [];
             }
           }
@@ -121,24 +111,12 @@ class WmsPickingRepository {
     } catch (e, s) {
       // Manejo de otros errores
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en resBatchs: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        'Error en resBatchs: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
 
       print('Error resBatchs: $e, $s');
@@ -148,7 +126,6 @@ class WmsPickingRepository {
 
   Future<List<HistoryBatch>> resBatchsHistory(
     bool isLoadinDialog,
-    BuildContext context,
     String date,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -164,7 +141,6 @@ class WmsPickingRepository {
           endpoint: 'batchs_done',
           isunecodePath: true,
           isLoadinDialog: isLoadinDialog,
-          context: context,
           date: date);
 
       if (response.statusCode < 400) {
@@ -175,17 +151,13 @@ class WmsPickingRepository {
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
           if (jsonResponse['result']['code'] == 400) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      'Error : ${jsonResponse['result']['msg']}',
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
-                    ),
-                  ),
-                )));
+            Get.snackbar(
+              'Error',
+              'Error : ${jsonResponse['result']['msg']}',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.check, color: Colors.red),
+            );
           } else if (jsonResponse['result']['code'] == 200) {
             if (jsonResponse['result'].containsKey('result')) {
               // Si contiene 'result', se procede con el mapeo
@@ -198,18 +170,13 @@ class WmsPickingRepository {
               String msg = jsonResponse['result']['msg'];
               // Aquí puedes manejar el mensaje de error o información según sea necesario
 
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                  backgroundColor: Colors.amber[200],
-                  content: SizedBox(
-                    width: double.infinity,
-                    child: SingleChildScrollView(
-                      child: Text(
-                        msg,
-                        style:
-                            const TextStyle(color: Colors.black, fontSize: 12),
-                      ),
-                    ),
-                  )));
+              Get.snackbar(
+                'Error',
+                msg,
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.check, color: Colors.red),
+              );
               return [];
             }
           }
@@ -248,25 +215,12 @@ class WmsPickingRepository {
     } catch (e, s) {
       // Manejo de otros errores
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en resBatchs: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        'Error en resBatchs: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
 
       print('Error resBatchs: $e, $s');
@@ -275,8 +229,7 @@ class WmsPickingRepository {
   }
 
   //metodo para pedir los batchs por id
-  Future<HistoryBatchId> getBatchById(
-      bool isLoadinDialog, BuildContext context, int batchId) async {
+  Future<HistoryBatchId> getBatchById(bool isLoadinDialog, int batchId) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -287,10 +240,10 @@ class WmsPickingRepository {
 
     try {
       var response = await ApiRequestService().get(
-          endpoint: 'batch/$batchId',
-          isunecodePath: true,
-          isLoadinDialog: isLoadinDialog,
-          context: context);
+        endpoint: 'batch/$batchId',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+      );
 
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
@@ -337,25 +290,12 @@ class WmsPickingRepository {
       print('Error de red: $e');
       return HistoryBatchId();
     } catch (e, s) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en getBatchById: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        'Error en getBatchById: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
 
       // Manejo de otros errores
@@ -367,7 +307,6 @@ class WmsPickingRepository {
   //metodo para pedir los submuelles
   Future<List<Muelles>> getmuelles(
     bool isLoadinDialog,
-    BuildContext context,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -379,10 +318,10 @@ class WmsPickingRepository {
 
     try {
       var response = await ApiRequestService().get(
-          endpoint: 'muelles',
-          isunecodePath: true,
-          isLoadinDialog: isLoadinDialog,
-          context: context);
+        endpoint: 'muelles',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+      );
 
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
@@ -403,53 +342,41 @@ class WmsPickingRepository {
       print('Error de red: $e');
       return [];
     } catch (e, s) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en getBatchById: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        'Error en getmuelles: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
+
       // Manejo de otros errores
       print('Error getmuelles: $e, $s');
     }
     return [];
   }
 
-  Future<SendPickingResponse> sendPicking(
-      {required int idBatch,
-      required double timeTotal,
-      required int cantItemsSeparados,
-      required List<Item> listItem,
-      required BuildContext context //
-      }) async {
+  Future<SendPickingResponse> sendPicking({
+    required int idBatch,
+    required double timeTotal,
+    required int cantItemsSeparados,
+    required List<Item> listItem,
+    //
+  }) async {
     try {
       var response = await ApiRequestService().postPicking(
-          endpoint: 'send_batch',
-          isunecodePath: true,
-          body: {
-            "params": {
-              "id_batch": idBatch,
-              "time_total": timeTotal,
-              "cant_items_separados": cantItemsSeparados,
-              "list_item": listItem.map((item) => item.toJson()).toList(),
-            }
-          },
-          isLoadinDialog: false,
-          context: context);
+        endpoint: 'send_batch',
+        isunecodePath: true,
+        body: {
+          "params": {
+            "id_batch": idBatch,
+            "time_total": timeTotal,
+            "cant_items_separados": cantItemsSeparados,
+            "list_item": listItem.map((item) => item.toJson()).toList(),
+          }
+        },
+        isLoadinDialog: false,
+      );
       if (response.statusCode < 400) {
         return SendPickingResponse.fromJson(response.body);
       } else {
@@ -459,25 +386,12 @@ class WmsPickingRepository {
       // Manejo de error de red
       print('Error de red: $e');
     } catch (e, s) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en sendPicking: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        'Error en sendPicking: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
       // Manejo de otros errores
       print('Error sendPicking: $e, $s');
@@ -488,7 +402,6 @@ class WmsPickingRepository {
   //metod para obtener las novedades:
   Future<List<Novedad>> getnovedades(
     bool isLoadinDialog,
-    BuildContext context,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -503,7 +416,6 @@ class WmsPickingRepository {
         endpoint: 'picking_novelties',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
-        context: context,
       );
 
       if (response.statusCode < 400) {
@@ -553,32 +465,12 @@ class WmsPickingRepository {
       print('Error de red: $e');
       return [];
     } catch (e, s) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en getnovedades: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-          // action: SnackBarAction(
-          //   label: 'Cerrar', // Este es el texto del botón de acción
-          //   textColor: Colors.black, // Color del texto de la acción
-          //   onPressed: () {
-          //     // Esto se ejecuta cuando el usuario presiona "Cerrar"
-          //     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          //   },
-          // ),
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        'Error en getnovedades: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
       // Manejo de otros errores
       print('Error getnovedades: $e, $s');
@@ -586,8 +478,8 @@ class WmsPickingRepository {
     return [];
   }
 
-  Future<bool> timePickingUser(int batchId, BuildContext context, String time,
-      String endpoint, String type, int userId) async {
+  Future<bool> timePickingUser(int batchId, String time, String endpoint,
+      String type, int userId) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -601,7 +493,6 @@ class WmsPickingRepository {
           endpoint: endpoint,
           isunecodePath: true,
           isLoadinDialog: false,
-          context: context,
           body: {
             "params": {
               "id_batch": "$batchId",
@@ -658,25 +549,12 @@ class WmsPickingRepository {
     } catch (e, s) {
       // Manejo de otros errores
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en resBatchs: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        'Error en resBatchs: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
 
       print('Error resBatchs: $e, $s');
@@ -684,8 +562,8 @@ class WmsPickingRepository {
     return false;
   }
 
-  Future<bool> timePickingBatch(int batchId, BuildContext context, String time,
-      String endpoint, String field, String type) async {
+  Future<bool> timePickingBatch(int batchId, String time, String endpoint,
+      String field, String type) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -699,7 +577,6 @@ class WmsPickingRepository {
           endpoint: endpoint,
           isunecodePath: true,
           isLoadinDialog: false,
-          context: context,
           body: {
             "params": {
               "picking_id": "$batchId",
@@ -754,26 +631,12 @@ class WmsPickingRepository {
       return false;
     } catch (e, s) {
       // Manejo de otros errores
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en resBatchs: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        'Error en timePickingBatch: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
 
       print('Error timePickingBatch: $e, $s');

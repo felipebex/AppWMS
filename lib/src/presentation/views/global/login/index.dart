@@ -56,25 +56,25 @@ class LoginPage extends StatelessWidget {
                 if (rol == 'picking') {
                   context
                       .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent(context, true));
+                      .add(LoadAllBatchsEvent( true));
                 } else if (rol == 'admin') {
                   context
                       .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent(context, true));
+                      .add(LoadAllBatchsEvent( true));
                   context
                       .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(false, context));
+                      .add(LoadAllPackingEvent(false, ));
                   context
                       .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra(context));
+                      .add(FetchOrdenesCompra());
                 } else if (rol == 'packing') {
                   context
                       .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(true, context));
+                      .add(LoadAllPackingEvent(true, ));
                 } else if (rol == "reception") {
                   context
                       .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra(context));
+                      .add(FetchOrdenesCompra());
                 }
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();

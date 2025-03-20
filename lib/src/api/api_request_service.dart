@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element, avoid_print, unrelated_type_equality_checks, use_build_context_synchronously, unnecessary_string_interpolations, unnecessary_null_comparison
+// ignore_for_file: unused_element, avoid_print, unrelated_type_equality_checks, unnecessary_string_interpolations, unnecessary_null_comparison
 
 import 'dart:async';
 import 'dart:convert';
@@ -49,7 +49,6 @@ class ApiRequestService {
     required String endpoint,
     required Map<String, dynamic>? body,
     required bool isLoadinDialog,
-    required BuildContext context,
     required bool isunecodePath,
   }) async {
     // Convertir el cuerpo a JSON si no es nulo
@@ -157,7 +156,6 @@ class ApiRequestService {
     required String endpoint,
     required Map<String, dynamic>? body,
     required bool isLoadinDialog,
-    required BuildContext context,
     required bool isunecodePath,
   }) async {
     var url = await PrefUtils.getEnterprise();
@@ -280,7 +278,6 @@ class ApiRequestService {
     required String endpoint,
     required Map<String, dynamic>? body,
     required bool isLoadinDialog,
-    required BuildContext context,
   }) async {
     var url = await PrefUtils.getEnterprise();
     var cookie = await PrefUtils.getCookie();
@@ -394,7 +391,6 @@ class ApiRequestService {
   Future<http.Response> get({
     required String endpoint,
     required bool isLoadinDialog,
-    required BuildContext context,
     required bool isunecodePath,
   }) async {
     var url = await PrefUtils.getEnterprise();
@@ -520,7 +516,6 @@ class ApiRequestService {
   Future<http.Response> getHistory({
     required String endpoint,
     required bool isLoadinDialog,
-    required BuildContext context,
     required bool isunecodePath,
     required String date,
   }) async {

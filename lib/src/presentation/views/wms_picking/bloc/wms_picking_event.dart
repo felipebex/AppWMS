@@ -20,23 +20,20 @@ class FilterBatchsByDateEvent extends PickingEvent {
 //*evento para cargar todos los batchs de odoo
 
 class LoadAllBatchsEvent extends PickingEvent {
-  BuildContext context;
   bool isLoadinDialog;
-  LoadAllBatchsEvent(this.context, this.isLoadinDialog);
+  LoadAllBatchsEvent( this.isLoadinDialog);
 }
 //*evento para cargar hisotural de  los batchs de odoo
 
 class LoadHistoryBatchsEvent extends PickingEvent {
-  BuildContext context;
   bool isLoadinDialog;
   String date;
-  LoadHistoryBatchsEvent(this.context, this.isLoadinDialog, this.date);
+  LoadHistoryBatchsEvent( this.isLoadinDialog, this.date);
 }
 class LoadHistoryBatchIdEvent extends PickingEvent {
-  BuildContext context;
   bool isLoadinDialog;
   int batchId;
-  LoadHistoryBatchIdEvent(this.context, this.isLoadinDialog, this.batchId);
+  LoadHistoryBatchIdEvent( this.isLoadinDialog, this.batchId);
 }
 
 //*evento para buscar un producto

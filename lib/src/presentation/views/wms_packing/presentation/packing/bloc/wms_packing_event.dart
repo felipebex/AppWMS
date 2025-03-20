@@ -4,9 +4,9 @@ part of 'wms_packing_bloc.dart';
 sealed class WmsPackingEvent {}
 
 class LoadAllPackingEvent extends WmsPackingEvent {
-  final BuildContext context;
+  
   final bool isLoadinDialog;
-  LoadAllPackingEvent(this.isLoadinDialog, this.context);
+  LoadAllPackingEvent(this.isLoadinDialog, );
 }
 
 class LoadBatchPackingFromDBEvent extends WmsPackingEvent {
@@ -110,10 +110,10 @@ class SetPackingsEvent extends WmsPackingEvent {
   final List<PorductoPedido> productos;
   final bool isSticker;
   final bool isCertificate;
-  final BuildContext context;
+ 
 
   SetPackingsEvent(
-      this.productos, this.isSticker, this.isCertificate, this.context);
+      this.productos, this.isSticker, this.isCertificate, );
 }
 
 class ChangeStickerEvent extends WmsPackingEvent {
@@ -179,9 +179,9 @@ class SetPickingsEvent extends WmsPackingEvent {
 
 class UnPackingEvent extends WmsPackingEvent {
   final UnPackingRequest request;
-  final BuildContext context;
+
   final int pedidoId;
-  UnPackingEvent(this.request, this.context, this.pedidoId);
+  UnPackingEvent(this.request, this.pedidoId);
 }
 
 
@@ -211,14 +211,14 @@ class ShowDetailvent extends WmsPackingEvent {
 
 //*empezar el tiempo de separacion
 class StartTimePack extends WmsPackingEvent {
-  final BuildContext context;
+
   final int batchId;
   final DateTime time;
-  StartTimePack(this.context, this.batchId, this.time);
+  StartTimePack( this.batchId, this.time);
 }
 class EndTimePack extends WmsPackingEvent {
-  final BuildContext context;
+
   final int batchId;
   final DateTime time;
-  EndTimePack(this.context, this.batchId, this.time);
+  EndTimePack( this.batchId, this.time);
 }

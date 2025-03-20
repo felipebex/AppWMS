@@ -48,6 +48,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   String scannedValue2 = ''; //producto
   String scannedValue3 = ''; //cantidad
   String scannedValue4 = ''; //lote
+  String scannedValue5 = ''; //all product
 
   String selectLote = '';
   String dateLote = '';
@@ -154,11 +155,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       emit(CreateBackOrderOrNotLoading());
       final response = await _recepcionRepository.validateRecepcion(
-          event.idRecepcion, event.isBackOrder, false, event.context);
+          event.idRecepcion, event.isBackOrder, false);
 
       if (response.result?.code == 200) {
         add(StartOrStopTimeOrder(
-            event.idRecepcion, 'end_time_reception', event.context));
+          event.idRecepcion,
+          'end_time_reception',
+        ));
         emit(CreateBackOrderOrNotSuccess(event.isBackOrder));
       } else {
         emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
@@ -208,7 +211,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       //hacemos la peticion de mandar el tiempo
       final response = await _recepcionRepository.sendTime(
-          event.idRecepcion, event.value, time, false, event.context);
+        event.idRecepcion,
+        event.value,
+        time,
+        false,
+      );
 
       if (response) {
         emit(StartOrStopTimeOrderSuccess(event.value));
@@ -246,7 +253,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           int.parse(currentProduct.productId),
           event.nameLote,
           event.fechaCaducidad,
-          event.context);
+        );
 
       if (response != null) {
         //agregamos el nuevo lote a la lista de lotes
@@ -326,7 +333,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           ],
         ),
         false,
-        event.context,
+
       );
 
       // if (response) {
@@ -356,7 +363,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       emit(GetLotesProductLoading());
       final response = await _recepcionRepository.fetchAllLotesProduct(
-          false, event.context, int.parse(currentProduct.productId));
+          false, int.parse(currentProduct.productId));
 
       if (response != null && response is List) {
         listLotesProduct = response;
@@ -523,6 +530,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<RecepcionState> emit) async {
     if (event.productIsOk) {
+      //actualizamos la entrada a true
+      await db.entradasRepository.setFieldTableEntrada(
+        event.idEntrada,
+        "is_selected",
+        1,
+      );
+
       await db.productEntradaRepository.setFieldTableProductEntrada(
           event.idEntrada,
           event.productId,
@@ -607,6 +621,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           scannedValue4 = '';
           emit(ClearScannedValueOrderState());
           break;
+        case 'toDo':
+          scannedValue5 = '';
+          emit(ClearScannedValueOrderState());
+          break;
 
         default:
           print('Scan type not recognized: ${event.scan}');
@@ -636,6 +654,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           print('scannedValue4: $scannedValue4');
           scannedValue4 += event.scannedValue;
           emit(UpdateScannedValueOrderState(scannedValue4, event.scan));
+          break;
+        case 'toDo':
+          print('scannedValue5: $scannedValue5');
+          scannedValue5 += event.scannedValue;
+          emit(UpdateScannedValueOrderState(scannedValue5, event.scan));
           break;
 
         default:
@@ -688,7 +711,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       //validamos si el prodcuto tiene lote, si es asi llamamos los lotes de ese producto
       if (currentProduct.productTracking == 'lot') {
-        add(GetLotesProduct(event.context));
+        add(GetLotesProduct());
       }
 
       //cargamos la informacion de las variables de validacion
@@ -763,7 +786,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       String nameUser = await PrefUtils.getUserName();
       emit(AssignUserToOrderLoading());
       final response = await _recepcionRepository.assignUserToOrder(
-          true, userId, event.idOrder, event.context);
+        true,
+        userId,
+        event.idOrder,
+      );
 
       if (response) {
         //actualizamos la tabla entrada:
@@ -785,7 +811,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         );
 
         add(StartOrStopTimeOrder(
-            event.idOrder, "start_time_reception", event.context));
+          event.idOrder,
+          "start_time_reception",
+        ));
 
         emit(AssignUserToOrderSuccess());
       } else {
@@ -826,8 +854,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       FetchOrdenesCompra event, Emitter<RecepcionState> emit) async {
     try {
       emit(FetchOrdenesCompraLoading());
-      final response =
-          await _recepcionRepository.resBatchsPacking(true, event.context);
+      final response = await _recepcionRepository.resBatchsPacking(
+        true,
+      );
       if (response != null && response is List) {
         await db.entradasRepository.insertEntrada(response);
 

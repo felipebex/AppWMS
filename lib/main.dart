@@ -171,7 +171,7 @@ void searchProductsNoSendOdoo(BuildContext context) async {
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
         idBatch: product.batchId ?? 0,
-        context: context,
+      
         timeTotal: 0,
         cantItemsSeparados: 0,
         listItem: [
@@ -217,11 +217,11 @@ void searchProductsNoSendOdoo(BuildContext context) async {
 void refreshData(BuildContext context) async {
   final String rol = await PrefUtils.getUserRol();
   if (rol == 'picking') {
-    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, false));
+    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent( false));
   } else if (rol == 'admin') {
-    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(context, false));
-    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, context));
+    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent( false));
+    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, ));
   } else {
-    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, context));
+    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, ));
   }
 }

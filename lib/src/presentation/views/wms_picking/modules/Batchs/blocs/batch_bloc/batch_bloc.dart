@@ -178,7 +178,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       await repository.timePickingUser(
         event.batchId,
-        event.context,
+       
         formattedDate,
         'start_time_batch_user',
         'start_time',
@@ -186,7 +186,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       );
       final responseTimeBatch = await repository.timePickingBatch(
           event.batchId,
-          event.context,
+         
           formattedDate,
           'update_start_time',
           'start_time_pick',
@@ -212,7 +212,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       await repository.timePickingUser(
         event.batchId,
-        event.context,
+      
         formattedDate,
         'end_time_batch_user',
         'end_time',
@@ -221,7 +221,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       final responseTimeBatch = await repository.timePickingBatch(
           event.batchId,
-          event.context,
+         
           formattedDate,
           'update_end_time',
           'end_time_pick',
@@ -349,7 +349,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       final userid = await PrefUtils.getUserId();
       final response = await repository.sendPicking(
-        context: event.context,
+      
         idBatch: event.product.batchId ?? 0,
         timeTotal: secondsDifference,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
@@ -603,7 +603,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       // Enviamos la lista completa de items
       final response = await repository.sendPicking(
-        context: event.context,
+       
         idBatch: event.productsSeparate[0].batchId ?? 0,
         timeTotal: 0,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
@@ -629,7 +629,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     try {
       emit(LoadingSendProductEdit());
       bool responseEdit = await sendProuctEditOdoo(
-          event.product, event.cantidad, event.context);
+          event.product, event.cantidad, );
       if (responseEdit) {
         final response = await DataBaseSqlite()
             .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
@@ -789,7 +789,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
 //*metodo para enviar al wms
-  void sendProuctOdoo(BuildContext context) async {
+  void sendProuctOdoo() async {
     try {
       DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
       //traemos un producto de la base de datos  ya anteriormente guardado
@@ -814,7 +814,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       //enviamos el producto a odoo
       final response = await repository.sendPicking(
-          context: context,
+         
           idBatch: product?.batchId ?? 0,
           timeTotal: secondsDifference,
           cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
@@ -860,7 +860,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   Future<bool> sendProuctEditOdoo(
-      ProductsBatch productEdit, int cantidad, BuildContext context) async {
+      ProductsBatch productEdit, int cantidad, ) async {
     DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
     //traemos un producto de la base de datos  ya anteriormente guardado
     final product = await db.getProductBatch(productEdit.batchId ?? 0,
@@ -894,7 +894,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
-        context: context,
+        
         idBatch: product?.batchId ?? 0,
         timeTotal: secondsDifference,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
@@ -1089,7 +1089,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           currentProduct.idMove ?? 0,
           secondsDifferenceProduct);
 
-      sendProuctOdoo(event.context);
+      sendProuctOdoo();
 
       // Validamos si es el último producto
       if (filteredProducts.length == index + 1) {

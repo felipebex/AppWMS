@@ -39,10 +39,10 @@ class ListOrdenesCompraScreen extends StatelessWidget {
         final ordenCompra = context
             .read<RecepcionBloc>()
             .listFiltersOrdenesCompra
-            // .where(
-            //     (element) => element.isFinish == 0 || element.isFinish == null)
-            // .toList();
-            ;
+            .where(
+                (element) => element.isFinish == 0 || element.isFinish == null)
+            .toList();
+        // ;
         return Scaffold(
             backgroundColor: white,
             bottomNavigationBar: context.read<RecepcionBloc>().isKeyboardVisible
@@ -173,7 +173,11 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                             ),
                             child: Card(
                               elevation: 3,
-                              color: white,
+                              color: ordenCompra[index].isSelected == 1
+                                  ? primaryColorAppLigth
+                                  : ordenCompra[index].isFinish == 1
+                                      ? Colors.green[200]
+                                      : white,
                               child: ListTile(
                                 trailing: Icon(Icons.arrow_forward_ios,
                                     color: primaryColorApp),
@@ -331,6 +335,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                   ],
                                 ),
                                 onTap: () async {
+                                  print(
+                                      'ordenCompra: ${ordenCompra[index].toMap()}');
                                   //cargamos los permisos del usuario
                                   context
                                       .read<RecepcionBloc>()
@@ -355,10 +361,10 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                           context.read<RecepcionBloc>().add(
                                               AssignUserToOrder(
                                                   ordenCompra[index].id ?? 0,
-                                                  contextList));
+                                                  ));
                                           context.read<RecepcionBloc>().add(
                                               CurrentOrdenesCompra(
-                                                  context, ordenCompra[index]));
+                                                   ordenCompra[index]));
                                           Navigator.pop(context);
                                           Navigator.pushReplacementNamed(
                                             context,
@@ -394,14 +400,14 @@ class ListOrdenesCompraScreen extends StatelessWidget {
         builder: (context) => DialogStartTimeWidget(
           onAccepted: () async {
             context.read<RecepcionBloc>().add(StartOrStopTimeOrder(
-                ordenCompra.id ?? 0, "start_time_reception", context));
+                ordenCompra.id ?? 0, "start_time_reception", ));
             context
                 .read<RecepcionBloc>()
                 .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
             //traemos la orden de entrada actual desde la bd actualizada
             context
                 .read<RecepcionBloc>()
-                .add(CurrentOrdenesCompra(context, ordenCompra));
+                .add(CurrentOrdenesCompra (ordenCompra));
             Navigator.pop(context);
             Navigator.pushReplacementNamed(
               context,
@@ -419,7 +425,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
       //traemos la orden de entrada actual desde la bd actualizada
       context
           .read<RecepcionBloc>()
-          .add(CurrentOrdenesCompra(context, ordenCompra));
+          .add(CurrentOrdenesCompra( ordenCompra));
       Navigator.pushReplacementNamed(
         context,
         'recepcion',

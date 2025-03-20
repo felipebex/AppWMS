@@ -9,8 +9,8 @@ class InitialStateEvent extends BatchEvent {}
 
 class LoadAllProductsBatchsEvent extends BatchEvent {
   int batchId;
-  final BuildContext context;
-  LoadAllProductsBatchsEvent({required this.batchId, required this.context});
+ 
+  LoadAllProductsBatchsEvent({required this.batchId, });
 }
 
 class ClearSearchProudctsBatchEvent extends BatchEvent {}
@@ -43,16 +43,16 @@ class GetProductById extends BatchEvent {
 
 //*empezar el tiempo de separacion
 class StartTimePick extends BatchEvent {
-  final BuildContext context;
+ 
   final int batchId;
   final DateTime time;
-  StartTimePick(this.context, this.batchId, this.time);
+  StartTimePick( this.batchId, this.time);
 }
 class EndTimePick extends BatchEvent {
-  final BuildContext context;
+  
   final int batchId;
   final DateTime time;
-  EndTimePick(this.context, this.batchId, this.time);
+  EndTimePick( this.batchId, this.time);
 }
 
 //* CAMBIAR VALORES DE VARIABLES
@@ -92,8 +92,8 @@ class ChangeIsOkQuantity extends BatchEvent {
 
 class ChangeCurrentProduct extends BatchEvent {
   final ProductsBatch currentProduct;
-  final BuildContext context;
-  ChangeCurrentProduct({required this.currentProduct, required this.context});
+  
+  ChangeCurrentProduct({required this.currentProduct, });
 }
 
 class QuantityChanged extends BatchEvent {
@@ -152,15 +152,15 @@ class LoadProductEditEvent extends BatchEvent {}
 class SendProductEditOdooEvent extends BatchEvent {
   final ProductsBatch product;
   final int cantidad;
-  final BuildContext context;
-  SendProductEditOdooEvent(this.product, this.cantidad, this.context);
+
+  SendProductEditOdooEvent(this.product, this.cantidad, );
 }
 
 class AssignSubmuelleEvent extends BatchEvent {
   final List<ProductsBatch> productsSeparate;
   final Muelles muelle;
-  final BuildContext context;
-  AssignSubmuelleEvent(this.productsSeparate, this.muelle, this.context);
+  
+  AssignSubmuelleEvent(this.productsSeparate, this.muelle, );
 }
 
 class ScanBarcodeEvent extends BatchEvent {}
@@ -190,8 +190,8 @@ class SortProductsByLocation extends BatchEvent {}
 //evento para enviar un producto a odoo
 class SendProductOdooEvent extends BatchEvent {
   final ProductsBatch product;
-  final BuildContext context;
-  SendProductOdooEvent(this.product, this.context);
+
+  SendProductOdooEvent(this.product, );
 }
 
 class UpdateScannedValueEvent extends BatchEvent {

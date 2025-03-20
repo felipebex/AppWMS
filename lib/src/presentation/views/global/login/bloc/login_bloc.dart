@@ -25,7 +25,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       try {
         emit(LoginLoading());
 
-        final response = await loginRepository.login(email.text, password.text, event.context);
+        final response = await loginRepository.login(email.text, password.text, );
         print("Response: $response");
         if (response.result == null) {
           emit(LoginFailure('Autenticación fallida.'));

@@ -20,7 +20,6 @@ class RecepcionRepository {
 
   Future<List<ResultEntrada>> resBatchsPacking(
     bool isLoadinDialog,
-    BuildContext context,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -35,7 +34,6 @@ class RecepcionRepository {
         endpoint: 'recepciones',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
-        context: context,
       );
 
       if (response.statusCode < 400) {
@@ -53,17 +51,15 @@ class RecepcionRepository {
           if (ordenes.isNotEmpty) {
             return ordenes;
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      "No tienes batches de packing asignados",
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
-                    ),
-                  ),
-                )));
+         
+            Get.snackbar(
+              'Error',
+              "No tienes batches de packing asignados",
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.check, color: Colors.red),
+            );
+
             return [];
           }
         } else if (jsonResponse.containsKey('error')) {
@@ -105,7 +101,7 @@ class RecepcionRepository {
   }
 
   Future<List<LotesProduct>> fetchAllLotesProduct(
-      bool isLoadinDialog, BuildContext context, int productId) async {
+      bool isLoadinDialog,  int productId) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -119,7 +115,6 @@ class RecepcionRepository {
         endpoint: 'lotes/$productId',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
-        context: context,
       );
 
       if (response.statusCode < 400) {
@@ -180,7 +175,7 @@ class RecepcionRepository {
     bool isLoadinDialog,
     int idUser,
     int idRecepcion,
-    BuildContext context,
+  
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -194,7 +189,6 @@ class RecepcionRepository {
       var response = await ApiRequestService().postPacking(
           endpoint: 'asignar_responsable',
           isLoadinDialog: isLoadinDialog,
-          context: context,
           body: {
             "params": {
               "id_recepcion": idRecepcion,
@@ -259,7 +253,7 @@ class RecepcionRepository {
     int idProduct,
     String nameLote,
     String dateLote,
-    BuildContext context,
+ 
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -273,7 +267,6 @@ class RecepcionRepository {
       var response = await ApiRequestService().postPacking(
           endpoint: 'create_lote',
           isLoadinDialog: isLoadinDialog,
-          context: context,
           body: {
             "params": {
               "id_producto": idProduct,
@@ -342,7 +335,7 @@ class RecepcionRepository {
   Future<ResponSendRecepcion> sendProductRecepcion(
       RecepcionRequest recepcionRequest,
       bool isLoadingDialog,
-      BuildContext context) async {
+      ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -363,7 +356,6 @@ class RecepcionRepository {
           },
         },
         isLoadinDialog: true,
-        context: context,
       );
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
@@ -401,7 +393,7 @@ class RecepcionRepository {
   }
 
   Future<bool> sendTime(int idRecepcion, String field, String date,
-      bool isLoadingDialog, BuildContext context) async {
+      bool isLoadingDialog,  ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -423,7 +415,6 @@ class RecepcionRepository {
           }
         },
         isLoadinDialog: false,
-        context: context,
       );
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
@@ -480,7 +471,7 @@ class RecepcionRepository {
   }
 
   Future<ResponseValidate> validateRecepcion(int idRecepcion, bool isBackorder,
-      bool isLoadingDialog, BuildContext context) async {
+      bool isLoadingDialog, ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -500,7 +491,6 @@ class RecepcionRepository {
           }
         },
         isLoadinDialog: true,
-        context: context,
       );
       if (response.statusCode <= 500) {
         // Decodifica la respuesta JSON a un mapa

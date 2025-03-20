@@ -18,7 +18,6 @@ class WmsPackingRepository {
   //metodo para obtener todos los batch de packing con sus pedidos y productos
   Future<List<BatchPackingModel>> resBatchsPacking(
     bool isLoadinDialog,
-    BuildContext context,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -33,7 +32,6 @@ class WmsPackingRepository {
         endpoint: 'batch_packing',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
-        context: context,
       );
 
       if (response.statusCode < 400) {
@@ -51,17 +49,16 @@ class WmsPackingRepository {
           if (batchs.isNotEmpty) {
             return batchs;
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.amber[200],
-                content: SizedBox(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Text(
-                      "No tienes batches de packing asignados",
-                      style: const TextStyle(color: Colors.black, fontSize: 12),
-                    ),
-                  ),
-                )));
+      
+
+            Get.snackbar(
+              'Error',
+              "No tienes batches de packing asignados",
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.check, color: Colors.amber),
+            );
+
             return [];
           }
         } else if (jsonResponse.containsKey('error')) {
@@ -105,7 +102,7 @@ class WmsPackingRepository {
 //endpoint para desempacar productos de su caja
   Future<UnPacking> unPacking(
     UnPackingRequest request,
-    BuildContext context,
+
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -127,7 +124,6 @@ class WmsPackingRepository {
           },
         },
         isLoadinDialog: true,
-        context: context,
       );
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
@@ -163,7 +159,7 @@ class WmsPackingRepository {
 
   //endpoint para enviar los productos dentro del paquete anteriormente creado
   Future<ResponseSendPacking> sendPackingRequest(PackingRequest packingRequest,
-      bool isLoadingDialog, BuildContext context) async {
+      bool isLoadingDialog,  ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -187,7 +183,6 @@ class WmsPackingRepository {
           },
         },
         isLoadinDialog: true,
-        context: context,
       );
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
@@ -224,8 +219,8 @@ class WmsPackingRepository {
     return ResponseSendPacking(); // Retornamos un objeto vacío en caso de error de red
   }
 
-  Future<bool> timePackingUser(int batchId, BuildContext context, String time,
-      String endpoint, String type, int userId) async {
+  Future<bool> timePackingUser(int batchId, String time, String endpoint,
+      String type, int userId) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -239,7 +234,6 @@ class WmsPackingRepository {
           endpoint: endpoint,
           isunecodePath: true,
           isLoadinDialog: false,
-          context: context,
           body: {
             "params": {
               "id_batch": "$batchId",
@@ -296,34 +290,21 @@ class WmsPackingRepository {
     } catch (e, s) {
       // Manejo de otros errores
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en resBatchs: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        "Error en timePackingUser: $e $s",
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
 
-      print('Error resBatchs: $e, $s');
+      print('Error timePackingUser: $e, $s');
     }
     return false;
   }
 
-  Future<bool> timePackingBatch(int batchId, BuildContext context, String time,
-      String endpoint, String field, String type) async {
+  Future<bool> timePackingBatch(int batchId, String time, String endpoint,
+      String field, String type) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -337,7 +318,6 @@ class WmsPackingRepository {
           endpoint: endpoint,
           isunecodePath: true,
           isLoadinDialog: false,
-          context: context,
           body: {
             "params": {
               "picking_id": "$batchId",
@@ -393,25 +373,12 @@ class WmsPackingRepository {
     } catch (e, s) {
       // Manejo de otros errores
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.amber[200],
-          content: SizedBox(
-            width: double.infinity,
-            height: 150,
-            child: SingleChildScrollView(
-              child: Text(
-                'Error en resBatchs: $e $s',
-                style: const TextStyle(color: Colors.black, fontSize: 12),
-              ),
-            ),
-          ),
-
-          behavior: SnackBarBehavior
-              .floating, // Hace que no se cierre automáticamente
-          duration:
-              const Duration(seconds: 5), // Esto hace que no se cierre solo
-        ),
+      Get.snackbar(
+        'Error',
+        "Error en timePackingBatch: $e $s",
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
       );
 
       print('Error timePackingBatch: $e, $s');

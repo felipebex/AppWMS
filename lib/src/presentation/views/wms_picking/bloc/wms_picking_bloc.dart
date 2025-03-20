@@ -68,7 +68,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       LoadAllNovedades event, Emitter<PickingState> emit) async {
     try {
       final novedadeslist =
-          await wmsPickingRepository.getnovedades(false, event.context);
+          await wmsPickingRepository.getnovedades(false, );
       listOfNovedades.clear();
       listOfNovedades.addAll(novedadeslist);
 
@@ -128,7 +128,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
       final response = await wmsPickingRepository.resBatchs(
         event.isLoadinDialog,
-        event.context,
       );
 
       if (response != null && response is List) {
@@ -192,7 +191,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         final List<Muelles> responseMuelles =
             await wmsPickingRepository.getmuelles(
           false,
-          event.context,
         );
 
         print('response muelles: ${responseMuelles.length}');
@@ -244,7 +242,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
       final response = await wmsPickingRepository.resBatchsHistory(
         event.isLoadinDialog,
-        event.context,
         event.date,
       );
 
@@ -271,7 +268,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
       final response = await wmsPickingRepository.getBatchById(
         event.isLoadinDialog,
-        event.context,
         event.batchId,
       );
 

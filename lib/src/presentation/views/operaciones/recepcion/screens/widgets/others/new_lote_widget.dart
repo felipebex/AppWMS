@@ -478,7 +478,7 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
       // Ahora podemos pasar la fecha formateada en el evento
       context.read<RecepcionBloc>().add(
             CreateLoteProduct(
-              context,
+             
               bloc.newLoteController.text,
               formattedDate, // Usamos la fecha formateada aquí
             ),

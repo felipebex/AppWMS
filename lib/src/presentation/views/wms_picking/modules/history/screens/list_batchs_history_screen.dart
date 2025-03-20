@@ -192,7 +192,7 @@ class HistoryListScreen extends StatelessWidget {
                                 onTap: () async {
                                   context.read<WMSPickingBloc>().add(
                                       LoadHistoryBatchIdEvent(
-                                          context, true, batch.id ?? 0));
+                                          true, batch.id ?? 0));
 
                                   Navigator.pushNamed(
                                     context,

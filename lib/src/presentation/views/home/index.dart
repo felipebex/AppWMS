@@ -76,31 +76,31 @@ class _HomePageState extends State<HomePage> {
                   if (!mounted) return;
                   context
                       .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent(context, true));
+                      .add(LoadAllBatchsEvent( true));
                 } else if (rol == 'admin') {
                   if (!mounted) return;
                   context
                       .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent(context, true));
+                      .add(LoadAllBatchsEvent( true));
                   //esperamos 1 segundo y realizamos la otra peticion
                   await Future.delayed(const Duration(seconds: 1));
                   context
                       .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(false, context));
+                      .add(LoadAllPackingEvent(false, ));
                   await Future.delayed(const Duration(seconds: 1));
                   context
                       .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra(context));
+                      .add(FetchOrdenesCompra());
                 } else if (rol == 'packing') {
                   if (!mounted) return;
                   context
                       .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(true, context));
+                      .add(LoadAllPackingEvent(true, ));
                 } else if (rol == "reception") {
                   if (!mounted) return;
                   context
                       .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra(context));
+                      .add(FetchOrdenesCompra());
                 } else if (rol == "" || rol == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -665,7 +665,7 @@ class _HomePageState extends State<HomePage> {
                                                 'reception' || homeBloc.userRol == 'admin') {
                                               context.read<RecepcionBloc>().add(
                                                   FetchOrdenesCompraOfBd(
-                                                      context)); // Llama al evento FetchOrdenesCompra
+                                                      )); // Llama al evento FetchOrdenesCompra
 
                                               showDialog(
                                                   context: context,

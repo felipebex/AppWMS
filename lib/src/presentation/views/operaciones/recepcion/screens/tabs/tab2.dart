@@ -1,6 +1,7 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
@@ -8,13 +9,115 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class Tab2ScreenRecep extends StatelessWidget {
+class Tab2ScreenRecep extends StatefulWidget {
   const Tab2ScreenRecep({
     super.key,
     required this.ordenCompra,
   });
 
   final ResultEntrada? ordenCompra;
+
+  @override
+  State<Tab2ScreenRecep> createState() => _Tab2ScreenRecepState();
+}
+
+class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
+  FocusNode focusNode1 = FocusNode(); //cantidad textformfield
+
+  final TextEditingController _controllerToDo = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    FocusScope.of(context).requestFocus(focusNode1);
+  }
+
+  @override
+  void dispose() {
+    focusNode1.dispose();
+    super.dispose();
+  }
+
+  void validateBarcode(String value, BuildContext context) {
+    final bloc = context.read<RecepcionBloc>();
+
+    String scan = bloc.scannedValue5.toLowerCase() == ""
+        ? value.toLowerCase()
+        : bloc.scannedValue5.toLowerCase();
+
+    _controllerToDo.text = "";
+
+    // Obtener la lista de productos desde el Bloc
+    final listOfProducts = bloc.listProductsEntrada.where((element) {
+      return element.isSeparate == 0 || element.isSeparate == null;
+    }).toList();
+
+    // Buscar el producto que coincide con el código de barras escaneado
+    final LineasRecepcion product = listOfProducts.firstWhere(
+      (product) => product.productBarcode == scan,
+      orElse: () =>
+          LineasRecepcion(), // Devuelve null si no se encuentra ningún producto
+    );
+
+    if (product.idMove != null) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const DialogLoading(
+            message: 'Cargando información del producto...',
+          );
+        },
+      );
+      // Si el producto existe, ejecutar los estados necesarios
+
+      bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: true));
+
+      bloc.add(ChangeQuantitySeparate(
+        0,
+        int.parse(product.productId),
+        product.idRecepcion ?? 0,
+        product.idMove ?? 0,
+      ));
+      bloc.add(ChangeProductIsOkEvent(
+        product.idRecepcion ?? 0,
+        true,
+        int.parse(product.productId),
+        0,
+        product.idMove ?? 0,
+      ));
+
+      bloc.add(ChangeIsOkQuantity(
+        product.idRecepcion ?? 0,
+        true,
+        int.parse(product.productId),
+        product.idMove ?? 0,
+      ));
+
+      context.read<RecepcionBloc>().add(FetchPorductOrder(
+            product,
+          ));
+
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        Navigator.pop(context);
+        Navigator.pushReplacementNamed(
+          context,
+          'scan-product-order',
+          arguments: [widget.ordenCompra, product],
+        );
+      });
+      print(product.toMap());
+      // Limpiar el valor escaneado
+      bloc.add(ClearScannedValueOrderEvent('toDo'));
+    } else {
+      // Mostrar alerta de error si el producto no se encuentra
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text("Código erroneo"),
+        backgroundColor: Colors.red[200],
+        duration: const Duration(milliseconds: 500),
+      ));
+      bloc.add(ClearScannedValueOrderEvent('toDo'));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +138,56 @@ class Tab2ScreenRecep extends StatelessWidget {
               height: size.height * 0.8,
               child: Column(
                 children: [
+                  //*espacio para escanear y buscar el producto
+
+                  context.read<UserBloc>().fabricante.contains("Zebra")
+                      ? Container(
+                          height: 15,
+                          margin: const EdgeInsets.only(bottom: 5),
+                          child: TextFormField(
+                            autofocus: true,
+                            showCursor: false,
+                            controller: _controllerToDo,
+                            focusNode: focusNode1,
+                            onChanged: (value) {
+                              // Llamamos a la validación al cambiar el texto
+                              validateBarcode(value, context);
+                            },
+                            decoration: InputDecoration(
+                              // hintText:
+                              //     batchBloc.currentProduct.locationId.toString(),
+                              disabledBorder: InputBorder.none,
+                              hintStyle:
+                                  const TextStyle(fontSize: 14, color: black),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        )
+                      :
+
+                      //*focus para leer los productos
+                      Focus(
+                          focusNode: focusNode1,
+                          autofocus: true,
+                          onKey: (FocusNode node, RawKeyEvent event) {
+                            if (event is RawKeyDownEvent) {
+                              if (event.logicalKey ==
+                                  LogicalKeyboardKey.enter) {
+                                validateBarcode(
+                                    context.read<RecepcionBloc>().scannedValue5,
+                                    context);
+                                return KeyEventResult.handled;
+                              } else {
+                                context.read<RecepcionBloc>().add(
+                                    UpdateScannedValueOrderEvent(
+                                        event.data.keyLabel, 'toDo'));
+                                return KeyEventResult.handled;
+                              }
+                            }
+                            return KeyEventResult.ignored;
+                          },
+                          child: Container()),
+
                   (recepcionBloc.listProductsEntrada.where((element) {
                             return element.isSeparate == 0 ||
                                 element.isSeparate == null;
@@ -104,7 +257,9 @@ class Tab2ScreenRecep extends StatelessWidget {
 
                                         context
                                             .read<RecepcionBloc>()
-                                            .add(FetchPorductOrder(product, context));
+                                            .add(FetchPorductOrder(
+                                              product,
+                                            ));
 
                                         // Esperar 3 segundos antes de continuar
                                         Future.delayed(
@@ -115,7 +270,10 @@ class Tab2ScreenRecep extends StatelessWidget {
                                           Navigator.pushReplacementNamed(
                                             context,
                                             'scan-product-order',
-                                            arguments: [ordenCompra, product],
+                                            arguments: [
+                                              widget.ordenCompra,
+                                              product
+                                            ],
                                           );
                                         });
                                         print(product.toMap());

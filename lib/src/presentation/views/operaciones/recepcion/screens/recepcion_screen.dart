@@ -53,7 +53,7 @@ class _RecepcionScreenState extends State<RecepcionScreen>
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             //volvemos a llamar las entradas que tenemos guardadas en la bd
-            context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd(context));
+            context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
 
             Navigator.pushReplacementNamed(
               context,

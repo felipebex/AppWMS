@@ -244,7 +244,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                   // Disparar el evento con la fecha seleccionada
                                   context.read<WMSPickingBloc>().add(
                                         LoadHistoryBatchsEvent(
-                                            context, true, formattedDate),
+                                             true, formattedDate),
                                       );
 
                                   // Navegar a la pantalla de historial
@@ -432,7 +432,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       LoadConfigurationsUser());
 
                                                   batchBloc.add(StartTimePick(
-                                                      context,
+                                             
                                                       batch.id ?? 0,
                                                       DateTime.now()));
 

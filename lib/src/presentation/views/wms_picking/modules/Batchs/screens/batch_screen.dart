@@ -1315,7 +1315,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                                                                 return e.isMuelle == null && e.isSeparate == 1;
                                                                               }).toList(),
                                                                               batchBloc.subMuelleSelected,
-                                                                              context));
+                                                                            ));
 
                                                                           Navigator.pop(
                                                                               context);
@@ -1826,7 +1826,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
         if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
           // Cambiar el producto actual
           context.read<BatchBloc>().add(ChangeCurrentProduct(
-              currentProduct: currentProduct, context: context));
+              currentProduct: currentProduct, ));
 
           // Cambiar el estado de cantidad
           batchBloc.add(ChangeIsOkQuantity(
@@ -1856,7 +1856,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
         } else {
           // Si no estamos en la última posición, cambiamos el producto actual
           context.read<BatchBloc>().add(ChangeCurrentProduct(
-              currentProduct: currentProduct, context: context));
+              currentProduct: currentProduct, ));
 
           // Validamos el campo "quantity"
           batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
@@ -2012,7 +2012,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
             batchBloc.batchWithProducts.batch?.id ?? 0,
             currentProduct.idMove ?? 0));
 
-        batchBloc.add(EndTimePick(context,
+        batchBloc.add(EndTimePick(
             batchBloc.batchWithProducts.batch?.id ?? 0, DateTime.now()));
 
         batchBloc.add(PickingOkEvent(batchBloc.batchWithProducts.batch?.id ?? 0,

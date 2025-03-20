@@ -708,7 +708,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                     BatchBloc>()
                                                                 .add(SendProductOdooEvent(
                                                                     productsBatch,
-                                                                    context));
+                                                                    ));
                                                           },
                                                           style: ElevatedButton
                                                               .styleFrom(

@@ -1283,7 +1283,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       return;
     }
 
-    context.read<RecepcionBloc>().add(SendProductToOrder(context));
+    context.read<RecepcionBloc>().add(SendProductToOrder());
     context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
     termiateProcess();
 
@@ -1305,7 +1305,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       );
       return;
     }
-    context.read<RecepcionBloc>().add(SendProductToOrder(context));
+    context.read<RecepcionBloc>().add(SendProductToOrder());
     context
         .read<RecepcionBloc>()
         .add(FinalizarRecepcionProductoSplit(cantidad));

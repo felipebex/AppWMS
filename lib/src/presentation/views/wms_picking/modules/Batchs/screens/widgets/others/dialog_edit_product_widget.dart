@@ -289,7 +289,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                     .add(SendProductEditOdooEvent(
                                       widget.productsBatch,
                                       cantidadReuqest,
-                                      context,
+                                    
                                     ));
 
                                 Navigator.pop(context);
