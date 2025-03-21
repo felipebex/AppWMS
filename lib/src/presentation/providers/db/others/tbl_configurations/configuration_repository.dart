@@ -3,7 +3,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_configurations/configuration_table.dart';
-import 'package:wms_app/src/presentation/views/user/domain/models/configuration.dart';
+import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 
 class ConfigurationsRepository {
   // Método para insertar o actualizar una configuración

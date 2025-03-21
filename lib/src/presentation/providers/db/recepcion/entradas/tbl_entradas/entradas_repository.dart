@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_entradas/entradas_table.dart';
 
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 
 class EntradasRepository {
   //metodo para insertar todas las entradas

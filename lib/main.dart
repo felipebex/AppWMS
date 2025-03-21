@@ -13,7 +13,8 @@ import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -100,6 +101,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => RecepcionBloc(),
+        ),
+        BlocProvider(
+          create: (_) => TransferenciaBloc(),
         ),
         BlocProvider(
           create: (_) => HomeBloc(),

@@ -1,6 +1,6 @@
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_table.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:sqflite/sqflite.dart';
 
 class BatchPackingRepository {

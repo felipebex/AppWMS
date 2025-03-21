@@ -3,7 +3,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_package_pack/package_table.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 
 class PackagesRepository {
   // Método para insertar o actualizar un paquete

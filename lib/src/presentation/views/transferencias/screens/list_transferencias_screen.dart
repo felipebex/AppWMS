@@ -1,0 +1,409 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
+
+class ListTransferenciasScreen extends StatelessWidget {
+  const ListTransferenciasScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final transferBloc = context.read<TransferenciaBloc>();
+    final Size size = MediaQuery.sizeOf(context);
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigator.pushNamed(context, 'transferencia');
+        },
+        backgroundColor: primaryColorApp,
+        child: Icon(Icons.add, color: white),
+      ),
+      backgroundColor: white,
+      bottomNavigationBar: context.read<TransferenciaBloc>().isKeyboardVisible
+          ? CustomKeyboard(
+              controller:
+                  context.read<TransferenciaBloc>().searchControllerTransfer,
+              onchanged: () {
+                // context.read<RecepcionBloc>().add(SearchOrdenCompraEvent(
+                //       context
+                //           .read<RecepcionBloc>()
+                //           .searchControllerOrderC
+                //           .text,
+                //     ));
+              },
+            )
+          : null,
+      body: Container(
+        width: size.width,
+        height: size.height,
+        child: Column(
+          children: [
+            //* appbar
+            AppBar(size: size),
+            //*buscar
+            Container(
+                margin: const EdgeInsets.only(top: 5, bottom: 5),
+                height: 55,
+                width: size.width * 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 10,
+                    right: 10,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: size.width * 0.9,
+                        child: Card(
+                          color: Colors.white,
+                          elevation: 3,
+                          child: TextFormField(
+                            readOnly: context
+                                    .read<UserBloc>()
+                                    .fabricante
+                                    .contains("Zebra")
+                                ? true
+                                : false,
+                            textAlignVertical: TextAlignVertical.center,
+                            controller: context
+                                .read<TransferenciaBloc>()
+                                .searchControllerTransfer,
+                            decoration: InputDecoration(
+                              prefixIcon: const Icon(
+                                Icons.search,
+                                color: grey,
+                                size: 20,
+                              ),
+                              suffixIcon: IconButton(
+                                  onPressed: () {
+                                    context
+                                        .read<TransferenciaBloc>()
+                                        .searchControllerTransfer
+                                        .clear();
+
+                                    // context
+                                    //     .read<RecepcionBloc>()
+                                    //     .add(SearchOrdenCompraEvent(
+                                    //       '',
+                                    //     ));
+
+                                    // context
+                                    //     .read<TransferenciaBloc>()
+                                    //     .add(ShowKeyboardEvent(false));
+
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: grey,
+                                    size: 20,
+                                  )),
+                              disabledBorder: const OutlineInputBorder(),
+                              hintText: "Buscar transferencia",
+                              hintStyle: const TextStyle(
+                                  color: Colors.grey, fontSize: 14),
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (value) {
+                              // context
+                              //     .read<RecepcionBloc>()
+                              //     .add(SearchOrdenCompraEvent(
+                              //       value,
+                              //     ));
+                            },
+                            onTap: !context
+                                    .read<UserBloc>()
+                                    .fabricante
+                                    .contains("Zebra")
+                                ? null
+                                : () {
+                                    // context
+                                    //     .read<RecepcionBloc>()
+                                    //     .add(ShowKeyboardEvent(true));
+                                  },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+
+            Expanded(
+              child: ListView.builder(
+                  padding: const EdgeInsets.only(top: 2),
+                  itemCount: transferBloc.transferencias.length,
+                  itemBuilder: (BuildContext contextList, int index) {
+                    final transferenciaDetail =
+                        transferBloc.transferencias[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                      ),
+                      child: Card(
+                        elevation: 3,
+                        color:
+                            // ordenCompra[index].isSelected == 1
+                            //     ? primaryColorAppLigth
+                            //     : ordenCompra[index].isFinish == 1
+                            //         ? Colors.green[200]
+                            //         :
+                            white,
+                        child: ListTile(
+                          trailing: Icon(Icons.arrow_forward_ios,
+                              color: primaryColorApp),
+                          title: Text('${transferenciaDetail.name}',
+                              style: TextStyle(
+                                  color: primaryColorApp,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold)),
+                          subtitle: Column(
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_month_sharp,
+                                      color: primaryColorApp,
+                                      size: 15,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      transferenciaDetail.fechaCreacion != null
+                                          ? DateFormat('dd/MM/yyyy hh:mm ')
+                                              .format(DateTime.parse(
+                                                  transferenciaDetail
+                                                      .fechaCreacion!))
+                                          : "Sin fecha",
+                                      style: const TextStyle(
+                                          fontSize: 12, color: black),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.person,
+                                      color: primaryColorApp,
+                                      size: 15,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      transferenciaDetail.responsable == ""
+                                          ? 'sin responsable'
+                                          : transferenciaDetail.responsable ??
+                                              '',
+                                      style: const TextStyle(
+                                          fontSize: 12, color: black),
+                                    ),
+                                    Spacer(),
+                                    // ordenCompra[index].startTimeReception != ""
+                                    //     ? Padding(
+                                    //         padding:
+                                    //             const EdgeInsets.only(left: 5),
+                                    //         child: GestureDetector(
+                                    //           onTap: () {
+                                    //             showDialog(
+                                    //                 context: context,
+                                    //                 builder: (context) =>
+                                    //                     DialogInfo(
+                                    //                       title:
+                                    //                           'Tiempo de inicio de operacion',
+                                    //                       body:
+                                    //                           'Este orden fue iniciada a las ${ordenCompra[index].startTimeReception}',
+                                    //                     ));
+                                    //           },
+                                    //           child: Icon(
+                                    //             Icons.timer_sharp,
+                                    //             color: primaryColorApp,
+                                    //             size: 15,
+                                    //           ),
+                                    //         ),
+                                    //       )
+                                    //     : const SizedBox(),
+                                  ],
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  children: [
+                                    Text('Tipo de transferencia: ',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: primaryColorApp)),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      transferenciaDetail.pickingType ?? "",
+                                      style: const TextStyle(
+                                          fontSize: 12, color: black),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Ubicacion destino: ',
+                                  style: TextStyle(
+                                      fontSize: 12, color: primaryColorApp),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  transferenciaDetail.locationDestName ??
+                                      'Sin ubicacion',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: black),
+                                ),
+                              ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.download_for_offline_rounded,
+                                      color: primaryColorApp,
+                                      size: 15,
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      transferenciaDetail.origin ==
+                                              ""
+                                          ? 'Sin orden de compra'
+                                          : transferenciaDetail
+                                                  .origin ??
+                                              '',
+                                      style: const TextStyle(
+                                          fontSize: 12, color: black),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          onTap: () async {
+                            // print('ordenCompra: ${ordenCompra[index].toMap()}');
+                            // //cargamos los permisos del usuario
+                            // context
+                            //     .read<RecepcionBloc>()
+                            //     .add(LoadConfigurationsUserOrder());
+
+                            // //verficamos is la orden de entrada tiene ya un responsable
+                            // if (ordenCompra[index].responsableId == null ||
+                            //     ordenCompra[index].responsableId == 0) {
+                            //   showDialog(
+                            //     context: context,
+                            //     barrierDismissible:
+                            //         false, // No permitir que el usuario cierre el diálogo manualmente
+                            //     builder: (context) =>
+                            //         DialogAsignUserToOrderWidget(
+                            //       onAccepted: () async {
+                            //         // obtenemos los productos de esa entrada
+                            //         context.read<RecepcionBloc>().add(
+                            //             GetPorductsToEntrada(
+                            //                 ordenCompra[index].id ?? 0));
+                            //         //asignamos el responsable a esa orden de entrada
+                            //         context
+                            //             .read<RecepcionBloc>()
+                            //             .add(AssignUserToOrder(
+                            //               ordenCompra[index].id ?? 0,
+                            //             ));
+                            //         context.read<RecepcionBloc>().add(
+                            //             CurrentOrdenesCompra(
+                            //                 ordenCompra[index]));
+                            //         Navigator.pop(context);
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'transferencia-detail',
+                              arguments: [transferenciaDetail, 0],
+                            );
+                            //       },
+                            //     ),
+                            //   );
+                            // } else {
+                            //   validateTime(ordenCompra[index], context);
+                            // }
+                          },
+                        ),
+                      ),
+                    );
+                  }),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AppBar extends StatelessWidget {
+  const AppBar({
+    super.key,
+    required this.size,
+  });
+
+  final Size size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: primaryColorApp,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(20),
+          bottomRight: Radius.circular(20),
+        ),
+      ),
+      width: double.infinity,
+      child: BlocProvider(
+        create: (context) => ConnectionStatusCubit(),
+        child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+            builder: (context, status) {
+          return Column(
+            children: [
+              const WarningWidgetCubit(),
+              Padding(
+                padding: EdgeInsets.only(
+                    bottom: 10,
+                    top: status != ConnectionStatus.online ? 0 : 35),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: white),
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(
+                          context,
+                          'home',
+                        );
+                      },
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: size.width * 0.15),
+                      child: const Text("TRANSFERENCIAS",
+                          style: TextStyle(color: white, fontSize: 18)),
+                    ),
+                    const Spacer(),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+}

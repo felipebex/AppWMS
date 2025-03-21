@@ -1,13 +1,16 @@
 // app_routes.dart
 
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/models/recepcion_response_model.dart';
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/list_ordernes_compra_screen.dart';
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/scan_product_screen.dart';
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/widgets/others/new_lote_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/screens/list_ordernes_compra_screen.dart';
+import 'package:wms_app/src/presentation/views/recepcion/screens/scan_product_screen.dart';
+import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
+import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/list_transferencias_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/transferencia_screen.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/domain/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_list.dart';
@@ -37,6 +40,10 @@ class AppRoutes {
 
   //inventario
   static const String inventario = 'inventario';
+
+  //transferencias
+  static const String transferencias = 'transferencias';
+  static const String transferenciaDetail = 'transferencia-detail';
 
   // Global
   static const String home = 'home';
@@ -163,6 +170,21 @@ class AppRoutes {
 
       //info rapida
       infoRapida: (_) => const InfoRapidaScreen(),
+      //transferencias
+      transferencias: (_) => const ListTransferenciasScreen(),
+      transferenciaDetail: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final transferencia = arguments[0] as ResultTransFerencias?;
+        final initialTabIndexArg = arguments[1] as int?;
+
+        return TransferenciaScreen(
+          transferencia: transferencia,
+          initialTabIndex: initialTabIndexArg ?? 0,
+        );
+      },
     };
   }
 }

@@ -6,7 +6,8 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
-import 'package:wms_app/src/presentation/views/operaciones/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -59,63 +60,66 @@ class _HomePageState extends State<HomePage> {
           final homeBloc = context.read<HomeBloc>();
           return RefreshIndicator(
             onRefresh: () async {
-              //verficiar si tenemos algun producto sin enviar
-              DataBaseSqlite db = DataBaseSqlite();
-              //traemos todos los productos
-              context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-              final products = await db.getProducts();
-              final productsNoSendOdoo =
-                  products.where((element) => element.isSendOdoo == 0).toList();
-              if (productsNoSendOdoo.isEmpty) {
-                await DataBaseSqlite().deleteBD();
-                //peticion para la configuracion
-                if (!mounted) return;
-                final String rol = await PrefUtils.getUserRol();
-                //peticion segun el rol del usuario
-                if (rol == 'picking') {
-                  if (!mounted) return;
-                  context
-                      .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent( true));
-                } else if (rol == 'admin') {
-                  if (!mounted) return;
-                  context
-                      .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent( true));
-                  //esperamos 1 segundo y realizamos la otra peticion
-                  await Future.delayed(const Duration(seconds: 1));
-                  context
-                      .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(false, ));
-                  await Future.delayed(const Duration(seconds: 1));
-                  context
-                      .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra());
-                } else if (rol == 'packing') {
-                  if (!mounted) return;
-                  context
-                      .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(true, ));
-                } else if (rol == "reception") {
-                  if (!mounted) return;
-                  context
-                      .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra());
-                } else if (rol == "" || rol == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("El usuario no tiene cargado los permisos"),
-                      duration: Duration(seconds: 4),
-                    ),
-                  );
-                }
-              } else {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const DialogProductsNotSends();
-                    });
-              }
+
+              context.read<TransferenciaBloc>().add(FetchAllTransferencias());
+
+              // //verficiar si tenemos algun producto sin enviar
+              // DataBaseSqlite db = DataBaseSqlite();
+              // //traemos todos los productos
+              // context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+              // final products = await db.getProducts();
+              // final productsNoSendOdoo =
+              //     products.where((element) => element.isSendOdoo == 0).toList();
+              // if (productsNoSendOdoo.isEmpty) {
+              //   await DataBaseSqlite().deleteBD();
+              //   //peticion para la configuracion
+              //   if (!mounted) return;
+              //   final String rol = await PrefUtils.getUserRol();
+              //   //peticion segun el rol del usuario
+              //   if (rol == 'picking') {
+              //     if (!mounted) return;
+              //     context
+              //         .read<WMSPickingBloc>()
+              //         .add(LoadAllBatchsEvent( true));
+              //   } else if (rol == 'admin') {
+              //     if (!mounted) return;
+              //     context
+              //         .read<WMSPickingBloc>()
+              //         .add(LoadAllBatchsEvent( true));
+              //     //esperamos 1 segundo y realizamos la otra peticion
+              //     await Future.delayed(const Duration(seconds: 1));
+              //     context
+              //         .read<WmsPackingBloc>()
+              //         .add(LoadAllPackingEvent(false, ));
+              //     await Future.delayed(const Duration(seconds: 1));
+              //     context
+              //         .read<RecepcionBloc>()
+              //         .add(FetchOrdenesCompra());
+              //   } else if (rol == 'packing') {
+              //     if (!mounted) return;
+              //     context
+              //         .read<WmsPackingBloc>()
+              //         .add(LoadAllPackingEvent(true, ));
+              //   } else if (rol == "reception") {
+              //     if (!mounted) return;
+              //     context
+              //         .read<RecepcionBloc>()
+              //         .add(FetchOrdenesCompra());
+              //   } else if (rol == "" || rol == null) {
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //       const SnackBar(
+              //         content: Text("El usuario no tiene cargado los permisos"),
+              //         duration: Duration(seconds: 4),
+              //       ),
+              //     );
+              //   }
+              // } else {
+              //   showDialog(
+              //       context: context,
+              //       builder: (context) {
+              //         return const DialogProductsNotSends();
+              //       });
+              // }
             },
             child: Scaffold(
               body: Container(
@@ -707,32 +711,32 @@ class _HomePageState extends State<HomePage> {
                                         SizedBox(width: 5),
                                         GestureDetector(
                                           onTap: () async {
-                                            // showDialog(
-                                            //     context: context,
-                                            //     builder: (context) {
-                                            //       return const DialogLoading(
-                                            //           message:
-                                            //               'Cargando inventario rapido...');
-                                            //     });
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando transferencias...');
+                                                });
 
-                                            // await Future.delayed(const Duration(
-                                            //     seconds:
-                                            //         1)); // Ajusta el tiempo si es necesario
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
 
-                                            // Navigator.pop(context);
-                                            // Navigator.pushReplacementNamed(
-                                            //   context,
-                                            //   'inventario',
-                                            // );
-
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                    "Su usuario no tiene permisos para acceder a este módulo"),
-                                                duration: Duration(seconds: 4),
-                                              ),
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'transferencias',
                                             );
+
+                                            // ScaffoldMessenger.of(context)
+                                            //     .showSnackBar(
+                                            //   const SnackBar(
+                                            //     content: Text(
+                                            //         "Su usuario no tiene permisos para acceder a este módulo"),
+                                            //     duration: Duration(seconds: 4),
+                                            //   ),
+                                            // );
                                           },
                                           child: ImteModule(
                                             urlImg: "transferencia.png",
