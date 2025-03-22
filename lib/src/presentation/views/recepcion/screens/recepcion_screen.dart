@@ -54,6 +54,7 @@ class _RecepcionScreenState extends State<RecepcionScreen>
           onPressed: () {
             //volvemos a llamar las entradas que tenemos guardadas en la bd
             context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
+          
 
             Navigator.pushReplacementNamed(
               context,

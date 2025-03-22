@@ -29,7 +29,7 @@ class ScanProductOrderScreen extends StatefulWidget {
   });
 
   final ResultEntrada? ordenCompra;
-  final LineasRecepcion? currentProduct;
+  final LineasTransferencia? currentProduct;
 
   @override
   State<ScanProductOrderScreen> createState() => _ScanProductOrderScreenState();
@@ -503,32 +503,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                   ],
                                                 ),
                                               ),
-                                              Column(
-                                                children: [
-                                                  ExpiryDateWidget(
-                                                      expireDate: recepcionBloc
-                                                                  .currentProduct
-                                                                  .fechaVencimiento ==
-                                                              ""
-                                                          ? DateTime.now()
-                                                          : DateTime.parse(recepcionBloc
-                                                                      .currentProduct
-                                                                      .fechaVencimiento ==
-                                                                  null
-                                                              ? ''
-                                                              : recepcionBloc
-                                                                  .currentProduct
-                                                                  .fechaVencimiento!),
-                                                      size: size,
-                                                      isDetaild: false,
-                                                      isNoExpireDate: recepcionBloc
-                                                                  .currentProduct
-                                                                  .fechaVencimiento ==
-                                                              ""
-                                                          ? true
-                                                          : false),
-                                                ],
-                                              ),
                                             ],
                                           )
                                         : Focus(
@@ -663,29 +637,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                       ],
                                                     ),
                                                   ),
-                                                  const SizedBox(height: 10),
-                                                  ExpiryDateWidget(
-                                                      expireDate: recepcionBloc
-                                                                  .currentProduct
-                                                                  .fechaVencimiento ==
-                                                              ""
-                                                          ? DateTime.now()
-                                                          : DateTime.parse(recepcionBloc
-                                                                      .currentProduct
-                                                                      .fechaVencimiento ==
-                                                                  null
-                                                              ? ''
-                                                              : recepcionBloc
-                                                                  .currentProduct
-                                                                  .fechaVencimiento!),
-                                                      size: size,
-                                                      isDetaild: false,
-                                                      isNoExpireDate: recepcionBloc
-                                                                  .currentProduct
-                                                                  .fechaVencimiento ==
-                                                              ""
-                                                          ? true
-                                                          : false),
                                                 ],
                                               ),
                                             ),
@@ -1156,7 +1107,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   }
 
   bool validateScannedBarcode(String scannedBarcode,
-      LineasRecepcion currentProduct, RecepcionBloc batchBloc, bool isProduct) {
+      LineasTransferencia currentProduct, RecepcionBloc batchBloc, bool isProduct) {
     // Buscar el barcode que coincida con el valor escaneado
     Barcodes? matchedBarcode = context
         .read<RecepcionBloc>()
@@ -1272,19 +1223,22 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   void _finishSeprateProductOrder(
     BuildContext context,
   ) {
-    if (context.read<RecepcionBloc>().selectLote == "") {
-      Get.snackbar(
-        'Error',
-        "Seleccione un lote",
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        icon: Icon(Icons.error, color: Colors.amber),
-      );
-      return;
+    if(context.read<RecepcionBloc>().currentProduct.productTracking == "lot"){
+      if (context.read<RecepcionBloc>().selectLote == "") {
+        Get.snackbar(
+          'Error',
+          "Seleccione un lote",
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          icon: Icon(Icons.error, color: Colors.amber),
+        );
+        return;
+      }
     }
+   
 
-    context.read<RecepcionBloc>().add(SendProductToOrder());
     context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
+    context.read<RecepcionBloc>().add(SendProductToOrder());
     termiateProcess();
 
     Navigator.pushReplacementNamed(context, 'recepcion',
@@ -1305,10 +1259,10 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       );
       return;
     }
-    context.read<RecepcionBloc>().add(SendProductToOrder());
     context
         .read<RecepcionBloc>()
         .add(FinalizarRecepcionProductoSplit(cantidad));
+    context.read<RecepcionBloc>().add(SendProductToOrder());
     termiateProcess();
   }
 

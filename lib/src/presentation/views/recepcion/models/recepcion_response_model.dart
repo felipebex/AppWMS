@@ -91,16 +91,14 @@ class ResultEntrada {
   String? responsable;
   String? pickingType;
 
-  //  "start_time_reception": "",
   dynamic startTimeReception;
-
-  // "end_time_reception": "",
   dynamic endTimeReception;
   dynamic isSelected;
   dynamic isStarted;
   dynamic isFinish;
 
-  List<LineasRecepcion>? lineasRecepcion;
+  List<LineasTransferencia>? lineasRecepcion;
+  List<LineasTransferencia>? lineasRecepcionEnviadas;
 
   ResultEntrada({
     this.id,
@@ -127,13 +125,13 @@ class ResultEntrada {
     this.responsableId,
     this.responsable,
     this.pickingType,
-    this.lineasRecepcion,
     this.startTimeReception,
     this.endTimeReception,
     this.isSelected,
     this.isStarted,
     this.isFinish,
-
+    this.lineasRecepcion,
+    this.lineasRecepcionEnviadas,
   });
 
   factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
@@ -168,8 +166,12 @@ class ResultEntrada {
         isFinish: json["is_finish"],
         lineasRecepcion: json["lineas_recepcion"] == null
             ? []
-            : List<LineasRecepcion>.from(json["lineas_recepcion"]!
-                .map((x) => LineasRecepcion.fromMap(x))),
+            : List<LineasTransferencia>.from(json["lineas_recepcion"]!
+                .map((x) => LineasTransferencia.fromMap(x))),
+        lineasRecepcionEnviadas: json["lineas_recepcion_enviadas"] == null
+            ? []
+            : List<LineasTransferencia>.from(json["lineas_recepcion_enviadas"]!
+                .map((x) => LineasTransferencia.fromMap(x))),
       );
 
   Map<String, dynamic> toMap() => {
@@ -205,10 +207,14 @@ class ResultEntrada {
         "lineas_recepcion": lineasRecepcion == null
             ? []
             : List<dynamic>.from(lineasRecepcion!.map((x) => x.toMap())),
+        "lineas_recepcion_enviadas": lineasRecepcionEnviadas == null
+            ? []
+            : List<dynamic>.from(
+                lineasRecepcionEnviadas!.map((x) => x.toMap())),
       };
 }
 
-class LineasRecepcion {
+class LineasTransferencia {
   int? id;
   dynamic? productId;
   dynamic? idRecepcion;
@@ -241,7 +247,7 @@ class LineasRecepcion {
   final dynamic productIsOk;
   final dynamic isQuantityIsOk;
   final int? loteId;
-  final String? loteName;
+  final String? lotName;
   final String? loteDate;
   final dynamic quantitySeparate;
 
@@ -250,8 +256,11 @@ class LineasRecepcion {
   final dynamic isProductSplit;
 
   final dynamic dateSeparate;
+  final dynamic dateStart;
+  final dynamic dateEnd;
+  final dynamic timeTotalSeparate;
 
-  LineasRecepcion({
+  LineasTransferencia({
     this.id,
     this.productId,
     this.idMove,
@@ -276,7 +285,7 @@ class LineasRecepcion {
     this.locationBarcode,
     this.weight,
     this.loteId,
-    this.loteName,
+    this.lotName,
     this.loteDate,
     this.productIsOk,
     this.isQuantityIsOk,
@@ -286,9 +295,12 @@ class LineasRecepcion {
     this.isProductSplit,
     this.observation,
     this.dateSeparate,
+    this.dateStart,
+    this.dateEnd,
+    this.timeTotalSeparate,
   });
 
-  factory LineasRecepcion.fromMap(Map<String, dynamic> json) => LineasRecepcion(
+  factory LineasTransferencia.fromMap(Map<String, dynamic> json) => LineasTransferencia(
         id: json["id"],
         productId: json["product_id"],
         idRecepcion: json["id_recepcion"],
@@ -318,7 +330,7 @@ class LineasRecepcion {
         locationBarcode: json["location_barcode"],
         weight: json["weight"]?.toDouble(),
         loteId: json["lote_id"],
-        loteName: json["lote_name"],
+        lotName: json["lot_name"],
         loteDate: json["lote_date"],
         productIsOk: json["product_is_ok"],
         isQuantityIsOk: json["is_quantity_is_ok"],
@@ -328,6 +340,9 @@ class LineasRecepcion {
         isProductSplit: json["is_product_split"],
         observation: json["observation"],
         dateSeparate: json["date_separate"],
+        dateStart: json["date_start"],
+        dateEnd: json["date_end"],
+        timeTotalSeparate: json["time_total_separate"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -359,7 +374,7 @@ class LineasRecepcion {
         "location_barcode": locationBarcode,
         "weight": weight,
         "lote_id": loteId,
-        "lote_name": loteName,
+        "lot_name": lotName,
         "lote_date": loteDate,
         "product_is_ok": productIsOk,
         "is_quantity_is_ok": isQuantityIsOk,
@@ -369,5 +384,8 @@ class LineasRecepcion {
         "is_product_split": isProductSplit,
         "observation": observation,
         "date_separate": dateSeparate,
+        "date_start": dateStart,
+        "date_end": dateEnd,
+        "time_total_separate": timeTotalSeparate,
       };
 }

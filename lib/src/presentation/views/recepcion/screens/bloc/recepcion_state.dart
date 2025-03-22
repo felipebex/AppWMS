@@ -62,7 +62,7 @@ class FetchOrdenesCompraOfBdFailure extends RecepcionState {
 class GetProductsToEntradaLoading extends RecepcionState {}
 
 class GetProductsToEntradaSuccess extends RecepcionState {
-  final List<LineasRecepcion> productos;
+  final List<LineasTransferencia> productos;
   GetProductsToEntradaSuccess(this.productos);
 }
 
@@ -75,7 +75,7 @@ class GetProductsToEntradaFailure extends RecepcionState {
 class FetchPorductOrderLoading extends RecepcionState {}
 
 class FetchPorductOrderSuccess extends RecepcionState {
-  final LineasRecepcion producto;
+  final LineasTransferencia producto;
   FetchPorductOrderSuccess(this.producto);
 }
 

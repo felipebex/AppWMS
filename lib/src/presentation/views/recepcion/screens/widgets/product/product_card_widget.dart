@@ -6,9 +6,9 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ProductDropdownOrderWidget extends StatelessWidget {
   final String? selectedProduct;
-  final List<LineasRecepcion> listOfProductsName;
+  final List<LineasTransferencia> listOfProductsName;
   final String currentProductId;
-  final LineasRecepcion currentProduct;
+  final LineasTransferencia currentProduct;
 
   final bool isPDA;
 
@@ -46,7 +46,7 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                 width: 20,
               ),
               value: selectedProduct,
-              items: listOfProductsName.map((LineasRecepcion product) {
+              items: listOfProductsName.map((LineasTransferencia product) {
                 return DropdownMenuItem<String>(
                   value: product.productName.toString(),
                   child: Container(

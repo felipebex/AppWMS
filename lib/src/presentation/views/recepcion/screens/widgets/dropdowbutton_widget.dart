@@ -20,7 +20,7 @@ class DialogOrderAdvetenciaCantidadScreen extends StatefulWidget {
   });
 
   final int cantidad; // Variable para almacenar la cantidad
-  final LineasRecepcion currentProduct;
+  final LineasTransferencia currentProduct;
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
   final VoidCallback onSplit; // Callback para la acción a split
 
@@ -151,7 +151,7 @@ class _DialogAdvetenciaCantidadScreenState
               ),
             ),
             Visibility(
-              visible: widget.cantidad > 1,
+              visible: (widget.currentProduct.quantityOrdered > 1),
               child: ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context); // Cierra el diálogo

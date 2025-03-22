@@ -22,10 +22,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   List<ResultEntrada> listFiltersOrdenesCompra = [];
 
   //*listado de productos de una entrada
-  List<LineasRecepcion> listProductsEntrada = [];
+  List<LineasTransferencia> listProductsEntrada = [];
 
   //*lista de productos de un una entrada
-  List<LineasRecepcion> listOfProductsName = [];
+  List<LineasTransferencia> listOfProductsName = [];
 
   //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
@@ -35,7 +35,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
   //*producto acutal
 
-  LineasRecepcion currentProduct = LineasRecepcion();
+  LineasTransferencia currentProduct = LineasTransferencia();
 
 //*orden actual
   ResultEntrada resultEntrada = ResultEntrada();
@@ -249,11 +249,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       emit(CreateLoteProductLoading());
       final response = await _recepcionRepository.createLote(
-          false,
-          int.parse(currentProduct.productId),
-          event.nameLote,
-          event.fechaCaducidad,
-        );
+        false,
+        int.parse(currentProduct.productId),
+        event.nameLote,
+        event.fechaCaducidad,
+      );
 
       if (response != null) {
         //agregamos el nuevo lote a la lista de lotes
@@ -272,7 +272,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         await db.productEntradaRepository.setFieldTableProductEntrada(
           currentProduct.idRecepcion,
           int.parse(currentProduct.productId),
-          "lote_name",
+          "lot_name",
           response.result?.result?.name ?? '',
           currentProduct.idMove,
         );
@@ -333,7 +333,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           ],
         ),
         false,
-
       );
 
       // if (response) {
@@ -398,11 +397,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "is_product_split",
           1,
           currentProduct.idMove);
-
+      //marcamos tiempo final de separacion
       await db.productEntradaRepository.setFieldTableProductEntrada(
           currentProduct.idRecepcion,
           int.parse(currentProduct.productId),
-          "date_separate",
+          "date_end",
           DateTime.now().toString(),
           currentProduct.idMove);
 
@@ -432,11 +431,12 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "is_separate",
           1,
           currentProduct.idMove);
-      //marcamos la fecha de separacion
+
+      //marcamos tiempo final de separacion
       await db.productEntradaRepository.setFieldTableProductEntrada(
           currentProduct.idRecepcion,
           int.parse(currentProduct.productId),
-          "date_separate",
+          "date_end",
           DateTime.now().toString(),
           currentProduct.idMove);
     } catch (e, s) {
@@ -543,6 +543,15 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "is_selected",
           1,
           currentProduct.idMove ?? 0);
+
+      //registramos el tiempo de inicio
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          event.idEntrada,
+          event.productId,
+          "date_start",
+          DateTime.now().toString(),
+          currentProduct.idMove ?? 0);
+
       //actualizamos el producto a true
       await db.productEntradaRepository.setFieldTableProductEntrada(
         event.idEntrada,
@@ -584,7 +593,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     await db.productEntradaRepository.setFieldTableProductEntrada(
       currentProduct.idRecepcion,
       int.parse(currentProduct.productId),
-      "lote_name",
+      "lot_name",
       event.lote.name,
       currentProduct.idMove,
     );
@@ -701,7 +710,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       // traemos toda la lista de barcodes
       listOfBarcodes.clear();
       print('listOfBarcodes: ${listOfBarcodes.length}');
-      currentProduct = LineasRecepcion();
+      currentProduct = LineasTransferencia();
       currentProduct = event.product;
       listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
         currentProduct.idRecepcion ?? 0,
@@ -854,15 +863,17 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       FetchOrdenesCompra event, Emitter<RecepcionState> emit) async {
     try {
       emit(FetchOrdenesCompraLoading());
-      final response = await _recepcionRepository.resBatchsPacking(
-        true,
-      );
+      final response = await _recepcionRepository.resBatchsPacking(true);
       if (response != null && response is List) {
         await db.entradasRepository.insertEntrada(response);
 
         // Convertir el mapa en una lista de productos únicos con cantidades sumadas
-        List<LineasRecepcion> productsToInsert =
+        List<LineasTransferencia> productsToInsert =
             response.expand((batch) => batch.lineasRecepcion!).toList();
+
+        //Convertir el mapa en una lista los productos ya enviados
+        List<LineasTransferencia> productsSedToInsert =
+            response.expand((batch) => batch.lineasRecepcionEnviadas!).toList();
 
         //Convertir el mapa en una lista los barcodes unicos de cada producto
         List<Barcodes> barcodesToInsert = productsToInsert
@@ -875,6 +886,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             .toList();
 
         print('order productsToInsert: ${productsToInsert.length}');
+        print('order productsSedToInsert: ${productsSedToInsert.length}');
         print('order barcodesToInsert: ${barcodesToInsert.length}');
         print('order otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
 
@@ -882,13 +894,14 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         await db.productEntradaRepository
             .insertarProductoEntrada(productsToInsert);
 
+        await db.productEntradaRepository
+            .insertarProductoEntrada(productsSedToInsert);
+
         // Enviar la lista agrupada de barcodes de un producto para packing
-        await DataBaseSqlite()
-            .barcodesPackagesRepository
+        await db.barcodesPackagesRepository
             .insertOrUpdateBarcodes(barcodesToInsert);
         // Enviar la lista agrupada de otros barcodes de un producto para packing
-        await DataBaseSqlite()
-            .barcodesPackagesRepository
+        await db.barcodesPackagesRepository
             .insertOrUpdateBarcodes(otherBarcodesToInsert);
 
         print('ordenesCompra: ${response.length}');
@@ -935,7 +948,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onLoadConfigurationsUserEvent(
       LoadConfigurationsUserOrder event, Emitter<RecepcionState> emit) async {
     try {
-      emit(AssignUserToOrderLoading());
       int userId = await PrefUtils.getUserId();
       final response =
           await db.configurationsRepository.getConfiguration(userId);

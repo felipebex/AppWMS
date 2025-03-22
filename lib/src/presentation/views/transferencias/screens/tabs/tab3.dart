@@ -163,7 +163,7 @@ class Tab3ScreenTrans extends StatelessWidget {
                                         child: Row(
                                           children: [
                                             Text(
-                                              "Cantidad pedida: ",
+                                              "Demanda: ",
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: primaryColorApp,
@@ -180,7 +180,7 @@ class Tab3ScreenTrans extends StatelessWidget {
                                       Row(
                                         children: [
                                           Text(
-                                            "Cantidad recibida: ",
+                                            "Cantidad : ",
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: primaryColorApp,

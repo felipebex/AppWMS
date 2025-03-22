@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab2ScreenTrans extends StatelessWidget {
@@ -17,8 +16,6 @@ class Tab2ScreenTrans extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final recepcionBloc = context.read<RecepcionBloc>();
-
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
@@ -27,7 +24,7 @@ class Tab2ScreenTrans extends StatelessWidget {
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
         listener: (context, state) {},
         builder: (context, state) {
-          final transferenciaDetail = transFerencia;
+          final bloc = context.read<TransferenciaBloc>();
 
           return Scaffold(
             backgroundColor: white,
@@ -67,8 +64,7 @@ class Tab2ScreenTrans extends StatelessWidget {
                   // :
                   Expanded(
                     child: ListView.builder(
-                      itemCount:
-                          transferenciaDetail?.lineasTransferencia?.length ?? 0,
+                      itemCount: bloc.listProductsTransfer.length ?? 0,
                       // recepcionBloc.listProductsEntrada
                       //     .where((element) => element.isSeparate == 1)
                       //     .length,
@@ -79,8 +75,7 @@ class Tab2ScreenTrans extends StatelessWidget {
                         //   return element.isSeparate == 1;
                         // }).elementAt(index);
 
-                        final product =
-                            transferenciaDetail?.lineasTransferencia?[index];
+                        final product = bloc.listProductsTransfer?[index];
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(

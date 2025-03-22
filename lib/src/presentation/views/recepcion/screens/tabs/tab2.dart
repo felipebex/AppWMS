@@ -1,5 +1,7 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,10 +55,10 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
     }).toList();
 
     // Buscar el producto que coincide con el código de barras escaneado
-    final LineasRecepcion product = listOfProducts.firstWhere(
+    final LineasTransferencia product = listOfProducts.firstWhere(
       (product) => product.productBarcode == scan,
       orElse: () =>
-          LineasRecepcion(), // Devuelve null si no se encuentra ningún producto
+          LineasTransferencia(), // Devuelve null si no se encuentra ningún producto
     );
 
     if (product.idMove != null) {
@@ -189,8 +191,10 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                           child: Container()),
 
                   (recepcionBloc.listProductsEntrada.where((element) {
-                            return element.isSeparate == 0 ||
-                                element.isSeparate == null;
+                            return (element.isSeparate == 0 ||
+                                    element.isSeparate == null) &&
+                                (element.lotName == "" ||
+                                    element.lotName == null);
                           }).length ==
                           0)
                       ? Expanded(
@@ -220,14 +224,19 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                           child: ListView.builder(
                             itemCount: recepcionBloc.listProductsEntrada
                                 .where((element) {
-                              return element.isSeparate == 0 ||
-                                  element.isSeparate == null;
+                              return (element.isSeparate == 0 ||
+                                      element.isSeparate == null) &&
+                                  (element.lotName == "" ||
+                                      element.lotName == null);
                             }).length,
                             itemBuilder: (context, index) {
-                              final product = recepcionBloc.listProductsEntrada
+                              final product = recepcionBloc
+                                  .listProductsEntrada //recepcionBloc.listProductsEntrada
                                   .where((element) {
-                                return element.isSeparate == 0 ||
-                                    element.isSeparate == null;
+                                return (element.isSeparate == 0 ||
+                                        element.isSeparate == null) &&
+                                    (element.lotName == "" ||
+                                        element.lotName == null);
                               }).elementAt(index);
 
                               return Padding(
@@ -358,7 +367,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                             },
                           ),
                         ),
-
                 ],
               ),
             ),

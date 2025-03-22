@@ -1,12 +1,9 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -29,7 +26,8 @@ class Tab1ScreenTrans extends StatelessWidget {
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
         listener: (context, state) {},
         builder: (context, state) {
-          final transferenciaDetail = transFerencia;
+          final bloc = context.read<TransferenciaBloc>();
+          final transferenciaDetail = bloc.currentTransferencia;
 
           return Scaffold(
             backgroundColor: white,

@@ -1,10 +1,10 @@
-class ProductRecepcionTable {
-  static const String tableName = 'product_entrada';
+class ProductTransferenciaTable {
+  static const String tableName = 'tblproduct_transferencia';
 
   static const String columnId = 'id';
   static const String columnIdMove = 'id_move';
   static const String columnProductId = 'product_id';
-  static const String columnIdRecepcion = 'id_recepcion';
+  static const String columnIdTransferencia = 'id_transferencia';
   static const String columnProductName = 'product_name';
   static const String columnProductCode = 'product_code';
   static const String columnProductBarcode = 'product_barcode';
@@ -31,12 +31,21 @@ class ProductRecepcionTable {
   static const String columnObservation = 'observation';
   static const String columnQuantitySeparate = 'quantity_separate';
 
+
+
+
+
+
+
+
   static const String columnLoteId = 'lote_id';
   static const String columnLotName = 'lot_name';
   static const String columnLoteDate = 'lote_date';
   
+  static const String columnIsLocationIsOk = 'is_location_is_ok';
   static const String columnProductIsOk = 'product_is_ok';
   static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
+  static const String columnLocationDestIsOk = 'location_dest_is_ok';
 
   static const String columnDateStart = 'date_start';
   static const String columnDateEnd = 'date_end';
@@ -49,7 +58,7 @@ class ProductRecepcionTable {
       $columnId INTEGER PRIMARY KEY,
       $columnIdMove INTEGER,
       $columnProductId TEXT,
-      $columnIdRecepcion INTEGER,
+      $columnIdTransferencia INTEGER,
       $columnProductName TEXT,
       $columnProductCode TEXT,
       $columnProductBarcode TEXT,
@@ -75,13 +84,15 @@ class ProductRecepcionTable {
 
       $columnLoteId INTEGER,
       $columnLotName TEXT,
+      $columnIsLocationIsOk INTEGER,
       $columnProductIsOk INTEGER,
       $columnIsQuantityIsOk INTEGER,
+      $columnLocationDestIsOk INTEGER,
       $columnLoteDate TEXT,
       $columnDateStart TEXT,
       $columnDateEnd TEXT,
       $columnTimeTotalSeparate TEXT,
-      FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion ($columnId)
+      FOREIGN KEY ($columnIdTransferencia) REFERENCES tbl_entradas_recepcion ($columnId)
 
     )
   ''';

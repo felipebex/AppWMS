@@ -136,7 +136,7 @@ class AppRoutes {
 
         // Asegurarnos de que la lista tenga al menos dos elementos
         final ordenCompraArg = arguments[0] as ResultEntrada?;
-        final currentProducArg = arguments[1] as LineasRecepcion?;
+        final currentProducArg = arguments[1] as LineasTransferencia?;
 
         return ScanProductOrderScreen(
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
@@ -162,7 +162,7 @@ class AppRoutes {
 
         // Asegurarnos de que la lista tenga al menos dos elementos
         final ordenCompraArg = arguments[0] as ResultEntrada?;
-        final currentProducArg = arguments[1] as LineasRecepcion?;
+        final currentProducArg = arguments[1] as LineasTransferencia?;
 
         return NewLoteScreen(
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);

@@ -1,5 +1,7 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
@@ -36,7 +38,14 @@ class Tab3ScreenRecep extends StatelessWidget {
               child: Column(
                 children: [
                   (recepcionBloc.listProductsEntrada.where((element) {
-                            return element.isSeparate == 1;
+                            return (element.isSeparate == 1 &&
+                                    element.lotName != "" &&
+                                    element.productTracking == 'lot') ||
+                                (element.lotName != "" &&
+                                    element.isSeparate == 0 &&
+                                    element.productTracking == 'lot') ||
+                                (element.isSeparate == 1 &&
+                                    element.productTracking == "none");
                           }).length ==
                           0)
                       ? Expanded(
@@ -62,14 +71,33 @@ class Tab3ScreenRecep extends StatelessWidget {
                         )
                       : Expanded(
                           child: ListView.builder(
+                            // itemCount: recepcionBloc.listProductsEntrada.length,
                             itemCount: recepcionBloc.listProductsEntrada
-                                .where((element) => element.isSeparate == 1)
-                                .length,
+                                .where((element) {
+                              return (element.isSeparate == 1 &&
+                                      element.lotName != "" &&
+                                      element.productTracking == 'lot') ||
+                                  (element.lotName != "" &&
+                                      element.isSeparate == 0 &&
+                                      element.productTracking == 'lot') ||
+                                  (element.isSeparate == 1 &&
+                                      element.productTracking == "none");
+                            }).length,
                             itemBuilder: (context, index) {
                               final product = recepcionBloc.listProductsEntrada
                                   .where((element) {
-                                return element.isSeparate == 1;
+                                return (element.isSeparate == 1 &&
+                                        element.lotName != "" &&
+                                        element.productTracking == 'lot') ||
+                                    (element.lotName != "" &&
+                                        element.isSeparate == 0 &&
+                                        element.productTracking == 'lot') ||
+                                    (element.isSeparate == 1 &&
+                                        element.productTracking == "none");
                               }).elementAt(index);
+
+                              // final product =
+                              //     recepcionBloc.listProductsEntrada[index];
 
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -122,24 +150,28 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                       color: black)),
                                             ],
                                           ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                "Lote: ",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: primaryColorApp,
+                                          Visibility(
+                                            visible: product.productTracking ==
+                                                'lot',
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "Lote: ",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text("${product.loteName}",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black)),
-                                              Text("/${product.loteDate}",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black)),
-                                            ],
+                                                Text("${product.lotName}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                                Text("/${product.loteDate}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                              ],
+                                            ),
                                           ),
                                           Text(
                                             "Ubicación de origen: ",
@@ -188,7 +220,13 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     ),
                                                   ),
                                                   Text(
-                                                      "${product.quantitySeparate}",
+                                                      (product.isSeparate ==
+                                                                  0 &&
+                                                              product.lotName !=
+                                                                  "")
+                                                          ? "${product.quantityDone}"
+                                                          : "${product.quantitySeparate}",
+                                                      // "${product.quantityToReceive}",
                                                       style: const TextStyle(
                                                           fontSize: 12,
                                                           color: black)),

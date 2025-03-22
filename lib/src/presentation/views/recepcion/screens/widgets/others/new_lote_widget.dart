@@ -20,7 +20,7 @@ class NewLoteScreen extends StatefulWidget {
   const NewLoteScreen({super.key, this.ordenCompra, this.currentProduct});
 
   final ResultEntrada? ordenCompra;
-  final LineasRecepcion? currentProduct;
+  final LineasTransferencia? currentProduct;
 
   @override
   State<NewLoteScreen> createState() => _NewLoteScreenState();

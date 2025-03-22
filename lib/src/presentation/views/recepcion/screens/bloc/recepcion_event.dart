@@ -45,7 +45,7 @@ class GetPorductsToEntrada extends RecepcionEvent {
 }
 
 class FetchPorductOrder extends RecepcionEvent {
-  final LineasRecepcion product;
+  final LineasTransferencia product;
   FetchPorductOrder(this.product,);
 }
 

@@ -5,7 +5,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_respon
 
 class ProductsEntradaRepository {
   //metodo para insertar todas las entradas
-  Future<void> insertarProductoEntrada(List<LineasRecepcion> products) async {
+  Future<void> insertarProductoEntrada(List<LineasTransferencia> products) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       // Comienza la transacción
@@ -15,10 +15,10 @@ class ProductsEntradaRepository {
           // Primero, obtener todas las IDs de las novedades existentes
 
           final List<Map<String, dynamic>> existingProducts = await txn.query(
-            ProductEntradaTable.tableName,
-            columns: [ProductEntradaTable.columnId],
+            ProductRecepcionTable.tableName,
+            columns: [ProductRecepcionTable.columnId],
             where:
-                '${ProductEntradaTable.columnId} =? AND ${ProductEntradaTable.columnIdMove} = ? AND ${ProductEntradaTable.columnIdRecepcion} = ? ',
+                '${ProductRecepcionTable.columnId} =? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? ',
             whereArgs: [
               products.map((product) => product.productId).toList().join(','),
               products.map((product) => product.idMove).toList().join(','),
@@ -28,7 +28,7 @@ class ProductsEntradaRepository {
 
           // Crear un conjunto de los IDs existentes para facilitar la comprobación
           Set<int> existingIds = Set.from(existingProducts.map((e) {
-            return e[ProductEntradaTable.columnId];
+            return e[ProductRecepcionTable.columnId];
           }));
 
           // Recorrer todas las novedades y realizar insert o update según corresponda
@@ -37,49 +37,63 @@ class ProductsEntradaRepository {
             if (existingIds.contains(LineasRecepcion.productId)) {
               // Si la novedad ya existe, la actualizamos
               batch.update(
-                ProductEntradaTable.tableName,
+                ProductRecepcionTable.tableName,
                 {
-                  ProductEntradaTable.columnId: LineasRecepcion.id,
-                  ProductEntradaTable.columnIdMove: LineasRecepcion.idMove,
-                  ProductEntradaTable.columnProductId:
+                  ProductRecepcionTable.columnId: LineasRecepcion.id,
+                  ProductRecepcionTable.columnIdMove: LineasRecepcion.idMove,
+                  ProductRecepcionTable.columnProductId:
                       LineasRecepcion.productId,
-                  ProductEntradaTable.columnIdRecepcion:
+                  ProductRecepcionTable.columnIdRecepcion:
                       LineasRecepcion.idRecepcion,
-                  ProductEntradaTable.columnProductName:
+                  ProductRecepcionTable.columnProductName:
                       LineasRecepcion.productName,
-                  ProductEntradaTable.columnProductCode:
+                  ProductRecepcionTable.columnProductCode:
                       LineasRecepcion.productCode,
-                  ProductEntradaTable.columnProductBarcode:
+                  ProductRecepcionTable.columnProductBarcode:
                       LineasRecepcion.productBarcode,
-                  ProductEntradaTable.columnProductTracking:
+                  ProductRecepcionTable.columnProductTracking:
                       LineasRecepcion.productTracking,
-                  ProductEntradaTable.columnFechaVencimiento:
+                  ProductRecepcionTable.columnFechaVencimiento:
                       LineasRecepcion.fechaVencimiento,
-                  ProductEntradaTable.columnDiasVencimiento:
+                  ProductRecepcionTable.columnDiasVencimiento:
                       LineasRecepcion.diasVencimiento,
-                  ProductEntradaTable.columnQuantityOrdered:
+                  ProductRecepcionTable.columnQuantityOrdered:
                       LineasRecepcion.quantityOrdered,
-                  ProductEntradaTable.columnQuantityToReceive:
+                  ProductRecepcionTable.columnQuantityToReceive:
                       LineasRecepcion.quantityToReceive,
-                  ProductEntradaTable.columnQuantityDone:
+                  ProductRecepcionTable.columnQuantityDone:
                       LineasRecepcion.quantityDone,
-                  ProductEntradaTable.columnUom: LineasRecepcion.uom,
-                  ProductEntradaTable.columnLocationDestId:
+                  ProductRecepcionTable.columnUom: LineasRecepcion.uom,
+                  ProductRecepcionTable.columnLocationDestId:
                       LineasRecepcion.locationDestId,
-                  ProductEntradaTable.columnLocationDestName:
+                  ProductRecepcionTable.columnLocationDestName:
                       LineasRecepcion.locationDestName,
-                  ProductEntradaTable.columnLocationDestBarcode:
+                  ProductRecepcionTable.columnLocationDestBarcode:
                       LineasRecepcion.locationDestBarcode,
-                  ProductEntradaTable.columnLocationId:
+                  ProductRecepcionTable.columnLocationId:
                       LineasRecepcion.locationId,
-                  ProductEntradaTable.columnLocationBarcode:
+                  ProductRecepcionTable.columnLocationBarcode:
                       LineasRecepcion.locationBarcode,
-                  ProductEntradaTable.columnLocationName:
+                  ProductRecepcionTable.columnLocationName:
                       LineasRecepcion.locationName,
-                  ProductEntradaTable.columnWeight: LineasRecepcion.weight,
+                  ProductRecepcionTable.columnWeight: LineasRecepcion.weight,
+                  ProductRecepcionTable.columnIsSeparate: 0,
+                  ProductRecepcionTable.columnIsSelected: 0,
+                  ProductRecepcionTable.columnLotName:
+                      LineasRecepcion.lotName ?? "",
+                  ProductRecepcionTable.columnLoteDate:
+                      (LineasRecepcion.lotName != "" ||
+                              LineasRecepcion.lotName != null)
+                          ? LineasRecepcion.fechaVencimiento
+                          : "",
+                  ProductRecepcionTable.columnIsProductSplit: 0,
+                  ProductRecepcionTable.columnObservation: "",
+                  ProductRecepcionTable.columnDateStart: "",
+                  ProductRecepcionTable.columnDateEnd: "",
+                  ProductRecepcionTable.columnTimeTotalSeparate: "",
                 },
                 where:
-                    '${ProductEntradaTable.columnId} = ? AND ${ProductEntradaTable.columnIdMove} = ? AND ${ProductEntradaTable.columnIdRecepcion} = ? ',
+                    '${ProductRecepcionTable.columnId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? ',
                 whereArgs: [
                   LineasRecepcion.productId,
                   LineasRecepcion.idMove,
@@ -88,46 +102,60 @@ class ProductsEntradaRepository {
               );
             } else {
               batch.insert(
-                ProductEntradaTable.tableName,
+                ProductRecepcionTable.tableName,
                 {
-                  ProductEntradaTable.columnId: LineasRecepcion.id,
-                  ProductEntradaTable.columnIdMove: LineasRecepcion.idMove,
-                  ProductEntradaTable.columnProductId:
+                  ProductRecepcionTable.columnId: LineasRecepcion.id,
+                  ProductRecepcionTable.columnIdMove: LineasRecepcion.idMove,
+                  ProductRecepcionTable.columnProductId:
                       LineasRecepcion.productId,
-                  ProductEntradaTable.columnIdRecepcion:
+                  ProductRecepcionTable.columnIdRecepcion:
                       LineasRecepcion.idRecepcion,
-                  ProductEntradaTable.columnProductName:
+                  ProductRecepcionTable.columnProductName:
                       LineasRecepcion.productName,
-                  ProductEntradaTable.columnProductCode:
+                  ProductRecepcionTable.columnProductCode:
                       LineasRecepcion.productCode,
-                  ProductEntradaTable.columnProductBarcode:
+                  ProductRecepcionTable.columnProductBarcode:
                       LineasRecepcion.productBarcode,
-                  ProductEntradaTable.columnProductTracking:
+                  ProductRecepcionTable.columnProductTracking:
                       LineasRecepcion.productTracking,
-                  ProductEntradaTable.columnFechaVencimiento:
+                  ProductRecepcionTable.columnFechaVencimiento:
                       LineasRecepcion.fechaVencimiento,
-                  ProductEntradaTable.columnDiasVencimiento:
+                  ProductRecepcionTable.columnDiasVencimiento:
                       LineasRecepcion.diasVencimiento,
-                  ProductEntradaTable.columnQuantityOrdered:
+                  ProductRecepcionTable.columnQuantityOrdered:
                       LineasRecepcion.quantityOrdered,
-                  ProductEntradaTable.columnQuantityToReceive:
+                  ProductRecepcionTable.columnQuantityToReceive:
                       LineasRecepcion.quantityToReceive,
-                  ProductEntradaTable.columnQuantityDone:
+                  ProductRecepcionTable.columnQuantityDone:
                       LineasRecepcion.quantityDone,
-                  ProductEntradaTable.columnUom: LineasRecepcion.uom,
-                  ProductEntradaTable.columnLocationDestId:
+                  ProductRecepcionTable.columnUom: LineasRecepcion.uom,
+                  ProductRecepcionTable.columnLocationDestId:
                       LineasRecepcion.locationDestId,
-                  ProductEntradaTable.columnLocationDestName:
+                  ProductRecepcionTable.columnLocationDestName:
                       LineasRecepcion.locationDestName,
-                  ProductEntradaTable.columnLocationDestBarcode:
+                  ProductRecepcionTable.columnLocationDestBarcode:
                       LineasRecepcion.locationDestBarcode,
-                  ProductEntradaTable.columnLocationId:
+                  ProductRecepcionTable.columnLocationId:
                       LineasRecepcion.locationId,
-                  ProductEntradaTable.columnLocationBarcode:
+                  ProductRecepcionTable.columnLocationBarcode:
                       LineasRecepcion.locationBarcode,
-                  ProductEntradaTable.columnLocationName:
+                  ProductRecepcionTable.columnLocationName:
                       LineasRecepcion.locationName,
-                  ProductEntradaTable.columnWeight: LineasRecepcion.weight,
+                  ProductRecepcionTable.columnWeight: LineasRecepcion.weight,
+                  ProductRecepcionTable.columnIsSeparate: 0,
+                  ProductRecepcionTable.columnIsSelected: 0,
+                  ProductRecepcionTable.columnLotName:
+                      LineasRecepcion.lotName ?? "",
+                  ProductRecepcionTable.columnLoteDate:
+                      (LineasRecepcion.lotName != "" ||
+                              LineasRecepcion.lotName != null)
+                          ? LineasRecepcion.fechaVencimiento
+                          : "",
+                  ProductRecepcionTable.columnIsProductSplit: 0,
+                  ProductRecepcionTable.columnObservation: "",
+                  ProductRecepcionTable.columnDateStart: "",
+                  ProductRecepcionTable.columnDateEnd: "",
+                  ProductRecepcionTable.columnTimeTotalSeparate: "",
                 },
                 conflictAlgorithm: ConflictAlgorithm.replace,
               );
@@ -143,52 +171,54 @@ class ProductsEntradaRepository {
   }
 
   Future<void> insertDuplicateProducto(
-      LineasRecepcion producto, int cantidad) async {
+      LineasTransferencia producto, int cantidad) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
       Map<String, dynamic> productCopy = {
-        ProductEntradaTable.columnIdMove: producto.idMove,
-        ProductEntradaTable.columnProductId: producto.productId,
-        ProductEntradaTable.columnIdRecepcion: producto.idRecepcion,
-        ProductEntradaTable.columnProductName: producto.productName,
-        ProductEntradaTable.columnProductCode: producto.productCode,
-        ProductEntradaTable.columnProductBarcode: producto.productBarcode,
-        ProductEntradaTable.columnProductTracking: producto.productTracking,
-        ProductEntradaTable.columnFechaVencimiento: producto.fechaVencimiento,
-        ProductEntradaTable.columnDiasVencimiento: producto.diasVencimiento,
-        ProductEntradaTable.columnQuantityOrdered: cantidad,
-        ProductEntradaTable.columnQuantityToReceive: producto.quantityToReceive,
-        ProductEntradaTable.columnQuantityDone: producto.quantityDone,
-        ProductEntradaTable.columnUom: producto.uom,
+        ProductRecepcionTable.columnIdMove: producto.idMove,
+        ProductRecepcionTable.columnProductId: producto.productId,
+        ProductRecepcionTable.columnIdRecepcion: producto.idRecepcion,
+        ProductRecepcionTable.columnProductName: producto.productName,
+        ProductRecepcionTable.columnProductCode: producto.productCode,
+        ProductRecepcionTable.columnProductBarcode: producto.productBarcode,
+        ProductRecepcionTable.columnProductTracking: producto.productTracking,
+        ProductRecepcionTable.columnFechaVencimiento: producto.fechaVencimiento,
+        ProductRecepcionTable.columnDiasVencimiento: producto.diasVencimiento,
+        ProductRecepcionTable.columnQuantityOrdered: cantidad,
+        ProductRecepcionTable.columnQuantityToReceive: producto.quantityToReceive,
+        ProductRecepcionTable.columnQuantityDone: producto.quantityDone,
+        ProductRecepcionTable.columnUom: producto.uom,
 
-        ProductEntradaTable.columnLocationDestId: producto.locationDestId,
-        ProductEntradaTable.columnLocationDestName: producto.locationDestName,
-        ProductEntradaTable.columnLocationDestBarcode:
+        ProductRecepcionTable.columnLocationDestId: producto.locationDestId,
+        ProductRecepcionTable.columnLocationDestName: producto.locationDestName,
+        ProductRecepcionTable.columnLocationDestBarcode:
             producto.locationDestBarcode,
-        ProductEntradaTable.columnLocationId: producto.locationId,
-        ProductEntradaTable.columnLocationBarcode: producto.locationBarcode,
-        ProductEntradaTable.columnLocationName: producto.locationName,
-        ProductEntradaTable.columnWeight: producto.weight,
+        ProductRecepcionTable.columnLocationId: producto.locationId,
+        ProductRecepcionTable.columnLocationBarcode: producto.locationBarcode,
+        ProductRecepcionTable.columnLocationName: producto.locationName,
+        ProductRecepcionTable.columnWeight: producto.weight,
         //parametros para ver que es diferente
-        ProductEntradaTable.columnIsSeparate: 0,
-        ProductEntradaTable.columnIsProductSplit: 1,
-        ProductEntradaTable.columnDateSeparate: "",
+        ProductRecepcionTable.columnIsSeparate: 0,
+        ProductRecepcionTable.columnIsProductSplit: 1,
 
-        ProductEntradaTable.columnIsSelected: 0,
-        ProductEntradaTable.columnObservation: producto.observation,
+        ProductRecepcionTable.columnIsSelected: 0,
+        ProductRecepcionTable.columnObservation: producto.observation,
 
-        ProductEntradaTable.columnQuantitySeparate: 0,
-        ProductEntradaTable.columnLoteId: 0,
-        ProductEntradaTable.columnLoteName: "",
-        ProductEntradaTable.columnLoteDate: "",
+        ProductRecepcionTable.columnQuantitySeparate: 0,
+        ProductRecepcionTable.columnLoteId: 0,
+        ProductRecepcionTable.columnLotName: "",
+        ProductRecepcionTable.columnLoteDate: "",
 
-        ProductEntradaTable.columnIsQuantityIsOk: 0,
-        ProductEntradaTable.columnProductIsOk: 0,
+        ProductRecepcionTable.columnIsQuantityIsOk: 0,
+        ProductRecepcionTable.columnProductIsOk: 0,
+        ProductRecepcionTable.columnDateStart: "",
+        ProductRecepcionTable.columnDateEnd: "",
+        ProductRecepcionTable.columnTimeTotalSeparate: "",
       };
 
       await db.insert(
-        ProductEntradaTable.tableName,
+        ProductRecepcionTable.tableName,
         productCopy,
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -199,14 +229,14 @@ class ProductsEntradaRepository {
   }
 
   //metodo para obtener todos los productos de la entrada
-  Future<List<LineasRecepcion>> getAllProductsEntrada() async {
+  Future<List<LineasTransferencia>> getAllProductsEntrada() async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       final List<Map<String, dynamic>> products = await db.query(
-        ProductEntradaTable.tableName,
+        ProductRecepcionTable.tableName,
       );
       return products
-          .map((product) => LineasRecepcion.fromMap(product))
+          .map((product) => LineasTransferencia.fromMap(product))
           .toList();
     } catch (e, s) {
       print('Error en getAllProductsEntrada: $e, $s');
@@ -215,19 +245,19 @@ class ProductsEntradaRepository {
   }
 
 //*Método para obtener todos los productos de una entrada por idRecepcion
-  Future<List<LineasRecepcion>> getProductsByRecepcionId(
+  Future<List<LineasTransferencia>> getProductsByRecepcionId(
       int idRecepcion) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       // Consulta para obtener los productos con el idRecepcion correspondiente
       final List<Map<String, dynamic>> products = await db.query(
-        ProductEntradaTable.tableName,
-        where: '${ProductEntradaTable.columnIdRecepcion} = ?',
+        ProductRecepcionTable.tableName,
+        where: '${ProductRecepcionTable.columnIdRecepcion} = ?',
         whereArgs: [idRecepcion],
       );
       // Convertir los resultados de la consulta en objetos de tipo LineasRecepcion
       return products
-          .map((product) => LineasRecepcion.fromMap(product))
+          .map((product) => LineasTransferencia.fromMap(product))
           .toList();
     } catch (e, s) {
       print('Error en getProductsByRecepcionId: $e, $s');
@@ -243,7 +273,7 @@ class ProductsEntradaRepository {
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
     final resUpdate = await db.rawUpdate(
-        'UPDATE ${ProductEntradaTable.tableName} SET $field = ? WHERE ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ? AND ${ProductEntradaTable.columnIdRecepcion} = ?',
+        'UPDATE ${ProductRecepcionTable.tableName} SET $field = ? WHERE ${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ?',
         [setValue, productId, idMove, idEntrada]);
 
     print(
@@ -253,34 +283,34 @@ class ProductsEntradaRepository {
   }
 
   //METODO PARA OBTENER UN PRODUCTO POR SU ID
-Future<LineasRecepcion?> getProductById(
-    int idProduct, int idMove, int idRecepcion) async {
-  try {
+  Future<LineasTransferencia?> getProductById(
+      int idProduct, int idMove, int idRecepcion) async {
+    try {
+      print(
+          'idProduct: $idProduct, idMove: $idMove, idRecepcion: $idRecepcion');
+      // Obtener la instancia de la base de datos
+      Database db = await DataBaseSqlite().getDatabaseInstance();
 
-    print('idProduct: $idProduct, idMove: $idMove, idRecepcion: $idRecepcion');
-    // Obtener la instancia de la base de datos
-    Database db = await DataBaseSqlite().getDatabaseInstance();
-    
-    // Convertir idProduct a String (porque en la tabla está como TEXT)
-    final List<Map<String, dynamic>> product = await db.query(
-      ProductEntradaTable.tableName,
-      where:
-          '${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ? AND ${ProductEntradaTable.columnIdRecepcion} = ?',
-      whereArgs: [
-        idProduct.toString(),  // Convertir idProduct a String
-        idMove, 
-        idRecepcion
-      ],
-    );
+      // Convertir idProduct a String (porque en la tabla está como TEXT)
+      final List<Map<String, dynamic>> product = await db.query(
+        ProductRecepcionTable.tableName,
+        where:
+            '${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ?',
+        whereArgs: [
+          idProduct.toString(), // Convertir idProduct a String
+          idMove,
+          idRecepcion
+        ],
+      );
 
-    // Si hay datos, crear un objeto de LineasRecepcion, si no, retornar null
-    return product.isNotEmpty ? LineasRecepcion.fromMap(product.first) : null;
-  } catch (e, s) {
-    // Imprimir detalles del error para facilitar la depuración
-    print('Error en getProductById: $e, StackTrace: $s');
-    return null;
+      // Si hay datos, crear un objeto de LineasRecepcion, si no, retornar null
+      return product.isNotEmpty ? LineasTransferencia.fromMap(product.first) : null;
+    } catch (e, s) {
+      // Imprimir detalles del error para facilitar la depuración
+      print('Error en getProductById: $e, StackTrace: $s');
+      return null;
+    }
   }
-}
 
   // Incrementar cantidad de producto separado para empaque
   Future<int?> incremenQtytProductSeparatePacking(
@@ -288,23 +318,23 @@ Future<LineasRecepcion?> getProductById(
     Database db = await DataBaseSqlite().getDatabaseInstance();
     return await db.transaction((txn) async {
       final result = await txn.query(
-        ProductEntradaTable.tableName,
-        columns: [(ProductEntradaTable.columnQuantitySeparate)],
+        ProductRecepcionTable.tableName,
+        columns: [(ProductRecepcionTable.columnQuantitySeparate)],
         where:
-            '${ProductEntradaTable.columnIdRecepcion} = ? AND ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ?',
+            '${ProductRecepcionTable.columnIdRecepcion} = ? AND ${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ?',
         whereArgs: [idRecepcion, productId, idMove],
       );
 
       if (result.isNotEmpty) {
         int currentQty =
-            (result.first[ProductEntradaTable.columnQuantitySeparate] as int);
+            (result.first[ProductRecepcionTable.columnQuantitySeparate] as int);
 
         int newQty = currentQty + quantity;
         return await txn.update(
-          ProductEntradaTable.tableName,
-          {ProductEntradaTable.columnQuantitySeparate: newQty},
+          ProductRecepcionTable.tableName,
+          {ProductRecepcionTable.columnQuantitySeparate: newQty},
           where:
-              '${ProductEntradaTable.columnIdRecepcion} = ? AND ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdMove} = ?',
+              '${ProductRecepcionTable.columnIdRecepcion} = ? AND ${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ?',
           whereArgs: [idRecepcion, productId, idMove],
         );
       }
@@ -321,7 +351,7 @@ Future<LineasRecepcion?> getProductById(
   ) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db.rawUpdate(
-        "UPDATE ${ProductEntradaTable.tableName} SET ${ProductEntradaTable.columnObservation} = ? WHERE ${ProductEntradaTable.columnProductId} = ? AND ${ProductEntradaTable.columnIdRecepcion} = ? AND ${ProductEntradaTable.columnIdMove} = ?",
+        "UPDATE ${ProductRecepcionTable.tableName} SET ${ProductRecepcionTable.columnObservation} = ? WHERE ${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? AND ${ProductRecepcionTable.columnIdMove} = ?",
         [novedad, productId, idRecepcion, idMove]);
 
     print("updateNovedad: $resUpdate");
