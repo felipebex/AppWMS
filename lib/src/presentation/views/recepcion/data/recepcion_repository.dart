@@ -232,7 +232,7 @@ class RecepcionRepository {
       return false;
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error resBatchsPacking: $e, $s');
+      print('Error assignUserToOrder: $e, $s');
     }
     return false;
   }
@@ -453,7 +453,7 @@ class RecepcionRepository {
       return false; // Retornamos un objeto vacío en caso de error de red
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error en sendPackingRequest: $e, $s');
+      print('Error en sendReceptionRequest: $e, $s');
       return false; // Retornamos un objeto vacío en caso de error de red
     }
     return false; // Retornamos un objeto vacío en caso de error de red

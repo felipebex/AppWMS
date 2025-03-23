@@ -86,8 +86,8 @@ class ResultTransFerencias {
   String? responsable;
   String? pickingType;
 
-  dynamic startTimeReception;
-  dynamic endTimeReception;
+  dynamic startTimeTransfer;
+  dynamic endTimeTransfer;
   dynamic isSelected;
   dynamic isStarted;
   dynamic isFinish;
@@ -117,8 +117,8 @@ class ResultTransFerencias {
     this.pickingType,
     this.lineasTransferencia,
     this.lineasTransferenciaEnviadas,
-    this.startTimeReception,
-    this.endTimeReception,
+    this.startTimeTransfer,
+    this.endTimeTransfer,
     this.isSelected,
     this.isStarted,
     this.isFinish,
@@ -145,8 +145,8 @@ class ResultTransFerencias {
         responsableId: json["responsable_id"],
         responsable: json["responsable"],
         pickingType: json["picking_type"],
-        startTimeReception: json["start_time_reception"],
-        endTimeReception: json["end_time_reception"],
+        startTimeTransfer: json["start_time_transfer"],
+        endTimeTransfer: json["end_time_transfer"],
         isSelected: json["is_selected"],
         isStarted: json["is_started"],
         isFinish: json["is_finish"],
@@ -182,8 +182,8 @@ class ResultTransFerencias {
         "responsable_id": responsableId,
         "responsable": responsable,
         "picking_type": pickingType,
-        "start_time_reception": startTimeReception,
-        "end_time_reception": endTimeReception,
+        "start_time_transfer": startTimeTransfer,
+        "end_time_transfer": endTimeTransfer,
         "is_selected": isSelected,
         "is_started": isStarted,
         "is_finish": isFinish,

@@ -5,7 +5,8 @@ import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_respon
 
 class ProductsEntradaRepository {
   //metodo para insertar todas las entradas
-  Future<void> insertarProductoEntrada(List<LineasTransferencia> products) async {
+  Future<void> insertarProductoEntrada(
+      List<LineasTransferencia> products) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       // Comienza la transacción
@@ -90,7 +91,11 @@ class ProductsEntradaRepository {
                   ProductRecepcionTable.columnObservation: "",
                   ProductRecepcionTable.columnDateStart: "",
                   ProductRecepcionTable.columnDateEnd: "",
-                  ProductRecepcionTable.columnTimeTotalSeparate: "",
+                  ProductRecepcionTable.columnTime: LineasRecepcion.time,
+                  ProductRecepcionTable.columnIsDoneItem:
+                      LineasRecepcion.isDoneItem,
+                  ProductRecepcionTable.columnDateTransaction:
+                      LineasRecepcion.dateTransaction,
                 },
                 where:
                     '${ProductRecepcionTable.columnId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? ',
@@ -155,7 +160,11 @@ class ProductsEntradaRepository {
                   ProductRecepcionTable.columnObservation: "",
                   ProductRecepcionTable.columnDateStart: "",
                   ProductRecepcionTable.columnDateEnd: "",
-                  ProductRecepcionTable.columnTimeTotalSeparate: "",
+                  ProductRecepcionTable.columnTime: LineasRecepcion.time,
+                  ProductRecepcionTable.columnIsDoneItem:
+                      LineasRecepcion.isDoneItem,
+                  ProductRecepcionTable.columnDateTransaction:
+                      LineasRecepcion.dateTransaction,
                 },
                 conflictAlgorithm: ConflictAlgorithm.replace,
               );
@@ -186,7 +195,8 @@ class ProductsEntradaRepository {
         ProductRecepcionTable.columnFechaVencimiento: producto.fechaVencimiento,
         ProductRecepcionTable.columnDiasVencimiento: producto.diasVencimiento,
         ProductRecepcionTable.columnQuantityOrdered: cantidad,
-        ProductRecepcionTable.columnQuantityToReceive: producto.quantityToReceive,
+        ProductRecepcionTable.columnQuantityToReceive:
+            producto.quantityToReceive,
         ProductRecepcionTable.columnQuantityDone: producto.quantityDone,
         ProductRecepcionTable.columnUom: producto.uom,
 
@@ -214,7 +224,9 @@ class ProductsEntradaRepository {
         ProductRecepcionTable.columnProductIsOk: 0,
         ProductRecepcionTable.columnDateStart: "",
         ProductRecepcionTable.columnDateEnd: "",
-        ProductRecepcionTable.columnTimeTotalSeparate: "",
+        ProductRecepcionTable.columnTime: "",
+        ProductRecepcionTable.columnIsDoneItem: 0,
+        ProductRecepcionTable.columnDateTransaction: "",
       };
 
       await db.insert(
@@ -304,7 +316,9 @@ class ProductsEntradaRepository {
       );
 
       // Si hay datos, crear un objeto de LineasRecepcion, si no, retornar null
-      return product.isNotEmpty ? LineasTransferencia.fromMap(product.first) : null;
+      return product.isNotEmpty
+          ? LineasTransferencia.fromMap(product.first)
+          : null;
     } catch (e, s) {
       // Imprimir detalles del error para facilitar la depuración
       print('Error en getProductById: $e, StackTrace: $s');

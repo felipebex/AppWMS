@@ -229,8 +229,13 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                 : ordenCompra[index]
                                                         .responsable ??
                                                     '',
-                                            style: const TextStyle(
-                                                fontSize: 12, color: black),
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: ordenCompra[index]
+                                                            .responsable ==
+                                                        ""
+                                                    ? Colors.red
+                                                    : black),
                                           ),
                                           Spacer(),
                                           ordenCompra[index]
@@ -358,13 +363,14 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                               GetPorductsToEntrada(
                                                   ordenCompra[index].id ?? 0));
                                           //asignamos el responsable a esa orden de entrada
-                                          context.read<RecepcionBloc>().add(
-                                              AssignUserToOrder(
-                                                  ordenCompra[index].id ?? 0,
-                                                  ));
+                                          context
+                                              .read<RecepcionBloc>()
+                                              .add(AssignUserToOrder(
+                                                ordenCompra[index].id ?? 0,
+                                              ));
                                           context.read<RecepcionBloc>().add(
                                               CurrentOrdenesCompra(
-                                                   ordenCompra[index]));
+                                                  ordenCompra[index]));
                                           Navigator.pop(context);
                                           Navigator.pushReplacementNamed(
                                             context,
@@ -400,14 +406,16 @@ class ListOrdenesCompraScreen extends StatelessWidget {
         builder: (context) => DialogStartTimeWidget(
           onAccepted: () async {
             context.read<RecepcionBloc>().add(StartOrStopTimeOrder(
-                ordenCompra.id ?? 0, "start_time_reception", ));
+                  ordenCompra.id ?? 0,
+                  "start_time_reception",
+                ));
             context
                 .read<RecepcionBloc>()
                 .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
             //traemos la orden de entrada actual desde la bd actualizada
             context
                 .read<RecepcionBloc>()
-                .add(CurrentOrdenesCompra (ordenCompra));
+                .add(CurrentOrdenesCompra(ordenCompra));
             Navigator.pop(context);
             Navigator.pushReplacementNamed(
               context,
@@ -423,9 +431,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
           .read<RecepcionBloc>()
           .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
       //traemos la orden de entrada actual desde la bd actualizada
-      context
-          .read<RecepcionBloc>()
-          .add(CurrentOrdenesCompra( ordenCompra));
+      context.read<RecepcionBloc>().add(CurrentOrdenesCompra(ordenCompra));
       Navigator.pushReplacementNamed(
         context,
         'recepcion',

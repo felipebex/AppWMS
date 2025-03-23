@@ -38,14 +38,7 @@ class Tab3ScreenRecep extends StatelessWidget {
               child: Column(
                 children: [
                   (recepcionBloc.listProductsEntrada.where((element) {
-                            return (element.isSeparate == 1 &&
-                                    element.lotName != "" &&
-                                    element.productTracking == 'lot') ||
-                                (element.lotName != "" &&
-                                    element.isSeparate == 0 &&
-                                    element.productTracking == 'lot') ||
-                                (element.isSeparate == 1 &&
-                                    element.productTracking == "none");
+                            return element.isDoneItem == 1;
                           }).length ==
                           0)
                       ? Expanded(
@@ -74,26 +67,12 @@ class Tab3ScreenRecep extends StatelessWidget {
                             // itemCount: recepcionBloc.listProductsEntrada.length,
                             itemCount: recepcionBloc.listProductsEntrada
                                 .where((element) {
-                              return (element.isSeparate == 1 &&
-                                      element.lotName != "" &&
-                                      element.productTracking == 'lot') ||
-                                  (element.lotName != "" &&
-                                      element.isSeparate == 0 &&
-                                      element.productTracking == 'lot') ||
-                                  (element.isSeparate == 1 &&
-                                      element.productTracking == "none");
+                              return element.isDoneItem == 1;
                             }).length,
                             itemBuilder: (context, index) {
                               final product = recepcionBloc.listProductsEntrada
                                   .where((element) {
-                                return (element.isSeparate == 1 &&
-                                        element.lotName != "" &&
-                                        element.productTracking == 'lot') ||
-                                    (element.lotName != "" &&
-                                        element.isSeparate == 0 &&
-                                        element.productTracking == 'lot') ||
-                                    (element.isSeparate == 1 &&
-                                        element.productTracking == "none");
+                                return element.isDoneItem == 1;
                               }).elementAt(index);
 
                               // final product =
@@ -220,10 +199,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     ),
                                                   ),
                                                   Text(
-                                                      (product.isSeparate ==
-                                                                  0 &&
-                                                              product.lotName !=
-                                                                  "")
+                                                      (product.isSeparate == 0)
                                                           ? "${product.quantityDone}"
                                                           : "${product.quantitySeparate}",
                                                       // "${product.quantityToReceive}",
@@ -232,6 +208,23 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                           color: black)),
                                                 ],
                                               ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Tiempo: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                              Text(
+                                                  convertirTiempo(
+                                                      product.time.toString()),
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: black)),
                                             ],
                                           ),
                                           Visibility(
@@ -272,5 +265,21 @@ class Tab3ScreenRecep extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String convertirTiempo(String tiempoStr) {
+    // Convertimos el string a un double
+    double segundos = double.tryParse(tiempoStr) ?? 0.0;
+    // Calculamos horas, minutos y segundos
+    int horas = (segundos / 3600).floor(); // 3600 segundos = 1 hora
+    int minutos =
+        ((segundos % 3600) / 60).floor(); // Resto de segundos dividido entre 60
+    int segundosRestantes = (segundos % 60).round(); // Resto de segundos
+    // Formateamos los valores en 2 dígitos (ej. 01, 02, etc.)
+    String horasStr = horas.toString().padLeft(2, '0');
+    String minutosStr = minutos.toString().padLeft(2, '0');
+    String segundosStr = segundosRestantes.toString().padLeft(2, '0');
+
+    return '$horasStr:$minutosStr:$segundosStr';
   }
 }

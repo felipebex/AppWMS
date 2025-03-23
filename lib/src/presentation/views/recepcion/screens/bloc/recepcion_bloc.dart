@@ -219,6 +219,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       if (response) {
         emit(StartOrStopTimeOrderSuccess(event.value));
+      } else {
+        emit(StartOrStopTimeOrderFailure('Error al enviar el tiempo'));
       }
     } catch (e, s) {
       print('Error en el _onStartOrStopTimeOrder: $e, $s');
@@ -404,6 +406,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "date_end",
           DateTime.now().toString(),
           currentProduct.idMove);
+      //marcamso el producto como is_done_item
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "is_done_item",
+          1,
+          currentProduct.idMove);
 
       //calculamos la cantidad pendiente del producto
       var pendingQuantity = (currentProduct.quantityOrdered - event.quantity);
@@ -438,6 +447,15 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           int.parse(currentProduct.productId),
           "date_end",
           DateTime.now().toString(),
+          currentProduct.idMove);
+      //marcamos el producto como termiado
+
+      //marcamos tiempo final de separacion
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "is_done_item",
+          1,
           currentProduct.idMove);
     } catch (e, s) {
       emit(FinalizarRecepcionProductoFailure(

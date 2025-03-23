@@ -121,3 +121,20 @@ class ShowQuantityEvent extends TransferenciaEvent {
   final bool showQuantity;
   ShowQuantityEvent(this.showQuantity);
 }
+
+class StartOrStopTimeTransfer extends TransferenciaEvent {
+  final int idTransfer;
+  final String value;
+
+  StartOrStopTimeTransfer(
+    this.idTransfer,
+    this.value,
+  );
+}
+
+class AssignUserToTransfer extends TransferenciaEvent {
+  final int idTransfer;
+  AssignUserToTransfer(
+    this.idTransfer,
+  );
+}

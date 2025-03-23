@@ -134,3 +134,29 @@ class ShowQuantityState extends TransferenciaState {
   final bool showQuantity;
   ShowQuantityState(this.showQuantity);
 }
+
+
+
+
+class StartOrStopTimeTransferSuccess extends TransferenciaState {
+  final String isStarted;
+  StartOrStopTimeTransferSuccess(this.isStarted);
+}
+
+class StartOrStopTimeTransferFailure extends TransferenciaState {
+  final String error;
+  StartOrStopTimeTransferFailure(this.error);
+}
+
+
+
+
+///metodo para asignar un usuario a una orden de compra
+class AssignUserToTransferLoading extends TransferenciaState {}
+
+class AssignUserToTransferSuccess extends TransferenciaState {}
+
+class AssignUserToTransferFailure extends TransferenciaState {
+  final String error;
+  AssignUserToTransferFailure(this.error);
+}

@@ -193,8 +193,8 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                   (recepcionBloc.listProductsEntrada.where((element) {
                             return (element.isSeparate == 0 ||
                                     element.isSeparate == null) &&
-                                (element.lotName == "" ||
-                                    element.lotName == null);
+                                (element.isDoneItem == 0 ||
+                                    element.isDoneItem == null);
                           }).length ==
                           0)
                       ? Expanded(
@@ -226,8 +226,8 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                 .where((element) {
                               return (element.isSeparate == 0 ||
                                       element.isSeparate == null) &&
-                                  (element.lotName == "" ||
-                                      element.lotName == null);
+                                  (element.isDoneItem == 0 ||
+                                      element.isDoneItem == null);
                             }).length,
                             itemBuilder: (context, index) {
                               final product = recepcionBloc
@@ -235,8 +235,8 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                   .where((element) {
                                 return (element.isSeparate == 0 ||
                                         element.isSeparate == null) &&
-                                    (element.lotName == "" ||
-                                        element.lotName == null);
+                                    (element.isDoneItem == 0 ||
+                                        element.isDoneItem == null);
                               }).elementAt(index);
 
                               return Padding(

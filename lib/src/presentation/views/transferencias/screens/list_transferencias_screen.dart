@@ -4,9 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -158,13 +161,11 @@ class ListTransferenciasScreen extends StatelessWidget {
                           ),
                           child: Card(
                             elevation: 3,
-                            color:
-                                // ordenCompra[index].isSelected == 1
-                                //     ? primaryColorAppLigth
-                                //     : ordenCompra[index].isFinish == 1
-                                //         ? Colors.green[200]
-                                //         :
-                                white,
+                            color: transferenciaDetail.isSelected == 1
+                                ? primaryColorAppLigth
+                                : transferenciaDetail.isFinish == 1
+                                    ? Colors.green[200]
+                                    : white,
                             child: ListTile(
                               trailing: Icon(Icons.arrow_forward_ios,
                                   color: primaryColorApp),
@@ -215,34 +216,40 @@ class ListTransferenciasScreen extends StatelessWidget {
                                               : transferenciaDetail
                                                       .responsable ??
                                                   '',
-                                          style: const TextStyle(
-                                              fontSize: 12, color: black),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: transferenciaDetail
+                                                          .responsable ==
+                                                      ""
+                                                  ? Colors.red
+                                                  : black),
                                         ),
                                         Spacer(),
-                                        // ordenCompra[index].startTimeReception != ""
-                                        //     ? Padding(
-                                        //         padding:
-                                        //             const EdgeInsets.only(left: 5),
-                                        //         child: GestureDetector(
-                                        //           onTap: () {
-                                        //             showDialog(
-                                        //                 context: context,
-                                        //                 builder: (context) =>
-                                        //                     DialogInfo(
-                                        //                       title:
-                                        //                           'Tiempo de inicio de operacion',
-                                        //                       body:
-                                        //                           'Este orden fue iniciada a las ${ordenCompra[index].startTimeReception}',
-                                        //                     ));
-                                        //           },
-                                        //           child: Icon(
-                                        //             Icons.timer_sharp,
-                                        //             color: primaryColorApp,
-                                        //             size: 15,
-                                        //           ),
-                                        //         ),
-                                        //       )
-                                        //     : const SizedBox(),
+                                        transferenciaDetail.startTimeTransfer !=
+                                                ""
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 5),
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (context) =>
+                                                            DialogInfo(
+                                                              title:
+                                                                  'Tiempo de inicio de operacion',
+                                                              body:
+                                                                  'Este orden fue iniciada a las ${transferenciaDetail.startTimeTransfer}',
+                                                            ));
+                                                  },
+                                                  child: Icon(
+                                                    Icons.timer_sharp,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                ),
+                                              )
+                                            : const SizedBox(),
                                       ],
                                     ),
                                   ),
@@ -304,52 +311,55 @@ class ListTransferenciasScreen extends StatelessWidget {
                                 ],
                               ),
                               onTap: () async {
-                                // print('ordenCompra: ${ordenCompra[index].toMap()}');
-                                // //cargamos los permisos del usuario
+                                print(
+                                    'transferenciaDetail: ${transferenciaDetail.toMap()}');
+                                //cargamos los permisos del usuario
                                 context
                                     .read<TransferenciaBloc>()
                                     .add(LoadConfigurationsUserTransfer());
 
-                                // //verficamos is la orden de entrada tiene ya un responsable
-                                // if (ordenCompra[index].responsableId == null ||
-                                //     ordenCompra[index].responsableId == 0) {
-                                //   showDialog(
-                                //     context: context,
-                                //     barrierDismissible:
-                                //         false, // No permitir que el usuario cierre el diálogo manualmente
-                                //     builder: (context) =>
-                                //         DialogAsignUserToOrderWidget(
-                                //       onAccepted: () async {
-                                //         // obtenemos los productos de esa entrada
-                                context.read<TransferenciaBloc>().add(
-                                    GetPorductsToTransfer(
-                                        transferenciaDetail.id ?? 0));
-                                //         //asignamos el responsable a esa orden de entrada
-                                //         context
-                                //             .read<RecepcionBloc>()
-                                //             .add(AssignUserToOrder(
-                                //               ordenCompra[index].id ?? 0,
-                                //             ));
-                                context.read<TransferenciaBloc>().add(
-                                    CurrentTransferencia(transferenciaDetail));
-                                //         Navigator.pop(context);
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  'transferencia-detail',
-                                  arguments: [transferenciaDetail, 0],
-                                );
-                                //       },
-                                //     ),
-                                //   );
-                                // } else {
-                                //   validateTime(ordenCompra[index], context);
-                                // }
+                                //verficamos is la orden de entrada tiene ya un responsable
+                                if (transferenciaDetail.responsableId == null ||
+                                    transferenciaDetail.responsableId == 0) {
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible:
+                                        false, // No permitir que el usuario cierre el diálogo manualmente
+                                    builder: (context) =>
+                                        DialogAsignUserToOrderWidget(
+                                      onAccepted: () async {
+                                        // obtenemos los productos de esa entrada
+                                        context.read<TransferenciaBloc>().add(
+                                            GetPorductsToTransfer(
+                                                transferenciaDetail.id ?? 0));
+                                        //asignamos el responsable a esa orden de entrada
+                                        context
+                                            .read<TransferenciaBloc>()
+                                            .add(AssignUserToTransfer(
+                                              transferenciaDetail.id ?? 0,
+                                            ));
+                                        context.read<TransferenciaBloc>().add(
+                                            CurrentTransferencia(
+                                                transferenciaDetail));
+                                        //         Navigator.pop(context);
+                                        Navigator.pushReplacementNamed(
+                                          context,
+                                          'transferencia-detail',
+                                          arguments: [transferenciaDetail, 0],
+                                        );
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  validateTime(transferenciaDetail, context);
+                                }
                               },
                             ),
                           ),
                         );
                       }),
-                )
+                ),
+                const SizedBox(height: 10),
               ],
             ),
           ),
@@ -358,48 +368,48 @@ class ListTransferenciasScreen extends StatelessWidget {
     );
   }
 
-  void validateTime(ResultTransFerencias ordenCompra, BuildContext context) {
-    // if (ordenCompra.startTimeReception == "" ||
-    //     ordenCompra.startTimeReception == null) {
-    //   showDialog(
-    //     context: context,
-    //     barrierDismissible:
-    //         false, // No permitir que el usuario cierre el diálogo manualmente
-    //     builder: (context) => DialogStartTimeWidget(
-    //       onAccepted: () async {
-    //         context.read<RecepcionBloc>().add(StartOrStopTimeOrder(
-    //             ordenCompra.id ?? 0, "start_time_reception", ));
-    //         context
-    //             .read<RecepcionBloc>()
-    //             .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
-    //         //traemos la orden de entrada actual desde la bd actualizada
-    //         context
-    //             .read<RecepcionBloc>()
-    //             .add(CurrentOrdenesCompra (ordenCompra));
-    //         Navigator.pop(context);
-    //         Navigator.pushReplacementNamed(
-    //           context,
-    //           'recepcion',
-    //           arguments: [ordenCompra, 0],
-    //         );
-    //       },
-    //       title: 'Iniciar Recepcion',
-    //     ),
-    //   );
-    // } else {
-    //   context
-    //       .read<RecepcionBloc>()
-    //       .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
-    //   //traemos la orden de entrada actual desde la bd actualizada
-    //   context
-    //       .read<RecepcionBloc>()
-    //       .add(CurrentOrdenesCompra( ordenCompra));
-    //   Navigator.pushReplacementNamed(
-    //     context,
-    //     'recepcion',
-    //     arguments: [ordenCompra, 0],
-    //   );
-    // }
+  void validateTime(ResultTransFerencias transfer, BuildContext context) {
+    if (transfer.startTimeTransfer == "" ||
+        transfer.startTimeTransfer == null) {
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // No permitir que el usuario cierre el diálogo manualmente
+        builder: (context) => DialogStartTimeWidget(
+          onAccepted: () async {
+            context.read<TransferenciaBloc>().add(StartOrStopTimeTransfer(
+                  transfer.id ?? 0,
+                  "start_time_transfer",
+                ));
+            context
+                .read<TransferenciaBloc>()
+                .add(GetPorductsToTransfer(transfer.id ?? 0));
+            //traemos la orden de entrada actual desde la bd actualizada
+            context
+                .read<TransferenciaBloc>()
+                .add(CurrentTransferencia(transfer));
+            Navigator.pop(context);
+            Navigator.pushReplacementNamed(
+              context,
+              'transferencia-detail',
+              arguments: [transfer, 0],
+            );
+          },
+          title: 'Iniciar Transferencia',
+        ),
+      );
+    } else {
+      context
+          .read<TransferenciaBloc>()
+          .add(GetPorductsToTransfer(transfer.id ?? 0));
+      //traemos la orden de entrada actual desde la bd actualizada
+      context.read<TransferenciaBloc>().add(CurrentTransferencia(transfer));
+      Navigator.pushReplacementNamed(
+        context,
+        'transferencia-detail',
+        arguments: [transfer, 0],
+      );
+    }
   }
 }
 

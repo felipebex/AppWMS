@@ -2,6 +2,7 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
@@ -60,6 +61,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   String scannedValue2 = '';
   String scannedValue3 = '';
   String scannedValue4 = '';
+  String scannedValue5 = '';
 
   //*variables para validar
   bool locationIsOk = false;
@@ -73,6 +75,8 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   List<Novedad> novedades = [];
   //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
+
+  //*metodo para empezar o terminar timepo
 
   //tranferencia actual
   ResultTransFerencias currentTransferencia = ResultTransFerencias();
@@ -121,11 +125,122 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     //*evento para ver la cantidad
     on<ShowQuantityEvent>(_onShowQuantityEvent);
+    //* evento para empezar o terminar el tiempo
+    on<StartOrStopTimeTransfer>(_onStartOrStopTimeTransfer);
+
+    //*asignar un usuario a una orden de compra
+    on<AssignUserToTransfer>(_onAssignUserToTransfer);
+    //*metodo para empezar o terminar timepo
   }
 
+//metodo para empezar o terminar el tiempo
+  void _onStartOrStopTimeTransfer(
+      StartOrStopTimeTransfer event, Emitter<TransferenciaState> emit) async {
+    try {
+      final time = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
-    //*evento para ver la cantidad
-  void _onShowQuantityEvent(ShowQuantityEvent event, Emitter<TransferenciaState> emit) {
+      print("time : $time");
+
+      if (event.value == "start_time_transfer") {
+        await db.transferenciaRepository.setFieldTableTransfer(
+          event.idTransfer,
+          "start_time_transfer",
+          time,
+        );
+      } else if (event.value == "end_time_transfer") {
+        await db.transferenciaRepository.setFieldTableTransfer(
+          event.idTransfer,
+          "end_time_transfer",
+          time,
+        );
+        await db.transferenciaRepository.setFieldTableTransfer(
+          event.idTransfer,
+          "is_finish",
+          1,
+        );
+      }
+
+      await db.transferenciaRepository.setFieldTableTransfer(
+        event.idTransfer,
+        "is_selected",
+        1,
+      );
+      await db.transferenciaRepository.setFieldTableTransfer(
+        event.idTransfer,
+        "is_started",
+        1,
+      );
+
+      //hacemos la peticion de mandar el tiempo
+      final response = await _transferenciasRepository.sendTime(
+        event.idTransfer,
+        event.value,
+        time,
+        false,
+      );
+
+      if (response) {
+        emit(StartOrStopTimeTransferSuccess(event.value));
+      } else {
+        emit(StartOrStopTimeTransferFailure('Error al enviar el tiempo'));
+      }
+    } catch (e, s) {
+      print('Error en el _onStartOrStopTimeOrder: $e, $s');
+    }
+  }
+
+  //*metodo para obtener los permisos del usuario
+  void _onAssignUserToTransfer(
+      AssignUserToTransfer event, Emitter<TransferenciaState> emit) async {
+    try {
+      int userId = await PrefUtils.getUserId();
+      String nameUser = await PrefUtils.getUserName();
+
+      emit(AssignUserToTransferLoading());
+      final response = await _transferenciasRepository.assignUserToTransfer(
+        true,
+        userId,
+        event.idTransfer,
+      );
+
+      if (response) {
+        //actualizamos la tabla entrada:
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idTransfer,
+          "responsable_id",
+          userId,
+        );
+
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idTransfer,
+          "responsable",
+          nameUser,
+        );
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idTransfer,
+          "is_selected",
+          1,
+        );
+
+        add(StartOrStopTimeTransfer(
+          event.idTransfer,
+          "start_time_transfer",
+        ));
+
+        emit(AssignUserToTransferSuccess());
+      } else {
+        emit(AssignUserToTransferFailure(
+            "La recepción ya tiene un responsable asignado"));
+      }
+    } catch (e, s) {
+      emit(AssignUserToTransferFailure('Error al asignar el usuario'));
+      print('Error en el _onAssignUserToOrder: $e, $s');
+    }
+  }
+
+  //*evento para ver la cantidad
+  void _onShowQuantityEvent(
+      ShowQuantityEvent event, Emitter<TransferenciaState> emit) {
     try {
       viewQuantity = !viewQuantity;
       emit(ShowQuantityState(viewQuantity));
@@ -196,6 +311,11 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           scannedValue4 = '';
           emit(ClearScannedValueState());
           break;
+        case 'toDo':
+          scannedValue5 = '';
+          emit(ClearScannedValueState());
+          break;
+
         default:
           print('Scan type not recognized: ${event.scan}');
       }
@@ -230,6 +350,12 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           print('scannedValue4: $scannedValue4');
           scannedValue4 += event.scannedValue;
           emit(UpdateScannedValueState(scannedValue4, event.scan));
+          break;
+
+        case 'toDo':
+          print('scannedValue5: $scannedValue5');
+          scannedValue5 += event.scannedValue;
+          emit(UpdateScannedValueState(scannedValue5, event.scan));
           break;
         default:
           print('Scan type not recognized: ${event.scan}');
@@ -431,6 +557,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
       //cargamos la informacion de las variables de validacion
       locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
       quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
       quantitySelected = currentProduct.isProductSplit == 1

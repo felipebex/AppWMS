@@ -227,6 +227,11 @@ class StartOrStopTimeOrderSuccess extends RecepcionState {
   StartOrStopTimeOrderSuccess(this.isStarted);
 }
 
+class StartOrStopTimeOrderFailure extends RecepcionState {
+  final String error;
+  StartOrStopTimeOrderFailure(this.error);
+}
+
 
 class CreateBackOrderOrNotLoading extends RecepcionState {}
 

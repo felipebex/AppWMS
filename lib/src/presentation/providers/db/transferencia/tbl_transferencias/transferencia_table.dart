@@ -21,8 +21,8 @@ class TransferenciaTable {
   static const String columnResponsableId = 'responsable_id';
   static const String columnResponsable = 'responsable';
   static const String columnPickingType = 'picking_type';
-  static const String columnDateFinish = 'end_time_reception';
-  static const String columnDateStart = 'start_time_reception';
+  static const String columnDateFinish = 'end_time_transfer';
+  static const String columnDateStart = 'start_time_transfer';
 
 
   //valores para el estado de la transferencia
