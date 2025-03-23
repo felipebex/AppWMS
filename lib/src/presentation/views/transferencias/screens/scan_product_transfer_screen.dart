@@ -1,0 +1,1422 @@
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+
+import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/location/location_card_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/muelle/muelle_card_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/product/product_widget.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
+import 'package:wms_app/src/utils/theme/input_decoration.dart';
+
+import '../../../providers/network/cubit/connection_status_cubit.dart';
+
+class ScanProductTrasnferScreen extends StatefulWidget {
+  final ResultTransFerencias? transfer;
+  final LineasTransferenciaTrans? currentProduct;
+
+  const ScanProductTrasnferScreen(
+      {super.key, required this.transfer, required this.currentProduct});
+
+  @override
+  State<ScanProductTrasnferScreen> createState() =>
+      _ScanProductTrasnferScreenState();
+}
+
+class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    // Añadimos el observer para escuchar el ciclo de vida de la app.
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.resumed) {
+      if (mounted) {
+        // Aquí se ejecutan las acciones solo si la pantalla aún está montada
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const DialogLoading(
+              message: "Espere un momento...",
+            );
+          },
+        );
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.pop(context);
+        });
+      }
+    }
+  }
+
+//focus para escanear
+
+  FocusNode focusNode1 = FocusNode(); // location
+  FocusNode focusNode2 = FocusNode(); // producto
+  FocusNode focusNode3 = FocusNode(); // cantidad por pda
+  FocusNode focusNode4 = FocusNode(); //cantidad textformfieldƒ
+  FocusNode focusNode5 = FocusNode(); //location dest
+
+  String? selectedLocation;
+  String? selectedMuelle;
+
+  //controller
+  final TextEditingController _controllerLocation = TextEditingController();
+  final TextEditingController _controllerLocationDest = TextEditingController();
+  final TextEditingController _controllerProduct = TextEditingController();
+  final TextEditingController _controllerQuantity = TextEditingController();
+  final TextEditingController _cantidadController = TextEditingController();
+
+  @override
+  void dispose() {
+    focusNode1.dispose(); //product
+    focusNode2.dispose(); //product
+    focusNode3.dispose(); //quantity
+    focusNode4.dispose(); //quantity
+    focusNode5.dispose(); //quantity
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _handleDependencies();
+  }
+
+  void _handleDependencies() {
+    //mostremos que focus estan activos
+
+    final bloc = context.read<TransferenciaBloc>();
+
+    if (!bloc.locationIsOk && //false
+        !bloc.productIsOk && //false
+        !bloc.quantityIsOk && //false
+        !bloc.locationDestIsOk) //false
+    {
+      print("🚼 location");
+      FocusScope.of(context).requestFocus(focusNode1);
+      //cerramos los demas focos
+      focusNode2.unfocus();
+      focusNode3.unfocus();
+      focusNode4.unfocus();
+      focusNode5.unfocus();
+    }
+    if (bloc.locationIsOk && //true
+        !bloc.productIsOk && //false
+        !bloc.quantityIsOk && //false
+        !bloc.locationDestIsOk) //false
+    {
+      print("🚼 product");
+      FocusScope.of(context).requestFocus(focusNode2);
+      //cerramos los demas focos
+      focusNode1.unfocus();
+      focusNode3.unfocus();
+      focusNode4.unfocus();
+      focusNode5.unfocus();
+    }
+    if (bloc.locationIsOk && //true
+        bloc.productIsOk && //true
+        bloc.quantityIsOk && //true
+        !bloc.locationDestIsOk && //false
+        !bloc.viewQuantity) //false
+    {
+      print("🚼 quantity");
+      FocusScope.of(context).requestFocus(focusNode3);
+      //cerramos los demas focos
+      focusNode1.unfocus();
+      focusNode2.unfocus();
+      focusNode4.unfocus();
+      focusNode5.unfocus();
+    }
+    if (bloc.locationIsOk &&
+        bloc.productIsOk &&
+        !bloc.quantityIsOk &&
+        !bloc.locationDestIsOk) {
+      print("🚼 muelle");
+      FocusScope.of(context).requestFocus(focusNode5);
+      //cerramos los demas focos
+      focusNode1.unfocus();
+      focusNode2.unfocus();
+      focusNode3.unfocus();
+      focusNode4.unfocus();
+    }
+    setState(() {});
+  }
+
+  void validateLocation(String value) {
+    final bloc = context.read<TransferenciaBloc>();
+
+    String scan = bloc.scannedValue1.toLowerCase() == ""
+        ? value.toLowerCase()
+        : bloc.scannedValue1.toLowerCase();
+
+    _controllerLocation.text = "";
+    final currentProduct = bloc.currentProduct;
+    if (scan == currentProduct.locationBarcode.toString().toLowerCase()) {
+      bloc.add(ValidateFieldsEvent(field: "location", isOk: true));
+      bloc.add(ChangeLocationIsOkEvent(
+          int.parse(currentProduct.productId),
+          bloc.currentProduct.idTransferencia ?? 0,
+          currentProduct.idMove ?? 0));
+
+      bloc.oldLocation = currentProduct.locationId.toString();
+      bloc.add(ClearScannedValueEvent('location'));
+    } else {
+      bloc.add(ValidateFieldsEvent(field: "location", isOk: false));
+      bloc.add(ClearScannedValueEvent('location'));
+    }
+  }
+
+  void validateProduct(String value) {
+    final bloc = context.read<TransferenciaBloc>();
+
+    String scan = bloc.scannedValue2.toLowerCase() == ""
+        ? value.toLowerCase()
+        : bloc.scannedValue2.toLowerCase();
+
+    print('scan product: $scan');
+    _controllerProduct.text = "";
+    final currentProduct = bloc.currentProduct;
+    if (scan == currentProduct.productBarcode?.toLowerCase()) {
+      bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+      bloc.add(ChangeProductIsOkEvent(true, int.parse(currentProduct.productId),
+          currentProduct.idTransferencia ?? 0, 0, currentProduct.idMove ?? 0));
+      bloc.add(ClearScannedValueEvent('product'));
+    } else {
+      final isok =
+          validateScannedBarcode(scan, bloc.currentProduct, bloc, true);
+
+      if (!isok) {
+        bloc.add(ValidateFieldsEvent(field: "product", isOk: false));
+        bloc.add(ClearScannedValueEvent('product'));
+      }
+    }
+  }
+
+  void validateQuantity(String value) {
+    final bloc = context.read<TransferenciaBloc>();
+
+    String scan = bloc.scannedValue3.toLowerCase() == ""
+        ? value.toLowerCase()
+        : bloc.scannedValue3.toLowerCase();
+
+    _controllerQuantity.text = "";
+    final currentProduct = bloc.currentProduct;
+    //validamos que no aumente en cantidad si llego al maximo
+    if (bloc.quantitySelected == currentProduct.quantityOrdered.toInt()) {
+      return;
+    }
+    if (scan == currentProduct.productBarcode?.toLowerCase()) {
+      bloc.add(AddQuantitySeparate(
+          int.parse(currentProduct.productId),
+          currentProduct.idMove ?? 0,
+          1,
+          false,
+          currentProduct.idTransferencia ?? 0));
+      bloc.add(ClearScannedValueEvent('quantity'));
+    } else {
+      validateScannedBarcode(scan, bloc.currentProduct, bloc, false);
+
+      bloc.add(ClearScannedValueEvent('quantity'));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: BlocBuilder<TransferenciaBloc, TransferenciaState>(
+        builder: (context, state) {
+          final bloc = context.read<TransferenciaBloc>();
+          return Scaffold(
+            backgroundColor: white,
+            body: SizedBox(
+              width: size.width * 1,
+              height: size.height * 1,
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.only(top: 20),
+                    decoration: BoxDecoration(
+                      color: primaryColorApp,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(20),
+                        bottomRight: Radius.circular(20),
+                      ),
+                    ),
+                    width: double.infinity,
+                    child: BlocProvider(
+                      create: (context) => ConnectionStatusCubit(),
+                      child:
+                          BlocConsumer<TransferenciaBloc, TransferenciaState>(
+                              listener: (context, state) {
+                        print('STATE ❤️‍🔥 $state');
+
+                        //*estado cando la ubicacion de origen es cambiada
+                        if (state is ChangeLocationIsOkState) {
+                          //cambiamos el foco
+                          Future.delayed(const Duration(seconds: 1), () {
+                            FocusScope.of(context).requestFocus(focusNode2);
+                          });
+                          _handleDependencies();
+                        }
+
+                        //*estado cuando el producto es leido ok
+                        if (state is ChangeProductIsOkState) {
+                          //cambiamos el foco a cantidad
+                          Future.delayed(const Duration(seconds: 1), () {
+                            FocusScope.of(context).requestFocus(focusNode3);
+                          });
+                          _handleDependencies();
+                        }
+                      }, builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  // bottom: 5,
+                                  top: status != ConnectionStatus.online
+                                      ? 0
+                                      : 35),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: white),
+                                    onPressed: () {
+                                      // termiateProcess();
+
+                                      Navigator.pushReplacementNamed(
+                                          context, 'transferencia-detail',
+                                          arguments: [widget.transfer, 1]);
+                                    },
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(left: size.width * 0.2),
+                                    child: Text(widget.transfer?.name ?? '',
+                                        style: TextStyle(
+                                            color: white, fontSize: 18)),
+                                  ),
+                                  const Spacer(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: SingleChildScrollView(
+                        child: Column(children: [
+                          //todo : ubicacion de origen
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: bloc.locationIsOk ? green : yellow,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Card(
+                                color: bloc.isLocationOk
+                                    ? bloc.locationIsOk
+                                        ? Colors.green[100]
+                                        : Colors.grey[300]
+                                    : Colors.red[200],
+                                elevation: 5,
+                                child: Container(
+                                  // color: Colors.amber,
+                                  width: size.width * 0.85,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 2),
+                                  child: context
+                                          .read<UserBloc>()
+                                          .fabricante
+                                          .contains("Zebra")
+                                      ? Column(
+                                          children: [
+                                            LocationDropdownTransferWidget(
+                                              isPDA: false,
+                                              selectedLocation:
+                                                  selectedLocation,
+                                              positionsOrigen:
+                                                  bloc.positionsOrigen,
+                                              currentLocationId: bloc
+                                                      .currentProduct
+                                                      .locationName ??
+                                                  "",
+                                              batchBloc: bloc,
+                                              currentProduct:
+                                                  bloc.currentProduct,
+                                            ),
+                                            Container(
+                                              height: 15,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 5),
+                                              child: TextFormField(
+                                                autofocus: true,
+                                                showCursor: false,
+                                                controller:
+                                                    _controllerLocation, // Asignamos el controlador
+                                                enabled: !bloc
+                                                        .locationIsOk && // false
+                                                    !bloc
+                                                        .productIsOk && // false
+                                                    !bloc
+                                                        .quantityIsOk && // false
+                                                    !bloc.locationDestIsOk,
+
+                                                focusNode: focusNode1,
+                                                onChanged: (value) {
+                                                  // Llamamos a la validación al cambiar el texto
+                                                  validateLocation(value);
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: bloc.currentProduct
+                                                      .locationName
+                                                      .toString(),
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  border: InputBorder.none,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Focus(
+                                          focusNode: focusNode1,
+                                          onKey: (FocusNode node,
+                                              RawKeyEvent event) {
+                                            if (event is RawKeyDownEvent) {
+                                              if (event.logicalKey ==
+                                                  LogicalKeyboardKey.enter) {
+                                                validateLocation(
+                                                    //validamos la ubicacion
+                                                    bloc.scannedValue1);
+
+                                                return KeyEventResult.handled;
+                                              } else {
+                                                bloc.add(
+                                                    UpdateScannedValueEvent(
+                                                        event.data.keyLabel,
+                                                        'location'));
+
+                                                return KeyEventResult.handled;
+                                              }
+                                            }
+                                            return KeyEventResult.ignored;
+                                          },
+                                          child: LocationDropdownTransferWidget(
+                                            isPDA: true,
+                                            selectedLocation: selectedLocation,
+                                            positionsOrigen:
+                                                bloc.positionsOrigen,
+                                            currentLocationId: bloc
+                                                .currentProduct.locationName
+                                                .toString(),
+                                            batchBloc: bloc,
+                                            currentProduct: bloc.currentProduct,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          //todo: producto
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: bloc.productIsOk ? green : yellow,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Card(
+                                color: bloc.isProductOk
+                                    ? bloc.productIsOk
+                                        ? Colors.green[100]
+                                        : Colors.grey[300]
+                                    : Colors.red[200],
+                                elevation: 5,
+                                child: Container(
+                                  width: size.width * 0.85,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 2),
+                                  child: context
+                                          .read<UserBloc>()
+                                          .fabricante
+                                          .contains("Zebra")
+                                      ? Column(
+                                          children: [
+                                            ProductDropdownTransferWidget(
+                                              selectedProduct: selectedLocation,
+                                              listOfProductsName:
+                                                  bloc.listOfProductsName,
+                                              currentProductId: bloc
+                                                  .currentProduct.productName
+                                                  .toString(),
+                                              batchBloc: bloc,
+                                              currentProduct:
+                                                  bloc.currentProduct,
+                                              isPDA: false,
+                                            ),
+                                            TextFormField(
+                                              showCursor: false,
+                                              enabled: bloc
+                                                      .locationIsOk && //true
+                                                  !bloc.productIsOk && //false
+                                                  !bloc.quantityIsOk && //false
+                                                  !bloc.locationDestIsOk,
+
+                                              controller:
+                                                  _controllerProduct, // Controlador que maneja el texto
+                                              focusNode: focusNode2,
+                                              onChanged: (value) {
+                                                validateProduct(value);
+                                              },
+                                              decoration: InputDecoration(
+                                                hintText:
+                                                    "${bloc.currentProduct.productName}",
+                                                // .toString(),
+                                                hintMaxLines: 2,
+                                                disabledBorder:
+                                                    InputBorder.none,
+                                                hintStyle: const TextStyle(
+                                                    fontSize: 12, color: black),
+                                                border: InputBorder.none,
+                                              ),
+                                            ),
+                                            // Lote/Numero de serie
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Image.asset(
+                                                    "assets/icons/barcode.png",
+                                                    color: primaryColorApp,
+                                                    width: 20,
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    bloc.currentProduct
+                                                                    .productBarcode ==
+                                                                false ||
+                                                            bloc.currentProduct
+                                                                    .productBarcode ==
+                                                                null ||
+                                                            bloc.currentProduct
+                                                                    .productBarcode ==
+                                                                ""
+                                                        ? "Sin codigo de barras"
+                                                        : bloc.currentProduct
+                                                                .productBarcode ??
+                                                            "",
+                                                    textAlign: TextAlign.start,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: bloc.currentProduct.productBarcode ==
+                                                                    false ||
+                                                                bloc.currentProduct
+                                                                        .productBarcode ==
+                                                                    null ||
+                                                                bloc.currentProduct
+                                                                        .productBarcode ==
+                                                                    ""
+                                                            ? red
+                                                            : black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Column(
+                                              children: [
+                                                ExpiryDateWidget(
+                                                    expireDate: bloc.currentProduct
+                                                                    .fechaVencimiento ==
+                                                                "" ||
+                                                            bloc.currentProduct
+                                                                    .fechaVencimiento ==
+                                                                null
+                                                        ? DateTime.now()
+                                                        : DateTime.parse(bloc
+                                                                .currentProduct
+                                                                .fechaVencimiento ??
+                                                            ''),
+                                                    size: size,
+                                                    isDetaild: false,
+                                                    isNoExpireDate: bloc
+                                                                .currentProduct
+                                                                .fechaVencimiento ==
+                                                            ""
+                                                        ? true
+                                                        : false),
+                                                if (bloc.currentProduct.lotId !=
+                                                    null)
+                                                  Row(
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                          'Lote/serie:',
+                                                          style: TextStyle(
+                                                              fontSize: 13,
+                                                              color:
+                                                                  primaryColorApp),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                          bloc.currentProduct
+                                                                  .lotName ??
+                                                              '',
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: black),
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return DialogBarcodes(
+                                                                    listOfBarcodes:
+                                                                        bloc.listOfBarcodes);
+                                                              });
+                                                        },
+                                                        child: Visibility(
+                                                          visible: bloc
+                                                              .listOfBarcodes
+                                                              .isNotEmpty,
+                                                          child: Image.asset(
+                                                              "assets/icons/package_barcode.png",
+                                                              color:
+                                                                  primaryColorApp,
+                                                              width: 20),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                              ],
+                                            ),
+                                          ],
+                                        )
+                                      : Focus(
+                                          focusNode: focusNode2,
+                                          onKey: (FocusNode node,
+                                              RawKeyEvent event) {
+                                            if (event is RawKeyDownEvent) {
+                                              if (event.logicalKey ==
+                                                  LogicalKeyboardKey.enter) {
+                                                validateProduct(
+                                                    bloc.scannedValue2);
+                                                return KeyEventResult.handled;
+                                              } else {
+                                                bloc.add(
+                                                    UpdateScannedValueEvent(
+                                                        event.data.keyLabel,
+                                                        'product'));
+
+                                                return KeyEventResult.handled;
+                                              }
+                                            }
+                                            return KeyEventResult.ignored;
+                                          },
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                ProductDropdownTransferWidget(
+                                                  selectedProduct:
+                                                      selectedLocation,
+                                                  listOfProductsName:
+                                                      bloc.listOfProductsName,
+                                                  currentProductId: bloc
+                                                      .currentProduct
+                                                      .productName
+                                                      .toString(),
+                                                  batchBloc: bloc,
+                                                  currentProduct:
+                                                      bloc.currentProduct,
+                                                  isPDA: false,
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start, //alineamos el texto a la izquierda
+                                                    children: [
+                                                      Text(
+                                                        "${bloc.currentProduct.productName}",
+                                                        maxLines: 3,
+                                                        style: const TextStyle(
+                                                            fontSize: 13,
+                                                            color: black),
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Row(
+                                                          children: [
+                                                            Image.asset(
+                                                              "assets/icons/barcode.png",
+                                                              color:
+                                                                  primaryColorApp,
+                                                              width: 20,
+                                                            ),
+                                                            const SizedBox(
+                                                                width: 10),
+                                                            Text(
+                                                              bloc.currentProduct.productBarcode == false ||
+                                                                      bloc.currentProduct
+                                                                              .productBarcode ==
+                                                                          null ||
+                                                                      bloc.currentProduct
+                                                                              .productBarcode ==
+                                                                          ""
+                                                                  ? "Sin codigo de barras"
+                                                                  : bloc.currentProduct
+                                                                          .productBarcode ??
+                                                                      "",
+                                                              textAlign:
+                                                                  TextAlign
+                                                                      .start,
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color: bloc.currentProduct.productBarcode == false ||
+                                                                          bloc.currentProduct.productBarcode ==
+                                                                              null ||
+                                                                          bloc.currentProduct.productBarcode ==
+                                                                              ""
+                                                                      ? red
+                                                                      : black),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+
+                                                const SizedBox(height: 10),
+                                                //informacion del lote:
+                                                if (bloc.currentProduct.lotId !=
+                                                    null)
+                                                  Column(
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                              'Lote/serie:',
+                                                              style: TextStyle(
+                                                                  fontSize: 13,
+                                                                  color:
+                                                                      primaryColorApp),
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              width: 5),
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                              bloc.currentProduct
+                                                                      .lotName ??
+                                                                  '',
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          13,
+                                                                      color:
+                                                                          black),
+                                                            ),
+                                                          ),
+                                                          const Spacer(),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) {
+                                                                    return DialogBarcodes(
+                                                                        listOfBarcodes:
+                                                                            bloc.listOfBarcodes);
+                                                                  });
+                                                            },
+                                                            child: Visibility(
+                                                              visible: bloc
+                                                                  .listOfBarcodes
+                                                                  .isNotEmpty,
+                                                              child: Image.asset(
+                                                                  "assets/icons/package_barcode.png",
+                                                                  color:
+                                                                      primaryColorApp,
+                                                                  width: 20),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ExpiryDateWidget(
+                                                    expireDate: bloc.currentProduct
+                                                                    .fechaVencimiento ==
+                                                                "" ||
+                                                            bloc.currentProduct
+                                                                    .fechaVencimiento ==
+                                                                null
+                                                        ? DateTime.now()
+                                                        : DateTime.parse(bloc
+                                                                .currentProduct
+                                                                .fechaVencimiento ??
+                                                            ""),
+                                                    size: size,
+                                                    isDetaild: false,
+                                                    isNoExpireDate: bloc
+                                                                .currentProduct
+                                                                .fechaVencimiento ==
+                                                            ""
+                                                        ? true
+                                                        : false),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          //todo: muelle
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: bloc.locationDestIsOk
+                                        ? green
+                                        : yellow,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Card(
+                                color: bloc.isLocationDestOk
+                                    ? bloc.locationDestIsOk
+                                        ? Colors.green[100]
+                                        : Colors.grey[300]
+                                    : Colors.red[200],
+                                elevation: 5,
+                                child: Container(
+                                  width: size.width * 0.85,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 10),
+                                  child: context
+                                          .read<UserBloc>()
+                                          .fabricante
+                                          .contains("Zebra")
+                                      ? Column(
+                                          children: [
+                                            MuelleDropdownWidget(
+                                              selectedMuelle: selectedMuelle,
+                                              batchBloc: bloc,
+                                              currentProduct: bloc.currentProduct,
+                                              isPda: false,
+                                            ),
+                                            Container(
+                                              height: 15,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 5),
+                                              child: TextFormField(
+                                                showCursor: false,
+                                                enabled: bloc
+                                                        .locationIsOk &&
+                                                    bloc.productIsOk &&
+                                                    !bloc.quantityIsOk &&
+                                                    !bloc.locationDestIsOk,
+                                                controller:
+                                                    _controllerLocationDest, // Controlador que maneja el texto
+                                                focusNode: focusNode5,
+                                                onChanged: (value) {
+                                                  // validateMuelle(value);
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText:  bloc
+                                                          .currentProduct.locationDestName,
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  border: InputBorder.none,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Focus(
+                                          focusNode: focusNode5,
+                                          onKey: (FocusNode node,
+                                              RawKeyEvent event) {
+                                            if (event is RawKeyDownEvent) {
+                                              if (event.logicalKey ==
+                                                  LogicalKeyboardKey.enter) {
+                                                // validateMuelle(context
+                                                //     .read<BatchBloc>()
+                                                //     .scannedValue4);
+                                                return KeyEventResult.handled;
+                                              } else {
+                                                bloc.add(
+                                                    UpdateScannedValueEvent(
+                                                        event.data.keyLabel,
+                                                        'muelle'));
+                                                return KeyEventResult.handled;
+                                              }
+                                            }
+                                            return KeyEventResult.ignored;
+                                          },
+                                          child: MuelleDropdownWidget(
+                                            selectedMuelle: selectedMuelle,
+                                            batchBloc: bloc,
+                                            currentProduct: bloc.currentProduct,
+                                            isPda: true,
+                                          )),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ]),
+                      ),
+                    ),
+                  ),
+
+                  //todo: cantidad
+
+                  SizedBox(
+                    width: size.width,
+                    height: bloc.viewQuantity == true &&
+                            context
+                                .read<UserBloc>()
+                                .fabricante
+                                .contains("Zebra")
+                        ? 300
+                        : !bloc.viewQuantity
+                            ? 110
+                            : 150,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                          child: Card(
+                            color: bloc.isQuantityOk
+                                ? bloc.quantityIsOk
+                                    ? white
+                                    : Colors.grey[300]
+                                : Colors.red[200],
+                            elevation: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: Center(
+                                child: Row(
+                                  children: [
+                                    const Text('Cant:',
+                                        style: TextStyle(
+                                            color: Colors.black, fontSize: 13)),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5),
+                                      child: Text(
+                                        bloc.currentProduct.quantityOrdered
+                                                ?.toString() ??
+                                            "",
+                                        style: TextStyle(
+                                            color: primaryColorApp,
+                                            fontSize: 13),
+                                      ),
+                                    ),
+                                    Visibility(
+                                      visible: (bloc.currentProduct
+                                                      .quantityOrdered ??
+                                                  0) -
+                                              bloc.quantitySelected !=
+                                          0,
+                                      child: const Text('Pdte:',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 13)),
+                                    ),
+                                    Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 5),
+                                        child: (bloc.currentProduct
+                                                            .quantityOrdered ??
+                                                        0) -
+                                                    bloc.quantitySelected ==
+                                                0
+                                            ? Container() // Ocultamos el widget si la diferencia es 0
+
+                                            : Text(
+                                                (bloc.quantitySelected <=
+                                                        bloc.currentProduct
+                                                            .quantityOrdered
+                                                    ? (bloc.currentProduct
+                                                                .quantityOrdered -
+                                                            bloc.quantitySelected)
+                                                        .toString()
+                                                    : '0'), // Aquí puedes definir qué mostrar si la condición no se cumple
+                                                style: TextStyle(
+                                                  color: _getColorForDifference(
+                                                    bloc.quantitySelected <=
+                                                            bloc.currentProduct
+                                                                .quantityOrdered
+                                                        ? (bloc.currentProduct
+                                                                .quantityOrdered -
+                                                            bloc.quantitySelected)
+                                                        : 0, // Si no cumple, el color será para diferencia 0
+                                                  ),
+                                                  fontSize: 13,
+                                                ),
+                                              )),
+                                    Text(bloc.currentProduct.uom ?? "",
+                                        style: const TextStyle(
+                                            color: Colors.black, fontSize: 13)),
+                                    Expanded(
+                                      child: Container(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 5),
+                                        height: 30,
+                                        alignment: Alignment.center,
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: Container(
+                                              alignment: Alignment.center,
+                                              child: context
+                                                      .read<UserBloc>()
+                                                      .fabricante
+                                                      .contains("Zebra")
+                                                  ? Center(
+                                                      child: TextFormField(
+                                                        showCursor: false,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        enabled: bloc
+                                                                .locationIsOk && //true
+                                                            bloc
+                                                                .productIsOk && //true
+                                                            bloc
+                                                                .quantityIsOk && //true
+
+                                                            !bloc
+                                                                .locationDestIsOk,
+                                                        // showCursor: false,
+                                                        controller:
+                                                            _controllerQuantity, // Controlador que maneja el texto
+                                                        focusNode: focusNode3,
+                                                        onChanged: (value) {
+                                                          validateQuantity(
+                                                              value);
+                                                        },
+                                                        decoration:
+                                                            InputDecoration(
+                                                          hintText: bloc
+                                                              .quantitySelected
+                                                              .toString(),
+                                                          disabledBorder:
+                                                              InputBorder.none,
+                                                          hintStyle:
+                                                              const TextStyle(
+                                                                  fontSize: 13,
+                                                                  color: black),
+                                                          border:
+                                                              InputBorder.none,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Focus(
+                                                      focusNode: focusNode3,
+                                                      onKey: (FocusNode node,
+                                                          RawKeyEvent event) {
+                                                        if (event
+                                                            is RawKeyDownEvent) {
+                                                          if (event
+                                                                  .logicalKey ==
+                                                              LogicalKeyboardKey
+                                                                  .enter) {
+                                                            validateQuantity(bloc
+                                                                .scannedValue3);
+                                                            return KeyEventResult
+                                                                .handled;
+                                                          } else {
+                                                            bloc.add(
+                                                                UpdateScannedValueEvent(
+                                                                    event.data
+                                                                        .keyLabel,
+                                                                    'quantity'));
+
+                                                            return KeyEventResult
+                                                                .handled;
+                                                          }
+                                                        }
+                                                        return KeyEventResult
+                                                            .ignored;
+                                                      },
+                                                      child: Text(
+                                                          bloc.quantitySelected
+                                                              .toString(),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 14,
+                                                          )),
+                                                    )),
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                        onPressed: bloc.configurations.result
+                                                    ?.result?.manualQuantity ==
+                                                false
+                                            ? null
+                                            : bloc.quantityIsOk &&
+                                                    bloc.quantitySelected >= 0
+                                                ? () {
+                                                    bloc.add(ShowQuantityEvent(
+                                                        !bloc.viewQuantity));
+                                                    Future.delayed(
+                                                        const Duration(
+                                                            milliseconds: 100),
+                                                        () {
+                                                      FocusScope.of(context)
+                                                          .requestFocus(
+                                                              focusNode4);
+                                                    });
+                                                  }
+                                                : null,
+                                        icon: Icon(Icons.edit_note_rounded,
+                                            color: primaryColorApp, size: 25)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: bloc.viewQuantity,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 3),
+                            child: SizedBox(
+                              height: 35,
+                              child: TextFormField(
+                                //tmano del campo
+
+                                focusNode: focusNode4,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter
+                                      .digitsOnly, // Solo permite dígitos
+                                ],
+                                onChanged: (value) {
+                                  // Verifica si el valor no está vacío y si es un número válido
+                                  if (value.isNotEmpty) {
+                                    try {
+                                      bloc.quantitySelected = int.parse(value);
+                                    } catch (e) {
+                                      // Manejo de errores si la conversión falla
+                                      print('Error al convertir a entero: $e');
+                                      // Aquí puedes mostrar un mensaje al usuario o manejar el error de otra forma
+                                    }
+                                  } else {
+                                    // Si el valor está vacío, puedes establecer un valor por defecto
+                                    bloc.quantitySelected =
+                                        0; // O cualquier valor que consideres adecuado
+                                  }
+                                },
+                                controller: _cantidadController,
+                                keyboardType: TextInputType.number,
+                                maxLines: 1,
+                                decoration:
+                                    InputDecorations.authInputDecoration(
+                                  hintText: 'Cantidad',
+                                  labelText: 'Cantidad',
+                                  suffixIconButton: IconButton(
+                                    onPressed: () {
+                                      bloc.add(ShowQuantityEvent(
+                                          !bloc.viewQuantity));
+                                      _cantidadController.clear();
+
+                                      //cambiamos el foco pa leer por pda la cantidad
+                                      Future.delayed(
+                                          const Duration(milliseconds: 100),
+                                          () {
+                                        FocusScope.of(context)
+                                            .requestFocus(focusNode3);
+                                      });
+                                    },
+                                    icon: const Icon(Icons.clear),
+                                  ),
+                                ),
+                                //al dar enter
+                                onFieldSubmitted: (value) {
+                                  //validamos que el texto no este vacio
+                                  if (value.isNotEmpty) {
+                                    if (int.parse(value) >
+                                        (bloc.currentProduct.quantityOrdered ??
+                                                0)
+                                            .toInt()) {
+                                      //todo: cantidad fuera del rango
+                                      bloc.add(ValidateFieldsEvent(
+                                          field: "quantity", isOk: false));
+                                      _cantidadController.clear();
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        duration: const Duration(seconds: 1),
+                                        content:
+                                            const Text('Cantidad incorrecta'),
+                                        backgroundColor: Colors.red[200],
+                                      ));
+                                    } else {
+                                      //todo: cantidad dentro del rango
+                                      if (int.parse(value) ==
+                                          bloc.currentProduct.quantityOrdered) {
+                                        //*cantidad correcta
+                                        //guardamos la cantidad en la bd
+                                        bloc.add(ChangeQuantitySeparate(
+                                          int.parse(value),
+                                          int.parse(
+                                              bloc.currentProduct.productId),
+                                          bloc.currentProduct.idMove ?? 0,
+                                          bloc.currentProduct.idTransferencia ??
+                                              0,
+                                        ));
+                                      } else {
+                                        //todo cantidad menor a la cantidad pedida
+                                        //preguntar si estamos en la ultima posicion
+
+                                        // showDialog(
+                                        //     context: context,
+                                        //     builder: (context) {
+                                        //       return DialogAdvetenciaCantidadScreen(
+                                        //           currentProduct:
+                                        //               currentProduct,
+                                        //           cantidad: batchBloc
+                                        //               .quantitySelected,
+                                        //           batchId: batchBloc
+                                        //                   .batchWithProducts
+                                        //                   .batch
+                                        //                   ?.id ??
+                                        //               0,
+                                        //           onAccepted: () {
+                                        //             // batchBloc.add(
+                                        //             //     IsShouldRunDependencies(
+                                        //             //         true));
+
+                                        //             bloc
+                                        //               ..add(ChangeQuantitySeparate(
+                                        //                   int.parse(value),
+                                        //                   int.parse(bloc
+                                        //                       .currentProduct
+                                        //                       .productId),
+                                        //                   bloc.currentProduct
+                                        //                           .idMove ??
+                                        //                       0,
+                                        //                   bloc.currentProduct
+                                        //                           .idTransferencia ??
+                                        //                       0));
+                                        //             // _nextProduct(currentProduct,
+                                        //             //     batchBloc);
+                                        //           });
+                                        //     });
+                                      }
+                                    }
+                                  }
+                                  bloc..add(ShowQuantityEvent(false));
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 0),
+                            child: ElevatedButton(
+                              onPressed: bloc.quantityIsOk &&
+                                      bloc.quantitySelected >= 0
+                                  ? () {
+                                      //cerramos el teclado
+                                      FocusScope.of(context).unfocus();
+                                      // _validatebuttonquantity();
+                                    }
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColorApp,
+                                minimumSize: Size(size.width * 0.93, 30),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text(
+                                'APLICAR CANTIDAD',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
+                              ),
+                            )),
+                        //teclado de la app
+                        Visibility(
+                          visible: bloc.viewQuantity &&
+                              context
+                                  .read<UserBloc>()
+                                  .fabricante
+                                  .contains("Zebra"),
+                          child: CustomKeyboardNumber(
+                            controller: _cantidadController,
+                            onchanged: () {
+                              // _validatebuttonquantity();
+                            },
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Función que devuelve el color basado en la diferencia
+  Color _getColorForDifference(int difference) {
+    if (difference == 0) {
+      return Colors.transparent; // Ocultar el texto cuando la diferencia es 0
+    } else if (difference > 10) {
+      // Si la diferencia es mayor a 10
+      return Colors.red; // Rojo para una gran diferencia
+    } else if (difference > 5) {
+      // Si la diferencia es mayor a 5 pero menor o igual a 10
+      return Colors.orange; // Naranja para una diferencia moderada
+    } else {
+      // Si la diferencia es 5 o menos
+      return Colors.green; // Verde cuando esté cerca de la cantidad pedida
+    }
+  }
+
+  bool validateScannedBarcode(
+      String scannedBarcode,
+      LineasTransferenciaTrans currentProduct,
+      TransferenciaBloc bloc,
+      bool isProduct) {
+    // Buscar el barcode que coincida con el valor escaneado
+    Barcodes? matchedBarcode = bloc.listOfBarcodes.firstWhere(
+        (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode,
+        orElse: () =>
+            Barcodes() // Si no se encuentra ningún match, devuelve null
+        );
+    if (matchedBarcode.barcode != null) {
+      if (isProduct) {
+        bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+
+        bloc.add(ChangeQuantitySeparate(0, int.parse(currentProduct.productId),
+            currentProduct.idMove ?? 0, currentProduct.idTransferencia ?? 0));
+
+        bloc.add(ChangeProductIsOkEvent(
+            true,
+            int.parse(currentProduct.productId),
+            currentProduct.idTransferencia ?? 0,
+            0,
+            currentProduct.idMove ?? 0));
+
+        bloc.add(ChangeIsOkQuantity(true, int.parse(currentProduct.productId),
+            currentProduct.idTransferencia ?? 0, currentProduct.idMove ?? 0));
+
+        return true;
+      } else {
+        //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
+        if (matchedBarcode.cantidad.toInt() + bloc.quantitySelected >
+            currentProduct.quantityOrdered!) {
+          return false;
+        }
+
+        bloc.add(AddQuantitySeparate(
+          int.parse(currentProduct.productId),
+          currentProduct.idMove ?? 0,
+          matchedBarcode.cantidad.toInt(),
+          false,
+          currentProduct.idTransferencia ?? 0,
+        ));
+      }
+      return false;
+    }
+    return false;
+  }
+}

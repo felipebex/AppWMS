@@ -250,7 +250,7 @@ class ListTransferenciasScreen extends StatelessWidget {
                                     alignment: Alignment.centerLeft,
                                     child: Row(
                                       children: [
-                                        Text('Tipo de transferencia: ',
+                                        Text('Tipo : ',
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 color: primaryColorApp)),

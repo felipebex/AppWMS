@@ -35,9 +35,6 @@ class ProductTransferenciaTable {
 
 
 
-
-
-
   static const String columnLoteId = 'lote_id';
   static const String columnLotName = 'lot_name';
   static const String columnLoteDate = 'lote_date';
@@ -50,6 +47,7 @@ class ProductTransferenciaTable {
   static const String columnDateStart = 'date_start';
   static const String columnDateEnd = 'date_end';
   static const String columnTimeTotalSeparate = 'time_total_separate';
+  static const String columnFechaTransaccion ='fecha_transaccion';
 
 //Meotdo para crar la tabla
   static String createTable() {
@@ -92,6 +90,7 @@ class ProductTransferenciaTable {
       $columnDateStart TEXT,
       $columnDateEnd TEXT,
       $columnTimeTotalSeparate TEXT,
+      $columnFechaTransaccion TEXT,
       FOREIGN KEY ($columnIdTransferencia) REFERENCES tbl_entradas_recepcion ($columnId)
 
     )

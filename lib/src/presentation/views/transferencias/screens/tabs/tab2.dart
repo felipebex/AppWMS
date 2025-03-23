@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class Tab2ScreenTrans extends StatelessWidget {
+class Tab2ScreenTrans extends StatefulWidget {
   const Tab2ScreenTrans({
     super.key,
     required this.transFerencia,
@@ -14,6 +15,11 @@ class Tab2ScreenTrans extends StatelessWidget {
 
   final ResultTransFerencias? transFerencia;
 
+  @override
+  State<Tab2ScreenTrans> createState() => _Tab2ScreenTransState();
+}
+
+class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -75,7 +81,7 @@ class Tab2ScreenTrans extends StatelessWidget {
                         //   return element.isSeparate == 1;
                         // }).elementAt(index);
 
-                        final product = bloc.listProductsTransfer?[index];
+                        final product = bloc.listProductsTransfer[index];
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(
@@ -83,7 +89,29 @@ class Tab2ScreenTrans extends StatelessWidget {
                           ),
                           child: GestureDetector(
                             onTap: () {
-                              print('product: ${product?.toMap()}');
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return const DialogLoading(
+                                      message:
+                                          'Cargando información del producto',
+                                    );
+                                  });
+                              bloc.add(FetchPorductTransfer(
+                                product,
+                              ));
+
+                              Future.delayed(const Duration(milliseconds: 300),
+                                  () {
+                                Navigator.pop(context);
+
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  'scan-product-transfer',
+                                  arguments: [widget.transFerencia, product],
+                                );
+                              });
+                              print(product.toMap());
                             },
                             child: Card(
                               color:

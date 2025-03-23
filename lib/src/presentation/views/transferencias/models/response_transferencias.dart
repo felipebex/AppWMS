@@ -157,9 +157,9 @@ class ResultTransFerencias {
         lineasTransferenciaEnviadas:
             json["lineas_transferencia_enviadas"] == null
                 ? []
-                : List<LineasTransferenciaTrans>.from(json["lineas_transferencia_enviadas"]
-                    .map((x) => LineasTransferenciaTrans.fromMap(x))),
-          
+                : List<LineasTransferenciaTrans>.from(
+                    json["lineas_transferencia_enviadas"]
+                        .map((x) => LineasTransferenciaTrans.fromMap(x))),
       );
 
   Map<String, dynamic> toMap() => {
@@ -223,6 +223,21 @@ class LineasTransferenciaTrans {
   String? lotName;
   String? fechaVencimiento;
 
+  late dynamic
+      isLocationIsOk; // Variable para si la ubicación es leída correctamente
+  late dynamic
+      productIsOk; // Variable para si el producto es leído correctamente
+  late dynamic
+      locationDestIsOk; // Variable para si la ubicación destino está leída
+  late dynamic
+      isQuantityIsOk; // Variable para si la cantidad es leída correctamente
+  final String? fechaTransaccion;
+  dynamic isProductSplit;
+  dynamic quantitySeparate;
+  dynamic isSeparate;
+  dynamic isSelected;
+
+
   LineasTransferenciaTrans({
     this.id,
     this.idMove,
@@ -249,6 +264,16 @@ class LineasTransferenciaTrans {
     this.lotId,
     this.lotName,
     this.fechaVencimiento,
+    this.isLocationIsOk,
+    this.isQuantityIsOk,
+    this.locationDestIsOk,
+    this.productIsOk,
+
+    this.fechaTransaccion,
+    this.isProductSplit,
+    this.quantitySeparate,
+    this.isSeparate,
+    this.isSelected,
   });
 
   factory LineasTransferenciaTrans.fromMap(Map<String, dynamic> json) =>
@@ -284,6 +309,15 @@ class LineasTransferenciaTrans {
         lotId: json["lot_id"],
         lotName: json["lot_name"],
         fechaVencimiento: json["fecha_vencimiento"],
+        isLocationIsOk: json["is_location_is_ok"] ?? false,
+        productIsOk: json["product_is_ok"] ?? false,
+        locationDestIsOk: json["location_dest_is_ok"] ?? false,
+        isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
+        fechaTransaccion: json['fecha_transaccion'],
+        isProductSplit: json['is_product_split'],
+        quantitySeparate: json['quantity_separate'],
+        isSeparate: json['is_separate'],
+        isSelected: json['is_selected'],
       );
 
   Map<String, dynamic> toMap() => {
@@ -316,5 +350,14 @@ class LineasTransferenciaTrans {
         "lot_id": lotId,
         "lot_name": lotName,
         "fecha_vencimiento": fechaVencimiento,
+        "is_location_is_ok": isLocationIsOk,
+        "product_is_ok": productIsOk,
+        "location_dest_is_ok": locationDestIsOk,
+        "is_quantity_is_ok": isQuantityIsOk,
+        "fecha_transaccion": fechaTransaccion,
+        "is_product_split": isProductSplit,
+        "quantity_separate": quantitySeparate,
+        "is_separate": isSeparate,
+        "is_selected": isSelected,
       };
 }

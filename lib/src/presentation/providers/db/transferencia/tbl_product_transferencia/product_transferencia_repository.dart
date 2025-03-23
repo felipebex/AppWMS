@@ -43,7 +43,8 @@ class ProductTransferenciaRepository {
               batch.update(
                 ProductTransferenciaTable.tableName,
                 {
-                  ProductTransferenciaTable.columnId: LineasTransferenciaTrans.id,
+                  ProductTransferenciaTable.columnId:
+                      LineasTransferenciaTrans.id,
                   ProductTransferenciaTable.columnIdMove:
                       LineasTransferenciaTrans.idMove,
                   ProductTransferenciaTable.columnProductId:
@@ -66,7 +67,8 @@ class ProductTransferenciaRepository {
                       LineasTransferenciaTrans.quantityOrdered,
                   ProductTransferenciaTable.columnQuantityDone:
                       LineasTransferenciaTrans.quantityDone,
-                  ProductTransferenciaTable.columnUom: LineasTransferenciaTrans.uom,
+                  ProductTransferenciaTable.columnUom:
+                      LineasTransferenciaTrans.uom,
                   ProductTransferenciaTable.columnLocationDestId:
                       LineasTransferenciaTrans.locationDestId,
                   ProductTransferenciaTable.columnLocationDestName:
@@ -108,7 +110,8 @@ class ProductTransferenciaRepository {
               batch.insert(
                 ProductTransferenciaTable.tableName,
                 {
-                  ProductTransferenciaTable.columnId: LineasTransferenciaTrans.id,
+                  ProductTransferenciaTable.columnId:
+                      LineasTransferenciaTrans.id,
                   ProductTransferenciaTable.columnIdMove:
                       LineasTransferenciaTrans.idMove,
                   ProductTransferenciaTable.columnProductId:
@@ -131,7 +134,8 @@ class ProductTransferenciaRepository {
                       LineasTransferenciaTrans.quantityOrdered,
                   ProductTransferenciaTable.columnQuantityDone:
                       LineasTransferenciaTrans.quantityDone,
-                  ProductTransferenciaTable.columnUom: LineasTransferenciaTrans.uom,
+                  ProductTransferenciaTable.columnUom:
+                      LineasTransferenciaTrans.uom,
                   ProductTransferenciaTable.columnLocationDestId:
                       LineasTransferenciaTrans.locationDestId,
                   ProductTransferenciaTable.columnLocationDestName:
@@ -174,10 +178,6 @@ class ProductTransferenciaRepository {
     }
   }
 
-
-
-
-
 //*Método para obtener todos los productos de una entrada por idRecepcion
   Future<List<LineasTransferenciaTrans>> getProductsByTrasnferId(
       int idTransfer) async {
@@ -199,4 +199,50 @@ class ProductTransferenciaRepository {
     }
   }
 
+  //*metodo para actualizar la tabla
+
+  // Método: Actualizar un campo específico en la tabla productos_pedidos
+  Future<int?> setFieldTableProductTransfer(int idEntrada, int productId,
+      String field, dynamic setValue, int idMove) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+
+    final resUpdate = await db.rawUpdate(
+        'UPDATE ${ProductTransferenciaTable.tableName} SET $field = ? WHERE ${ProductTransferenciaTable.columnProductId} = ? AND ${ProductTransferenciaTable.columnIdMove} = ? AND ${ProductTransferenciaTable.columnIdTransferencia} = ?',
+        [setValue, productId, idMove, idEntrada]);
+
+    print(
+        "update TableProductTransfer (idProduct ----($productId)) -------($field): $resUpdate");
+
+    return resUpdate;
+  }
+
+  // Incrementar cantidad de producto separado para empaque
+  Future<int?> incremenQtytProductSeparate(
+      int idTransfer, int productId, int idMove, int quantity) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+    return await db.transaction((txn) async {
+      final result = await txn.query(
+        ProductTransferenciaTable.tableName,
+        columns: [(ProductTransferenciaTable.columnQuantitySeparate)],
+        where:
+            '${ProductTransferenciaTable.columnIdTransferencia} = ? AND ${ProductTransferenciaTable.columnProductId} = ? AND ${ProductTransferenciaTable.columnIdMove} = ?',
+        whereArgs: [idTransfer, productId, idMove],
+      );
+
+      if (result.isNotEmpty) {
+        int currentQty =
+            (result.first[ProductTransferenciaTable.columnQuantitySeparate] as int);
+
+        int newQty = currentQty + quantity;
+        return await txn.update(
+          ProductTransferenciaTable.tableName,
+          {ProductTransferenciaTable.columnQuantitySeparate: newQty},
+          where:
+              '${ProductTransferenciaTable.columnIdTransferencia} = ? AND ${ProductTransferenciaTable.columnProductId} = ? AND ${ProductTransferenciaTable.columnIdMove} = ?',
+          whereArgs: [idTransfer, productId, idMove],
+        );
+      }
+      return null; // No encontrado
+    });
+  }
 }

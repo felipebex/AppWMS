@@ -140,4 +140,23 @@ class TransferenciaRepository {
       return [];
     }
   }
+
+  //*metodo para actualizar la tabla
+
+  // Método: Actualizar un campo específico en la tabla productos_pedidos
+  Future<int?> setFieldTableTransfer(int idTransfer, String field,
+      dynamic setValue, ) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+
+    final resUpdate = await db.rawUpdate(
+        'UPDATE ${TransferenciaTable.tableName} SET $field = ? WHERE ${TransferenciaTable.columnId} = ?',
+        [
+          setValue,
+          idTransfer,
+        ]);
+    print(
+        "update TableTransfer (idTransfer ----($idTransfer)) -------($field): $resUpdate");
+
+    return resUpdate;
+  }
 }

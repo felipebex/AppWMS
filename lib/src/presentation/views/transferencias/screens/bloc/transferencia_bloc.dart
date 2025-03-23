@@ -1,10 +1,14 @@
+// ignore_for_file: unnecessary_null_comparison, collection_methods_unrelated_type
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'transferencia_event.dart';
@@ -26,14 +30,49 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   //*configuracion del usuario //permisos
   Configurations configurations = Configurations();
 
+  //*lista de todas las pocisiones de los productos del batchs
+  List<String> positionsOrigen = [];
+
   //lista de transferencias
   List<ResultTransFerencias> transferencias = [];
   List<ResultTransFerencias> transferenciasDB = [];
   List<ResultTransFerencias> transferenciasDbFilters = [];
 
-
   List<LineasTransferenciaTrans> listProductsTransfer = [];
+  //*lista de productos de un una entrada
+  List<String> listOfProductsName = [];
 
+  LineasTransferenciaTrans currentProduct = LineasTransferenciaTrans();
+
+  // //*validaciones de campos del estado de la vista
+  bool isLocationOk = true;
+  bool isProductOk = true;
+  bool isLocationDestOk = true;
+  bool isQuantityOk = true;
+
+  String oldLocation = '';
+
+  String selectedNovedad = '';
+  //*valores de scanvalue
+
+  int quantitySelected = 0;
+  String scannedValue1 = '';
+  String scannedValue2 = '';
+  String scannedValue3 = '';
+  String scannedValue4 = '';
+
+  //*variables para validar
+  bool locationIsOk = false;
+  bool productIsOk = false;
+  bool locationDestIsOk = false;
+  bool quantityIsOk = false;
+
+  bool viewQuantity = false;
+
+  //*lista de novedades
+  List<Novedad> novedades = [];
+  //*lista de barcodes
+  List<Barcodes> listOfBarcodes = [];
 
   //tranferencia actual
   ResultTransFerencias currentTransferencia = ResultTransFerencias();
@@ -56,12 +95,397 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     //*obtener las configuraciones y permisos del usuario desde la bd
     on<LoadConfigurationsUserTransfer>(_onLoadConfigurationsUserEvent);
 
-       //*obtener todos los productos de una transferencia
+    //*obtener todos los productos de una transferencia
     on<GetPorductsToTransfer>(_onGetProductsToTransfer);
+
+    //*evento para cargar la info del producto
+    on<FetchPorductTransfer>(_onFetchPorductTransfer);
+
+    //todo: estados para la sepracion
+
+    on<ValidateFieldsEvent>(_onValidateFields);
+
+    //*cambiar el estado de las variables
+    on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
+    on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
+    on<ChangeProductIsOkEvent>(_onChangeProductIsOkEvent);
+    on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
+
+    //*evento para actualizar el valor del scan
+    on<UpdateScannedValueEvent>(_onUpdateScannedValueEvent);
+    on<ClearScannedValueEvent>(_onClearScannedValueEvent);
+
+    //*evento para cambiar la cantidad seleccionada
+    on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
+    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+
+    //*evento para ver la cantidad
+    on<ShowQuantityEvent>(_onShowQuantityEvent);
   }
 
 
+    //*evento para ver la cantidad
+  void _onShowQuantityEvent(ShowQuantityEvent event, Emitter<TransferenciaState> emit) {
+    try {
+      viewQuantity = !viewQuantity;
+      emit(ShowQuantityState(viewQuantity));
+    } catch (e, s) {
+      print("❌ Error en _onShowQuantityEvent: $e, $s");
+    }
+  }
 
+  //*metodo para cambiar la cantidad seleccionada
+  void _onChangeQuantitySelectedEvent(
+      ChangeQuantitySeparate event, Emitter<TransferenciaState> emit) async {
+    try {
+      if (event.quantity > 0) {
+        quantitySelected = event.quantity;
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'quantity_separate',
+          event.quantity,
+          event.idMove,
+        );
+      }
+      emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
+    } catch (e, s) {
+      emit(ChangeQuantitySeparateStateError('Error al separar cantidad'));
+      print('❌ Error en ChangeQuantitySeparate: $e -> $s ');
+    }
+  }
+
+  //*evento para aumentar la cantidad
+  void _onAddQuantitySeparateEvent(
+      AddQuantitySeparate event, Emitter<TransferenciaState> emit) async {
+    try {
+      if (quantitySelected > (currentProduct.quantityOrdered ?? 0)) {
+        return;
+      } else {
+        quantitySelected = quantitySelected + event.quantity;
+
+        await db.productTransferenciaRepository.incremenQtytProductSeparate(
+            event.idTransfer, event.productId, event.idMove, event.quantity);
+
+        emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
+      }
+    } catch (e, s) {
+      emit(ChangeQuantitySeparateStateError('Error al aumentar cantidad'));
+      print("❌ Error en el AddQuantitySeparate $e ->$s");
+    }
+  }
+
+//*evento para limpiar el valor del scan
+  void _onClearScannedValueEvent(
+      ClearScannedValueEvent event, Emitter<TransferenciaState> emit) {
+    try {
+      switch (event.scan) {
+        case 'location':
+          scannedValue1 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'product':
+          scannedValue2 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'quantity':
+          scannedValue3 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'muelle':
+          scannedValue4 = '';
+          emit(ClearScannedValueState());
+          break;
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+      emit(ClearScannedValueState());
+    } catch (e, s) {
+      print("❌ Error en _onClearScannedValueEvent: $e, $s");
+    }
+  }
+
+  //*evento para actualizar el valor del scan
+  void _onUpdateScannedValueEvent(
+      UpdateScannedValueEvent event, Emitter<TransferenciaState> emit) {
+    try {
+      switch (event.scan) {
+        case 'location':
+          // Acumulador de valores escaneados
+          scannedValue1 += event.scannedValue;
+          print('scannedValue1: $scannedValue1');
+          emit(UpdateScannedValueState(scannedValue1, event.scan));
+          break;
+        case 'product':
+          scannedValue2 += event.scannedValue;
+          print('scannedValue2: $scannedValue2');
+          emit(UpdateScannedValueState(scannedValue2, event.scan));
+          break;
+        case 'quantity':
+          scannedValue3 += event.scannedValue;
+          print('scannedValue3: $scannedValue3');
+          emit(UpdateScannedValueState(scannedValue3, event.scan));
+          break;
+        case 'muelle':
+          print('scannedValue4: $scannedValue4');
+          scannedValue4 += event.scannedValue;
+          emit(UpdateScannedValueState(scannedValue4, event.scan));
+          break;
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+    } catch (e, s) {
+      print("❌ Error en _onUpdateScannedValueEvent: $e, $s");
+    }
+  }
+
+  void _onChangeLocationDestIsOkEvent(ChangeLocationDestIsOkEvent event,
+      Emitter<TransferenciaState> emit) async {
+    try {
+      if (event.locationDestIsOk) {
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'location_dest_is_ok',
+          1,
+          event.idMove,
+        );
+      }
+      locationDestIsOk = event.locationDestIsOk;
+      emit(ChangeLocationDestIsOkState(
+        locationDestIsOk,
+      ));
+    } catch (e, s) {
+      print("❌ Error en el ChangeLocationDestIsOkEvent $e ->$s");
+    }
+  }
+
+  void _onChangeQuantityIsOkEvent(
+      ChangeIsOkQuantity event, Emitter<TransferenciaState> emit) async {
+    try {
+      if (event.isOk) {
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'is_quantity_is_ok',
+          1,
+          event.idMove,
+        );
+      }
+      quantityIsOk = event.isOk;
+      emit(ChangeQuantityIsOkState(
+        quantityIsOk,
+      ));
+    } catch (e, s) {
+      print("❌ Error en el ChangeIsOkQuantity $e ->$s");
+    }
+  }
+
+  void _onChangeProductIsOkEvent(
+      ChangeProductIsOkEvent event, Emitter<TransferenciaState> emit) async {
+    try {
+      if (event.productIsOk) {
+        //empezamos el tiempo de separacion del producto
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'date_start',
+          DateTime.now().toString(),
+          event.idMove,
+        );
+
+        //calculamos la fecha de transaccion
+        DateTime fechaTransaccion = DateTime.now();
+        String fechaFormateada = formatoFecha(fechaTransaccion);
+        //agregamos la fecha de transaccion
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'fecha_transaccion',
+          fechaFormateada,
+          event.idMove,
+        );
+
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'is_quantity_is_ok',
+          1,
+          event.idMove,
+        );
+
+        quantityIsOk = event.productIsOk;
+
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'product_is_ok',
+          1,
+          event.idMove,
+        );
+
+        // actualizamos la table de transferencias como seleccionada
+
+        await db.transferenciaRepository.setFieldTableTransfer(
+          event.idTransfer,
+          'is_selected',
+          1,
+        );
+      }
+      productIsOk = event.productIsOk;
+      emit(ChangeProductIsOkState(
+        productIsOk,
+      ));
+    } catch (e, s) {
+      print("❌ Error en el ChangeProductIsOkEvent $e ->$s");
+    }
+  }
+
+  void _onValidateFields(
+      ValidateFieldsEvent event, Emitter<TransferenciaState> emit) {
+    try {
+      switch (event.field) {
+        case 'location':
+          isLocationOk = event.isOk;
+          break;
+        case 'product':
+          isProductOk = event.isOk;
+          break;
+        case 'locationDest':
+          isLocationDestOk = event.isOk;
+          break;
+        case 'quantity':
+          isQuantityOk = event.isOk;
+          break;
+      }
+      emit(ValidateFieldsStateSuccess(event.isOk));
+    } catch (e, s) {
+      emit(ValidateFieldsStateError('Error al validar campos'));
+      print("❌ Error en el ValidateFieldsEvent $e ->$s");
+    }
+  }
+
+  void _onChangeLocationIsOkEvent(
+      ChangeLocationIsOkEvent event, Emitter<TransferenciaState> emit) async {
+    try {
+      if (isLocationOk) {
+        //ubicacion en true
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'is_location_is_ok',
+          1,
+          event.idMove,
+        );
+
+        //seleccion del proyecto
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'is_selected',
+          1,
+          event.idMove,
+        );
+
+        // actualizamos la table de transferencias como seleccionada
+
+        await db.transferenciaRepository.setFieldTableTransfer(
+          event.idTransfer,
+          'is_selected',
+          1,
+        );
+
+        locationIsOk = true;
+        emit(ChangeLocationIsOkState(
+          locationIsOk,
+        ));
+      }
+    } catch (e, s) {
+      print("❌ Error en el ChangeLocationIsOkEvent $e ->$s");
+    }
+  }
+
+  //*metodo para cargar la informacion del producto actual
+  void _onFetchPorductTransfer(
+      FetchPorductTransfer event, Emitter<TransferenciaState> emit) async {
+    try {
+      isLocationOk = true;
+      isProductOk = true;
+      viewQuantity = false;
+      isQuantityOk = true;
+      isLocationDestOk = true;
+
+      emit(FetchPorductTransferLoading());
+
+      // traemos toda la lista de barcodes
+      listOfBarcodes.clear();
+      print('listOfBarcodes: ${listOfBarcodes.length}');
+      currentProduct = LineasTransferenciaTrans();
+      currentProduct = event.product;
+
+      listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
+        currentProduct.idTransferencia ?? 0,
+        int.parse(currentProduct.productId),
+        currentProduct.idMove ?? 0,
+      );
+
+      //cargamos la informacion de las variables de validacion
+      locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+      productIsOk = currentProduct.productIsOk == 1 ? true : false;
+      quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+      quantitySelected = currentProduct.isProductSplit == 1
+          ? 0
+          : currentProduct.quantitySeparate ?? 0;
+
+      //llamamos los productos de esa entrada
+      products();
+      getPosicions();
+      //cargamos la configuracion del usuario
+
+      emit(FetchPorductTransferSuccess(currentProduct));
+    } catch (e, s) {
+      emit(FetchPorductTransferFailure('Error al obtener el producto'));
+      print('Error en el _onFetchPorductOrder: $e, $s');
+    }
+  }
+
+  void getPosicions() {
+    try {
+      // Usar un Set para evitar duplicados automáticamente
+      Set<String> positionsSet = {};
+      // Usamos un filtro para no tener que comprobar locationId en cada iteración
+      for (var product in listProductsTransfer) {
+        // Solo añadimos locationId si no es nulo ni vacío
+        String location = product.locationName ?? '';
+        if (location.isNotEmpty) {
+          positionsSet.add(location);
+        }
+      }
+
+      // Convertimos el Set a lista si es necesario
+      positionsOrigen = positionsSet.toList();
+    } catch (e, s) {
+      print("❌ Error en getPosicions: $e -> $s");
+    }
+  }
+
+  void products() {
+    try {
+      // Usamos un Set para evitar duplicados y mejorar el rendimiento de búsqueda
+      Set<String> productIdsSet = {};
+      // Recorremos los productos del batch
+      for (var product in listProductsTransfer) {
+        // Validamos que el productId no sea nulo y lo convertimos a String
+        if (product.productId != null) {
+          productIdsSet.add(product.productName.toString());
+        }
+      }
+      // Asignamos el Set a la lista, si es necesario
+      listOfProductsName = productIdsSet.toList();
+    } catch (e, s) {
+      print("❌ Error en el products $e ->$s");
+    }
+  }
 
   //*metodo para obtener los productos de una entrada por id
   void _onGetProductsToTransfer(
@@ -75,12 +499,10 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       listProductsTransfer = response;
       print('listProductsTransfer: ${listProductsTransfer.length}');
       emit(GetProductsToTransferSuccess(listProductsTransfer));
-        } catch (e, s) {
+    } catch (e, s) {
       print('Error en el _onGetProductsToTrasnfer: $e, $s');
     }
   }
-
-
 
   void _onLoadConfigurationsUserEvent(LoadConfigurationsUserTransfer event,
       Emitter<TransferenciaState> emit) async {

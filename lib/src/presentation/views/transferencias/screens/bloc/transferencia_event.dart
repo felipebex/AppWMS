@@ -28,3 +28,96 @@ class GetPorductsToTransfer extends TransferenciaEvent {
   final int idTransfer;
   GetPorductsToTransfer(this.idTransfer);
 }
+
+class FetchPorductTransfer extends TransferenciaEvent {
+  final LineasTransferenciaTrans product;
+  FetchPorductTransfer(
+    this.product,
+  );
+}
+
+class QuantityChanged extends TransferenciaEvent {
+  final int quantity;
+  QuantityChanged(this.quantity);
+}
+
+class SelectNovedadEvent extends TransferenciaEvent {
+  final String novedad;
+  SelectNovedadEvent(this.novedad);
+}
+
+class ValidateFieldsEvent extends TransferenciaEvent {
+  final String field;
+  final bool isOk;
+  ValidateFieldsEvent({required this.field, required this.isOk});
+}
+
+//* CAMBIAR VALORES DE VARIABLES
+class ChangeLocationIsOkEvent extends TransferenciaEvent {
+  final int productId;
+  final int idTransfer;
+  final int idMove;
+  ChangeLocationIsOkEvent(this.productId, this.idTransfer, this.idMove);
+}
+
+class ChangeLocationDestIsOkEvent extends TransferenciaEvent {
+  final bool locationDestIsOk;
+  final int productId;
+  final int idTransfer;
+  final int idMove;
+  ChangeLocationDestIsOkEvent(
+      this.locationDestIsOk, this.productId, this.idTransfer, this.idMove);
+}
+
+class ChangeProductIsOkEvent extends TransferenciaEvent {
+  final bool productIsOk;
+  final int productId;
+  final int idTransfer;
+  final int quantity;
+  final int idMove;
+  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.idTransfer,
+      this.quantity, this.idMove);
+}
+
+class ChangeIsOkQuantity extends TransferenciaEvent {
+  final bool isOk;
+  final int productId;
+  final int idTransfer;
+  final int idMove;
+  ChangeIsOkQuantity(this.isOk, this.productId, this.idTransfer, this.idMove);
+}
+
+class UpdateScannedValueEvent extends TransferenciaEvent {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValueEvent(this.scannedValue, this.scan);
+}
+
+class ClearScannedValueEvent extends TransferenciaEvent {
+  final String scan;
+  ClearScannedValueEvent(this.scan);
+}
+
+class ChangeQuantitySeparate extends TransferenciaEvent {
+  final int quantity;
+  final int productId;
+  final int idMove;
+  final int idTransfer;
+  ChangeQuantitySeparate(
+      this.quantity, this.productId, this.idMove, this.idTransfer);
+}
+
+class AddQuantitySeparate extends TransferenciaEvent {
+  final int productId;
+  final int idMove;
+  final int quantity;
+  final bool isOk;
+  final int idTransfer;
+  AddQuantitySeparate(
+      this.productId, this.idMove, this.quantity, this.isOk, this.idTransfer);
+}
+
+class ShowQuantityEvent extends TransferenciaEvent {
+  final bool showQuantity;
+  ShowQuantityEvent(this.showQuantity);
+}

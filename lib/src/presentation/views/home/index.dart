@@ -64,61 +64,61 @@ class _HomePageState extends State<HomePage> {
 
               //verficiar si tenemos algun producto sin enviar
               //traemos todos los productos
-              context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-              final products = await DataBaseSqlite().getProducts();
-              final productsNoSendOdoo =
-                  products.where((element) => element.isSendOdoo == 0).toList();
-              if (productsNoSendOdoo.isEmpty) {
+              // context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+              // final products = await DataBaseSqlite().getProducts();
+              // final productsNoSendOdoo =
+              //     products.where((element) => element.isSendOdoo == 0).toList();
+              // if (productsNoSendOdoo.isEmpty) {
                 await DataBaseSqlite().deleteBD();
                 //peticion para la configuracion
-                if (!mounted) return;
-                final String rol = await PrefUtils.getUserRol();
+                // if (!mounted) return;
+                // final String rol = await PrefUtils.getUserRol();
                 //peticion segun el rol del usuario
-                if (rol == 'picking') {
-                  if (!mounted) return;
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                } else if (rol == 'admin') {
-                  if (!mounted) return;
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                  //esperamos 1 segundo y realizamos la otra peticion
-                  await Future.delayed(const Duration(seconds: 1));
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        false,
-                      ));
-                  await Future.delayed(const Duration(seconds: 1));
+                // if (rol == 'picking') {
+                //   if (!mounted) return;
+                //   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+                // } else if (rol == 'admin') {
+                //   if (!mounted) return;
+                //   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+                //   //esperamos 1 segundo y realizamos la otra peticion
+                //   await Future.delayed(const Duration(seconds: 1));
+                //   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+                //         false,
+                //       ));
+                //   await Future.delayed(const Duration(seconds: 1));
                   context.read<RecepcionBloc>().add(FetchOrdenesCompra());
                   await Future.delayed(const Duration(seconds: 1));
                   context
                       .read<TransferenciaBloc>()
                       .add(FetchAllTransferencias());
-                } else if (rol == 'packing') {
-                  if (!mounted) return;
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        true,
-                      ));
-                } else if (rol == "reception") {
-                  if (!mounted) return;
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
-                } else if (rol == "transfer") {
-                  if (!mounted) return;
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias());
-                } else if (rol == "" || rol == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("El usuario no tiene cargado los permisos"),
-                      duration: Duration(seconds: 4),
-                    ),
-                  );
-                }
-              } else {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const DialogProductsNotSends();
-                    });
-              }
+              //   } else if (rol == 'packing') {
+              //     if (!mounted) return;
+              //     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+              //           true,
+              //         ));
+              //   } else if (rol == "reception") {
+              //     if (!mounted) return;
+              //     context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+              //   } else if (rol == "transfer") {
+              //     if (!mounted) return;
+              //     context
+              //         .read<TransferenciaBloc>()
+              //         .add(FetchAllTransferencias());
+              //   } else if (rol == "" || rol == null) {
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //       const SnackBar(
+              //         content: Text("El usuario no tiene cargado los permisos"),
+              //         duration: Duration(seconds: 4),
+              //       ),
+              //     );
+              //   }
+              // } else {
+              //   showDialog(
+              //       context: context,
+              //       builder: (context) {
+              //         return const DialogProductsNotSends();
+              //       });
+              // }
             },
             child: Scaffold(
               body: Container(
@@ -664,9 +664,9 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
-                                            if (homeBloc.userRol ==
-                                                    'reception' ||
-                                                homeBloc.userRol == 'admin') {
+                                            // if (homeBloc.userRol ==
+                                            //         'reception' ||
+                                            //     homeBloc.userRol == 'admin') {
                                               context.read<RecepcionBloc>().add(
                                                   FetchOrdenesCompraOfBd()); // Llama al evento FetchOrdenesCompra
 
@@ -690,17 +690,17 @@ class _HomePageState extends State<HomePage> {
                                                 context,
                                                 'list-ordenes-compra',
                                               );
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Su usuario no tiene permisos para acceder a este módulo"),
-                                                  duration:
-                                                      Duration(seconds: 4),
-                                                ),
-                                              );
-                                            }
+                                            // } else {
+                                            //   ScaffoldMessenger.of(context)
+                                            //       .showSnackBar(
+                                            //     const SnackBar(
+                                            //       content: Text(
+                                            //           "Su usuario no tiene permisos para acceder a este módulo"),
+                                            //       duration:
+                                            //           Duration(seconds: 4),
+                                            //     ),
+                                            //   );
+                                            // }
                                           },
                                           child: ImteModule(
                                             urlImg: "recepcion.png",

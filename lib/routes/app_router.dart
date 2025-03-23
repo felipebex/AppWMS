@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/list_transferencias_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/scan_product_transfer_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/transferencia_screen.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
@@ -53,6 +54,7 @@ class AppRoutes {
   static const String recepcion = 'recepcion';
   static const String listOrdenesCompra = 'list-ordenes-compra';
   static const String scanProductOrder = 'scan-product-order';
+  static const String scanProductTransfer = 'scan-product-transfer';
 
   //new lote
   static const String newLote = 'new-lote';
@@ -140,6 +142,19 @@ class AppRoutes {
 
         return ScanProductOrderScreen(
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
+      },
+
+      scanProductTransfer: (context) {
+        // Obtener los argumentos (una lista)
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final transfer = arguments[0] as ResultTransFerencias?;
+        final currentProducArg = arguments[1] as LineasTransferenciaTrans?;
+
+        return ScanProductTrasnferScreen(
+            transfer: transfer, currentProduct: currentProducArg);
       },
 
       recepcion: (context) {
