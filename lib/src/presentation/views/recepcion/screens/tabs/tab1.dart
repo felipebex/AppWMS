@@ -28,15 +28,7 @@ class Tab1ScreenRecep extends StatelessWidget {
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
         listener: (context, state) {
-          if (state is AssignUserToOrderSuccess) {
-            Get.snackbar(
-              'Exitoso',
-              "Se ha asignado el responsable correctamente",
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.green),
-            );
-          }
+          
 
           if (state is CreateBackOrderOrNotLoading) {
             showDialog(

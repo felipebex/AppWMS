@@ -200,34 +200,36 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       final response = await _transferenciasRepository.assignUserToTransfer(
         true,
         userId,
-        event.idTransfer,
+        event.transfer.id ?? 0,
       );
 
       if (response) {
         //actualizamos la tabla entrada:
         await db.entradasRepository.setFieldTableEntrada(
-          event.idTransfer,
+          event.transfer.id ?? 0,
           "responsable_id",
           userId,
         );
 
         await db.entradasRepository.setFieldTableEntrada(
-          event.idTransfer,
+          event.transfer.id ?? 0,
           "responsable",
           nameUser,
         );
         await db.entradasRepository.setFieldTableEntrada(
-          event.idTransfer,
+          event.transfer.id ?? 0,
           "is_selected",
           1,
         );
 
         add(StartOrStopTimeTransfer(
-          event.idTransfer,
+          event.transfer.id ?? 0,
           "start_time_transfer",
         ));
 
-        emit(AssignUserToTransferSuccess());
+        emit(AssignUserToTransferSuccess(
+          event.transfer,
+        ));
       } else {
         emit(AssignUserToTransferFailure(
             "La recepción ya tiene un responsable asignado"));

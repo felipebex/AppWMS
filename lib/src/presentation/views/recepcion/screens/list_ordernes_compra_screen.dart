@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -32,6 +33,37 @@ class ListOrdenesCompraScreen extends StatelessWidget {
               content: Text(state.error),
               backgroundColor: Colors.red,
             ),
+          );
+        }
+
+        if (state is AssignUserToOrderFailure) {
+          Get.snackbar(
+            'Error',
+            "Error al asignar el responsable a la transferencia",
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
+          );
+        }
+
+        if (state is AssignUserToOrderSuccess) {
+          Get.snackbar(
+            'Exitoso',
+            "Se ha asignado el responsable correctamente",
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+          context
+              .read<RecepcionBloc>()
+              .add(GetPorductsToEntrada(state.ordenCompra.id ?? 0));
+          context
+              .read<RecepcionBloc>()
+              .add(CurrentOrdenesCompra(state.ordenCompra));
+          Navigator.pushReplacementNamed(
+            context,
+            'recepcion',
+            arguments: [state.ordenCompra, 0],
           );
         }
       },
@@ -153,13 +185,6 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                           ],
                         ),
                       )),
-
-                  // (state is FetchOrdenesCompraOfBdSuccess ||
-                  //         state is ShowKeyboardState ||
-                  //         state is SearchOrdenCompraSuccess ||
-                  //         state is ConfigurationLoadedOrder ||
-                  //         state is AssignUserToOrderLoading)
-                  //     ?
 
                   Expanded(
                     child: ListView.builder(
@@ -358,25 +383,13 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                       builder: (context) =>
                                           DialogAsignUserToOrderWidget(
                                         onAccepted: () async {
-                                          // obtenemos los productos de esa entrada
-                                          context.read<RecepcionBloc>().add(
-                                              GetPorductsToEntrada(
-                                                  ordenCompra[index].id ?? 0));
                                           //asignamos el responsable a esa orden de entrada
                                           context
                                               .read<RecepcionBloc>()
                                               .add(AssignUserToOrder(
-                                                ordenCompra[index].id ?? 0,
+                                                ordenCompra[index],
                                               ));
-                                          context.read<RecepcionBloc>().add(
-                                              CurrentOrdenesCompra(
-                                                  ordenCompra[index]));
                                           Navigator.pop(context);
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            'recepcion',
-                                            arguments: [ordenCompra[index], 0],
-                                          );
                                         },
                                       ),
                                     );

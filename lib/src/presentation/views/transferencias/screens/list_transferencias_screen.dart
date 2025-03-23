@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -22,7 +23,38 @@ class ListTransferenciasScreen extends StatelessWidget {
     final Size size = MediaQuery.sizeOf(context);
     return BlocConsumer<TransferenciaBloc, TransferenciaState>(
       listener: (context, state) {
-        // TODO: implement listener
+        if (state is AssignUserToTransferFailure) {
+          Get.snackbar(
+            'Error',
+            "Error al asignar el responsable a la transferencia",
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
+          );
+        }
+
+        if (state is AssignUserToTransferSuccess) {
+          Get.snackbar(
+            'Exitoso',
+            "Se ha asignado el responsable correctamente",
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+          // obtenemos los productos de esa entrada
+          context
+              .read<TransferenciaBloc>()
+              .add(GetPorductsToTransfer(state.transfer.id ?? 0));
+
+          context
+              .read<TransferenciaBloc>()
+              .add(CurrentTransferencia(state.transfer));
+          Navigator.pushReplacementNamed(
+            context,
+            'transferencia-detail',
+            arguments: [state.transfer, 0],
+          );
+        }
       },
       builder: (context, state) {
         return Scaffold(
@@ -51,7 +83,7 @@ class ListTransferenciasScreen extends StatelessWidget {
                   },
                 )
               : null,
-          body: Container(
+          body: SizedBox(
             width: size.width,
             height: size.height,
             child: Column(
@@ -328,25 +360,14 @@ class ListTransferenciasScreen extends StatelessWidget {
                                     builder: (context) =>
                                         DialogAsignUserToOrderWidget(
                                       onAccepted: () async {
-                                        // obtenemos los productos de esa entrada
-                                        context.read<TransferenciaBloc>().add(
-                                            GetPorductsToTransfer(
-                                                transferenciaDetail.id ?? 0));
                                         //asignamos el responsable a esa orden de entrada
                                         context
                                             .read<TransferenciaBloc>()
                                             .add(AssignUserToTransfer(
-                                              transferenciaDetail.id ?? 0,
+                                              transferenciaDetail,
                                             ));
-                                        context.read<TransferenciaBloc>().add(
-                                            CurrentTransferencia(
-                                                transferenciaDetail));
-                                        //         Navigator.pop(context);
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          'transferencia-detail',
-                                          arguments: [transferenciaDetail, 0],
-                                        );
+
+                                        Navigator.pop(context);
                                       },
                                     ),
                                   );

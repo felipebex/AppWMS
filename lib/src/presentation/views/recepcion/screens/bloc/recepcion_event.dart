@@ -31,9 +31,9 @@ class SearchOrdenCompraEvent extends RecepcionEvent {
 }
 
 class AssignUserToOrder extends RecepcionEvent {
-  final int idOrder;
+  final ResultEntrada order;
   AssignUserToOrder(
-    this.idOrder,
+    this.order,
   );
 }
 

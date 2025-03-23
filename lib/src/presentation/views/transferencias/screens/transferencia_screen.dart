@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/tabs/tab1.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/tabs/tab2.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/tabs/tab3.dart';
@@ -42,93 +44,102 @@ class _TransferenciaScreenState extends State<TransferenciaScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            //volvemos a llamar las entradas que tenemos guardadas en la bd
-            // context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
+    return BlocConsumer<TransferenciaBloc, TransferenciaState>(
+      listener: (context, state) {
+        // TODO: implement listener
+      },
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                //volvemos a llamar las entradas que tenemos guardadas en la bd
+                context
+                    .read<TransferenciaBloc>()
+                    .add(FetchAllTransferenciasDB());
 
-            Navigator.pushReplacementNamed(
-              context,
-              'transferencias',
-            );
-          },
-        ),
-        title: Text(
-          'DETALLES TRANSFERENCIA',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        bottom: TabBar(
-          controller: _tabController, // Asignar el TabController
-          indicatorWeight: 3,
-          indicatorPadding: EdgeInsets.symmetric(vertical: 5),
-          labelStyle: TextStyle(
-            fontSize: 12,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-          unselectedLabelStyle: TextStyle(
-            fontSize: 12,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-          tabs: const [
-            Tab(
-              text: 'Detalles',
-              icon: Icon(
-                Icons.details,
-                color: Colors.white,
-                size: 20,
-              ),
+                Navigator.pushReplacementNamed(
+                  context,
+                  'transferencias',
+                );
+              },
             ),
-            Tab(
-              text: 'Por hacer',
-              icon: Icon(
-                Icons.pending_actions,
-                color: Colors.white,
-                size: 20,
-              ),
+            title: Text(
+              'DETALLES TRANSFERENCIA',
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
-            Tab(
-              text: 'Listo',
-              icon: Icon(
-                Icons.done,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-          ],
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          const WarningWidgetCubit(isTop: false),
-          Expanded(
-            child: TabBarView(
+            bottom: TabBar(
               controller: _tabController, // Asignar el TabController
-              children: [
-                Tab1ScreenTrans(
-                  transFerencia: widget.transferencia,
+              indicatorWeight: 3,
+              indicatorPadding: EdgeInsets.symmetric(vertical: 5),
+              labelStyle: TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              unselectedLabelStyle: TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+              tabs: const [
+                Tab(
+                  text: 'Detalles',
+                  icon: Icon(
+                    Icons.details,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
-                Tab2ScreenTrans(
-                  transFerencia: widget.transferencia,
+                Tab(
+                  text: 'Por hacer',
+                  icon: Icon(
+                    Icons.pending_actions,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
-                Tab3ScreenTrans(
-                    // ordenCompra: widget.ordenCompra,
-                    ),
+                Tab(
+                  text: 'Listo',
+                  icon: Icon(
+                    Icons.done,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
               ],
             ),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(20),
+              ),
+            ),
           ),
-        ],
-      ),
+          body: Column(
+            children: [
+              const WarningWidgetCubit(isTop: false),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController, // Asignar el TabController
+                  children: [
+                    Tab1ScreenTrans(
+                      transFerencia: widget.transferencia,
+                    ),
+                    Tab2ScreenTrans(
+                      transFerencia: widget.transferencia,
+                    ),
+                    Tab3ScreenTrans(
+                        // ordenCompra: widget.ordenCompra,
+                        ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

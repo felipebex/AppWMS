@@ -133,8 +133,8 @@ class StartOrStopTimeTransfer extends TransferenciaEvent {
 }
 
 class AssignUserToTransfer extends TransferenciaEvent {
-  final int idTransfer;
+  final ResultTransFerencias transfer;
   AssignUserToTransfer(
-    this.idTransfer,
+    this.transfer,
   );
 }

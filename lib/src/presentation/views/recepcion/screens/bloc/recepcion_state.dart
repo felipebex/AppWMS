@@ -38,7 +38,10 @@ class SearchOrdenCompraFailure extends RecepcionState {
 ///metodo para asignar un usuario a una orden de compra
 class AssignUserToOrderLoading extends RecepcionState {}
 
-class AssignUserToOrderSuccess extends RecepcionState {}
+class AssignUserToOrderSuccess extends RecepcionState {
+  final  ResultEntrada ordenCompra ;
+  AssignUserToOrderSuccess(this.ordenCompra);
+}
 
 class AssignUserToOrderFailure extends RecepcionState {
   final String error;

@@ -815,34 +815,34 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       final response = await _recepcionRepository.assignUserToOrder(
         true,
         userId,
-        event.idOrder,
+        event.order.id ?? 0,
       );
 
       if (response) {
         //actualizamos la tabla entrada:
         await db.entradasRepository.setFieldTableEntrada(
-          event.idOrder,
+          event.order.id ?? 0,
           "responsable_id",
           userId,
         );
 
         await db.entradasRepository.setFieldTableEntrada(
-          event.idOrder,
+          event.order.id ?? 0,
           "responsable",
           nameUser,
         );
         await db.entradasRepository.setFieldTableEntrada(
-          event.idOrder,
+          event.order.id ?? 0,
           "is_selected",
           1,
         );
 
         add(StartOrStopTimeOrder(
-          event.idOrder,
+          event.order.id ?? 0,
           "start_time_reception",
         ));
 
-        emit(AssignUserToOrderSuccess());
+        emit(AssignUserToOrderSuccess(event.order));
       } else {
         emit(AssignUserToOrderFailure(
             "La recepción ya tiene un responsable asignado"));
