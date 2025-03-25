@@ -239,6 +239,8 @@ class LineasTransferenciaTrans {
   final dynamic time;
   final dynamic isDoneItem;
   final dynamic dateTransaction;
+  final dynamic dateStart;
+  final dynamic dateEnd;
 
   LineasTransferenciaTrans({
     this.id,
@@ -278,6 +280,8 @@ class LineasTransferenciaTrans {
     this.time,
     this.isDoneItem,
     this.dateTransaction,
+    this.dateStart,
+    this.dateEnd,
   });
 
   factory LineasTransferenciaTrans.fromMap(Map<String, dynamic> json) =>
@@ -325,6 +329,8 @@ class LineasTransferenciaTrans {
         time: json["time"],
         isDoneItem: json["is_done_item"],
         dateTransaction: json["date_transaction"],
+        dateStart: json["date_start"],
+        dateEnd: json["date_end"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -369,5 +375,7 @@ class LineasTransferenciaTrans {
         "time": time,
         "is_done_item": isDoneItem,
         "date_transaction": dateTransaction,
+        "date_start": dateStart,
+        "date_end": dateEnd,
       };
 }

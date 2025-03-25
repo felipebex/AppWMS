@@ -96,10 +96,11 @@ class ProductTransferenciaRepository {
                           ? LineasTransferenciaTrans.fechaVencimiento
                           : "",
                   ProductTransferenciaTable.columnIsProductSplit: 0,
-                  ProductTransferenciaTable.columnObservation: "",
+                  ProductTransferenciaTable.columnObservation: LineasTransferenciaTrans.observation,
                   ProductTransferenciaTable.columnDateStart: "",
                   ProductTransferenciaTable.columnDateEnd: "",
-                  ProductTransferenciaTable.columnTime: "",
+                  ProductTransferenciaTable.columnTime:
+                      LineasTransferenciaTrans.time,
                   ProductTransferenciaTable.columnIsDoneItem:
                       LineasTransferenciaTrans.isDoneItem
                 },
@@ -168,10 +169,11 @@ class ProductTransferenciaRepository {
                           ? LineasTransferenciaTrans.fechaVencimiento
                           : "",
                   ProductTransferenciaTable.columnIsProductSplit: 0,
-                  ProductTransferenciaTable.columnObservation: "",
+                  ProductTransferenciaTable.columnObservation: LineasTransferenciaTrans.observation,
                   ProductTransferenciaTable.columnDateStart: "",
                   ProductTransferenciaTable.columnDateEnd: "",
-                  ProductTransferenciaTable.columnTime: "",
+                  ProductTransferenciaTable.columnTime:
+                      LineasTransferenciaTrans.time,
                   ProductTransferenciaTable.columnIsDoneItem:
                       LineasTransferenciaTrans.isDoneItem,
                 },

@@ -1956,7 +1956,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
           builder: (context) => AlertDialog(
             backgroundColor: Colors.white,
             title: const Center(
-              child: Text("Advertencia",
+              child: Text("360 Software Informa",
                   style: TextStyle(color: yellow, fontSize: 16)),
             ),
             content: Column(

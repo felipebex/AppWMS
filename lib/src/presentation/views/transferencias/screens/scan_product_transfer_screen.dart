@@ -1477,7 +1477,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     BuildContext context,
   ) {
     context.read<TransferenciaBloc>().add(FinalizarTransferProducto());
-    context.read<TransferenciaBloc>().add(SendProductToTransfer());
+    context.read<TransferenciaBloc>().add(SendProductToTransfer(
+      false
+    ));
     termiateProcess();
   }
 
@@ -1488,7 +1490,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     context
         .read<TransferenciaBloc>()
         .add(FinalizarTransferProductoSplit(cantidad));
-    context.read<TransferenciaBloc>().add(SendProductToTransfer());
+    context.read<TransferenciaBloc>().add(SendProductToTransfer(
+      true
+    ));
     termiateProcess();
   }
 

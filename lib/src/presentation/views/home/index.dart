@@ -60,10 +60,8 @@ class _HomePageState extends State<HomePage> {
           final homeBloc = context.read<HomeBloc>();
           return RefreshIndicator(
             onRefresh: () async {
-              context.read<TransferenciaBloc>().add(FetchAllTransferencias());
 
-              //verficiar si tenemos algun producto sin enviar
-              //traemos todos los productos
+              context.read<UserBloc>().add(GetUbicacionesEvent());
               context.read<UserBloc>().add(LoadInfoDeviceEventUser());
               final products = await DataBaseSqlite().getProducts();
               final productsNoSendOdoo =
@@ -101,7 +99,6 @@ class _HomePageState extends State<HomePage> {
                   context.read<RecepcionBloc>().add(FetchOrdenesCompra());
                 } else if (rol == "transfer") {
                   if (!mounted) return;
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
                   context
                       .read<TransferenciaBloc>()
                       .add(FetchAllTransferencias());
@@ -668,9 +665,9 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
-                                            // if (homeBloc.userRol ==
-                                            //         'reception' ||
-                                            //     homeBloc.userRol == 'admin') {
+                                            if (homeBloc.userRol ==
+                                                    'reception' ||
+                                                homeBloc.userRol == 'admin') {
                                             context.read<RecepcionBloc>().add(
                                                 FetchOrdenesCompraOfBd()); // Llama al evento FetchOrdenesCompra
 
@@ -694,17 +691,17 @@ class _HomePageState extends State<HomePage> {
                                               context,
                                               'list-ordenes-compra',
                                             );
-                                            // } else {
-                                            //   ScaffoldMessenger.of(context)∞∞%
-                                            //       .showSnackBar(
-                                            //     const SnackBar(
-                                            //       content: Text(
-                                            //           "Su usuario no tiene permisos para acceder a este módulo"),
-                                            //       duration:
-                                            //           Duration(seconds: 4),
-                                            //     ),
-                                            //   );
-                                            // }
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Su usuario no tiene permisos para acceder a este módulo"),
+                                                  duration:
+                                                      Duration(seconds: 4),
+                                                ),
+                                              );
+                                            }
                                           },
                                           child: ImteModule(
                                             urlImg: "recepcion.png",

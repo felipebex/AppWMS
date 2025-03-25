@@ -44,6 +44,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   List<LineasTransferenciaTrans> listProductsTransfer = [];
   //*lista de productos de un una entrada
   List<String> listOfProductsName = [];
+  List<String> warehouseName = [];
 
   LineasTransferenciaTrans currentProduct = LineasTransferenciaTrans();
 
@@ -154,6 +155,31 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     //*evento para obtener las novedades
     on<LoadAllNovedadesTransferEvent>(_onLoadAllNovedadesEvent);
+
+    //*metodo para filtrar todas las transferencias segun su warehouseName
+    on<FilterTransferByWarehouse>(_onFilterTransferByWarehouse);
+  }
+
+  //*metodo para filtrar todas las transferencias segun su
+  void _onFilterTransferByWarehouse(
+      FilterTransferByWarehouse event, Emitter<TransferenciaState> emit) {
+    try {
+      emit(FilterTransferByWarehouseLoading());
+
+      if (event.warehouseName == 'todas') {
+        transferenciasDbFilters = transferenciasDB;
+        emit(FilterTransferByWarehouseSuccess(transferenciasDbFilters));
+      } else {
+        transferenciasDbFilters = transferenciasDB
+            .where((element) => element.warehouseName == event.warehouseName)
+            .toList();
+        emit(FilterTransferByWarehouseSuccess(transferenciasDbFilters));
+      }
+    } catch (e, s) {
+      emit(FilterTransferByWarehouseFailure(
+          'Error al filtrar las transferencias'));
+      print('Error en el _onFilterTransferByWarehouse: $e, $s');
+    }
   }
 
   //*meotod para cargar todas las novedades
@@ -251,6 +277,28 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         currentProduct.idTransferencia ?? 0,
       );
 
+      String dateInicio = productBD?.dateStart ?? "";
+      String dateFin = productBD?.dateEnd ?? "";
+      print("dateInicio: $dateInicio  dateFin: $dateFin");
+
+      //calculamos la diferencia de tiempo
+      DateTime dateStart = DateTime.parse(dateInicio);
+      DateTime dateEnd = DateTime.parse(dateFin);
+
+      var difference = dateEnd.difference(dateStart);
+      int time = difference.inSeconds;
+
+      print("time ->${time}");
+      //lo convertimos en entero
+      //actualizamos el tiempo del producto
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+        currentProduct.idTransferencia ?? 0,
+        int.parse(currentProduct.productId),
+        'time',
+        time,
+        currentProduct.idMove ?? 0,
+      );
+
       final responseSend = await _transferenciasRepository.sendProductTransfer(
         TransferRequest(
           idTransferencia: currentProduct.idTransferencia ?? 0,
@@ -264,11 +312,12 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
                   int.parse(productBD.locationDestId.toString()),
               cantidadEnviada: productBD.quantitySeparate,
               idOperario: userid,
-              timeLine: 10,
+              timeLine: time,
               fechaTransaccion: fechaFormateada,
               observacion: productBD.observation == ""
                   ? "Sin novedad"
                   : productBD.observation,
+              dividida: event.isDividio,
             ),
           ],
         ),
@@ -276,8 +325,22 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       );
 
       if (responseSend.result?.code == 200) {
+        // marcamos tiempo final de sepfaracion
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+            currentProduct.idTransferencia ?? 0,
+            int.parse(currentProduct.productId),
+            "is_done_item",
+            1,
+            currentProduct.idMove ?? 0);
         emit(SendProductToTransferSuccess());
       } else {
+        // marcamos tiempo final de sepfaracion
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+            currentProduct.idTransferencia ?? 0,
+            int.parse(currentProduct.productId),
+            "is_separate",
+            0,
+            currentProduct.idMove ?? 0);
         emit(SendProductToTransferFailure('Error al enviar el producto'));
       }
     } catch (e, s) {
@@ -313,13 +376,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           int.parse(currentProduct.productId),
           "date_end",
           DateTime.now().toString(),
-          currentProduct.idMove ?? 0);
-      //marcamso el producto como is_done_item
-      await db.productTransferenciaRepository.setFieldTableProductTransfer(
-          currentProduct.idTransferencia ?? 0,
-          int.parse(currentProduct.productId),
-          "is_done_item",
-          1,
           currentProduct.idMove ?? 0);
 
       //calculamos la cantidad pendiente del producto
@@ -358,13 +414,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           currentProduct.idMove ?? 0);
       //marcamos el producto como termiado
 
-      //marcamos tiempo final de separacion
-      await db.productTransferenciaRepository.setFieldTableProductTransfer(
-          currentProduct.idTransferencia ?? 0,
-          int.parse(currentProduct.productId),
-          "is_done_item",
-          1,
-          currentProduct.idMove ?? 0);
       add(GetPorductsToTransfer(currentProduct.idTransferencia ?? 0));
     } catch (e, s) {
       emit(FinalizarTransferProductoFailure(
@@ -641,6 +690,15 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           event.location.barcode,
           event.idMove,
         );
+
+        //actualizamos el tiempo del producto
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          'date_end',
+          DateTime.now().toString(),
+          currentProduct.idMove ?? 0,
+        );
       }
       locationDestIsOk = event.locationDestIsOk;
       selectedLocation = event.location.name ?? "";
@@ -863,7 +921,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       // Recorremos los productos del batch
       for (var product in listProductsTransfer) {
         // Validamos que el productId no sea nulo y lo convertimos a String
-        if (product.productId != null) {
+        if (product.productId != null && product.isSeparate != 1) {
           productIdsSet.add(product.productName.toString());
         }
       }
@@ -914,17 +972,13 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   void _onSearchOrderEvent(
       SearchTransferEvent event, Emitter<TransferenciaState> emit) async {
     try {
-      transferenciasDbFilters = [];
-      transferenciasDbFilters = transferencias;
-
       final query = event.query.toLowerCase();
-
       if (query.isNotEmpty) {
-        transferenciasDbFilters = transferenciasDbFilters
+        transferenciasDbFilters = transferenciasDB
             .where((element) => element.name!.contains(query))
             .toList();
       } else {
-        transferenciasDbFilters = transferencias;
+        transferenciasDbFilters = transferenciasDB;
       }
       emit(SearchTransferenciasSuccess(transferenciasDbFilters));
     } catch (e, s) {
@@ -949,10 +1003,18 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       transferenciasDB.clear();
       transferenciasDbFilters.clear();
       final response = await db.transferenciaRepository.getAllTransferencias();
+
       if (response.isNotEmpty) {
         transferenciasDB = response;
         transferenciasDbFilters = response;
-        emit(TransferenciaBDLoaded(transferenciasDB));
+
+        for (var item in transferenciasDbFilters) {
+          String warehouse = item.warehouseName ?? "";
+          if (!warehouseName.contains(warehouse)) {
+            warehouseName.add(warehouse);
+          }
+        }
+        emit(TransferenciaBDLoaded(transferenciasDbFilters));
         add(LoadLocations());
       } else {
         emit(TransferenciaError('No se encontraron transferencias'));

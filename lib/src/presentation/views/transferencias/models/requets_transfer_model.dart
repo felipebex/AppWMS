@@ -26,6 +26,7 @@ class ListItem {
   final int timeLine;
   final String fechaTransaccion;
   final String observacion;
+  final bool dividida;
 
 
   ListItem({
@@ -39,6 +40,7 @@ class ListItem {
     required this.timeLine,
     required this.fechaTransaccion,
     required this.observacion,
+    required this.dividida,
   });
 
   Map<String, dynamic> toMap() {
@@ -53,6 +55,7 @@ class ListItem {
       "time_line": timeLine,
       "fecha_transaccion": fechaTransaccion,
       "observacion": observacion,
+      "dividida": dividida,
     };
   }
 }

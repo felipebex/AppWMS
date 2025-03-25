@@ -424,559 +424,749 @@ class UserScreen extends StatelessWidget {
                                     children: [
                                       const SizedBox(height: 10),
                                       //todo: permisos de picking
-                                      Card(
-                                        elevation: 3,
-                                        color: white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            children: [
-                                              Center(
-                                                child: Text("Permisos Picking:",
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color:
-                                                            primaryColorApp)),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Ubicacion de origen: ",
+                                      Visibility(
+                                        visible: config.result?.result?.rol ==
+                                            'picking',
+                                        child: Card(
+                                          elevation: 3,
+                                          color: white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              children: [
+                                                Center(
+                                                  child: Text(
+                                                      "Permisos Picking:",
                                                       style: TextStyle(
                                                           fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.locationPickingManual ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Ubicacion de origen manual",
-                                                                body:
-                                                                    "Permite seleccionar la ubicacion de origen en el proceso del picking de forma manual",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
                                                           color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Seleccionar Producto: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.manualProductSelection ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Seleccionar Producto manual",
-                                                                body:
-                                                                    "Permite seleccionar el producto en el proceso del picking de forma manual",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Seleccionar Cantidad: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.manualQuantity ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Seleccionar Cantidad manual",
-                                                                body:
-                                                                    "Permite seleccionar la cantidad en el proceso del picking de forma manual",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Seleccionar Muelle: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.manualSpringSelection ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Seleccionar Muelle manual",
-                                                                body:
-                                                                    "Permite seleccionar el muelle en el proceso del picking de forma manual",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Ver detalles picking: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.showDetallesPicking ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Ver detalles picking",
-                                                                body:
-                                                                    "Permite ver los detalles del picking de manera mas detallada, como la cantidad de productos, ubicaciones, etc.",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Ver proximas ubicaciones: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.showNextLocationsInDetails ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Ver proximas ubicaciones",
-                                                                body:
-                                                                    "Permite ver las proximas ubicaciones a las que se debe dirigir el usuario para completar el picking",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                            ],
+                                                              primaryColorApp)),
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ubicacion de origen: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.locationPickingManual ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ubicacion de origen manual",
+                                                                  body:
+                                                                      "Permite seleccionar la ubicacion de origen en el proceso del picking de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Seleccionar Producto: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualProductSelection ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Seleccionar Producto manual",
+                                                                  body:
+                                                                      "Permite seleccionar el producto en el proceso del picking de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Seleccionar Cantidad: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualQuantity ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Seleccionar Cantidad manual",
+                                                                  body:
+                                                                      "Permite seleccionar la cantidad en el proceso del picking de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Seleccionar Muelle: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualSpringSelection ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Seleccionar Muelle manual",
+                                                                  body:
+                                                                      "Permite seleccionar el muelle en el proceso del picking de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ver detalles picking: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.showDetallesPicking ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ver detalles picking",
+                                                                  body:
+                                                                      "Permite ver los detalles del picking de manera mas detallada, como la cantidad de productos, ubicaciones, etc.",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ver proximas ubicaciones: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.showNextLocationsInDetails ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ver proximas ubicaciones",
+                                                                  body:
+                                                                      "Permite ver las proximas ubicaciones a las que se debe dirigir el usuario para completar el picking",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                       const SizedBox(height: 10),
                                       //todo permisos de packing
-                                      Card(
-                                        color: white,
-                                        elevation: 3,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            children: [
-                                              Center(
-                                                child: Text("Permisos Packing:",
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color:
-                                                            primaryColorApp)),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Ubicacion de origen: ",
+                                      Visibility(
+                                        visible: config.result?.result?.rol ==
+                                            'packing',
+                                        child: Card(
+                                          color: white,
+                                          elevation: 3,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              children: [
+                                                Center(
+                                                  child: Text(
+                                                      "Permisos Packing:",
                                                       style: TextStyle(
                                                           fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.locationPackManual ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Ubicacion de origen manual",
-                                                                body:
-                                                                    "Permite seleccionar la ubicacion de origen en el proceso del packing de forma manual",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
                                                           color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Seleccionar Producto: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.manualProductSelectionPack ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Seleccionar Producto manual",
-                                                                body:
-                                                                    "Permite seleccionar el producto en el proceso del packing de forma manual",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Seleccionar Cantidad: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.manualQuantityPack ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Seleccionar Cantidad manual",
-                                                                body:
-                                                                    "Permite seleccionar la cantidad en el proceso del packing de forma manual",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Seleccionar Muelle: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.manualSpringSelectionPack ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Seleccionar Muelle manual",
-                                                                body:
-                                                                    "Permite seleccionar el muelle en el proceso del packing de forma manual",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Escanear producto: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.scanProduct ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Escanear producto para packing",
-                                                                body:
-                                                                    "Permite escanear el producto en el proceso del packing desde la lista de por hacer",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                            ],
+                                                              primaryColorApp)),
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ubicacion de origen: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.locationPackManual ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ubicacion de origen manual",
+                                                                  body:
+                                                                      "Permite seleccionar la ubicacion de origen en el proceso del packing de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Seleccionar Producto: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualProductSelectionPack ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Seleccionar Producto manual",
+                                                                  body:
+                                                                      "Permite seleccionar el producto en el proceso del packing de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Seleccionar Cantidad: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualQuantityPack ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Seleccionar Cantidad manual",
+                                                                  body:
+                                                                      "Permite seleccionar la cantidad en el proceso del packing de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Seleccionar Muelle: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualSpringSelectionPack ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Seleccionar Muelle manual",
+                                                                  body:
+                                                                      "Permite seleccionar el muelle en el proceso del packing de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Escanear producto: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.scanProduct ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Escanear producto para packing",
+                                                                  body:
+                                                                      "Permite escanear el producto en el proceso del packing desde la lista de por hacer",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
                                       const SizedBox(height: 10),
                                       //todo permisos de recepcion
-                                      Card(
-                                        elevation: 3,
-                                        color: white,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            children: [
-                                              Center(
-                                                child: Text(
-                                                    "Permisos Recepcion:",
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color:
-                                                            primaryColorApp)),
-                                              ),
-                                              const SizedBox(height: 10),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Mover mas de lo planteado: ",
+                                      Visibility(
+                                        visible: config.result?.result?.rol ==
+                                            'reception',
+                                        child: Card(
+                                          elevation: 3,
+                                          color: white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              children: [
+                                                Center(
+                                                  child: Text(
+                                                      "Permisos Recepcion:",
                                                       style: TextStyle(
                                                           fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.allowMoveExcess ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Mover mas de lo planteado",
-                                                                body:
-                                                                    "Permite al usuario mover mas productos de los experados (por ejemplo: kg, unidades, etc.)",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
                                                           color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Ocultar CANT para recibir: ",
+                                                              primaryColorApp)),
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Mover mas de lo planteado: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.allowMoveExcess ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Mover mas de lo planteado",
+                                                                  body:
+                                                                      "Permite al usuario mover mas productos de los experados (por ejemplo: kg, unidades, etc.)",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ocultar CANT para recibir: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.hideExpectedQty ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ocultar CANT para recibir",
+                                                                  body:
+                                                                      "El usuario no verá que CANT necesita recibir.",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Lectura producto: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualProductReading ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Lectura manual del producto",
+                                                                  body:
+                                                                      "El usuario podrá reconocer el producto de forma manual o escaneando el código de barras",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ubicación de origen: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualSourceLocation ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ubicación de origen",
+                                                                  body:
+                                                                      "Permite al usuario seleccionar de forma manual la ubicacion de origen del producto a recibir",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      //todo permisos para transferencias
+                                      Visibility(
+                                        visible: config.result?.result?.rol ==
+                                            'transfer',
+                                        child: Card(
+                                          elevation: 3,
+                                          color: white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              children: [
+                                                Center(
+                                                  child: Text(
+                                                      "Permisos Transferencia:",
                                                       style: TextStyle(
                                                           fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.hideExpectedQty ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Ocultar CANT para recibir",
-                                                                body:
-                                                                    "El usuario no verá que CANT necesita recibir.",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
                                                           color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Lectura producto: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.manualProductReading ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Lectura manual del producto",
-                                                                body:
-                                                                    "El usuario podrá reconocer el producto de forma manual o escaneando el código de barras",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  const Text(
-                                                      "Ubicación de origen: ",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black)),
-                                                  const Spacer(),
-                                                  Checkbox(
-                                                      value: config
-                                                              .result
-                                                              ?.result
-                                                              ?.manualSourceLocation ??
-                                                          false,
-                                                      onChanged: null),
-                                                  IconButton(
-                                                      onPressed: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder: (context) {
-                                                              return const DialogInfo(
-                                                                title:
-                                                                    "Ubicación de origen",
-                                                                body:
-                                                                    "Permite al usuario seleccionar de forma manual la ubicacion de origen del producto a recibir",
-                                                              );
-                                                            });
-                                                      },
-                                                      icon: Icon(Icons.help,
-                                                          color:
-                                                              primaryColorApp))
-                                                ],
-                                              ),
-                                            ],
+                                                              primaryColorApp)),
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Lectura producto: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualProductSelectionTransfer ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Lectura manual del producto",
+                                                                  body:
+                                                                      "El usuario podrá reconocer el producto de forma manual o escaneando el código de barras",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ubicación de origen: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualSourceLocationTransfer ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ubicación de origen",
+                                                                  body:
+                                                                      "Permite al usuario seleccionar de forma manual la ubicacion de origen del producto a transferir",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ubicación destino : ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualDestLocationTransfer ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ubicación destino",
+                                                                  body:
+                                                                      "Permite al usuario seleccionar de forma manual la ubicacion destino  del producto a transferir",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Cantidad Manual : ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualQuantityTransfer ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ingresar cantidad manual",
+                                                                  body:
+                                                                      "Permite al usuario ingresar la cantidad de forma manual que desea transferir",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),

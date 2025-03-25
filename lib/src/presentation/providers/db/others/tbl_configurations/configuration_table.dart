@@ -34,6 +34,13 @@ class ConfigurationsTable {
   static const String columnManualSourceLocation = 'manual_source_location';
   static const String columnShowOwnerField = 'show_owner_field';
 
+
+   static const String columnManualSourceLocationTransfer = 'manual_source_location_transfer';
+    static const String columnManualDestLocationTransfer = 'manual_dest_location_transfer';
+    static const String columnManualQuantityTransfer = 'manual_quantity_transfer';
+    static const String columnManualProductSelectionTransfer = 'manual_product_selection_transfer';
+
+
   // Método para crear la tabla
   static String createTable() {
     return '''
@@ -61,7 +68,11 @@ class ConfigurationsTable {
         $columnHideExpectedQty INTEGER,
         $columnManualProductReading INTEGER,
         $columnManualSourceLocation INTEGER,
-        $columnShowOwnerField INTEGER
+        $columnShowOwnerField INTEGER,
+        $columnManualProductSelectionTransfer INTEGER,
+        $columnManualSourceLocationTransfer INTEGER,
+        $columnManualDestLocationTransfer INTEGER,
+        $columnManualQuantityTransfer INTEGER
       )
     ''';
   }

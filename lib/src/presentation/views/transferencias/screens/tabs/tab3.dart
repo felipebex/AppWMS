@@ -33,41 +33,44 @@ class Tab3ScreenTrans extends StatelessWidget {
             height: size.height * 0.8,
             child: Column(
               children: [
-                (bloc.listProductsTransfer.where((element) {
-                          return element.isDoneItem == 1;
-                        }).length ==
-                        0)
-                    ? Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            const Text('No hay productos',
-                                style: TextStyle(fontSize: 14, color: grey)),
-                            const Text('Intente buscar otro producto',
-                                style: TextStyle(fontSize: 12, color: grey)),
-                            Visibility(
-                              visible: context
-                                  .read<UserBloc>()
-                                  .fabricante
-                                  .contains("Zebra"),
-                              child: Container(
-                                height: 60,
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Expanded(
+                // (bloc.listProductsTransfer.where((element) {
+                //           return element.isDoneItem == 1;
+                //         }).length ==
+                //         0)
+                //     ? Expanded(
+                //         child: Column(
+                //           mainAxisAlignment: MainAxisAlignment.center,
+                //           mainAxisSize: MainAxisSize.max,
+                //           children: [
+                //             const Text('No hay productos',
+                //                 style: TextStyle(fontSize: 14, color: grey)),
+                //             const Text('Intente buscar otro producto',
+                //                 style: TextStyle(fontSize: 12, color: grey)),
+                //             Visibility(
+                //               visible: context
+                //                   .read<UserBloc>()
+                //                   .fabricante
+                //                   .contains("Zebra"),
+                //               child: Container(
+                //                 height: 60,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       )
+                    // :
+                     Expanded(
                         child: ListView.builder(
-                          itemCount: bloc.listProductsTransfer.where((element) {
-                            return element.isDoneItem == 1;
-                          }).length,
+                          itemCount: bloc.listProductsTransfer.length,
+                          // .where((element) {
+                          //   return element.isDoneItem == 1;
+                          // }).length,
                           itemBuilder: (context, index) {
                             final product =
-                                bloc.listProductsTransfer.where((element) {
-                              return element.isDoneItem == 1;
-                            }).elementAt(index);
+                                bloc.listProductsTransfer[index];
+                            //     .where((element) {
+                            //   return element.isDoneItem == 1;
+                            // }).elementAt(index);
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(
@@ -243,6 +246,27 @@ class Tab3ScreenTrans extends StatelessWidget {
                                               ),
                                               Text(
                                                 "Producto dividido",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Visibility(
+                                          visible: product.observation !="" || product.observation != null,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "Novedad: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: black,
+                                                ),
+                                              ),
+                                              Text(
+                                                product.observation,
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   color: primaryColorApp,

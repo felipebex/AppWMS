@@ -233,3 +233,16 @@ class NovedadesTransferErrorState extends TransferenciaState {
   NovedadesTransferErrorState(this.message);
 }
 
+
+
+class FilterTransferByWarehouseLoading extends TransferenciaState {}
+
+class FilterTransferByWarehouseSuccess extends TransferenciaState {
+  final List<ResultTransFerencias> transferencias;
+  FilterTransferByWarehouseSuccess(this.transferencias);
+}
+
+class FilterTransferByWarehouseFailure extends TransferenciaState {
+  final String error;
+  FilterTransferByWarehouseFailure(this.error);
+}

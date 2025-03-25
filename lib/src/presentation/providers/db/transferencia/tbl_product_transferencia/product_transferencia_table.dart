@@ -87,7 +87,7 @@ class ProductTransferenciaTable {
       $columnLoteDate TEXT,
       $columnDateStart TEXT,
       $columnDateEnd TEXT,
-      $columnTime TEXT,
+      $columnTime INTEGER,
       $columnIsDoneItem INTEGER,  
       $columnDateTransaction TEXT,
       FOREIGN KEY ($columnIdTransferencia) REFERENCES tbl_entradas_recepcion ($columnId)

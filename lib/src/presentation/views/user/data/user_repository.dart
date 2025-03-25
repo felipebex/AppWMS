@@ -62,7 +62,12 @@ class UserRepository {
           }
         }
       } else {
-        Get.snackbar('Error', 'Error al obtener las configuraciones');
+        Get.snackbar(
+          'Error',
+          'Error al obtener las configuraciones',
+          backgroundColor: white,
+          icon: Icon(Icons.error, color: Colors.red),
+        );
         return Configurations();
       }
     } catch (e, s) {
@@ -71,10 +76,8 @@ class UserRepository {
     return Configurations();
   }
 
-
   //pedimos todas las ubicaciones disponibles para el usuario
-  Future<List<ResultUbicaciones>> ubicaciones(
-  ) async {
+  Future<List<ResultUbicaciones>> ubicaciones() async {
     try {
       var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -93,11 +96,13 @@ class UserRepository {
 
         if (jsonResponse.containsKey('result')) {
           if (jsonResponse['result']['code'] == 200) {
-             if (jsonResponse['result'].containsKey('result')) {
+            if (jsonResponse['result'].containsKey('result')) {
               // Si contiene 'result', se procede con el mapeo
-              List<dynamic> responseUbicaciones = jsonResponse['result']['result'];
-              List<ResultUbicaciones> ubicaciones =
-                  responseUbicaciones.map((data) => ResultUbicaciones.fromMap(data)).toList();
+              List<dynamic> responseUbicaciones =
+                  jsonResponse['result']['result'];
+              List<ResultUbicaciones> ubicaciones = responseUbicaciones
+                  .map((data) => ResultUbicaciones.fromMap(data))
+                  .toList();
               return ubicaciones;
             }
           }
@@ -129,7 +134,12 @@ class UserRepository {
           }
         }
       } else {
-        Get.snackbar('Error', 'Error al obtener las configuraciones');
+        Get.snackbar(
+          'Error',
+          'Error al obtener las ubicaciones',
+          backgroundColor: white,
+          icon: Icon(Icons.error, color: Colors.red),
+        );
         return [];
       }
     } catch (e, s) {

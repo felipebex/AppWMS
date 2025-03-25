@@ -148,7 +148,12 @@ class FinalizarTransferProductoSplit extends TransferenciaEvent {
   FinalizarTransferProductoSplit(this.quantity);
 }
 
-class SendProductToTransfer extends TransferenciaEvent {}
+class SendProductToTransfer extends TransferenciaEvent {
+  final bool isDividio;
+  SendProductToTransfer(this.isDividio);
+
+
+}
 
 class LoadLocations extends TransferenciaEvent {}
 
@@ -159,3 +164,9 @@ class CreateBackOrderOrNot extends TransferenciaEvent {
 }
 
 class LoadAllNovedadesTransferEvent extends TransferenciaEvent {}
+
+
+class FilterTransferByWarehouse extends TransferenciaEvent {
+  final String warehouseName;
+  FilterTransferByWarehouse(this.warehouseName);
+}
