@@ -3,13 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/location/location_card_widget.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/muelle/muelle_card_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/others/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/product/product_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -130,11 +131,13 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
       focusNode4.unfocus();
       focusNode5.unfocus();
     }
+    
     if (bloc.locationIsOk && //true
         bloc.productIsOk && //true
         bloc.quantityIsOk && //true
         !bloc.locationDestIsOk && //false
-        !bloc.viewQuantity) //false
+        !bloc.viewQuantity
+        ) //false
     {
       print("🚼 quantity");
       FocusScope.of(context).requestFocus(focusNode3);
@@ -222,6 +225,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     if (bloc.quantitySelected == currentProduct.quantityOrdered.toInt()) {
       return;
     }
+
     if (scan == currentProduct.productBarcode?.toLowerCase()) {
       bloc.add(AddQuantitySeparate(
           int.parse(currentProduct.productId),
@@ -234,6 +238,144 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
       validateScannedBarcode(scan, bloc.currentProduct, bloc, false);
 
       bloc.add(ClearScannedValueEvent('quantity'));
+    }
+  }
+
+  void _validatebuttonquantity2() {
+    final bloc = context.read<TransferenciaBloc>();
+    //desactivamos volver a ingresar la cantidad
+
+    int cantidad = int.parse(_cantidadController.text.isEmpty
+        ? bloc.quantitySelected.toString()
+        : _cantidadController.text);
+
+    if (cantidad > (bloc.currentProduct.quantityOrdered ?? 0).toInt()) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        duration: const Duration(milliseconds: 1000),
+        content: const Text('Cantidad erronea'),
+        backgroundColor: Colors.red[200],
+      ));
+    } else {
+      bloc.add(ChangeQuantitySeparate(
+        cantidad,
+        int.parse(bloc.currentProduct.productId),
+        bloc.currentProduct.idMove ?? 0,
+        bloc.currentProduct.idTransferencia ?? 0,
+      ));
+      //desactivamos volver a ingresar la cantidad
+      bloc.add(ChangeIsOkQuantity(
+          false,
+          int.parse(bloc.currentProduct.productId),
+          bloc.currentProduct.idTransferencia ?? 0,
+          bloc.currentProduct.idMove ?? 0));
+      // //escondemos el teclado
+      if (bloc.viewQuantity == true) {
+        bloc.add(ShowQuantityEvent(!bloc.viewQuantity));
+      }
+      //pasamso el foco a ubicacion destino
+      Future.delayed(const Duration(seconds: 1), () {
+        FocusScope.of(context).requestFocus(focusNode5);
+      });
+      _handleDependencies();
+    }
+  }
+
+  void _validatebuttonquantity() {
+    final bloc = context.read<TransferenciaBloc>();
+    bloc.add(ChangeIsOkQuantity(
+        false,
+        int.parse(bloc.currentProduct.productId),
+        bloc.currentProduct.idTransferencia ?? 0,
+        bloc.currentProduct.idMove ?? 0));
+  }
+
+  void validateMuelle(String value) {
+    final bloc = context.read<TransferenciaBloc>();
+    String scan = bloc.scannedValue4.toLowerCase() == ""
+        ? value.toLowerCase()
+        : bloc.scannedValue4.toLowerCase();
+
+    _controllerLocationDest.text = "";
+    final currentProduct = bloc.currentProduct;
+
+    if (scan == currentProduct.locationDestBarcode.toString().toLowerCase()) {
+      bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+      bloc.add(ChangeLocationDestIsOkEvent(
+          true,
+          int.parse(currentProduct.productId),
+          currentProduct.idTransferencia ?? 0,
+          currentProduct.idMove ?? 0,
+          ResultUbicaciones(
+            id: currentProduct.locationDestId,
+            name: currentProduct.locationDestName,
+            barcode: currentProduct.locationDestBarcode,
+            locationId: 0,
+            locationName: "",
+          )));
+
+      bloc.add(ClearScannedValueEvent('muelle'));
+    } else {
+      // Buscar el barcode que coincida con el valor escaneado
+      ResultUbicaciones? matchedUbicacion = bloc.ubicaciones.firstWhere(
+          (ubicacion) => ubicacion.barcode?.toLowerCase() == scan,
+          orElse: () =>
+              ResultUbicaciones() // Si no se encuentra ningún match, devuelve null
+          );
+
+      if (matchedUbicacion.barcode != null) {
+        print('Ubicacion encontrada: ${matchedUbicacion.name}');
+        bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+        bloc.add(ChangeLocationDestIsOkEvent(
+          true,
+          int.parse(currentProduct.productId),
+          currentProduct.idTransferencia ?? 0,
+          currentProduct.idMove ?? 0,
+          matchedUbicacion,
+        ));
+
+        bloc.add(ClearScannedValueEvent('muelle'));
+      } else {
+        print('Ubicacion no encontrada');
+        bloc.add(ValidateFieldsEvent(field: "locationDest", isOk: false));
+        bloc.add(ClearScannedValueEvent('muelle'));
+      }
+    }
+  }
+
+  void _validateQuantityFinish() {
+    final batchBloc = context.read<TransferenciaBloc>();
+    final currentProduct = batchBloc.currentProduct;
+
+    int cantidad = int.parse(_cantidadController.text.isEmpty
+        ? batchBloc.quantitySelected.toString()
+        : _cantidadController.text);
+
+    if (cantidad == currentProduct.quantityOrdered) {
+      _finishSeprateProductOrder(context);
+      Navigator.pushReplacementNamed(context, 'transferencia-detail',
+          arguments: [widget.transfer, 1]);
+    } else {
+      showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return DialogTransferAdvetenciaCantidadScreen(
+                currentProduct: currentProduct,
+                cantidad: cantidad,
+                onAccepted: () async {
+                  _finishSeprateProductOrder(context);
+
+                  Navigator.pushReplacementNamed(
+                      context, 'transferencia-detail',
+                      arguments: [widget.transfer, 1]);
+                },
+                onSplit: () {
+                  _finishSeprateProductOrderSplit(context, cantidad);
+                  Navigator.pushReplacementNamed(
+                      context, 'transferencia-detail',
+                      arguments: [widget.transfer, 1]);
+                });
+          });
     }
   }
 
@@ -288,6 +430,24 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                           });
                           _handleDependencies();
                         }
+
+                        //*estado cuando la cantidad fue cambiada
+                        if (state is ChangeQuantitySeparateStateSuccess) {
+                          if (state.quantity ==
+                              bloc.currentProduct.quantityOrdered.toInt()) {
+                            Future.delayed(const Duration(seconds: 1), () {
+                              FocusScope.of(context).requestFocus(focusNode5);
+                            });
+                            _handleDependencies();
+                            //validacion automatica donde la cantidad a mover sea igual a la cantidad pedida
+                            _validatebuttonquantity();
+                          }
+                        }
+
+                        //*estado cuando la ubicacion de destino es validada
+                        if (state is ChangeLocationDestIsOkState) {
+                          _validateQuantityFinish();
+                        }
                       }, builder: (context, status) {
                         return Column(
                           children: [
@@ -306,7 +466,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                     icon: const Icon(Icons.arrow_back,
                                         color: white),
                                     onPressed: () {
-                                      // termiateProcess();
+                                      termiateProcess();
 
                                       Navigator.pushReplacementNamed(
                                           context, 'transferencia-detail',
@@ -854,9 +1014,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                   width: 10,
                                   height: 10,
                                   decoration: BoxDecoration(
-                                    color: bloc.locationDestIsOk
-                                        ? green
-                                        : yellow,
+                                    color:
+                                        bloc.locationDestIsOk ? green : yellow,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -878,20 +1037,30 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                           .contains("Zebra")
                                       ? Column(
                                           children: [
-                                            MuelleDropdownWidget(
-                                              selectedMuelle: selectedMuelle,
-                                              batchBloc: bloc,
-                                              currentProduct: bloc.currentProduct,
-                                              isPda: false,
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  'Ubicación de destino',
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+                                                Spacer(),
+                                                Image.asset(
+                                                  "assets/icons/packing.png",
+                                                  color: primaryColorApp,
+                                                  width: 20,
+                                                ),
+                                              ],
                                             ),
                                             Container(
                                               height: 15,
                                               margin: const EdgeInsets.only(
-                                                  bottom: 5),
+                                                  bottom: 5, top: 10),
                                               child: TextFormField(
                                                 showCursor: false,
-                                                enabled: bloc
-                                                        .locationIsOk &&
+                                                enabled: bloc.locationIsOk &&
                                                     bloc.productIsOk &&
                                                     !bloc.quantityIsOk &&
                                                     !bloc.locationDestIsOk,
@@ -899,11 +1068,11 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                     _controllerLocationDest, // Controlador que maneja el texto
                                                 focusNode: focusNode5,
                                                 onChanged: (value) {
-                                                  // validateMuelle(value);
+                                                  validateMuelle(value);
                                                 },
                                                 decoration: InputDecoration(
-                                                  hintText:  bloc
-                                                          .currentProduct.locationDestName,
+                                                  hintText:
+                                                      bloc.selectedLocation,
                                                   disabledBorder:
                                                       InputBorder.none,
                                                   hintStyle: const TextStyle(
@@ -922,9 +1091,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                             if (event is RawKeyDownEvent) {
                                               if (event.logicalKey ==
                                                   LogicalKeyboardKey.enter) {
-                                                // validateMuelle(context
-                                                //     .read<BatchBloc>()
-                                                //     .scannedValue4);
+                                                validateMuelle(
+                                                    bloc.scannedValue4);
                                                 return KeyEventResult.handled;
                                               } else {
                                                 bloc.add(
@@ -936,11 +1104,36 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                             }
                                             return KeyEventResult.ignored;
                                           },
-                                          child: MuelleDropdownWidget(
-                                            selectedMuelle: selectedMuelle,
-                                            batchBloc: bloc,
-                                            currentProduct: bloc.currentProduct,
-                                            isPda: true,
+                                          child: Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Ubicación de destino',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp,
+                                                    ),
+                                                  ),
+                                                  Spacer(),
+                                                  Image.asset(
+                                                    "assets/icons/packing.png",
+                                                    color: primaryColorApp,
+                                                    width: 20,
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  bloc.selectedLocation,
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                ),
+                                              ),
+                                            ],
                                           )),
                                 ),
                               ),
@@ -1146,7 +1339,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                     ?.result?.manualQuantity ==
                                                 false
                                             ? null
-                                            : bloc.quantityIsOk &&
+                                            : bloc.quantityEdit &&
                                                     bloc.quantitySelected >= 0
                                                 ? () {
                                                     bloc.add(ShowQuantityEvent(
@@ -1224,82 +1417,6 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                     icon: const Icon(Icons.clear),
                                   ),
                                 ),
-                                //al dar enter
-                                onFieldSubmitted: (value) {
-                                  //validamos que el texto no este vacio
-                                  if (value.isNotEmpty) {
-                                    if (int.parse(value) >
-                                        (bloc.currentProduct.quantityOrdered ??
-                                                0)
-                                            .toInt()) {
-                                      //todo: cantidad fuera del rango
-                                      bloc.add(ValidateFieldsEvent(
-                                          field: "quantity", isOk: false));
-                                      _cantidadController.clear();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        duration: const Duration(seconds: 1),
-                                        content:
-                                            const Text('Cantidad incorrecta'),
-                                        backgroundColor: Colors.red[200],
-                                      ));
-                                    } else {
-                                      //todo: cantidad dentro del rango
-                                      if (int.parse(value) ==
-                                          bloc.currentProduct.quantityOrdered) {
-                                        //*cantidad correcta
-                                        //guardamos la cantidad en la bd
-                                        bloc.add(ChangeQuantitySeparate(
-                                          int.parse(value),
-                                          int.parse(
-                                              bloc.currentProduct.productId),
-                                          bloc.currentProduct.idMove ?? 0,
-                                          bloc.currentProduct.idTransferencia ??
-                                              0,
-                                        ));
-                                      } else {
-                                        //todo cantidad menor a la cantidad pedida
-                                        //preguntar si estamos en la ultima posicion
-
-                                        // showDialog(
-                                        //     context: context,
-                                        //     builder: (context) {
-                                        //       return DialogAdvetenciaCantidadScreen(
-                                        //           currentProduct:
-                                        //               currentProduct,
-                                        //           cantidad: batchBloc
-                                        //               .quantitySelected,
-                                        //           batchId: batchBloc
-                                        //                   .batchWithProducts
-                                        //                   .batch
-                                        //                   ?.id ??
-                                        //               0,
-                                        //           onAccepted: () {
-                                        //             // batchBloc.add(
-                                        //             //     IsShouldRunDependencies(
-                                        //             //         true));
-
-                                        //             bloc
-                                        //               ..add(ChangeQuantitySeparate(
-                                        //                   int.parse(value),
-                                        //                   int.parse(bloc
-                                        //                       .currentProduct
-                                        //                       .productId),
-                                        //                   bloc.currentProduct
-                                        //                           .idMove ??
-                                        //                       0,
-                                        //                   bloc.currentProduct
-                                        //                           .idTransferencia ??
-                                        //                       0));
-                                        //             // _nextProduct(currentProduct,
-                                        //             //     batchBloc);
-                                        //           });
-                                        //     });
-                                      }
-                                    }
-                                  }
-                                  bloc..add(ShowQuantityEvent(false));
-                                },
                               ),
                             ),
                           ),
@@ -1308,12 +1425,13 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 0),
                             child: ElevatedButton(
-                              onPressed: bloc.quantityIsOk &&
-                                      bloc.quantitySelected >= 0
+                              onPressed: bloc.quantityEdit &&
+                                      bloc.quantitySelected >= 0 &&
+                                      !bloc.locationDestIsOk
                                   ? () {
                                       //cerramos el teclado
                                       FocusScope.of(context).unfocus();
-                                      // _validatebuttonquantity();
+                                      _validatebuttonquantity2();
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
@@ -1339,7 +1457,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                           child: CustomKeyboardNumber(
                             controller: _cantidadController,
                             onchanged: () {
-                              // _validatebuttonquantity();
+                              _validatebuttonquantity2();
                             },
                           ),
                         )
@@ -1353,6 +1471,33 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
         },
       ),
     );
+  }
+
+  void _finishSeprateProductOrder(
+    BuildContext context,
+  ) {
+    context.read<TransferenciaBloc>().add(FinalizarTransferProducto());
+    context.read<TransferenciaBloc>().add(SendProductToTransfer());
+    termiateProcess();
+  }
+
+  void _finishSeprateProductOrderSplit(
+    BuildContext context,
+    int cantidad,
+  ) {
+    context
+        .read<TransferenciaBloc>()
+        .add(FinalizarTransferProductoSplit(cantidad));
+    context.read<TransferenciaBloc>().add(SendProductToTransfer());
+    termiateProcess();
+  }
+
+  void termiateProcess() {
+    FocusScope.of(context).unfocus();
+
+    context
+        .read<TransferenciaBloc>()
+        .add(GetPorductsToTransfer(widget.transfer?.id ?? 0));
   }
 
   // Función que devuelve el color basado en la diferencia

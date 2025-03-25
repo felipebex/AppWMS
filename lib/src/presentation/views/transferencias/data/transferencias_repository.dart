@@ -7,6 +7,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_validate_model.dart';
+import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
+import 'package:wms_app/src/presentation/views/transferencias/models/response_transfer_send_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -83,11 +86,12 @@ class TransferenciasRepository {
     return [];
   }
 
-
-
-
-  Future<bool> sendTime(int idTransfer, String field, String date,
-      bool isLoadingDialog,  ) async {
+  Future<bool> sendTime(
+    int idTransfer,
+    String field,
+    String date,
+    bool isLoadingDialog,
+  ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -164,15 +168,11 @@ class TransferenciasRepository {
     return false; // Retornamos un objeto vacío en caso de error de red
   }
 
-
-
-
   //metodo para asignar un usuario a una orden de compra
   Future<bool> assignUserToTransfer(
     bool isLoadinDialog,
     int idUser,
     int idTransfer,
-  
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -245,5 +245,143 @@ class TransferenciasRepository {
     return false;
   }
 
+//metodo para enviar los productos recepcionados de la orden de entrada
+  Future<ResponseSenTransfer> sendProductTransfer(
+    TransferRequest transferRequest,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
 
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return ResponseSenTransfer(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    print("transferRequest ${transferRequest.toMap()}");
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'send_transfer', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_transferencia": transferRequest.idTransferencia,
+            "list_items":
+                transferRequest.listItems.map((item) => item.toMap()).toList(),
+          },
+        },
+        isLoadinDialog: true,
+      );
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
+        var resultData = jsonResponse['result'];
+
+        return ResponseSenTransfer(
+          jsonrpc: jsonResponse['jsonrpc'],
+          id: jsonResponse['id'],
+          result: resultData != null
+              ? ResponseSenTransferResult(
+                  code: resultData['code'],
+                  result: resultData['result'] != null
+                      ? List<ResultElement>.from(resultData['result']
+                          .map((x) => ResultElement.fromMap(x)))
+                      : [], // Si no hay elementos en 'result', se retorna una lista vacía
+                )
+              : null, // Si 'result' no existe, asigna null a 'result'
+        );
+      } else {
+        // Manejo de error si la respuesta no es exitosa
+        // ...
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return ResponseSenTransfer(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en sendProductTransfer: $e, $s');
+      return ResponseSenTransfer(); // Retornamos un objeto vacío en caso de error de red
+    }
+    return ResponseSenTransfer(); // Retornamos un objeto vacío en caso de error de red
+  }
+
+  Future<ResponseValidate> validateTransfer(
+    int idTransfer,
+    bool isBackorder,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return ResponseValidate(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'complete_transfer', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_transferencia": idTransfer,
+            "crear_backorder": isBackorder,
+          }
+        },
+        isLoadinDialog: true,
+      );
+      if (response.statusCode <= 500) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse.containsKey('result')) {
+          return ResponseValidate(
+            jsonrpc: jsonResponse['jsonrpc'],
+            result: jsonResponse['result'] != null
+                ? ResultValidate.fromMap(jsonResponse['result'])
+                : null,
+          );
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            //mostramos una alerta de get
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+
+            return ResponseValidate();
+          }
+        }
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en validateTransfer: $e, $s');
+      return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
+    }
+    return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
+  }
 }

@@ -31,14 +31,10 @@ class ProductTransferenciaTable {
   static const String columnObservation = 'observation';
   static const String columnQuantitySeparate = 'quantity_separate';
 
-
-
-
-
-  static const String columnLoteId = 'lote_id';
+  static const String columnLoteId = 'lot_id';
   static const String columnLotName = 'lot_name';
   static const String columnLoteDate = 'lote_date';
-  
+
   static const String columnIsLocationIsOk = 'is_location_is_ok';
   static const String columnProductIsOk = 'product_is_ok';
   static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
@@ -46,8 +42,10 @@ class ProductTransferenciaTable {
 
   static const String columnDateStart = 'date_start';
   static const String columnDateEnd = 'date_end';
-  static const String columnTimeTotalSeparate = 'time_total_separate';
-  static const String columnFechaTransaccion ='fecha_transaccion';
+  static const String columnTime = 'time';
+
+  static const String columnIsDoneItem = 'is_done_item';
+  static const String columnDateTransaction = 'date_transaction';
 
 //Meotdo para crar la tabla
   static String createTable() {
@@ -89,8 +87,9 @@ class ProductTransferenciaTable {
       $columnLoteDate TEXT,
       $columnDateStart TEXT,
       $columnDateEnd TEXT,
-      $columnTimeTotalSeparate TEXT,
-      $columnFechaTransaccion TEXT,
+      $columnTime TEXT,
+      $columnIsDoneItem INTEGER,  
+      $columnDateTransaction TEXT,
       FOREIGN KEY ($columnIdTransferencia) REFERENCES tbl_entradas_recepcion ($columnId)
 
     )

@@ -16,7 +16,6 @@ import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart'
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
@@ -89,8 +88,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   void _handleDependencies() {
     final batchBloc = context.read<RecepcionBloc>();
 
-    print(
-        'Vairbales :  productIsOk: ${batchBloc.productIsOk} lote: ${batchBloc.loteIsOk} quantityIsOk: ${batchBloc.quantityIsOk}  viewQuantity: ${batchBloc.viewQuantity}');
+   
 
     if (!batchBloc.productIsOk && //false
         !batchBloc.quantityIsOk) //true
@@ -175,6 +173,10 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
     _controllerQuantity.text = "";
     final currentProduct = bloc.currentProduct;
+
+      if (bloc.quantitySelected == currentProduct.quantityOrdered.toInt()) {
+      return;
+    }
     if (scan == currentProduct.productBarcode?.toLowerCase()) {
       bloc.add(AddQuantitySeparate(
         currentProduct.idRecepcion,

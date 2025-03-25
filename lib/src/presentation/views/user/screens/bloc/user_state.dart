@@ -30,3 +30,18 @@ final class ConfigurationLoading extends UserState {}
 final class LoadInfoDeviceStateUser extends UserState {
 
 }
+
+
+
+final class GetUbicacionesLoaded extends UserState {
+  final List<ResultUbicaciones> listUbicaciones;
+  GetUbicacionesLoaded(this.listUbicaciones);
+}
+
+final class GetUbicacionesLoading extends UserState {}
+
+final class GetUbicacionesError extends UserState {
+  final String message;
+
+  GetUbicacionesError(this.message);
+}

@@ -64,7 +64,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                         )
                       : Expanded(
                           child: ListView.builder(
-                            // itemCount: recepcionBloc.listProductsEntrada.length,
+                           
                             itemCount: recepcionBloc.listProductsEntrada
                                 .where((element) {
                               return element.isDoneItem == 1;

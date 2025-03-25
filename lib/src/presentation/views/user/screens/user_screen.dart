@@ -16,6 +16,7 @@ class UserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
+    final bloc = context.read<UserBloc>();
 
     return Scaffold(
       body: Container(
@@ -303,6 +304,114 @@ class UserScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ))),
+                              Card(
+                                color: white,
+                                elevation: 2,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 2),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              backgroundColor: white,
+                                              title: Center(
+                                                child: Text("Ubicaciones",
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color:
+                                                            primaryColorApp)),
+                                              ),
+                                              content: Container(
+                                                height: 300,
+                                                width: size.width * 0.9,
+                                                child: ListView.builder(
+                                                  itemCount:
+                                                      bloc.ubicaciones.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    return Card(
+                                                      color: white,
+                                                      elevation: 2,
+                                                      child: ListTile(
+                                                        title: Text(
+                                                            bloc
+                                                                    .ubicaciones[
+                                                                        index]
+                                                                    .name ??
+                                                                'Sin nombre',
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                        subtitle: Row(
+                                                          children: [
+                                                            Icon(Icons.qr_code,
+                                                                color:
+                                                                    primaryColorApp,
+                                                                size: 12),
+                                                            const SizedBox(
+                                                                width: 5),
+                                                            Text(
+                                                                bloc.ubicaciones[index].barcode ==
+                                                                        ""
+                                                                    ? 'Sin codigo de barras'
+                                                                    : bloc
+                                                                            .ubicaciones[
+                                                                                index]
+                                                                            .barcode ??
+                                                                        "",
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: bloc.ubicaciones[index].barcode ==
+                                                                            ""
+                                                                        ? red
+                                                                        : black)),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              actions: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          minimumSize:
+                                                              const Size(
+                                                                  double
+                                                                      .infinity,
+                                                                  30),
+                                                          backgroundColor:
+                                                              primaryColorApp),
+                                                  child: const Text("Cerrar",
+                                                      style: TextStyle(
+                                                          color: white)),
+                                                ),
+                                              ],
+                                            );
+                                          });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        minimumSize:
+                                            const Size(double.infinity, 30),
+                                        backgroundColor: grey),
+                                    child: const Text(
+                                      "Ver Ubicaciones",
+                                      style: TextStyle(color: white),
+                                    ),
+                                  ),
+                                ),
+                              ),
                               const SizedBox(height: 20),
                               SizedBox(
                                 width: size.width,
@@ -727,7 +836,8 @@ class UserScreen extends StatelessWidget {
                                           child: Column(
                                             children: [
                                               Center(
-                                                child: Text("Permisos Recepcion:",
+                                                child: Text(
+                                                    "Permisos Recepcion:",
                                                     style: TextStyle(
                                                         fontSize: 14,
                                                         color:
@@ -845,7 +955,7 @@ class UserScreen extends StatelessWidget {
                                                       value: config
                                                               .result
                                                               ?.result
-                                                              ?.manualSourceLocation??
+                                                              ?.manualSourceLocation ??
                                                           false,
                                                       onChanged: null),
                                                   IconButton(
@@ -866,7 +976,6 @@ class UserScreen extends StatelessWidget {
                                                               primaryColorApp))
                                                 ],
                                               ),
-                                           
                                             ],
                                           ),
                                         ),

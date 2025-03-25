@@ -4,8 +4,10 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
+import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
+import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -54,6 +56,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   String oldLocation = '';
 
   String selectedNovedad = '';
+  String selectedLocation = '';
   //*valores de scanvalue
 
   int quantitySelected = 0;
@@ -68,6 +71,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   bool productIsOk = false;
   bool locationDestIsOk = false;
   bool quantityIsOk = false;
+  bool quantityEdit = false;
 
   bool viewQuantity = false;
 
@@ -75,6 +79,9 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   List<Novedad> novedades = [];
   //*lista de barcodes
   List<Barcodes> listOfBarcodes = [];
+
+  //*lista de ubicaciones
+  List<ResultUbicaciones> ubicaciones = [];
 
   //*metodo para empezar o terminar timepo
 
@@ -130,7 +137,240 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     //*asignar un usuario a una orden de compra
     on<AssignUserToTransfer>(_onAssignUserToTransfer);
-    //*metodo para empezar o terminar timepo
+    //*finalizarRececpcionProducto
+    on<FinalizarTransferProducto>(_onFinalizaTransferProducto);
+
+    //*finalizarRececpcionProductoSplit
+    on<FinalizarTransferProductoSplit>(_onFinalizarTransferProductoSplit);
+
+    //*metodo para enviar el producto a wms
+    on<SendProductToTransfer>(_onSendProductToTransfer);
+
+    //*metodo para cargar las ubicaciones
+    on<LoadLocations>(_onLoadLocations);
+
+    //*metodo para crear barckorder o no
+    on<CreateBackOrderOrNot>(_onCreateBackOrder);
+
+    //*evento para obtener las novedades
+    on<LoadAllNovedadesTransferEvent>(_onLoadAllNovedadesEvent);
+  }
+
+  //*meotod para cargar todas las novedades
+  void _onLoadAllNovedadesEvent(LoadAllNovedadesTransferEvent event,
+      Emitter<TransferenciaState> emit) async {
+    try {
+      emit(NovedadesTransferLoadingState());
+      final response = await db.novedadesRepository.getAllNovedades();
+      if (response != null) {
+        novedades.clear();
+        novedades = response;
+        print("novedades: ${novedades.length}");
+        emit(NovedadesTransferLoadedState(listOfNovedades: novedades));
+      }
+    } catch (e, s) {
+      print("Error en __onLoadAllNovedadesEvent: $e, $s");
+      emit(NovedadesTransferErrorState(e.toString()));
+    }
+  }
+
+  void _onCreateBackOrder(
+      CreateBackOrderOrNot event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(CreateBackOrderOrNotLoading());
+      final response = await _transferenciasRepository.validateTransfer(
+          event.idRecepcion, event.isBackOrder, false);
+
+      if (response.result?.code == 200) {
+        add(StartOrStopTimeTransfer(
+          event.idRecepcion,
+          'end_time_reception',
+        ));
+
+        emit(CreateBackOrderOrNotSuccess(event.isBackOrder));
+      } else {
+        emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
+      }
+    } catch (e, s) {
+      emit(CreateBackOrderOrNotFailure('Error al crear la backorder'));
+      print('Error en el _onCreateBackOrder: $e, $s');
+    }
+  }
+
+  void _onLoadLocations(
+      LoadLocations event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(LoadLocationsLoading());
+      final response = await db.ubicacionesRepository.getAllUbicaciones();
+      if (response.isNotEmpty) {
+        ubicaciones.clear();
+        ubicaciones = response;
+        print('ubicaciones length: ${ubicaciones.length}');
+        emit(LoadLocationsSuccess(ubicaciones));
+      } else {
+        emit(LoadLocationsFailure('No se encontraron ubicaciones'));
+      }
+    } catch (e, s) {
+      emit(LoadLocationsFailure('Error al cargar las ubicaciones'));
+      print('Error en el fetch de ubicaciones: $e=>$s');
+    }
+  }
+
+  void getProductFromBd() async {
+    final productBD = await db.productTransferenciaRepository.getProductById(
+      int.parse(currentProduct.productId),
+      currentProduct.idMove ?? 0,
+      currentProduct.idTransferencia ?? 0,
+    );
+
+    print("productBD: ${productBD?.toMap()}");
+  }
+
+  void _onSendProductToTransfer(
+      SendProductToTransfer event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(SendProductToTransferLoading());
+
+      final userid = await PrefUtils.getUserId();
+
+      //calculamos la fecha de transaccion
+      DateTime fechaTransaccion = DateTime.now();
+      String fechaFormateada = formatoFecha(fechaTransaccion);
+      //agregamos la fecha de transaccion
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+        currentProduct.idTransferencia ?? 0,
+        int.parse(currentProduct.productId),
+        'date_transaction',
+        fechaFormateada,
+        currentProduct.idMove ?? 0,
+      );
+
+      final productBD = await db.productTransferenciaRepository.getProductById(
+        int.parse(currentProduct.productId),
+        currentProduct.idMove ?? 0,
+        currentProduct.idTransferencia ?? 0,
+      );
+
+      final responseSend = await _transferenciasRepository.sendProductTransfer(
+        TransferRequest(
+          idTransferencia: currentProduct.idTransferencia ?? 0,
+          listItems: [
+            ListItem(
+              idMove: productBD?.idMove ?? 0,
+              idProducto: int.parse(productBD?.productId),
+              idLote: int.parse(productBD!.lotId.toString()),
+              idUbicacionOrigen: int.parse(productBD.locationId.toString()),
+              idUbicacionDestino:
+                  int.parse(productBD.locationDestId.toString()),
+              cantidadEnviada: productBD.quantitySeparate,
+              idOperario: userid,
+              timeLine: 10,
+              fechaTransaccion: fechaFormateada,
+              observacion: productBD.observation == ""
+                  ? "Sin novedad"
+                  : productBD.observation,
+            ),
+          ],
+        ),
+        false,
+      );
+
+      if (responseSend.result?.code == 200) {
+        emit(SendProductToTransferSuccess());
+      } else {
+        emit(SendProductToTransferFailure('Error al enviar el producto'));
+      }
+    } catch (e, s) {
+      emit(SendProductToTransferFailure('Error al enviar el producto'));
+      print('Error en el _onSendProductToTransfer: $e, $s');
+    }
+  }
+
+  //*Metodo para finalizar un producto Split
+  void _onFinalizarTransferProductoSplit(FinalizarTransferProductoSplit event,
+      Emitter<TransferenciaState> emit) async {
+    try {
+      emit(FinalizarTransferProductoSplitLoading());
+
+      //actualizamso el estado del producto como separado
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          "is_separate",
+          1,
+          currentProduct.idMove ?? 0);
+
+      //marcamos el producto como split
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          "is_product_split",
+          1,
+          currentProduct.idMove ?? 0);
+      //marcamos tiempo final de separacion
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          "date_end",
+          DateTime.now().toString(),
+          currentProduct.idMove ?? 0);
+      //marcamso el producto como is_done_item
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          "is_done_item",
+          1,
+          currentProduct.idMove ?? 0);
+
+      //calculamos la cantidad pendiente del producto
+      var pendingQuantity = (currentProduct.quantityOrdered - event.quantity);
+
+      //creamos un nuevo producto (duplicado) con la cantidad separada
+      await db.productTransferenciaRepository
+          .insertDuplicateProducto(currentProduct, pendingQuantity);
+
+      add(GetPorductsToTransfer(currentProduct.idTransferencia ?? 0));
+      emit(FinalizarTransferProductoSplitSuccess());
+    } catch (e, s) {
+      print('Error al finalizar la recepcion del producto split: $e, $s');
+    }
+  }
+
+  //*Metodo pra finalizar un producto en transferencia
+  void _onFinalizaTransferProducto(
+      FinalizarTransferProducto event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(FinalizarTransferProductoLoading());
+      //marcamos el producto como terminado
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          "is_separate",
+          1,
+          currentProduct.idMove ?? 0);
+
+      //marcamos tiempo final de separacion
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          "date_end",
+          DateTime.now().toString(),
+          currentProduct.idMove ?? 0);
+      //marcamos el producto como termiado
+
+      //marcamos tiempo final de separacion
+      await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          "is_done_item",
+          1,
+          currentProduct.idMove ?? 0);
+      add(GetPorductsToTransfer(currentProduct.idTransferencia ?? 0));
+    } catch (e, s) {
+      emit(FinalizarTransferProductoFailure(
+          'Error al finalizar la recepcion del producto'));
+      print('Error en el _onFinalizarRecepcionProducto: $e, $s');
+    }
   }
 
 //metodo para empezar o terminar el tiempo
@@ -165,6 +405,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         "is_selected",
         1,
       );
+
       await db.transferenciaRepository.setFieldTableTransfer(
         event.idTransfer,
         "is_started",
@@ -205,18 +446,18 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
       if (response) {
         //actualizamos la tabla entrada:
-        await db.entradasRepository.setFieldTableEntrada(
+        await db.transferenciaRepository.setFieldTableTransfer(
           event.transfer.id ?? 0,
           "responsable_id",
           userId,
         );
 
-        await db.entradasRepository.setFieldTableEntrada(
+        await db.transferenciaRepository.setFieldTableTransfer(
           event.transfer.id ?? 0,
           "responsable",
           nameUser,
         );
-        await db.entradasRepository.setFieldTableEntrada(
+        await db.transferenciaRepository.setFieldTableTransfer(
           event.transfer.id ?? 0,
           "is_selected",
           1,
@@ -378,8 +619,32 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           1,
           event.idMove,
         );
+        //asiganmos la ubicacion al producto
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'location_dest_id',
+          event.location.id,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'location_dest_name',
+          event.location.name,
+          event.idMove,
+        );
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          event.idTransfer,
+          event.productId,
+          'location_dest_barcode',
+          event.location.barcode,
+          event.idMove,
+        );
       }
       locationDestIsOk = event.locationDestIsOk;
+      selectedLocation = event.location.name ?? "";
+
       emit(ChangeLocationDestIsOkState(
         locationDestIsOk,
       ));
@@ -422,18 +687,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           event.idMove,
         );
 
-        //calculamos la fecha de transaccion
-        DateTime fechaTransaccion = DateTime.now();
-        String fechaFormateada = formatoFecha(fechaTransaccion);
-        //agregamos la fecha de transaccion
-        await db.productTransferenciaRepository.setFieldTableProductTransfer(
-          event.idTransfer,
-          event.productId,
-          'fecha_transaccion',
-          fechaFormateada,
-          event.idMove,
-        );
-
         await db.productTransferenciaRepository.setFieldTableProductTransfer(
           event.idTransfer,
           event.productId,
@@ -443,6 +696,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         );
 
         quantityIsOk = event.productIsOk;
+        quantityEdit = event.productIsOk;
 
         await db.productTransferenciaRepository.setFieldTableProductTransfer(
           event.idTransfer,
@@ -542,6 +796,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       viewQuantity = false;
       isQuantityOk = true;
       isLocationDestOk = true;
+      selectedLocation = "";
 
       emit(FetchPorductTransferLoading());
 
@@ -562,9 +817,12 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
       quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+      quantityEdit = currentProduct.isQuantityIsOk == 1 ? true : false;
       quantitySelected = currentProduct.isProductSplit == 1
           ? 0
           : currentProduct.quantitySeparate ?? 0;
+
+      selectedLocation = currentProduct.locationDestName ?? '';
 
       //llamamos los productos de esa entrada
       products();
@@ -695,6 +953,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         transferenciasDB = response;
         transferenciasDbFilters = response;
         emit(TransferenciaBDLoaded(transferenciasDB));
+        add(LoadLocations());
       } else {
         emit(TransferenciaError('No se encontraron transferencias'));
       }

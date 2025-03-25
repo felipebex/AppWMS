@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -39,8 +40,9 @@ class LoginPage extends StatelessWidget {
               }
               if (state is LoginSuccess) {
                 // llamamos la configuracion de la empresa y el usuario logueado
-                context.read<UserBloc>().add(GetConfigurations(context));
-                context.read<WMSPickingBloc>().add(LoadAllNovedades(context));
+                context.read<UserBloc>().add(GetConfigurations(context));//configuracion del usuario
+                context.read<WMSPickingBloc>().add(LoadAllNovedades(context));//novedades
+                context.read<UserBloc>().add(GetUbicacionesEvent());//ubicaciones
               }
               if (state is LoginFailure) {
                 Get.back();
@@ -54,27 +56,23 @@ class LoginPage extends StatelessWidget {
                 final rol = await PrefUtils.getUserRol();
                 print("Rol: $rol");
                 if (rol == 'picking') {
-                  context
-                      .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent( true));
+                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
                 } else if (rol == 'admin') {
-                  context
-                      .read<WMSPickingBloc>()
-                      .add(LoadAllBatchsEvent( true));
-                  context
-                      .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(false, ));
-                  context
-                      .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra());
+                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+                        false,
+                      ));
+                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
                 } else if (rol == 'packing') {
-                  context
-                      .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(true, ));
+                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+                        true,
+                      ));
                 } else if (rol == "reception") {
+                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+                } else if (rol == "transfer") {
                   context
-                      .read<RecepcionBloc>()
-                      .add(FetchOrdenesCompra());
+                      .read<TransferenciaBloc>()
+                      .add(FetchAllTransferencias());
                 }
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();

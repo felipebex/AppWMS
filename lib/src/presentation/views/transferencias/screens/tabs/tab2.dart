@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -70,6 +71,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
       );
       // Si el producto existe, ejecutar los estados necesarios
       //validamos la ubicacion del producto
+      bloc.add(LoadLocations());
       bloc.add(ValidateFieldsEvent(field: "location", isOk: true));
       bloc.add(ChangeLocationIsOkEvent(int.parse(product.productId),
           product.idTransferencia ?? 0, product.idMove ?? 0));
@@ -80,7 +82,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
       bloc.add(ChangeProductIsOkEvent(true, int.parse(product.productId),
           product.idTransferencia ?? 0, 0, product.idMove ?? 0));
-       bloc.add(ClearScannedValueEvent('product'));
+      bloc.add(ClearScannedValueEvent('product'));
 
       bloc.add(ChangeQuantitySeparate(
         0,
@@ -88,7 +90,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
         product.idTransferencia ?? 0,
         product.idMove ?? 0,
       ));
-     
+
       bloc.add(ChangeIsOkQuantity(
         true,
         int.parse(product.productId),
@@ -130,7 +132,27 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
         return true;
       },
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is SendProductToTransferSuccess) {
+            Get.snackbar(
+              'Exitoso',
+              "Se ha enviado el producto correctamente",
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.green),
+            );
+          }
+
+          if (state is SendProductToTransferFailure) {
+            Get.snackbar(
+              'Error',
+              state.error,
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.red),
+            );
+          }
+        },
         builder: (context, state) {
           final bloc = context.read<TransferenciaBloc>();
 
@@ -188,8 +210,10 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                           child: Container()),
 
                   (bloc.listProductsTransfer.where((element) {
-                            return element.isSeparate == 0 ||
-                                element.isSeparate == null;
+                            return (element.isSeparate == 0 ||
+                                    element.isSeparate == null) &&
+                                (element.isDoneItem == 0 ||
+                                    element.isDoneItem == null);
                           }).length ==
                           0)
                       ? Expanded(
@@ -215,16 +239,20 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                         )
                       : Expanded(
                           child: ListView.builder(
-                            itemCount: bloc.listProductsTransfer
-                                .where((element) =>
-                                    element.isSeparate == 0 ||
-                                    element.isSeparate == null)
-                                .length,
+                            itemCount:
+                                bloc.listProductsTransfer.where((element) {
+                              return (element.isSeparate == 0 ||
+                                      element.isSeparate == null) &&
+                                  (element.isDoneItem == 0 ||
+                                      element.isDoneItem == null);
+                            }).length,
                             itemBuilder: (context, index) {
                               final product =
                                   bloc.listProductsTransfer.where((element) {
-                                return element.isSeparate == 0 ||
-                                    element.isSeparate == null;
+                                return (element.isSeparate == 0 ||
+                                        element.isSeparate == null) &&
+                                    (element.isDoneItem == 0 ||
+                                        element.isDoneItem == null);
                               }).elementAt(index);
 
                               return Padding(
@@ -241,6 +269,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                                 'Cargando información del producto',
                                           );
                                         });
+                                    bloc.add(LoadLocations());
                                     bloc.add(FetchPorductTransfer(
                                       product,
                                     ));
@@ -261,8 +290,9 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                     print(product.toMap());
                                   },
                                   child: Card(
-                                    color:
-                                        white, // Color blanco si no está seleccionado
+                                    color: product.isSelected == 1
+                                        ? primaryColorAppLigth
+                                        : white, // Color blanco si no está seleccionado
                                     elevation: 5,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),

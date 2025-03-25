@@ -169,6 +169,8 @@ class EntradasRepository {
     String field,
     dynamic setValue,
   ) async {
+
+    
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
     final resUpdate = await db.rawUpdate(
@@ -176,7 +178,7 @@ class EntradasRepository {
         [setValue,idEntrada, ]);
 
     print(
-        "update TableEntrada (idEntrada ----($idEntrada)) -------($field): $resUpdate");
+        "update TableEntrada (idEntrada ----($idEntrada)  ) -------($field): $resUpdate");
 
     return resUpdate;
   }

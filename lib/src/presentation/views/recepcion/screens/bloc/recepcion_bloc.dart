@@ -119,10 +119,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     //*evento para cambiar la cantidad seleccionada
     on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
+    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
 
     //*evento para ver la cantidad
     on<ShowQuantityOrderEvent>(_onShowQuantityEvent);
-    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
 
     //*evento para obtener las novedades
     on<LoadAllNovedadesOrderEvent>(_onLoadAllNovedadesEvent);
@@ -325,7 +325,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               loteProducto: productBD?.loteId ?? 0,
               ubicacionDestino: productBD?.locationDestId ?? 0,
               cantidadSeparada: productBD?.quantitySeparate ?? 0,
-              observacion: productBD?.observation ?? '',
+              observacion: productBD?.observation ?? 'sin novedad',
               idOperario: userid,
               timeLine: 30,
 

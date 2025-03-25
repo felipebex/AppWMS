@@ -157,3 +157,79 @@ class AssignUserToTransferFailure extends TransferenciaState {
   final String error;
   AssignUserToTransferFailure(this.error);
 }
+
+
+
+class FinalizarTransferProductoLoading extends TransferenciaState {}
+
+class FinalizarTransferProductoSuccess extends TransferenciaState {}
+
+class FinalizarTransferProductoFailure extends TransferenciaState {
+  final String error;
+  FinalizarTransferProductoFailure(this.error);
+}
+
+
+
+class FinalizarTransferProductoSplitLoading extends TransferenciaState {}
+
+class FinalizarTransferProductoSplitSuccess extends TransferenciaState {}
+
+class FinalizarTransferProductoSplitFailure extends TransferenciaState {
+  final String error;
+  FinalizarTransferProductoSplitFailure(this.error);
+}
+
+
+
+class SendProductToTransferLoading extends TransferenciaState {}
+
+class SendProductToTransferSuccess extends TransferenciaState {}
+
+class SendProductToTransferFailure extends TransferenciaState {
+  final String error;
+  SendProductToTransferFailure(this.error);
+}
+
+class LoadLocationsLoading extends TransferenciaState {}
+
+class LoadLocationsSuccess extends TransferenciaState {
+  final List<ResultUbicaciones> locations;
+  LoadLocationsSuccess(this.locations);
+}
+
+class LoadLocationsFailure extends TransferenciaState {
+  final String error;
+  LoadLocationsFailure(this.error);
+}
+
+
+
+class CreateBackOrderOrNotLoading extends TransferenciaState {}
+
+
+class CreateBackOrderOrNotSuccess extends TransferenciaState {
+  final bool isBackorder;
+  CreateBackOrderOrNotSuccess(this.isBackorder);
+}
+
+class CreateBackOrderOrNotFailure extends TransferenciaState {
+  final String error;
+  CreateBackOrderOrNotFailure(this.error);
+}
+
+
+
+//*estados para cargar las novedades
+class NovedadesTransferLoadedState extends TransferenciaState {
+  final List<Novedad> listOfNovedades;
+  NovedadesTransferLoadedState({required this.listOfNovedades});
+}
+
+class NovedadesTransferLoadingState extends TransferenciaState {}
+
+class NovedadesTransferErrorState extends TransferenciaState {
+  final String message;
+  NovedadesTransferErrorState(this.message);
+}
+

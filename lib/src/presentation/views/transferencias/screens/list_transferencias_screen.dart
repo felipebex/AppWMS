@@ -49,6 +49,7 @@ class ListTransferenciasScreen extends StatelessWidget {
           context
               .read<TransferenciaBloc>()
               .add(CurrentTransferencia(state.transfer));
+              
           Navigator.pushReplacementNamed(
             context,
             'transferencia-detail',
@@ -425,6 +426,7 @@ class ListTransferenciasScreen extends StatelessWidget {
           .add(GetPorductsToTransfer(transfer.id ?? 0));
       //traemos la orden de entrada actual desde la bd actualizada
       context.read<TransferenciaBloc>().add(CurrentTransferencia(transfer));
+      context.read<UserBloc>().add(GetUbicacionesEvent());
       Navigator.pushReplacementNamed(
         context,
         'transferencia-detail',

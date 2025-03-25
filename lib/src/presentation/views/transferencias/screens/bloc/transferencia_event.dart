@@ -65,8 +65,9 @@ class ChangeLocationDestIsOkEvent extends TransferenciaEvent {
   final int productId;
   final int idTransfer;
   final int idMove;
-  ChangeLocationDestIsOkEvent(
-      this.locationDestIsOk, this.productId, this.idTransfer, this.idMove);
+  final ResultUbicaciones location;
+  ChangeLocationDestIsOkEvent(this.locationDestIsOk, this.productId,
+      this.idTransfer, this.idMove, this.location);
 }
 
 class ChangeProductIsOkEvent extends TransferenciaEvent {
@@ -138,3 +139,23 @@ class AssignUserToTransfer extends TransferenciaEvent {
     this.transfer,
   );
 }
+
+class FinalizarTransferProducto extends TransferenciaEvent {}
+
+class FinalizarTransferProductoSplit extends TransferenciaEvent {
+  final int quantity;
+
+  FinalizarTransferProductoSplit(this.quantity);
+}
+
+class SendProductToTransfer extends TransferenciaEvent {}
+
+class LoadLocations extends TransferenciaEvent {}
+
+class CreateBackOrderOrNot extends TransferenciaEvent {
+  final int idRecepcion;
+  final bool isBackOrder;
+  CreateBackOrderOrNot(this.idRecepcion, this.isBackOrder);
+}
+
+class LoadAllNovedadesTransferEvent extends TransferenciaEvent {}

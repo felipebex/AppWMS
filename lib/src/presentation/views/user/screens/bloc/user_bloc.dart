@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/data/user_repository.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
@@ -27,6 +28,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   String versionApp = '';
   String fabricante = '';
   String idDispositivo = '';
+
+  List<ResultUbicaciones> ubicaciones = [];
 
   UserBloc() : super(UserInitial()) {
     //*evento para obtener la configuracion de odoo para el usuario y la app
@@ -56,6 +59,26 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEventUser>(_onLoadInfoDeviceEventUser);
     add(LoadInfoDeviceEventUser());
+    on<GetUbicacionesEvent>(_getUbicacionesEvent);
+  }
+
+  void _getUbicacionesEvent(
+      GetUbicacionesEvent event, Emitter<UserState> emit) async {
+    emit(UserInitial());
+    try {
+      emit(GetUbicacionesLoading());
+      final response = await userRepository.ubicaciones();
+      if (response != null) {
+        print('ubicaciones: ${response.length}');
+        await db.ubicacionesRepository.insertOrUpdateUbicaciones(response);
+        ubicaciones = response;
+        emit(GetUbicacionesLoaded(response));
+      } else {
+        emit(GetUbicacionesError('Error al cargar ubicaciones'));
+      }
+    } catch (e, s) {
+      print('Error en GetUbicacionesEvent.dart: $e =>$s');
+    }
   }
 
   void _onLoadInfoDeviceEventUser(

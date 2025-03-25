@@ -2,6 +2,8 @@
 
 import 'package:wms_app/src/presentation/providers/db/others/tbl_barcodes/barcodes_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_barcodes/barcodes_table.dart';
+import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubicaciones_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubicaciones_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_packing_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_package_pack/package_repository.dart';
@@ -138,6 +140,8 @@ class DataBaseSqlite {
     await db.execute(TransferenciaTable.createTable());
     //tabla para los productos de una transferencia
     await db.execute(ProductTransferenciaTable.createTable());
+    //table para las ubicaciones
+    await db.execute(UbicacionesTable.createTable());
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -182,6 +186,8 @@ class DataBaseSqlite {
   //metodo  para obtener una instancia del repositorio  de prodcutos de una transferencia
   ProductTransferenciaRepository get productTransferenciaRepository =>
       ProductTransferenciaRepository();
+  //metodo  para obtener una instancia del repositorio  de ubicaciones
+  UbicacionesRepository get ubicacionesRepository => UbicacionesRepository();
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -353,17 +359,19 @@ class DataBaseSqlite {
   //Todo: Eliminar todos los registros
   Future<void> deleteBD() async {
     final db = await getDatabaseInstance();
+    await db.delete(BarcodesPackagesTable.tableName);
     await db.delete(BatchPickingTable.tableName);
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
-    await db.delete(BarcodesPackagesTable.tableName);
+    await db.delete(UbicacionesTable.tableName);
     await db.delete('tblbatch_products');
     await db.delete(BatchPackingTable.tableName);
-    await db.delete(ProductRecepcionTable.tableName);
+    await db.delete(ProductTransferenciaTable.tableName);
     await db.delete(EntradasRepeccionTable.tableName);
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);
+
   }
 
   Future<void> deleteBDCloseSession() async {
@@ -372,13 +380,13 @@ class DataBaseSqlite {
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
-    await db.delete(BarcodesPackagesTable.tableName);
+    await db.delete(UbicacionesTable.tableName);
     await db.delete('tblbatch_products');
     await db.delete(BatchPackingTable.tableName);
     await db.delete(SubmuellesTable.tableName);
     await db.delete(ConfigurationsTable.tableName);
     await db.delete(NovedadesTable.tableName);
-    await db.delete(ProductRecepcionTable.tableName);
+    await db.delete(ProductTransferenciaTable.tableName);
     await db.delete(EntradasRepeccionTable.tableName);
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);

@@ -1,11 +1,14 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab1ScreenTrans extends StatelessWidget {
@@ -34,20 +37,70 @@ class Tab1ScreenTrans extends StatelessWidget {
               icon: Icon(Icons.error, color: Colors.green),
             );
           }
+
+          if (state is CreateBackOrderOrNotLoading) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const DialogLoading(
+                  message: "Validando informacion...",
+                );
+              },
+            );
+          }
+
+          if (state is CreateBackOrderOrNotFailure) {
+            Navigator.pop(context);
+            Get.defaultDialog(
+              title: 'Error',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: state.error,
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+          }
+
+          if (state is CreateBackOrderOrNotSuccess) {
+            context.read<TransferenciaBloc>().add(FetchAllTransferenciasDB());
+            //volvemos a llamar las entradas que tenemos guardadas en la bd
+            if (state.isBackorder) {
+              Get.snackbar("Exitoso", 'Se ha creado la backorder correctamente',
+                  backgroundColor: white,
+                  colorText: primaryColorApp,
+                  icon: Icon(Icons.error, color: Colors.green));
+            } else {
+              Get.snackbar("Exitoso", 'Se valido la recepcion correctamente',
+                  backgroundColor: white,
+                  colorText: primaryColorApp,
+                  icon: Icon(Icons.error, color: Colors.green));
+            }
+            Navigator.pop(context);
+            Navigator.pushReplacementNamed(
+              context,
+              'transferencias',
+            );
+          }
         },
         builder: (context, state) {
           final bloc = context.read<TransferenciaBloc>();
           final transferenciaDetail = bloc.currentTransferencia;
 
           return Scaffold(
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                context.read<TransferenciaBloc>().add(CurrentTransferencia(
-                      transferenciaDetail,
-                    ));
-              },
-              child: Icon(Icons.add),
-            ),
             backgroundColor: white,
             body: Column(
               children: [
@@ -270,7 +323,124 @@ class Tab1ScreenTrans extends StatelessWidget {
                 ),
                 Spacer(),
                 ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) {
+                            return BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                              child: AlertDialog(
+                                backgroundColor: Colors.white,
+                                actionsAlignment: MainAxisAlignment.center,
+                                title: Text(
+                                  'Confirmar Transferencia',
+                                  style: TextStyle(
+                                      color: primaryColorApp, fontSize: 16),
+                                  textAlign: TextAlign.center,
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      height: 100,
+                                      width: 150,
+                                      child: Image.asset(
+                                        "assets/images/icono.jpeg",
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        context
+                                                .read<TransferenciaBloc>()
+                                                .listProductsTransfer
+                                                .where((element) {
+                                          return element.isSeparate == 0 ||
+                                              element.isSeparate == null;
+                                        }).isEmpty
+                                            ? '¿Estás seguro de confirmar la recepcion y dejarla lista para ser enviada?'
+                                            : "Usted ha procesado cantidades de prodcutos menores que los requeridos en el movimiento orignal.",
+                                        style: TextStyle(
+                                            color: black, fontSize: 14),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  Visibility(
+                                    visible: context
+                                        .read<TransferenciaBloc>()
+                                        .listProductsTransfer
+                                        .where((element) {
+                                      return element.isSeparate == 0 ||
+                                          element.isSeparate == null;
+                                    }).isNotEmpty,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        context.read<TransferenciaBloc>().add(
+                                            CreateBackOrderOrNot(
+                                                transFerencia?.id ?? 0, true));
+                                        Navigator.pop(context);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: primaryColorApp,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        minimumSize: Size(size.width * 0.9, 40),
+                                      ),
+                                      child: const Text(
+                                        'Confirmar y Crear un Backorder',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      context.read<TransferenciaBloc>().add(
+                                          CreateBackOrderOrNot(
+                                              transFerencia?.id ?? 0, false));
+                                      Navigator.pop(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryColorApp,
+                                      minimumSize: Size(size.width * 0.9, 40),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Confirmar Transferencia',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      minimumSize: Size(size.width * 0.9, 40),
+                                      backgroundColor: grey,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Cancelar',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          });
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColorApp,
                       minimumSize: Size(size.width * 0.9, 40),
@@ -279,7 +449,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                       ),
                       elevation: 3,
                     ),
-                    child: Text('Terminar Recepcion',
+                    child: Text('Terminar Transferencia',
                         style: TextStyle(color: white))),
                 const SizedBox(height: 10),
               ],
