@@ -359,37 +359,52 @@ class DataBaseSqlite {
   //Todo: Eliminar todos los registros
   Future<void> deleteBD() async {
     final db = await getDatabaseInstance();
+    //others
     await db.delete(BarcodesPackagesTable.tableName);
+    //picking
     await db.delete(BatchPickingTable.tableName);
+    await db.delete('tblbatch_products');
+    //packing
+    await db.delete(BatchPackingTable.tableName);
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
-    await db.delete(UbicacionesTable.tableName);
-    await db.delete('tblbatch_products');
-    await db.delete(BatchPackingTable.tableName);
-    await db.delete(ProductTransferenciaTable.tableName);
+    //recepcion
+    await db.delete(ProductRecepcionTable.tableName);
     await db.delete(EntradasRepeccionTable.tableName);
+    //transferencia
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);
-
   }
 
   Future<void> deleteBDCloseSession() async {
     final db = await getDatabaseInstance();
-    await db.delete(BatchPickingTable.tableName);
-    await db.delete(PedidosPackingTable.tableName);
-    await db.delete(ProductosPedidosTable.tableName);
-    await db.delete(PackagesTable.tableName);
-    await db.delete(UbicacionesTable.tableName);
-    await db.delete('tblbatch_products');
-    await db.delete(BatchPackingTable.tableName);
-    await db.delete(SubmuellesTable.tableName);
+
+    // others
     await db.delete(ConfigurationsTable.tableName);
     await db.delete(NovedadesTable.tableName);
-    await db.delete(ProductTransferenciaTable.tableName);
+    await db.delete(UbicacionesTable.tableName);
+    await db.delete(SubmuellesTable.tableName);
+
+    //picking
+    await db.delete(BatchPickingTable.tableName);
+    await db.delete('tblbatch_products');
+
+    // packing
+    await db.delete(BatchPackingTable.tableName);
+    await db.delete(ProductosPedidosTable.tableName);
+    await db.delete(PedidosPackingTable.tableName);
+    await db.delete(PackagesTable.tableName);
+
+    //recepcion
     await db.delete(EntradasRepeccionTable.tableName);
+    await db.delete(ProductRecepcionTable.tableName);
+
+    //transferecnia
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);
+
+
   }
 
   //*metodo para actualizar la tabla de productos de un batch

@@ -96,13 +96,14 @@ class ProductTransferenciaRepository {
                           ? LineasTransferenciaTrans.fechaVencimiento
                           : "",
                   ProductTransferenciaTable.columnIsProductSplit: 0,
-                  ProductTransferenciaTable.columnObservation: LineasTransferenciaTrans.observation,
+                  ProductTransferenciaTable.columnObservation:
+                      LineasTransferenciaTrans.observation,
                   ProductTransferenciaTable.columnDateStart: "",
                   ProductTransferenciaTable.columnDateEnd: "",
                   ProductTransferenciaTable.columnTime:
                       LineasTransferenciaTrans.time,
                   ProductTransferenciaTable.columnIsDoneItem:
-                      LineasTransferenciaTrans.isDoneItem
+                      LineasTransferenciaTrans.isDoneItem ?? 0
                 },
                 where:
                     '${ProductTransferenciaTable.columnId} = ? AND ${ProductTransferenciaTable.columnIdMove} = ? AND ${ProductTransferenciaTable.columnIdTransferencia} = ? ',
@@ -169,13 +170,14 @@ class ProductTransferenciaRepository {
                           ? LineasTransferenciaTrans.fechaVencimiento
                           : "",
                   ProductTransferenciaTable.columnIsProductSplit: 0,
-                  ProductTransferenciaTable.columnObservation: LineasTransferenciaTrans.observation,
+                  ProductTransferenciaTable.columnObservation:
+                      LineasTransferenciaTrans.observation,
                   ProductTransferenciaTable.columnDateStart: "",
                   ProductTransferenciaTable.columnDateEnd: "",
                   ProductTransferenciaTable.columnTime:
                       LineasTransferenciaTrans.time,
                   ProductTransferenciaTable.columnIsDoneItem:
-                      LineasTransferenciaTrans.isDoneItem,
+                      LineasTransferenciaTrans.isDoneItem ?? 0,
                 },
                 conflictAlgorithm: ConflictAlgorithm.replace,
               );

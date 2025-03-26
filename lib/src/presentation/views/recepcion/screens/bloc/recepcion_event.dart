@@ -140,6 +140,11 @@ class GetLotesProduct extends RecepcionEvent {
 }
 
 class SendProductToOrder extends RecepcionEvent {
+
+  final bool isSplit;
+  final int quantity;
+
+  SendProductToOrder(this.isSplit, this.quantity);
  
 
 }

@@ -70,7 +70,7 @@ class ProductDropdownTransferWidget extends StatelessWidget {
                 );
               }).toList(),
               onChanged: batchBloc.configurations.result?.result
-                          ?.manualProductSelection ==
+                          ?.manualProductSelectionTransfer ==
                       false
                   ? null
                   : batchBloc.locationIsOk && !batchBloc.productIsOk

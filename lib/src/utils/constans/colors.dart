@@ -5,6 +5,7 @@ const Color primaryListBuilder = Color.fromARGB(255, 214, 209, 209);
 const Color secondary = Color(0xFFdbe4f3);
 
 const Color white = Color(0xFFFFFFFF);
+
 const Color grey = Colors.grey;
 const Color lightGrey = Color.fromARGB(255, 200, 198, 198);
 const Color black = Colors.black54;
@@ -19,9 +20,15 @@ const Color buttoncolor =
 const Color mainFontColor = Color.fromARGB(255, 78, 119, 237);
 
 const Color arrowbgColor = Color(0xffe4e9f7);
-Color primaryColorApp =  const Color.fromARGB(255, 23, 62, 108);
 
-Color primaryColorAppLigth =  const Color.fromARGB(255, 186, 202, 250);
+
+// Color primaryColorApp =  const Color.fromARGB(255, 23, 62, 108);
+// Color primaryColorApp =  #0081D0
+Color primaryColorApp =  const Color.fromARGB(255, 7, 105, 166);
+
+// Color primaryColorAppLigth =  const Color.fromARGB(255, 186, 202, 250);
+// Color primaryColorAppLigth =  001f38
+Color primaryColorAppLigth =  const Color.fromARGB(255, 115, 183, 225);
 
 //color de acciones
 

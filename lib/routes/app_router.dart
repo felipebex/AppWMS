@@ -1,6 +1,8 @@
 // app_routes.dart
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/locations_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/product_info_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/scan_product_screen.dart';
@@ -61,6 +63,8 @@ class AppRoutes {
 
   //info rapida
   static const String infoRapida = 'info-rapida';
+  static const String productInfo = 'product-info';
+  static const String locationInfo = 'location-info';
 
   // Mapa de rutas
   static Map<String, Widget Function(BuildContext)> get routes {
@@ -185,6 +189,8 @@ class AppRoutes {
 
       //info rapida
       infoRapida: (_) => const InfoRapidaScreen(),
+      productInfo: (_) => const ProductInfoScreen(),
+      locationInfo: (_) => const LocationInfoScreen(),
       //transferencias
       transferencias: (_) => const ListTransferenciasScreen(),
       transferenciaDetail: (context) {

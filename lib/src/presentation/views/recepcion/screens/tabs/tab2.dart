@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -129,7 +130,27 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
         return true;
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is SendProductToOrderSuccess) {
+            Get.snackbar(
+              'Exitoso',
+              "Se ha enviado el producto correctamente",
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.green),
+            );
+          }
+
+          if (state is SendProductToOrderFailure) {
+            Get.snackbar(
+              'Error',
+              state.error,
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.red),
+            );
+          }
+        },
         builder: (context, state) {
           final recepcionBloc = context.read<RecepcionBloc>();
           return Scaffold(

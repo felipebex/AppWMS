@@ -1336,7 +1336,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                     ),
                                     IconButton(
                                         onPressed: bloc.configurations.result
-                                                    ?.result?.manualQuantity ==
+                                                    ?.result?.manualQuantityTransfer ==
                                                 false
                                             ? null
                                             : bloc.quantityEdit &&

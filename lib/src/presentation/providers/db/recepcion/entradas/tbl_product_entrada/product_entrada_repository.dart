@@ -93,7 +93,7 @@ class ProductsEntradaRepository {
                   ProductRecepcionTable.columnDateEnd: "",
                   ProductRecepcionTable.columnTime: LineasRecepcion.time,
                   ProductRecepcionTable.columnIsDoneItem:
-                      LineasRecepcion.isDoneItem,
+                      LineasRecepcion.isDoneItem ?? 0,
                   ProductRecepcionTable.columnDateTransaction:
                       LineasRecepcion.dateTransaction,
                 },
@@ -162,7 +162,7 @@ class ProductsEntradaRepository {
                   ProductRecepcionTable.columnDateEnd: "",
                   ProductRecepcionTable.columnTime: LineasRecepcion.time,
                   ProductRecepcionTable.columnIsDoneItem:
-                      LineasRecepcion.isDoneItem,
+                      LineasRecepcion.isDoneItem ?? 0,
                   ProductRecepcionTable.columnDateTransaction:
                       LineasRecepcion.dateTransaction,
                 },
@@ -285,7 +285,7 @@ class ProductsEntradaRepository {
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
     final resUpdate = await db.rawUpdate(
-        'UPDATE ${ProductRecepcionTable.tableName} SET $field = ? WHERE ${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ?',
+        'UPDATE ${ProductRecepcionTable.tableName} SET $field = ? WHERE ${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? AND ${ProductRecepcionTable.columnIsDoneItem} = 0',
         [setValue, productId, idMove, idEntrada]);
 
     print(

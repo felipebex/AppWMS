@@ -76,7 +76,7 @@ class LocationDropdownTransferWidget extends StatelessWidget {
               );
             }).toList(),
             onChanged: batchBloc
-                        .configurations.result?.result?.locationPickingManual ==
+                        .configurations.result?.result?.manualSourceLocationTransfer ==
                     false
                 ? null
                 : batchBloc.locationIsOk

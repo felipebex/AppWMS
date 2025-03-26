@@ -99,6 +99,7 @@ class _HomePageState extends State<HomePage> {
                   context.read<RecepcionBloc>().add(FetchOrdenesCompra());
                 } else if (rol == "transfer") {
                   if (!mounted) return;
+                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
                   context
                       .read<TransferenciaBloc>()
                       .add(FetchAllTransferencias());
@@ -626,31 +627,24 @@ class _HomePageState extends State<HomePage> {
                                         const SizedBox(width: 2),
                                         GestureDetector(
                                           onTap: () async {
-                                            // showDialog(
-                                            //     context: context,
-                                            //     builder: (context) {
-                                            //       return const DialogLoading(
-                                            //           message:
-                                            //               'Cargando interfaz...');
-                                            //     });
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando interfaz...');
+                                                });
 
-                                            // await Future.delayed(const Duration(
-                                            //     seconds:
-                                            //         1)); // Ajusta el tiempo si es necesario
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
 
-                                            // Navigator.pop(context);
-                                            // Navigator.pushReplacementNamed(
-                                            //   context,
-                                            //   'info-rapida',
-                                            // );
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                    "Su usuario no tiene permisos para acceder a este módulo"),
-                                                duration: Duration(seconds: 4),
-                                              ),
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'info-rapida',
                                             );
+                                           
                                           },
                                           child: const ImteModule(
                                             urlImg: "info.png",
@@ -665,9 +659,9 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
-                                            if (homeBloc.userRol ==
-                                                    'reception' ||
-                                                homeBloc.userRol == 'admin') {
+                                            // if (homeBloc.userRol ==
+                                            //         'reception' ||
+                                            //     homeBloc.userRol == 'admin') {
                                             context.read<RecepcionBloc>().add(
                                                 FetchOrdenesCompraOfBd()); // Llama al evento FetchOrdenesCompra
 
@@ -691,17 +685,17 @@ class _HomePageState extends State<HomePage> {
                                               context,
                                               'list-ordenes-compra',
                                             );
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Su usuario no tiene permisos para acceder a este módulo"),
-                                                  duration:
-                                                      Duration(seconds: 4),
-                                                ),
-                                              );
-                                            }
+                                            // } else {
+                                            //   ScaffoldMessenger.of(context)
+                                            //       .showSnackBar(
+                                            //     const SnackBar(
+                                            //       content: Text(
+                                            //           "Su usuario no tiene permisos para acceder a este módulo"),
+                                            //       duration:
+                                            //           Duration(seconds: 4),
+                                            //     ),
+                                            //   );
+                                            // }
                                           },
                                           child: ImteModule(
                                             urlImg: "recepcion.png",

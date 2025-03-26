@@ -11,6 +11,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/repcion_requets_
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'recepcion_event.dart';
@@ -309,13 +310,47 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       final userid = await PrefUtils.getUserId();
 
+      //calculamos la fecha de transaccion
+      DateTime fechaTransaccion = DateTime.now();
+      String fechaFormateada = formatoFecha(fechaTransaccion);
+      //agregamos la fecha de transaccion
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+        currentProduct.idRecepcion ?? 0,
+        int.parse(currentProduct.productId),
+        'date_transaction',
+        fechaFormateada,
+        currentProduct.idMove ?? 0,
+      );
+
       final productBD = await db.productEntradaRepository.getProductById(
         int.parse(currentProduct.productId),
         currentProduct.idMove,
         currentProduct.idRecepcion,
       );
 
-      await _recepcionRepository.sendProductRecepcion(
+      String dateInicio = productBD?.dateStart ?? "";
+      String dateFin = productBD?.dateEnd ?? "";
+      print("dateInicio: $dateInicio  dateFin: $dateFin");
+
+      //calculamos la diferencia de tiempo
+      DateTime dateStart = DateTime.parse(dateInicio);
+      DateTime dateEnd = DateTime.parse(dateFin);
+
+      var difference = dateEnd.difference(dateStart);
+      int time = difference.inSeconds;
+
+      print("time ->${time}");
+      //lo convertimos en entero
+      //actualizamos el tiempo del producto
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+        currentProduct.idRecepcion ?? 0,
+        int.parse(currentProduct.productId),
+        'time',
+        time,
+        currentProduct.idMove ?? 0,
+      );
+
+      final responseSend = await _recepcionRepository.sendProductRecepcion(
         RecepcionRequest(
           idRecepcion: productBD?.idRecepcion ?? 0,
           listItems: [
@@ -325,23 +360,48 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               loteProducto: productBD?.loteId ?? 0,
               ubicacionDestino: productBD?.locationDestId ?? 0,
               cantidadSeparada: productBD?.quantitySeparate ?? 0,
-              observacion: productBD?.observation ?? 'sin novedad',
+              observacion: productBD?.observation == ""
+                  ? "Sin novedad"
+                  : productBD?.observation ?? "Sin novedad",
               idOperario: userid,
-              timeLine: 30,
-
-              fechaTransaccion: DateFormat('yyyy-MM-dd HH:mm:ss')
-                  .format(DateTime.now()), // Formato de la fecha
+              timeLine: time,
+              fechaTransaccion: fechaFormateada, // Formato de la fecha
             )
           ],
         ),
         false,
       );
 
-      // if (response) {
-      //   emit(SendProductToOrderSuccess());
-      // } else {
-      //   emit(SendProductToOrderFailure('Error al enviar el producto'));
-      // }
+      if (responseSend.result?.code == 200) {
+        // marcamos tiempo final de sepfaracion
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion ?? 0,
+            int.parse(currentProduct.productId),
+            "is_done_item",
+            1,
+            currentProduct.idMove ?? 0);
+        if (event.isSplit) {
+          //calculamos la cantidad pendiente del producto
+          var pendingQuantity =
+              (currentProduct.quantityOrdered - event.quantity);
+          //creamos un nuevo producto (duplicado) con la cantidad separada
+          await db.productEntradaRepository
+              .insertDuplicateProducto(currentProduct, pendingQuantity);
+          add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
+        }
+        emit(SendProductToOrderSuccess());
+      } else {
+        // marcamos tiempo final de sepfaracion
+
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion,
+            int.parse(currentProduct.productId),
+            "is_separate",
+            0,
+            currentProduct.idMove);
+
+        emit(SendProductToOrderFailure('Error al enviar el producto'));
+      }
     } catch (e, s) {
       emit(SendProductToOrderFailure('Error al enviar el producto'));
       print('Error en el _onSendProductToOrder: $e, $s');
@@ -384,6 +444,13 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       emit(FinalizarRecepcionProductoSplitLoading());
 
+      //marcamos tiempo final de separacion
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+          currentProduct.idRecepcion,
+          int.parse(currentProduct.productId),
+          "date_end",
+          DateTime.now().toString(),
+          currentProduct.idMove);
       //actualizamso el estado del producto como separado
       await db.productEntradaRepository.setFieldTableProductEntrada(
           currentProduct.idRecepcion,
@@ -399,29 +466,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "is_product_split",
           1,
           currentProduct.idMove);
-      //marcamos tiempo final de separacion
-      await db.productEntradaRepository.setFieldTableProductEntrada(
-          currentProduct.idRecepcion,
-          int.parse(currentProduct.productId),
-          "date_end",
-          DateTime.now().toString(),
-          currentProduct.idMove);
-      //marcamso el producto como is_done_item
-      await db.productEntradaRepository.setFieldTableProductEntrada(
-          currentProduct.idRecepcion,
-          int.parse(currentProduct.productId),
-          "is_done_item",
-          1,
-          currentProduct.idMove);
 
-      //calculamos la cantidad pendiente del producto
-      var pendingQuantity = (currentProduct.quantityOrdered - event.quantity);
-
-      //creamos un nuevo producto (duplicado) con la cantidad separada
-      await db.productEntradaRepository
-          .insertDuplicateProducto(currentProduct, pendingQuantity);
-
-      add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
       emit(FinalizarRecepcionProductoSplitSuccess());
     } catch (e, s) {
       print('Error al finalizar la recepcion del producto split: $e, $s');
@@ -449,14 +494,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           DateTime.now().toString(),
           currentProduct.idMove);
       //marcamos el producto como termiado
-
-      //marcamos tiempo final de separacion
-      await db.productEntradaRepository.setFieldTableProductEntrada(
-          currentProduct.idRecepcion,
-          int.parse(currentProduct.productId),
-          "is_done_item",
-          1,
-          currentProduct.idMove);
     } catch (e, s) {
       emit(FinalizarRecepcionProductoFailure(
           'Error al finalizar la recepcion del producto'));
@@ -548,6 +585,15 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<RecepcionState> emit) async {
     if (event.productIsOk) {
+      //actualizmso valor de fecha inicio
+      await db.productEntradaRepository.setFieldTableProductEntrada(
+        event.idEntrada,
+        event.productId,
+        'date_start',
+        DateTime.now().toString(),
+        event.idMove,
+      );
+
       //actualizamos la entrada a true
       await db.entradasRepository.setFieldTableEntrada(
         event.idEntrada,
@@ -560,14 +606,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           event.productId,
           "is_selected",
           1,
-          currentProduct.idMove ?? 0);
-
-      //registramos el tiempo de inicio
-      await db.productEntradaRepository.setFieldTableProductEntrada(
-          event.idEntrada,
-          event.productId,
-          "date_start",
-          DateTime.now().toString(),
           currentProduct.idMove ?? 0);
 
       //actualizamos el producto a true

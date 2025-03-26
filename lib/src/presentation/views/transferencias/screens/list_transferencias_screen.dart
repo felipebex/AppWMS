@@ -538,6 +538,9 @@ class AppBar extends StatelessWidget {
                             // Acción para opción 1
                           }
                         }
+
+
+                        
                       },
                       itemBuilder: (BuildContext context) {
                         // Creamos los PopupMenuItem dinámicamente basados en warehouseName

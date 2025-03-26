@@ -240,7 +240,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                 recepcionBloc.currentProduct.quantityOrdered
                                     .toInt()) {
                               //termianmso el proceso
-                              _finishSeprateProductOrder(context);
+                              _finishSeprateProductOrder(context, state.quantity);
                             }
                           }
                         }
@@ -1194,7 +1194,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         currentProduct.idRecepcion ?? 0,
                         currentProduct.idMove ?? 0));
                     _cantidadController.clear();
-                    _finishSeprateProductOrder(context);
+                    _finishSeprateProductOrder(context, cantidad);
 
                     Navigator.pushReplacementNamed(context, 'recepcion',
                         arguments: [widget.ordenCompra, 1]);
@@ -1223,7 +1223,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   }
 
   void _finishSeprateProductOrder(
-    BuildContext context,
+    BuildContext context, int cantidad
   ) {
     if(context.read<RecepcionBloc>().currentProduct.productTracking == "lot"){
       if (context.read<RecepcionBloc>().selectLote == "") {
@@ -1240,7 +1240,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
    
 
     context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
-    context.read<RecepcionBloc>().add(SendProductToOrder());
+    context.read<RecepcionBloc>().add(SendProductToOrder(false, cantidad));
     termiateProcess();
 
     Navigator.pushReplacementNamed(context, 'recepcion',
@@ -1264,7 +1264,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     context
         .read<RecepcionBloc>()
         .add(FinalizarRecepcionProductoSplit(cantidad));
-    context.read<RecepcionBloc>().add(SendProductToOrder());
+    context.read<RecepcionBloc>().add(SendProductToOrder(true, cantidad ));
     termiateProcess();
   }
 
