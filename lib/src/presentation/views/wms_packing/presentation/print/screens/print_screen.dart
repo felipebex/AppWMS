@@ -316,12 +316,6 @@ class _PrintDialogState extends State<PrintDialog> {
 
 
 
-
-
-
-
-
-
   Future<Uint8List> _generateQrUint8List() async {
     // Definir el tamaño del código QR (ajusta según el ancho del papel)
     const qrSize = 200.0; // Tamaño en píxeles

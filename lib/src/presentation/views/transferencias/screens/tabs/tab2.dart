@@ -135,7 +135,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
         listener: (context, state) {
           if (state is SendProductToTransferSuccess) {
             Get.snackbar(
-              'Exitoso',
+              '360 Software Informa',
               "Se ha enviado el producto correctamente",
               backgroundColor: white,
               colorText: primaryColorApp,
@@ -145,7 +145,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
 
           if (state is SendProductToTransferFailure) {
             Get.snackbar(
-              'Error',
+              '360 Software Informa',
               state.error,
               backgroundColor: white,
               colorText: primaryColorApp,

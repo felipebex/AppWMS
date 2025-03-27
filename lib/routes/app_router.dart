@@ -1,6 +1,7 @@
 // app_routes.dart
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/locations_info_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/product_info_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
@@ -189,8 +190,27 @@ class AppRoutes {
 
       //info rapida
       infoRapida: (_) => const InfoRapidaScreen(),
-      productInfo: (_) => const ProductInfoScreen(),
-      locationInfo: (_) => const LocationInfoScreen(),
+      productInfo: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final info = arguments[0] as InfoRapidaResult?;
+
+        return ProductInfoScreen(
+          infoRapidaResult: info,
+        );
+      },
+      locationInfo: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final info = arguments[0] as InfoRapidaResult?;
+        return LocationInfoScreen(
+          infoRapidaResult: info,
+        );
+      },
       //transferencias
       transferencias: (_) => const ListTransferenciasScreen(),
       transferenciaDetail: (context) {

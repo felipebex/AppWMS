@@ -60,7 +60,6 @@ class _HomePageState extends State<HomePage> {
           final homeBloc = context.read<HomeBloc>();
           return RefreshIndicator(
             onRefresh: () async {
-
               context.read<UserBloc>().add(GetUbicacionesEvent());
               context.read<UserBloc>().add(LoadInfoDeviceEventUser());
               final products = await DataBaseSqlite().getProducts();
@@ -627,6 +626,13 @@ class _HomePageState extends State<HomePage> {
                                         const SizedBox(width: 2),
                                         GestureDetector(
                                           onTap: () async {
+                                            context.read<UserBloc>().add(
+                                                GetConfigurations(context));
+
+                                            context
+                                                .read<UserBloc>()
+                                                .add(LoadInfoDeviceEventUser());
+
                                             showDialog(
                                                 context: context,
                                                 builder: (context) {
@@ -644,7 +650,6 @@ class _HomePageState extends State<HomePage> {
                                               context,
                                               'info-rapida',
                                             );
-                                           
                                           },
                                           child: const ImteModule(
                                             urlImg: "info.png",

@@ -26,7 +26,7 @@ class ListTransferenciasScreen extends StatelessWidget {
       listener: (context, state) {
         if (state is AssignUserToTransferFailure) {
           Get.snackbar(
-            'Error',
+            '360 Software Informa',
             "Error al asignar el responsable a la transferencia",
             backgroundColor: white,
             colorText: primaryColorApp,
@@ -36,7 +36,7 @@ class ListTransferenciasScreen extends StatelessWidget {
 
         if (state is AssignUserToTransferSuccess) {
           Get.snackbar(
-            'Exitoso',
+            '360 Software Informa',
             "Se ha asignado el responsable correctamente",
             backgroundColor: white,
             colorText: primaryColorApp,

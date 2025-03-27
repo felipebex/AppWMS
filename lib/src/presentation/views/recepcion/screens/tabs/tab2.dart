@@ -133,7 +133,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
         listener: (context, state) {
           if (state is SendProductToOrderSuccess) {
             Get.snackbar(
-              'Exitoso',
+              '360 Software Informa',
               "Se ha enviado el producto correctamente",
               backgroundColor: white,
               colorText: primaryColorApp,
@@ -143,7 +143,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
 
           if (state is SendProductToOrderFailure) {
             Get.snackbar(
-              'Error',
+              '360 Software Informa',
               state.error,
               backgroundColor: white,
               colorText: primaryColorApp,

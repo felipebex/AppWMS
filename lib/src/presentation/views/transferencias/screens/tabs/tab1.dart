@@ -30,7 +30,7 @@ class Tab1ScreenTrans extends StatelessWidget {
         listener: (context, state) {
           if (state is AssignUserToTransferSuccess) {
             Get.snackbar(
-              'Exitoso',
+              '360 Software Informa',
               "Se ha asignado el responsable correctamente",
               backgroundColor: white,
               colorText: primaryColorApp,
@@ -52,7 +52,7 @@ class Tab1ScreenTrans extends StatelessWidget {
           if (state is CreateBackOrderOrNotFailure) {
             Navigator.pop(context);
             Get.defaultDialog(
-              title: 'Error',
+              title: '360 Software Informa',
               titleStyle: TextStyle(color: Colors.red, fontSize: 18),
               middleText: state.error,
               middleTextStyle: TextStyle(color: black, fontSize: 14),
@@ -79,12 +79,12 @@ class Tab1ScreenTrans extends StatelessWidget {
             context.read<TransferenciaBloc>().add(FetchAllTransferenciasDB());
             //volvemos a llamar las entradas que tenemos guardadas en la bd
             if (state.isBackorder) {
-              Get.snackbar("Exitoso", 'Se ha creado la backorder correctamente',
+              Get.snackbar("360 Software Informa", 'Se ha creado la backorder correctamente',
                   backgroundColor: white,
                   colorText: primaryColorApp,
                   icon: Icon(Icons.error, color: Colors.green));
             } else {
-              Get.snackbar("Exitoso", 'Se valido la recepcion correctamente',
+              Get.snackbar("360 Software Informa", 'Se valido la recepcion correctamente',
                   backgroundColor: white,
                   colorText: primaryColorApp,
                   icon: Icon(Icons.error, color: Colors.green));

@@ -38,7 +38,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
 
         if (state is AssignUserToOrderFailure) {
           Get.snackbar(
-            'Error',
+            '360 Software Informa',
             "Error al asignar el responsable a la transferencia",
             backgroundColor: white,
             colorText: primaryColorApp,
@@ -48,7 +48,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
 
         if (state is AssignUserToOrderSuccess) {
           Get.snackbar(
-            'Exitoso',
+            '360 Software Informa',
             "Se ha asignado el responsable correctamente",
             backgroundColor: white,
             colorText: primaryColorApp,

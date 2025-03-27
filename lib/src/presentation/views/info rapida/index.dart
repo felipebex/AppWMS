@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -16,236 +18,190 @@ class InfoRapidaScreen extends StatefulWidget {
 }
 
 class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
-  final TextEditingController _controllerProduct = TextEditingController();
-  final TextEditingController _controllerLocation = TextEditingController();
+  final TextEditingController _controllerSearch = TextEditingController();
 
-  final FocusNode focusNodeProduct = FocusNode(); //product
-  final FocusNode focusNodeLocation = FocusNode(); //location
+  final FocusNode focusNode1 = FocusNode(); //product
 
   @override
   void dispose() {
-    focusNodeProduct.dispose();
-    focusNodeLocation.dispose();
+    focusNode1.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    FocusScope.of(context).requestFocus(focusNode1);
+  }
+
+  void validateBarcode(String value, BuildContext context) {
+    print('value: $value');
+
+    final bloc = context.read<InfoRapidaBloc>();
+    String scan = bloc.scannedValue1 == ""
+        ? value
+        : bloc.scannedValue1;
+    _controllerSearch.text = "";
+    //validamos que el scan no este vacio
+    if (scan.isEmpty) {
+      return;
+    }
+    bloc.add(GetInfoRapida(scan));
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return Scaffold(
-      backgroundColor: white,
-      body: SizedBox(
-          width: size.width * 1,
-          height: size.height * 1,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                //appbar
-                AppBar(size: size),
-                Column(
-                  children: [
-                    Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 50),
-                        child: Image.asset(
-                          'assets/icons/barcode.png',
-                          width: 150,
-                          height: 150,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                        "Este es el modulo de informacion rapida de 360 software para OnPoint, escanee un codigo de barras de PRODUCTO, LOTE/SERIE o una UBICACIÓN para obtener toda su informacion. ",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, color: black),
-                      ),
-                    ),
+    return BlocProvider(
+      create: (context) => InfoRapidaBloc(),
+      child: BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
+        listener: (context, state) {
+          if (state is InfoRapidaError) {
+            Navigator.pop(context);
+            Get.snackbar(
+              '360 Software Informa',
+              'No se encontró producto, lote, paquete ni ubicación con ese código de barras',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.red),
+            );
+          }
 
-                    //*espacio para escanear y buscar el producto
+          if (state is InfoRapidaLoading) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const DialogLoading(
+                  message: "Buscando informacion...",
+                );
+              },
+            );
+          }
 
-                    context.read<UserBloc>().fabricante.contains("Zebra")
-                        ? Container(
-                            height: 15,
-                            margin: const EdgeInsets.only(bottom: 5),
-                            child: TextFormField(
-                              autofocus: true,
-                              showCursor: false,
-                              controller: _controllerProduct,
-                              focusNode: focusNodeProduct,
-                              onChanged: (value) {
-                                // Llamamos a la validación al cambiar el texto
-                                // validateBarcode(value, context);
-                              },
-                              decoration: InputDecoration(
-                                disabledBorder: InputBorder.none,
-                                hintStyle:
-                                    const TextStyle(fontSize: 14, color: black),
-                                border: InputBorder.none,
+          if (state is InfoRapidaLoaded) {
+            Navigator.pop(context);
+            Get.snackbar(
+              '360 Software Informa',
+              'Información encontrada',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.green),
+            );
+
+            if (state.infoRapidaResult.type == 'product') {
+              Navigator.pushReplacementNamed(
+                context,
+                'product-info',
+                arguments: [state.infoRapidaResult]
+              );
+            } else if (state.infoRapidaResult.type == "ubicacion") {
+
+              Navigator.pushReplacementNamed(
+                context,
+                'location-info',
+                arguments: [state.infoRapidaResult]
+              );
+            }
+          }
+        },
+        builder: (context, state) {
+          final bloc = context.watch<InfoRapidaBloc>();
+          return Scaffold(
+            backgroundColor: white,
+            body: SizedBox(
+                width: size.width * 1,
+                height: size.height * 1,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      //appbar
+                      AppBar(size: size),
+                      Column(
+                        children: [
+                          Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 80),
+                              child: Image.asset(
+                                'assets/icons/barcode.png',
+                                width: 150,
+                                height: 150,
+                                color: black,
                               ),
                             ),
-                          )
-                        :
-
-                        //*focus para leer los productos
-                        Focus(
-                            focusNode: focusNodeProduct,
-                            autofocus: true,
-                            onKey: (FocusNode node, RawKeyEvent event) {
-                              if (event is RawKeyDownEvent) {
-                                if (event.logicalKey ==
-                                    LogicalKeyboardKey.enter) {
-                                  // validateBarcode(bloc.scannedValue5, context);
-                                  return KeyEventResult.handled;
-                                } else {
-                                  // bloc.add(UpdateScannedValueEvent(
-                                  //     event.data.keyLabel, 'toDo'));
-                                  return KeyEventResult.handled;
-                                }
-                              }
-                              return KeyEventResult.ignored;
-                            },
-                            child: Container()),
-                    //*espacio para escanear y buscar por ubicacion
-
-                    context.read<UserBloc>().fabricante.contains("Zebra")
-                        ? Container(
-                            height: 15,
-                            margin: const EdgeInsets.only(bottom: 5),
-                            child: TextFormField(
-                              autofocus: true,
-                              showCursor: false,
-                              controller: _controllerLocation,
-                              focusNode: focusNodeLocation,
-                              onChanged: (value) {
-                                // Llamamos a la validación al cambiar el texto
-                                // validateBarcode(value, context);
-                              },
-                              decoration: InputDecoration(
-                                disabledBorder: InputBorder.none,
-                                hintStyle:
-                                    const TextStyle(fontSize: 14, color: black),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          )
-                        :
-
-                        //*focus para leer las ubicaciones
-                        Focus(
-                            focusNode: focusNodeLocation,
-                            autofocus: true,
-                            onKey: (FocusNode node, RawKeyEvent event) {
-                              if (event is RawKeyDownEvent) {
-                                if (event.logicalKey ==
-                                    LogicalKeyboardKey.enter) {
-                                  // validateBarcode(bloc.scannedValue5, context);
-                                  return KeyEventResult.handled;
-                                } else {
-                                  // bloc.add(UpdateScannedValueEvent(
-                                  //     event.data.keyLabel, 'toDo'));
-                                  return KeyEventResult.handled;
-                                }
-                              }
-                              return KeyEventResult.ignored;
-                            },
-                            child: Container()),
-
-                    SizedBox(
-                      height: size.height * 0.15,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            // FocusScope.of(context)
-                            //     .requestFocus(focusNodeProduct);
-
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return const DialogLoading(
-                                      message: 'Buscando Producto ...');
-                                });
-
-                            await Future.delayed(const Duration(
-                                seconds:
-                                    1)); // Ajusta el tiempo si es necesario
-
-                            Navigator.pop(context);
-
-                            Navigator.pushReplacementNamed(
-                              context,
-                              'product-info',
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColorApp,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10))),
-                          child: Text(
-                            "PRODUCTO",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: white,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Este es el modulo de informacion rapida de 360 software para OnPoint, escanee un codigo de barras de PRODUCTO, LOTE/SERIE o una UBICACIÓN para obtener toda su informacion. ",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14, color: black),
                             ),
                           ),
-                        ),
-                        const SizedBox(
-                          width: 30,
-                        ),
-                        ElevatedButton(
-                          onPressed: () async{
-                            // FocusScope.of(context)
-                            //     .requestFocus(focusNodeLocation);
 
-                             showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return const DialogLoading(
-                                      message: 'Buscando Ubicacion ...');
-                                });
+                          //*espacio para escanear y buscar
 
-                            await Future.delayed(const Duration(
-                                seconds:
-                                    1)); // Ajusta el tiempo si es necesario
+                          context.read<UserBloc>().fabricante.contains("Zebra")
+                              ? Container(
+                                  height: 15,
+                                  margin: const EdgeInsets.only(bottom: 5),
+                                  child: TextFormField(
+                                    autofocus: true,
+                                    showCursor: false,
+                                    controller: _controllerSearch,
+                                    focusNode: focusNode1,
+                                    onChanged: (value) {
+                                      print('value: $value');
+                                      // Llamamos a la validación al cambiar el texto
+                                      validateBarcode(value, context);
+                                    },
+                                    decoration: InputDecoration(
+                                      disabledBorder: InputBorder.none,
+                                      hintStyle: const TextStyle(
+                                          fontSize: 14, color: black),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                )
+                              :
 
-                            Navigator.pop(context);
-                            Navigator.pushReplacementNamed(
-                              context,
-                              'location-info',
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColorApp,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10))),
-                          child: Text(
-                            "UBICACIÓN",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: white,
-                            ),
+                              //*focus para leer
+                              Focus(
+                                  focusNode: focusNode1,
+                                  autofocus: true,
+                                  onKey: (FocusNode node, RawKeyEvent event) {
+                                    if (event is RawKeyDownEvent) {
+                                      if (event.logicalKey ==
+                                          LogicalKeyboardKey.enter) {
+                                        validateBarcode(
+                                            bloc.scannedValue1, context);
+                                        return KeyEventResult.handled;
+                                      } else {
+                                        bloc.add(UpdateScannedValueEvent(
+                                          event.data.keyLabel,
+                                        ));
+                                        return KeyEventResult.handled;
+                                      }
+                                    }
+                                    return KeyEventResult.ignored;
+                                  },
+                                  child: Container()),
+                          //*espacio para escanear y buscar por ubicacion
+
+                          SizedBox(
+                            height: size.height * 0.15,
                           ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ],
-            ),
-          )),
+                        ],
+                      ),
+                    ],
+                  ),
+                )),
+          );
+        },
+      ),
     );
   }
+  }
 
-  //validar codigo producto
-  void validateCodeProduct(String value, BuildContext context) {}
-
-  //validar codigo ubicacion
-  void validateCodeLocation(String value, BuildContext context) {}
-}
 
 class AppBar extends StatelessWidget {
   const AppBar({
