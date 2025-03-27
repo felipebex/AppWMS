@@ -5,6 +5,7 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class InfoRapidaScreen extends StatefulWidget {
@@ -158,9 +159,23 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             // FocusScope.of(context)
                             //     .requestFocus(focusNodeProduct);
+
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const DialogLoading(
+                                      message: 'Buscando Producto ...');
+                                });
+
+                            await Future.delayed(const Duration(
+                                seconds:
+                                    1)); // Ajusta el tiempo si es necesario
+
+                            Navigator.pop(context);
+
                             Navigator.pushReplacementNamed(
                               context,
                               'product-info',
@@ -182,9 +197,22 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                           width: 30,
                         ),
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async{
                             // FocusScope.of(context)
                             //     .requestFocus(focusNodeLocation);
+
+                             showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const DialogLoading(
+                                      message: 'Buscando Ubicacion ...');
+                                });
+
+                            await Future.delayed(const Duration(
+                                seconds:
+                                    1)); // Ajusta el tiempo si es necesario
+
+                            Navigator.pop(context);
                             Navigator.pushReplacementNamed(
                               context,
                               'location-info',

@@ -750,32 +750,32 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         GestureDetector(
                                           onTap: () async {
-                                            // showDialog(
-                                            //     context: context,
-                                            //     builder: (context) {
-                                            //       return const DialogLoading(
-                                            //           message:
-                                            //               'Cargando inventario rapido...');
-                                            //     });
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando inventario rapido...');
+                                                });
 
-                                            // await Future.delayed(const Duration(
-                                            //     seconds:
-                                            //         1)); // Ajusta el tiempo si es necesario
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
 
-                                            // Navigator.pop(context);
-                                            // Navigator.pushReplacementNamed(
-                                            //   context,
-                                            //   'inventario',
-                                            // );
-
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                    "Su usuario no tiene permisos para acceder a este módulo"),
-                                                duration: Duration(seconds: 4),
-                                              ),
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'inventario',
                                             );
+
+                                            // ScaffoldMessenger.of(context)
+                                            //     .showSnackBar(
+                                            //   const SnackBar(
+                                            //     content: Text(
+                                            //         "Su usuario no tiene permisos para acceder a este módulo"),
+                                            //     duration: Duration(seconds: 4),
+                                            //   ),
+                                            // );
                                           },
                                           child: ImteModule(
                                             urlImg: "inventario.png",

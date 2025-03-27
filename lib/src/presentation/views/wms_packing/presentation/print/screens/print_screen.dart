@@ -159,6 +159,9 @@ class _PrintDialogState extends State<PrintDialog> {
     );
   }
 
+
+
+
   Future<void> initPlatformState() async {
     String platformVersion;
     int porcentbatery = 0;
@@ -168,9 +171,7 @@ class _PrintDialogState extends State<PrintDialog> {
     } catch (e) {
       platformVersion = 'Failed to get platform version.';
     }
-
     if (!mounted) return;
-
     final bool result = await PrintBluetoothThermal.bluetoothEnabled;
     print("Bluetooth activado: $result");
     if (result) {
@@ -178,11 +179,14 @@ class _PrintDialogState extends State<PrintDialog> {
     } else {
       _msj = "Bluetooth no activado";
     }
-
     setState(() {
       _info = "$platformVersion ($porcentbatery% batería)";
     });
   }
+
+
+
+
 
   Future<void> getBluetoots() async {
     setState(() {
@@ -251,20 +255,28 @@ class _PrintDialogState extends State<PrintDialog> {
     List<int> bytes = [];
     final profile = await CapabilityProfile.load();
     final generator = Generator(PaperSize.mm58,
-        profile); // Ajusta el tamaño del papel según sea necesario
-    bytes += generator.reset();
+        profile); 
+        
+        // Ajusta el tamaño del papel según sea necesario
 
+
+
+
+
+
+
+    
+
+    bytes += generator.reset();
     // Texto
     bytes += generator.text('OnPoint',
         styles: const PosStyles(align: PosAlign.center, bold: true));
-
     bytes += generator.text('Batch: ${widget.model.batchName}',
         styles: const PosStyles(align: PosAlign.center));
     bytes += generator.text('Zona TMS: ${widget.model.zonaEntregaTms}',
         styles: const PosStyles(align: PosAlign.center));
     bytes += generator.text('Operacion: ${widget.model.pickingTypeId}',
         styles: const PosStyles(align: PosAlign.center));
-
     bytes += generator.text('Pedido: ${widget.model.namePedido}',
         styles: const PosStyles(align: PosAlign.center));
     bytes += generator.text('Referencia: ${widget.model.referencia}',
@@ -278,6 +290,8 @@ class _PrintDialogState extends State<PrintDialog> {
         styles: const PosStyles(align: PosAlign.center));
     bytes +=
         generator.text('', styles: const PosStyles(align: PosAlign.center));
+    
+    
 
     // Generar el código QR como Uint8List
     final Uint8List qrUint8List = await _generateQrUint8List();
@@ -295,6 +309,18 @@ class _PrintDialogState extends State<PrintDialog> {
     bytes += generator.cut();
     return bytes;
   }
+
+
+
+
+
+
+
+
+
+
+
+
 
   Future<Uint8List> _generateQrUint8List() async {
     // Definir el tamaño del código QR (ajusta según el ancho del papel)

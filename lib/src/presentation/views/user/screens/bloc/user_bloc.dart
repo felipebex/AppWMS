@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:ulid/ulid.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/data/user_repository.dart';
@@ -93,9 +94,12 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       version = androidInfo.version.release;
       fabricante = androidInfo.manufacturer;
 
-      idDispositivo =
-          androidInfo.id; // Este es el ID único para dispositivos Android
-      print('idDispositivo: $idDispositivo');
+
+      print('idDispositivo:  ${Ulid().toUuid()}');
+
+      // idDispositivo =
+      //     androidInfo.id; // Este es el ID único para dispositivos Android
+      // print('idDispositivo: $idDispositivo');
 
       versionApp = packageInfo.version; // Versión de la app
       emit(LoadInfoDeviceStateUser());

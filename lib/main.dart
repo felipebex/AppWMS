@@ -115,6 +115,9 @@ class MyApp extends StatelessWidget {
           create: (_) => BatchBloc(),
         ),
         BlocProvider(
+          create: (_) => BatchBloc(),
+        ),
+        BlocProvider(
           create: (_) => WmsPackingBloc(),
         ),
         BlocProvider(

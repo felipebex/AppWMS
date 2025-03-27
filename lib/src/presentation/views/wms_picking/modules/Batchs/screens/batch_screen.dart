@@ -1725,6 +1725,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                   ],
                 ),
               ),
+            
+            
             ],
           ),
         );
