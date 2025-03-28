@@ -8,10 +8,10 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/location/location_card_widget.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/others/dropdowbutton_widget.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/widgets/product/product_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/location/location_card_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/others/dropdowbutton_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/product/product_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
@@ -21,14 +21,14 @@ import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
-import '../../../providers/network/cubit/connection_status_cubit.dart';
+import '../../../../providers/network/cubit/connection_status_cubit.dart';
 
 class ScanProductTrasnferScreen extends StatefulWidget {
-  final ResultTransFerencias? transfer;
   final LineasTransferenciaTrans? currentProduct;
 
   const ScanProductTrasnferScreen(
-      {super.key, required this.transfer, required this.currentProduct});
+      {super.key,
+      required this.currentProduct});
 
   @override
   State<ScanProductTrasnferScreen> createState() =>
@@ -131,13 +131,12 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
       focusNode4.unfocus();
       focusNode5.unfocus();
     }
-    
+
     if (bloc.locationIsOk && //true
         bloc.productIsOk && //true
         bloc.quantityIsOk && //true
         !bloc.locationDestIsOk && //false
-        !bloc.viewQuantity
-        ) //false
+        !bloc.viewQuantity) //false
     {
       print("🚼 quantity");
       FocusScope.of(context).requestFocus(focusNode3);
@@ -353,7 +352,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     if (cantidad == currentProduct.quantityOrdered) {
       _finishSeprateProductOrder(context);
       Navigator.pushReplacementNamed(context, 'transferencia-detail',
-          arguments: [widget.transfer, 1]);
+          arguments: [batchBloc.currentTransferencia, 1]);
     } else {
       showDialog(
           barrierDismissible: false,
@@ -367,13 +366,13 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
                   Navigator.pushReplacementNamed(
                       context, 'transferencia-detail',
-                      arguments: [widget.transfer, 1]);
+                      arguments: [batchBloc.currentTransferencia, 1]);
                 },
                 onSplit: () {
                   _finishSeprateProductOrderSplit(context, cantidad);
                   Navigator.pushReplacementNamed(
                       context, 'transferencia-detail',
-                      arguments: [widget.transfer, 1]);
+                      arguments: [batchBloc.currentTransferencia, 1]);
                 });
           });
     }
@@ -470,13 +469,13 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
                                       Navigator.pushReplacementNamed(
                                           context, 'transferencia-detail',
-                                          arguments: [widget.transfer, 1]);
+                                          arguments: [bloc.currentTransferencia, 1]);
                                     },
                                   ),
                                   Padding(
                                     padding:
                                         EdgeInsets.only(left: size.width * 0.2),
-                                    child: Text(widget.transfer?.name ?? '',
+                                    child: Text(bloc.currentTransferencia.name ?? '',
                                         style: TextStyle(
                                             color: white, fontSize: 18)),
                                   ),
@@ -1335,8 +1334,11 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                       ),
                                     ),
                                     IconButton(
-                                        onPressed: bloc.configurations.result
-                                                    ?.result?.manualQuantityTransfer ==
+                                        onPressed: bloc
+                                                    .configurations
+                                                    .result
+                                                    ?.result
+                                                    ?.manualQuantityTransfer ==
                                                 false
                                             ? null
                                             : bloc.quantityEdit &&
@@ -1464,6 +1466,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                       ],
                     ),
                   ),
+              
+              
                 ],
               ),
             ),
@@ -1477,9 +1481,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     BuildContext context,
   ) {
     context.read<TransferenciaBloc>().add(FinalizarTransferProducto());
-    context.read<TransferenciaBloc>().add(SendProductToTransfer(
-      false
-    ));
+    context.read<TransferenciaBloc>().add(SendProductToTransfer(false));
     termiateProcess();
   }
 
@@ -1490,18 +1492,15 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     context
         .read<TransferenciaBloc>()
         .add(FinalizarTransferProductoSplit(cantidad));
-    context.read<TransferenciaBloc>().add(SendProductToTransfer(
-      true
-    ));
+    context.read<TransferenciaBloc>().add(SendProductToTransfer(true));
     termiateProcess();
   }
 
   void termiateProcess() {
     FocusScope.of(context).unfocus();
 
-    context
-        .read<TransferenciaBloc>()
-        .add(GetPorductsToTransfer(widget.transfer?.id ?? 0));
+    context.read<TransferenciaBloc>().add(GetPorductsToTransfer(
+        context.read<TransferenciaBloc>().currentTransferencia.id ?? 0));
   }
 
   // Función que devuelve el color basado en la diferencia

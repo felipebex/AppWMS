@@ -7,7 +7,7 @@ import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -98,7 +98,6 @@ class _HomePageState extends State<HomePage> {
                   context.read<RecepcionBloc>().add(FetchOrdenesCompra());
                 } else if (rol == "transfer") {
                   if (!mounted) return;
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
                   context
                       .read<TransferenciaBloc>()
                       .add(FetchAllTransferencias());
@@ -119,10 +118,12 @@ class _HomePageState extends State<HomePage> {
               }
             },
             child: Scaffold(
+              backgroundColor: white,
               body: Container(
+                color: white,
                 width: size.width,
                 height: size.height,
-                color: primaryColorApp, // Color de fondo blanco
+                // color: primaryColorApp, // Color de fondo blanco
                 child: Stack(
                   children: [
                     Positioned(
@@ -133,7 +134,8 @@ class _HomePageState extends State<HomePage> {
                         clipper: HalfCircleClipper(),
                         child: Container(
                           height: size.height * 0.3, // Altura del medio círculo
-                          color: white, // Color azul
+                          // color: Colors.grey[350], // Color azul
+                          color: primaryColorAppLigth, // Color azul
                         ),
                       ),
                     ),
@@ -160,15 +162,15 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         Row(
                                           children: [
-                                            const Text("Bienvenido a, ",
+                                             Text("Bienvenido a, ",
                                                 style: TextStyle(
                                                     fontSize: 18,
-                                                    color: white)),
+                                                    color: primaryColorApp)),
                                             // Text('WMS',
                                             Text('OnPoint',
-                                                style: const TextStyle(
+                                                style:  TextStyle(
                                                     fontSize: 18,
-                                                    color: white)),
+                                                    color: primaryColorApp)),
                                           ],
                                         ),
                                         GestureDetector(
@@ -216,19 +218,21 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                               ),
                                               const SizedBox(width: 5),
-                                              const Text("Hola, ",
+                                               Text("Hola, ",
                                                   style: TextStyle(
                                                       fontSize: 18,
-                                                      color: white)),
+                                                      color: primaryColorApp)),
                                               SizedBox(
                                                 width: size.width * 0.5,
                                                 child: Text(
                                                   homeBloc.userName,
                                                   style: TextStyle(
-                                                      color: Colors.amber[200],
+                                                      // color: Colors.amber[200],
+                                                      color: black,
                                                       fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.bold),
+                                                      // fontWeight:
+                                                      //     FontWeight.bold
+                                                          ),
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
@@ -241,7 +245,7 @@ class _HomePageState extends State<HomePage> {
                                         Row(
                                           children: [
                                             Icon(Icons.email,
-                                                color: Colors.amber[200],
+                                                color: primaryColorApp,
                                                 size: 18),
                                             const SizedBox(width: 5),
                                             SizedBox(
@@ -249,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                                               child: Text(
                                                 homeBloc.userEmail,
                                                 style: const TextStyle(
-                                                    color: white,
+                                                    color: black,
                                                     fontSize: 12,
                                                     fontWeight:
                                                         FontWeight.bold),
@@ -262,7 +266,7 @@ class _HomePageState extends State<HomePage> {
                                         Row(
                                           children: [
                                             Icon(Icons.storage,
-                                                color: Colors.amber[200],
+                                                color: primaryColorApp,
                                                 size: 18),
                                             const SizedBox(width: 5),
                                             SizedBox(
@@ -271,7 +275,7 @@ class _HomePageState extends State<HomePage> {
                                                 Preferences.nameDatabase
                                                     .toString(),
                                                 style: const TextStyle(
-                                                    color: white,
+                                                    color: black,
                                                     fontSize: 12,
                                                     fontWeight:
                                                         FontWeight.bold),
@@ -497,12 +501,12 @@ class _HomePageState extends State<HomePage> {
                             ),
 
                             //todo informativo para los modulos
-                            const Padding(
+                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               child: Text("Mis módulos",
                                   style: TextStyle(
-                                      color: white,
+                                      color: primaryColorApp,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold)),
                             ),
@@ -511,7 +515,7 @@ class _HomePageState extends State<HomePage> {
                                   horizontal: 10,
                                 ),
                                 width: size.width,
-                                height: size.height * 0.55,
+                                height: size.height * 0.4,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [

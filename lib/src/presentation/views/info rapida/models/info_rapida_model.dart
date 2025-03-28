@@ -4,6 +4,9 @@
 
 import 'dart:convert';
 
+import 'package:flutter_esc_pos_utils/flutter_esc_pos_utils.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+
 InfoRapida infoRapidaFromMap(String str) =>
     InfoRapida.fromMap(json.decode(str));
 
@@ -71,10 +74,10 @@ class InfoResult {
   dynamic? peso;
   dynamic? volumen;
   String? codigoBarras;
-  List<dynamic>? codigosBarrasPaquetes;
+  List<Barcodes>? codigosBarrasPaquetes;
   String? imagen;
   String? categoria;
-  List<Ubicacione>? ubicaciones;
+  List<Ubicacion>? ubicaciones;
 
   //parametros de ubicacion
   String? ubicacionPadre;
@@ -112,14 +115,14 @@ class InfoResult {
         codigoBarras: json["codigo_barras"],
         codigosBarrasPaquetes: json["codigos_barras_paquetes"] == null
             ? []
-            : List<dynamic>.from(
+            : List<Barcodes>.from(
                 json["codigos_barras_paquetes"]!.map((x) => x)),
         imagen: json["imagen"],
         categoria: json["categoria"],
         ubicaciones: json["ubicaciones"] == null
             ? []
-            : List<Ubicacione>.from(
-                json["ubicaciones"]!.map((x) => Ubicacione.fromMap(x))),
+            : List<Ubicacion>.from(
+                json["ubicaciones"]!.map((x) => Ubicacion.fromMap(x))),
 
         //parametros de ubicacion
         ubicacionPadre: json["ubicacion_padre"],
@@ -156,7 +159,10 @@ class InfoResult {
       };
 }
 
-class Ubicacione {
+class Ubicacion {
+
+  int? idMove;
+  int? idAlmacen;
   int? idUbicacion;
   String? ubicacion;
   dynamic? cantidad;
@@ -168,7 +174,9 @@ class Ubicacione {
   String? fechaEliminacion;
   String? fechaEntrada;
 
-  Ubicacione({
+  Ubicacion({
+    this.idMove,
+    this.idAlmacen,
     this.idUbicacion,
     this.ubicacion,
     this.cantidad,
@@ -181,7 +189,9 @@ class Ubicacione {
     this.fechaEntrada,
   });
 
-  factory Ubicacione.fromMap(Map<String, dynamic> json) => Ubicacione(
+  factory Ubicacion.fromMap(Map<String, dynamic> json) => Ubicacion(
+        idAlmacen:  json["id_almacen"],
+        idMove: json["id_move"],
         idUbicacion: json["id_ubicacion"],
         ubicacion: json["ubicacion"],
         cantidad: json["cantidad"],
@@ -195,6 +205,8 @@ class Ubicacione {
       );
 
   Map<String, dynamic> toMap() => {
+        "id_move" : idMove,
+        "id_almacen": idAlmacen,
         "id_ubicacion": idUbicacion,
         "ubicacion": ubicacion,
         "cantidad": cantidad,

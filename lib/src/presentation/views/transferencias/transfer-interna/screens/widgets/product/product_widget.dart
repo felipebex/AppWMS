@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ProductDropdownTransferWidget extends StatelessWidget {

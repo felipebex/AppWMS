@@ -13,8 +13,10 @@ import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/bloc/info_rapida_bloc.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/bloc/transfer_info_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
@@ -50,17 +52,17 @@ void main() async {
         ),
       );
 
-  WidgetsFlutterBinding.ensureInitialized();  // Asegurarse de que Flutter está preparado.
+  WidgetsFlutterBinding
+      .ensureInitialized(); // Asegurarse de que Flutter está preparado.
 
   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
   await LocalNotificationsService().initializeNotifications();
 
-
-
   // Otras inicializaciones, como configuraciones de orientación y preferencias
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) async {
-    await Preferences.init();  // Inicializa preferencias.
-    
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((_) async {
+    await Preferences.init(); // Inicializa preferencias.
+
     // Luego se inicia la app
     runApp(const AppState());
   });
@@ -79,7 +81,6 @@ void main() async {
     } on SocketException catch (_) {}
   });
 }
-
 
 class AppState extends StatelessWidget {
   const AppState({super.key});
@@ -122,6 +123,12 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => KeyboardBloc(),
+        ),
+        BlocProvider(
+          create: (_) => TransferInfoBloc(),
+        ),
+        BlocProvider(
+          create: (_) => InfoRapidaBloc(),
         )
       ],
       child: GetMaterialApp(
@@ -178,7 +185,6 @@ void searchProductsNoSendOdoo(BuildContext context) async {
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
         idBatch: product.batchId ?? 0,
-      
         timeTotal: 0,
         cantItemsSeparados: 0,
         listItem: [
@@ -224,11 +230,15 @@ void searchProductsNoSendOdoo(BuildContext context) async {
 void refreshData(BuildContext context) async {
   final String rol = await PrefUtils.getUserRol();
   if (rol == 'picking') {
-    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent( false));
+    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
   } else if (rol == 'admin') {
-    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent( false));
-    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, ));
+    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
+    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+          false,
+        ));
   } else {
-    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(false, ));
+    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+          false,
+        ));
   }
 }

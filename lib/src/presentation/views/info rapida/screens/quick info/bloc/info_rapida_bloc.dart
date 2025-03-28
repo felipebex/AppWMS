@@ -8,7 +8,7 @@ part 'info_rapida_event.dart';
 part 'info_rapida_state.dart';
 
 class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
-  InfoRapidaRepository _infoRapidaRepository = InfoRapidaRepository();
+  final InfoRapidaRepository _infoRapidaRepository = InfoRapidaRepository();
 
   InfoRapidaResult infoRapidaResult = InfoRapidaResult();
 

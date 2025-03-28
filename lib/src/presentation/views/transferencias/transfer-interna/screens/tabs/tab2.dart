@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -107,7 +107,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
         Navigator.pushReplacementNamed(
           context,
           'scan-product-transfer',
-          arguments: [widget.transFerencia, product],
+          arguments: [ product],
         );
       });
       print(product.toMap());
@@ -282,7 +282,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                         context,
                                         'scan-product-transfer',
                                         arguments: [
-                                          widget.transFerencia,
+                                     
                                           product
                                         ],
                                       );

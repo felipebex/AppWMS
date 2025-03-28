@@ -22,6 +22,7 @@ class ItemList extends StatelessWidget {
     return SizedBox(
       width: size.width * 0.6,
       child: Card(
+        color: white,
         elevation: 2,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

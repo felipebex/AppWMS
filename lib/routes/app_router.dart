@@ -2,17 +2,18 @@
 
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/locations_info_screen.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/product_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/locations_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/product_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/transfer_info_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/list_transferencias_screen.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/scan_product_transfer_screen.dart';
-import 'package:wms_app/src/presentation/views/transferencias/screens/transferencia_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/list_transferencias_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/scan_product_transfer_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/transferencia_screen.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing.dart';
@@ -66,6 +67,7 @@ class AppRoutes {
   static const String infoRapida = 'info-rapida';
   static const String productInfo = 'product-info';
   static const String locationInfo = 'location-info';
+  static const String transferInfo = 'transfer-info';
 
   // Mapa de rutas
   static Map<String, Widget Function(BuildContext)> get routes {
@@ -155,11 +157,10 @@ class AppRoutes {
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
         // Asegurarnos de que la lista tenga al menos dos elementos
-        final transfer = arguments[0] as ResultTransFerencias?;
-        final currentProducArg = arguments[1] as LineasTransferenciaTrans?;
+        final currentProducArg = arguments[0] as LineasTransferenciaTrans?;
 
         return ScanProductTrasnferScreen(
-            transfer: transfer, currentProduct: currentProducArg);
+             currentProduct: currentProducArg);
       },
 
       recepcion: (context) {
@@ -211,6 +212,20 @@ class AppRoutes {
           infoRapidaResult: info,
         );
       },
+      transferInfo: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final info = arguments[0] as InfoRapidaResult?;
+        final ubi = arguments[1] as Ubicacion?;
+        return TransferInfoScreen(
+          infoRapidaResult: info,
+          ubicacion: ubi,
+        );
+      },
+
+
+      
       //transferencias
       transferencias: (_) => const ListTransferenciasScreen(),
       transferenciaDetail: (context) {
