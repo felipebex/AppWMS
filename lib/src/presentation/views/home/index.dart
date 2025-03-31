@@ -61,65 +61,64 @@ class _HomePageState extends State<HomePage> {
           final homeBloc = context.read<HomeBloc>();
           return RefreshIndicator(
             onRefresh: () async {
-              // context.read<UserBloc>().add(GetUbicacionesEvent());
-              // context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+              context.read<UserBloc>().add(GetUbicacionesEvent());
+              context.read<UserBloc>().add(LoadInfoDeviceEventUser());
 
-
-              // final products = await DataBaseSqlite().getProducts();
-              // final productsNoSendOdoo =
-              //     products.where((element) => element.isSendOdoo == 0).toList();
-              // if (productsNoSendOdoo.isEmpty) {
+              final products = await DataBaseSqlite().getProducts();
+              final productsNoSendOdoo =
+                  products.where((element) => element.isSendOdoo == 0).toList();
+              if (productsNoSendOdoo.isEmpty) {
                 await DataBaseSqlite().deleteBD();
-              context.read<InventarioBloc>().add(GetProductsEvent(1));
-              //   //peticion para la configuracion
-              //   if (!mounted) return;
-              //   final String rol = await PrefUtils.getUserRol();
-              //   //peticion segun el rol del usuario
-              //   if (rol == 'picking') {
-              //     if (!mounted) return;
-              //     context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-              //   } else if (rol == 'admin') {
-              //     if (!mounted) return;
-              //     context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-              //     //esperamos 1 segundo y realizamos la otra peticion
-              //     await Future.delayed(const Duration(seconds: 1));
-              //     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-              //           false,
-              //         ));
-              //     await Future.delayed(const Duration(seconds: 1));
-              //     context.read<RecepcionBloc>().add(FetchOrdenesCompra());
-              //     await Future.delayed(const Duration(seconds: 1));
-              //     context
-              //         .read<TransferenciaBloc>()
-              //         .add(FetchAllTransferencias());
-              //   } else if (rol == 'packing') {
-              //     if (!mounted) return;
-              //     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-              //           true,
-              //         ));
-              //   } else if (rol == "reception") {
-              //     if (!mounted) return;
-              //     context.read<RecepcionBloc>().add(FetchOrdenesCompra());
-              //   } else if (rol == "transfer") {
-              //     if (!mounted) return;
-              //     context
-              //         .read<TransferenciaBloc>()
-              //         .add(FetchAllTransferencias());
-              //   } else if (rol == "" || rol == null) {
-              //     ScaffoldMessenger.of(context).showSnackBar(
-              //       const SnackBar(
-              //         content: Text("El usuario no tiene cargado los permisos"),
-              //         duration: Duration(seconds: 4),
-              //       ),
-              //     );
-              //   }
-              // } else {
-              //   showDialog(
-              //       context: context,
-              //       builder: (context) {
-              //         return const DialogProductsNotSends();
-              //       });
-              // }
+
+                //peticion para la configuracion
+                if (!mounted) return;
+                final String rol = await PrefUtils.getUserRol();
+                //peticion segun el rol del usuario
+                if (rol == 'picking') {
+                  if (!mounted) return;
+                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+                } else if (rol == 'admin') {
+                  if (!mounted) return;
+                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+                  //esperamos 1 segundo y realizamos la otra peticion
+                  await Future.delayed(const Duration(seconds: 1));
+                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+                        false,
+                      ));
+                  await Future.delayed(const Duration(seconds: 1));
+                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+                  await Future.delayed(const Duration(seconds: 1));
+                  context
+                      .read<TransferenciaBloc>()
+                      .add(FetchAllTransferencias());
+                } else if (rol == 'packing') {
+                  if (!mounted) return;
+                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+                        true,
+                      ));
+                } else if (rol == "reception") {
+                  if (!mounted) return;
+                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+                } else if (rol == "transfer") {
+                  if (!mounted) return;
+                  context
+                      .read<TransferenciaBloc>()
+                      .add(FetchAllTransferencias());
+                } else if (rol == "" || rol == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("El usuario no tiene cargado los permisos"),
+                      duration: Duration(seconds: 4),
+                    ),
+                  );
+                }
+              } else {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const DialogProductsNotSends();
+                    });
+              }
             },
             child: Scaffold(
               backgroundColor: white,
@@ -757,21 +756,24 @@ class _HomePageState extends State<HomePage> {
                                             context
                                                 .read<InventarioBloc>()
                                                 .add(GetLocationsEvent());
-                                           
 
-                                            // showDialog(
-                                            //     context: context,
-                                            //     builder: (context) {
-                                            //       return const DialogLoading(
-                                            //           message:
-                                            //               'Cargando inventario rapido...');
-                                            //     });
+                                            context
+                                                .read<InventarioBloc>()
+                                                .add(GetProductsEvent(1));
 
-                                            // await Future.delayed(const Duration(
-                                            //     seconds:
-                                            //         1)); // Ajusta el tiempo si es necesario
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando inventario rapido...');
+                                                });
 
-                                            // Navigator.pop(context);
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    3)); // Ajusta el tiempo si es necesario
+
+                                            Navigator.pop(context);
                                             Navigator.pushReplacementNamed(
                                               context,
                                               'inventario',

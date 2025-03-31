@@ -5,7 +5,9 @@ import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/locations_info_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/product_info_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/transfer_info_screen.dart';
+import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/location/location_search_widget.dart';
+import 'package:wms_app/src/presentation/views/inventario/screens/widgets/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/product/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/list_ordernes_compra_screen.dart';
@@ -49,6 +51,7 @@ class AppRoutes {
   static const String inventario = 'inventario';
   static const String searchLocation = 'search-location';
   static const String searchProduct = 'search-product';
+  static const String newLoteInventario = 'new-lote-inventario';
 
   //transferencias
   static const String transferencias = 'transferencias';
@@ -141,9 +144,19 @@ class AppRoutes {
       // inventario
       inventario: (_) => const InventarioScreen(),
 
-      searchLocation :(_) => const SearchLocationScreen(),
-      searchProduct :(_) => const SearchProductScreen(),
+      searchLocation: (_) => const SearchLocationScreen(),
+      searchProduct: (_) => const SearchProductScreen(),
+      newLoteInventario: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final currentProduct = arguments[0] as Product?;
+
+        return NewLoteInventarioScreen(
+          currentProduct: currentProduct,
+        );
+      },
 
       // Operaciones
 
@@ -168,8 +181,7 @@ class AppRoutes {
         // Asegurarnos de que la lista tenga al menos dos elementos
         final currentProducArg = arguments[0] as LineasTransferenciaTrans?;
 
-        return ScanProductTrasnferScreen(
-             currentProduct: currentProducArg);
+        return ScanProductTrasnferScreen(currentProduct: currentProducArg);
       },
 
       recepcion: (context) {
@@ -201,9 +213,7 @@ class AppRoutes {
       //info rapida
       infoRapida: (_) => const InfoRapidaScreen(),
       productInfo: (context) {
-     
-        return ProductInfoScreen(
-        );
+        return ProductInfoScreen();
       },
       locationInfo: (context) {
         final arguments =
@@ -227,8 +237,6 @@ class AppRoutes {
         );
       },
 
-
-      
       //transferencias
       transferencias: (_) => const ListTransferenciasScreen(),
       transferenciaDetail: (context) {

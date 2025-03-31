@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -201,6 +202,10 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                           final selectedLocation =
                               bloc.ubicacionesFilters[selectedIndex!];
 
+                          //seleccionamos la ubicacion
+                          bloc.add(ValidateFieldsEvent(
+                              field: "location", isOk: true));
+                          bloc.add(ChangeLocationIsOkEvent(selectedLocation));
 
                           bloc.add(ShowKeyboardEvent(false));
                           FocusScope.of(context).unfocus();
@@ -213,6 +218,14 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                             context,
                             'inventario',
                             arguments: selectedLocation,
+                          );
+
+                          Get.snackbar(
+                            'Ubicacion Seleccionada',
+                            'Has seleccionado la ubicacion: ${selectedLocation.name}',
+                            backgroundColor: white,
+                            colorText: primaryColorApp,
+                            icon: Icon(Icons.check, color: Colors.green),
                           );
                         }
                       },

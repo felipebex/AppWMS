@@ -12,6 +12,7 @@ class SearchLocationEvent extends InventarioEvent {
     this.query,
   );
 }
+
 class SearchProductEvent extends InventarioEvent {
   final String query;
 
@@ -49,28 +50,47 @@ class ChangeLocationIsOkEvent extends InventarioEvent {
     this.locationSelect,
   );
 }
+
 class ChangeProductIsOkEvent extends InventarioEvent {
   final Product productSelect;
   ChangeProductIsOkEvent(
     this.productSelect,
   );
 }
+class ChangeIsOkQuantity extends InventarioEvent {
+  final bool isQuantity;
+  ChangeIsOkQuantity(
+    this.isQuantity,
+  );
+}
 
-
-
-class GetProductsEvent extends InventarioEvent{
+class GetProductsEvent extends InventarioEvent {
   final int warehouseId;
   GetProductsEvent(this.warehouseId);
 }
 
+class GetProductsForDB extends InventarioEvent {}
 
-class GetProductsForDB extends InventarioEvent{
-}
-
-
-class GetProductsByLocationEvent extends InventarioEvent{
+class GetProductsByLocationEvent extends InventarioEvent {
   final int locationId;
   GetProductsByLocationEvent(this.locationId);
 }
 
-class CleanFieldsEent extends InventarioEvent{}
+class CleanFieldsEent extends InventarioEvent {}
+
+class GetLotesProduct extends InventarioEvent {}
+
+class SelectecLoteEvent extends InventarioEvent {
+  final LotesProduct lote;
+  SelectecLoteEvent(this.lote);
+}
+
+
+class ShowQuantityEvent extends InventarioEvent {
+  final bool showQuantity;
+  ShowQuantityEvent(this.showQuantity);
+}
+
+
+class FetchBarcodesProductEvent extends InventarioEvent {}
+

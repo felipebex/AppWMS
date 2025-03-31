@@ -77,11 +77,44 @@ class GetProductsFailure extends InventarioState {
   GetProductsFailure(this.error);
 }
 
-
 class ChangeProductIsOkState extends InventarioState {
   final bool isOk;
   ChangeProductIsOkState(this.isOk);
 }
 
+class CleanFieldsState extends InventarioState {}
 
-class CleanFieldsState  extends InventarioState {}
+class GetLotesProductLoading extends InventarioState {}
+
+class GetLotesProductSuccess extends InventarioState {
+  final List<LotesProduct> lotesProduct;
+  GetLotesProductSuccess(this.lotesProduct);
+}
+
+class GetLotesProductFailure extends InventarioState {
+  final String error;
+  GetLotesProductFailure(this.error);
+}
+
+class ChangeLoteIsOkState extends InventarioState {
+  final bool isOk;
+  ChangeLoteIsOkState(this.isOk);
+}
+
+
+class ChangeQuantityIsOkState extends InventarioState {
+  final bool isOk;
+  ChangeQuantityIsOkState(this.isOk);
+}
+
+
+class ShowQuantityState extends InventarioState {
+  final bool showQuantity;
+  ShowQuantityState(this.showQuantity);
+}
+
+
+class BarcodesProductLoadedState extends InventarioState {
+  final List<BarcodeInventario> listOfBarcodes;
+  BarcodesProductLoadedState({required this.listOfBarcodes});
+}

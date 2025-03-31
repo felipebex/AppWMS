@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -226,8 +227,19 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (selectedIndex != null) {
+                          final selectedProduct =
+                              bloc.productosUbicacionFilters[selectedIndex!];
+
                           bloc.add(ShowKeyboardEvent(false));
                           FocusScope.of(context).unfocus();
+
+                          //seleccionamos el producto
+
+                          bloc.add(ValidateFieldsEvent(
+                              field: "product", isOk: true));
+                          bloc.add(ChangeProductIsOkEvent(selectedProduct));
+
+                          bloc.add(ChangeIsOkQuantity(true));
 
                           setState(() {
                             selectedIndex == null;
@@ -236,6 +248,14 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                           Navigator.pushReplacementNamed(
                             context,
                             'inventario',
+                          );
+
+                          Get.snackbar(
+                            'Producto Seleccionado',
+                            'Has seleccionado el producto: ${selectedProduct.productName}',
+                            backgroundColor: white,
+                            colorText: primaryColorApp,
+                            icon: Icon(Icons.check, color: Colors.green),
                           );
                         }
                       },

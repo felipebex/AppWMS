@@ -97,4 +97,42 @@ class BarcodesInventarioRepository {
       return [];
     }
   }
+
+  Future<List<BarcodeInventario>> getBarcodesProduct(
+      int productId, int quantId) async {
+    try {
+      // Obtiene la instancia de la base de datos
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Realizamos la consulta para obtener los barcodes
+      final List<Map<String, dynamic>> maps = await db.query(
+        BarcodesInventarioTable.tableName,
+        where: '${BarcodesInventarioTable.columnIdProduct} = ? AND '
+            '${BarcodesInventarioTable.columnIdQuant} = ? ',
+        whereArgs: [productId, quantId],
+      );
+
+      // Verificamos si la consulta ha devuelto resultados
+      if (maps.isEmpty) {
+        print("No se encontraron barcodes para los parámetros proporcionados.");
+        return [];
+      }
+
+      // Convertimos los resultados de la consulta en objetos Barcodes
+      final List<BarcodeInventario> barcodes = maps.map((map) {
+        return BarcodeInventario(
+          idProduct: map[BarcodesInventarioTable.columnIdProduct],
+          barcode: map[BarcodesInventarioTable.columnBarcode],
+          idQuant: map[BarcodesInventarioTable.columnIdQuant],
+          cantidad: map[BarcodesInventarioTable.columnCantidad]
+              ?.toDouble(), // Asegúrate de convertir el tipo correctamente
+        );
+      }).toList();
+
+      return barcodes;
+    } catch (e) {
+      print("Error al obtener los barcodes: $e");
+      return [];
+    }
+  }
 }
