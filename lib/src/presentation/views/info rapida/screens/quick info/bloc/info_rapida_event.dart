@@ -17,3 +17,4 @@ class UpdateScannedValueEvent extends InfoRapidaEvent {
 class ClearScannedValueEvent extends InfoRapidaEvent {
   ClearScannedValueEvent();
 }
+

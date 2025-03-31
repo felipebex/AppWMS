@@ -20,213 +20,204 @@ class LocationInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return BlocProvider(
-      create: (context) => InfoRapidaBloc(),
-      child: BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
-        listener: (context, state) {
-          if (state is InfoRapidaLoading) {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const DialogLoading(
-                  message: "Buscando informacion...",
-                );
-              },
-            );
-          }
+    return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
+      listener: (context, state) {
+        if (state is InfoRapidaLoading) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const DialogLoading(
+                message: "Buscando informacion...",
+              );
+            },
+          );
+        }
 
-          if (state is InfoRapidaLoaded) {
-            Navigator.pop(context);
-            if (state.infoRapidaResult.type == 'product') {
-              Navigator.pushReplacementNamed(context, 'product-info',
-                  arguments: [state.infoRapidaResult]);
-            }
-          }
-          if (state is InfoRapidaError) {
-            Navigator.pop(context);
-            Get.snackbar(
-              '360 Software Informa',
-              'No se encontró información.',
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.red),
+        if (state is InfoRapidaLoaded) {
+          Navigator.pop(context);
+          if (state.infoRapidaResult.type == 'product') {
+            Navigator.pushReplacementNamed(
+              context,
+              'product-info',
             );
           }
-        },
-        builder: (context, state) {
-          final ubicacion = infoRapidaResult?.result;
-          return Scaffold(
+        }
+        if (state is InfoRapidaError) {
+          Navigator.pop(context);
+          Get.snackbar(
+            '360 Software Informa',
+            'No se encontró información.',
             backgroundColor: white,
-            body: SizedBox(
-              width: size.width * 1,
-              height: size.height * 1,
-              child: Column(
-                children: [
-                  AppBar(size: size),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5, left: 20),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Ubicación",
-                        style: TextStyle(
-                            color: black,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      ),
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
+          );
+        }
+      },
+      builder: (context, state) {
+        final ubicacion = infoRapidaResult?.result;
+        return Scaffold(
+          backgroundColor: white,
+          body: SizedBox(
+            width: size.width * 1,
+            height: size.height * 1,
+            child: Column(
+              children: [
+                AppBar(size: size),
+                Padding(
+                  padding: const EdgeInsets.only(top: 5, left: 20),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Ubicación",
+                      style: TextStyle(
+                          color: black,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: SizedBox(
-                      width: size.width * 1,
-                      child: Card(
-                        elevation: 3,
-                        color: white,
-                        child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    ubicacion?.nombre ?? 'Sin nombre',
-                                    style: TextStyle(
-                                        color: black,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: SizedBox(
+                    width: size.width * 1,
+                    child: Card(
+                      elevation: 3,
+                      color: white,
+                      child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  ubicacion?.nombre ?? 'Sin nombre',
+                                  style: TextStyle(
+                                      color: black,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
                                 ),
-                                ProductInfoRow(
-                                  title: 'Ubicación padre:',
-                                  value:
-                                      ubicacion?.ubicacionPadre ?? "Sin nombre",
-                                ),
-                                ProductInfoRow(
-                                  title: 'Ubicación tipo: ',
-                                  value: '${ubicacion?.tipoUbicacion}',
-                                ),
-                                ProductInfoRow(
-                                  title: 'Ubicación barcode: ',
-                                  value: '${ubicacion?.codigoBarras}',
-                                ),
-                              ],
-                            )),
-                      ),
+                              ),
+                              ProductInfoRow(
+                                title: 'Ubicación padre:',
+                                value:
+                                    ubicacion?.ubicacionPadre ?? "Sin nombre",
+                              ),
+                              ProductInfoRow(
+                                title: 'Ubicación tipo: ',
+                                value: '${ubicacion?.tipoUbicacion}',
+                              ),
+                              ProductInfoRow(
+                                title: 'Ubicación barcode: ',
+                                value: '${ubicacion?.codigoBarras}',
+                              ),
+                            ],
+                          )),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10, left: 20),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Productos",
-                        style: TextStyle(
-                            color: black,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold),
-                      ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, left: 20),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Productos",
+                      style: TextStyle(
+                          color: black,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
+                ),
 
-                  //listado de ubicaciones
-                  Expanded(
-                    child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: ListView.builder(
-                            padding: const EdgeInsets.all(0),
-                            itemCount: ubicacion?.productos?.length ?? 0,
-                            itemBuilder: (context, index) {
-                              final producto = ubicacion?.productos?[index];
-                              return Card(
-                                  color: white,
-                                  elevation: 3,
-                                  child: ListTile(
-                                    trailing: IconButton(
-                                      icon: Icon(Icons.arrow_forward_ios,
-                                          size: 20, color: primaryColorApp),
-                                      onPressed: () async {
-                                        if (producto!
-                                                .codigoBarras?.isNotEmpty ==
-                                            true) {
-                                          getInfoProduct(
-                                              producto.codigoBarras ?? '',
-                                              context);
-                                        } else {
-                                          Get.snackbar(
-                                            '360 Software Informa',
-                                            'El producto no tiene codigo de barras',
-                                            backgroundColor: white,
-                                            colorText: primaryColorApp,
-                                            icon: Icon(Icons.error,
-                                                color: Colors.green),
-                                          );
-                                        }
-                                      },
-                                    ),
-                                    onTap: () async {
-                                      // showDialog(
-                                      //     context: context,
-                                      //     builder: (context) {
-                                      //       return const DialogLoading(
-                                      //           message:
-                                      //               'Buscando Producto ...');
-                                      //     });
-
-                                      // await Future.delayed(const Duration(
-                                      //     seconds:
-                                      //         1)); // Ajusta el tiempo si es necesario
-
-                                      // Navigator.pop(context);
-                                      // Navigator.pushReplacementNamed(
-                                      //   context,
-                                      //   'product-info',
-                                      // );
-                                      if (producto!.codigoBarras?.isNotEmpty ==
-                                          true) {
-                                        getInfoProduct(
-                                            producto.codigoBarras ?? '',
-                                            context);
-                                      } else {
+                //listado de ubicaciones
+                Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: ListView.builder(
+                          padding: const EdgeInsets.all(0),
+                          itemCount: ubicacion?.productos?.length ?? 0,
+                          itemBuilder: (context, index) {
+                            final producto = ubicacion?.productos?[index];
+                            return Card(
+                                color: white,
+                                elevation: 3,
+                                child: ListTile(
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.arrow_forward_ios,
+                                        size: 20, color: primaryColorApp),
+                                    onPressed: () async {
+                                      if (producto?.codigoBarras == false
+                                          ? true
+                                          : false) {
                                         Get.snackbar(
                                           '360 Software Informa',
                                           'El producto no tiene codigo de barras',
                                           backgroundColor: white,
                                           colorText: primaryColorApp,
                                           icon: Icon(Icons.error,
-                                              color: Colors.green),
+                                              color: Colors.red),
                                         );
+                                        return;
+                                      } else {
+                                        getInfoProduct(
+                                            producto?.codigoBarras ?? '',
+                                            context);
                                       }
                                     },
-                                    title: Text(
-                                      producto?.producto ?? 'Sin nombre',
-                                      style: TextStyle(
-                                          color: primaryColorApp,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    subtitle: Column(
-                                      children: [
-                                        ProductInfoRow(
-                                          title: 'Cantidad: ',
-                                          value: '${producto?.cantidad}',
-                                        ),
-                                      ],
-                                    ),
-                                  ));
-                            })),
-                  ),
-                ],
-              ),
+                                  ),
+                                  onTap: () async {
+                                    if (producto?.codigoBarras == false
+                                        ? true
+                                        : false) {
+                                      Get.snackbar(
+                                        '360 Software Informa',
+                                        'El producto no tiene codigo de barras',
+                                        backgroundColor: white,
+                                        colorText: primaryColorApp,
+                                        icon: Icon(Icons.error,
+                                            color: Colors.red),
+                                      );
+                                      return;
+                                    } else {
+                                      getInfoProduct(
+                                          producto?.codigoBarras ?? '',
+                                          context);
+                                    }
+                                  },
+                                  title: Text(
+                                    producto?.producto ?? 'Sin nombre',
+                                    style: TextStyle(
+                                        color: primaryColorApp,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  subtitle: Column(
+                                    children: [
+                                      ProductInfoRow(
+                                        title: 'Cantidad: ',
+                                        value: '${producto?.cantidad}',
+                                      ),
+                                      ProductInfoRow(
+                                        title: 'Barcode: ',
+                                        value: producto?.codigoBarras == false
+                                            ? 'Sin barcode'
+                                            : '${producto?.codigoBarras}',
+                                      ),
+                                    ],
+                                  ),
+                                ));
+                          })),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
   void getInfoProduct(String barcode, BuildContext context) {
-    context.read<InfoRapidaBloc>().add(GetInfoRapida(barcode));
+    context.read<InfoRapidaBloc>().add(GetInfoRapida(barcode.toUpperCase()));
   }
 }
 

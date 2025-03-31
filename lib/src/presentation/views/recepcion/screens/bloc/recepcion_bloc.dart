@@ -163,7 +163,14 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           event.idRecepcion,
           'end_time_reception',
         ));
+
+        await db.entradasRepository.setFieldTableEntrada(
+          event.idRecepcion,
+          "is_finish",
+          1,
+        );
         emit(CreateBackOrderOrNotSuccess(event.isBackOrder));
+        add(FetchOrdenesCompraOfBd());
       } else {
         emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
       }
@@ -191,11 +198,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           event.idRecepcion,
           "end_time_reception",
           time,
-        );
-        await db.entradasRepository.setFieldTableEntrada(
-          event.idRecepcion,
-          "is_finish",
-          1,
         );
       }
 
@@ -387,8 +389,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           //creamos un nuevo producto (duplicado) con la cantidad separada
           await db.productEntradaRepository
               .insertDuplicateProducto(currentProduct, pendingQuantity);
-          add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
         }
+        add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
         emit(SendProductToOrderSuccess());
       } else {
         // marcamos tiempo final de sepfaracion
@@ -400,6 +402,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             0,
             currentProduct.idMove);
 
+        add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
         emit(SendProductToOrderFailure('Error al enviar el producto'));
       }
     } catch (e, s) {
@@ -492,8 +495,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           int.parse(currentProduct.productId),
           "date_end",
           DateTime.now().toString(),
-          currentProduct.idMove);
-      //marcamos el producto como termiado
+          currentProduct.idMove ?? 0);
     } catch (e, s) {
       emit(FinalizarRecepcionProductoFailure(
           'Error al finalizar la recepcion del producto'));
@@ -636,7 +638,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     //agregamos el lote al producto
 
     selectLote = event.lote.name ?? '';
-    dateLote = event.lote.expirationDate ?? '';
+    dateLote = event.lote.expirationDate == false
+        ? 'Sin fecha'
+        : event.lote.expirationDate ?? '';
     //actualizamos el lote id
     await db.productEntradaRepository.setFieldTableProductEntrada(
       currentProduct.idRecepcion,
@@ -892,21 +896,26 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   }
 
   //*metodo para buscar una entrada
+
   void _onSearchOrderEvent(
       SearchOrdenCompraEvent event, Emitter<RecepcionState> emit) async {
     try {
       listFiltersOrdenesCompra = [];
       listFiltersOrdenesCompra = listOrdenesCompra;
-
       final query = event.query.toLowerCase();
-
       if (query.isEmpty) {
         listFiltersOrdenesCompra = listOrdenesCompra;
       } else {
-        listFiltersOrdenesCompra = listFiltersOrdenesCompra
-            .where((element) => element.name!.contains(query))
-            .toList();
+        listFiltersOrdenesCompra = listFiltersOrdenesCompra.where((element) {
+          // Filtrar por nombre o proveedor (si el proveedor no es nulo o vacío)
+          return element.name!.toLowerCase().contains(query) ||
+              (element.proveedor != null &&
+                  element.proveedor!.toLowerCase().contains(query)) ||
+              (element.purchaseOrderName != null &&
+                  element.purchaseOrderName!.toLowerCase().contains(query));
+        }).toList();
       }
+
       emit(SearchOrdenCompraSuccess(listFiltersOrdenesCompra));
     } catch (e, s) {
       emit(SearchOrdenCompraFailure('Error al buscar la orden de compra'));

@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -45,7 +46,7 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
     final bloc = context.read<RecepcionBloc>();
     return Scaffold(
       backgroundColor: white,
-      bottomNavigationBar: !viewList
+      bottomNavigationBar: !viewList && context.read<UserBloc>().fabricante.contains("Zebra")
           ? Padding(
               padding: const EdgeInsets.only(
                 bottom: 35,
@@ -140,6 +141,9 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                 }),
               ),
             ),
+            
+            
+            
             if (viewList)
               Padding(
                 padding: const EdgeInsets.only(top: 10, bottom: 5),
@@ -182,10 +186,24 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                                         style: TextStyle(
                                             color: primaryColorApp,
                                             fontSize: 12)),
-                                    Text(
-                                        'Fecha de caducidad: ${bloc.listLotesProduct[index].expirationDate}',
-                                        style: TextStyle(
-                                            color: black, fontSize: 12)),
+                                    Row(
+                                      children: [
+                                        Text('Fecha de caducidad: ',
+                                            style: TextStyle(
+                                                color: black, fontSize: 12)),
+                                        Text(
+                                            '${bloc.listLotesProduct[index].expirationDate == false ? 'Sin fecha' : bloc.listLotesProduct[index].expirationDate}',
+                                            style: TextStyle(
+                                                color: bloc
+                                                            .listLotesProduct[
+                                                                index]
+                                                            .expirationDate ==
+                                                        false
+                                                    ? red
+                                                    : black,
+                                                fontSize: 12)),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ),
@@ -468,7 +486,6 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
         icon: Icon(Icons.error, color: Colors.red),
       );
     } else {
-     
       // Convertir la fecha ingresada en el formato correcto 'yyyy-MM-dd hh:mm' sin segundos
       String formattedDate =
           DateFormat('yyyy-MM-dd HH:mm').format(enteredDateTime);
@@ -478,7 +495,6 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
       // Ahora podemos pasar la fecha formateada en el evento
       context.read<RecepcionBloc>().add(
             CreateLoteProduct(
-             
               bloc.newLoteController.text,
               formattedDate, // Usamos la fecha formateada aquí
             ),

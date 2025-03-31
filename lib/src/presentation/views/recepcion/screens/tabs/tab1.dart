@@ -68,8 +68,6 @@ class Tab1ScreenRecep extends StatelessWidget {
           }
 
           if (state is CreateBackOrderOrNotSuccess) {
-            context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
-            //volvemos a llamar las entradas que tenemos guardadas en la bd
             if (state.isBackorder) {
               Get.snackbar("360 Software Informa", 'Se ha creado la backorder correctamente',
                   backgroundColor: white,

@@ -100,7 +100,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
     try {
       locationDestIsOk = event.locationDestIsOk;
       selectedLocation = event.location.name ?? "";
-      selectLocationDestId = event.location.locationId ?? 0;
+      selectLocationDestId = event.location.id ?? 0;
 
       emit(ChangeLocationDestIsOkStateTransfer(
         locationDestIsOk,

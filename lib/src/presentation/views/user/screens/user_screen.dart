@@ -22,7 +22,7 @@ class UserScreen extends StatelessWidget {
       body: Container(
           width: size.width,
           height: size.height,
-          color: primaryColorApp, // Color de fondo blanco
+          color: white, // Color de fondo blanco
           child: Stack(
             children: [
               Positioned(
@@ -33,7 +33,7 @@ class UserScreen extends StatelessWidget {
                   clipper: HalfCircleClipper(),
                   child: Container(
                     height: size.height * 0.3, // Altura del medio círculo
-                    color: white, // Color azul
+                    color: primaryColorAppLigth, // Color azul
                   ),
                 ),
               ),
@@ -426,7 +426,7 @@ class UserScreen extends StatelessWidget {
                                       //todo: permisos de picking
                                       Visibility(
                                         visible: config.result?.result?.rol ==
-                                            'picking',
+                                            'picking'  || config.result?.result?.rol == 'admin' ,
                                         child: Card(
                                           elevation: 3,
                                           color: white,
@@ -655,7 +655,7 @@ class UserScreen extends StatelessWidget {
                                       //todo permisos de packing
                                       Visibility(
                                         visible: config.result?.result?.rol ==
-                                            'packing',
+                                            'packing' || config.result?.result?.rol == 'admin' ,
                                         child: Card(
                                           color: white,
                                           elevation: 3,
@@ -851,7 +851,7 @@ class UserScreen extends StatelessWidget {
                                       //todo permisos de recepcion
                                       Visibility(
                                         visible: config.result?.result?.rol ==
-                                            'reception',
+                                            'reception' || config.result?.result?.rol == 'admin' ,
                                         child: Card(
                                           elevation: 3,
                                           color: white,
@@ -1012,7 +1012,7 @@ class UserScreen extends StatelessWidget {
                                       //todo permisos para transferencias
                                       Visibility(
                                         visible: config.result?.result?.rol ==
-                                            'transfer',
+                                            'transfer' || config.result?.result?.rol == 'admin' ,
                                         child: Card(
                                           elevation: 3,
                                           color: white,

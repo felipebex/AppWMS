@@ -1,4 +1,3 @@
-
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/data/info_rapida_repository.dart';
@@ -24,10 +23,12 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
     on<GetInfoRapida>(_onGetInfoRapida);
   }
 
+
   void _onGetInfoRapida(
       GetInfoRapida event, Emitter<InfoRapidaState> emit) async {
     emit(InfoRapidaLoading());
     try {
+      infoRapidaResult = InfoRapidaResult();
       InfoRapida infoRapida =
           await _infoRapidaRepository.getInfoQuick(false, event.barcode);
       if (infoRapida.result?.code == 200) {
@@ -36,6 +37,7 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
       } else {
         emit(InfoRapidaError());
       }
+      add(ClearScannedValueEvent());
     } catch (e) {
       emit(InfoRapidaError());
     }
@@ -50,6 +52,6 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   void _onClearScannedValueEvent(
       ClearScannedValueEvent event, Emitter<InfoRapidaState> emit) {
     scannedValue1 = '';
-    emit(InfoRapidaLoaded(infoRapidaResult, ''));
+    emit(ClearScannedValueState());
   }
 }

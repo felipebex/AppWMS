@@ -88,8 +88,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   void _handleDependencies() {
     final batchBloc = context.read<RecepcionBloc>();
 
-   
-
     if (!batchBloc.productIsOk && //false
         !batchBloc.quantityIsOk) //true
     {
@@ -174,7 +172,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     _controllerQuantity.text = "";
     final currentProduct = bloc.currentProduct;
 
-      if (bloc.quantitySelected == currentProduct.quantityOrdered.toInt()) {
+    if (bloc.quantitySelected == currentProduct.quantityOrdered.toInt()) {
       return;
     }
     if (scan == currentProduct.productBarcode?.toLowerCase()) {
@@ -240,7 +238,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                 recepcionBloc.currentProduct.quantityOrdered
                                     .toInt()) {
                               //termianmso el proceso
-                              _finishSeprateProductOrder(context, state.quantity);
+                              _finishSeprateProductOrder(
+                                  context, state.quantity);
                             }
                           }
                         }
@@ -717,20 +716,51 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                     ))
                                               ],
                                             ),
-                                            Row(
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
                                               children: [
-                                                Text(
-                                                  recepcionBloc.selectLote,
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: primaryColorApp),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        'Lote: ',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                      ),
+                                                      Text(
+                                                        recepcionBloc.selectLote,
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: primaryColorApp),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                                const SizedBox(width: 10),
-                                                Text(
-                                                  recepcionBloc.dateLote,
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: black),
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Row(
+                                                    children: [
+                                                       Text(
+                                                        'Fechan caducidad: ',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                      ),
+                                                      Text(
+                                                        recepcionBloc.dateLote,
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ],
                                             )
@@ -1108,8 +1138,11 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     );
   }
 
-  bool validateScannedBarcode(String scannedBarcode,
-      LineasTransferencia currentProduct, RecepcionBloc batchBloc, bool isProduct) {
+  bool validateScannedBarcode(
+      String scannedBarcode,
+      LineasTransferencia currentProduct,
+      RecepcionBloc batchBloc,
+      bool isProduct) {
     // Buscar el barcode que coincida con el valor escaneado
     Barcodes? matchedBarcode = context
         .read<RecepcionBloc>()
@@ -1222,10 +1255,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     }
   }
 
-  void _finishSeprateProductOrder(
-    BuildContext context, int cantidad
-  ) {
-    if(context.read<RecepcionBloc>().currentProduct.productTracking == "lot"){
+  void _finishSeprateProductOrder(BuildContext context, int cantidad) {
+    if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
       if (context.read<RecepcionBloc>().selectLote == "") {
         Get.snackbar(
           'Error',
@@ -1237,7 +1268,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         return;
       }
     }
-   
 
     context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
     context.read<RecepcionBloc>().add(SendProductToOrder(false, cantidad));
@@ -1251,20 +1281,22 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     BuildContext context,
     int cantidad,
   ) {
-    if (context.read<RecepcionBloc>().selectLote == "") {
-      Get.snackbar(
-        'Error',
-        "Seleccione un lote",
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        icon: Icon(Icons.error, color: Colors.amber),
-      );
-      return;
+    if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
+      if (context.read<RecepcionBloc>().selectLote == "") {
+        Get.snackbar(
+          'Error',
+          "Seleccione un lote",
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          icon: Icon(Icons.error, color: Colors.amber),
+        );
+        return;
+      }
     }
     context
         .read<RecepcionBloc>()
         .add(FinalizarRecepcionProductoSplit(cantidad));
-    context.read<RecepcionBloc>().add(SendProductToOrder(true, cantidad ));
+    context.read<RecepcionBloc>().add(SendProductToOrder(true, cantidad));
     termiateProcess();
   }
 

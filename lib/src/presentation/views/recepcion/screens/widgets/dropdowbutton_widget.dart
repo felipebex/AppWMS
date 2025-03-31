@@ -45,7 +45,9 @@ class _DialogAdvetenciaCantidadScreenState
         actionsAlignment: MainAxisAlignment.center,
         backgroundColor: Colors.white,
         title: const Center(
-            child: Text('360 Software Informa', style: TextStyle(color: yellow))),
+            child: Text('360 Software Informa',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: yellow, fontSize: 18))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

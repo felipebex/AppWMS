@@ -48,8 +48,11 @@ dependencies:
   # print
   print_bluetooth_thermal: ^1.1.6
   flutter_esc_pos_utils: ^1.0.1
+  # zebrautil: ^1.4.42
 
   image: ^4.5.2
+
+  zebrautil: ^1.4.42
 
   url_launcher: ^6.3.1
   bloc: ^9.0.0
@@ -63,7 +66,6 @@ dependencies:
   shared_preferences: ^2.5.1
   flutter_slidable: ^3.1.0
   sqflite: ^2.2.4+1
-
 
   ulid: ^2.0.1
 

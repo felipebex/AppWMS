@@ -359,8 +359,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                                           return element.isSeparate == 0 ||
                                               element.isSeparate == null;
                                         }).isEmpty
-                                            ? '¿Estás seguro de confirmar la recepcion y dejarla lista para ser enviada?'
-                                            : "Usted ha procesado cantidades de prodcutos menores que los requeridos en el movimiento orignal.",
+                                            ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
+                                            : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                                         style: TextStyle(
                                             color: black, fontSize: 14),
                                         textAlign: TextAlign.center,

@@ -1,5 +1,9 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks, unnecessary_null_comparison, prefer_conditional_assignment
 
+import 'package:wms_app/src/presentation/providers/db/inventario/tbl_barcode/barcodes_inventario_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/inventario/tbl_barcode/barcodes_inventario_table.dart';
+import 'package:wms_app/src/presentation/providers/db/inventario/tbl_product/product_inventario_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/inventario/tbl_product/product_inventario_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_barcodes/barcodes_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_barcodes/barcodes_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubicaciones_repository.dart';
@@ -142,6 +146,11 @@ class DataBaseSqlite {
     await db.execute(ProductTransferenciaTable.createTable());
     //table para las ubicaciones
     await db.execute(UbicacionesTable.createTable());
+    //table para las barcodes inventario
+    await db.execute(BarcodesInventarioTable.createTable());
+
+    //table para las producto de inventario
+    await db.execute(ProductInventarioTable.createTable());
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -188,6 +197,13 @@ class DataBaseSqlite {
       ProductTransferenciaRepository();
   //metodo  para obtener una instancia del repositorio  de ubicaciones
   UbicacionesRepository get ubicacionesRepository => UbicacionesRepository();
+
+  //metodo  para obtener una instancia del repositorio  de barcodes de inventario
+  BarcodesInventarioRepository get barcodesInventarioRepository =>
+      BarcodesInventarioRepository();
+
+  //metodo  para obtener una instancia del repositorio  de productos de inventario
+ProductInventarioRepository get productoInventarioRepository => ProductInventarioRepository();
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -375,6 +391,10 @@ class DataBaseSqlite {
     //transferencia
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);
+
+    //inventario
+    await db.delete(ProductInventarioTable.tableName);
+
   }
 
   Future<void> deleteBDCloseSession() async {
@@ -403,8 +423,6 @@ class DataBaseSqlite {
     //transferecnia
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);
-
-
   }
 
   //*metodo para actualizar la tabla de productos de un batch

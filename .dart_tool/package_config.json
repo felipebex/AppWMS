@@ -950,13 +950,19 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "zebrautil",
+      "rootUri": "file:///Users/estebanrodriguezmarles/.pub-cache/hosted/pub.dev/zebrautil-1.4.42",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "wms_app",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-03-26T18:36:28.330410Z",
+  "generated": "2025-03-28T20:16:35.710930Z",
   "generator": "pub",
   "generatorVersion": "3.5.4",
   "flutterRoot": "file:///Users/estebanrodriguezmarles/Documents/flutter",

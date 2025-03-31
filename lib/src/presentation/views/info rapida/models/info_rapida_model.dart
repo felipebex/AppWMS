@@ -224,7 +224,7 @@ class Producto {
   int? id;
   String? producto;
   dynamic? cantidad;
-  String? codigoBarras;
+  dynamic? codigoBarras;
   dynamic? lotId;
   String? lote;
 

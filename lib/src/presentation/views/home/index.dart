@@ -6,6 +6,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
+import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -60,62 +61,65 @@ class _HomePageState extends State<HomePage> {
           final homeBloc = context.read<HomeBloc>();
           return RefreshIndicator(
             onRefresh: () async {
-              context.read<UserBloc>().add(GetUbicacionesEvent());
-              context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-              final products = await DataBaseSqlite().getProducts();
-              final productsNoSendOdoo =
-                  products.where((element) => element.isSendOdoo == 0).toList();
-              if (productsNoSendOdoo.isEmpty) {
+              // context.read<UserBloc>().add(GetUbicacionesEvent());
+              // context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+
+
+              // final products = await DataBaseSqlite().getProducts();
+              // final productsNoSendOdoo =
+              //     products.where((element) => element.isSendOdoo == 0).toList();
+              // if (productsNoSendOdoo.isEmpty) {
                 await DataBaseSqlite().deleteBD();
-                //peticion para la configuracion
-                if (!mounted) return;
-                final String rol = await PrefUtils.getUserRol();
-                //peticion segun el rol del usuario
-                if (rol == 'picking') {
-                  if (!mounted) return;
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                } else if (rol == 'admin') {
-                  if (!mounted) return;
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                  //esperamos 1 segundo y realizamos la otra peticion
-                  await Future.delayed(const Duration(seconds: 1));
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        false,
-                      ));
-                  await Future.delayed(const Duration(seconds: 1));
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
-                  await Future.delayed(const Duration(seconds: 1));
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias());
-                } else if (rol == 'packing') {
-                  if (!mounted) return;
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        true,
-                      ));
-                } else if (rol == "reception") {
-                  if (!mounted) return;
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
-                } else if (rol == "transfer") {
-                  if (!mounted) return;
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias());
-                } else if (rol == "" || rol == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("El usuario no tiene cargado los permisos"),
-                      duration: Duration(seconds: 4),
-                    ),
-                  );
-                }
-              } else {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const DialogProductsNotSends();
-                    });
-              }
+              context.read<InventarioBloc>().add(GetProductsEvent(1));
+              //   //peticion para la configuracion
+              //   if (!mounted) return;
+              //   final String rol = await PrefUtils.getUserRol();
+              //   //peticion segun el rol del usuario
+              //   if (rol == 'picking') {
+              //     if (!mounted) return;
+              //     context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+              //   } else if (rol == 'admin') {
+              //     if (!mounted) return;
+              //     context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+              //     //esperamos 1 segundo y realizamos la otra peticion
+              //     await Future.delayed(const Duration(seconds: 1));
+              //     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+              //           false,
+              //         ));
+              //     await Future.delayed(const Duration(seconds: 1));
+              //     context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+              //     await Future.delayed(const Duration(seconds: 1));
+              //     context
+              //         .read<TransferenciaBloc>()
+              //         .add(FetchAllTransferencias());
+              //   } else if (rol == 'packing') {
+              //     if (!mounted) return;
+              //     context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+              //           true,
+              //         ));
+              //   } else if (rol == "reception") {
+              //     if (!mounted) return;
+              //     context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+              //   } else if (rol == "transfer") {
+              //     if (!mounted) return;
+              //     context
+              //         .read<TransferenciaBloc>()
+              //         .add(FetchAllTransferencias());
+              //   } else if (rol == "" || rol == null) {
+              //     ScaffoldMessenger.of(context).showSnackBar(
+              //       const SnackBar(
+              //         content: Text("El usuario no tiene cargado los permisos"),
+              //         duration: Duration(seconds: 4),
+              //       ),
+              //     );
+              //   }
+              // } else {
+              //   showDialog(
+              //       context: context,
+              //       builder: (context) {
+              //         return const DialogProductsNotSends();
+              //       });
+              // }
             },
             child: Scaffold(
               backgroundColor: white,
@@ -135,7 +139,7 @@ class _HomePageState extends State<HomePage> {
                         child: Container(
                           height: size.height * 0.3, // Altura del medio círculo
                           // color: Colors.grey[350], // Color azul
-                          color: primaryColorAppLigth, // Color azul
+                          color: primaryColorApp, // Color azul
                         ),
                       ),
                     ),
@@ -162,13 +166,13 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         Row(
                                           children: [
-                                             Text("Bienvenido a, ",
+                                            Text("Bienvenido a, ",
                                                 style: TextStyle(
                                                     fontSize: 18,
                                                     color: primaryColorApp)),
                                             // Text('WMS',
                                             Text('OnPoint',
-                                                style:  TextStyle(
+                                                style: TextStyle(
                                                     fontSize: 18,
                                                     color: primaryColorApp)),
                                           ],
@@ -205,34 +209,24 @@ class _HomePageState extends State<HomePage> {
                                           },
                                           child: Row(
                                             children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(100),
-                                                child: Container(
-                                                  color: white,
-                                                  height: 25,
-                                                  width: 25,
-                                                  child: Icon(Icons.person,
-                                                      color: primaryColorApp,
-                                                      size: 20),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 5),
-                                               Text("Hola, ",
+                                              Icon(Icons.person,
+                                                  color: primaryColorApp,
+                                                  size: 20),
+                                              Text("Hola, ",
                                                   style: TextStyle(
                                                       fontSize: 18,
-                                                      color: primaryColorApp)),
+                                                      color: black)),
                                               SizedBox(
                                                 width: size.width * 0.5,
                                                 child: Text(
                                                   homeBloc.userName,
                                                   style: TextStyle(
-                                                      // color: Colors.amber[200],
-                                                      color: black,
-                                                      fontSize: 18,
-                                                      // fontWeight:
-                                                      //     FontWeight.bold
-                                                          ),
+                                                    // color: Colors.amber[200],
+                                                    color: primaryColorApp,
+                                                    fontSize: 18,
+                                                    // fontWeight:
+                                                    //     FontWeight.bold
+                                                  ),
                                                   maxLines: 1,
                                                   overflow:
                                                       TextOverflow.ellipsis,
@@ -501,7 +495,7 @@ class _HomePageState extends State<HomePage> {
                             ),
 
                             //todo informativo para los modulos
-                             Padding(
+                            Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               child: Text("Mis módulos",
@@ -668,43 +662,43 @@ class _HomePageState extends State<HomePage> {
                                       children: [
                                         GestureDetector(
                                           onTap: () async {
-                                            // if (homeBloc.userRol ==
-                                            //         'reception' ||
-                                            //     homeBloc.userRol == 'admin') {
-                                            context.read<RecepcionBloc>().add(
-                                                FetchOrdenesCompraOfBd()); // Llama al evento FetchOrdenesCompra
+                                            if (homeBloc.userRol ==
+                                                    'reception' ||
+                                                homeBloc.userRol == 'admin') {
+                                              context.read<RecepcionBloc>().add(
+                                                  FetchOrdenesCompraOfBd()); // Llama al evento FetchOrdenesCompra
 
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando recepciones ...');
-                                                });
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogLoading(
+                                                        message:
+                                                            'Cargando recepciones ...');
+                                                  });
 
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
+                                              await Future.delayed(const Duration(
+                                                  seconds:
+                                                      1)); // Ajusta el tiempo si es necesario
 
-                                            Navigator.pop(context);
+                                              Navigator.pop(context);
 
-                                            //   Ajusta el tiempo si es necesario
+                                              //   Ajusta el tiempo si es necesario
 
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'list-ordenes-compra',
-                                            );
-                                            // } else {
-                                            //   ScaffoldMessenger.of(context)
-                                            //       .showSnackBar(
-                                            //     const SnackBar(
-                                            //       content: Text(
-                                            //           "Su usuario no tiene permisos para acceder a este módulo"),
-                                            //       duration:
-                                            //           Duration(seconds: 4),
-                                            //     ),
-                                            //   );
-                                            // }
+                                              Navigator.pushReplacementNamed(
+                                                context,
+                                                'list-ordenes-compra',
+                                              );
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Su usuario no tiene permisos para acceder a este módulo"),
+                                                  duration:
+                                                      Duration(seconds: 4),
+                                                ),
+                                              );
+                                            }
                                           },
                                           child: ImteModule(
                                             urlImg: "recepcion.png",
@@ -759,19 +753,25 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         GestureDetector(
                                           onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando inventario rapido...');
-                                                });
+                                            //obtenemos las ubicaciones
+                                            context
+                                                .read<InventarioBloc>()
+                                                .add(GetLocationsEvent());
+                                           
 
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
+                                            // showDialog(
+                                            //     context: context,
+                                            //     builder: (context) {
+                                            //       return const DialogLoading(
+                                            //           message:
+                                            //               'Cargando inventario rapido...');
+                                            //     });
 
-                                            Navigator.pop(context);
+                                            // await Future.delayed(const Duration(
+                                            //     seconds:
+                                            //         1)); // Ajusta el tiempo si es necesario
+
+                                            // Navigator.pop(context);
                                             Navigator.pushReplacementNamed(
                                               context,
                                               'inventario',
@@ -794,7 +794,27 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                   ],
-                                ))
+                                )),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    Text("Onpoint",
+                                        style: TextStyle(
+                                          color: grey,
+                                          fontSize: 14,
+                                        )),
+                                    Text("© 2025 - 360 Software",
+                                        style: TextStyle(
+                                          color: grey,
+                                          fontSize: 14,
+                                        )),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

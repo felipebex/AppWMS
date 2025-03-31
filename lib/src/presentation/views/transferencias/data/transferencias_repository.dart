@@ -286,6 +286,7 @@ class TransferenciasRepository {
           result: resultData != null
               ? ResponseSenTransferResult(
                   code: resultData['code'],
+                  msg: resultData['msg'],
                   result: resultData['result'] != null
                       ? List<ResultElement>.from(resultData['result']
                           .map((x) => ResultElement.fromMap(x)))
@@ -293,10 +294,7 @@ class TransferenciasRepository {
                 )
               : null, // Si 'result' no existe, asigna null a 'result'
         );
-      } else {
-        // Manejo de error si la respuesta no es exitosa
-        // ...
-      }
+      } 
     } on SocketException catch (e) {
       print('Error de red: $e');
       return ResponseSenTransfer(); // Retornamos un objeto vacío en caso de error de red

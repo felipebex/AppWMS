@@ -55,8 +55,6 @@ class LotesProduct {
     String? name;
     dynamic? quantity;
     dynamic? expirationDate;
-    String? alertDate;
-    String? useDate;
     int? productId;
     String? productName;
 
@@ -65,8 +63,6 @@ class LotesProduct {
         this.name,
         this.quantity,
         this.expirationDate,
-        this.alertDate,
-        this.useDate,
         this.productId,
         this.productName,
     });
@@ -76,8 +72,6 @@ class LotesProduct {
         name: json["name"],
         quantity: json["quantity"],
         expirationDate: json["expiration_date"],
-        alertDate: json["alert_date"],
-        useDate: json["use_date"],
         productId: json["product_id"],
         productName: json["product_name"],
     );
@@ -87,8 +81,6 @@ class LotesProduct {
         "name": name,
         "quantity": quantity,
         "expiration_date": expirationDate,
-        "alert_date": alertDate,
-        "use_date": useDate,
         "product_id": productId,
         "product_name": productName,
     };

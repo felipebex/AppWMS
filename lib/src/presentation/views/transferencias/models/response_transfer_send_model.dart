@@ -34,20 +34,24 @@ class ResponseSenTransfer {
 
 class ResponseSenTransferResult {
     int? code;
+    String? msg;
     List<ResultElement>? result;
 
     ResponseSenTransferResult({
         this.code,
+        this.msg,
         this.result,
     });
 
     factory ResponseSenTransferResult.fromMap(Map<String, dynamic> json) => ResponseSenTransferResult(
         code: json["code"],
+        msg: json["msg"],
         result: json["result"] == null ? [] : List<ResultElement>.from(json["result"]!.map((x) => ResultElement.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
         "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toMap())),
     };
 }

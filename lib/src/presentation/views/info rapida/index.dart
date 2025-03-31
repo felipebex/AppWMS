@@ -38,170 +38,157 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     print('value: $value');
 
     final bloc = context.read<InfoRapidaBloc>();
-    String scan = bloc.scannedValue1 == ""
-        ? value
-        : bloc.scannedValue1;
+    String scan = bloc.scannedValue1 == "" ? value : bloc.scannedValue1;
     _controllerSearch.text = "";
     //validamos que el scan no este vacio
-    if (scan.isEmpty) {
-      return;
-    }
-    bloc.add(GetInfoRapida(scan));
+
+    bloc.add(GetInfoRapida(scan.toUpperCase()));
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return BlocProvider(
-      create: (context) => InfoRapidaBloc(),
-      child: BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
-        listener: (context, state) {
-          if (state is InfoRapidaError) {
-            Navigator.pop(context);
-            Get.snackbar(
-              '360 Software Informa',
-              'No se encontró producto, lote, paquete ni ubicación con ese código de barras',
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.red),
-            );
-          }
-
-          if (state is InfoRapidaLoading) {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return const DialogLoading(
-                  message: "Buscando informacion...",
-                );
-              },
-            );
-          }
-
-          if (state is InfoRapidaLoaded) {
-            Navigator.pop(context);
-            Get.snackbar(
-              '360 Software Informa',
-              'Información encontrada',
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.green),
-            );
-
-            if (state.infoRapidaResult.type == 'product') {
-              Navigator.pushReplacementNamed(
-                context,
-                'product-info',
-                arguments: [state.infoRapidaResult]
-              );
-            } else if (state.infoRapidaResult.type == "ubicacion") {
-
-              Navigator.pushReplacementNamed(
-                context,
-                'location-info',
-                arguments: [state.infoRapidaResult]
-              );
-            }
-          }
-        },
-        builder: (context, state) {
-          final bloc = context.watch<InfoRapidaBloc>();
-          return Scaffold(
+    return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
+      listener: (context, state) {
+        if (state is InfoRapidaError) {
+          Navigator.pop(context);
+          Get.snackbar(
+            '360 Software Informa',
+            'No se encontró producto, lote, paquete ni ubicación con ese código de barras',
             backgroundColor: white,
-            body: SizedBox(
-                width: size.width * 1,
-                height: size.height * 1,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      //appbar
-                      AppBar(size: size),
-                      Column(
-                        children: [
-                          Center(
-                            child: Padding(
-                              padding: EdgeInsets.only(top: 80),
-                              child: Image.asset(
-                                'assets/icons/barcode.png',
-                                width: 150,
-                                height: 150,
-                                color: black,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              "Este es el modulo de informacion rapida de 360 software para OnPoint, escanee un codigo de barras de PRODUCTO, LOTE/SERIE o una UBICACIÓN para obtener toda su informacion. ",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 14, color: black),
-                            ),
-                          ),
-
-                          //*espacio para escanear y buscar
-
-                          context.read<UserBloc>().fabricante.contains("Zebra")
-                              ? Container(
-                                  height: 15,
-                                  margin: const EdgeInsets.only(bottom: 5),
-                                  child: TextFormField(
-                                    autofocus: true,
-                                    showCursor: false,
-                                    controller: _controllerSearch,
-                                    focusNode: focusNode1,
-                                    onChanged: (value) {
-                                      print('value: $value');
-                                      // Llamamos a la validación al cambiar el texto
-                                      validateBarcode(value, context);
-                                    },
-                                    decoration: InputDecoration(
-                                      disabledBorder: InputBorder.none,
-                                      hintStyle: const TextStyle(
-                                          fontSize: 14, color: black),
-                                      border: InputBorder.none,
-                                    ),
-                                  ),
-                                )
-                              :
-
-                              //*focus para leer
-                              Focus(
-                                  focusNode: focusNode1,
-                                  autofocus: true,
-                                  onKey: (FocusNode node, RawKeyEvent event) {
-                                    if (event is RawKeyDownEvent) {
-                                      if (event.logicalKey ==
-                                          LogicalKeyboardKey.enter) {
-                                        validateBarcode(
-                                            bloc.scannedValue1, context);
-                                        return KeyEventResult.handled;
-                                      } else {
-                                        bloc.add(UpdateScannedValueEvent(
-                                          event.data.keyLabel,
-                                        ));
-                                        return KeyEventResult.handled;
-                                      }
-                                    }
-                                    return KeyEventResult.ignored;
-                                  },
-                                  child: Container()),
-                          //*espacio para escanear y buscar por ubicacion
-
-                          SizedBox(
-                            height: size.height * 0.15,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                )),
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
           );
-        },
-      ),
+        }
+
+        if (state is InfoRapidaLoading) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const DialogLoading(
+                message: "Buscando informacion...",
+              );
+            },
+          );
+        }
+
+        if (state is InfoRapidaLoaded) {
+          Navigator.pop(context);
+          Get.snackbar(
+            '360 Software Informa',
+            'Información encontrada',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+
+          if (state.infoRapidaResult.type == 'product') {
+            Navigator.pushReplacementNamed(
+              context,
+              'product-info',
+            );
+          } else if (state.infoRapidaResult.type == "ubicacion") {
+            Navigator.pushReplacementNamed(context, 'location-info',
+                arguments: [state.infoRapidaResult]);
+          }
+        }
+      },
+      builder: (context, state) {
+        final bloc = context.watch<InfoRapidaBloc>();
+        return Scaffold(
+          backgroundColor: white,
+          body: SizedBox(
+              width: size.width * 1,
+              height: size.height * 1,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    //appbar
+                    AppBar(size: size),
+                    Column(
+                      children: [
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 80),
+                            child: Image.asset(
+                              'assets/icons/barcode.png',
+                              width: 150,
+                              height: 150,
+                              color: black,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            "Este es el modulo de informacion rapida de 360 software para OnPoint, escanee un codigo de barras de PRODUCTO, LOTE/SERIE o una UBICACIÓN para obtener toda su informacion. ",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 14, color: black),
+                          ),
+                        ),
+
+                        //*espacio para escanear y buscar
+
+                        context.read<UserBloc>().fabricante.contains("Zebra")
+                            ? Container(
+                                height: 15,
+                                margin: const EdgeInsets.only(bottom: 5),
+                                child: TextFormField(
+                                  autofocus: true,
+                                  showCursor: false,
+                                  controller: _controllerSearch,
+                                  focusNode: focusNode1,
+                                  onChanged: (value) {
+                                    print('value: $value');
+                                    // Llamamos a la validación al cambiar el texto
+                                    validateBarcode(value, context);
+                                  },
+                                  decoration: InputDecoration(
+                                    disabledBorder: InputBorder.none,
+                                    hintStyle: const TextStyle(
+                                        fontSize: 14, color: black),
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              )
+                            :
+
+                            //*focus para leer
+                            Focus(
+                                focusNode: focusNode1,
+                                autofocus: true,
+                                onKey: (FocusNode node, RawKeyEvent event) {
+                                  if (event is RawKeyDownEvent) {
+                                    if (event.logicalKey ==
+                                        LogicalKeyboardKey.enter) {
+                                      validateBarcode(
+                                          bloc.scannedValue1, context);
+                                      return KeyEventResult.handled;
+                                    } else {
+                                      bloc.add(UpdateScannedValueEvent(
+                                        event.data.keyLabel,
+                                      ));
+                                      return KeyEventResult.handled;
+                                    }
+                                  }
+                                  return KeyEventResult.ignored;
+                                },
+                                child: Container()),
+                        //*espacio para escanear y buscar por ubicacion
+
+                        SizedBox(
+                          height: size.height * 0.15,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              )),
+        );
+      },
     );
   }
-  }
-
+}
 
 class AppBar extends StatelessWidget {
   const AppBar({

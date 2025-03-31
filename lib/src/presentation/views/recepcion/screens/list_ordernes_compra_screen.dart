@@ -490,6 +490,10 @@ class AppBar extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: white),
                       onPressed: () {
+                        context
+                            .read<RecepcionBloc>()
+                            .add(ShowKeyboardEvent(false));
+
                         Navigator.pushReplacementNamed(
                           context,
                           'home',

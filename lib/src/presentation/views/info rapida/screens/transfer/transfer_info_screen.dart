@@ -20,7 +20,7 @@ import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class TransferInfoScreen extends StatefulWidget {
-  final InfoRapidaResult? infoRapidaResult;
+  final InfoResult? infoRapidaResult;
   final Ubicacion? ubicacion;
 
   const TransferInfoScreen(
@@ -152,7 +152,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
         TransferInfoRequest(
           idAlmacen: widget.ubicacion?.idAlmacen ?? 0,
           idMove: widget.ubicacion?.idMove ?? 0,
-          idProducto: widget.infoRapidaResult?.result?.id ?? 0,
+          idProducto: widget.infoRapidaResult?.id ?? 0,
           idLote: widget.ubicacion?.loteId,
           idUbicacionOrigen: widget.ubicacion?.idUbicacion ?? 0,
           timeLine: 0,
@@ -173,7 +173,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
     return BlocBuilder<TransferInfoBloc, TransferInfoState>(
       builder: (context, state) {
-        final product = widget.infoRapidaResult?.result;
+        final product = widget.infoRapidaResult;
         final bloc = context.read<TransferInfoBloc>();
         return WillPopScope(
           onWillPop: () async {
@@ -210,13 +210,11 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
                         //acutalizamos la informacion del producto volviendo a llamar su info
                         context.read<InfoRapidaBloc>().add((GetInfoRapida(
-                            widget.infoRapidaResult?.result?.codigoBarras ??
+                            widget.infoRapidaResult?.codigoBarras ??
                                 "")));
 
                         Navigator.pushReplacementNamed(context, 'product-info',
-                            arguments: [
-                              widget.infoRapidaResult,
-                            ]);
+                          );
                       } else if (state is SendTransferInfoFailureTransfer) {
                         Get.snackbar(
                           '360 Software Informa',
@@ -248,9 +246,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
                                     Navigator.pushReplacementNamed(
                                         context, 'product-info',
-                                        arguments: [
-                                          widget.infoRapidaResult,
-                                        ]);
+                                        );
                                   },
                                 ),
                                 Padding(

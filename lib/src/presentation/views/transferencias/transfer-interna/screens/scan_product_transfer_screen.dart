@@ -350,7 +350,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
         : _cantidadController.text);
 
     if (cantidad == currentProduct.quantityOrdered) {
-      _finishSeprateProductOrder(context);
+      _finishSeprateProductOrder(context, cantidad);
       Navigator.pushReplacementNamed(context, 'transferencia-detail',
           arguments: [batchBloc.currentTransferencia, 1]);
     } else {
@@ -362,7 +362,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                 currentProduct: currentProduct,
                 cantidad: cantidad,
                 onAccepted: () async {
-                  _finishSeprateProductOrder(context);
+                  _finishSeprateProductOrder(context, cantidad);
 
                   Navigator.pushReplacementNamed(
                       context, 'transferencia-detail',
@@ -1479,9 +1479,10 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
   void _finishSeprateProductOrder(
     BuildContext context,
+    int cantidad
   ) {
     context.read<TransferenciaBloc>().add(FinalizarTransferProducto());
-    context.read<TransferenciaBloc>().add(SendProductToTransfer(false));
+    context.read<TransferenciaBloc>().add(SendProductToTransfer(false, cantidad));
     termiateProcess();
   }
 
@@ -1492,7 +1493,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     context
         .read<TransferenciaBloc>()
         .add(FinalizarTransferProductoSplit(cantidad));
-    context.read<TransferenciaBloc>().add(SendProductToTransfer(true));
+    context.read<TransferenciaBloc>().add(SendProductToTransfer(true, cantidad));
     termiateProcess();
   }
 

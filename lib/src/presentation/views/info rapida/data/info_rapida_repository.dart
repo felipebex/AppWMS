@@ -21,6 +21,8 @@ class InfoRapidaRepository {
     }
 
     try {
+
+      print("barcode $barcode");
       var response = await ApiRequestService().getInfo(
         endpoint: 'transferencias/quickinfo',
         body: {
