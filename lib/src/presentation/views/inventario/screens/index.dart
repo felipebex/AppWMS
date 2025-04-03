@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
+import 'package:wms_app/src/presentation/views/inventario/screens/widgets/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
@@ -280,7 +280,49 @@ class _InventarioScreenState extends State<InventarioScreen>
     }
   }
 
-  void validateQuantity(String value) {}
+  void validateQuantity(String value) {
+    final bloc = context.read<InventarioBloc>();
+
+    String scan = bloc.scannedValue3.toLowerCase() == ""
+        ? value.toLowerCase()
+        : bloc.scannedValue3.toLowerCase();
+
+    _controllerQuantity.text = "";
+    final currentProduct = bloc.currentProduct;
+    //validamos que no aumente en cantidad si llego al maximo
+    if (bloc.quantitySelected == currentProduct?.quantity.toInt()) {
+      return;
+    }
+    if (scan == currentProduct?.barcode?.toLowerCase()) {
+      bloc.add(AddQuantitySeparate(1, false));
+      bloc.add(ClearScannedValueEvent('quantity'));
+    } else {
+      validateScannedBarcode(scan, currentProduct ?? Product(), bloc, false);
+
+      bloc.add(ClearScannedValueEvent('quantity'));
+    }
+  }
+
+  bool validateScannedBarcode(String scannedBarcode, Product currentProduct,
+      InventarioBloc bloc, bool isProduct) {
+    // Buscar el barcode que coincida con el valor escaneado
+    BarcodeInventario? matchedBarcode = bloc.barcodeInventario.firstWhere(
+        (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode,
+        orElse: () =>
+            BarcodeInventario() // Si no se encuentra ningún match, devuelve null
+        );
+    if (matchedBarcode.barcode != null) {
+      //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
+      if (matchedBarcode.cantidad!.toInt() + bloc.quantitySelected >
+          currentProduct.quantity!) {
+        return false;
+      }
+
+      bloc.add(AddQuantitySeparate(matchedBarcode.cantidad!.toInt(), false));
+      return false;
+    }
+    return false;
+  }
 
   @override
   void dispose() {
@@ -298,6 +340,14 @@ class _InventarioScreenState extends State<InventarioScreen>
     return BlocConsumer<InventarioBloc, InventarioState>(
       listener: (context, state) {
         print("state ❤️‍🔥:: $state");
+
+        // * validamos en todo cambio de estado de cantidad separada
+        if (state is ChangeQuantitySeparateStateSuccess) {
+          if (state.quantity ==
+              context.read<InventarioBloc>().currentProduct?.quantity.toInt()) {
+            //todo la cantidad contada es igual a la cantidad del inventario
+          }
+        }
 
         //*estado cando la ubicacion de origen es cambiada
         if (state is ChangeLocationIsOkState) {
@@ -327,11 +377,39 @@ class _InventarioScreenState extends State<InventarioScreen>
           });
           _handleDependencies();
         }
+
+        if (state is GetProductsFailureByLocation) {
+          Get.snackbar(
+            'Error',
+            'No se encontraron productos en la ubicacion, intentelo con otra ubicacion',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
+          );
+        }
       },
       builder: (context, state) {
         final bloc = context.read<InventarioBloc>();
         return Scaffold(
           backgroundColor: white,
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: primaryColorApp,
+            onPressed: () {
+              print("ubicaciones: ${bloc.ubicaciones.length}");
+              print("productos toal: ${bloc.productos.length}");
+              print(
+                  "productos de ubicacion: ${bloc.productosUbicacion.length}");
+              print(
+                  "-----------------------------------------------------------------------------");
+              print("productos actual: ${bloc.currentProduct?.toMap()}");
+              print("ubicaicon actual: ${bloc.currentUbication?.toMap()}");
+              print(
+                  "-----------------------------------------------------------------------------");
+              print("lotes del producto: ${bloc.listLotesProduct.length}");
+              print("lote actual: ${bloc.currentProductLote?.toMap()}");
+            },
+            child: const Icon(Icons.add),
+          ),
           body: Column(
             children: [
               //appbar
@@ -432,25 +510,39 @@ class _InventarioScreenState extends State<InventarioScreen>
                                       padding: const EdgeInsets.all(8.0),
                                       child: Column(
                                         children: [
-                                          Row(
-                                            children: [
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                  'Ubicación de existencias',
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    color: primaryColorApp,
+                                          GestureDetector(
+                                            onTap: !bloc.locationIsOk && //false
+                                                    !bloc.productIsOk && //false
+                                                    !bloc.quantityIsOk
+                                                ? () {
+                                                    Navigator
+                                                        .pushReplacementNamed(
+                                                      context,
+                                                      'search-location',
+                                                    );
+                                                  }
+                                                : null,
+                                            child: Row(
+                                              children: [
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    'Ubicación de existencias',
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      color: primaryColorApp,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              Spacer(),
-                                              Image.asset(
-                                                "assets/icons/ubicacion.png",
-                                                color: primaryColorApp,
-                                                width: 20,
-                                              ),
-                                            ],
+                                                Spacer(),
+                                                Image.asset(
+                                                  "assets/icons/ubicacion.png",
+                                                  color: primaryColorApp,
+                                                  width: 20,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                           Container(
                                             height: 15,
@@ -519,12 +611,19 @@ class _InventarioScreenState extends State<InventarioScreen>
                                         child: Column(
                                           children: [
                                             GestureDetector(
-                                              onTap: () {
-                                                Navigator.pushReplacementNamed(
-                                                  context,
-                                                  'search-location',
-                                                );
-                                              },
+                                              onTap: !bloc
+                                                          .locationIsOk && //false
+                                                      !bloc
+                                                          .productIsOk && //false
+                                                      !bloc.quantityIsOk
+                                                  ? () {
+                                                      Navigator
+                                                          .pushReplacementNamed(
+                                                        context,
+                                                        'search-location',
+                                                      );
+                                                    }
+                                                  : null,
                                               child: Row(
                                                 children: [
                                                   Align(
@@ -608,12 +707,17 @@ class _InventarioScreenState extends State<InventarioScreen>
                                       child: Column(
                                         children: [
                                           GestureDetector(
-                                            onTap: () {
-                                              Navigator.pushReplacementNamed(
-                                                context,
-                                                'search-product',
-                                              );
-                                            },
+                                            onTap: bloc.locationIsOk && //true
+                                                    !bloc.productIsOk && //false
+                                                    !bloc.quantityIsOk
+                                                ? () {
+                                                    Navigator
+                                                        .pushReplacementNamed(
+                                                      context,
+                                                      'search-product',
+                                                    );
+                                                  }
+                                                : null,
                                             child: Row(
                                               children: [
                                                 Align(
@@ -701,12 +805,18 @@ class _InventarioScreenState extends State<InventarioScreen>
                                         child: Column(
                                           children: [
                                             GestureDetector(
-                                              onTap: () {
-                                                Navigator.pushReplacementNamed(
-                                                  context,
-                                                  'search-product',
-                                                );
-                                              },
+                                              onTap: bloc.locationIsOk && //true
+                                                      !bloc
+                                                          .productIsOk && //false
+                                                      !bloc.quantityIsOk
+                                                  ? () {
+                                                      Navigator
+                                                          .pushReplacementNamed(
+                                                        context,
+                                                        'search-product',
+                                                      );
+                                                    }
+                                                  : null,
                                               child: Row(
                                                 children: [
                                                   Align(
@@ -782,6 +892,28 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                                     ""
                                                             ? red
                                                             : black),
+                                                  ),
+                                                  Spacer(),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return DialogBarcodesInventario(
+                                                                listOfBarcodes:
+                                                                    bloc.barcodeInventario);
+                                                          });
+                                                    },
+                                                    child: Visibility(
+                                                      visible: bloc
+                                                          .barcodeInventario
+                                                          .isNotEmpty,
+                                                      child: Image.asset(
+                                                          "assets/icons/package_barcode.png",
+                                                          color:
+                                                              primaryColorApp,
+                                                          width: 20),
+                                                    ),
                                                   ),
                                                 ],
                                               ),

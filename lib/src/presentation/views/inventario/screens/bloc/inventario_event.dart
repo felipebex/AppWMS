@@ -57,6 +57,7 @@ class ChangeProductIsOkEvent extends InventarioEvent {
     this.productSelect,
   );
 }
+
 class ChangeIsOkQuantity extends InventarioEvent {
   final bool isQuantity;
   ChangeIsOkQuantity(
@@ -85,12 +86,20 @@ class SelectecLoteEvent extends InventarioEvent {
   SelectecLoteEvent(this.lote);
 }
 
-
 class ShowQuantityEvent extends InventarioEvent {
   final bool showQuantity;
   ShowQuantityEvent(this.showQuantity);
 }
 
-
 class FetchBarcodesProductEvent extends InventarioEvent {}
 
+class AddQuantitySeparate extends InventarioEvent {
+  final int quantity;
+  final bool isOk;
+  AddQuantitySeparate(this.quantity, this.isOk);
+}
+
+class ChangeQuantitySeparate extends InventarioEvent {
+  final int quantity;
+  ChangeQuantitySeparate(this.quantity,);
+}

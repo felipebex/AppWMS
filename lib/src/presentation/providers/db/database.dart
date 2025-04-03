@@ -203,7 +203,8 @@ class DataBaseSqlite {
       BarcodesInventarioRepository();
 
   //metodo  para obtener una instancia del repositorio  de productos de inventario
-ProductInventarioRepository get productoInventarioRepository => ProductInventarioRepository();
+  ProductInventarioRepository get productoInventarioRepository =>
+      ProductInventarioRepository();
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -394,7 +395,7 @@ ProductInventarioRepository get productoInventarioRepository => ProductInventari
 
     //inventario
     await db.delete(ProductInventarioTable.tableName);
-
+    await db.delete(BarcodesInventarioTable.tableName);
   }
 
   Future<void> deleteBDCloseSession() async {
@@ -423,6 +424,10 @@ ProductInventarioRepository get productoInventarioRepository => ProductInventari
     //transferecnia
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);
+
+    //inventario
+    await db.delete(ProductInventarioTable.tableName);
+    await db.delete(BarcodesInventarioTable.tableName);
   }
 
   //*metodo para actualizar la tabla de productos de un batch

@@ -71,10 +71,18 @@ class GetProductsSuccess extends InventarioState {
   final List<Product> products;
   GetProductsSuccess(this.products);
 }
+class GetProductsSuccessByLocation extends InventarioState {
+  final List<Product> products;
+  GetProductsSuccessByLocation(this.products);
+}
 
 class GetProductsFailure extends InventarioState {
   final String error;
   GetProductsFailure(this.error);
+}
+class GetProductsFailureByLocation extends InventarioState {
+  final String error;
+  GetProductsFailureByLocation(this.error);
 }
 
 class ChangeProductIsOkState extends InventarioState {
@@ -117,4 +125,17 @@ class ShowQuantityState extends InventarioState {
 class BarcodesProductLoadedState extends InventarioState {
   final List<BarcodeInventario> listOfBarcodes;
   BarcodesProductLoadedState({required this.listOfBarcodes});
+}
+
+
+
+//*estado para separar la cantidad
+class ChangeQuantitySeparateStateSuccess extends InventarioState {
+  final int quantity;
+  ChangeQuantitySeparateStateSuccess(this.quantity);
+}
+
+class ChangeQuantitySeparateStateError extends InventarioState {
+  final String msg;
+  ChangeQuantitySeparateStateError(this.msg);
 }

@@ -259,37 +259,46 @@ class _PrintDialogState extends State<PrintDialog> {
         
         // Ajusta el tamaño del papel según sea necesario
 
-
-
-
-
-
-
-    
-
     bytes += generator.reset();
     // Texto
-    bytes += generator.text('OnPoint',
+
+    bytes += generator.text("""^XA
+        ^FX Top section with logo, name and address.
+        ^CF0,60
+        ^FO50,50^GB100,100,100^FS
+        ^FO75,75^FR^GB100,100,100^FS
+        ^FO93,93^GB40,40,40^FS
+        ^FO220,50^FDIntershipping, Inc.^FS
+        ^CF0,30
+        ^FO220,115^FD1000 Hola nevado ^FS
+        ^FO220,155^FDShelbyville TN 38102^FS
+        ^FO220,195^FDUnited States (USA)^FS
+        ^FO50,250^GB700,3,3^FS
+        ^XZ""",
         styles: const PosStyles(align: PosAlign.center, bold: true));
-    bytes += generator.text('Batch: ${widget.model.batchName}',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text('Zona TMS: ${widget.model.zonaEntregaTms}',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text('Operacion: ${widget.model.pickingTypeId}',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text('Pedido: ${widget.model.namePedido}',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text('Referencia: ${widget.model.referencia}',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text('Contacto: ${widget.model.contactoName}',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text('Empaque: ${widget.model.namePaquete}',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes += generator.text(
-        'Cant productos empaque: ${widget.model.cantProductoPack}',
-        styles: const PosStyles(align: PosAlign.center));
-    bytes +=
-        generator.text('', styles: const PosStyles(align: PosAlign.center));
+
+
+
+        
+    // bytes += generator.text('Batch: ${widget.model.batchName}',
+    //     styles: const PosStyles(align: PosAlign.center));
+    // bytes += generator.text('Zona TMS: ${widget.model.zonaEntregaTms}',
+    //     styles: const PosStyles(align: PosAlign.center));
+    // bytes += generator.text('Operacion: ${widget.model.pickingTypeId}',
+    //     styles: const PosStyles(align: PosAlign.center));
+    // bytes += generator.text('Pedido: ${widget.model.namePedido}',
+    //     styles: const PosStyles(align: PosAlign.center));
+    // bytes += generator.text('Referencia: ${widget.model.referencia}',
+    //     styles: const PosStyles(align: PosAlign.center));
+    // bytes += generator.text('Contacto: ${widget.model.contactoName}',
+    //     styles: const PosStyles(align: PosAlign.center));
+    // bytes += generator.text('Empaque: ${widget.model.namePaquete}',
+    //     styles: const PosStyles(align: PosAlign.center));
+    // bytes += generator.text(
+    //     'Cant productos empaque: ${widget.model.cantProductoPack}',
+    //     styles: const PosStyles(align: PosAlign.center));
+    // bytes +=
+    //     generator.text('', styles: const PosStyles(align: PosAlign.center));
     
     
 

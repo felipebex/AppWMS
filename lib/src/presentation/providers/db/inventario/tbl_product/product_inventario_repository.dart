@@ -24,9 +24,10 @@ class ProductInventarioRepository {
 
         // Iterar sobre la lista de productos
         for (var producto in productosList) {
-          //aumentar el contador
+          // Aumentar el contador
           count++;
-          // Preparar los datos del producto
+
+          // Preparar los datos del producto para insertarlos o actualizarlos
           Map<String, dynamic> productoMap = {
             ProductInventarioTable.columnQuantId: producto.quantId,
             ProductInventarioTable.columnLocationId: producto.locationId,
@@ -57,6 +58,8 @@ class ProductInventarioRepository {
           };
 
           // Usar el método batch para insertar o actualizar sin bloqueos
+          // El conflicto se resuelve con el algoritmo 'replace', lo que reemplazará
+          // cualquier registro con la misma clave primaria (o índice único).
           batch.insert(
             ProductInventarioTable.tableName,
             productoMap,
@@ -73,7 +76,7 @@ class ProductInventarioRepository {
 
       // Mostrar el tiempo que ha tardado en completar la inserción
       print("Tiempo de inserción: ${stopwatch.elapsedMilliseconds} ms");
-      //mostramos la cantidad de productos insertados
+      // Mostrar la cantidad de productos insertados
       print("Cantidad de productos insertados: $count");
     } catch (e, s) {
       print("Error al insertar productos en productos_inventario: $e ==> $s");
@@ -104,6 +107,7 @@ class ProductInventarioRepository {
   Future<List<Product>> getAllProductsByLocation(int locationId) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
+      print("locationId: $locationId");
       List<Map<String, dynamic>> maps = await db.query(
         ProductInventarioTable.tableName,
         where: '${ProductInventarioTable.columnLocationId} = ?',

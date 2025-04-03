@@ -46,7 +46,8 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
           entrepriceController.text,
         );
 
-        if (session.isNotEmpty) {
+
+        if (session.result?.isNotEmpty == true) {
           Preferences.setUrlWebsite = entrepriceController.text;
           PrefUtils.setEnterprise(
               entrepriceController.text); // Guardar la URL en las preferencias
@@ -65,7 +66,7 @@ class EntrepriseBloc extends Bloc<EntrepriseEvent, EntrepriseState> {
           add(LoadUrlFromDB());
           // Usar una lista temporal
           List<String> tempList = [];
-          for (var element in session) {
+          for (var element in session.result ?? []) {
             tempList.add(element);
           }
           entrepriceList = tempList; // Reemplazar la lista original

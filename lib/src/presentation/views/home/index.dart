@@ -73,45 +73,48 @@ class _HomePageState extends State<HomePage> {
                 //peticion para la configuracion
                 if (!mounted) return;
                 final String rol = await PrefUtils.getUserRol();
+
+                context.read<InventarioBloc>().add(GetProductsEvent(1));
+
                 //peticion segun el rol del usuario
-                if (rol == 'picking') {
-                  if (!mounted) return;
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                } else if (rol == 'admin') {
-                  if (!mounted) return;
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                  //esperamos 1 segundo y realizamos la otra peticion
-                  await Future.delayed(const Duration(seconds: 1));
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        false,
-                      ));
-                  await Future.delayed(const Duration(seconds: 1));
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
-                  await Future.delayed(const Duration(seconds: 1));
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias());
-                } else if (rol == 'packing') {
-                  if (!mounted) return;
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        true,
-                      ));
-                } else if (rol == "reception") {
-                  if (!mounted) return;
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
-                } else if (rol == "transfer") {
-                  if (!mounted) return;
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias());
-                } else if (rol == "" || rol == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("El usuario no tiene cargado los permisos"),
-                      duration: Duration(seconds: 4),
-                    ),
-                  );
-                }
+                // if (rol == 'picking') {
+                //   if (!mounted) return;
+                //   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+                // } else if (rol == 'admin') {
+                //   if (!mounted) return;
+                //   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
+                //   //esperamos 1 segundo y realizamos la otra peticion
+                //   await Future.delayed(const Duration(seconds: 1));
+                //   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+                //         false,
+                //       ));
+                //   await Future.delayed(const Duration(seconds: 1));
+                //   context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+                //   await Future.delayed(const Duration(seconds: 1));
+                //   context
+                //       .read<TransferenciaBloc>()
+                //       .add(FetchAllTransferencias());
+                // } else if (rol == 'packing') {
+                //   if (!mounted) return;
+                //   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+                //         true,
+                //       ));
+                // } else if (rol == "reception") {
+                //   if (!mounted) return;
+                //   context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+                // } else if (rol == "transfer") {
+                //   if (!mounted) return;
+                //   context
+                //       .read<TransferenciaBloc>()
+                //       .add(FetchAllTransferencias());
+                // } else if (rol == "" || rol == null) {
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     const SnackBar(
+                //       content: Text("El usuario no tiene cargado los permisos"),
+                //       duration: Duration(seconds: 4),
+                //     ),
+                //   );
+                // }
               } else {
                 showDialog(
                     context: context,
@@ -752,14 +755,9 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                         GestureDetector(
                                           onTap: () async {
-                                            //obtenemos las ubicaciones
                                             context
                                                 .read<InventarioBloc>()
                                                 .add(GetLocationsEvent());
-
-                                            context
-                                                .read<InventarioBloc>()
-                                                .add(GetProductsEvent(1));
 
                                             showDialog(
                                                 context: context,
@@ -799,19 +797,19 @@ class _HomePageState extends State<HomePage> {
                                 )),
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 10),
+                                  horizontal: 20, vertical: 40),
                               child: Center(
                                 child: Column(
                                   children: [
                                     Text("Onpoint",
                                         style: TextStyle(
                                           color: grey,
-                                          fontSize: 14,
+                                          fontSize: 12,
                                         )),
                                     Text("© 2025 - 360 Software",
                                         style: TextStyle(
                                           color: grey,
-                                          fontSize: 14,
+                                          fontSize: 12,
                                         )),
                                   ],
                                 ),

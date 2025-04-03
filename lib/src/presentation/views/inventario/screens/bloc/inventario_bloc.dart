@@ -102,6 +102,47 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
     //*evento para obtener los barcodes de un producto por paquete
     on<FetchBarcodesProductEvent>(_onFetchBarcodesProductEvent);
+
+        //*evento para cambiar la cantidad seleccionada
+    on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
+    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+  }
+
+
+
+
+    //*metodo para cambiar la cantidad seleccionada
+  void _onChangeQuantitySelectedEvent(
+      ChangeQuantitySeparate event, Emitter<InventarioState> emit) async {
+    try {
+      if (event.quantity > 0) {
+        quantitySelected = event.quantity;
+      }
+      emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
+    } catch (e, s) {
+      emit(ChangeQuantitySeparateStateError('Error al separar cantidad'));
+      print('❌ Error en ChangeQuantitySeparate: $e -> $s ');
+    }
+  }
+
+
+
+
+
+  //*evento para aumentar la cantidad
+  void _onAddQuantitySeparateEvent(
+      AddQuantitySeparate event, Emitter<InventarioState> emit) async {
+    try {
+      if (quantitySelected > (currentProduct?.quantity ?? 0)) {
+        return;
+      } else {
+        quantitySelected = quantitySelected + event.quantity;
+        emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
+      }
+    } catch (e, s) {
+      emit(ChangeQuantitySeparateStateError('Error al aumentar cantidad'));
+      print("❌ Error en el AddQuantitySeparate $e ->$s");
+    }
   }
 
   //*evento para obtener los barcodes de un producto por paquete
@@ -109,9 +150,9 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       FetchBarcodesProductEvent event, Emitter<InventarioState> emit) async {
     try {
       barcodeInventario.clear();
-    
 
-      barcodeInventario = await db.barcodesInventarioRepository.getBarcodesProduct(
+      barcodeInventario =
+          await db.barcodesInventarioRepository.getBarcodesProduct(
         currentProduct?.productId ?? 0,
         currentProduct?.quantId ?? 0,
       );
@@ -225,7 +266,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         add(GetLotesProduct());
         viewQuantity = false;
         productIsOk = true;
-        
+
         emit(ChangeProductIsOkState(
           productIsOk,
         ));
@@ -267,13 +308,13 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         productosUbicacion = response;
         productosUbicacionFilters = response;
         print("Products = ${response.length}");
-        emit(GetProductsSuccess(response));
+        emit(GetProductsSuccessByLocation(response));
       } else {
-        emit(GetProductsFailure('No se encontraron productos'));
+        emit(GetProductsFailureByLocation('No se encontraron productos'));
       }
     } catch (e, s) {
-      emit(GetProductsFailure('Error al cargar los productos'));
-      print('Error en el fetch de productos: $e=>$s');
+      emit(GetProductsFailureByLocation('Error al cargar los productos'));
+      print('Error en el fetch de _onGetProductsByLocation: $e=>$s');
     }
   }
 
