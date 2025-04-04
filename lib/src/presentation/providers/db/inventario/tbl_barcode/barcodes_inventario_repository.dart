@@ -125,13 +125,13 @@ class BarcodesInventarioRepository {
           barcode: map[BarcodesInventarioTable.columnBarcode],
           idQuant: map[BarcodesInventarioTable.columnIdQuant],
           cantidad: map[BarcodesInventarioTable.columnCantidad]
-              ?.toDouble(), // Asegúrate de convertir el tipo correctamente
+              , // Asegúrate de convertir el tipo correctamente
         );
       }).toList();
 
       return barcodes;
-    } catch (e) {
-      print("Error al obtener los barcodes: $e");
+    } catch (e,s) {
+      print("Error al obtener los barcodes: $e, =>$s");
       return [];
     }
   }

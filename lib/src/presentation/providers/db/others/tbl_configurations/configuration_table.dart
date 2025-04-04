@@ -40,6 +40,8 @@ class ConfigurationsTable {
     static const String columnManualQuantityTransfer = 'manual_quantity_transfer';
     static const String columnManualProductSelectionTransfer = 'manual_product_selection_transfer';
 
+    static const String columnCountQuantityInventory = 'count_quantity_inventory';
+
 
   // Método para crear la tabla
   static String createTable() {
@@ -72,7 +74,8 @@ class ConfigurationsTable {
         $columnManualProductSelectionTransfer INTEGER,
         $columnManualSourceLocationTransfer INTEGER,
         $columnManualDestLocationTransfer INTEGER,
-        $columnManualQuantityTransfer INTEGER
+        $columnManualQuantityTransfer INTEGER,
+        $columnCountQuantityInventory INTEGER
       )
     ''';
   }

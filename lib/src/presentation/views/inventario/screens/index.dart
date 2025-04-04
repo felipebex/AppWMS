@@ -257,7 +257,7 @@ class _InventarioScreenState extends State<InventarioScreen>
             ElevatedButton(
               onPressed: () {
                 bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
-                bloc.add(ChangeProductIsOkEvent(matchedProductUbicacion));
+                bloc.add(ChangeProductIsOkEvent(matchedProducts));
                 bloc.add(ChangeIsOkQuantity(true));
                 bloc.add(ClearScannedValueEvent('product'));
                 Get.back();
@@ -312,16 +312,19 @@ class _InventarioScreenState extends State<InventarioScreen>
             BarcodeInventario() // Si no se encuentra ningún match, devuelve null
         );
     if (matchedBarcode.barcode != null) {
-      //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-      if (matchedBarcode.cantidad!.toInt() + bloc.quantitySelected >
-          currentProduct.quantity!) {
-        return false;
-      }
-
       bloc.add(AddQuantitySeparate(matchedBarcode.cantidad!.toInt(), false));
       return false;
     }
     return false;
+  }
+
+  void _validatebuttonquantity() {
+    final bloc = context.read<InventarioBloc>();
+    int cantidad = int.parse(_cantidadController.text.isEmpty
+        ? bloc.quantitySelected.toString()
+        : _cantidadController.text);
+
+    bloc.add(SendProductInventarioEnvet(cantidad));
   }
 
   @override
@@ -341,14 +344,6 @@ class _InventarioScreenState extends State<InventarioScreen>
       listener: (context, state) {
         print("state ❤️‍🔥:: $state");
 
-        // * validamos en todo cambio de estado de cantidad separada
-        if (state is ChangeQuantitySeparateStateSuccess) {
-          if (state.quantity ==
-              context.read<InventarioBloc>().currentProduct?.quantity.toInt()) {
-            //todo la cantidad contada es igual a la cantidad del inventario
-          }
-        }
-
         //*estado cando la ubicacion de origen es cambiada
         if (state is ChangeLocationIsOkState) {
           //cambiamos el foco
@@ -359,13 +354,6 @@ class _InventarioScreenState extends State<InventarioScreen>
         }
 
         if (state is CleanFieldsState) {
-          Get.snackbar(
-            'Campos limpiados',
-            'Se han limpiado los campos correctamente',
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: Icon(Icons.check, color: Colors.green),
-          );
           _handleDependencies();
         }
 
@@ -378,13 +366,51 @@ class _InventarioScreenState extends State<InventarioScreen>
           _handleDependencies();
         }
 
-        if (state is GetProductsFailureByLocation) {
+        if (state is SendProductLoading) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const DialogLoading(
+                message: "Validando informacion...",
+              );
+            },
+          );
+        }
+        if (state is SendProductSuccess) {
+          Navigator.pop(context);
+          context.read<InventarioBloc>().add(CleanFieldsEent());
           Get.snackbar(
-            'Error',
-            'No se encontraron productos en la ubicacion, intentelo con otra ubicacion',
+            '360 Software Informa',
+            "Se ha registrado el producto correctamente",
             backgroundColor: white,
             colorText: primaryColorApp,
-            icon: Icon(Icons.error, color: Colors.red),
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+        }
+
+        if (state is SendProductFailure) {
+          Navigator.pop(context);
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
           );
         }
       },
@@ -392,24 +418,26 @@ class _InventarioScreenState extends State<InventarioScreen>
         final bloc = context.read<InventarioBloc>();
         return Scaffold(
           backgroundColor: white,
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: primaryColorApp,
-            onPressed: () {
-              print("ubicaciones: ${bloc.ubicaciones.length}");
-              print("productos toal: ${bloc.productos.length}");
-              print(
-                  "productos de ubicacion: ${bloc.productosUbicacion.length}");
-              print(
-                  "-----------------------------------------------------------------------------");
-              print("productos actual: ${bloc.currentProduct?.toMap()}");
-              print("ubicaicon actual: ${bloc.currentUbication?.toMap()}");
-              print(
-                  "-----------------------------------------------------------------------------");
-              print("lotes del producto: ${bloc.listLotesProduct.length}");
-              print("lote actual: ${bloc.currentProductLote?.toMap()}");
-            },
-            child: const Icon(Icons.add),
-          ),
+          // floatingActionButton: FloatingActionButton(
+          //   backgroundColor: primaryColorApp,
+          //   onPressed: () {
+          //     print("ubicaciones: ${bloc.ubicaciones.length}");
+          //     print("productos toal: ${bloc.productos.length}");
+          //     print(
+          //         "productos de ubicacion: ${bloc.productosUbicacion.length}");
+          //     print(
+          //         "-----------------------------------------------------------------------------");
+          //     print("productos actual: ${bloc.currentProduct?.toMap()}");
+          //     print(
+          //         'codigo por paquete del product: ${bloc.barcodeInventario.length}');
+          //     print("ubicaicon actual: ${bloc.currentUbication?.toMap()}");
+          //     print(
+          //         "-----------------------------------------------------------------------------");
+          //     print("lotes del producto: ${bloc.listLotesProduct.length}");
+          //     print("lote actual: ${bloc.currentProductLote?.toMap()}");
+          //   },
+          //   child: const Icon(Icons.add),
+          // ),
           body: Column(
             children: [
               //appbar
@@ -748,7 +776,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                               showCursor: false,
                                               controller:
                                                   _controllerProduct, // Asignamos el controlador
-                                              enabled: !bloc
+                                              enabled: bloc
                                                       .locationIsOk && // false
                                                   !bloc.productIsOk && // false
                                                   !bloc.quantityIsOk,
@@ -777,6 +805,92 @@ class _InventarioScreenState extends State<InventarioScreen>
                                               ),
                                             ),
                                           ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Image.asset(
+                                                  "assets/icons/barcode.png",
+                                                  color: primaryColorApp,
+                                                  width: 20,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                  bloc.currentProduct
+                                                                  ?.barcode ==
+                                                              false ||
+                                                          bloc.currentProduct
+                                                                  ?.barcode ==
+                                                              null ||
+                                                          bloc.currentProduct
+                                                                  ?.barcode ==
+                                                              ""
+                                                      ? "Sin codigo de barras"
+                                                      : bloc.currentProduct
+                                                          ?.barcode,
+                                                  textAlign: TextAlign.start,
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: bloc.currentProduct
+                                                                      ?.barcode ==
+                                                                  false ||
+                                                              bloc.currentProduct
+                                                                      ?.barcode ==
+                                                                  null ||
+                                                              bloc.currentProduct
+                                                                      ?.barcode ==
+                                                                  ""
+                                                          ? red
+                                                          : black),
+                                                ),
+                                                Spacer(),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    showDialog(
+                                                        context: context,
+                                                        builder: (context) {
+                                                          return DialogBarcodesInventario(
+                                                              listOfBarcodes: bloc
+                                                                  .barcodeInventario);
+                                                        });
+                                                  },
+                                                  child: Visibility(
+                                                    visible: bloc
+                                                        .barcodeInventario
+                                                        .isNotEmpty,
+                                                    child: Image.asset(
+                                                        "assets/icons/package_barcode.png",
+                                                        color: primaryColorApp,
+                                                        width: 20),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          // Visibility(
+                                          //   visible: bloc.currentProduct
+                                          //           ?.productTracking ==
+                                          //       "lot",
+                                          //   child: ExpiryDateWidget(
+                                          //       expireDate: bloc.currentProduct
+                                          //                       ?.expirationDate ==
+                                          //                   "" ||
+                                          //               bloc.currentProduct
+                                          //                       ?.expirationDate ==
+                                          //                   null
+                                          //           ? DateTime.now()
+                                          //           : DateTime.parse(bloc
+                                          //               .currentProduct
+                                          //               ?.expirationDate),
+                                          //       size: size,
+                                          //       isDetaild: false,
+                                          //       isNoExpireDate: bloc
+                                          //                   .currentProduct
+                                          //                   ?.expirationDate ==
+                                          //               ""
+                                          //           ? true
+                                          //           : false),
+                                          // ),
                                         ],
                                       ),
                                     )
@@ -1108,24 +1222,30 @@ class _InventarioScreenState extends State<InventarioScreen>
                             child: Row(
                               children: [
                                 //*mostramos la cantidad a recoger si la configuracion lo permite
-                                Row(
-                                  children: [
-                                    const Text('Recoger:',
-                                        style: TextStyle(
-                                            color: Colors.black, fontSize: 14)),
-                                    Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10),
-                                        child: Text(
-                                          bloc.currentProduct?.quantity
-                                                  ?.toString() ??
-                                              "",
+                                Visibility(
+                                  visible: bloc.configurations.result?.result
+                                          ?.countQuantityInventory ==
+                                      true,
+                                  child: Row(
+                                    children: [
+                                      const Text('Contar:',
                                           style: TextStyle(
-                                            color: primaryColorApp,
-                                            fontSize: 14,
-                                          ),
-                                        )),
-                                  ],
+                                              color: Colors.black,
+                                              fontSize: 14)),
+                                      Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: Text(
+                                            bloc.currentProduct?.quantity
+                                                    ?.toString() ??
+                                                "",
+                                            style: TextStyle(
+                                              color: primaryColorApp,
+                                              fontSize: 14,
+                                            ),
+                                          )),
+                                    ],
+                                  ),
                                 ),
 
                                 const Spacer(),
@@ -1144,7 +1264,6 @@ class _InventarioScreenState extends State<InventarioScreen>
                                               enabled:
                                                   bloc.productIsOk && //true
                                                       bloc.quantityIsOk //true
-
                                               ,
                                               // showCursor: false,
                                               controller:
@@ -1289,7 +1408,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                   ? () {
                                       //cerramos el teclado
                                       FocusScope.of(context).unfocus();
-                                      // _validatebuttonquantity();
+                                      _validatebuttonquantity();
                                     }
                                   : null,
                           style: ElevatedButton.styleFrom(
@@ -1310,7 +1429,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                       child: CustomKeyboardNumber(
                         controller: _cantidadController,
                         onchanged: () {
-                          // _validatebuttonquantity();
+                          _validatebuttonquantity();
                         },
                       ),
                     )

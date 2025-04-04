@@ -12,6 +12,13 @@ class SearchLocationEvent extends InventarioEvent {
     this.query,
   );
 }
+class SearchLotevent extends InventarioEvent {
+  final String query;
+
+  SearchLotevent(
+    this.query,
+  );
+}
 
 class SearchProductEvent extends InventarioEvent {
   final String query;
@@ -103,3 +110,25 @@ class ChangeQuantitySeparate extends InventarioEvent {
   final int quantity;
   ChangeQuantitySeparate(this.quantity,);
 }
+
+
+
+class SendProductInventarioEnvet extends InventarioEvent{
+
+  final int cantidad;
+
+SendProductInventarioEnvet(this.cantidad);
+  
+}
+
+
+class CreateLoteProduct extends InventarioEvent {
+ 
+  final String nameLote;
+  final String fechaCaducidad;
+  CreateLoteProduct( this.nameLote, this.fechaCaducidad);
+}
+
+
+
+class LoadConfigurationsUserInventory extends InventarioEvent {}

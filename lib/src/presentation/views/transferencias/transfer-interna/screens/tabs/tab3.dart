@@ -58,17 +58,14 @@ class Tab3ScreenTrans extends StatelessWidget {
                           ],
                         ),
                       )
-                    :
-                     Expanded(
+                    : Expanded(
                         child: ListView.builder(
-                          itemCount: bloc.listProductsTransfer
-                          .where((element) {
+                          itemCount: bloc.listProductsTransfer.where((element) {
                             return element.isDoneItem == 1;
                           }).length,
                           itemBuilder: (context, index) {
                             final product =
-                                bloc.listProductsTransfer
-                                .where((element) {
+                                bloc.listProductsTransfer.where((element) {
                               return element.isDoneItem == 1;
                             }).elementAt(index);
 
@@ -245,7 +242,7 @@ class Tab3ScreenTrans extends StatelessWidget {
                                                 ),
                                               ),
                                               Text(
-                                                "Producto dividido",
+                                                "Cantidad dividida",
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   color: primaryColorApp,
@@ -255,7 +252,8 @@ class Tab3ScreenTrans extends StatelessWidget {
                                           ),
                                         ),
                                         Visibility(
-                                          visible: product.observation !="" || product.observation != null,
+                                          visible: product.observation != "" ||
+                                              product.observation != null,
                                           child: Row(
                                             children: [
                                               Text(
@@ -266,7 +264,9 @@ class Tab3ScreenTrans extends StatelessWidget {
                                                 ),
                                               ),
                                               Text(
-                                                product.observation,
+                                                product.observation == ""
+                                                    ? "Sin novedad"
+                                                    : product.observation,
                                                 style: TextStyle(
                                                   fontSize: 12,
                                                   color: primaryColorApp,

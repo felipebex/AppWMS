@@ -72,7 +72,7 @@ class CloseSession extends StatelessWidget {
 
               PrefUtils.clearPrefs();
               Preferences.removeUrlWebsite();
-              await DataBaseSqlite().deleteBD();
+              await DataBaseSqlite().deleteBDCloseSession();
               await Future.delayed(const Duration(seconds: 1));
               PrefUtils.setIsLoggedIn(false);
 

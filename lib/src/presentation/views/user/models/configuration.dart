@@ -64,6 +64,7 @@ class DataConfig {
   String? email;
   String? rol;
   String? muelleOption;
+  List<AllowedWarehouse>? allowedWarehouses;
   bool? locationPickingManual;
   bool? manualProductSelection;
   bool? manualQuantity;
@@ -86,6 +87,7 @@ class DataConfig {
   bool? manualSourceLocationTransfer;
   bool? manualDestLocationTransfer;
   bool? manualQuantityTransfer;
+  bool? countQuantityInventory;
 
   DataConfig({
     this.name,
@@ -94,6 +96,7 @@ class DataConfig {
     this.email,
     this.rol,
     this.muelleOption,
+    this.allowedWarehouses,
     this.locationPickingManual,
     this.manualProductSelection,
     this.manualQuantity,
@@ -116,6 +119,7 @@ class DataConfig {
     this.manualSourceLocationTransfer,
     this.manualDestLocationTransfer,
     this.manualQuantityTransfer,
+    this.countQuantityInventory,
   });
 
   factory DataConfig.fromMap(Map<String, dynamic> json) => DataConfig(
@@ -125,6 +129,10 @@ class DataConfig {
         email: json["email"],
         rol: json["rol"],
         muelleOption: json["muelle_option"],
+        allowedWarehouses: json["allowed_warehouses"] == null
+            ? []
+            : List<AllowedWarehouse>.from(json["allowed_warehouses"]!
+                .map((x) => AllowedWarehouse.fromMap(x))),
         locationPickingManual: json["location_picking_manual"],
         manualProductSelection: json["manual_product_selection"],
         manualQuantity: json["manual_quantity"],
@@ -149,6 +157,7 @@ class DataConfig {
         manualSourceLocationTransfer: json["manual_source_location_transfer"],
         manualDestLocationTransfer: json["manual_dest_location_transfer"],
         manualQuantityTransfer: json["manual_quantity_transfer"],
+        countQuantityInventory: json["count_quantity_inventory"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -158,6 +167,9 @@ class DataConfig {
         "email": email,
         "rol": rol,
         "muelle_option": muelleOption,
+        "allowed_warehouses": allowedWarehouses == null
+            ? []
+            : List<dynamic>.from(allowedWarehouses!.map((x) => x.toMap())),
         "location_picking_manual": locationPickingManual,
         "manual_product_selection": manualProductSelection,
         "manual_quantity": manualQuantity,
@@ -180,5 +192,29 @@ class DataConfig {
         "manual_source_location_transfer": manualSourceLocationTransfer,
         "manual_dest_location_transfer": manualDestLocationTransfer,
         "manual_quantity_transfer": manualQuantityTransfer,
+        "count_quantity_inventory": countQuantityInventory,
       };
+}
+
+
+
+
+class AllowedWarehouse {
+    int? id;
+    String? name;
+
+    AllowedWarehouse({
+        this.id,
+        this.name,
+    });
+
+    factory AllowedWarehouse.fromMap(Map<String, dynamic> json) => AllowedWarehouse(
+        id: json["id"],
+        name: json["name"],
+    );
+
+    Map<String, dynamic> toMap() => {
+        "id": id,
+        "name": name,
+    };
 }

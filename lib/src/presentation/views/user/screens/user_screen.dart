@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -304,6 +303,90 @@ class UserScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ))),
+
+                              Card(
+                                color: white,
+                                elevation: 2,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 2),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              backgroundColor: white,
+                                              title: Center(
+                                                child: Text("Almacenes",
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color:
+                                                            primaryColorApp)),
+                                              ),
+                                              content: SizedBox(
+                                                height: 300,
+                                                width: size.width * 0.9,
+                                                child: ListView.builder(
+                                                  itemCount:
+                                                      bloc.almacenes.length,
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    return Card(
+                                                      color: white,
+                                                      elevation: 2,
+                                                      child: ListTile(
+                                                        title: Text(
+                                                            bloc
+                                                                    .almacenes[
+                                                                        index]
+                                                                    .name ??
+                                                                'Sin nombre',
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              actions: [
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                          minimumSize:
+                                                              const Size(
+                                                                  double
+                                                                      .infinity,
+                                                                  30),
+                                                          backgroundColor:
+                                                              primaryColorApp),
+                                                  child: const Text("Cerrar",
+                                                      style: TextStyle(
+                                                          color: white)),
+                                                ),
+                                              ],
+                                            );
+                                          });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        minimumSize:
+                                            const Size(double.infinity, 30),
+                                        backgroundColor: grey),
+                                    child: const Text(
+                                      "Ver Alamacenes",
+                                      style: TextStyle(color: white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
                               Card(
                                 color: white,
                                 elevation: 2,
@@ -426,7 +509,9 @@ class UserScreen extends StatelessWidget {
                                       //todo: permisos de picking
                                       Visibility(
                                         visible: config.result?.result?.rol ==
-                                            'picking'  || config.result?.result?.rol == 'admin' ,
+                                                'picking' ||
+                                            config.result?.result?.rol ==
+                                                'admin',
                                         child: Card(
                                           elevation: 3,
                                           color: white,
@@ -655,7 +740,9 @@ class UserScreen extends StatelessWidget {
                                       //todo permisos de packing
                                       Visibility(
                                         visible: config.result?.result?.rol ==
-                                            'packing' || config.result?.result?.rol == 'admin' ,
+                                                'packing' ||
+                                            config.result?.result?.rol ==
+                                                'admin',
                                         child: Card(
                                           color: white,
                                           elevation: 3,
@@ -851,7 +938,9 @@ class UserScreen extends StatelessWidget {
                                       //todo permisos de recepcion
                                       Visibility(
                                         visible: config.result?.result?.rol ==
-                                            'reception' || config.result?.result?.rol == 'admin' ,
+                                                'reception' ||
+                                            config.result?.result?.rol ==
+                                                'admin',
                                         child: Card(
                                           elevation: 3,
                                           color: white,
@@ -1012,7 +1101,9 @@ class UserScreen extends StatelessWidget {
                                       //todo permisos para transferencias
                                       Visibility(
                                         visible: config.result?.result?.rol ==
-                                            'transfer' || config.result?.result?.rol == 'admin' ,
+                                                'transfer' ||
+                                            config.result?.result?.rol ==
+                                                'admin',
                                         child: Card(
                                           elevation: 3,
                                           color: white,
@@ -1170,68 +1261,128 @@ class UserScreen extends StatelessWidget {
                                           ),
                                         ),
                                       ),
+                                      //todo permisos de inventario
+                                      Visibility(
+                                        visible: config.result?.result?.rol ==
+                                                'inventory' ||
+                                            config.result?.result?.rol ==
+                                                'admin',
+                                        child: Card(
+                                          elevation: 3,
+                                          color: white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              children: [
+                                                Center(
+                                                  child: Text(
+                                                      "Permisos Inventario:",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              primaryColorApp)),
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Row(
+                                                  children: [
+                                                    const Text("Ver cantidad: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.countQuantityInventory ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ver cantidad en inventario",
+                                                                  body:
+                                                                      "El usuario puede ver la cantidad de productos en inventario",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              ElevatedButton(
-                                onPressed: () {
-                                  //modal de confirmacion
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          actionsAlignment:
-                                              MainAxisAlignment.center,
-                                          title: Center(
-                                              child: Text(
-                                                  "Eliminar Base de Datos",
-                                                  style: TextStyle(
-                                                      color: primaryColorApp,
-                                                      fontSize: 14))),
-                                          content: const Text(
-                                              "¿Estas seguro de eliminar la base de datos?\nEsta accion no se puede deshacer y perderas todo el progreso que llevas realizado y esta guardado en la base de datos",
-                                              style: TextStyle(
-                                                  fontSize: 12, color: black)),
-                                          actions: [
-                                            ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                    backgroundColor: grey),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                child: const Text("Cancelar",
-                                                    style: TextStyle(
-                                                        color: white))),
-                                            ElevatedButton(
-                                                onPressed: () async {
-                                                  await DataBaseSqlite()
-                                                      .deleteBD();
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                          const SnackBar(
-                                                    content: Text(
-                                                        "Base de datos eliminada correctamente"),
-                                                  ));
-                                                  Navigator.pop(context);
-                                                  Navigator
-                                                      .pushReplacementNamed(
-                                                          context, 'home');
-                                                },
-                                                child: const Text("Aceptar")),
-                                          ],
-                                        );
-                                      });
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: grey),
-                                child: const Text(
-                                  "Eliminar Base de Datos",
-                                  style: TextStyle(color: white),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
+                              // ElevatedButton(
+                              //   onPressed: () {
+                              //     //modal de confirmacion
+                              //     showDialog(
+                              //         context: context,
+                              //         builder: (context) {
+                              //           return AlertDialog(
+                              //             actionsAlignment:
+                              //                 MainAxisAlignment.center,
+                              //             title: Center(
+                              //                 child: Text(
+                              //                     "Eliminar Base de Datos",
+                              //                     style: TextStyle(
+                              //                         color: primaryColorApp,
+                              //                         fontSize: 14))),
+                              //             content: const Text(
+                              //                 "¿Estas seguro de eliminar la base de datos?\nEsta accion no se puede deshacer y perderas todo el progreso que llevas realizado y esta guardado en la base de datos",
+                              //                 style: TextStyle(
+                              //                     fontSize: 12, color: black)),
+                              //             actions: [
+                              //               ElevatedButton(
+                              //                   style: ElevatedButton.styleFrom(
+                              //                       backgroundColor: grey),
+                              //                   onPressed: () {
+                              //                     Navigator.pop(context);
+                              //                   },
+                              //                   child: const Text("Cancelar",
+                              //                       style: TextStyle(
+                              //                           color: white))),
+                              //               ElevatedButton(
+                              //                   onPressed: () async {
+                              //                     await DataBaseSqlite()
+                              //                         .deleteBDCloseSession();
+                              //                     ScaffoldMessenger.of(context)
+                              //                         .showSnackBar(
+                              //                             const SnackBar(
+                              //                       content: Text(
+                              //                           "Base de datos eliminada correctamente"),
+                              //                     ));
+                              //                     Navigator.pop(context);
+                              //                     Navigator
+                              //                         .pushReplacementNamed(
+                              //                             context, 'home');
+                              //                   },
+                              //                   child: const Text("Aceptar")),
+                              //             ],
+                              //           );
+                              //         });
+                              //   },
+                              //   style: ElevatedButton.styleFrom(
+                              //       backgroundColor: grey),
+                              //   child: const Text(
+                              //     "Eliminar Base de Datos",
+                              //     style: TextStyle(color: white),
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 20),
                             ],
                           ),
                         ),

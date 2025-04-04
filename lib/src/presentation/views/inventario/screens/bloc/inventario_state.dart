@@ -25,6 +25,10 @@ class SearchLocationSuccess extends InventarioState {
   final List<ResultUbicaciones> locations;
   SearchLocationSuccess(this.locations);
 }
+class SearchLoteSuccess extends InventarioState {
+  final List<LotesProduct> locations;
+  SearchLoteSuccess(this.locations);
+}
 
 class SearchProductSuccess extends InventarioState {
   final List<Product> products;
@@ -71,6 +75,14 @@ class GetProductsSuccess extends InventarioState {
   final List<Product> products;
   GetProductsSuccess(this.products);
 }
+
+class GetProductsLoadingBD extends InventarioState {}
+
+class GetProductsSuccessBD extends InventarioState {
+  final List<Product> products;
+  GetProductsSuccessBD(this.products);
+}
+
 class GetProductsSuccessByLocation extends InventarioState {
   final List<Product> products;
   GetProductsSuccessByLocation(this.products);
@@ -80,6 +92,7 @@ class GetProductsFailure extends InventarioState {
   final String error;
   GetProductsFailure(this.error);
 }
+
 class GetProductsFailureByLocation extends InventarioState {
   final String error;
   GetProductsFailureByLocation(this.error);
@@ -109,25 +122,20 @@ class ChangeLoteIsOkState extends InventarioState {
   ChangeLoteIsOkState(this.isOk);
 }
 
-
 class ChangeQuantityIsOkState extends InventarioState {
   final bool isOk;
   ChangeQuantityIsOkState(this.isOk);
 }
-
 
 class ShowQuantityState extends InventarioState {
   final bool showQuantity;
   ShowQuantityState(this.showQuantity);
 }
 
-
 class BarcodesProductLoadedState extends InventarioState {
   final List<BarcodeInventario> listOfBarcodes;
   BarcodesProductLoadedState({required this.listOfBarcodes});
 }
-
-
 
 //*estado para separar la cantidad
 class ChangeQuantitySeparateStateSuccess extends InventarioState {
@@ -138,4 +146,34 @@ class ChangeQuantitySeparateStateSuccess extends InventarioState {
 class ChangeQuantitySeparateStateError extends InventarioState {
   final String msg;
   ChangeQuantitySeparateStateError(this.msg);
+}
+
+class SendProductLoading extends InventarioState {}
+
+class SendProductSuccess extends InventarioState {}
+
+class SendProductFailure extends InventarioState {
+  final String error;
+  SendProductFailure(this.error);
+}
+
+class CreateLoteProductLoading extends InventarioState {}
+
+class CreateLoteProductSuccess extends InventarioState {}
+
+class CreateLoteProductFailure extends InventarioState {
+  final String error;
+  CreateLoteProductFailure(this.error);
+}
+
+class ConfigurationLoadedInventory extends InventarioState {
+  final Configurations configurations;
+
+  ConfigurationLoadedInventory(this.configurations);
+}
+
+class ConfigurationErrorInventory extends InventarioState {
+  final String error;
+
+  ConfigurationErrorInventory(this.error);
 }

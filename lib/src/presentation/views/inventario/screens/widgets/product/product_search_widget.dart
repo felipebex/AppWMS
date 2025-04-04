@@ -155,24 +155,33 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                             // height: 30,
                                             child: Column(
                                               children: [
-                                                Row(
+                                                Column(
                                                   children: [
-                                                    Text(
-                                                      'Nombre: ',
-                                                      style: TextStyle(
-                                                        color: black,
-                                                        fontSize: 12,
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        'Nombre: ',
+                                                        style: TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
+                                                        ),
                                                       ),
                                                     ),
-                                                    Text(
-                                                      bloc
-                                                              .productosUbicacionFilters[
-                                                                  index]
-                                                              .productName ??
-                                                          '',
-                                                      style: TextStyle(
-                                                        color: primaryColorApp,
-                                                        fontSize: 12,
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                        bloc
+                                                                .productosUbicacionFilters[
+                                                                    index]
+                                                                .productName ??
+                                                            '',
+                                                        style: TextStyle(
+                                                          color:
+                                                              primaryColorApp,
+                                                          fontSize: 12,
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -211,6 +220,48 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                       ),
                                                     ),
                                                   ],
+                                                ),
+                                                Visibility(
+                                                  visible: bloc
+                                                          .productosUbicacionFilters[
+                                                              index]
+                                                          .productTracking ==
+                                                      'lot',
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        'lote: ',
+                                                        style: TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        bloc
+                                                                    .productosUbicacionFilters[
+                                                                        index]
+                                                                    .lotName ==
+                                                                false
+                                                            ? 'Sin barcode'
+                                                            : bloc
+                                                                    .productosUbicacionFilters[
+                                                                        index]
+                                                                    .lotName ??
+                                                                '',
+                                                        style: TextStyle(
+                                                          color: bloc
+                                                                      .productosUbicacionFilters[
+                                                                          index]
+                                                                      .lotName ==
+                                                                  false
+                                                              ? red
+                                                              : primaryColorApp,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 )
                                               ],
                                             ),

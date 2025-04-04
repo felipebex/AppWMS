@@ -6,6 +6,8 @@ class UbicacionesTable {
   static const String columnName = 'name';
   static const String columnLocationId = 'location_id';
   static const String columnLocationName = 'location_name';
+  static const String columnIdWarehouse = 'id_warehouse';
+  static const String columnWarehouseName = 'warehouse_name';
 
   static String createTable() {
     return '''
@@ -14,7 +16,9 @@ class UbicacionesTable {
       $columnBarcode TEXT,
       $columnName TEXT,
       $columnLocationId INTEGER,
-      $columnLocationName TEXT
+      $columnLocationName TEXT,
+      $columnIdWarehouse INTEGER,
+      $columnWarehouseName TEXT
     )
   ''';
   }

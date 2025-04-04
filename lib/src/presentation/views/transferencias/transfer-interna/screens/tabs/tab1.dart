@@ -76,19 +76,19 @@ class Tab1ScreenTrans extends StatelessWidget {
           }
 
           if (state is CreateBackOrderOrNotSuccess) {
-            context.read<TransferenciaBloc>().add(FetchAllTransferenciasDB());
             //volvemos a llamar las entradas que tenemos guardadas en la bd
             if (state.isBackorder) {
-              Get.snackbar("360 Software Informa", 'Se ha creado la backorder correctamente',
+              Get.snackbar("360 Software Informa", state.msg,
                   backgroundColor: white,
                   colorText: primaryColorApp,
                   icon: Icon(Icons.error, color: Colors.green));
             } else {
-              Get.snackbar("360 Software Informa", 'Se valido la recepcion correctamente',
+              Get.snackbar("360 Software Informa", state.msg,
                   backgroundColor: white,
                   colorText: primaryColorApp,
                   icon: Icon(Icons.error, color: Colors.green));
             }
+            context.read<TransferenciaBloc>().add(FetchAllTransferenciasDB());
             Navigator.pop(context);
             Navigator.pushReplacementNamed(
               context,

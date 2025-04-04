@@ -210,10 +210,15 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       if (response.result?.code == 200) {
         add(StartOrStopTimeTransfer(
           event.idRecepcion,
-          'end_time_reception',
+          'end_time_transfer',
         ));
 
-        emit(CreateBackOrderOrNotSuccess(event.isBackOrder));
+        print(
+          'response.result?.code: ${response.result?.code}  response.result?.msg: ${response.result?.msg}',
+        );
+
+        emit(CreateBackOrderOrNotSuccess(
+            event.isBackOrder, response.result?.msg ?? ""));
       } else {
         emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
       }
@@ -490,6 +495,18 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           "start_time_transfer",
           time,
         );
+
+        await db.transferenciaRepository.setFieldTableTransfer(
+          event.idTransfer,
+          "is_selected",
+          1,
+        );
+
+        await db.transferenciaRepository.setFieldTableTransfer(
+          event.idTransfer,
+          "is_started",
+          1,
+        );
       } else if (event.value == "end_time_transfer") {
         await db.transferenciaRepository.setFieldTableTransfer(
           event.idTransfer,
@@ -502,18 +519,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           1,
         );
       }
-
-      await db.transferenciaRepository.setFieldTableTransfer(
-        event.idTransfer,
-        "is_selected",
-        1,
-      );
-
-      await db.transferenciaRepository.setFieldTableTransfer(
-        event.idTransfer,
-        "is_started",
-        1,
-      );
 
       //hacemos la peticion de mandar el tiempo
       final response = await _transferenciasRepository.sendTime(

@@ -183,7 +183,10 @@ class ListTransferenciasScreen extends StatelessWidget {
 
                 Expanded(
                     child: GroupedListView(
-                  elements: transferBloc.transferenciasDbFilters,
+                  elements: transferBloc.transferenciasDbFilters
+                      .where((element) =>
+                          element.isFinish == 0 || element.isFinish == null)
+                      .toList(),
                   groupBy: (element) =>
                       element.warehouseName ??
                       "", // Agrupamos por 'warehouseName'
@@ -538,9 +541,6 @@ class AppBar extends StatelessWidget {
                             // Acción para opción 1
                           }
                         }
-
-
-                        
                       },
                       itemBuilder: (BuildContext context) {
                         // Creamos los PopupMenuItem dinámicamente basados en warehouseName

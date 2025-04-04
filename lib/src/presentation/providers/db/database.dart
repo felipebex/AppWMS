@@ -8,6 +8,8 @@ import 'package:wms_app/src/presentation/providers/db/others/tbl_barcodes/barcod
 import 'package:wms_app/src/presentation/providers/db/others/tbl_barcodes/barcodes_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubicaciones_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubicaciones_table.dart';
+import 'package:wms_app/src/presentation/providers/db/others/tbl_warehouses/tbl_warehouse_table.dart';
+import 'package:wms_app/src/presentation/providers/db/others/tbl_warehouses/warehouse_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_packing_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_package_pack/package_repository.dart';
@@ -151,6 +153,9 @@ class DataBaseSqlite {
 
     //table para las producto de inventario
     await db.execute(ProductInventarioTable.createTable());
+
+    //tabla para crear los almacenes
+    await db.execute(WarehouseTable.createTable());
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -205,6 +210,8 @@ class DataBaseSqlite {
   //metodo  para obtener una instancia del repositorio  de productos de inventario
   ProductInventarioRepository get productoInventarioRepository =>
       ProductInventarioRepository();
+
+  WarehouseRepository get warehouseRepository => WarehouseRepository();
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -374,33 +381,56 @@ class DataBaseSqlite {
   }
 
   //Todo: Eliminar todos los registros
-  Future<void> deleteBD() async {
+
+  Future<void> deleteAdmin() async {
+    delePicking();
+    delePacking();
+    deleRecepcion();
+    deleTrasnferencia();
+    deleInventario();
+  }
+
+  Future<void> delePicking() async {
     final db = await getDatabaseInstance();
-    //others
-    await db.delete(BarcodesPackagesTable.tableName);
     //picking
     await db.delete(BatchPickingTable.tableName);
     await db.delete('tblbatch_products');
+    await db.delete(BarcodesPackagesTable.tableName);
+  }
+
+  Future<void> delePacking() async {
+    final db = await getDatabaseInstance();
     //packing
     await db.delete(BatchPackingTable.tableName);
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
+    await db.delete(BarcodesPackagesTable.tableName);
+  }
+
+  Future<void> deleRecepcion() async {
+    final db = await getDatabaseInstance();
     //recepcion
     await db.delete(ProductRecepcionTable.tableName);
     await db.delete(EntradasRepeccionTable.tableName);
-    //transferencia
-    await db.delete(TransferenciaTable.tableName);
-    await db.delete(ProductTransferenciaTable.tableName);
+  }
 
+  Future<void> deleInventario() async {
+    final db = await getDatabaseInstance();
     //inventario
     await db.delete(ProductInventarioTable.tableName);
     await db.delete(BarcodesInventarioTable.tableName);
   }
 
+  Future<void> deleTrasnferencia() async {
+    final db = await getDatabaseInstance();
+    //transferencia
+    await db.delete(TransferenciaTable.tableName);
+    await db.delete(ProductTransferenciaTable.tableName);
+  }
+
   Future<void> deleteBDCloseSession() async {
     final db = await getDatabaseInstance();
-
     // others
     await db.delete(ConfigurationsTable.tableName);
     await db.delete(NovedadesTable.tableName);

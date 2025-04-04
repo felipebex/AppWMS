@@ -19,6 +19,7 @@ class DialogBarcodesInventario extends StatelessWidget {
         sigmaY: 5,
       ),
       child: AlertDialog(
+        backgroundColor: white,
         actionsAlignment: MainAxisAlignment.center,
         title: Center(
           child: Text(

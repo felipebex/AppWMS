@@ -99,7 +99,7 @@ class _UpdateAppDialogState extends State<UpdateAppDialog> {
                       context.read<HomeBloc>().add(ClearDataEvent());
                       PrefUtils.clearPrefs();
                       Preferences.removeUrlWebsite();
-                      await DataBaseSqlite().deleteBD();
+                      await DataBaseSqlite().deleteBDCloseSession();
                       await Future.delayed(const Duration(seconds: 1));
                       PrefUtils.setIsLoggedIn(false);
 

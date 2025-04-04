@@ -19,3 +19,4 @@ final class LoadInfoDeviceEventUser extends UserEvent {}
 
 final class GetUbicacionesEvent   extends UserEvent {
 }
+

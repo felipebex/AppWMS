@@ -1,10 +1,15 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
+import 'package:wms_app/src/presentation/views/inventario/models/request_sendProducr_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
+import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'inventario_event.dart';
 part 'inventario_state.dart';
@@ -12,6 +17,7 @@ part 'inventario_state.dart';
 class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   TextEditingController searchControllerLocation = TextEditingController();
   TextEditingController searchControllerProducts = TextEditingController();
+  TextEditingController searchControllerLote = TextEditingController();
 
   TextEditingController newLoteController = TextEditingController();
   TextEditingController dateLoteController = TextEditingController();
@@ -57,11 +63,15 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
+  List<LotesProduct> listLotesProductFilters = [];
 
   //producto actual
   Product? currentProduct;
   ResultUbicaciones? currentUbication;
   LotesProduct? currentProductLote;
+
+  //*configuracion del usuario //permisos
+  Configurations configurations = Configurations();
 
   InventarioBloc() : super(InventarioInitial()) {
     on<InventarioEvent>((event, emit) {});
@@ -70,6 +80,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     on<GetLocationsEvent>(_onLoadLocations);
     //metodo para buscar una ubicacion
     on<SearchLocationEvent>(_onSearchLocationEvent);
+    //metodo para buscar un lote
+    on<SearchLotevent>(_onSearchLoteEvent);
     //*metodo para bucar un producto
     on<SearchProductEvent>(_onSearchProductEvent);
 
@@ -88,6 +100,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
     //*traermos todos los productos del inventario
     on<GetProductsEvent>(_onGetProducts);
+    on<GetProductsForDB>(_onGetProductsBD);
+
     //*traermos solo los productos de una ubicacion
     on<GetProductsByLocationEvent>(_onGetProductsByLocation);
     //*limpiamos los campos y el estado
@@ -103,15 +117,97 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     //*evento para obtener los barcodes de un producto por paquete
     on<FetchBarcodesProductEvent>(_onFetchBarcodesProductEvent);
 
-        //*evento para cambiar la cantidad seleccionada
+    //*evento para cambiar la cantidad seleccionada
     on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
     on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+
+    on<SendProductInventarioEnvet>(_onSendProductInventarioEvent);
+
+    //*metodo para crear un lote a un producto
+    on<CreateLoteProduct>(_onCreateLoteProduct);
+
+    //metodo para cargar la oncfiguracion del usuario
+    //*obtener las configuraciones y permisos del usuario desde la bd
+    on<LoadConfigurationsUserInventory>(_onLoadConfigurationsUserEvent);
   }
 
+  //*metodo para cargar la configuracion del usuario
+  void _onLoadConfigurationsUserEvent(LoadConfigurationsUserInventory event,
+      Emitter<InventarioState> emit) async {
+    try {
+      int userId = await PrefUtils.getUserId();
+      final response =
+          await db.configurationsRepository.getConfiguration(userId);
 
+      if (response != null) {
+        configurations = response;
+        emit(ConfigurationLoadedInventory(response));
+      } else {
+        emit(ConfigurationErrorInventory('Error al cargar configuraciones'));
+      }
+    } catch (e, s) {
+      emit(ConfigurationErrorInventory(e.toString()));
+      print('Error en LoadConfigurationsUserPack.dart: $e =>$s');
+    }
+  }
 
+  //metodo pea crar un lote a un producto
+  void _onCreateLoteProduct(
+      CreateLoteProduct event, Emitter<InventarioState> emit) async {
+    try {
+      emit(CreateLoteProductLoading());
+      final response = await _inventarioRepository.createLote(
+        false,
+        currentProduct?.productId ?? 0,
+        event.nameLote,
+        event.fechaCaducidad,
+      );
 
-    //*metodo para cambiar la cantidad seleccionada
+      if (response != null) {
+        //agregamos el nuevo lote a la lista de lotes
+        listLotesProduct.add(response.result?.result ?? LotesProduct());
+        listLotesProductFilters.add(response.result?.result ?? LotesProduct());
+        currentProductLote = response.result?.result;
+        loteIsOk = true;
+        dateLoteController.clear();
+        newLoteController.clear();
+        emit(CreateLoteProductSuccess());
+      } else {
+        emit(CreateLoteProductFailure('Error al crear el lote'));
+      }
+    } catch (e, s) {
+      emit(CreateLoteProductFailure('Error al crear el lote'));
+      print('Error en el _onCreateLoteProduct: $e, $s');
+    }
+  }
+
+  void _onSendProductInventarioEvent(
+      SendProductInventarioEnvet event, Emitter<InventarioState> emit) async {
+    try {
+      emit(SendProductLoading());
+
+      final response = await _inventarioRepository.sendProduct(
+        SendProductInventario(
+          locationId: currentUbication?.id ?? 0, //currentUbication?.id ?? 0,
+          productId: currentProduct?.productId ?? 0,
+          lotId: currentProductLote?.id ?? 0,
+          quantity: event.cantidad,
+        ),
+        false,
+      );
+
+      if (response.result?.status == 'success') {
+        emit(SendProductSuccess());
+      } else {
+        emit(SendProductFailure(response.result?.message ?? ""));
+      }
+    } catch (e, s) {
+      emit(SendProductFailure('Error al enviar el producto'));
+      print('Error en el _onSendProductInventarioEvent: $e, $s');
+    }
+  }
+
+  //*metodo para cambiar la cantidad seleccionada
   void _onChangeQuantitySelectedEvent(
       ChangeQuantitySeparate event, Emitter<InventarioState> emit) async {
     try {
@@ -124,10 +220,6 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       print('❌ Error en ChangeQuantitySeparate: $e -> $s ');
     }
   }
-
-
-
-
 
   //*evento para aumentar la cantidad
   void _onAddQuantitySeparateEvent(
@@ -249,6 +341,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       listLotesProduct.clear();
       barcodeInventario.clear();
 
+      loteIsOk = false;
+
       // Emit clean fields state
       emit(CleanFieldsState());
     } catch (e, s) {
@@ -263,7 +357,9 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       if (isProductOk) {
         currentProduct = event.productSelect;
         add(FetchBarcodesProductEvent());
-        add(GetLotesProduct());
+        if (currentProduct?.productTracking == 'lot') {
+          add(GetLotesProduct());
+        }
         viewQuantity = false;
         productIsOk = true;
 
@@ -330,9 +426,6 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       if (response.isNotEmpty) {
         await db.productoInventarioRepository
             .insertProductosInventario(response);
-        productos.clear();
-        productos = response;
-
         //Convertir el mapa en una lista los barcodes unicos de cada producto
         List<BarcodeInventario> barcodesToInsert =
             productos.expand((product) => product.otherBarcodes!).toList();
@@ -351,6 +444,25 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
               .insertOrUpdateBarcodes(barcodesPackingToInsert);
         }
         emit(GetProductsSuccess(response));
+        add(GetProductsForDB());
+      } else {
+        emit(GetProductsFailure('No se encontraron productos'));
+      }
+    } catch (e, s) {
+      emit(GetProductsFailure('Error al cargar los productos'));
+      print('Error en el fetch de productos: $e=>$s');
+    }
+  }
+
+  void _onGetProductsBD(
+      GetProductsForDB event, Emitter<InventarioState> emit) async {
+    try {
+      emit(GetProductsLoadingBD());
+      final response = await db.productoInventarioRepository.getAllProducts();
+      if (response.isNotEmpty) {
+        productos.clear();
+        productos = response;
+        emit(GetProductsSuccessBD(response));
       } else {
         emit(GetProductsFailure('No se encontraron productos'));
       }
@@ -393,6 +505,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
           break;
         case 'product':
           scannedValue2 += event.scannedValue;
+          print('scannedValue2: $scannedValue2');
           emit(UpdateScannedValueState(scannedValue2, event.scan));
           break;
         case 'quantity':
@@ -459,6 +572,26 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         }).toList();
       }
       emit(SearchLocationSuccess(ubicacionesFilters));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
+  }
+  void _onSearchLoteEvent(
+      SearchLotevent event, Emitter<InventarioState> emit) async {
+    try {
+      emit(SearchLoading());
+      listLotesProductFilters = [];
+      listLotesProductFilters = listLotesProduct;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        listLotesProductFilters = listLotesProduct;
+      } else {
+        listLotesProductFilters = listLotesProduct.where((lotes) {
+          return lotes.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(SearchLoteSuccess(listLotesProductFilters));
     } catch (e, s) {
       print('Error en el SearchLocationEvent: $e, $s');
       emit(SearchFailure(e.toString()));

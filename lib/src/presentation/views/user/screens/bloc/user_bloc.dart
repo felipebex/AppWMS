@@ -31,6 +31,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   String idDispositivo = '';
 
   List<ResultUbicaciones> ubicaciones = [];
+  List<AllowedWarehouse> almacenes = [];
 
   UserBloc() : super(UserInitial()) {
     //*evento para obtener la configuracion de odoo para el usuario y la app
@@ -42,12 +43,21 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           final int userId = await PrefUtils.getUserId();
           await db.configurationsRepository
               .insertConfiguration(response, userId);
+
+          //obtenemos una lista de warehouse de la configuracion
+          await db.warehouseRepository.insertAllowedWarehouse(
+              response.result?.result?.allowedWarehouses ?? []);
+
           final Configurations? responsebd =
               await db.configurationsRepository.getConfiguration(userId);
           PrefUtils.setUserRol(response.result?.result?.rol ?? '');
           configurations = Configurations();
           configurations = responsebd ?? response;
           await PrefUtils.setUserRol(responsebd?.result?.result?.rol ?? '');
+
+          almacenes = await db.warehouseRepository.getAllowedWarehouse();
+          print("almacenes: ${almacenes.length}");
+
           emit(ConfigurationLoaded(responsebd ?? configurations));
         } else {
           emit(ConfigurationError('Error al cargar configuraciones'));
@@ -56,6 +66,8 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         print('Error en GetConfigurations.dart: $e =>$s');
       }
     });
+
+
 
     //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEventUser>(_onLoadInfoDeviceEventUser);
@@ -73,6 +85,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         print('ubicaciones: ${response.length}');
         await db.ubicacionesRepository.insertOrUpdateUbicaciones(response);
         ubicaciones = response;
+        almacenes =  await db.warehouseRepository.getAllowedWarehouse(); 
         emit(GetUbicacionesLoaded(response));
       } else {
         emit(GetUbicacionesError('Error al cargar ubicaciones'));
@@ -93,7 +106,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       modelo = androidInfo.model;
       version = androidInfo.version.release;
       fabricante = androidInfo.manufacturer;
-
 
       print('idDispositivo:  ${Ulid().toUuid()}');
 

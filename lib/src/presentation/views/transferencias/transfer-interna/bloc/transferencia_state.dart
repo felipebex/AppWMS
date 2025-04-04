@@ -210,7 +210,8 @@ class CreateBackOrderOrNotLoading extends TransferenciaState {}
 
 class CreateBackOrderOrNotSuccess extends TransferenciaState {
   final bool isBackorder;
-  CreateBackOrderOrNotSuccess(this.isBackorder);
+  final String msg;
+  CreateBackOrderOrNotSuccess(this.isBackorder, this.msg);
 }
 
 class CreateBackOrderOrNotFailure extends TransferenciaState {
