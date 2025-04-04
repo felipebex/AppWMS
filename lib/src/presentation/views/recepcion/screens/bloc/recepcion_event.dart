@@ -4,6 +4,8 @@ part of 'recepcion_bloc.dart';
 sealed class RecepcionEvent {}
 
 class FetchOrdenesCompra extends RecepcionEvent {
+  final bool isLoadinDialog;
+  FetchOrdenesCompra(this.isLoadinDialog );
 }
 
 class FetchOrdenesCompraOfBd extends RecepcionEvent {

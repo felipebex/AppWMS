@@ -37,42 +37,37 @@ class Tab3ScreenRecep extends StatelessWidget {
               height: size.height * 0.8,
               child: Column(
                 children: [
-                  // (recepcionBloc.listProductsEntrada.where((element) {
-                  //           return element.isDoneItem == 1;
-                  //         }).length ==
-                  //         0)
-                  //     ? Expanded(
-                  //         child: Column(
-                  //           mainAxisAlignment: MainAxisAlignment.center,
-                  //           mainAxisSize: MainAxisSize.max,
-                  //           children: [
-                  //             const Text('No hay productos',
-                  //                 style: TextStyle(fontSize: 14, color: grey)),
-                  //             const Text('Intente buscar otro producto',
-                  //                 style: TextStyle(fontSize: 12, color: grey)),
-                  //             Visibility(
-                  //               visible: context
-                  //                   .read<UserBloc>()
-                  //                   .fabricante
-                  //                   .contains("Zebra"),
-                  //               child: Container(
-                  //                 height: 60,
-                  //               ),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       )
-                  //     : 
-                      Expanded(
+                  (recepcionBloc.listProductsEntrada.where((element) {
+                            return element.isDoneItem == 1;
+                          }).length ==
+                          0)
+                      ? Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              const Text('No hay productos',
+                                  style: TextStyle(fontSize: 14, color: grey)),
+                              const Text('Intente buscar otro producto',
+                                  style: TextStyle(fontSize: 12, color: grey)),
+                              Visibility(
+                                visible: context
+                                    .read<UserBloc>()
+                                    .fabricante
+                                    .contains("Zebra"),
+                                child: Container(
+                                  height: 60,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Expanded(
                           child: ListView.builder(
-                           
                             itemCount: recepcionBloc.listProductsEntrada
                                 .where((element) {
                               return element.isDoneItem == 1;
                             }).length,
-
-
-
                             itemBuilder: (context, index) {
                               final product = recepcionBloc.listProductsEntrada
                                   .where((element) {

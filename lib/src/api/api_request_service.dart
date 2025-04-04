@@ -79,7 +79,7 @@ class ApiRequestService {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
             Get.dialog(
-              const DialogLoadingNetwork(),
+              DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo
             );
@@ -238,7 +238,7 @@ class ApiRequestService {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
             Get.dialog(
-              const DialogLoadingNetwork(),
+              DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo
             );
@@ -357,7 +357,7 @@ class ApiRequestService {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
             Get.dialog(
-              const DialogLoadingNetwork(),
+              DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo
             );
@@ -483,7 +483,7 @@ class ApiRequestService {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
             Get.dialog(
-              const DialogLoadingNetwork(),
+              DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo
             );
@@ -610,7 +610,7 @@ class ApiRequestService {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
             Get.dialog(
-              const DialogLoadingNetwork(),
+              DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo
             );
@@ -733,7 +733,7 @@ class ApiRequestService {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
             Get.dialog(
-              const DialogLoadingNetwork(),
+              DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo
             );
@@ -863,7 +863,7 @@ class ApiRequestService {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
             Get.dialog(
-              const DialogLoadingNetwork(),
+              DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo
             );
@@ -989,7 +989,7 @@ class ApiRequestService {
           if (isLoadinDialog) {
             // Mostrar el diálogo de carga con Get.dialog
             Get.dialog(
-              const DialogLoadingNetwork(),
+              DialogLoadingNetwork(titel: endpoint),
               barrierDismissible:
                   false, // No permitir cerrar tocando fuera del diálogo
             );

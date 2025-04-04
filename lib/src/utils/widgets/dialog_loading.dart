@@ -8,7 +8,10 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 class DialogLoadingNetwork extends StatelessWidget {
   const DialogLoadingNetwork({
     super.key,
+    required this.titel,
   });
+
+  final String titel;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +42,7 @@ class DialogLoadingNetwork extends StatelessWidget {
             ),
             const Text('Espera un momento...',
                 style: TextStyle(color: grey, fontSize: 14)),
+            Text(titel, style: TextStyle(color: grey, fontSize: 9)),
           ],
         )),
         content: Column(

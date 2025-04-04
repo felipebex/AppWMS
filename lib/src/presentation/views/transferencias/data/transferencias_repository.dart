@@ -44,10 +44,7 @@ class TransferenciasRepository {
               .map((data) => ResultTransFerencias.fromMap(data))
               .toList();
 
-          if (transferencias.isNotEmpty) {
-            print('Transferencias: ${transferencias.length}');
-            return transferencias;
-          }
+          return transferencias;
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -294,7 +291,7 @@ class TransferenciasRepository {
                 )
               : null, // Si 'result' no existe, asigna null a 'result'
         );
-      } 
+      }
     } on SocketException catch (e) {
       print('Error de red: $e');
       return ResponseSenTransfer(); // Retornamos un objeto vacío en caso de error de red

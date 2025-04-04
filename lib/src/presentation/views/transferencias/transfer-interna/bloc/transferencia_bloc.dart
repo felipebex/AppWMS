@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, collection_methods_unrelated_type
+// ignore_for_file: unnecessary_null_comparison, collection_methods_unrelated_type, unnecessary_type_check
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -1110,8 +1110,9 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       emit(TransferenciaLoading());
       transferencias.clear();
       final response =
-          await _transferenciasRepository.fetAllTransferencias(true);
-      if (response.isNotEmpty) {
+          await _transferenciasRepository.fetAllTransferencias(event.isLoadingDialog);
+
+      if (response != null && response is List) {
         await db.transferenciaRepository.insertEntrada(response);
 
         // Convertir el mapa en una lista de productos únicos con cantidades sumadas
@@ -1153,6 +1154,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         transferencias = response;
         emit(TransferenciaLoaded(transferencias));
       } else {
+        emit(TransferenciaLoaded([]));
         emit(TransferenciaError('No se encontraron transferencias'));
       }
     } catch (e, s) {

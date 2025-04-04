@@ -131,11 +131,10 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       );
 
       if (response != null && response is List) {
-        if (response.isNotEmpty) {
-          LocalNotificationsService().showNotification('Nuevos batchs',
-              'Se han agregado nuevos batchs para picking', '');
-        }
-
+        // if (response.isNotEmpty) {
+        //   LocalNotificationsService().showNotification('Nuevos batchs',
+        //       'Se han agregado nuevos batchs para picking', '');
+        // }
         int userId = await PrefUtils.getUserId();
         listOfBatchs.clear();
         listOfBatchs.addAll(response);

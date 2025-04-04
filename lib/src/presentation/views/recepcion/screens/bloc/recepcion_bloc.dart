@@ -928,7 +928,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       FetchOrdenesCompra event, Emitter<RecepcionState> emit) async {
     try {
       emit(FetchOrdenesCompraLoading());
-      final response = await _recepcionRepository.resBatchsPacking(true);
+      final response = await _recepcionRepository.resBatchsPacking(event.isLoadinDialog);
       if (response != null && response is List) {
         await db.entradasRepository.insertEntrada(response);
 
@@ -972,8 +972,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         print('ordenesCompra: ${response.length}');
         emit(FetchOrdenesCompraSuccess(response));
       } else {
-        emit(FetchOrdenesCompraFailure(
-            'Error al obtener las ordenes de compra'));
+        emit(FetchOrdenesCompraSuccess([]));
       }
     } catch (e, s) {
       print('Error en RecepcionBloc: $e, $s');

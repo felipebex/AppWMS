@@ -46,21 +46,7 @@ class WmsPackingRepository {
           List<BatchPackingModel> batchs =
               batches.map((data) => BatchPackingModel.fromMap(data)).toList();
 
-          if (batchs.isNotEmpty) {
-            return batchs;
-          } else {
-      
-
-            Get.snackbar(
-              'Error',
-              "No tienes batches de packing asignados",
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.check, color: Colors.amber),
-            );
-
-            return [];
-          }
+          return batchs;
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -102,7 +88,6 @@ class WmsPackingRepository {
 //endpoint para desempacar productos de su caja
   Future<UnPacking> unPacking(
     UnPackingRequest request,
-
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -158,8 +143,10 @@ class WmsPackingRepository {
   }
 
   //endpoint para enviar los productos dentro del paquete anteriormente creado
-  Future<ResponseSendPacking> sendPackingRequest(PackingRequest packingRequest,
-      bool isLoadingDialog,  ) async {
+  Future<ResponseSendPacking> sendPackingRequest(
+    PackingRequest packingRequest,
+    bool isLoadingDialog,
+  ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 

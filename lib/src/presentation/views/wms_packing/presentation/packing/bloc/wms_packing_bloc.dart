@@ -1113,10 +1113,10 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           event.isLoadinDialog);
 
       if (response != null && response is List) {
-        if (response.isNotEmpty) {
-          LocalNotificationsService().showNotification('Nuevos batchs',
-              'Se han agregado nuevos batchs para packing', '');
-        }
+        // if (response.isNotEmpty) {
+        //   LocalNotificationsService().showNotification('Nuevos batchs',
+        //       'Se han agregado nuevos batchs para packing', '');
+        // }
 
         print('response batchs packing: ${response.length}');
         listOfBatchs.clear();

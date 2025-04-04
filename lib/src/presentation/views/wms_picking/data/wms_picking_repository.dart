@@ -63,17 +63,6 @@ class WmsPickingRepository {
               List<BatchsModel> products =
                   batches.map((data) => BatchsModel.fromMap(data)).toList();
               return products;
-            } else if (jsonResponse['result'].containsKey('msg')) {
-              // Si contiene 'msg', podrías manejar el mensaje de alguna forma
-              String msg = jsonResponse['result']['msg'];
-              Get.snackbar(
-                'Error',
-                msg,
-                backgroundColor: white,
-                colorText: primaryColorApp,
-                icon: Icon(Icons.check, color: Colors.red),
-              );
-              return [];
             }
           }
         } else if (jsonResponse.containsKey('error')) {

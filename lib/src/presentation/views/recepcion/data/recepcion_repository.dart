@@ -47,10 +47,7 @@ class RecepcionRepository {
           // Mapea los datos decodificados a una lista de BatchsModel
           List<ResultEntrada> ordenes =
               batches.map((data) => ResultEntrada.fromMap(data)).toList();
-
-          if (ordenes.isNotEmpty) {
             return ordenes;
-          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(

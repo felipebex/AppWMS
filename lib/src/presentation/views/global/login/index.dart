@@ -33,16 +33,23 @@ class LoginPage extends StatelessWidget {
             listener: (context, state) {
               if (state is LoginLoading) {
                 Get.dialog(
-                  const DialogLoadingNetwork(),
+                  DialogLoadingNetwork(
+                    titel: 'Login',
+                  ),
                   barrierDismissible:
                       false, // No permitir cerrar tocando fuera del diálogo
                 );
               }
               if (state is LoginSuccess) {
                 // llamamos la configuracion de la empresa y el usuario logueado
-                context.read<UserBloc>().add(GetConfigurations(context));//configuracion del usuario
-                context.read<WMSPickingBloc>().add(LoadAllNovedades(context));//novedades
-                context.read<UserBloc>().add(GetUbicacionesEvent());//ubicaciones
+                context.read<UserBloc>().add(
+                    GetConfigurations(context)); //configuracion del usuario
+                context
+                    .read<WMSPickingBloc>()
+                    .add(LoadAllNovedades(context)); //novedades
+                context
+                    .read<UserBloc>()
+                    .add(GetUbicacionesEvent()); //ubicaciones
               }
               if (state is LoginFailure) {
                 Get.back();
@@ -59,20 +66,20 @@ class LoginPage extends StatelessWidget {
                   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
                 } else if (rol == 'admin') {
                   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        false,
-                      ));
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+                  context
+                      .read<WmsPackingBloc>()
+                      .add(LoadAllPackingEvent(false));
+                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(true));
                 } else if (rol == 'packing') {
                   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
                         true,
                       ));
                 } else if (rol == "reception") {
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra());
+                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(true));
                 } else if (rol == "transfer") {
                   context
                       .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias());
+                      .add(FetchAllTransferencias(true));
                 }
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();

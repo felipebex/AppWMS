@@ -3,7 +3,10 @@ part of 'transferencia_bloc.dart';
 @immutable
 sealed class TransferenciaEvent {}
 
-class FetchAllTransferencias extends TransferenciaEvent {}
+class FetchAllTransferencias extends TransferenciaEvent {
+  final bool isLoadingDialog;
+  FetchAllTransferencias(this.isLoadingDialog);
+}
 
 class FetchAllTransferenciasDB extends TransferenciaEvent {}
 
