@@ -43,6 +43,7 @@ class ChangeQuantityIsOkState extends BatchState {
   final bool isOk;
   ChangeQuantityIsOkState(this.isOk);
 }
+
 class ChangeLocationDestIsOkState extends BatchState {
   final bool isOk;
   ChangeLocationDestIsOkState(this.isOk);
@@ -70,8 +71,8 @@ class CurrentProductChangedStateError extends BatchState {
   final String msg;
   CurrentProductChangedStateError(this.msg);
 }
-class CurrentProductChangedStateLoading extends BatchState {
-}
+
+class CurrentProductChangedStateLoading extends BatchState {}
 
 final class QuantityChangedState extends BatchState {
   final int quantity;
@@ -194,19 +195,18 @@ class ProductPendingError extends BatchState {}
 
 class ProductPendingLoading extends BatchState {}
 
-
 //*estados para enviar un producto a odoo
 
 class SendProductOdooLoading extends BatchState {}
 
 class SendProductOdooSuccess extends BatchState {}
 
-class SendProductOdooError extends BatchState {}
-
-
+class SendProductOdooError extends BatchState {
+  final String error;
+  SendProductOdooError(this.error);
+}
 
 //*estado para actualizar el valor escaneado
-
 
 class UpdateScannedValueState extends BatchState {
   final String scannedValue;
@@ -216,12 +216,10 @@ class UpdateScannedValueState extends BatchState {
 
 class ClearScannedValueState extends BatchState {}
 
-
 class ShowQuantityState extends BatchState {
   final bool showQuantity;
   ShowQuantityState(this.showQuantity);
 }
-
 
 class SetIsProcessingState extends BatchState {
   final bool isProcessing;
@@ -229,7 +227,6 @@ class SetIsProcessingState extends BatchState {
 }
 
 class CloseState extends BatchState {}
-
 
 class LoadingFetchBatch extends BatchState {}
 

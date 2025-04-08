@@ -26,9 +26,7 @@ import '../../../../providers/network/cubit/connection_status_cubit.dart';
 class ScanProductTrasnferScreen extends StatefulWidget {
   final LineasTransferenciaTrans? currentProduct;
 
-  const ScanProductTrasnferScreen(
-      {super.key,
-      required this.currentProduct});
+  const ScanProductTrasnferScreen({super.key, required this.currentProduct});
 
   @override
   State<ScanProductTrasnferScreen> createState() =>
@@ -221,7 +219,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     _controllerQuantity.text = "";
     final currentProduct = bloc.currentProduct;
     //validamos que no aumente en cantidad si llego al maximo
-    if (bloc.quantitySelected == currentProduct.quantityOrdered.toInt()) {
+    if (bloc.quantitySelected == bloc.currentProduct.cantidadFaltante.toInt()) {
       return;
     }
 
@@ -248,7 +246,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
         ? bloc.quantitySelected.toString()
         : _cantidadController.text);
 
-    if (cantidad > (bloc.currentProduct.quantityOrdered ?? 0).toInt()) {
+    if (cantidad > (bloc.currentProduct.cantidadFaltante.toInt())) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         duration: const Duration(milliseconds: 1000),
         content: const Text('Cantidad erronea'),
@@ -349,7 +347,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
         ? batchBloc.quantitySelected.toString()
         : _cantidadController.text);
 
-    if (cantidad == currentProduct.quantityOrdered) {
+    if (cantidad == (batchBloc.currentProduct.cantidadFaltante.toInt())) {
       _finishSeprateProductOrder(context, cantidad);
       Navigator.pushReplacementNamed(context, 'transferencia-detail',
           arguments: [batchBloc.currentTransferencia, 1]);
@@ -433,7 +431,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                         //*estado cuando la cantidad fue cambiada
                         if (state is ChangeQuantitySeparateStateSuccess) {
                           if (state.quantity ==
-                              bloc.currentProduct.quantityOrdered.toInt()) {
+                              (bloc.currentProduct.cantidadFaltante.toInt())) {
                             Future.delayed(const Duration(seconds: 1), () {
                               FocusScope.of(context).requestFocus(focusNode5);
                             });
@@ -469,13 +467,17 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
                                       Navigator.pushReplacementNamed(
                                           context, 'transferencia-detail',
-                                          arguments: [bloc.currentTransferencia, 1]);
+                                          arguments: [
+                                            bloc.currentTransferencia,
+                                            1
+                                          ]);
                                     },
                                   ),
                                   Padding(
                                     padding:
                                         EdgeInsets.only(left: size.width * 0.2),
-                                    child: Text(bloc.currentTransferencia.name ?? '',
+                                    child: Text(
+                                        bloc.currentTransferencia.name ?? '',
                                         style: TextStyle(
                                             color: white, fontSize: 18)),
                                   ),
@@ -731,28 +733,32 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                             ),
                                             Column(
                                               children: [
-                                                ExpiryDateWidget(
-                                                    expireDate: bloc.currentProduct
-                                                                    .fechaVencimiento ==
-                                                                "" ||
-                                                            bloc.currentProduct
-                                                                    .fechaVencimiento ==
-                                                                null
-                                                        ? DateTime.now()
-                                                        : DateTime.parse(bloc
-                                                                .currentProduct
-                                                                .fechaVencimiento ??
-                                                            ''),
-                                                    size: size,
-                                                    isDetaild: false,
-                                                    isNoExpireDate: bloc
-                                                                .currentProduct
-                                                                .fechaVencimiento ==
-                                                            ""
-                                                        ? true
-                                                        : false),
-                                                if (bloc.currentProduct.lotId !=
-                                                    null)
+                                                if (bloc.currentProduct
+                                                        .productTracking ==
+                                                    'lot')
+                                                  ExpiryDateWidget(
+                                                      expireDate: bloc.currentProduct
+                                                                      .fechaVencimiento ==
+                                                                  "" ||
+                                                              bloc.currentProduct
+                                                                      .fechaVencimiento ==
+                                                                  null
+                                                          ? DateTime.now()
+                                                          : DateTime.parse(bloc
+                                                                  .currentProduct
+                                                                  .fechaVencimiento ??
+                                                              ''),
+                                                      size: size,
+                                                      isDetaild: false,
+                                                      isNoExpireDate: bloc
+                                                                  .currentProduct
+                                                                  .fechaVencimiento ==
+                                                              ""
+                                                          ? true
+                                                          : false),
+                                                if (bloc.currentProduct
+                                                        .productTracking ==
+                                                    'lot')
                                                   Row(
                                                     children: [
                                                       Align(
@@ -912,8 +918,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
                                                 const SizedBox(height: 10),
                                                 //informacion del lote:
-                                                if (bloc.currentProduct.lotId !=
-                                                    null)
+                                                if (bloc.currentProduct
+                                                        .productTracking ==
+                                                    'lot')
                                                   Column(
                                                     children: [
                                                       Row(
@@ -974,26 +981,29 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                       ),
                                                     ],
                                                   ),
-                                                ExpiryDateWidget(
-                                                    expireDate: bloc.currentProduct
-                                                                    .fechaVencimiento ==
-                                                                "" ||
-                                                            bloc.currentProduct
-                                                                    .fechaVencimiento ==
-                                                                null
-                                                        ? DateTime.now()
-                                                        : DateTime.parse(bloc
-                                                                .currentProduct
-                                                                .fechaVencimiento ??
-                                                            ""),
-                                                    size: size,
-                                                    isDetaild: false,
-                                                    isNoExpireDate: bloc
-                                                                .currentProduct
-                                                                .fechaVencimiento ==
-                                                            ""
-                                                        ? true
-                                                        : false),
+                                                if (bloc.currentProduct
+                                                        .productTracking ==
+                                                    'lot')
+                                                  ExpiryDateWidget(
+                                                      expireDate: bloc.currentProduct
+                                                                      .fechaVencimiento ==
+                                                                  "" ||
+                                                              bloc.currentProduct
+                                                                      .fechaVencimiento ==
+                                                                  null
+                                                          ? DateTime.now()
+                                                          : DateTime.parse(bloc
+                                                                  .currentProduct
+                                                                  .fechaVencimiento ??
+                                                              ""),
+                                                      size: size,
+                                                      isDetaild: false,
+                                                      isNoExpireDate: bloc
+                                                                  .currentProduct
+                                                                  .fechaVencimiento ==
+                                                              ""
+                                                          ? true
+                                                          : false),
                                               ],
                                             ),
                                           ),
@@ -1183,9 +1193,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 5),
                                       child: Text(
-                                        bloc.currentProduct.quantityOrdered
-                                                ?.toString() ??
-                                            "",
+                                        (bloc.currentProduct.cantidadFaltante
+                                                .toInt())
+                                            .toString(),
                                         style: TextStyle(
                                             color: primaryColorApp,
                                             fontSize: 13),
@@ -1193,8 +1203,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                     ),
                                     Visibility(
                                       visible: (bloc.currentProduct
-                                                      .quantityOrdered ??
-                                                  0) -
+                                                  .cantidadFaltante
+                                                  .toInt()) -
                                               bloc.quantitySelected !=
                                           0,
                                       child: const Text('Pdte:',
@@ -1206,28 +1216,32 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 5),
                                         child: (bloc.currentProduct
-                                                            .quantityOrdered ??
-                                                        0) -
+                                                        .cantidadFaltante
+                                                        .toInt()) -
                                                     bloc.quantitySelected ==
                                                 0
                                             ? Container() // Ocultamos el widget si la diferencia es 0
 
                                             : Text(
                                                 (bloc.quantitySelected <=
-                                                        bloc.currentProduct
-                                                            .quantityOrdered
-                                                    ? (bloc.currentProduct
-                                                                .quantityOrdered -
+                                                        (bloc.currentProduct
+                                                            .cantidadFaltante
+                                                            .toInt())
+                                                    ? ((bloc.currentProduct
+                                                                .cantidadFaltante
+                                                                .toInt()) -
                                                             bloc.quantitySelected)
                                                         .toString()
                                                     : '0'), // Aquí puedes definir qué mostrar si la condición no se cumple
                                                 style: TextStyle(
                                                   color: _getColorForDifference(
                                                     bloc.quantitySelected <=
-                                                            bloc.currentProduct
-                                                                .quantityOrdered
-                                                        ? (bloc.currentProduct
-                                                                .quantityOrdered -
+                                                            (bloc.currentProduct
+                                                                .cantidadFaltante
+                                                                .toInt())
+                                                        ? ((bloc.currentProduct
+                                                                .cantidadFaltante
+                                                                .toInt()) -
                                                             bloc.quantitySelected)
                                                         : 0, // Si no cumple, el color será para diferencia 0
                                                   ),
@@ -1466,8 +1480,6 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                       ],
                     ),
                   ),
-              
-              
                 ],
               ),
             ),
@@ -1477,12 +1489,11 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     );
   }
 
-  void _finishSeprateProductOrder(
-    BuildContext context,
-    int cantidad
-  ) {
+  void _finishSeprateProductOrder(BuildContext context, int cantidad) {
     context.read<TransferenciaBloc>().add(FinalizarTransferProducto());
-    context.read<TransferenciaBloc>().add(SendProductToTransfer(false, cantidad));
+    context
+        .read<TransferenciaBloc>()
+        .add(SendProductToTransfer(false, cantidad));
     termiateProcess();
   }
 
@@ -1493,7 +1504,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     context
         .read<TransferenciaBloc>()
         .add(FinalizarTransferProductoSplit(cantidad));
-    context.read<TransferenciaBloc>().add(SendProductToTransfer(true, cantidad));
+    context
+        .read<TransferenciaBloc>()
+        .add(SendProductToTransfer(true, cantidad));
     termiateProcess();
   }
 
@@ -1552,7 +1565,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if (matchedBarcode.cantidad.toInt() + bloc.quantitySelected >
-            currentProduct.quantityOrdered!) {
+            (currentProduct.cantidadFaltante.toInt())) {
           return false;
         }
 

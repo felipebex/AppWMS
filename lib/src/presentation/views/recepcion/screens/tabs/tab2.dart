@@ -1,6 +1,5 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -127,7 +126,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
-        return true;
+        return false;
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
         listener: (context, state) {
@@ -364,6 +363,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                                 false,
                                             child: Row(
                                               children: [
+
                                                 Text(
                                                   "Cantidad: ",
                                                   style: TextStyle(
@@ -371,8 +371,9 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
+                                                
                                                 Text(
-                                                    "${product.quantityOrdered}",
+                                                    "${product.cantidadFaltante}",
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),

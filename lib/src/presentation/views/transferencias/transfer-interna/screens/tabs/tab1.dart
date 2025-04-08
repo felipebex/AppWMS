@@ -24,7 +24,7 @@ class Tab1ScreenTrans extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
-        return true;
+        return false;
       },
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
         listener: (context, state) {
@@ -321,6 +321,19 @@ class Tab1ScreenTrans extends StatelessWidget {
                     ),
                   ),
                 ),
+                // ElevatedButton(
+                //     onPressed: () {
+                //     },
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: grey,
+                //       minimumSize: Size(size.width * 0.9, 40),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(10),
+                //       ),
+                //       elevation: 3,
+                //     ),
+                //     child: Text('Comprobar Disponibilidad',
+                //         style: TextStyle(color: white))),
                 Spacer(),
                 ElevatedButton(
                     onPressed: () {

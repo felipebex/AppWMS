@@ -107,7 +107,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
         Navigator.pushReplacementNamed(
           context,
           'scan-product-transfer',
-          arguments: [ product],
+          arguments: [product],
         );
       });
       print(product.toMap());
@@ -129,7 +129,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
-        return true;
+        return false;
       },
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
         listener: (context, state) {
@@ -281,10 +281,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                       Navigator.pushReplacementNamed(
                                         context,
                                         'scan-product-transfer',
-                                        arguments: [
-                                     
-                                          product
-                                        ],
+                                        arguments: [product],
                                       );
                                     });
                                     print(product.toMap());
@@ -336,27 +333,34 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                                       color: black)),
                                             ],
                                           ),
-                                          Row(
-                                            children: [
-                                              Text(
-                                                "Lote: ",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: primaryColorApp,
+                                          Visibility(
+                                            visible: product.productTracking ==
+                                                'lot',
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "Lote: ",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                  product.lotName ?? 'Sin lote',
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black)),
-                                              Text(
-                                                  "/${product.fechaVencimiento}",
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: black)),
-                                            ],
+                                                Text(
+                                                    product.lotName ??
+                                                        'Sin lote',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                                Text(
+                                                    "/${product.fechaVencimiento}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                              ],
+                                            ),
                                           ),
+
+
                                           Text(
                                             "Ubicación de origen: ",
                                             style: TextStyle(
@@ -364,6 +368,8 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                               color: primaryColorApp,
                                             ),
                                           ),
+
+
                                           Text(
                                               product.locationName ??
                                                   'Sin ubicación',
@@ -381,9 +387,9 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                                     ),
                                                   ),
                                                   Text(
-                                                      product.quantityOrdered
-                                                              .toString() ??
-                                                          '0',
+                                                      (product.cantidadFaltante
+                                                                  .toInt())
+                                                          .toString(),
                                                       style: const TextStyle(
                                                           fontSize: 12,
                                                           color: black)),

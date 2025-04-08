@@ -4,6 +4,7 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -41,7 +42,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
         listener: (context, state) {},
         builder: (context, state) {
           return Scaffold(
-            backgroundColor: white,
+              backgroundColor: white,
               bottomNavigationBar:
                   context.read<WmsPackingBloc>().isKeyboardVisible
                       ? CustomKeyboard(
@@ -111,13 +112,24 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              left: size.width * 0.15),
-                                          child: const Text(
-                                            'BATCH - PACKING',
-                                            style: TextStyle(
-                                                color: white,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
+                                              left: size.width * 0.23),
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              await DataBaseSqlite()
+                                                  .delePacking();
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(LoadAllPackingEvent(
+                                                    true,
+                                                  ));
+                                            },
+                                            child: const Text(
+                                              'PACKING',
+                                              style: TextStyle(
+                                                  color: white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
                                           ),
                                         ),
                                         const Spacer(),
@@ -318,7 +330,6 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                               context
                                                   .read<WmsPackingBloc>()
                                                   .add(StartTimePack(
-                                                   
                                                       batch.id ?? 0,
                                                       DateTime.now()));
 

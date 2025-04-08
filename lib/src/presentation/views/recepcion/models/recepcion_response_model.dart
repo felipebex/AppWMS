@@ -100,6 +100,9 @@ class ResultEntrada {
   List<LineasTransferencia>? lineasRecepcion;
   List<LineasTransferencia>? lineasRecepcionEnviadas;
 
+    final dynamic backorderName;
+  final dynamic backorderId;
+
   ResultEntrada({
     this.id,
     this.name,
@@ -132,6 +135,8 @@ class ResultEntrada {
     this.isFinish,
     this.lineasRecepcion,
     this.lineasRecepcionEnviadas,
+    this.backorderName,
+    this.backorderId,
   });
 
   factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
@@ -172,6 +177,8 @@ class ResultEntrada {
             ? []
             : List<LineasTransferencia>.from(json["lineas_recepcion_enviadas"]!
                 .map((x) => LineasTransferencia.fromMap(x))),
+        backorderName: json["backorder_name"],
+        backorderId: json["backorder_id"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -211,6 +218,8 @@ class ResultEntrada {
             ? []
             : List<dynamic>.from(
                 lineasRecepcionEnviadas!.map((x) => x.toMap())),
+        "backorder_name": backorderName,
+        "backorder_id": backorderId,
       };
 }
 
@@ -241,6 +250,7 @@ class LineasTransferencia {
   String? locationName;
   String? locationBarcode;
   double? weight;
+  
 
   final String? observation;
 
@@ -261,6 +271,9 @@ class LineasTransferencia {
   final dynamic time;
   final dynamic isDoneItem;
   final dynamic dateTransaction;
+
+  final dynamic isPrincipalItem;
+  final dynamic cantidadFaltante;
 
   LineasTransferencia({
     this.id,
@@ -302,9 +315,12 @@ class LineasTransferencia {
     this.time,
     this.isDoneItem,
     this.dateTransaction,
+    this.isPrincipalItem,
+    this.cantidadFaltante,
   });
 
-  factory LineasTransferencia.fromMap(Map<String, dynamic> json) => LineasTransferencia(
+  factory LineasTransferencia.fromMap(Map<String, dynamic> json) =>
+      LineasTransferencia(
         id: json["id"],
         productId: json["product_id"],
         idRecepcion: json["id_recepcion"],
@@ -319,9 +335,12 @@ class LineasTransferencia {
             ? []
             : List<Barcodes>.from(
                 json["other_barcodes"]!.map((x) => Barcodes.fromMap(x))),
+       
         productPacking: json["product_packing"] == null
             ? []
-            : List<Barcodes>.from(json["product_packing"]!.map((x) => x)),
+            : List<Barcodes>.from(
+                json["product_packing"]!.map((x) => Barcodes.fromMap(x))),
+
         quantityOrdered: json["quantity_ordered"],
         quantityToReceive: json["quantity_to_receive"],
         quantityDone: json["quantity_done"],
@@ -349,6 +368,8 @@ class LineasTransferencia {
         time: json["time"],
         isDoneItem: json["is_done_item"],
         dateTransaction: json["fecha_transaccion"],
+        isPrincipalItem: json["is_principal_item"],
+        cantidadFaltante: json["cantidad_faltante"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -395,5 +416,7 @@ class LineasTransferencia {
         "time": time,
         "is_done_item": isDoneItem,
         "fecha_transaccion": dateTransaction,
+        "is_principal_item": isPrincipalItem,
+        "cantidad_faltante": cantidadFaltante,
       };
 }

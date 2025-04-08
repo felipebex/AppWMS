@@ -24,12 +24,10 @@ class Tab1ScreenRecep extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
-        return true;
+        return false;
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
         listener: (context, state) {
-          
-
           if (state is CreateBackOrderOrNotLoading) {
             showDialog(
               context: context,
@@ -43,7 +41,7 @@ class Tab1ScreenRecep extends StatelessWidget {
 
           if (state is CreateBackOrderOrNotFailure) {
             Navigator.pop(context);
-              Get.defaultDialog(
+            Get.defaultDialog(
               title: '360 Software Informa',
               titleStyle: TextStyle(color: Colors.red, fontSize: 18),
               middleText: state.error,
@@ -68,17 +66,10 @@ class Tab1ScreenRecep extends StatelessWidget {
           }
 
           if (state is CreateBackOrderOrNotSuccess) {
-            if (state.isBackorder) {
-              Get.snackbar("360 Software Informa", 'Se ha creado la backorder correctamente',
-                  backgroundColor: white,
-                  colorText: primaryColorApp,
-                  icon: Icon(Icons.error, color: Colors.green));
-            } else {
-              Get.snackbar("360 Software Informa", 'Se valido la recepcion correctamente',
-                  backgroundColor: white,
-                  colorText: primaryColorApp,
-                  icon: Icon(Icons.error, color: Colors.green));
-            }
+            Get.snackbar("360 Software Informa", state.message,
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.green));
             Navigator.pop(context);
             Navigator.pushReplacementNamed(
               context,

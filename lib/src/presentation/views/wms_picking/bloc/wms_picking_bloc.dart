@@ -11,7 +11,6 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
-import 'package:wms_app/src/services/notification_service.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'wms_picking_event.dart';

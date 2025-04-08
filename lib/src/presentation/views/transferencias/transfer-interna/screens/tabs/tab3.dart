@@ -21,7 +21,7 @@ class Tab3ScreenTrans extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
-        return true;
+        return false;
       },
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
         listener: (context, state) {},
@@ -185,7 +185,7 @@ class Tab3ScreenTrans extends StatelessWidget {
                                                   ),
                                                 ),
                                                 Text(
-                                                    "${product.quantityOrdered}",
+                                                    "${product.cantidadFaltante}",
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),

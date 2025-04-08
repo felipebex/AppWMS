@@ -42,74 +42,79 @@ class SelectEnterpricePage extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          return Scaffold(
-            body: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      colors: [primaryColorApp, secondary, primaryColorApp])),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const WarningWidgetCubit(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 25, bottom: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                            child: Text(
-                          "Bienvenido a OnPoint",
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 22),
-                        )),
-                        
-                        const Center(
-                          child: Text("Version: 1.0.0",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 10)),
-                        )
-                        //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
-                      ],
+          return WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Scaffold(
+              body: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        colors: [primaryColorApp, secondary, primaryColorApp])),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const WarningWidgetCubit(),
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(top: 5),
-                      decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(40),
-                              topRight: Radius.circular(40))),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 30, right: 30),
-                                child: _loginForm()),
-                            Visibility(
-                              visible: context
-                                  .read<UserBloc>()
-                                  .fabricante
-                                  .contains("Zebra"),
-                              child: CustomKeyboard(
-                                  controller: context
-                                      .read<EntrepriseBloc>()
-                                      .entrepriceController,
-                                  onchanged: () {}),
-                            )
-                          ],
+                    Padding(
+                      padding: const EdgeInsets.only(top: 25, bottom: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                              child: Text(
+                            "Bienvenido a OnPoint",
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 22),
+                          )),
+
+                          const Center(
+                            child: Text("Version: 1.0.0",
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 10)),
+                          )
+                          //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.only(top: 5),
+                        decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(40),
+                                topRight: Radius.circular(40))),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 30, right: 30),
+                                  child: _loginForm()),
+                              Visibility(
+                                visible: context
+                                    .read<UserBloc>()
+                                    .fabricante
+                                    .contains("Zebra"),
+                                child: CustomKeyboard(
+                                    controller: context
+                                        .read<EntrepriseBloc>()
+                                        .entrepriceController,
+                                    onchanged: () {}),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -148,12 +153,8 @@ class _loginForm extends StatelessWidget {
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  child: 
-                  
-                  
-                  TextFormField(
+                  child: TextFormField(
                     autocorrect: false,
-                   
                     controller:
                         context.read<EntrepriseBloc>().entrepriceController,
                     style: const TextStyle(fontSize: 12),
@@ -177,9 +178,6 @@ class _loginForm extends StatelessWidget {
                             ))),
                     validator: ((value) => Validator.isEmpty(value, context)),
                   ),
-
-
-
                 ),
               ],
             ),
@@ -234,9 +232,6 @@ class _loginForm extends StatelessWidget {
               },
             ),
           ),
-         
-         
-         
           MaterialButton(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),

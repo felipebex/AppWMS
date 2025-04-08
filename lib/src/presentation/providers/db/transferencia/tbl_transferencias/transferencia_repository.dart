@@ -61,6 +61,11 @@ class TransferenciaRepository {
                 TransferenciaTable.columnPickingType: transfer.pickingType,
                 TransferenciaTable.columnDateStart: transfer.startTimeTransfer,
                 TransferenciaTable.columnDateFinish: transfer.endTimeTransfer,
+                TransferenciaTable.columnBackorderId: transfer.backorderId,
+                TransferenciaTable.columnBackorderName: transfer.backorderName,
+                TransferenciaTable.columnShowCheckAvailability:
+                    transfer.showCheckAvailability,
+                    
               },
               where: '${TransferenciaTable.columnId} = ?',
               whereArgs: [transfer.id],
@@ -94,6 +99,10 @@ class TransferenciaRepository {
                 TransferenciaTable.columnPickingType: transfer.pickingType,
                 TransferenciaTable.columnDateStart: transfer.startTimeTransfer,
                 TransferenciaTable.columnDateFinish: transfer.endTimeTransfer,
+                TransferenciaTable.columnBackorderId: transfer.backorderId,
+                TransferenciaTable.columnBackorderName: transfer.backorderName,
+                TransferenciaTable.columnShowCheckAvailability:
+                    transfer.showCheckAvailability,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -144,8 +153,11 @@ class TransferenciaRepository {
   //*metodo para actualizar la tabla
 
   // Método: Actualizar un campo específico en la tabla productos_pedidos
-  Future<int?> setFieldTableTransfer(int idTransfer, String field,
-      dynamic setValue, ) async {
+  Future<int?> setFieldTableTransfer(
+    int idTransfer,
+    String field,
+    dynamic setValue,
+  ) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
     final resUpdate = await db.rawUpdate(

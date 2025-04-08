@@ -83,7 +83,7 @@ class _DialogAdvetenciaCantidadScreenState
                           .result
                           ?.result
                           ?.hideExpectedQty ==
-                      true)
+                      false)
                     TextSpan(
                       text: '${widget.currentProduct.quantityOrdered}',
                       style: const TextStyle(

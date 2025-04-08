@@ -33,7 +33,8 @@ class EntradasRepeccionTable {
   static const String columnDateFinish = 'end_time_reception';
   static const String columnDateStart = 'start_time_reception';
 
-
+  static const String columnBackorderName = 'backorder_name';
+  static const String columnBackorderId = 'backorder_id';
 
   static String createTable() {
     return '''
@@ -65,7 +66,9 @@ class EntradasRepeccionTable {
       $columnIsStarted INTEGER,
       $columnDateFinish TEXT,
       $columnDateStart TEXT,
-      $columnIsfinis INTEGER
+      $columnIsfinis INTEGER,
+      $columnBackorderName TEXT,
+      $columnBackorderId INTEGER
 
     )
     ''';

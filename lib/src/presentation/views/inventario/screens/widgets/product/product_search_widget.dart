@@ -27,210 +27,178 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
     return BlocBuilder<InventarioBloc, InventarioState>(
       builder: (context, state) {
         final bloc = context.read<InventarioBloc>();
-        return Scaffold(
-          backgroundColor: white,
-          body: SizedBox(
-              width: size.width * 1,
-              height: size.height * 1,
-              child: Column(
-                children: [
-                  _AppBarInfo(size: size),
-                  SizedBox(
-                      height: 55,
-                      width: size.width * 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 10,
-                          right: 10,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: size.width * 0.9,
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 3,
-                                child: TextFormField(
-                                  readOnly: context
-                                          .read<UserBloc>()
-                                          .fabricante
-                                          .contains("Zebra")
-                                      ? true
-                                      : false,
-                                  textAlignVertical: TextAlignVertical.center,
-                                  controller: bloc.searchControllerProducts,
-                                  decoration: InputDecoration(
-                                    prefixIcon: const Icon(
-                                      Icons.search,
-                                      color: grey,
-                                      size: 20,
-                                    ),
-                                    suffixIcon: IconButton(
-                                        onPressed: () {
-                                          bloc.searchControllerProducts.clear();
-                                          bloc.add(SearchProductEvent(
-                                            '',
-                                          ));
-                                          bloc.add(ShowKeyboardEvent(false));
-                                          FocusScope.of(context).unfocus();
-                                        },
-                                        icon: const Icon(
-                                          Icons.close,
-                                          color: grey,
-                                          size: 20,
-                                        )),
-                                    disabledBorder: const OutlineInputBorder(),
-                                    hintText: "Buscar producto",
-                                    hintStyle: const TextStyle(
-                                        color: Colors.grey, fontSize: 14),
-                                    border: InputBorder.none,
-                                  ),
-                                  onChanged: (value) {
-                                    bloc.add(SearchProductEvent(
-                                      value,
-                                    ));
-                                  },
-                                  onTap: !context
-                                          .read<UserBloc>()
-                                          .fabricante
-                                          .contains("Zebra")
-                                      ? null
-                                      : () {
-                                          bloc.add(ShowKeyboardEvent(true));
-                                        },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                  (bloc.productosUbicacionFilters.isEmpty)
-                      ? Expanded(
-                          child: Column(
+        return WillPopScope(
+          onWillPop: () async {
+            return false;
+          },
+          child: Scaffold(
+            backgroundColor: white,
+            body: SizedBox(
+                width: size.width * 1,
+                height: size.height * 1,
+                child: Column(
+                  children: [
+                    _AppBarInfo(size: size),
+                    SizedBox(
+                        height: 55,
+                        width: size.width * 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                          ),
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.max,
                             children: [
-                              const Text('No hay productos',
-                                  style: TextStyle(fontSize: 14, color: grey)),
-                              const Text('Intente buscar con otra ubicacion',
-                                  style: TextStyle(fontSize: 12, color: grey)),
-                              Visibility(
-                                visible: context
-                                    .read<UserBloc>()
-                                    .fabricante
-                                    .contains("Zebra"),
-                                child: Container(
-                                  height: 60,
+                              SizedBox(
+                                width: size.width * 0.9,
+                                child: Card(
+                                  color: Colors.white,
+                                  elevation: 3,
+                                  child: TextFormField(
+                                    readOnly: context
+                                            .read<UserBloc>()
+                                            .fabricante
+                                            .contains("Zebra")
+                                        ? true
+                                        : false,
+                                    textAlignVertical: TextAlignVertical.center,
+                                    controller: bloc.searchControllerProducts,
+                                    decoration: InputDecoration(
+                                      prefixIcon: const Icon(
+                                        Icons.search,
+                                        color: grey,
+                                        size: 20,
+                                      ),
+                                      suffixIcon: IconButton(
+                                          onPressed: () {
+                                            bloc.searchControllerProducts
+                                                .clear();
+                                            bloc.add(SearchProductEvent(
+                                              '',
+                                            ));
+                                            bloc.add(ShowKeyboardEvent(false));
+                                            FocusScope.of(context).unfocus();
+                                          },
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: grey,
+                                            size: 20,
+                                          )),
+                                      disabledBorder:
+                                          const OutlineInputBorder(),
+                                      hintText: "Buscar producto",
+                                      hintStyle: const TextStyle(
+                                          color: Colors.grey, fontSize: 14),
+                                      border: InputBorder.none,
+                                    ),
+                                    onChanged: (value) {
+                                      bloc.add(SearchProductEvent(
+                                        value,
+                                      ));
+                                    },
+                                    onTap: !context
+                                            .read<UserBloc>()
+                                            .fabricante
+                                            .contains("Zebra")
+                                        ? null
+                                        : () {
+                                            bloc.add(ShowKeyboardEvent(true));
+                                          },
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        )
-                      : Expanded(
-                          child: ListView.builder(
-                              itemCount: bloc.productosUbicacionFilters.length,
-                              itemBuilder: (context, index) {
-                                bool isSelected = selectedIndex == index;
+                        )),
+                    (bloc.productosUbicacionFilters.isEmpty)
+                        ? Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                const Text('No hay productos',
+                                    style:
+                                        TextStyle(fontSize: 14, color: grey)),
+                                const Text('Intente buscar con otra ubicacion',
+                                    style:
+                                        TextStyle(fontSize: 12, color: grey)),
+                                Visibility(
+                                  visible: context
+                                      .read<UserBloc>()
+                                      .fabricante
+                                      .contains("Zebra"),
+                                  child: Container(
+                                    height: 60,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Expanded(
+                            child: ListView.builder(
+                                itemCount:
+                                    bloc.productosUbicacionFilters.length,
+                                itemBuilder: (context, index) {
+                                  bool isSelected = selectedIndex == index;
 
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 0),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        selectedIndex =
-                                            isSelected ? null : index;
-                                      });
-                                    },
-                                    child: Card(
-                                      elevation: 3,
-                                      color: isSelected
-                                          ? Colors.green[100]
-                                          : white,
-                                      child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 5),
-                                          child: SizedBox(
-                                            // height: 30,
-                                            child: Column(
-                                              children: [
-                                                Column(
-                                                  children: [
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        'Nombre: ',
-                                                        style: TextStyle(
-                                                          color: black,
-                                                          fontSize: 12,
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 0),
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          selectedIndex =
+                                              isSelected ? null : index;
+                                        });
+                                      },
+                                      child: Card(
+                                        elevation: 3,
+                                        color: isSelected
+                                            ? Colors.green[100]
+                                            : white,
+                                        child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 10, vertical: 5),
+                                            child: SizedBox(
+                                              // height: 30,
+                                              child: Column(
+                                                children: [
+                                                  Column(
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                          'Nombre: ',
+                                                          style: TextStyle(
+                                                            color: black,
+                                                            fontSize: 12,
+                                                          ),
                                                         ),
                                                       ),
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        bloc
-                                                                .productosUbicacionFilters[
-                                                                    index]
-                                                                .productName ??
-                                                            '',
-                                                        style: TextStyle(
-                                                          color:
-                                                              primaryColorApp,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                      'Barcode: ',
-                                                      style: TextStyle(
-                                                        color: black,
-                                                        fontSize: 12,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Text(
-                                                      bloc
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                          bloc
                                                                   .productosUbicacionFilters[
                                                                       index]
-                                                                  .barcode ==
-                                                              false
-                                                          ? 'Sin barcode'
-                                                          : bloc
-                                                                  .productosUbicacionFilters[
-                                                                      index]
-                                                                  .barcode ??
+                                                                  .productName ??
                                                               '',
-                                                      style: TextStyle(
-                                                        color: bloc
-                                                                    .productosUbicacionFilters[
-                                                                        index]
-                                                                    .barcode ==
-                                                                false
-                                                            ? red
-                                                            : primaryColorApp,
-                                                        fontSize: 12,
+                                                          style: TextStyle(
+                                                            color:
+                                                                primaryColorApp,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Visibility(
-                                                  visible: bloc
-                                                          .productosUbicacionFilters[
-                                                              index]
-                                                          .productTracking ==
-                                                      'lot',
-                                                  child: Row(
+                                                    ],
+                                                  ),
+                                                  Row(
                                                     children: [
                                                       Text(
-                                                        'lote: ',
+                                                        'Barcode: ',
                                                         style: TextStyle(
                                                           color: black,
                                                           fontSize: 12,
@@ -241,19 +209,19 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                         bloc
                                                                     .productosUbicacionFilters[
                                                                         index]
-                                                                    .lotName ==
+                                                                    .barcode ==
                                                                 false
                                                             ? 'Sin barcode'
                                                             : bloc
                                                                     .productosUbicacionFilters[
                                                                         index]
-                                                                    .lotName ??
+                                                                    .barcode ??
                                                                 '',
                                                         style: TextStyle(
                                                           color: bloc
                                                                       .productosUbicacionFilters[
                                                                           index]
-                                                                      .lotName ==
+                                                                      .barcode ==
                                                                   false
                                                               ? red
                                                               : primaryColorApp,
@@ -262,72 +230,115 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                       ),
                                                     ],
                                                   ),
-                                                )
-                                              ],
-                                            ),
-                                          )),
+                                                  Visibility(
+                                                    visible: bloc
+                                                            .productosUbicacionFilters[
+                                                                index]
+                                                            .productTracking ==
+                                                        'lot',
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          'lote: ',
+                                                          style: TextStyle(
+                                                            color: black,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 5),
+                                                        Text(
+                                                          bloc
+                                                                      .productosUbicacionFilters[
+                                                                          index]
+                                                                      .lotName ==
+                                                                  false
+                                                              ? 'Sin barcode'
+                                                              : bloc
+                                                                      .productosUbicacionFilters[
+                                                                          index]
+                                                                      .lotName ??
+                                                                  '',
+                                                          style: TextStyle(
+                                                            color: bloc
+                                                                        .productosUbicacionFilters[
+                                                                            index]
+                                                                        .lotName ==
+                                                                    false
+                                                                ? red
+                                                                : primaryColorApp,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            )),
+                                      ),
                                     ),
-                                  ),
-                                );
-                              })),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Visibility(
-                    visible: selectedIndex != null,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (selectedIndex != null) {
-                          final selectedProduct =
-                              bloc.productosUbicacionFilters[selectedIndex!];
-
-                          bloc.add(ShowKeyboardEvent(false));
-                          FocusScope.of(context).unfocus();
-
-                          //seleccionamos el producto
-
-                          bloc.add(ValidateFieldsEvent(
-                              field: "product", isOk: true));
-                          bloc.add(ChangeProductIsOkEvent(selectedProduct));
-
-                          bloc.add(ChangeIsOkQuantity(true));
-
-                          setState(() {
-                            selectedIndex == null;
-                          });
-
-                          Navigator.pushReplacementNamed(
-                            context,
-                            'inventario',
-                          );
-
-                          Get.snackbar(
-                            'Producto Seleccionado',
-                            'Has seleccionado el producto: ${selectedProduct.productName}',
-                            backgroundColor: white,
-                            colorText: primaryColorApp,
-                            icon: Icon(Icons.check, color: Colors.green),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColorApp,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        minimumSize: Size(size.width * 0.9, 40),
-                      ),
-                      child: Text("Seleccionar",
-                          style: TextStyle(
-                            color: white,
-                          )),
+                                  );
+                                })),
+                    const SizedBox(
+                      height: 20,
                     ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                ],
-              )),
+                    Visibility(
+                      visible: selectedIndex != null,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (selectedIndex != null) {
+                            final selectedProduct =
+                                bloc.productosUbicacionFilters[selectedIndex!];
+
+                            bloc.add(ShowKeyboardEvent(false));
+                            FocusScope.of(context).unfocus();
+
+                            //seleccionamos el producto
+
+                            bloc.add(ValidateFieldsEvent(
+                                field: "product", isOk: true));
+                            bloc.add(ChangeProductIsOkEvent(selectedProduct));
+
+                            bloc.add(ChangeIsOkQuantity(true));
+
+                            setState(() {
+                              selectedIndex == null;
+                            });
+
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'inventario',
+                            );
+
+                            Get.snackbar(
+                              'Producto Seleccionado',
+                              'Has seleccionado el producto: ${selectedProduct.productName}',
+                              backgroundColor: white,
+                              colorText: primaryColorApp,
+                              icon: Icon(Icons.check, color: Colors.green),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColorApp,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          minimumSize: Size(size.width * 0.9, 40),
+                        ),
+                        child: Text("Seleccionar",
+                            style: TextStyle(
+                              color: white,
+                            )),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                )),
+          ),
         );
       },
     );

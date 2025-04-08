@@ -169,7 +169,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "is_finish",
           1,
         );
-        emit(CreateBackOrderOrNotSuccess(event.isBackOrder));
+        emit(CreateBackOrderOrNotSuccess(event.isBackOrder, response.result?.msg??""));
         add(FetchOrdenesCompraOfBd());
       } else {
         emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
@@ -361,7 +361,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               idMove: productBD?.idMove ?? 0,
               loteProducto: productBD?.loteId ?? 0,
               ubicacionDestino: productBD?.locationDestId ?? 0,
-              cantidadSeparada: productBD?.quantitySeparate ?? 0,
+              cantidadSeparada:  event.quantity,
               observacion: productBD?.observation == ""
                   ? "Sin novedad"
                   : productBD?.observation ?? "Sin novedad",
@@ -385,7 +385,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         if (event.isSplit) {
           //calculamos la cantidad pendiente del producto
           var pendingQuantity =
-              (currentProduct.quantityOrdered - event.quantity);
+              (currentProduct.cantidadFaltante - event.quantity);
           //creamos un nuevo producto (duplicado) con la cantidad separada
           await db.productEntradaRepository
               .insertDuplicateProducto(currentProduct, pendingQuantity);
@@ -525,7 +525,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<RecepcionState> emit) async {
     try {
-      if (quantitySelected > (currentProduct.quantityOrdered ?? 0)) {
+      if (quantitySelected > (currentProduct.cantidadFaltante ?? 0)) {
         return;
       } else {
         quantitySelected = quantitySelected + event.quantity;

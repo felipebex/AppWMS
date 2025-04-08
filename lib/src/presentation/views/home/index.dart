@@ -62,84 +62,8 @@ class _HomePageState extends State<HomePage> {
           final homeBloc = context.read<HomeBloc>();
           return RefreshIndicator(
             onRefresh: () async {
-              // context.read<UserBloc>().add(GetUbicacionesEvent());
-              // context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-
-              final products = await DataBaseSqlite().getProducts();
-              final productsNoSendOdoo =
-                  products.where((element) => element.isSendOdoo == 0).toList();
-              if (productsNoSendOdoo.isEmpty) {
-                //peticion para la configuracion
-                if (!mounted) return;
-                final String rol = await PrefUtils.getUserRol();
-                // peticion segun el rol del usuario
-                if (rol == 'picking') {
-                  if (!mounted) return;
-                  await DataBaseSqlite().delePicking();
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                } else if (rol == 'admin') {
-                  if (!mounted) return;
-
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return const DialogLoading(
-                            message: 'Cargando peticiones...');
-                      });
-
-                  await DataBaseSqlite().deleteAdmin();
-                  //picking
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
-                  await Future.delayed(const Duration(seconds: 1));
-                  //packing
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        false,
-                      ));
-                  await Future.delayed(const Duration(seconds: 2));
-                  //recepcion
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(false));
-                  await Future.delayed(const Duration(seconds: 1));
-                  //transferencia
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias(false));
-
-                  await Future.delayed(const Duration(
-                      seconds: 5)); // Ajusta el tiempo si es necesario
-
-                  Navigator.pop(context);
-                } else if (rol == 'packing') {
-                  if (!mounted) return;
-                  await DataBaseSqlite().delePacking();
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        true,
-                      ));
-                } else if (rol == "reception") {
-                  if (!mounted) return;
-
-                  await DataBaseSqlite().deleRecepcion();
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(true));
-                } else if (rol == "transfer") {
-                  if (!mounted) return;
-                  await DataBaseSqlite().deleTrasnferencia();
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias(true));
-                } else if (rol == "" || rol == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("El usuario no tiene cargado los permisos"),
-                      duration: Duration(seconds: 4),
-                    ),
-                  );
-                }
-              } else {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const DialogProductsNotSends();
-                    });
-              }
+              context.read<UserBloc>().add(GetUbicacionesEvent());
+              context.read<UserBloc>().add(LoadInfoDeviceEventUser());
             },
             child: Scaffold(
               backgroundColor: white,

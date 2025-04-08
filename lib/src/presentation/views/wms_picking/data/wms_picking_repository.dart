@@ -1,6 +1,6 @@
 // // ignore_for_file: avoid_print
 
-// ignore_for_file: unrelated_type_equality_checks, avoid_print, 
+// ignore_for_file: unrelated_type_equality_checks, avoid_print,
 
 // import 'package:wms_app/src/api/api_request_service.dart';
 
@@ -352,6 +352,11 @@ class WmsPickingRepository {
     required List<Item> listItem,
     //
   }) async {
+    print('idBatch: $idBatch');
+    print('timeTotal: $timeTotal');
+    print('cantItemsSeparados: $cantItemsSeparados');
+    print('listItem: ${listItem.map((item) => item.toJson()).toList()}');
+
     try {
       var response = await ApiRequestService().postPicking(
         endpoint: 'send_batch',
@@ -366,11 +371,9 @@ class WmsPickingRepository {
         },
         isLoadinDialog: false,
       );
-      if (response.statusCode < 400) {
-        return SendPickingResponse.fromJson(response.body);
-      } else {
-        print('Error sendPicking: ${response.statusCode}');
-      }
+
+      print(response);
+      return SendPickingResponse.fromJson(response.body);
     } on SocketException catch (e) {
       // Manejo de error de red
       print('Error de red: $e');

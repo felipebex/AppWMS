@@ -178,19 +178,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       await repository.timePickingUser(
         event.batchId,
-       
         formattedDate,
         'start_time_batch_user',
         'start_time',
         userid,
       );
-      final responseTimeBatch = await repository.timePickingBatch(
-          event.batchId,
-         
-          formattedDate,
-          'update_start_time',
-          'start_time_pick',
-          'start_time');
+      final responseTimeBatch = await repository.timePickingBatch(event.batchId,
+          formattedDate, 'update_start_time', 'start_time_pick', 'start_time');
 
       if (responseTimeBatch) {
         await db.batchPickingRepository
@@ -212,20 +206,14 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       await repository.timePickingUser(
         event.batchId,
-      
         formattedDate,
         'end_time_batch_user',
         'end_time',
         userid,
       );
 
-      final responseTimeBatch = await repository.timePickingBatch(
-          event.batchId,
-         
-          formattedDate,
-          'update_end_time',
-          'end_time_pick',
-          'end_time');
+      final responseTimeBatch = await repository.timePickingBatch(event.batchId,
+          formattedDate, 'update_end_time', 'end_time_pick', 'end_time');
 
       if (responseTimeBatch) {
         await db.batchPickingRepository
@@ -349,13 +337,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       final userid = await PrefUtils.getUserId();
       final response = await repository.sendPicking(
-      
         idBatch: event.product.batchId ?? 0,
         timeTotal: secondsDifference,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
         listItem: [
           Item(
             idMove: event.product.idMove ?? 0,
+            // idMove: 0,
             productId: event.product.idProduct ?? 0,
             lote: event.product.lotId ?? '',
             cantidad: event.product.quantitySeparate ?? 0,
@@ -401,10 +389,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           0,
           event.product.idMove ?? 0,
         );
-        emit(SendProductOdooError());
+        emit(SendProductOdooError(response.result?.result?.first.error ?? ""));
       }
     } catch (e, s) {
-      emit(SendProductOdooError());
+      emit(SendProductOdooError(s.toString()));
       print("❌ Error en el SendProductOdooEvent: $e ->$s");
     } finally {
       _isProcessing =
@@ -603,7 +591,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       // Enviamos la lista completa de items
       final response = await repository.sendPicking(
-       
         idBatch: event.productsSeparate[0].batchId ?? 0,
         timeTotal: 0,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
@@ -629,7 +616,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     try {
       emit(LoadingSendProductEdit());
       bool responseEdit = await sendProuctEditOdoo(
-          event.product, event.cantidad, );
+        event.product,
+        event.cantidad,
+      );
       if (responseEdit) {
         final response = await DataBaseSqlite()
             .getBatchWithProducts(batchWithProducts.batch?.id ?? 0);
@@ -814,7 +803,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
       //enviamos el producto a odoo
       final response = await repository.sendPicking(
-         
           idBatch: product?.batchId ?? 0,
           timeTotal: secondsDifference,
           cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
@@ -860,7 +848,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
   Future<bool> sendProuctEditOdoo(
-      ProductsBatch productEdit, int cantidad, ) async {
+    ProductsBatch productEdit,
+    int cantidad,
+  ) async {
     DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
     //traemos un producto de la base de datos  ya anteriormente guardado
     final product = await db.getProductBatch(productEdit.batchId ?? 0,
@@ -894,7 +884,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //enviamos el producto a odoo
     final response = await repository.sendPicking(
-        
         idBatch: product?.batchId ?? 0,
         timeTotal: secondsDifference,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,

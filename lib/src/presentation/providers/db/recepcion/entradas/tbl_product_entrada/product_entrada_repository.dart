@@ -96,6 +96,8 @@ class ProductsEntradaRepository {
                       LineasRecepcion.isDoneItem ?? 0,
                   ProductRecepcionTable.columnDateTransaction:
                       LineasRecepcion.dateTransaction,
+                  ProductRecepcionTable.columnCantidadFaltante:
+                      LineasRecepcion.cantidadFaltante,
                 },
                 where:
                     '${ProductRecepcionTable.columnId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? ',
@@ -165,6 +167,8 @@ class ProductsEntradaRepository {
                       LineasRecepcion.isDoneItem ?? 0,
                   ProductRecepcionTable.columnDateTransaction:
                       LineasRecepcion.dateTransaction,
+                  ProductRecepcionTable.columnCantidadFaltante:
+                      LineasRecepcion.cantidadFaltante,
                 },
                 conflictAlgorithm: ConflictAlgorithm.replace,
               );
@@ -227,6 +231,7 @@ class ProductsEntradaRepository {
         ProductRecepcionTable.columnTime: "",
         ProductRecepcionTable.columnIsDoneItem: 0,
         ProductRecepcionTable.columnDateTransaction: "",
+        ProductRecepcionTable.columnCantidadFaltante: cantidad,
       };
 
       await db.insert(

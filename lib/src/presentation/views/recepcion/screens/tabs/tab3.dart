@@ -24,7 +24,7 @@ class Tab3ScreenRecep extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     return WillPopScope(
       onWillPop: () async {
-        return true;
+        return false;
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
         listener: (context, state) {},
@@ -180,7 +180,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                       ),
                                                     ),
                                                     Text(
-                                                        "${product.quantityOrdered}",
+                                                        "${product.cantidadFaltante}",
                                                         style: const TextStyle(
                                                             fontSize: 12,
                                                             color: black)),
@@ -245,6 +245,36 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
+                                              ],
+                                            ),
+                                          ),
+                                          Visibility(
+                                            visible:
+                                                product.observation != "" ||
+                                                    product.observation != null,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "Novedad: ",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: black,
+                                                  ),
+                                                ),
+                                                
+                                                Text(
+                                                  product.observation == ""
+                                                      ? "Sin novedad"
+                                                      : product.observation ??
+                                                          "",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+
+
+
                                               ],
                                             ),
                                           ),

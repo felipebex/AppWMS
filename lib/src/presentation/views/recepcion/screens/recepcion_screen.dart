@@ -33,7 +33,7 @@ class _RecepcionScreenState extends State<RecepcionScreen>
     _tabController = TabController(
       length: 3,
       vsync: this,
-     initialIndex: widget.initialTabIndex,  // Posición inicial
+      initialIndex: widget.initialTabIndex, // Posición inicial
     );
   }
 
@@ -45,94 +45,98 @@ class _RecepcionScreenState extends State<RecepcionScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: white,
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            //volvemos a llamar las entradas que tenemos guardadas en la bd
-            context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
-          
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: white,
+        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              //volvemos a llamar las entradas que tenemos guardadas en la bd
+              context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
 
-            Navigator.pushReplacementNamed(
-              context,
-              'list-ordenes-compra',
-            );
-          },
-        ),
-        title: Text(
-          'RECEPCIÓN',
-          style: TextStyle(color: Colors.white, fontSize: 16),
-        ),
-        bottom: TabBar(
-          controller: _tabController, // Asignar el TabController
-          indicatorWeight: 3,
-          indicatorPadding: EdgeInsets.symmetric(vertical: 5),
-          labelStyle: TextStyle(
-            fontSize: 12,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+              Navigator.pushReplacementNamed(
+                context,
+                'list-ordenes-compra',
+              );
+            },
           ),
-          unselectedLabelStyle: TextStyle(
-            fontSize: 12,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          title: Text(
+            'RECEPCIÓN',
+            style: TextStyle(color: Colors.white, fontSize: 16),
           ),
-          tabs: const [
-            Tab(
-              text: 'Detalles',
-              icon: Icon(
-                Icons.details,
-                color: Colors.white,
-                size: 20,
-              ),
+          bottom: TabBar(
+            controller: _tabController, // Asignar el TabController
+            indicatorWeight: 3,
+            indicatorPadding: EdgeInsets.symmetric(vertical: 5),
+            labelStyle: TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-            Tab(
-              text: 'Por hacer',
-              icon: Icon(
-                Icons.pending_actions,
-                color: Colors.white,
-                size: 20,
-              ),
+            unselectedLabelStyle: TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
-            Tab(
-              text: 'Listo',
-              icon: Icon(
-                Icons.done,
-                color: Colors.white,
-                size: 20,
+            tabs: const [
+              Tab(
+                text: 'Detalles',
+                icon: Icon(
+                  Icons.details,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              Tab(
+                text: 'Por hacer',
+                icon: Icon(
+                  Icons.pending_actions,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              Tab(
+                text: 'Listo',
+                icon: Icon(
+                  Icons.done,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(20),
+            ),
+          ),
+        ),
+        body: Column(
+          children: [
+            const WarningWidgetCubit(isTop: false),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController, // Asignar el TabController
+                children: [
+                  Tab1ScreenRecep(
+                    ordenCompra: widget.ordenCompra,
+                  ),
+                  Tab2ScreenRecep(
+                    ordenCompra: widget.ordenCompra,
+                  ),
+                  Tab3ScreenRecep(
+                    ordenCompra: widget.ordenCompra,
+                  ),
+                ],
               ),
             ),
           ],
         ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
-        ),
-      ),
-      body: Column(
-        children: [
-          const WarningWidgetCubit(isTop: false),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController, // Asignar el TabController
-              children: [
-                Tab1ScreenRecep(
-                  ordenCompra: widget.ordenCompra,
-                ),
-                Tab2ScreenRecep(
-                  ordenCompra: widget.ordenCompra,
-                ),
-                Tab3ScreenRecep(
-                  ordenCompra: widget.ordenCompra,
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

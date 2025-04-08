@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart'; 
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
@@ -172,7 +172,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     _controllerQuantity.text = "";
     final currentProduct = bloc.currentProduct;
 
-    if (bloc.quantitySelected == currentProduct.quantityOrdered.toInt()) {
+    if (bloc.quantitySelected == currentProduct.cantidadFaltante.toInt()) {
       return;
     }
     if (scan == currentProduct.productBarcode?.toLowerCase()) {
@@ -235,7 +235,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         if (state is ChangeQuantitySeparateState) {
                           if (state.quantity != 0) {
                             if (state.quantity ==
-                                recepcionBloc.currentProduct.quantityOrdered
+                                recepcionBloc.currentProduct.cantidadFaltante
                                     .toInt()) {
                               //termianmso el proceso
                               _finishSeprateProductOrder(
@@ -734,10 +734,12 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                             color: black),
                                                       ),
                                                       Text(
-                                                        recepcionBloc.selectLote,
+                                                        recepcionBloc
+                                                            .selectLote,
                                                         style: TextStyle(
                                                             fontSize: 14,
-                                                            color: primaryColorApp),
+                                                            color:
+                                                                primaryColorApp),
                                                       ),
                                                     ],
                                                   ),
@@ -747,7 +749,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                       Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
-                                                       Text(
+                                                      Text(
                                                         'Fechan caducidad: ',
                                                         style: TextStyle(
                                                             fontSize: 14,
@@ -893,7 +895,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                       horizontal: 10),
                                               child: Text(
                                                 recepcionBloc.currentProduct
-                                                        .quantityOrdered
+                                                        .cantidadFaltante
                                                         ?.toString() ??
                                                     "",
                                                 style: TextStyle(
@@ -1181,7 +1183,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
         if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
-            currentProduct.quantityOrdered!) {
+            currentProduct.cantidadFaltante!) {
           return false;
         }
 
@@ -1205,7 +1207,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         ? batchBloc.quantitySelected.toString()
         : _cantidadController.text);
 
-    if (cantidad == currentProduct.quantityOrdered) {
+    if (cantidad == currentProduct.cantidadFaltante) {
       batchBloc.add(ChangeQuantitySeparate(
           cantidad,
           int.parse(currentProduct.productId),
@@ -1213,7 +1215,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
           currentProduct.idMove ?? 0));
     } else {
       FocusScope.of(context).unfocus();
-      if (cantidad < (currentProduct.quantityOrdered ?? 0).toInt()) {
+      if (cantidad < (currentProduct.cantidadFaltante ?? 0).toInt()) {
         showDialog(
             context: context,
             builder: (context) {
@@ -1245,12 +1247,19 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                     _finishSeprateProductOrderSplit(context, cantidad);
                   });
             });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(milliseconds: 1000),
-          content: const Text('Cantidad erronea'),
-          backgroundColor: Colors.red[200],
-        ));
+      } else if (cantidad > (currentProduct.cantidadFaltante ?? 0).toInt()) {
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   duration: const Duration(milliseconds: 1000),
+        //   content: const Text('Cantidad erronea'),
+        //   backgroundColor: Colors.red[200],
+        // ));
+        batchBloc.add(ChangeQuantitySeparate(
+            cantidad,
+            int.parse(currentProduct.productId),
+            currentProduct.idRecepcion ?? 0,
+            currentProduct.idMove ?? 0));
+
+        _finishSeprateProductOrder(context, cantidad);
       }
     }
   }

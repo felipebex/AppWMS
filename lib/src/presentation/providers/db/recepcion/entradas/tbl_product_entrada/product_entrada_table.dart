@@ -44,6 +44,8 @@ class ProductRecepcionTable {
 
   static const String columnIsDoneItem = 'is_done_item';
   static const String columnDateTransaction  = 'date_transaction'; 
+  static const String columnCantidadFaltante  = 'cantidad_faltante'; 
+
 
 //Meotdo para crar la tabla
   static String createTable() {
@@ -86,6 +88,7 @@ class ProductRecepcionTable {
       $columnTime TEXT,
       $columnIsDoneItem INTEGER,  
       $columnDateTransaction TEXT,
+      $columnCantidadFaltante INTEGER,
       FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion ($columnId)
 
     )

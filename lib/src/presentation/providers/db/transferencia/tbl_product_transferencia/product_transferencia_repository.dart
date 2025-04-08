@@ -103,7 +103,9 @@ class ProductTransferenciaRepository {
                   ProductTransferenciaTable.columnTime:
                       LineasTransferenciaTrans.time,
                   ProductTransferenciaTable.columnIsDoneItem:
-                      LineasTransferenciaTrans.isDoneItem ?? 0
+                      LineasTransferenciaTrans.isDoneItem ?? 0,
+                  ProductTransferenciaTable.columnCantidadFaltante:
+                      LineasTransferenciaTrans.cantidadFaltante ?? 0
                 },
                 where:
                     '${ProductTransferenciaTable.columnId} = ? AND ${ProductTransferenciaTable.columnIdMove} = ? AND ${ProductTransferenciaTable.columnIdTransferencia} = ? ',
@@ -178,6 +180,8 @@ class ProductTransferenciaRepository {
                       LineasTransferenciaTrans.time,
                   ProductTransferenciaTable.columnIsDoneItem:
                       LineasTransferenciaTrans.isDoneItem ?? 0,
+                  ProductTransferenciaTable.columnCantidadFaltante:
+                      LineasTransferenciaTrans.cantidadFaltante ?? 0
                 },
                 conflictAlgorithm: ConflictAlgorithm.replace,
               );
@@ -243,7 +247,7 @@ class ProductTransferenciaRepository {
             producto.fechaVencimiento,
         ProductTransferenciaTable.columnDiasVencimiento:
             producto.diasVencimiento,
-        ProductTransferenciaTable.columnQuantityOrdered: cantidad,
+        ProductTransferenciaTable.columnQuantityOrdered: producto.quantityOrdered,
 
         ProductTransferenciaTable.columnQuantityDone: producto.quantityDone,
         ProductTransferenciaTable.columnUom: producto.uom,
@@ -277,6 +281,7 @@ class ProductTransferenciaRepository {
         ProductTransferenciaTable.columnTime: "",
         ProductTransferenciaTable.columnIsDoneItem: 0,
         ProductTransferenciaTable.columnDateTransaction: "",
+        ProductTransferenciaTable.columnCantidadFaltante: cantidad
       };
 
       await db.insert(

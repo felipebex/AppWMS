@@ -24,11 +24,13 @@ class TransferenciaTable {
   static const String columnDateFinish = 'end_time_transfer';
   static const String columnDateStart = 'start_time_transfer';
 
-
   //valores para el estado de la transferencia
   static const String columnIsSelected = 'is_selected';
   static const String columnIsStarted = 'is_started';
   static const String columnIsfinis = 'is_finish';
+  static const String columnBackorderName = 'backorder_name';
+  static const String columnBackorderId = 'backorder_id';
+  static const String columnShowCheckAvailability = 'show_check_availability';
 
 
 
@@ -58,8 +60,11 @@ class TransferenciaTable {
       $columnIsStarted INTEGER,
       $columnDateFinish TEXT,
       $columnDateStart TEXT,
-      $columnIsfinis INTEGER
-
+      $columnIsfinis INTEGER,
+      $columnBackorderName TEXT,
+      $columnBackorderId INTEGER,
+      $columnShowCheckAvailability INTEGER
+      
     )
     ''';
   }

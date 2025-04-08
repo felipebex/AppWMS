@@ -72,6 +72,9 @@ class EntradasRepository {
                     entrada.startTimeReception,
                 EntradasRepeccionTable.columnDateFinish:
                     entrada.endTimeReception,
+                EntradasRepeccionTable.columnBackorderId: entrada.backorderId,
+                EntradasRepeccionTable.columnBackorderName:
+                    entrada.backorderName,
               },
               where: '${EntradasRepeccionTable.columnId} = ?',
               whereArgs: [entrada.id],
@@ -116,6 +119,9 @@ class EntradasRepository {
                     entrada.startTimeReception,
                 EntradasRepeccionTable.columnDateFinish:
                     entrada.endTimeReception,
+                EntradasRepeccionTable.columnBackorderId: entrada.backorderId,
+                EntradasRepeccionTable.columnBackorderName:
+                    entrada.backorderName,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -169,13 +175,14 @@ class EntradasRepository {
     String field,
     dynamic setValue,
   ) async {
-
-    
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
     final resUpdate = await db.rawUpdate(
         'UPDATE ${EntradasRepeccionTable.tableName} SET $field = ? WHERE ${EntradasRepeccionTable.columnId} = ?',
-        [setValue,idEntrada, ]);
+        [
+          setValue,
+          idEntrada,
+        ]);
 
     print(
         "update TableEntrada (idEntrada ----($idEntrada)  ) -------($field): $resUpdate");

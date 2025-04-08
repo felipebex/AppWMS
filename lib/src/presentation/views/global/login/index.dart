@@ -91,60 +91,69 @@ class LoginPage extends StatelessWidget {
         ],
         child: BlocBuilder<LoginBloc, LoginState>(
           builder: (context, state) {
-            return Scaffold(
-              body: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        colors: [primaryColorApp, secondary, primaryColorApp])),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const WarningWidgetCubit(),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          top: 15, left: 20, right: 20, bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                              child: Text(
-                            "Bienvenido a OnPoint",
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 22),
-                          )),
-
-                          const Center(
-                            child: Text("Version: 1.0.0",
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 10)),
-                          )
-                          //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
-                        ],
+            return WillPopScope(
+              onWillPop: () async {
+                return false;
+              },
+              child: Scaffold(
+                body: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          colors: [
+                        primaryColorApp,
+                        secondary,
+                        primaryColorApp
+                      ])),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const WarningWidgetCubit(),
+                      const SizedBox(
+                        height: 20,
                       ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.only(top: 15),
-                        decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(40),
-                                topRight: Radius.circular(40))),
-                        child: SingleChildScrollView(
-                          child: BlocBuilder<LoginBloc, LoginState>(
-                            builder: (context, state) {
-                              return const _LoginForm();
-                            },
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            top: 15, left: 20, right: 20, bottom: 5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                                child: Text(
+                              "Bienvenido a OnPoint",
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 22),
+                            )),
+
+                            const Center(
+                              child: Text("Version: 1.0.0",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 10)),
+                            )
+                            //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
+                          ],
                         ),
                       ),
-                    )
-                  ],
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.only(top: 15),
+                          decoration: const BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(40),
+                                  topRight: Radius.circular(40))),
+                          child: SingleChildScrollView(
+                            child: BlocBuilder<LoginBloc, LoginState>(
+                              builder: (context, state) {
+                                return const _LoginForm();
+                              },
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             );

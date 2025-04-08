@@ -109,9 +109,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       print('idDispositivo:  ${Ulid().toUuid()}');
 
-      // idDispositivo =
-      //     androidInfo.id; // Este es el ID único para dispositivos Android
-      // print('idDispositivo: $idDispositivo');
+      idDispositivo =
+          androidInfo.id; // Este es el ID único para dispositivos Android
+      print('idDispositivo: $idDispositivo');
 
       versionApp = packageInfo.version; // Versión de la app
       emit(LoadInfoDeviceStateUser());

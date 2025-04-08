@@ -81,7 +81,7 @@ class Tab1Screen extends StatelessWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        return true;
+        return false;
       },
       child: BlocBuilder<WmsPackingBloc, WmsPackingState>(
         builder: (context, state) {

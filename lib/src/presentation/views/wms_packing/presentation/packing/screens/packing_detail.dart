@@ -58,7 +58,7 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
       builder: (context, state) {
         return WillPopScope(
           onWillPop: () async {
-            return true;
+            return false;
           },
           child: Scaffold(
             backgroundColor: Colors.white,

@@ -314,14 +314,18 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
               idUbicacionOrigen: int.parse(productBD.locationId.toString()),
               idUbicacionDestino:
                   int.parse(productBD.locationDestId.toString()),
-              cantidadEnviada: productBD.quantitySeparate,
+              cantidadEnviada: event.quantity,
               idOperario: userid,
               timeLine: time,
               fechaTransaccion: fechaFormateada,
               observacion: productBD.observation == ""
                   ? "Sin novedad"
                   : productBD.observation,
-              dividida: event.isDividio,
+              dividida: productBD.isProductSplit == 0
+                  ? productBD.quantityOrdered != productBD.cantidadFaltante
+                      ? true
+                      : false
+                  : true,
             ),
           ],
         ),
@@ -340,7 +344,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         if (event.isDividio) {
           //calculamos la cantidad pendiente del producto
           var pendingQuantity =
-              (currentProduct.quantityOrdered - event.quantity);
+              (currentProduct.cantidadFaltante - event.quantity);
 
           //creamos un nuevo producto (duplicado) con la cantidad separada
           await db.productTransferenciaRepository
@@ -625,7 +629,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<TransferenciaState> emit) async {
     try {
-      if (quantitySelected > (currentProduct.quantityOrdered ?? 0)) {
+      if (quantitySelected > (currentProduct.cantidadFaltante ?? 0)) {
         return;
       } else {
         quantitySelected = quantitySelected + event.quantity;
@@ -1109,8 +1113,8 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     try {
       emit(TransferenciaLoading());
       transferencias.clear();
-      final response =
-          await _transferenciasRepository.fetAllTransferencias(event.isLoadingDialog);
+      final response = await _transferenciasRepository
+          .fetAllTransferencias(event.isLoadingDialog);
 
       if (response != null && response is List) {
         await db.transferenciaRepository.insertEntrada(response);

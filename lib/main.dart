@@ -69,18 +69,18 @@ void main() async {
   });
 
   // Cron para verificar conexión e interacción con Odoo
-  var cron = Cron();
-  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        final isLogin = await PrefUtils.getIsLoggedIn();
-        if (isLogin) {
-          searchProductsNoSendOdoo(navigatorKey.currentContext!);
-        }
-      }
-    } on SocketException catch (_) {}
-  });
+  // var cron = Cron();
+  // cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+  //   try {
+  //     final result = await InternetAddress.lookup('example.com');
+  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //       final isLogin = await PrefUtils.getIsLoggedIn();
+  //       if (isLogin) {
+  //         searchProductsNoSendOdoo(navigatorKey.currentContext!);
+  //       }
+  //     }
+  //   } on SocketException catch (_) {}
+  // });
 }
 
 class AppState extends StatelessWidget {

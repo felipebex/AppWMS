@@ -91,9 +91,15 @@ class ResultTransFerencias {
   dynamic isSelected;
   dynamic isStarted;
   dynamic isFinish;
+  
 
   List<LineasTransferenciaTrans>? lineasTransferencia;
   List<LineasTransferenciaTrans>? lineasTransferenciaEnviadas;
+
+    final dynamic backorderName;
+  final dynamic backorderId;
+  final dynamic? showCheckAvailability;
+
 
   ResultTransFerencias({
     this.id,
@@ -122,6 +128,9 @@ class ResultTransFerencias {
     this.isSelected,
     this.isStarted,
     this.isFinish,
+    this.backorderName,
+    this.backorderId,
+    this.showCheckAvailability,
   });
 
   factory ResultTransFerencias.fromMap(Map<String, dynamic> json) =>
@@ -160,6 +169,9 @@ class ResultTransFerencias {
                 : List<LineasTransferenciaTrans>.from(
                     json["lineas_transferencia_enviadas"]
                         .map((x) => LineasTransferenciaTrans.fromMap(x))),
+        backorderName: json["backorder_name"],
+        backorderId: json["backorder_id"],
+        showCheckAvailability: json["show_check_availability"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -193,6 +205,9 @@ class ResultTransFerencias {
         "lineas_transferencia_enviadas": lineasTransferenciaEnviadas == null
             ? []
             : List<dynamic>.from(lineasTransferenciaEnviadas!.map((x) => x)),
+        "backorder_name": backorderName,
+        "backorder_id": backorderId,
+        "show_check_availability": showCheckAvailability,
       };
 }
 
@@ -200,29 +215,29 @@ class LineasTransferenciaTrans {
   int? id;
   int? idMove;
   int? idTransferencia;
-  dynamic? productId;
+  dynamic productId;
   String? productName;
   String? productCode;
   String? productBarcode;
   String? productTracking;
-  dynamic? diasVencimiento;
+  dynamic diasVencimiento;
   List<Barcodes>? otherBarcodes;
   List<Barcodes>? productPacking;
   dynamic quantityOrdered;
-  dynamic? quantityToTransfer;
-  dynamic? quantityDone;
+  dynamic quantityToTransfer;
+  dynamic quantityDone;
   String? uom;
-  dynamic? locationDestId;
+  dynamic locationDestId;
   String? locationDestName;
   String? locationDestBarcode;
-  dynamic? locationId;
+  dynamic locationId;
   String? locationName;
   String? locationBarcode;
   double? weight;
   dynamic lotId;
   String? lotName;
   String? fechaVencimiento;
-  dynamic? observation;
+  dynamic observation;
 
   late dynamic
       isLocationIsOk; // Variable para si la ubicación es leída correctamente
@@ -241,6 +256,7 @@ class LineasTransferenciaTrans {
   final dynamic dateTransaction;
   final dynamic dateStart;
   final dynamic dateEnd;
+  final dynamic cantidadFaltante;
 
   LineasTransferenciaTrans({
     this.id,
@@ -282,6 +298,7 @@ class LineasTransferenciaTrans {
     this.dateTransaction,
     this.dateStart,
     this.dateEnd,
+    this.cantidadFaltante,
   });
 
   factory LineasTransferenciaTrans.fromMap(Map<String, dynamic> json) =>
@@ -331,6 +348,7 @@ class LineasTransferenciaTrans {
         dateTransaction: json["date_transaction"],
         dateStart: json["date_start"],
         dateEnd: json["date_end"],
+        cantidadFaltante: json["cantidad_faltante"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -377,5 +395,6 @@ class LineasTransferenciaTrans {
         "date_transaction": dateTransaction,
         "date_start": dateStart,
         "date_end": dateEnd,
+        "cantidad_faltante": cantidadFaltante,
       };
 }

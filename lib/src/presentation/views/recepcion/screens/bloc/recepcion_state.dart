@@ -241,7 +241,8 @@ class CreateBackOrderOrNotLoading extends RecepcionState {}
 
 class CreateBackOrderOrNotSuccess extends RecepcionState {
   final bool isBackorder;
-  CreateBackOrderOrNotSuccess(this.isBackorder);
+  final String message;
+  CreateBackOrderOrNotSuccess(this.isBackorder, this.message);
 }
 
 class CreateBackOrderOrNotFailure extends RecepcionState {

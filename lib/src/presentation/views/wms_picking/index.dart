@@ -4,10 +4,11 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -31,9 +32,7 @@ class WMSPickingPage extends StatefulWidget {
 class _PickingPageState extends State<WMSPickingPage> {
   NotchBottomBarController controller = NotchBottomBarController();
 
-
   FocusNode focusNodeBuscar = FocusNode();
-
 
   @override
   void initState() {
@@ -82,7 +81,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                 : 0.0;
 
             return Scaffold(
-              backgroundColor: white,
+                backgroundColor: white,
                 bottomNavigationBar: context
                         .read<WMSPickingBloc>()
                         .isKeyboardVisible
@@ -147,15 +146,43 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   context, 'home');
                                             },
                                           ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                left: size.width * 0.27),
-                                            child: const Text(
-                                              'BATCHS',
-                                              style: TextStyle(
-                                                  color: white,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold),
+                                          GestureDetector(
+                                            onTap: () async {
+                                              final products =
+                                                  await DataBaseSqlite()
+                                                      .getProducts();
+                                              final productsNoSendOdoo =
+                                                  products
+                                                      .where((element) =>
+                                                          element.isSendOdoo ==
+                                                          0)
+                                                      .toList();
+                                              if (productsNoSendOdoo.isEmpty) {
+                                                await DataBaseSqlite()
+                                                    .delePicking();
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .add(LoadAllBatchsEvent(
+                                                        true));
+                                              } else {
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogProductsNotSends();
+                                                    });
+                                              }
+                                            },
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: size.width * 0.25),
+                                              child: const Text(
+                                                'PICKING',
+                                                style: TextStyle(
+                                                    color: white,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
                                             ),
                                           ),
                                           const Spacer(),
@@ -244,7 +271,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                   // Disparar el evento con la fecha seleccionada
                                   context.read<WMSPickingBloc>().add(
                                         LoadHistoryBatchsEvent(
-                                             true, formattedDate),
+                                            true, formattedDate),
                                       );
 
                                   // Navegar a la pantalla de historial
@@ -420,7 +447,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   false, // No permitir que el usuario cierre el diálogo manualmente
                                               builder: (context) =>
                                                   DialogStartTimeWidget(
-                                                    
                                                 onAccepted: () async {
                                                   // Disparar eventos de BatchBloc
                                                   batchBloc.add(
@@ -432,7 +458,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                       LoadConfigurationsUser());
 
                                                   batchBloc.add(StartTimePick(
-                                             
                                                       batch.id ?? 0,
                                                       DateTime.now()));
 
@@ -440,7 +465,8 @@ class _PickingPageState extends State<WMSPickingPage> {
 
                                                   goBatchInfo(contextBuilder,
                                                       batchBloc, batch);
-                                                }, title: 'Iniciar Picking',
+                                                },
+                                                title: 'Iniciar Picking',
                                               ),
                                             );
                                           }
@@ -498,7 +524,8 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             children: [
                                               Align(
                                                 alignment: Alignment.centerLeft,
-                                                child: Text(batch.zonaEntrega ?? '',
+                                                child: Text(
+                                                    batch.zonaEntrega ?? '',
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),

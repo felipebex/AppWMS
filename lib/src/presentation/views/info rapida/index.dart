@@ -95,95 +95,100 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
       },
       builder: (context, state) {
         final bloc = context.watch<InfoRapidaBloc>();
-        return Scaffold(
-          backgroundColor: white,
-          body: SizedBox(
-              width: size.width * 1,
-              height: size.height * 1,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    //appbar
-                    AppBar(size: size),
-                    Column(
-                      children: [
-                        Center(
-                          child: Padding(
-                            padding: EdgeInsets.only(top: 80),
-                            child: Image.asset(
-                              'assets/icons/barcode.png',
-                              width: 150,
-                              height: 150,
-                              color: black,
+        return WillPopScope(
+          onWillPop: () async {
+            return false;
+          },
+          child: Scaffold(
+            backgroundColor: white,
+            body: SizedBox(
+                width: size.width * 1,
+                height: size.height * 1,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      //appbar
+                      AppBar(size: size),
+                      Column(
+                        children: [
+                          Center(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 80),
+                              child: Image.asset(
+                                'assets/icons/barcode.png',
+                                width: 150,
+                                height: 150,
+                                color: black,
+                              ),
                             ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            "Este es el modulo de informacion rapida de 360 software para OnPoint, escanee un codigo de barras de PRODUCTO, LOTE/SERIE o una UBICACIÓN para obtener toda su informacion. ",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 14, color: black),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Este es el modulo de informacion rapida de 360 software para OnPoint, escanee un codigo de barras de PRODUCTO, LOTE/SERIE o una UBICACIÓN para obtener toda su informacion. ",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 14, color: black),
+                            ),
                           ),
-                        ),
 
-                        //*espacio para escanear y buscar
+                          //*espacio para escanear y buscar
 
-                        context.read<UserBloc>().fabricante.contains("Zebra")
-                            ? Container(
-                                height: 15,
-                                margin: const EdgeInsets.only(bottom: 5),
-                                child: TextFormField(
-                                  autofocus: true,
-                                  showCursor: false,
-                                  controller: _controllerSearch,
-                                  focusNode: focusNode1,
-                                  onChanged: (value) {
-                                    print('value: $value');
-                                    // Llamamos a la validación al cambiar el texto
-                                    validateBarcode(value, context);
-                                  },
-                                  decoration: InputDecoration(
-                                    disabledBorder: InputBorder.none,
-                                    hintStyle: const TextStyle(
-                                        fontSize: 14, color: black),
-                                    border: InputBorder.none,
+                          context.read<UserBloc>().fabricante.contains("Zebra")
+                              ? Container(
+                                  height: 15,
+                                  margin: const EdgeInsets.only(bottom: 5),
+                                  child: TextFormField(
+                                    autofocus: true,
+                                    showCursor: false,
+                                    controller: _controllerSearch,
+                                    focusNode: focusNode1,
+                                    onChanged: (value) {
+                                      print('value: $value');
+                                      // Llamamos a la validación al cambiar el texto
+                                      validateBarcode(value, context);
+                                    },
+                                    decoration: InputDecoration(
+                                      disabledBorder: InputBorder.none,
+                                      hintStyle: const TextStyle(
+                                          fontSize: 14, color: black),
+                                      border: InputBorder.none,
+                                    ),
                                   ),
-                                ),
-                              )
-                            :
+                                )
+                              :
 
-                            //*focus para leer
-                            Focus(
-                                focusNode: focusNode1,
-                                autofocus: true,
-                                onKey: (FocusNode node, RawKeyEvent event) {
-                                  if (event is RawKeyDownEvent) {
-                                    if (event.logicalKey ==
-                                        LogicalKeyboardKey.enter) {
-                                      validateBarcode(
-                                          bloc.scannedValue1, context);
-                                      return KeyEventResult.handled;
-                                    } else {
-                                      bloc.add(UpdateScannedValueEvent(
-                                        event.data.keyLabel,
-                                      ));
-                                      return KeyEventResult.handled;
+                              //*focus para leer
+                              Focus(
+                                  focusNode: focusNode1,
+                                  autofocus: true,
+                                  onKey: (FocusNode node, RawKeyEvent event) {
+                                    if (event is RawKeyDownEvent) {
+                                      if (event.logicalKey ==
+                                          LogicalKeyboardKey.enter) {
+                                        validateBarcode(
+                                            bloc.scannedValue1, context);
+                                        return KeyEventResult.handled;
+                                      } else {
+                                        bloc.add(UpdateScannedValueEvent(
+                                          event.data.keyLabel,
+                                        ));
+                                        return KeyEventResult.handled;
+                                      }
                                     }
-                                  }
-                                  return KeyEventResult.ignored;
-                                },
-                                child: Container()),
-                        //*espacio para escanear y buscar por ubicacion
+                                    return KeyEventResult.ignored;
+                                  },
+                                  child: Container()),
+                          //*espacio para escanear y buscar por ubicacion
 
-                        SizedBox(
-                          height: size.height * 0.15,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              )),
+                          SizedBox(
+                            height: size.height * 0.15,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )),
+          ),
         );
       },
     );
