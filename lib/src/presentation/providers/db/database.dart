@@ -412,7 +412,7 @@ class DataBaseSqlite {
     final db = await getDatabaseInstance();
     //recepcion
     await db.delete(ProductRecepcionTable.tableName);
-    await db.delete(EntradasRepeccionTable.tableName);
+    await db.delete('tbl_entradas_recepcion');
   }
 
   Future<void> deleInventario() async {
@@ -437,27 +437,13 @@ class DataBaseSqlite {
     await db.delete(UbicacionesTable.tableName);
     await db.delete(SubmuellesTable.tableName);
 
-    //picking
-    await db.delete(BatchPickingTable.tableName);
-    await db.delete('tblbatch_products');
+    deleInventario();
+    deleTrasnferencia();
+    delePacking();
+    delePicking();
+    deleRecepcion();
+    
 
-    // packing
-    await db.delete(BatchPackingTable.tableName);
-    await db.delete(ProductosPedidosTable.tableName);
-    await db.delete(PedidosPackingTable.tableName);
-    await db.delete(PackagesTable.tableName);
-
-    //recepcion
-    await db.delete(EntradasRepeccionTable.tableName);
-    await db.delete(ProductRecepcionTable.tableName);
-
-    //transferecnia
-    await db.delete(TransferenciaTable.tableName);
-    await db.delete(ProductTransferenciaTable.tableName);
-
-    //inventario
-    await db.delete(ProductInventarioTable.tableName);
-    await db.delete(BarcodesInventarioTable.tableName);
   }
 
   //*metodo para actualizar la tabla de productos de un batch

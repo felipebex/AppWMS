@@ -114,8 +114,10 @@ class BarcodesRepository {
       });
 
       // Imprimimos el número de registros insertados y actualizados
-      print("Total de registros insertOrUpdateBarcodes: $insertedCount");
-      print("Total de registros insertOrUpdateBarcodes: $updatedCount");
+      print(
+          "Total de registros insertOrUpdateBarcodes transfer: $insertedCount");
+      print(
+          "Total de registros insertOrUpdateBarcodes transfer: $updatedCount");
     } catch (e, s) {
       print("Error al insertar/actualizar barcodes: $e => $s");
     }

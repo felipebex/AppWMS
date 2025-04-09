@@ -126,4 +126,27 @@ class ProductInventarioRepository {
       return [];
     }
   }
+
+
+
+  //metodo para traer un producto por su id
+  Future<Product?> getProductById(int productId) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      List<Map<String, dynamic>> maps = await db.query(
+        ProductInventarioTable.tableName,
+        where: '${ProductInventarioTable.columnProductId} = ?',
+        whereArgs: [productId],
+      );
+      if (maps.isNotEmpty) {
+        return Product.fromMap(maps.first);
+      } else {
+        return null;
+      }
+    } catch (e, s) {
+      print("Error al obtener producto por id: $e ==> $s");
+      return null;
+    }
+  }
+
 }

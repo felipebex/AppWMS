@@ -66,8 +66,9 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   void _onLoadAllNovedadesEvent(
       LoadAllNovedades event, Emitter<PickingState> emit) async {
     try {
-      final novedadeslist =
-          await wmsPickingRepository.getnovedades(false, );
+      final novedadeslist = await wmsPickingRepository.getnovedades(
+        false,
+      );
       listOfNovedades.clear();
       listOfNovedades.addAll(novedadeslist);
 
@@ -103,21 +104,11 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
     batchsDone = batchsFromDB.where((batch) => batch.isSeparate == 1).toList();
 
-    if (event.status == '') {
-      filteredBatchs = batchsFromDB.where((batch) {
-        return batch.isSeparate == null;
-      }).toList();
-      emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
-      return;
-    }
-    //else
-    if (event.status == 'done') {
-      filteredBatchs = batchsFromDB.where((batch) {
-        return batch.isSeparate != null;
-      }).toList();
-      emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
-      return;
-    }
+    filteredBatchs = batchsFromDB.where((batch) {
+      return batch.isSeparate == null;
+    }).toList();
+    emit(LoadBatchsSuccesBDState(listOfBatchs: filteredBatchs));
+    return;
   }
 
   void _onLoadAllBatchsEvent(
@@ -130,10 +121,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
       );
 
       if (response != null && response is List) {
-        // if (response.isNotEmpty) {
-        //   LocalNotificationsService().showNotification('Nuevos batchs',
-        //       'Se han agregado nuevos batchs para picking', '');
-        // }
         int userId = await PrefUtils.getUserId();
         listOfBatchs.clear();
         listOfBatchs.addAll(response);
@@ -214,8 +201,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           await DataBaseSqlite()
               .barcodesPackagesRepository
               .insertOrUpdateBarcodes(otherBarcodesToInsert);
-
-          
         }
 
         //* Carga los batches desde la base de datos

@@ -745,7 +745,7 @@ class ApiRequestService {
           var request = http.Request('GET', Uri.parse(url));
           request.body = json.encode({
             "params": {
-              "warehouse_id": 1,
+              "warehouse_id": idWarehouse,
             }
           });
           request.headers.addAll(headers);

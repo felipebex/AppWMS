@@ -354,7 +354,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                               child: Container(
                                   // color: Colors.amber,
                                   width: size.width * 0.85,
-                                  height: 100,
+                                  height: 120,
                                   padding: const EdgeInsets.only(
                                       left: 10, right: 10, top: 10, bottom: 10),
                                   child: Column(
@@ -378,14 +378,10 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                       ),
                                       Align(
                                         alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              product?.nombre ?? 'Sin nombre',
-                                              style: const TextStyle(
-                                                  fontSize: 14, color: black),
-                                            ),
-                                          ],
+                                        child: Text(
+                                          product?.nombre ?? 'Sin nombre',
+                                          style: const TextStyle(
+                                              fontSize: 14, color: black),
                                         ),
                                       ),
                                       Align(

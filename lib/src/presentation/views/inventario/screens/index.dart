@@ -13,7 +13,6 @@ import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventari
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
@@ -421,27 +420,8 @@ class _InventarioScreenState extends State<InventarioScreen>
             return false;
           },
           child: Scaffold(
+          
             backgroundColor: white,
-            // floatingActionButton: FloatingActionButton(
-            //   backgroundColor: primaryColorApp,
-            //   onPressed: () {
-            //     print("ubicaciones: ${bloc.ubicaciones.length}");
-            //     print("productos toal: ${bloc.productos.length}");
-            //     print(
-            //         "productos de ubicacion: ${bloc.productosUbicacion.length}");
-            //     print(
-            //         "-----------------------------------------------------------------------------");
-            //     print("productos actual: ${bloc.currentProduct?.toMap()}");
-            //     print(
-            //         'codigo por paquete del product: ${bloc.barcodeInventario.length}');
-            //     print("ubicaicon actual: ${bloc.currentUbication?.toMap()}");
-            //     print(
-            //         "-----------------------------------------------------------------------------");
-            //     print("lotes del producto: ${bloc.listLotesProduct.length}");
-            //     print("lote actual: ${bloc.currentProductLote?.toMap()}");
-            //   },
-            //   child: const Icon(Icons.add),
-            // ),
             body: Column(
               children: [
                 //appbar
@@ -1053,30 +1033,30 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                   ],
                                                 ),
                                               ),
-                                              Visibility(
-                                                visible: bloc.currentProduct
-                                                        ?.productTracking ==
-                                                    "lot",
-                                                child: ExpiryDateWidget(
-                                                    expireDate: bloc.currentProduct
-                                                                    ?.expirationDate ==
-                                                                "" ||
-                                                            bloc.currentProduct
-                                                                    ?.expirationDate ==
-                                                                null
-                                                        ? DateTime.now()
-                                                        : DateTime.parse(bloc
-                                                            .currentProduct
-                                                            ?.expirationDate),
-                                                    size: size,
-                                                    isDetaild: false,
-                                                    isNoExpireDate: bloc
-                                                                .currentProduct
-                                                                ?.expirationDate ==
-                                                            ""
-                                                        ? true
-                                                        : false),
-                                              ),
+                                              // Visibility(
+                                              //   visible: bloc.currentProduct
+                                              //           ?.productTracking ==
+                                              //       "lot",
+                                              //   child: ExpiryDateWidget(
+                                              //       expireDate: bloc.currentProduct
+                                              //                       ?.expirationDate ==
+                                              //                   "" ||
+                                              //               bloc.currentProduct
+                                              //                       ?.expirationDate ==
+                                              //                   null
+                                              //           ? DateTime.now()
+                                              //           : DateTime.parse(bloc
+                                              //               .currentProduct
+                                              //               ?.expirationDate),
+                                              //       size: size,
+                                              //       isDetaild: false,
+                                              //       isNoExpireDate: bloc
+                                              //                   .currentProduct
+                                              //                   ?.expirationDate ==
+                                              //               ""
+                                              //           ? true
+                                              //           : false),
+                                              // ),
                                             ],
                                           ),
                                         ),

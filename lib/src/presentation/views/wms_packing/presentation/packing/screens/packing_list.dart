@@ -430,6 +430,10 @@ class PakingListScreen extends StatelessWidget {
 
                                       return GestureDetector(
                                         onTap: () {
+                                          context
+                                              .read<WmsPackingBloc>()
+                                              .add(ShowDetailvent(false));
+
                                           // Limpiamos la lista de paquetes
                                           context
                                               .read<WmsPackingBloc>()

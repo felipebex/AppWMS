@@ -171,3 +171,13 @@ class FilterTransferByWarehouse extends TransferenciaEvent {
   final String warehouseName;
   FilterTransferByWarehouse(this.warehouseName);
 }
+
+
+class CheckAvailabilityEvent extends TransferenciaEvent {
+  final int idTransfer;
+  CheckAvailabilityEvent(this.idTransfer, );
+}
+
+
+class CleanFieldsEvent extends TransferenciaEvent {
+}

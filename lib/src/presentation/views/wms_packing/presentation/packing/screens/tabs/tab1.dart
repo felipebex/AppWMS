@@ -230,10 +230,10 @@ class Tab1Screen extends StatelessWidget {
                 children: [
                   //*detalles del batch
                   Visibility(
-                    visible: !context.read<WmsPackingBloc>().viewDetail ,
+                    visible: !context.read<WmsPackingBloc>().viewDetail,
                     child: Container(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       width: double.infinity,
                       child: Card(
                         color: Colors.white,
@@ -253,31 +253,30 @@ class Tab1Screen extends StatelessWidget {
                                   )),
                               Row(
                                 children: [
-                                   const Align(
+                                  const Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         'Referencia: ',
-                                        style:
-                                            TextStyle(fontSize: 12, color: black),
+                                        style: TextStyle(
+                                            fontSize: 12, color: black),
                                       )),
                                   Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         packingModel?.referencia ?? '',
                                         style: TextStyle(
-                                            fontSize: 12,
-                                            color: black,
-                                            ),
+                                          fontSize: 12,
+                                          color: black,
+                                        ),
                                       )),
                                 ],
                               ),
-                    
-                    
                               const Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     'Contacto: ',
-                                    style: TextStyle(fontSize: 12, color: black),
+                                    style:
+                                        TextStyle(fontSize: 12, color: black),
                                   )),
                               Align(
                                   alignment: Alignment.centerLeft,
@@ -286,15 +285,14 @@ class Tab1Screen extends StatelessWidget {
                                     style: TextStyle(
                                         fontSize: 12, color: primaryColorApp),
                                   )),
-                    
                               Row(
                                 children: [
                                   const Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         'Total productos del pedido: ',
-                                        style:
-                                            TextStyle(fontSize: 12, color: black),
+                                        style: TextStyle(
+                                            fontSize: 12, color: black),
                                       )),
                                   Align(
                                       alignment: Alignment.centerLeft,
@@ -303,7 +301,21 @@ class Tab1Screen extends StatelessWidget {
                                                 .toString() ??
                                             "",
                                         style: TextStyle(
-                                            fontSize: 12, color: primaryColorApp),
+                                            fontSize: 12,
+                                            color: primaryColorApp),
+                                      )),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                              
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        batchModel?.name ?? "",
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: primaryColorApp),
                                       )),
                                 ],
                               ),
@@ -313,8 +325,8 @@ class Tab1Screen extends StatelessWidget {
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         'Total productos empacados: ',
-                                        style:
-                                            TextStyle(fontSize: 12, color: black),
+                                        style: TextStyle(
+                                            fontSize: 12, color: black),
                                       )),
                                   Align(
                                       alignment: Alignment.centerLeft,
@@ -327,7 +339,8 @@ class Tab1Screen extends StatelessWidget {
                                             .length
                                             .toString(), // Convierte el número en un String
                                         style: TextStyle(
-                                            fontSize: 12, color: primaryColorApp),
+                                            fontSize: 12,
+                                            color: primaryColorApp),
                                       )),
                                 ],
                               ),
@@ -337,15 +350,16 @@ class Tab1Screen extends StatelessWidget {
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         'Operacion: ',
-                                        style:
-                                            TextStyle(fontSize: 12, color: black),
+                                        style: TextStyle(
+                                            fontSize: 12, color: black),
                                       )),
                                   Align(
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         packingModel?.tipoOperacion ?? "",
                                         style: TextStyle(
-                                            fontSize: 12, color: primaryColorApp),
+                                            fontSize: 12,
+                                            color: primaryColorApp),
                                       )),
                                 ],
                               ),
@@ -355,8 +369,8 @@ class Tab1Screen extends StatelessWidget {
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         'Numero de paquetes: ',
-                                        style:
-                                            TextStyle(fontSize: 12, color: black),
+                                        style: TextStyle(
+                                            fontSize: 12, color: black),
                                       )),
                                   Align(
                                       alignment: Alignment.centerLeft,
@@ -367,7 +381,8 @@ class Tab1Screen extends StatelessWidget {
                                             .length
                                             .toString(),
                                         style: TextStyle(
-                                            fontSize: 12, color: primaryColorApp),
+                                            fontSize: 12,
+                                            color: primaryColorApp),
                                       )),
                                 ],
                               ),
@@ -432,13 +447,15 @@ class Tab1Screen extends StatelessWidget {
                                   color: Colors.white,
                                   child: ExpansionTile(
                                     childrenPadding: const EdgeInsets.all(5),
-                                    
-                                    onExpansionChanged: 
-                                    (bool expanded) {
+                                    onExpansionChanged: (bool expanded) {
                                       if (expanded) {
-                                        context.read<WmsPackingBloc>().add(ShowDetailvent(true));
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .add(ShowDetailvent(true));
                                       } else {
-                                        context.read<WmsPackingBloc>().add(ShowDetailvent(false));
+                                        context
+                                            .read<WmsPackingBloc>()
+                                            .add(ShowDetailvent(false));
                                       }
                                     },
                                     title: Column(

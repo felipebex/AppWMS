@@ -18,7 +18,7 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 class RecepcionRepository {
 //metodo para obtener todas las ordenes de compra
 
-  Future<List<ResultEntrada>> resBatchsPacking(
+  Future<Recepcionresponse> resBatchsPacking(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -26,7 +26,7 @@ class RecepcionRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return []; // Si no hay conexión, retornar una lista vacía
+      return Recepcionresponse(); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
@@ -43,11 +43,22 @@ class RecepcionRepository {
 
         // Asegúrate de que 'result' exista y sea una lista
         if (jsonResponse.containsKey('result')) {
-          List<dynamic> batches = jsonResponse['result']['result'];
-          // Mapea los datos decodificados a una lista de BatchsModel
-          List<ResultEntrada> ordenes =
-              batches.map((data) => ResultEntrada.fromMap(data)).toList();
-            return ordenes;
+          if (jsonResponse['result']['code'] == 200) {
+            List<dynamic> batches = jsonResponse['result']['result'];
+            // Mapea los datos decodificados a una lista de BatchsModel
+            List<ResultEntrada> ordenes =
+                batches.map((data) => ResultEntrada.fromMap(data)).toList();
+            return Recepcionresponse(
+              jsonrpc: jsonResponse['jsonrpc'],
+              id: jsonResponse['id'],
+              result: RecepcionresponseResult(
+                code: jsonResponse['result']['code'],
+                result: ordenes,
+              ),
+            );
+          } else {
+            return Recepcionresponse();
+          }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(
@@ -72,22 +83,22 @@ class RecepcionRepository {
                 ),
               ],
             );
-            return [];
+            return Recepcionresponse();
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return [];
+      return Recepcionresponse();
     } catch (e, s) {
       // Manejo de otros errores
       print('Error resBatchsPacking: $e, $s');
     }
-    return [];
+    return Recepcionresponse();
   }
 
   Future<List<LotesProduct>> fetchAllLotesProduct(
-      bool isLoadinDialog,  int productId) async {
+      bool isLoadinDialog, int productId) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -161,7 +172,6 @@ class RecepcionRepository {
     bool isLoadinDialog,
     int idUser,
     int idRecepcion,
-  
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -239,7 +249,6 @@ class RecepcionRepository {
     int idProduct,
     String nameLote,
     String dateLote,
- 
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -319,9 +328,9 @@ class RecepcionRepository {
 
 //metodo para enviar los productos recepcionados de la orden de entrada
   Future<ResponSendRecepcion> sendProductRecepcion(
-      RecepcionRequest recepcionRequest,
-      bool isLoadingDialog,
-      ) async {
+    RecepcionRequest recepcionRequest,
+    bool isLoadingDialog,
+  ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -378,8 +387,12 @@ class RecepcionRepository {
     return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
   }
 
-  Future<bool> sendTime(int idRecepcion, String field, String date,
-      bool isLoadingDialog,  ) async {
+  Future<bool> sendTime(
+    int idRecepcion,
+    String field,
+    String date,
+    bool isLoadingDialog,
+  ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 
@@ -456,8 +469,11 @@ class RecepcionRepository {
     return false; // Retornamos un objeto vacío en caso de error de red
   }
 
-  Future<ResponseValidate> validateRecepcion(int idRecepcion, bool isBackorder,
-      bool isLoadingDialog, ) async {
+  Future<ResponseValidate> validateRecepcion(
+    int idRecepcion,
+    bool isBackorder,
+    bool isLoadingDialog,
+  ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
 

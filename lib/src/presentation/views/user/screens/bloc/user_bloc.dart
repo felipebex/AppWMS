@@ -39,7 +39,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       try {
         emit(ConfigurationLoading());
         final response = await userRepository.configurations(event.context);
-        if (response != null) {
+        if (response.result?.code == 200) {
           final int userId = await PrefUtils.getUserId();
           await db.configurationsRepository
               .insertConfiguration(response, userId);
@@ -60,14 +60,13 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
           emit(ConfigurationLoaded(responsebd ?? configurations));
         } else {
-          emit(ConfigurationError('Error al cargar configuraciones'));
+          emit(ConfigurationError(
+              response.result?.msg ?? 'Error al cargar configuraciones'));
         }
       } catch (e, s) {
         print('Error en GetConfigurations.dart: $e =>$s');
       }
     });
-
-
 
     //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEventUser>(_onLoadInfoDeviceEventUser);
@@ -82,10 +81,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       emit(GetUbicacionesLoading());
       final response = await userRepository.ubicaciones();
       if (response != null) {
-        print('ubicaciones: ${response.length}');
         await db.ubicacionesRepository.insertOrUpdateUbicaciones(response);
         ubicaciones = response;
-        almacenes =  await db.warehouseRepository.getAllowedWarehouse(); 
+        almacenes = await db.warehouseRepository.getAllowedWarehouse();
+        await db.warehouseRepository.insertAllowedWarehouse(almacenes);
+        print('ubicaciones: ${response.length}');
         emit(GetUbicacionesLoaded(response));
       } else {
         emit(GetUbicacionesError('Error al cargar ubicaciones'));

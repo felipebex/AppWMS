@@ -91,14 +91,16 @@ class ResultTransFerencias {
   dynamic isSelected;
   dynamic isStarted;
   dynamic isFinish;
+
+  dynamic proveedor;
   
 
   List<LineasTransferenciaTrans>? lineasTransferencia;
   List<LineasTransferenciaTrans>? lineasTransferenciaEnviadas;
 
-    final dynamic backorderName;
+  final dynamic backorderName;
   final dynamic backorderId;
-  final dynamic? showCheckAvailability;
+  final dynamic showCheckAvailability;
 
 
   ResultTransFerencias({
@@ -131,6 +133,7 @@ class ResultTransFerencias {
     this.backorderName,
     this.backorderId,
     this.showCheckAvailability,
+    this.proveedor,
   });
 
   factory ResultTransFerencias.fromMap(Map<String, dynamic> json) =>
@@ -172,6 +175,7 @@ class ResultTransFerencias {
         backorderName: json["backorder_name"],
         backorderId: json["backorder_id"],
         showCheckAvailability: json["show_check_availability"],
+        proveedor: json["proveedor"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -208,6 +212,7 @@ class ResultTransFerencias {
         "backorder_name": backorderName,
         "backorder_id": backorderId,
         "show_check_availability": showCheckAvailability,
+        "proveedor": proveedor,
       };
 }
 

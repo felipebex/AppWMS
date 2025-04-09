@@ -141,10 +141,10 @@ class Product {
 }
 
 class BarcodeInventario {
-  String? barcode;
-  int? idProduct;
-  int? idQuant;
-  int? cantidad;
+  dynamic barcode;
+  dynamic idProduct;
+  dynamic idQuant;
+  dynamic cantidad;
 
   BarcodeInventario({
     this.barcode,

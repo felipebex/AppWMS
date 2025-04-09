@@ -37,35 +37,49 @@ class TransferenciaRepository {
             batch.update(
               TransferenciaTable.tableName,
               {
-                TransferenciaTable.columnId: transfer.id,
-                TransferenciaTable.columnName: transfer.name,
-                TransferenciaTable.columnFechaCreacion: transfer.fechaCreacion,
+                TransferenciaTable.columnId: transfer.id ?? 0,
+                TransferenciaTable.columnName: transfer.name ?? '',
+                TransferenciaTable.columnFechaCreacion:
+                    transfer.fechaCreacion ?? '',
                 TransferenciaTable.columnLocationDestId:
-                    transfer.locationDestId,
+                    transfer.locationDestId ?? 0,
                 TransferenciaTable.columnLocationDestName:
-                    transfer.locationDestName,
+                    transfer.locationDestName ?? '',
                 TransferenciaTable.columnNumeroTrasnferencia:
-                    transfer.numeroTransferencia,
-                TransferenciaTable.columnPesoTotal: transfer.pesoTotal,
-                TransferenciaTable.columnNumeroLineas: transfer.numeroLineas,
-                TransferenciaTable.columnNumeroItems: transfer.numeroItems,
-                TransferenciaTable.columnState: transfer.state,
-                TransferenciaTable.columnOrigin: transfer.origin,
-                TransferenciaTable.columnPriority: transfer.priority,
-                TransferenciaTable.columnWarehouseId: transfer.warehouseId,
-                TransferenciaTable.columnWarehouseName: transfer.warehouseName,
-                TransferenciaTable.columnLocationId: transfer.locationId,
-                TransferenciaTable.columnLocationName: transfer.locationName,
-                TransferenciaTable.columnResponsableId: transfer.responsableId,
-                TransferenciaTable.columnResponsable: transfer.responsable,
-                TransferenciaTable.columnPickingType: transfer.pickingType,
-                TransferenciaTable.columnDateStart: transfer.startTimeTransfer,
-                TransferenciaTable.columnDateFinish: transfer.endTimeTransfer,
-                TransferenciaTable.columnBackorderId: transfer.backorderId,
-                TransferenciaTable.columnBackorderName: transfer.backorderName,
+                    transfer.numeroTransferencia ?? 0,
+                TransferenciaTable.columnPesoTotal: transfer.pesoTotal ?? 0,
+                TransferenciaTable.columnNumeroLineas:
+                    transfer.numeroLineas ?? 0,
+                TransferenciaTable.columnNumeroItems: transfer.numeroItems ?? 0,
+                TransferenciaTable.columnState: transfer.state ?? '',
+                TransferenciaTable.columnOrigin: transfer.origin ?? '',
+                TransferenciaTable.columnPriority: transfer.priority ?? '',
+                TransferenciaTable.columnWarehouseId: transfer.warehouseId ?? 0,
+                TransferenciaTable.columnWarehouseName:
+                    transfer.warehouseName ?? '',
+                TransferenciaTable.columnLocationId: transfer.locationId ?? 0,
+                TransferenciaTable.columnLocationName:
+                    transfer.locationName ?? '',
+                TransferenciaTable.columnResponsableId:
+                    transfer.responsableId ?? 0,
+                TransferenciaTable.columnResponsable:
+                    transfer.responsable ?? '',
+                TransferenciaTable.columnPickingType:
+                    transfer.pickingType ?? '',
+                TransferenciaTable.columnDateStart:
+                    transfer.startTimeTransfer ?? "",
+                TransferenciaTable.columnDateFinish:
+                    transfer.endTimeTransfer ?? "",
+                TransferenciaTable.columnBackorderId: transfer.backorderId ?? 0,
+                TransferenciaTable.columnBackorderName:
+                    transfer.backorderName ?? '',
+                TransferenciaTable.columnProveedor: transfer.proveedor ?? '',
                 TransferenciaTable.columnShowCheckAvailability:
-                    transfer.showCheckAvailability,
-                    
+                    transfer.showCheckAvailability == true
+                        ? 1
+                        : transfer.showCheckAvailability == 0
+                            ? 0
+                            : 1,
               },
               where: '${TransferenciaTable.columnId} = ?',
               whereArgs: [transfer.id],
@@ -75,34 +89,49 @@ class TransferenciaRepository {
             batch.insert(
               TransferenciaTable.tableName,
               {
-                TransferenciaTable.columnId: transfer.id,
-                TransferenciaTable.columnName: transfer.name,
-                TransferenciaTable.columnFechaCreacion: transfer.fechaCreacion,
+                TransferenciaTable.columnId: transfer.id ?? 0,
+                TransferenciaTable.columnName: transfer.name ?? '',
+                TransferenciaTable.columnFechaCreacion:
+                    transfer.fechaCreacion ?? '',
                 TransferenciaTable.columnLocationDestId:
-                    transfer.locationDestId,
+                    transfer.locationDestId ?? 0,
                 TransferenciaTable.columnLocationDestName:
-                    transfer.locationDestName,
+                    transfer.locationDestName ?? '',
                 TransferenciaTable.columnNumeroTrasnferencia:
-                    transfer.numeroTransferencia,
-                TransferenciaTable.columnPesoTotal: transfer.pesoTotal,
-                TransferenciaTable.columnNumeroLineas: transfer.numeroLineas,
-                TransferenciaTable.columnNumeroItems: transfer.numeroItems,
-                TransferenciaTable.columnState: transfer.state,
-                TransferenciaTable.columnOrigin: transfer.origin,
-                TransferenciaTable.columnPriority: transfer.priority,
-                TransferenciaTable.columnWarehouseId: transfer.warehouseId,
-                TransferenciaTable.columnWarehouseName: transfer.warehouseName,
-                TransferenciaTable.columnLocationId: transfer.locationId,
-                TransferenciaTable.columnLocationName: transfer.locationName,
-                TransferenciaTable.columnResponsableId: transfer.responsableId,
-                TransferenciaTable.columnResponsable: transfer.responsable,
-                TransferenciaTable.columnPickingType: transfer.pickingType,
-                TransferenciaTable.columnDateStart: transfer.startTimeTransfer,
-                TransferenciaTable.columnDateFinish: transfer.endTimeTransfer,
-                TransferenciaTable.columnBackorderId: transfer.backorderId,
-                TransferenciaTable.columnBackorderName: transfer.backorderName,
+                    transfer.numeroTransferencia ?? 0,
+                TransferenciaTable.columnPesoTotal: transfer.pesoTotal ?? 0,
+                TransferenciaTable.columnNumeroLineas:
+                    transfer.numeroLineas ?? 0,
+                TransferenciaTable.columnNumeroItems: transfer.numeroItems ?? 0,
+                TransferenciaTable.columnState: transfer.state ?? '',
+                TransferenciaTable.columnOrigin: transfer.origin ?? '',
+                TransferenciaTable.columnPriority: transfer.priority ?? '',
+                TransferenciaTable.columnWarehouseId: transfer.warehouseId ?? 0,
+                TransferenciaTable.columnWarehouseName:
+                    transfer.warehouseName ?? '',
+                TransferenciaTable.columnLocationId: transfer.locationId ?? 0,
+                TransferenciaTable.columnLocationName:
+                    transfer.locationName ?? '',
+                TransferenciaTable.columnResponsableId:
+                    transfer.responsableId ?? 0,
+                TransferenciaTable.columnResponsable:
+                    transfer.responsable ?? '',
+                TransferenciaTable.columnPickingType:
+                    transfer.pickingType ?? '',
+                TransferenciaTable.columnDateStart:
+                    transfer.startTimeTransfer ?? "",
+                TransferenciaTable.columnDateFinish:
+                    transfer.endTimeTransfer ?? "",
+                TransferenciaTable.columnBackorderId: transfer.backorderId ?? 0,
+                TransferenciaTable.columnBackorderName:
+                    transfer.backorderName ?? '',
+                TransferenciaTable.columnProveedor: transfer.proveedor ?? '',
                 TransferenciaTable.columnShowCheckAvailability:
-                    transfer.showCheckAvailability,
+                    transfer.showCheckAvailability == true
+                        ? 1
+                        : transfer.showCheckAvailability == 0
+                            ? 0
+                            : 1,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );

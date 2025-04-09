@@ -40,44 +40,46 @@ class ProductsEntradaRepository {
               batch.update(
                 ProductRecepcionTable.tableName,
                 {
-                  ProductRecepcionTable.columnId: LineasRecepcion.id,
-                  ProductRecepcionTable.columnIdMove: LineasRecepcion.idMove,
+                  ProductRecepcionTable.columnId: LineasRecepcion.id ?? 0,
+                  ProductRecepcionTable.columnIdMove:
+                      LineasRecepcion.idMove ?? 0,
                   ProductRecepcionTable.columnProductId:
-                      LineasRecepcion.productId,
+                      LineasRecepcion.productId ?? 0,
                   ProductRecepcionTable.columnIdRecepcion:
-                      LineasRecepcion.idRecepcion,
+                      LineasRecepcion.idRecepcion ?? 0,
                   ProductRecepcionTable.columnProductName:
-                      LineasRecepcion.productName,
+                      LineasRecepcion.productName ?? '',
                   ProductRecepcionTable.columnProductCode:
-                      LineasRecepcion.productCode,
+                      LineasRecepcion.productCode ?? '',
                   ProductRecepcionTable.columnProductBarcode:
-                      LineasRecepcion.productBarcode,
+                      LineasRecepcion.productBarcode ?? '',
                   ProductRecepcionTable.columnProductTracking:
-                      LineasRecepcion.productTracking,
+                      LineasRecepcion.productTracking ?? '',
                   ProductRecepcionTable.columnFechaVencimiento:
-                      LineasRecepcion.fechaVencimiento,
+                      LineasRecepcion.fechaVencimiento ?? "",
                   ProductRecepcionTable.columnDiasVencimiento:
-                      LineasRecepcion.diasVencimiento,
+                      LineasRecepcion.diasVencimiento ?? '',
                   ProductRecepcionTable.columnQuantityOrdered:
-                      LineasRecepcion.quantityOrdered,
+                      LineasRecepcion.quantityOrdered ?? 0,
                   ProductRecepcionTable.columnQuantityToReceive:
-                      LineasRecepcion.quantityToReceive,
+                      LineasRecepcion.quantityToReceive ?? 0,
                   ProductRecepcionTable.columnQuantityDone:
-                      LineasRecepcion.quantityDone,
-                  ProductRecepcionTable.columnUom: LineasRecepcion.uom,
+                      LineasRecepcion.quantityDone ?? 0,
+                  ProductRecepcionTable.columnUom: LineasRecepcion.uom ?? "",
                   ProductRecepcionTable.columnLocationDestId:
-                      LineasRecepcion.locationDestId,
+                      LineasRecepcion.locationDestId ?? 0,
                   ProductRecepcionTable.columnLocationDestName:
-                      LineasRecepcion.locationDestName,
+                      LineasRecepcion.locationDestName ?? '',
                   ProductRecepcionTable.columnLocationDestBarcode:
-                      LineasRecepcion.locationDestBarcode,
+                      LineasRecepcion.locationDestBarcode ?? '',
                   ProductRecepcionTable.columnLocationId:
-                      LineasRecepcion.locationId,
+                      LineasRecepcion.locationId ?? 0,
                   ProductRecepcionTable.columnLocationBarcode:
-                      LineasRecepcion.locationBarcode,
+                      LineasRecepcion.locationBarcode ?? '',
                   ProductRecepcionTable.columnLocationName:
-                      LineasRecepcion.locationName,
-                  ProductRecepcionTable.columnWeight: LineasRecepcion.weight,
+                      LineasRecepcion.locationName ?? '',
+                  ProductRecepcionTable.columnWeight:
+                      LineasRecepcion.weight ?? 0,
                   ProductRecepcionTable.columnIsSeparate: 0,
                   ProductRecepcionTable.columnIsSelected: 0,
                   ProductRecepcionTable.columnLotName:
@@ -95,9 +97,9 @@ class ProductsEntradaRepository {
                   ProductRecepcionTable.columnIsDoneItem:
                       LineasRecepcion.isDoneItem ?? 0,
                   ProductRecepcionTable.columnDateTransaction:
-                      LineasRecepcion.dateTransaction,
+                      LineasRecepcion.dateTransaction ?? '',
                   ProductRecepcionTable.columnCantidadFaltante:
-                      LineasRecepcion.cantidadFaltante,
+                      LineasRecepcion.cantidadFaltante ?? 0,
                 },
                 where:
                     '${ProductRecepcionTable.columnId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? ',
@@ -111,44 +113,46 @@ class ProductsEntradaRepository {
               batch.insert(
                 ProductRecepcionTable.tableName,
                 {
-                  ProductRecepcionTable.columnId: LineasRecepcion.id,
-                  ProductRecepcionTable.columnIdMove: LineasRecepcion.idMove,
+                  ProductRecepcionTable.columnId: LineasRecepcion.id ?? 0,
+                  ProductRecepcionTable.columnIdMove:
+                      LineasRecepcion.idMove ?? 0,
                   ProductRecepcionTable.columnProductId:
-                      LineasRecepcion.productId,
+                      LineasRecepcion.productId ?? 0,
                   ProductRecepcionTable.columnIdRecepcion:
-                      LineasRecepcion.idRecepcion,
+                      LineasRecepcion.idRecepcion ?? 0,
                   ProductRecepcionTable.columnProductName:
-                      LineasRecepcion.productName,
+                      LineasRecepcion.productName ?? '',
                   ProductRecepcionTable.columnProductCode:
-                      LineasRecepcion.productCode,
+                      LineasRecepcion.productCode ?? "",
                   ProductRecepcionTable.columnProductBarcode:
-                      LineasRecepcion.productBarcode,
+                      LineasRecepcion.productBarcode ?? '',
                   ProductRecepcionTable.columnProductTracking:
-                      LineasRecepcion.productTracking,
+                      LineasRecepcion.productTracking ?? '',
                   ProductRecepcionTable.columnFechaVencimiento:
-                      LineasRecepcion.fechaVencimiento,
+                      LineasRecepcion.fechaVencimiento ?? "",
                   ProductRecepcionTable.columnDiasVencimiento:
-                      LineasRecepcion.diasVencimiento,
+                      LineasRecepcion.diasVencimiento ?? '',
                   ProductRecepcionTable.columnQuantityOrdered:
-                      LineasRecepcion.quantityOrdered,
+                      LineasRecepcion.quantityOrdered ?? 0,
                   ProductRecepcionTable.columnQuantityToReceive:
-                      LineasRecepcion.quantityToReceive,
+                      LineasRecepcion.quantityToReceive ?? 0,
                   ProductRecepcionTable.columnQuantityDone:
-                      LineasRecepcion.quantityDone,
-                  ProductRecepcionTable.columnUom: LineasRecepcion.uom,
+                      LineasRecepcion.quantityDone ?? 0,
+                  ProductRecepcionTable.columnUom: LineasRecepcion.uom ?? "",
                   ProductRecepcionTable.columnLocationDestId:
-                      LineasRecepcion.locationDestId,
+                      LineasRecepcion.locationDestId ?? 0,
                   ProductRecepcionTable.columnLocationDestName:
-                      LineasRecepcion.locationDestName,
+                      LineasRecepcion.locationDestName ?? '',
                   ProductRecepcionTable.columnLocationDestBarcode:
-                      LineasRecepcion.locationDestBarcode,
+                      LineasRecepcion.locationDestBarcode ?? '',
                   ProductRecepcionTable.columnLocationId:
-                      LineasRecepcion.locationId,
+                      LineasRecepcion.locationId ?? 0,
                   ProductRecepcionTable.columnLocationBarcode:
-                      LineasRecepcion.locationBarcode,
+                      LineasRecepcion.locationBarcode ?? '',
                   ProductRecepcionTable.columnLocationName:
-                      LineasRecepcion.locationName,
-                  ProductRecepcionTable.columnWeight: LineasRecepcion.weight,
+                      LineasRecepcion.locationName ?? '',
+                  ProductRecepcionTable.columnWeight:
+                      LineasRecepcion.weight ?? 0,
                   ProductRecepcionTable.columnIsSeparate: 0,
                   ProductRecepcionTable.columnIsSelected: 0,
                   ProductRecepcionTable.columnLotName:
@@ -166,9 +170,9 @@ class ProductsEntradaRepository {
                   ProductRecepcionTable.columnIsDoneItem:
                       LineasRecepcion.isDoneItem ?? 0,
                   ProductRecepcionTable.columnDateTransaction:
-                      LineasRecepcion.dateTransaction,
+                      LineasRecepcion.dateTransaction ?? '',
                   ProductRecepcionTable.columnCantidadFaltante:
-                      LineasRecepcion.cantidadFaltante,
+                      LineasRecepcion.cantidadFaltante ?? 0,
                 },
                 conflictAlgorithm: ConflictAlgorithm.replace,
               );
@@ -189,41 +193,43 @@ class ProductsEntradaRepository {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
       Map<String, dynamic> productCopy = {
-        ProductRecepcionTable.columnIdMove: producto.idMove,
-        ProductRecepcionTable.columnProductId: producto.productId,
-        ProductRecepcionTable.columnIdRecepcion: producto.idRecepcion,
-        ProductRecepcionTable.columnProductName: producto.productName,
-        ProductRecepcionTable.columnProductCode: producto.productCode,
-        ProductRecepcionTable.columnProductBarcode: producto.productBarcode,
-        ProductRecepcionTable.columnProductTracking: producto.productTracking,
-        ProductRecepcionTable.columnFechaVencimiento: producto.fechaVencimiento,
-        ProductRecepcionTable.columnDiasVencimiento: producto.diasVencimiento,
+        ProductRecepcionTable.columnIdMove: producto.idMove ?? 0,
+        ProductRecepcionTable.columnProductId: producto.productId ?? 0,
+        ProductRecepcionTable.columnIdRecepcion: producto.idRecepcion ?? 0,
+        ProductRecepcionTable.columnProductName: producto.productName ?? '',
+        ProductRecepcionTable.columnProductCode: producto.productCode ?? "",
+        ProductRecepcionTable.columnProductBarcode:
+            producto.productBarcode ?? '',
+        ProductRecepcionTable.columnProductTracking:
+            producto.productTracking ?? '',
+        ProductRecepcionTable.columnFechaVencimiento:
+            producto.fechaVencimiento ?? '',
+        ProductRecepcionTable.columnDiasVencimiento:
+            producto.diasVencimiento ?? 0,
         ProductRecepcionTable.columnQuantityOrdered: cantidad,
         ProductRecepcionTable.columnQuantityToReceive:
-            producto.quantityToReceive,
-        ProductRecepcionTable.columnQuantityDone: producto.quantityDone,
-        ProductRecepcionTable.columnUom: producto.uom,
-
-        ProductRecepcionTable.columnLocationDestId: producto.locationDestId,
-        ProductRecepcionTable.columnLocationDestName: producto.locationDestName,
+            producto.quantityToReceive ?? 0,
+        ProductRecepcionTable.columnQuantityDone: producto.quantityDone ?? 0,
+        ProductRecepcionTable.columnUom: producto.uom ?? '',
+        ProductRecepcionTable.columnLocationDestId:
+            producto.locationDestId ?? 0,
+        ProductRecepcionTable.columnLocationDestName:
+            producto.locationDestName ?? '',
         ProductRecepcionTable.columnLocationDestBarcode:
-            producto.locationDestBarcode,
-        ProductRecepcionTable.columnLocationId: producto.locationId,
-        ProductRecepcionTable.columnLocationBarcode: producto.locationBarcode,
-        ProductRecepcionTable.columnLocationName: producto.locationName,
-        ProductRecepcionTable.columnWeight: producto.weight,
-        //parametros para ver que es diferente
+            producto.locationDestBarcode ?? "",
+        ProductRecepcionTable.columnLocationId: producto.locationId ?? 0,
+        ProductRecepcionTable.columnLocationBarcode:
+            producto.locationBarcode ?? '',
+        ProductRecepcionTable.columnLocationName: producto.locationName ?? '',
+        ProductRecepcionTable.columnWeight: producto.weight ?? 0,
         ProductRecepcionTable.columnIsSeparate: 0,
         ProductRecepcionTable.columnIsProductSplit: 1,
-
         ProductRecepcionTable.columnIsSelected: 0,
-        ProductRecepcionTable.columnObservation: producto.observation,
-
+        ProductRecepcionTable.columnObservation: producto.observation ?? '',
         ProductRecepcionTable.columnQuantitySeparate: 0,
         ProductRecepcionTable.columnLoteId: 0,
         ProductRecepcionTable.columnLotName: "",
         ProductRecepcionTable.columnLoteDate: "",
-
         ProductRecepcionTable.columnIsQuantityIsOk: 0,
         ProductRecepcionTable.columnProductIsOk: 0,
         ProductRecepcionTable.columnDateStart: "",

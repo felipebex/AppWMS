@@ -46,7 +46,8 @@ class _DialogAdvetenciaCantidadScreenState
         backgroundColor: Colors.white,
         title: const Center(
             child: Text('360 Software Informa',
-                textAlign: TextAlign.center, style: TextStyle(color: yellow, fontSize: 18))),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: yellow, fontSize: 18))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -165,6 +166,20 @@ class _DialogAdvetenciaCantidadScreenState
           ],
         ),
         actions: [
+          ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context); // Cierra el diálogo
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: grey,
+                minimumSize: Size(size.width * 0.3, 30),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 3,
+              ),
+              child: const Text('Cancelar',
+                  style: TextStyle(color: Colors.white))),
           ElevatedButton(
               onPressed: () async {
                 // Validamos que tenga una novedad seleccionada

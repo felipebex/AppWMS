@@ -37,22 +37,26 @@ class Configurations {
 
 class ConfigurationsResult {
   int? code;
+  String? msg;
   DataConfig? result;
 
   ConfigurationsResult({
     this.code,
     this.result,
+    this.msg,
   });
 
   factory ConfigurationsResult.fromMap(Map<String, dynamic> json) =>
       ConfigurationsResult(
         code: json["code"],
+        msg: json["msg"],
         result:
             json["result"] == null ? null : DataConfig.fromMap(json["result"]),
       );
 
   Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
         "result": result?.toMap(),
       };
 }

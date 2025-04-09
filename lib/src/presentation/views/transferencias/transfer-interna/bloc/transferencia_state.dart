@@ -6,6 +6,7 @@ sealed class TransferenciaState {}
 final class TransferenciaInitial extends TransferenciaState {}
 
 final class TransferenciaLoading extends TransferenciaState {}
+final class TransferenciaLoadingBD extends TransferenciaState {}
 
 final class TransferenciaLoaded extends TransferenciaState {
   final List<ResultTransFerencias> transferencias;
@@ -20,6 +21,11 @@ final class TransferenciaBDLoaded extends TransferenciaState {
 final class TransferenciaError extends TransferenciaState {
   final String message;
   TransferenciaError(this.message);
+}
+
+final class TransferenciaErrorBD extends TransferenciaState {
+  final String message;
+  TransferenciaErrorBD(this.message);
 }
 
 final class CurrentTransferenciaLoaded extends TransferenciaState {}
@@ -246,4 +252,19 @@ class FilterTransferByWarehouseSuccess extends TransferenciaState {
 class FilterTransferByWarehouseFailure extends TransferenciaState {
   final String error;
   FilterTransferByWarehouseFailure(this.error);
+}
+
+
+class CheckAvailabilityLoading extends TransferenciaState {}
+
+
+class CheckAvailabilitySuccess extends TransferenciaState {
+  final ResultTransFerencias transferencia;
+  final String msg;
+  CheckAvailabilitySuccess(this.transferencia, this.msg);
+}
+
+class CheckAvailabilityFailure extends TransferenciaState {
+  final String error;
+  CheckAvailabilityFailure(this.error);
 }

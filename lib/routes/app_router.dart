@@ -15,6 +15,9 @@ import 'package:wms_app/src/presentation/views/recepcion/screens/scan_product_sc
 import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/transfer_externa_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/widgets/location/location_search_widget.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/widgets/product/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/list_transferencias_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/scan_product_transfer_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/transferencia_screen.dart';
@@ -56,6 +59,9 @@ class AppRoutes {
   //transferencias
   static const String transferencias = 'transferencias';
   static const String transferenciaDetail = 'transferencia-detail';
+  static const String transferExterna = 'transfer-externa';
+  static const String searchProductTrans = 'search-product-trans';
+  static const String searchLocationTrans = 'search-location-trans';
 
   // Global
   static const String home = 'home';
@@ -239,6 +245,11 @@ class AppRoutes {
 
       //transferencias
       transferencias: (_) => const ListTransferenciasScreen(),
+      transferExterna: (_) => const TransferExternaScreen(),
+      searchProductTrans: (_) => const SearchLocationScreenTrans(),
+      searchLocationTrans: (_) => const SearchProductScreenTrans(),
+
+      
       transferenciaDetail: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;

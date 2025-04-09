@@ -158,6 +158,85 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     //*metodo para filtrar todas las transferencias segun su warehouseName
     on<FilterTransferByWarehouse>(_onFilterTransferByWarehouse);
+
+    //*Metodo para comprobar disponibilidad
+    on<CheckAvailabilityEvent>(_onCheckAvailabilityEvent);
+
+    //metodo para limpiar datos
+    on<CleanFieldsEvent>(_onClearFieldsEvent);
+  }
+
+  void _onClearFieldsEvent(
+      CleanFieldsEvent event, Emitter<TransferenciaState> emit) {
+    transferencias.clear();
+    transferenciasDB.clear();
+    transferenciasDbFilters.clear();
+
+    emit((TransferenciaInitial()));
+  }
+
+  //metodo para comprobar disponibilidad
+  void _onCheckAvailabilityEvent(
+      CheckAvailabilityEvent event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(CheckAvailabilityLoading());
+      final response = await _transferenciasRepository.checkAvailability(
+          event.idTransfer, false);
+
+      if (response.code == 200) {
+        //*actualizamos la transferencia en nuestra bd
+        await db.transferenciaRepository.insertEntrada([response.result!]);
+
+        //*obtenemos los mapas de los productos de la transferencia
+        List<LineasTransferenciaTrans> productsToInsert =
+            response.result!.lineasTransferencia ?? [];
+
+        List<LineasTransferenciaTrans> productsSedToInsert =
+            response.result!.lineasTransferenciaEnviadas ?? [];
+
+        List<Barcodes> barcodesToInsert = productsToInsert
+            .expand((product) => product.otherBarcodes!)
+            .toList();
+        //convertir el mapap en una lsita de los otros barcodes de cada producto
+        List<Barcodes> otherBarcodesToInsert = productsToInsert
+            .expand((product) => product.productPacking!)
+            .toList();
+
+        print('trasnfer productsToInsert: ${productsToInsert.length}');
+        print('trasnfer productsSedToInsert: ${productsSedToInsert.length}');
+        print('trasnfer barcodesToInsert: ${barcodesToInsert.length}');
+        print(
+            'trasnfer otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
+        // Enviar la lista agrupada a insertBatchProducts
+        await db.productTransferenciaRepository
+            .insertarProductoEntrada(productsToInsert);
+        //productos de la transferencia enviados
+        await db.productTransferenciaRepository
+            .insertarProductoEntrada(productsSedToInsert);
+
+        // Enviar la lista agrupada de barcodes de un producto para packing
+        await db.barcodesPackagesRepository
+            .insertOrUpdateBarcodes(barcodesToInsert);
+        // Enviar la lista agrupada de otros barcodes de un producto para packing
+        await db.barcodesPackagesRepository
+            .insertOrUpdateBarcodes(otherBarcodesToInsert);
+        //actualizamos los datos de la transferencia actual
+        currentTransferencia = response.result!;
+        //actualizamos la lista de transferencias
+        transferenciasDB = transferenciasDB
+            .map((transfer) =>
+                transfer.id == event.idTransfer ? response.result! : transfer)
+            .toList();
+        //actualizamos la lista de productos obteniendolos
+        add(GetPorductsToTransfer(currentTransferencia.id ?? 0));
+        emit(CheckAvailabilitySuccess(response.result!, response.msg ?? ""));
+      } else {
+        emit(CheckAvailabilityFailure(response.msg ?? ""));
+      }
+    } catch (e, s) {
+      emit(CheckAvailabilityFailure('Error al comprobar disponibilidad'));
+      print('Error en el _onCheckAvailabilityEvent: $e, $s');
+    }
   }
 
   //*metodo para filtrar todas las transferencias segun su
@@ -1061,7 +1140,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   void _onfetchTransferenciasDB(
       FetchAllTransferenciasDB event, Emitter<TransferenciaState> emit) async {
     try {
-      emit(TransferenciaLoading());
+      emit(TransferenciaLoadingBD());
 
       transferenciasDB.clear();
       transferenciasDbFilters.clear();
@@ -1080,7 +1159,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         emit(TransferenciaBDLoaded(transferenciasDbFilters));
         add(LoadLocations());
       } else {
-        emit(TransferenciaError('No se encontraron transferencias'));
+        emit(TransferenciaErrorBD('No se encontraron transferencias'));
       }
     } catch (e, s) {
       print('Error en el fetch de transferencias: $e=>$s');
@@ -1112,6 +1191,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       FetchAllTransferencias event, Emitter<TransferenciaState> emit) async {
     try {
       emit(TransferenciaLoading());
+      transferenciasDbFilters.clear();
       transferencias.clear();
       final response = await _transferenciasRepository
           .fetAllTransferencias(event.isLoadingDialog);
@@ -1119,50 +1199,77 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       if (response != null && response is List) {
         await db.transferenciaRepository.insertEntrada(response);
 
-        // Convertir el mapa en una lista de productos únicos con cantidades sumadas
-        List<LineasTransferenciaTrans> productsToInsert =
-            response.expand((batch) => batch.lineasTransferencia!).toList();
-        //Convertir el mapa en una lista los productos ya enviados
-        List<LineasTransferenciaTrans> productsSedToInsert = response
-            .expand((batch) => batch.lineasTransferenciaEnviadas!)
-            .toList();
-        //Convertir el mapa en una lista los barcodes unicos de cada producto
-        List<Barcodes> barcodesToInsert = productsToInsert
-            .expand((product) => product.otherBarcodes!)
-            .toList();
-        //convertir el mapap en una lsita de los otros barcodes de cada producto
-        List<Barcodes> otherBarcodesToInsert = productsToInsert
-            .expand((product) => product.productPacking!)
-            .toList();
+// U// Usar generadores para procesamiento eficiente
+        final productsToInsert =
+            _extractProducts(response).toList(growable: false);
+        final productsSentToInsert =
+            _extractSentProducts(response).toList(growable: false);
+        final allBarcodes =
+            _extractAllBarcodes(response).toList(growable: false);
 
-        print('trasnfer productsToInsert: ${productsToInsert.length}');
-        print('trasnfer productsSedToInsert: ${productsSedToInsert.length}');
-        print('trasnfer barcodesToInsert: ${barcodesToInsert.length}');
-        print(
-            'trasnfer otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
+        print('transfer productsToInsert: ${productsToInsert.length}');
+        print('transfer productsSentToInsert: ${productsSentToInsert.length}');
+        print('transfer allBarcodes: ${allBarcodes.length}');
 
         // Enviar la lista agrupada a insertBatchProducts
         await db.productTransferenciaRepository
             .insertarProductoEntrada(productsToInsert);
         //productos de la transferencia enviados
         await db.productTransferenciaRepository
-            .insertarProductoEntrada(productsSedToInsert);
+            .insertarProductoEntrada(productsSentToInsert);
 
         // Enviar la lista agrupada de barcodes de un producto para packing
         await db.barcodesPackagesRepository
-            .insertOrUpdateBarcodes(barcodesToInsert);
-        // Enviar la lista agrupada de otros barcodes de un producto para packing
-        await db.barcodesPackagesRepository
-            .insertOrUpdateBarcodes(otherBarcodesToInsert);
+            .insertOrUpdateBarcodes(allBarcodes);
+    
 
         transferencias = response;
-        emit(TransferenciaLoaded(transferencias));
+        transferenciasDbFilters = response;
+        add(FetchAllTransferenciasDB());
+        emit(TransferenciaLoaded(transferenciasDbFilters));
       } else {
         emit(TransferenciaLoaded([]));
         emit(TransferenciaError('No se encontraron transferencias'));
       }
     } catch (e, s) {
       print('Error en el fetch de transferencias: $e=>$s');
+    }
+  }
+
+  // Generador para productos normales
+  Iterable<LineasTransferenciaTrans> _extractProducts(
+      List<ResultTransFerencias> response) sync* {
+    for (final batch in response) {
+      if (batch.lineasTransferencia != null) {
+        yield* batch.lineasTransferencia!;
+      }
+    }
+  }
+
+// Generador para productos enviados
+  Iterable<LineasTransferenciaTrans> _extractSentProducts(
+      List<ResultTransFerencias> response) sync* {
+    for (final batch in response) {
+      if (batch.lineasTransferenciaEnviadas != null) {
+        yield* batch.lineasTransferenciaEnviadas!;
+      }
+    }
+  }
+
+// Generador para todos los códigos de barras
+  Iterable<Barcodes> _extractAllBarcodes(
+      List<ResultTransFerencias> response) sync* {
+    for (final batch in response) {
+      if (batch.lineasTransferencia != null) {
+        for (final product in batch.lineasTransferencia!) {
+          if (product.otherBarcodes != null) {
+            yield* product.otherBarcodes!;
+          }
+          if (product.productPacking != null) {
+            yield* product.productPacking!;
+          }
+        }
+      }
     }
   }
 }

@@ -31,6 +31,7 @@ class TransferenciaTable {
   static const String columnBackorderName = 'backorder_name';
   static const String columnBackorderId = 'backorder_id';
   static const String columnShowCheckAvailability = 'show_check_availability';
+  static const String columnProveedor = 'proveedor';
 
 
 
@@ -63,6 +64,7 @@ class TransferenciaTable {
       $columnIsfinis INTEGER,
       $columnBackorderName TEXT,
       $columnBackorderId INTEGER,
+      $columnProveedor TEXT,
       $columnShowCheckAvailability INTEGER
       
     )

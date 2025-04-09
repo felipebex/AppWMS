@@ -689,6 +689,31 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                 border: InputBorder.none,
                                               ),
                                             ),
+
+                                            Row(
+                                              children: [
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    'N° ',
+                                                    style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: primaryColorApp),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  bloc.currentProduct
+                                                          .productCode
+                                                          .toString() ??
+                                                      'Sin codigo',
+                                                  style: TextStyle(
+                                                      fontSize: 13,
+                                                      color: black),
+                                                ),
+                                              ],
+                                            ),
+
                                             // Lote/Numero de serie
                                             Align(
                                               alignment: Alignment.centerLeft,
@@ -787,6 +812,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                         ),
                                                       ),
                                                       const Spacer(),
+
+                                                      
                                                       GestureDetector(
                                                         onTap: () {
                                                           showDialog(
@@ -809,6 +836,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                               width: 20),
                                                         ),
                                                       ),
+
+
                                                     ],
                                                   ),
                                               ],
@@ -870,6 +899,30 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                         style: const TextStyle(
                                                             fontSize: 13,
                                                             color: black),
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text(
+                                                              'Codigo: ',
+                                                              style: TextStyle(
+                                                                  fontSize: 13,
+                                                                  color:
+                                                                      primaryColorApp),
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                            bloc.currentProduct
+                                                                    .productCode
+                                                                    .toString() ??
+                                                                'Sin codigo',
+                                                            style: TextStyle(
+                                                                fontSize: 13,
+                                                                color: black),
+                                                          ),
+                                                        ],
                                                       ),
                                                       Align(
                                                         alignment: Alignment

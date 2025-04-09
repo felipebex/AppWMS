@@ -13,7 +13,6 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/sen_packing_re
 import 'package:wms_app/src/presentation/views/wms_packing/models/un_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-import 'package:wms_app/src/services/notification_service.dart';
 import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -1107,7 +1106,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
   void _onLoadAllPackingEvent(
       LoadAllPackingEvent event, Emitter<WmsPackingState> emit) async {
-    emit(WmsPackingLoading());
+    emit(WmsPackingWMSLoading());
     try {
       final response = await wmsPackingRepository.resBatchsPacking(
           event.isLoadinDialog);
@@ -1230,7 +1229,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           await db.batchPackingRepository.getAllBatchsPacking();
       listOfBatchsDB.clear();
       listOfBatchsDB.addAll(batchsFromDB);
-      emit(WmsPackingLoaded());
+      emit(WmsPackingLoadedBD());
     } catch (e, s) {
       print('Error en el  _onLoadBatchsFromDBEvent: $e, $s');
       emit(WmsPackingError(e.toString()));

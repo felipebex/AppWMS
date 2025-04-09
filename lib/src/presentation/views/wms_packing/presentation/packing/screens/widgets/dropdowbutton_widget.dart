@@ -47,7 +47,7 @@ class _DialogAdvetenciaCantidadScreenState
         actionsAlignment: MainAxisAlignment.center,
         backgroundColor: Colors.white,
         title: const Center(
-            child: Text('360 Software Informa', style: TextStyle(color: yellow))),
+            child: Text('360 Software Informa', style: TextStyle(color: yellow, fontSize: 14))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -146,7 +146,7 @@ class _DialogAdvetenciaCantidadScreenState
               ),
             ),
             Visibility(
-              visible: widget.cantidad > 1,
+              visible: widget.cantidad >= 1,
               child: ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context); // Cierra el diálogo

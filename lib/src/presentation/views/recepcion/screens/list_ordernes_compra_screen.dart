@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_
 import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -26,17 +27,6 @@ class ListOrdenesCompraScreen extends StatelessWidget {
 
     return BlocConsumer<RecepcionBloc, RecepcionState>(
       listener: (context, state) {
-        print('State ❤️‍🔥 $state');
-
-        if (state is FetchOrdenesCompraFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.error),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-
         if (state is AssignUserToOrderFailure) {
           Get.snackbar(
             '360 Software Informa',
@@ -66,6 +56,44 @@ class ListOrdenesCompraScreen extends StatelessWidget {
             'recepcion',
             arguments: [state.ordenCompra, 0],
           );
+        }
+
+        if (state is FetchOrdenesCompraLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const DialogLoading(
+              message: 'Cargando recepciones...',
+            ),
+          );
+        }
+        if (state is FetchOrdenesCompraFailure) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        }
+
+        if (state is FetchOrdenesCompraOfBdSuccess) {
+          Navigator.pop(context);
         }
       },
       builder: (context, state) {
@@ -125,6 +153,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                   color: Colors.white,
                                   elevation: 3,
                                   child: TextFormField(
+                                    showCursor: true,
                                     readOnly: context
                                             .read<UserBloc>()
                                             .fabricante
@@ -208,11 +237,12 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                               ),
                               child: Card(
                                 elevation: 3,
-                                color: ordenCompra[index].isSelected == 1
-                                    ? primaryColorAppLigth
-                                    : ordenCompra[index].isFinish == 1
-                                        ? Colors.green[200]
-                                        : white,
+                                color:
+                                    ordenCompra[index].startTimeReception != ""
+                                        ? primaryColorAppLigth
+                                        : ordenCompra[index].isFinish == 1
+                                            ? Colors.green[200]
+                                            : white,
                                 child: ListTile(
                                   trailing: Icon(Icons.arrow_forward_ios,
                                       color: primaryColorApp),
@@ -223,37 +253,52 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                           fontWeight: FontWeight.bold)),
                                   subtitle: Column(
                                     children: [
-                                      Visibility(
-                                        visible:
-                                            ordenCompra[index].backorderId !=
-                                                0,
+                                      Align(
+                                        alignment: Alignment.centerLeft,
                                         child: Row(
                                           children: [
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text('Backorder: ',
-                                                  style: TextStyle(
-                                                    color: primaryColorApp,
+                                            Text('Tipo de entrada: ',
+                                                style: TextStyle(
                                                     fontSize: 12,
-                                                  )),
-                                            ),
-                                            const SizedBox(
-                                              height: 5,
-                                            ),
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                  ordenCompra[index]
-                                                          .backorderName ??
-                                                      '',
-                                                  style: TextStyle(
-                                                      color: black,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
+                                                    color: primaryColorApp)),
+                                            Text(
+                                              ordenCompra[index].pickingType ??
+                                                  "",
+                                              style: const TextStyle(
+                                                  fontSize: 12, color: black),
                                             ),
                                           ],
                                         ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Row(
+                                          children: [
+                                            Text('Prioridad: ',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp)),
+                                            Text(
+                                              ordenCompra[index].priority == '0'
+                                                  ? 'Normal'
+                                                  : 'Alta'
+                                                      "",
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: ordenCompra[index]
+                                                            .priority ==
+                                                        '0'
+                                                    ? black
+                                                    : red,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Divider(
+                                        color: black,
+                                        thickness: 1,
+                                        height: 5,
                                       ),
                                       Align(
                                         alignment: Alignment.centerLeft,
@@ -279,6 +324,84 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                   fontSize: 12, color: black),
                                             ),
                                           ],
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                            ordenCompra[index].proveedor ?? '',
+                                            style: TextStyle(
+                                              color: black,
+                                              fontSize: 12,
+                                            )),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.shopping_cart_sharp,
+                                              color: primaryColorApp,
+                                              size: 15,
+                                            ),
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              ordenCompra[index]
+                                                          .purchaseOrderName ==
+                                                      ""
+                                                  ? 'Sin orden de compra'
+                                                  : ordenCompra[index]
+                                                          .purchaseOrderName ??
+                                                      '',
+                                              style: const TextStyle(
+                                                  fontSize: 12, color: black),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Visibility(
+                                        visible:
+                                            ordenCompra[index].backorderId != 0,
+                                        child: Row(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Icon(
+                                                  Icons.file_copy_rounded,
+                                                  color: primaryColorApp,
+                                                  size: 15),
+                                            ),
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            Text(
+                                                ordenCompra[index]
+                                                        .backorderName ??
+                                                    '',
+                                                style: TextStyle(
+                                                    color: black,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
+                                          ],
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          'Ubicacion destino: ',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: primaryColorApp),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          ordenCompra[index].locationDestName ??
+                                              '',
+                                          style: const TextStyle(
+                                              fontSize: 12, color: black),
                                         ),
                                       ),
                                       Align(
@@ -329,82 +452,12 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                       },
                                                       child: Icon(
                                                         Icons.timer_sharp,
-                                                        color: primaryColorApp,
+                                                        color: black,
                                                         size: 15,
                                                       ),
                                                     ),
                                                   )
                                                 : const SizedBox(),
-                                          ],
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: [
-                                            Text('Tipo de entrada: ',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: primaryColorApp)),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              ordenCompra[index].pickingType ??
-                                                  "",
-                                              style: const TextStyle(
-                                                  fontSize: 12, color: black),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                            ordenCompra[index].proveedor ?? '',
-                                            style: TextStyle(
-                                              color: black,
-                                              fontSize: 12,
-                                            )),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          'Ubicacion destino: ',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp),
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          ordenCompra[index].locationDestName ??
-                                              '',
-                                          style: const TextStyle(
-                                              fontSize: 12, color: black),
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons
-                                                  .download_for_offline_rounded,
-                                              color: primaryColorApp,
-                                              size: 15,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              ordenCompra[index]
-                                                          .purchaseOrderName ==
-                                                      ""
-                                                  ? 'Sin orden de compra'
-                                                  : ordenCompra[index]
-                                                          .purchaseOrderName ??
-                                                      '',
-                                              style: const TextStyle(
-                                                  fontSize: 12, color: black),
-                                            ),
                                           ],
                                         ),
                                       ),
@@ -429,6 +482,21 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                         builder: (context) =>
                                             DialogAsignUserToOrderWidget(
                                           onAccepted: () async {
+                                            context
+                                                .read<RecepcionBloc>()
+                                                .searchControllerOrderC
+                                                .clear();
+
+                                            context
+                                                .read<RecepcionBloc>()
+                                                .add(SearchOrdenCompraEvent(
+                                                  '',
+                                                ));
+
+                                            context
+                                                .read<RecepcionBloc>()
+                                                .add(ShowKeyboardEvent(false));
+
                                             //asignamos el responsable a esa orden de entrada
                                             context
                                                 .read<RecepcionBloc>()
@@ -465,6 +533,14 @@ class ListOrdenesCompraScreen extends StatelessWidget {
             false, // No permitir que el usuario cierre el diálogo manualmente
         builder: (context) => DialogStartTimeWidget(
           onAccepted: () async {
+            context.read<RecepcionBloc>().searchControllerOrderC.clear();
+
+            context.read<RecepcionBloc>().add(SearchOrdenCompraEvent(
+                  '',
+                ));
+
+            context.read<RecepcionBloc>().add(ShowKeyboardEvent(false));
+
             context.read<RecepcionBloc>().add(StartOrStopTimeOrder(
                   ordenCompra.id ?? 0,
                   "start_time_reception",
@@ -487,6 +563,13 @@ class ListOrdenesCompraScreen extends StatelessWidget {
         ),
       );
     } else {
+      context.read<RecepcionBloc>().searchControllerOrderC.clear();
+
+      context.read<RecepcionBloc>().add(SearchOrdenCompraEvent(
+            '',
+          ));
+
+      context.read<RecepcionBloc>().add(ShowKeyboardEvent(false));
       context
           .read<RecepcionBloc>()
           .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
@@ -539,6 +622,17 @@ class AppBar extends StatelessWidget {
                       onPressed: () {
                         context
                             .read<RecepcionBloc>()
+                            .searchControllerOrderC
+                            .clear();
+
+                        context
+                            .read<RecepcionBloc>()
+                            .add(SearchOrdenCompraEvent(
+                              '',
+                            ));
+
+                        context
+                            .read<RecepcionBloc>()
                             .add(ShowKeyboardEvent(false));
 
                         Navigator.pushReplacementNamed(
@@ -551,10 +645,25 @@ class AppBar extends StatelessWidget {
                       padding: EdgeInsets.only(left: size.width * 0.23),
                       child: GestureDetector(
                         onTap: () async {
+                          context
+                              .read<RecepcionBloc>()
+                              .searchControllerOrderC
+                              .clear();
+
+                          context
+                              .read<RecepcionBloc>()
+                              .add(SearchOrdenCompraEvent(
+                                '',
+                              ));
+
+                          context
+                              .read<RecepcionBloc>()
+                              .add(ShowKeyboardEvent(false));
+
                           await DataBaseSqlite().deleRecepcion();
                           context
                               .read<RecepcionBloc>()
-                              .add(FetchOrdenesCompra(true));
+                              .add(FetchOrdenesCompra(false));
                         },
                         child: const Text("RECEPCION",
                             style: TextStyle(color: white, fontSize: 18)),

@@ -6,28 +6,28 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/bloc/transfer_externa_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class SearchLocationScreen extends StatefulWidget {
-  const SearchLocationScreen({Key? key}) : super(key: key);
+class SearchLocationScreenTrans extends StatefulWidget {
+  const SearchLocationScreenTrans({Key? key}) : super(key: key);
 
   @override
-  State<SearchLocationScreen> createState() => _SearchLocationScreenState();
+  State<SearchLocationScreenTrans> createState() => _SearchLocationScreenState();
 }
 
-class _SearchLocationScreenState extends State<SearchLocationScreen> {
+class _SearchLocationScreenState extends State<SearchLocationScreenTrans> {
   int? selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    return BlocBuilder<InventarioBloc, InventarioState>(
+    return BlocBuilder<TransferExternaBloc, TransferExternaState>(
       builder: (context, state) {
-        final bloc = context.read<InventarioBloc>();
+        final bloc = context.read<TransferExternaBloc>();
         return WillPopScope(
           onWillPop: () async {
             return false;
@@ -57,7 +57,6 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                                   color: Colors.white,
                                   elevation: 3,
                                   child: TextFormField(
-                                    showCursor: true,
                                     readOnly: context
                                             .read<UserBloc>()
                                             .fabricante
@@ -79,7 +78,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                                             bloc.add(SearchLocationEvent(
                                               '',
                                             ));
-                                            bloc.add(ShowKeyboardEvent(false));
+                                            bloc.add(ShowKeyboardTransExtEvent(false));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -105,7 +104,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                                             .contains("Zebra")
                                         ? null
                                         : () {
-                                            bloc.add(ShowKeyboardEvent(true));
+                                            bloc.add(ShowKeyboardTransExtEvent(true));
                                           },
                                   ),
                                 ),
@@ -220,7 +219,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                                 field: "location", isOk: true));
                             bloc.add(ChangeLocationIsOkEvent(selectedLocation));
 
-                            bloc.add(ShowKeyboardEvent(false));
+                            bloc.add(ShowKeyboardTransExtEvent(false));
                             FocusScope.of(context).unfocus();
 
                             setState(() {
@@ -301,7 +300,7 @@ class _AppBarInfo extends StatelessWidget {
       width: double.infinity,
       child: BlocProvider(
         create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<InventarioBloc, InventarioState>(
+        child: BlocConsumer<TransferExternaBloc, TransferExternaState>(
             listener: (context, state) {},
             builder: (context, status) {
               return Column(
@@ -317,8 +316,8 @@ class _AppBarInfo extends StatelessWidget {
                           icon: const Icon(Icons.arrow_back, color: white),
                           onPressed: () {
                             context
-                                .read<InventarioBloc>()
-                                .add(ShowKeyboardEvent(false));
+                                .read<TransferExternaBloc>()
+                                .add(ShowKeyboardTransExtEvent(false));
                             Navigator.pushReplacementNamed(
                               context,
                               'inventario',

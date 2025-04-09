@@ -380,10 +380,10 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         currentUbication = event.locationSelect;
         locationIsOk = true;
 
+        add(GetProductsByLocationEvent(event.locationSelect.id ?? 0));
         emit(ChangeLocationIsOkState(
           locationIsOk,
         ));
-        add(GetProductsByLocationEvent(event.locationSelect.id ?? 0));
       }
     } catch (e, s) {
       print("❌ Error en el ChangeLocationIsOkEvent $e ->$s");
@@ -393,6 +393,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   void _onGetProductsByLocation(
       GetProductsByLocationEvent event, Emitter<InventarioState> emit) async {
     try {
+      print('TRAEMOS LOS PRODUCTOS DEL INVENTARIO DE LA UBICACION');
       emit(GetProductsLoading());
       final response =
           await db.productoInventarioRepository.getAllProductsByLocation(
@@ -418,6 +419,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       GetProductsEvent event, Emitter<InventarioState> emit) async {
     try {
       emit(GetProductsLoading());
+
+      await db.deleInventario();
 
       final response =
           await _inventarioRepository.fetAllProducts(false, event.warehouseId);
@@ -452,6 +455,12 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       emit(GetProductsFailure('Error al cargar los productos'));
       print('Error en el fetch de productos: $e=>$s');
     }
+  }
+
+
+  void getPordutbyid()async{
+     final response = await db.productoInventarioRepository.getProductById(33132);
+     print('response: ${response?.toMap()}');
   }
 
   void _onGetProductsBD(

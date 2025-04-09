@@ -17,6 +17,7 @@ import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20inf
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/bloc/transfer_info_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/bloc/transfer_externa_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
@@ -69,18 +70,18 @@ void main() async {
   });
 
   // Cron para verificar conexión e interacción con Odoo
-  // var cron = Cron();
-  // cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-  //   try {
-  //     final result = await InternetAddress.lookup('example.com');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       final isLogin = await PrefUtils.getIsLoggedIn();
-  //       if (isLogin) {
-  //         searchProductsNoSendOdoo(navigatorKey.currentContext!);
-  //       }
-  //     }
-  //   } on SocketException catch (_) {}
-  // });
+  var cron = Cron();
+  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        final isLogin = await PrefUtils.getIsLoggedIn();
+        if (isLogin) {
+          searchProductsNoSendOdoo(navigatorKey.currentContext!);
+        }
+      }
+    } on SocketException catch (_) {}
+  });
 }
 
 class AppState extends StatelessWidget {
@@ -133,6 +134,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => InventarioBloc(),
+        ),
+        BlocProvider(
+          create: (_) => TransferExternaBloc(),
         )
       ],
       child: GetMaterialApp(

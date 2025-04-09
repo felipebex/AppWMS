@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart'; 
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/dropdowbutton_widget.dart';
@@ -735,7 +736,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                       ),
                                                       Text(
                                                         recepcionBloc
-                                                            .selectLote,
+                                                                .lotesProductCurrent
+                                                                .name ??
+                                                            "",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color:
@@ -756,7 +759,10 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                             color: black),
                                                       ),
                                                       Text(
-                                                        recepcionBloc.dateLote,
+                                                        recepcionBloc
+                                                                .lotesProductCurrent
+                                                                .expirationDate ??
+                                                            "",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black),
@@ -1203,9 +1209,29 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     final batchBloc = context.read<RecepcionBloc>();
     final currentProduct = batchBloc.currentProduct;
 
+
+
+    //validamos que tengamos un lote seleccionado
+
+    if(currentProduct.productTracking =='lot'){
+      if (context.read<RecepcionBloc>().lotesProductCurrent.id ==null ) {
+        Get.snackbar(
+          'Error',
+          "Seleccione un lote",
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          icon: Icon(Icons.error, color: Colors.amber),
+        );
+        return;
+      }
+    }
+
     int cantidad = int.parse(_cantidadController.text.isEmpty
         ? batchBloc.quantitySelected.toString()
         : _cantidadController.text);
+
+
+        
 
     if (cantidad == currentProduct.cantidadFaltante) {
       batchBloc.add(ChangeQuantitySeparate(
@@ -1248,11 +1274,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                   });
             });
       } else if (cantidad > (currentProduct.cantidadFaltante ?? 0).toInt()) {
-        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        //   duration: const Duration(milliseconds: 1000),
-        //   content: const Text('Cantidad erronea'),
-        //   backgroundColor: Colors.red[200],
-        // ));
+      
         batchBloc.add(ChangeQuantitySeparate(
             cantidad,
             int.parse(currentProduct.productId),
@@ -1314,6 +1336,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     context.read<RecepcionBloc>().selectLote = "";
     context.read<RecepcionBloc>().dateLote = "";
     context.read<RecepcionBloc>().loteIsOk = false;
+    context.read<RecepcionBloc>().lotesProductCurrent = LotesProduct();
+
     context
         .read<RecepcionBloc>()
         .add(GetPorductsToEntrada(widget.ordenCompra?.id ?? 0));

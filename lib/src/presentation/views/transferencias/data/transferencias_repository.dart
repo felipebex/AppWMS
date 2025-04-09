@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_validate_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
+import 'package:wms_app/src/presentation/views/transferencias/models/response_check_availability_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transfer_send_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -378,5 +379,81 @@ class TransferenciasRepository {
       return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
     }
     return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
+  }
+
+  Future<CheckAvailabilityResponseResult> checkAvailability(
+    int idTransfer,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return CheckAvailabilityResponseResult(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'comprobar_disponibilidad', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_transferencia": idTransfer,
+          }
+        },
+        isLoadinDialog: isLoadingDialog,
+      );
+      if (response.statusCode <= 500) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse.containsKey('result')) {
+          return CheckAvailabilityResponseResult(
+            code: jsonResponse['result']['code'],
+            msg: jsonResponse['result']['msg'],
+            result: jsonResponse['result']['result'] != null
+                ? ResultTransFerencias.fromMap(jsonResponse['result']['result'])
+                : null,
+          );
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            //mostramos una alerta de get
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+
+            return CheckAvailabilityResponseResult();
+          }
+        }
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return CheckAvailabilityResponseResult(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en checkAvailability: $e, $s');
+      return CheckAvailabilityResponseResult(); // Retornamos un objeto vacío en caso de error de red
+    }
+    return CheckAvailabilityResponseResult(); // Retornamos un objeto vacío en caso de error de red
   }
 }

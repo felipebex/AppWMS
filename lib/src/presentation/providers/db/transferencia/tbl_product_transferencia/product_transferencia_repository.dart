@@ -44,45 +44,45 @@ class ProductTransferenciaRepository {
                 ProductTransferenciaTable.tableName,
                 {
                   ProductTransferenciaTable.columnId:
-                      LineasTransferenciaTrans.id,
+                      LineasTransferenciaTrans.id ?? 0,
                   ProductTransferenciaTable.columnIdMove:
-                      LineasTransferenciaTrans.idMove,
+                      LineasTransferenciaTrans.idMove ?? 0,
                   ProductTransferenciaTable.columnProductId:
-                      LineasTransferenciaTrans.productId,
+                      LineasTransferenciaTrans.productId ?? 0,
                   ProductTransferenciaTable.columnIdTransferencia:
-                      LineasTransferenciaTrans.idTransferencia,
+                      LineasTransferenciaTrans.idTransferencia ?? 0,
                   ProductTransferenciaTable.columnProductName:
-                      LineasTransferenciaTrans.productName,
+                      LineasTransferenciaTrans.productName ?? '',
                   ProductTransferenciaTable.columnProductCode:
-                      LineasTransferenciaTrans.productCode,
+                      LineasTransferenciaTrans.productCode ?? '',
                   ProductTransferenciaTable.columnProductBarcode:
-                      LineasTransferenciaTrans.productBarcode,
+                      LineasTransferenciaTrans.productBarcode ?? '',
                   ProductTransferenciaTable.columnProductTracking:
-                      LineasTransferenciaTrans.productTracking,
+                      LineasTransferenciaTrans.productTracking ?? '',
                   ProductTransferenciaTable.columnFechaVencimiento:
-                      LineasTransferenciaTrans.fechaVencimiento,
+                      LineasTransferenciaTrans.fechaVencimiento ?? '',
                   ProductTransferenciaTable.columnDiasVencimiento:
-                      LineasTransferenciaTrans.diasVencimiento,
+                      LineasTransferenciaTrans.diasVencimiento ?? 0,
                   ProductTransferenciaTable.columnQuantityOrdered:
-                      LineasTransferenciaTrans.quantityOrdered,
+                      LineasTransferenciaTrans.quantityOrdered ?? 0,
                   ProductTransferenciaTable.columnQuantityDone:
-                      LineasTransferenciaTrans.quantityDone,
+                      LineasTransferenciaTrans.quantityDone ?? 0,
                   ProductTransferenciaTable.columnUom:
-                      LineasTransferenciaTrans.uom,
+                      LineasTransferenciaTrans.uom ?? "",
                   ProductTransferenciaTable.columnLocationDestId:
-                      LineasTransferenciaTrans.locationDestId,
+                      LineasTransferenciaTrans.locationDestId ?? 0,
                   ProductTransferenciaTable.columnLocationDestName:
-                      LineasTransferenciaTrans.locationDestName,
+                      LineasTransferenciaTrans.locationDestName ?? "",
                   ProductTransferenciaTable.columnLocationDestBarcode:
-                      LineasTransferenciaTrans.locationDestBarcode,
+                      LineasTransferenciaTrans.locationDestBarcode ?? '',
                   ProductTransferenciaTable.columnLocationId:
-                      LineasTransferenciaTrans.locationId,
+                      LineasTransferenciaTrans.locationId ?? 0,
                   ProductTransferenciaTable.columnLocationBarcode:
-                      LineasTransferenciaTrans.locationBarcode,
+                      LineasTransferenciaTrans.locationBarcode ?? '',
                   ProductTransferenciaTable.columnLocationName:
-                      LineasTransferenciaTrans.locationName,
+                      LineasTransferenciaTrans.locationName ?? '',
                   ProductTransferenciaTable.columnWeight:
-                      LineasTransferenciaTrans.weight,
+                      LineasTransferenciaTrans.weight ?? 0,
                   ProductTransferenciaTable.columnIsSeparate: 0,
                   ProductTransferenciaTable.columnIsSelected: 0,
                   ProductTransferenciaTable.columnQuantitySeparate: 0,
@@ -120,45 +120,45 @@ class ProductTransferenciaRepository {
                 ProductTransferenciaTable.tableName,
                 {
                   ProductTransferenciaTable.columnId:
-                      LineasTransferenciaTrans.id,
+                      LineasTransferenciaTrans.id ?? 0,
                   ProductTransferenciaTable.columnIdMove:
-                      LineasTransferenciaTrans.idMove,
+                      LineasTransferenciaTrans.idMove ?? 0,
                   ProductTransferenciaTable.columnProductId:
-                      LineasTransferenciaTrans.productId,
+                      LineasTransferenciaTrans.productId ?? 0,
                   ProductTransferenciaTable.columnIdTransferencia:
-                      LineasTransferenciaTrans.idTransferencia,
+                      LineasTransferenciaTrans.idTransferencia ?? 0,
                   ProductTransferenciaTable.columnProductName:
-                      LineasTransferenciaTrans.productName,
+                      LineasTransferenciaTrans.productName ?? '',
                   ProductTransferenciaTable.columnProductCode:
-                      LineasTransferenciaTrans.productCode,
+                      LineasTransferenciaTrans.productCode ?? '',
                   ProductTransferenciaTable.columnProductBarcode:
-                      LineasTransferenciaTrans.productBarcode,
+                      LineasTransferenciaTrans.productBarcode ?? '',
                   ProductTransferenciaTable.columnProductTracking:
-                      LineasTransferenciaTrans.productTracking,
+                      LineasTransferenciaTrans.productTracking ?? '',
                   ProductTransferenciaTable.columnFechaVencimiento:
-                      LineasTransferenciaTrans.fechaVencimiento,
+                      LineasTransferenciaTrans.fechaVencimiento ?? '',
                   ProductTransferenciaTable.columnDiasVencimiento:
-                      LineasTransferenciaTrans.diasVencimiento,
+                      LineasTransferenciaTrans.diasVencimiento ?? 0,
                   ProductTransferenciaTable.columnQuantityOrdered:
-                      LineasTransferenciaTrans.quantityOrdered,
+                      LineasTransferenciaTrans.quantityOrdered ?? 0,
                   ProductTransferenciaTable.columnQuantityDone:
-                      LineasTransferenciaTrans.quantityDone,
+                      LineasTransferenciaTrans.quantityDone ?? 0,
                   ProductTransferenciaTable.columnUom:
-                      LineasTransferenciaTrans.uom,
+                      LineasTransferenciaTrans.uom ?? "",
                   ProductTransferenciaTable.columnLocationDestId:
-                      LineasTransferenciaTrans.locationDestId,
+                      LineasTransferenciaTrans.locationDestId ?? 0,
                   ProductTransferenciaTable.columnLocationDestName:
-                      LineasTransferenciaTrans.locationDestName,
+                      LineasTransferenciaTrans.locationDestName ?? "",
                   ProductTransferenciaTable.columnLocationDestBarcode:
-                      LineasTransferenciaTrans.locationDestBarcode,
+                      LineasTransferenciaTrans.locationDestBarcode ?? '',
                   ProductTransferenciaTable.columnLocationId:
-                      LineasTransferenciaTrans.locationId,
+                      LineasTransferenciaTrans.locationId ?? 0,
                   ProductTransferenciaTable.columnLocationBarcode:
-                      LineasTransferenciaTrans.locationBarcode,
+                      LineasTransferenciaTrans.locationBarcode ?? '',
                   ProductTransferenciaTable.columnLocationName:
-                      LineasTransferenciaTrans.locationName,
+                      LineasTransferenciaTrans.locationName ?? '',
                   ProductTransferenciaTable.columnWeight:
-                      LineasTransferenciaTrans.weight,
+                      LineasTransferenciaTrans.weight ?? 0,
                   ProductTransferenciaTable.columnIsSeparate: 0,
                   ProductTransferenciaTable.columnIsSelected: 0,
                   ProductTransferenciaTable.columnQuantitySeparate: 0,
@@ -234,40 +234,41 @@ class ProductTransferenciaRepository {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
       Map<String, dynamic> productCopy = {
-        ProductTransferenciaTable.columnIdMove: producto.idMove,
-        ProductTransferenciaTable.columnProductId: producto.productId,
+        ProductTransferenciaTable.columnIdMove: producto.idMove??0,
+        ProductTransferenciaTable.columnProductId: producto.productId??0,
         ProductTransferenciaTable.columnIdTransferencia:
-            producto.idTransferencia,
-        ProductTransferenciaTable.columnProductName: producto.productName,
-        ProductTransferenciaTable.columnProductCode: producto.productCode,
-        ProductTransferenciaTable.columnProductBarcode: producto.productBarcode,
+            producto.idTransferencia??0,
+        ProductTransferenciaTable.columnProductName: producto.productName??"",
+        ProductTransferenciaTable.columnProductCode: producto.productCode??'',
+        ProductTransferenciaTable.columnProductBarcode: producto.productBarcode??'',
         ProductTransferenciaTable.columnProductTracking:
-            producto.productTracking,
+            producto.productTracking??'',
         ProductTransferenciaTable.columnFechaVencimiento:
-            producto.fechaVencimiento,
+            producto.fechaVencimiento??'',
         ProductTransferenciaTable.columnDiasVencimiento:
-            producto.diasVencimiento,
-        ProductTransferenciaTable.columnQuantityOrdered: producto.quantityOrdered,
+            producto.diasVencimiento??0,
+        ProductTransferenciaTable.columnQuantityOrdered:
+            producto.quantityOrdered??0,
 
-        ProductTransferenciaTable.columnQuantityDone: producto.quantityDone,
-        ProductTransferenciaTable.columnUom: producto.uom,
+        ProductTransferenciaTable.columnQuantityDone: producto.quantityDone??0,
+        ProductTransferenciaTable.columnUom: producto.uom??'',
 
-        ProductTransferenciaTable.columnLocationDestId: producto.locationDestId,
+        ProductTransferenciaTable.columnLocationDestId: producto.locationDestId??0,
         ProductTransferenciaTable.columnLocationDestName:
-            producto.locationDestName,
+            producto.locationDestName??'',
         ProductTransferenciaTable.columnLocationDestBarcode:
-            producto.locationDestBarcode,
-        ProductTransferenciaTable.columnLocationId: producto.locationId,
+            producto.locationDestBarcode??'',
+        ProductTransferenciaTable.columnLocationId: producto.locationId??0,
         ProductTransferenciaTable.columnLocationBarcode:
-            producto.locationBarcode,
-        ProductTransferenciaTable.columnLocationName: producto.locationName,
-        ProductTransferenciaTable.columnWeight: producto.weight,
+            producto.locationBarcode??'',
+        ProductTransferenciaTable.columnLocationName: producto.locationName??'',
+        ProductTransferenciaTable.columnWeight: producto.weight??0,
         //parametros para ver que es diferente
         ProductTransferenciaTable.columnIsSeparate: 0,
         ProductTransferenciaTable.columnIsProductSplit: 1,
 
         ProductTransferenciaTable.columnIsSelected: 0,
-        ProductTransferenciaTable.columnObservation: producto.observation,
+        ProductTransferenciaTable.columnObservation: producto.observation??'',
 
         ProductTransferenciaTable.columnQuantitySeparate: 0,
         ProductTransferenciaTable.columnLoteId: 0,

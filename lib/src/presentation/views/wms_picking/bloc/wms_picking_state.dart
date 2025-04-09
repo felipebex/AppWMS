@@ -40,6 +40,12 @@ final class LoadBatchsSuccesState extends PickingState {
 
   LoadBatchsSuccesState({required this.listOfBatchs});
 }
+
+final class LoadBatchsSuccesBDState extends PickingState {
+  final List<BatchsModel> listOfBatchs;
+
+  LoadBatchsSuccesBDState({required this.listOfBatchs});
+}
 final class LoadHistoryBatchState extends PickingState {
   final List<HistoryBatch> listOfBatchs;
 

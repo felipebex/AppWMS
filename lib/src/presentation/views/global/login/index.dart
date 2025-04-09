@@ -61,26 +61,20 @@ class LoginPage extends StatelessWidget {
             listener: (context, state) async {
               if (state is ConfigurationLoaded) {
                 final rol = await PrefUtils.getUserRol();
-                print("Rol: $rol");
                 if (rol == 'picking') {
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                } else if (rol == 'admin') {
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(true));
-                  context
-                      .read<WmsPackingBloc>()
-                      .add(LoadAllPackingEvent(false));
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(true));
+                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
                 } else if (rol == 'packing') {
                   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        true,
+                        false,
                       ));
                 } else if (rol == "reception") {
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(true));
+                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(false));
                 } else if (rol == "transfer") {
                   context
                       .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias(true));
+                      .add(FetchAllTransferencias(false));
                 }
+                
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();
                 Get.back();

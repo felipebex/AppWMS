@@ -111,7 +111,6 @@ class Tab1ScreenRecep extends StatelessWidget {
                                 Text('Tipo de entrada: ',
                                     style: TextStyle(
                                         fontSize: 14, color: primaryColorApp)),
-                                const SizedBox(width: 5),
                                 Text(
                                   ordeCompraBd.pickingType ?? "",
                                   style: const TextStyle(
@@ -122,11 +121,30 @@ class Tab1ScreenRecep extends StatelessWidget {
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(ordeCompraBd.proveedor ?? '',
-                                style: TextStyle(
-                                  color: black,
-                                  fontSize: 14,
-                                )),
+                            child: Row(
+                              children: [
+                                Text('Prioridad: ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp)),
+                                Text(
+                                  ordeCompraBd.priority == '0'
+                                      ? 'Normal'
+                                      : 'Alta'
+                                          "",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: ordeCompraBd.priority == '0'
+                                        ? black
+                                        : red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            color: black,
+                            thickness: 1,
+                            height: 5,
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
@@ -152,26 +170,18 @@ class Tab1ScreenRecep extends StatelessWidget {
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Ubicacion destino: ',
-                              style: TextStyle(
-                                  fontSize: 14, color: primaryColorApp),
-                            ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              ordeCompraBd.locationDestName ?? '',
-                              style:
-                                  const TextStyle(fontSize: 14, color: black),
-                            ),
+                            child: Text(ordeCompraBd.proveedor ?? '',
+                                style: TextStyle(
+                                  color: black,
+                                  fontSize: 14,
+                                )),
                           ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Row(
                               children: [
                                 Icon(
-                                  Icons.download_for_offline_rounded,
+                                  Icons.shopping_cart_sharp,
                                   color: primaryColorApp,
                                   size: 15,
                                 ),
@@ -182,6 +192,27 @@ class Tab1ScreenRecep extends StatelessWidget {
                                       : ordeCompraBd.purchaseOrderName ?? '',
                                   style: const TextStyle(
                                       fontSize: 14, color: black),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Visibility(
+                            visible: ordeCompraBd.backorderId != 0,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.file_copy,
+                                  color: primaryColorApp,
+                                  size: 15,
+                                ),
+                                const SizedBox(width: 5),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(ordeCompraBd.backorderName ?? '',
+                                      style: TextStyle(
+                                          color: black,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold)),
                                 ),
                               ],
                             ),
@@ -252,6 +283,22 @@ class Tab1ScreenRecep extends StatelessWidget {
                                           TextStyle(fontSize: 14, color: black),
                                     )),
                               ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Ubicacion destino: ',
+                              style: TextStyle(
+                                  fontSize: 14, color: primaryColorApp),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              ordeCompraBd.locationDestName ?? '',
+                              style:
+                                  const TextStyle(fontSize: 14, color: black),
                             ),
                           ),
                           Align(

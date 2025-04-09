@@ -36,45 +36,53 @@ class EntradasRepository {
             batch.update(
               EntradasRepeccionTable.tableName,
               {
-                //id
-                EntradasRepeccionTable.columnId: entrada.id,
-                EntradasRepeccionTable.columnName: entrada.name,
+                EntradasRepeccionTable.columnId: entrada.id ?? 0,
+                EntradasRepeccionTable.columnName: entrada.name ?? "",
                 EntradasRepeccionTable.columnFechaCreacion:
-                    entrada.fechaCreacion,
-                EntradasRepeccionTable.columnProveedorId: entrada.proveedorId,
-                EntradasRepeccionTable.columnProveedor: entrada.proveedor,
+                    entrada.fechaCreacion ?? "",
+                EntradasRepeccionTable.columnProveedorId:
+                    entrada.proveedorId ?? 0,
+                EntradasRepeccionTable.columnProveedor: entrada.proveedor ?? "",
                 EntradasRepeccionTable.columnLocationDestId:
-                    entrada.locationDestId,
+                    entrada.locationDestId ?? 0,
                 EntradasRepeccionTable.columnLocationDestName:
-                    entrada.locationDestName,
+                    entrada.locationDestName ?? "",
                 EntradasRepeccionTable.columnPurchaseOrderId:
-                    entrada.purchaseOrderId,
+                    entrada.purchaseOrderId ?? 0,
                 EntradasRepeccionTable.columnPurchaseOrderName:
-                    entrada.purchaseOrderName,
+                    entrada.purchaseOrderName ?? "",
                 EntradasRepeccionTable.columnNumeroEntrada:
-                    entrada.numeroEntrada,
-                EntradasRepeccionTable.columnPesoTotal: entrada.pesoTotal,
-                EntradasRepeccionTable.columnNumeroLineas: entrada.numeroLineas,
-                EntradasRepeccionTable.columnNumeroItems: entrada.numeroItems,
-                EntradasRepeccionTable.columnState: entrada.state,
-                EntradasRepeccionTable.columnOrigin: entrada.origin,
-                EntradasRepeccionTable.columnPriority: entrada.priority,
-                EntradasRepeccionTable.columnWarehouseId: entrada.warehouseId,
+                    entrada.numeroEntrada ?? 0,
+                EntradasRepeccionTable.columnPesoTotal: entrada.pesoTotal ?? 0,
+                EntradasRepeccionTable.columnNumeroLineas:
+                    entrada.numeroLineas ?? 0,
+                EntradasRepeccionTable.columnNumeroItems:
+                    entrada.numeroItems ?? 0,
+                EntradasRepeccionTable.columnState: entrada.state ?? "",
+                EntradasRepeccionTable.columnOrigin: entrada.origin ?? "",
+                EntradasRepeccionTable.columnPriority: entrada.priority ?? "",
+                EntradasRepeccionTable.columnWarehouseId:
+                    entrada.warehouseId ?? 0,
                 EntradasRepeccionTable.columnWarehouseName:
-                    entrada.warehouseName,
-                EntradasRepeccionTable.columnLocationId: entrada.locationId,
-                EntradasRepeccionTable.columnLocationName: entrada.locationName,
+                    entrada.warehouseName ?? "",
+                EntradasRepeccionTable.columnLocationId:
+                    entrada.locationId ?? 0,
+                EntradasRepeccionTable.columnLocationName:
+                    entrada.locationName ?? "",
                 EntradasRepeccionTable.columnResponsableId:
-                    entrada.responsableId,
-                EntradasRepeccionTable.columnResponsable: entrada.responsable,
-                EntradasRepeccionTable.columnPickingType: entrada.pickingType,
+                    entrada.responsableId ?? 0,
+                EntradasRepeccionTable.columnResponsable:
+                    entrada.responsable ?? "",
+                EntradasRepeccionTable.columnPickingType:
+                    entrada.pickingType ?? '',
                 EntradasRepeccionTable.columnDateStart:
-                    entrada.startTimeReception,
+                    entrada.startTimeReception ?? "",
                 EntradasRepeccionTable.columnDateFinish:
-                    entrada.endTimeReception,
-                EntradasRepeccionTable.columnBackorderId: entrada.backorderId,
+                    entrada.endTimeReception ?? '',
+                EntradasRepeccionTable.columnBackorderId:
+                    entrada.backorderId ?? 0,
                 EntradasRepeccionTable.columnBackorderName:
-                    entrada.backorderName,
+                    entrada.backorderName ?? "",
               },
               where: '${EntradasRepeccionTable.columnId} = ?',
               whereArgs: [entrada.id],
@@ -84,44 +92,53 @@ class EntradasRepository {
             batch.insert(
               EntradasRepeccionTable.tableName,
               {
-                EntradasRepeccionTable.columnId: entrada.id,
-                EntradasRepeccionTable.columnName: entrada.name,
+                EntradasRepeccionTable.columnId: entrada.id ?? 0,
+                EntradasRepeccionTable.columnName: entrada.name ?? "",
                 EntradasRepeccionTable.columnFechaCreacion:
-                    entrada.fechaCreacion,
-                EntradasRepeccionTable.columnProveedorId: entrada.proveedorId,
-                EntradasRepeccionTable.columnProveedor: entrada.proveedor,
+                    entrada.fechaCreacion ?? "",
+                EntradasRepeccionTable.columnProveedorId:
+                    entrada.proveedorId ?? 0,
+                EntradasRepeccionTable.columnProveedor: entrada.proveedor ?? "",
                 EntradasRepeccionTable.columnLocationDestId:
-                    entrada.locationDestId,
+                    entrada.locationDestId ?? 0,
                 EntradasRepeccionTable.columnLocationDestName:
-                    entrada.locationDestName,
+                    entrada.locationDestName ?? "",
                 EntradasRepeccionTable.columnPurchaseOrderId:
-                    entrada.purchaseOrderId,
+                    entrada.purchaseOrderId ?? 0,
                 EntradasRepeccionTable.columnPurchaseOrderName:
-                    entrada.purchaseOrderName,
+                    entrada.purchaseOrderName ?? "",
                 EntradasRepeccionTable.columnNumeroEntrada:
-                    entrada.numeroEntrada,
-                EntradasRepeccionTable.columnPesoTotal: entrada.pesoTotal,
-                EntradasRepeccionTable.columnNumeroLineas: entrada.numeroLineas,
-                EntradasRepeccionTable.columnNumeroItems: entrada.numeroItems,
-                EntradasRepeccionTable.columnState: entrada.state,
-                EntradasRepeccionTable.columnOrigin: entrada.origin,
-                EntradasRepeccionTable.columnPriority: entrada.priority,
-                EntradasRepeccionTable.columnWarehouseId: entrada.warehouseId,
+                    entrada.numeroEntrada ?? 0,
+                EntradasRepeccionTable.columnPesoTotal: entrada.pesoTotal ?? 0,
+                EntradasRepeccionTable.columnNumeroLineas:
+                    entrada.numeroLineas ?? 0,
+                EntradasRepeccionTable.columnNumeroItems:
+                    entrada.numeroItems ?? 0,
+                EntradasRepeccionTable.columnState: entrada.state ?? "",
+                EntradasRepeccionTable.columnOrigin: entrada.origin ?? "",
+                EntradasRepeccionTable.columnPriority: entrada.priority ?? "",
+                EntradasRepeccionTable.columnWarehouseId:
+                    entrada.warehouseId ?? 0,
                 EntradasRepeccionTable.columnWarehouseName:
-                    entrada.warehouseName,
-                EntradasRepeccionTable.columnLocationId: entrada.locationId,
-                EntradasRepeccionTable.columnLocationName: entrada.locationName,
+                    entrada.warehouseName ?? "",
+                EntradasRepeccionTable.columnLocationId:
+                    entrada.locationId ?? 0,
+                EntradasRepeccionTable.columnLocationName:
+                    entrada.locationName ?? "",
                 EntradasRepeccionTable.columnResponsableId:
-                    entrada.responsableId,
-                EntradasRepeccionTable.columnResponsable: entrada.responsable,
-                EntradasRepeccionTable.columnPickingType: entrada.pickingType,
+                    entrada.responsableId ?? 0,
+                EntradasRepeccionTable.columnResponsable:
+                    entrada.responsable ?? "",
+                EntradasRepeccionTable.columnPickingType:
+                    entrada.pickingType ?? '',
                 EntradasRepeccionTable.columnDateStart:
-                    entrada.startTimeReception,
+                    entrada.startTimeReception ?? "",
                 EntradasRepeccionTable.columnDateFinish:
-                    entrada.endTimeReception,
-                EntradasRepeccionTable.columnBackorderId: entrada.backorderId,
+                    entrada.endTimeReception ?? '',
+                EntradasRepeccionTable.columnBackorderId:
+                    entrada.backorderId ?? 0,
                 EntradasRepeccionTable.columnBackorderName:
-                    entrada.backorderName,
+                    entrada.backorderName ?? "",
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );

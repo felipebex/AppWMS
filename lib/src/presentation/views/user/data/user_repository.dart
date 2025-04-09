@@ -31,8 +31,16 @@ class UserRepository {
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
         if (jsonResponse.containsKey('result')) {
+          print('code : ${jsonResponse['result']['code']}');
           if (jsonResponse['result']['code'] == 200) {
             return Configurations.fromMap(jsonDecode(response.body));
+          }else{
+            return Configurations(
+              result: ConfigurationsResult(
+                code: jsonResponse['result']['code'],
+                msg: jsonResponse['result']['msg'],
+              ),
+            );
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
@@ -60,7 +68,7 @@ class UserRepository {
             );
             return Configurations();
           }
-        }
+        } 
       } else {
         Get.snackbar(
           'Error',

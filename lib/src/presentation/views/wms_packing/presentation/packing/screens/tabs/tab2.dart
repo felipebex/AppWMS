@@ -441,7 +441,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                       alignment:
                                                           Alignment.centerLeft,
                                                       child: Text(
-                                                        " ${product.productId}",
+                                                        "${product.productId}",
                                                         style: const TextStyle(
                                                             fontSize: 12,
                                                             color: black),

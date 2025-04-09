@@ -41,16 +41,19 @@ class Recepcionresponse {
 
 class RecepcionresponseResult {
   int? code;
+  String? msg;
   List<ResultEntrada>? result;
 
   RecepcionresponseResult({
     this.code,
+    this.msg,
     this.result,
   });
 
   factory RecepcionresponseResult.fromMap(Map<String, dynamic> json) =>
       RecepcionresponseResult(
         code: json["code"],
+        msg: json["msg"],
         result: json["result"] == null
             ? []
             : List<ResultEntrada>.from(
@@ -59,6 +62,7 @@ class RecepcionresponseResult {
 
   Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
         "result": result == null
             ? []
             : List<dynamic>.from(result!.map((x) => x.toMap())),

@@ -54,6 +54,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   String selectLote = '';
   String dateLote = '';
 
+  LotesProduct lotesProductCurrent = LotesProduct();
+
   //*repositorio
   final RecepcionRepository _recepcionRepository = RecepcionRepository();
   //*controller de busqueda
@@ -169,7 +171,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "is_finish",
           1,
         );
-        emit(CreateBackOrderOrNotSuccess(event.isBackOrder, response.result?.msg??""));
+        emit(CreateBackOrderOrNotSuccess(
+            event.isBackOrder, response.result?.msg ?? ""));
         add(FetchOrdenesCompraOfBd());
       } else {
         emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
@@ -265,6 +268,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         listLotesProduct.add(response.result?.result ?? LotesProduct());
         selectLote = response.result?.result?.name ?? '';
         dateLote = response.result?.result?.expirationDate ?? '';
+        lotesProductCurrent = response.result?.result ?? LotesProduct();
 
         await db.productEntradaRepository.setFieldTableProductEntrada(
           currentProduct.idRecepcion,
@@ -359,9 +363,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             ListItem(
               idProducto: int.parse(productBD?.productId),
               idMove: productBD?.idMove ?? 0,
-              loteProducto: productBD?.loteId ?? 0,
+              loteProducto: lotesProductCurrent.id ?? 0,
               ubicacionDestino: productBD?.locationDestId ?? 0,
-              cantidadSeparada:  event.quantity,
+              cantidadSeparada: event.quantity,
               observacion: productBD?.observation == ""
                   ? "Sin novedad"
                   : productBD?.observation ?? "Sin novedad",
@@ -638,6 +642,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     //agregamos el lote al producto
 
     selectLote = event.lote.name ?? '';
+
+    lotesProductCurrent = event.lote;
+
     dateLote = event.lote.expirationDate == false
         ? 'Sin fecha'
         : event.lote.expirationDate ?? '';
@@ -928,54 +935,76 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       FetchOrdenesCompra event, Emitter<RecepcionState> emit) async {
     try {
       emit(FetchOrdenesCompraLoading());
-      final response = await _recepcionRepository.resBatchsPacking(event.isLoadinDialog);
-      if (response != null && response is List) {
-        await db.entradasRepository.insertEntrada(response);
 
-        // Convertir el mapa en una lista de productos únicos con cantidades sumadas
-        List<LineasTransferencia> productsToInsert =
-            response.expand((batch) => batch.lineasRecepcion!).toList();
+      listFiltersOrdenesCompra.clear() ;
 
-        //Convertir el mapa en una lista los productos ya enviados
-        List<LineasTransferencia> productsSedToInsert =
-            response.expand((batch) => batch.lineasRecepcionEnviadas!).toList();
+      await db.deleRecepcion();
 
-        //Convertir el mapa en una lista los barcodes unicos de cada producto
-        List<Barcodes> barcodesToInsert = productsToInsert
-            .expand((product) => product.otherBarcodes!)
-            .toList();
+      final response =
+          await _recepcionRepository.resBatchsPacking(event.isLoadinDialog);
 
-        //convertir el mapap en una lsita de los otros barcodes de cada producto
-        List<Barcodes> otherBarcodesToInsert = productsToInsert
-            .expand((product) => product.productPacking!)
-            .toList();
+      if (response.result?.code == 200) {
+        if (response.result?.result?.isNotEmpty == true) {
+          final listRecepcion = response.result?.result;
 
-        print('order productsToInsert: ${productsToInsert.length}');
-        print('order productsSedToInsert: ${productsSedToInsert.length}');
-        print('order barcodesToInsert: ${barcodesToInsert.length}');
-        print('order otherBarcodesToInsert: ${otherBarcodesToInsert.length}');
+          await db.entradasRepository
+              .insertEntrada(response.result?.result ?? []);
 
-        // Enviar la lista agrupada a insertBatchProducts
-        await db.productEntradaRepository
-            .insertarProductoEntrada(productsToInsert);
+          final productsToInsert =
+              _getAllProducts(listRecepcion!).toList(growable: false);
+          final productsSedToInsert =
+              _getAllSentProducts(listRecepcion).toList(growable: false);
+          final allBarcodes =
+              _getAllBarcodes(listRecepcion).toList(growable: false);
 
-        await db.productEntradaRepository
-            .insertarProductoEntrada(productsSedToInsert);
+          // Enviar la lista agrupada a insertBatchProducts
+          await db.productEntradaRepository
+              .insertarProductoEntrada(productsToInsert);
 
-        // Enviar la lista agrupada de barcodes de un producto para packing
-        await db.barcodesPackagesRepository
-            .insertOrUpdateBarcodes(barcodesToInsert);
-        // Enviar la lista agrupada de otros barcodes de un producto para packing
-        await db.barcodesPackagesRepository
-            .insertOrUpdateBarcodes(otherBarcodesToInsert);
+          await db.productEntradaRepository
+              .insertarProductoEntrada(productsSedToInsert);
 
-        print('ordenesCompra: ${response.length}');
-        emit(FetchOrdenesCompraSuccess(response));
+          // Enviar la lista agrupada de barcodes de un producto para packing
+          await db.barcodesPackagesRepository
+              .insertOrUpdateBarcodes(allBarcodes);
+
+          add(FetchOrdenesCompraOfBd());
+          emit(FetchOrdenesCompraSuccess(
+            response.result?.result ?? [],
+          ));
+        }
       } else {
-        emit(FetchOrdenesCompraSuccess([]));
+        emit(FetchOrdenesCompraFailure(response.result?.msg ?? ''));
       }
     } catch (e, s) {
       print('Error en RecepcionBloc: $e, $s');
+    }
+  }
+
+  Iterable<LineasTransferencia> _getAllProducts(
+      List<ResultEntrada> batches) sync* {
+    for (final batch in batches) {
+      if (batch.lineasRecepcion != null) yield* batch.lineasRecepcion!;
+    }
+  }
+
+  Iterable<LineasTransferencia> _getAllSentProducts(
+      List<ResultEntrada> batches) sync* {
+    for (final batch in batches) {
+      if (batch.lineasRecepcionEnviadas != null) {
+        yield* batch.lineasRecepcionEnviadas!;
+      }
+    }
+  }
+
+  Iterable<Barcodes> _getAllBarcodes(List<ResultEntrada> batches) sync* {
+    for (final batch in batches) {
+      if (batch.lineasRecepcion != null) {
+        for (final product in batch.lineasRecepcion!) {
+          if (product.otherBarcodes != null) yield* product.otherBarcodes!;
+          if (product.productPacking != null) yield* product.productPacking!;
+        }
+      }
     }
   }
 

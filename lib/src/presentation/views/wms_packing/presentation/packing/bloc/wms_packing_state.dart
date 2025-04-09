@@ -6,6 +6,7 @@ sealed class WmsPackingState {}
 final class WmsPackingInitial extends WmsPackingState {}
 
 //*estados para cargar todos los batchs para packing
+final class WmsPackingWMSLoading extends WmsPackingState {}
 final class WmsPackingLoading extends WmsPackingState {}
 
 final class WmsProductInfoLoading extends WmsPackingState {}
@@ -13,6 +14,7 @@ final class WmsProductInfoLoading extends WmsPackingState {}
 final class WmsProductInfoLoaded extends WmsPackingState {}
 
 final class WmsPackingLoaded extends WmsPackingState {}
+final class WmsPackingLoadedBD extends WmsPackingState {}
 
 final class WmsPackingError extends WmsPackingState {
   final String error;
