@@ -3,6 +3,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_repository.dart';
@@ -52,7 +53,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   String scannedValue5 = ''; //all product
 
   String selectLote = '';
-  String dateLote = '';
 
   LotesProduct lotesProductCurrent = LotesProduct();
 
@@ -267,7 +267,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         //agregamos el nuevo lote a la lista de lotes
         listLotesProduct.add(response.result?.result ?? LotesProduct());
         selectLote = response.result?.result?.name ?? '';
-        dateLote = response.result?.result?.expirationDate ?? '';
         lotesProductCurrent = response.result?.result ?? LotesProduct();
 
         await db.productEntradaRepository.setFieldTableProductEntrada(
@@ -315,6 +314,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       emit(SendProductToOrderLoading());
 
       final userid = await PrefUtils.getUserId();
+      
+
+        print("loteeeeeee: ${lotesProductCurrent.toMap()}");
 
       //calculamos la fecha de transaccion
       DateTime fechaTransaccion = DateTime.now();
@@ -345,7 +347,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       var difference = dateEnd.difference(dateStart);
       int time = difference.inSeconds;
 
-      print("time ->${time}");
+
       //lo convertimos en entero
       //actualizamos el tiempo del producto
       await db.productEntradaRepository.setFieldTableProductEntrada(
@@ -378,6 +380,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         false,
       );
 
+
+        print("loteeeeeee: ${lotesProductCurrent.toMap()}");
+
+
       if (responseSend.result?.code == 200) {
         // marcamos tiempo final de sepfaracion
         await db.productEntradaRepository.setFieldTableProductEntrada(
@@ -395,6 +401,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               .insertDuplicateProducto(currentProduct, pendingQuantity);
         }
         add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
+        lotesProductCurrent = LotesProduct();
         emit(SendProductToOrderSuccess());
       } else {
         // marcamos tiempo final de sepfaracion
@@ -407,7 +414,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             currentProduct.idMove);
 
         add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
-        emit(SendProductToOrderFailure('Error al enviar el producto'));
+        emit(SendProductToOrderFailure(responseSend .result?.msg ?? ""));
       }
     } catch (e, s) {
       emit(SendProductToOrderFailure('Error al enviar el producto'));
@@ -645,9 +652,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     lotesProductCurrent = event.lote;
 
-    dateLote = event.lote.expirationDate == false
-        ? 'Sin fecha'
-        : event.lote.expirationDate ?? '';
+    
     //actualizamos el lote id
     await db.productEntradaRepository.setFieldTableProductEntrada(
       currentProduct.idRecepcion,
@@ -717,23 +722,23 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       switch (event.scan) {
         case 'product':
-          scannedValue2 += event.scannedValue;
+          scannedValue2 += event.scannedValue.trim();
           print('scannedValue2: $scannedValue2');
           emit(UpdateScannedValueOrderState(scannedValue2, event.scan));
           break;
         case 'quantity':
-          scannedValue3 += event.scannedValue;
+          scannedValue3 += event.scannedValue.trim();
           print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValueOrderState(scannedValue3, event.scan));
           break;
         case 'lote':
           print('scannedValue4: $scannedValue4');
-          scannedValue4 += event.scannedValue;
+          scannedValue4 += event.scannedValue.trim();
           emit(UpdateScannedValueOrderState(scannedValue4, event.scan));
           break;
         case 'toDo':
           print('scannedValue5: $scannedValue5');
-          scannedValue5 += event.scannedValue;
+          scannedValue5 += event.scannedValue.trim();
           emit(UpdateScannedValueOrderState(scannedValue5, event.scan));
           break;
 

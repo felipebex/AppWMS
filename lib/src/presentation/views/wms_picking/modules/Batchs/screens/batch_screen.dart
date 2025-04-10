@@ -169,11 +169,13 @@ class _BatchDetailScreenState extends State<BatchScreen>
   }
 
   void validateLocation(String value) {
+    
     final batchBloc = context.read<BatchBloc>();
 
-    String scan = batchBloc.scannedValue1.toLowerCase() == ""
-        ? value.toLowerCase()
-        : batchBloc.scannedValue1.toLowerCase();
+String scan = batchBloc.scannedValue1.trim().toLowerCase() == ""
+    ? value.trim().toLowerCase()
+    : batchBloc.scannedValue1.trim().toLowerCase();
+
 
     _controllerLocation.text = "";
     final currentProduct = batchBloc.currentProduct;
@@ -194,10 +196,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
   void validateProduct(String value) {
     final batchBloc = context.read<BatchBloc>();
 
-    String scan = batchBloc.scannedValue2.toLowerCase() == ""
-        ? value.toLowerCase()
-        : batchBloc.scannedValue2.toLowerCase();
-
+    String scan = batchBloc.scannedValue2.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : batchBloc.scannedValue2.trim().toLowerCase();
 
     print('scan product: $scan');
     _controllerProduct.text = "";
@@ -225,9 +226,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
   void validateQuantity(String value) {
     final batchBloc = context.read<BatchBloc>();
 
-    String scan = batchBloc.scannedValue3.toLowerCase() == ""
-        ? value.toLowerCase()
-        : batchBloc.scannedValue3.toLowerCase();
+    String scan = batchBloc.scannedValue3.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : batchBloc.scannedValue3.trim().toLowerCase();
 
     _controllerQuantity.text = "";
     final currentProduct = batchBloc.currentProduct;
@@ -247,12 +248,10 @@ class _BatchDetailScreenState extends State<BatchScreen>
   }
 
   void validateMuelle(String value) {
-
-
     final batchBloc = context.read<BatchBloc>();
-    String scan = batchBloc.scannedValue4.toLowerCase() == ""
-        ? value.toLowerCase()
-        : batchBloc.scannedValue4.toLowerCase();
+    String scan = batchBloc.scannedValue4.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : batchBloc.scannedValue4.trim().toLowerCase();
 
     _controllerMuelle.text = "";
     final currentProduct = batchBloc.currentProduct;
@@ -267,9 +266,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
       batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: false));
       context.read<BatchBloc>().add(ClearScannedValueEvent('muelle'));
     }
-
-
-
   }
 
   @override
@@ -439,8 +435,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                 icon: const Icon(Icons.arrow_back,
                                     color: Colors.white, size: 20),
                               ),
+                              const Spacer(),
                               Align(
-                                alignment: Alignment.centerLeft,
+                                alignment: Alignment.center,
                                 child: Text(
                                   batchBloc.batchWithProducts.batch?.name ?? '',
                                   style: const TextStyle(
@@ -508,8 +505,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                 child: batchBloc.isPdaZebra
                                     ? Column(
                                         children: [
-
-                                          
                                           LocationDropdownWidget(
                                             isPDA: false,
                                             selectedLocation: selectedLocation,
@@ -521,9 +516,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                             batchBloc: batchBloc,
                                             currentProduct: currentProduct,
                                           ),
-
-
-
                                           Container(
                                             height: 15,
                                             margin: const EdgeInsets.only(
@@ -978,117 +970,115 @@ class _BatchDetailScreenState extends State<BatchScreen>
                         if (batchBloc.batchWithProducts.batch?.indexList ==
                                 (batchBloc.filteredProducts.length) - 1 ||
                             batchBloc.filteredProducts.length == 1)
-                        Row(
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: batchBloc.locationDestIsOk
-                                      ? green
-                                      : yellow,
-                                  shape: BoxShape.circle,
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: batchBloc.locationDestIsOk
+                                        ? green
+                                        : yellow,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Card(
-                              color: batchBloc.isLocationDestOk
-                                  ? batchBloc.locationDestIsOk
-                                      ? Colors.green[100]
-                                      : Colors.grey[300]
-                                  : Colors.red[200],
-                              elevation: 5,
-                              child: Container(
-                                width: size.width * 0.85,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
-                                child: batchBloc.isPdaZebra
-                                    ? Column(
-                                        children: [
-                                          MuelleDropdownWidget(
+                              Card(
+                                color: batchBloc.isLocationDestOk
+                                    ? batchBloc.locationDestIsOk
+                                        ? Colors.green[100]
+                                        : Colors.grey[300]
+                                    : Colors.red[200],
+                                elevation: 5,
+                                child: Container(
+                                  width: size.width * 0.85,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 10),
+                                  child: batchBloc.isPdaZebra
+                                      ? Column(
+                                          children: [
+                                            MuelleDropdownWidget(
+                                              selectedMuelle: selectedMuelle,
+                                              batchBloc: batchBloc,
+                                              currentProduct: currentProduct,
+                                              isPda: false,
+                                            ),
+                                            Container(
+                                              height: 15,
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 5),
+                                              child: TextFormField(
+                                                showCursor: false,
+                                                enabled: batchBloc
+                                                        .locationIsOk &&
+                                                    batchBloc.productIsOk &&
+                                                    !batchBloc.quantityIsOk &&
+                                                    !batchBloc.locationDestIsOk,
+                                                controller:
+                                                    _controllerMuelle, // Controlador que maneja el texto
+                                                focusNode: focusNode5,
+                                                onChanged: (value) {
+                                                  validateMuelle(value);
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: batchBloc
+                                                              .configurations
+                                                              .result
+                                                              ?.result
+                                                              ?.muelleOption ==
+                                                          "multiple"
+                                                      ? batchBloc.currentProduct
+                                                          .locationDestId
+                                                          .toString()
+                                                      : batchBloc
+                                                          .batchWithProducts
+                                                          .batch
+                                                          ?.muelle,
+                                                  disabledBorder:
+                                                      InputBorder.none,
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: black),
+                                                  border: InputBorder.none,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Focus(
+                                          focusNode: focusNode5,
+                                          onKey: (FocusNode node,
+                                              RawKeyEvent event) {
+                                            if (event is RawKeyDownEvent) {
+                                              if (event.logicalKey ==
+                                                  LogicalKeyboardKey.enter) {
+                                                validateMuelle(context
+                                                    .read<BatchBloc>()
+                                                    .scannedValue4);
+                                                return KeyEventResult.handled;
+                                              } else {
+                                                context.read<BatchBloc>().add(
+                                                    UpdateScannedValueEvent(
+                                                        event.data.keyLabel,
+                                                        'muelle'));
+                                                return KeyEventResult.handled;
+                                              }
+                                            }
+                                            return KeyEventResult.ignored;
+                                          },
+                                          child: MuelleDropdownWidget(
                                             selectedMuelle: selectedMuelle,
                                             batchBloc: batchBloc,
                                             currentProduct: currentProduct,
-                                            isPda: false,
-                                          ),
-                                          Container(
-                                            height: 15,
-                                            margin: const EdgeInsets.only(
-                                                bottom: 5),
-                                            child: TextFormField(
-                                              showCursor: false,
-                                              enabled: batchBloc.locationIsOk &&
-                                                  batchBloc.productIsOk &&
-                                                  !batchBloc.quantityIsOk &&
-                                                  !batchBloc.locationDestIsOk,
-                                              controller:
-                                                  _controllerMuelle, // Controlador que maneja el texto
-                                              focusNode: focusNode5,
-                                              onChanged: (value) {
-                                                validateMuelle(value);
-                                              },
-                                              decoration: InputDecoration(
-                                                hintText: 
-                                                
-                                                batchBloc
-                                                            .configurations
-                                                            .result
-                                                            ?.result
-                                                            ?.muelleOption ==
-                                                        "multiple"
-
-
-                                                    ? batchBloc.currentProduct
-                                                        .locationDestId
-                                                        .toString()
-                                                    : batchBloc
-                                                        .batchWithProducts
-                                                        .batch
-                                                        ?.muelle,
-                                                disabledBorder:
-                                                    InputBorder.none,
-                                                hintStyle: const TextStyle(
-                                                    fontSize: 14, color: black),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : Focus(
-                                        focusNode: focusNode5,
-                                        onKey: (FocusNode node,
-                                            RawKeyEvent event) {
-                                          if (event is RawKeyDownEvent) {
-                                            if (event.logicalKey ==
-                                                LogicalKeyboardKey.enter) {
-                                              validateMuelle(context
-                                                  .read<BatchBloc>()
-                                                  .scannedValue4);
-                                              return KeyEventResult.handled;
-                                            } else {
-                                              context.read<BatchBloc>().add(
-                                                  UpdateScannedValueEvent(
-                                                      event.data.keyLabel,
-                                                      'muelle'));
-                                              return KeyEventResult.handled;
-                                            }
-                                          }
-                                          return KeyEventResult.ignored;
-                                        },
-                                        child: MuelleDropdownWidget(
-                                          selectedMuelle: selectedMuelle,
-                                          batchBloc: batchBloc,
-                                          currentProduct: currentProduct,
-                                          isPda: true,
-                                        )),
+                                            isPda: true,
+                                          )),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
                       ],
                     ),
                   ),
@@ -1310,12 +1300,13 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                                                       : () async {
                                                                           print(
                                                                               "Submuelle seleccionado: ${batchBloc.subMuelleSelected.completeName}");
-                                                                          batchBloc.add(AssignSubmuelleEvent(
-                                                                              batchBloc.filteredProducts.where((e) {
-                                                                                return e.isMuelle == null && e.isSeparate == 1;
-                                                                              }).toList(),
-                                                                              batchBloc.subMuelleSelected,
-                                                                            ));
+                                                                          batchBloc
+                                                                              .add(AssignSubmuelleEvent(
+                                                                            batchBloc.filteredProducts.where((e) {
+                                                                              return e.isMuelle == null && e.isSeparate == 1;
+                                                                            }).toList(),
+                                                                            batchBloc.subMuelleSelected,
+                                                                          ));
 
                                                                           Navigator.pop(
                                                                               context);
@@ -1725,8 +1716,6 @@ class _BatchDetailScreenState extends State<BatchScreen>
                   ],
                 ),
               ),
-            
-            
             ],
           ),
         );
@@ -1828,7 +1817,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
         if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
           // Cambiar el producto actual
           context.read<BatchBloc>().add(ChangeCurrentProduct(
-              currentProduct: currentProduct, ));
+                currentProduct: currentProduct,
+              ));
 
           // Cambiar el estado de cantidad
           batchBloc.add(ChangeIsOkQuantity(
@@ -1858,7 +1848,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
         } else {
           // Si no estamos en la última posición, cambiamos el producto actual
           context.read<BatchBloc>().add(ChangeCurrentProduct(
-              currentProduct: currentProduct, ));
+                currentProduct: currentProduct,
+              ));
 
           // Validamos el campo "quantity"
           batchBloc.add(ValidateFieldsEvent(field: "quantity", isOk: true));
@@ -2044,8 +2035,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                     Navigator.pushReplacementNamed(
                       context,
                       'batch-detail',
-                    ).then((_) {
-                    });
+                    ).then((_) {});
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(

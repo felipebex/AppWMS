@@ -121,9 +121,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   void validateProduct(String value) {
     final bloc = context.read<RecepcionBloc>();
 
-    String scan = bloc.scannedValue2.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue2.toLowerCase();
+    String scan = bloc.scannedValue2.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue2.trim().toLowerCase();
 
     _controllerProduct.text = "";
     final currentProduct = bloc.currentProduct;
@@ -155,7 +155,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       bloc.add(ClearScannedValueOrderEvent('product'));
     } else {
       final isok =
-          validateScannedBarcode(scan, bloc.currentProduct, bloc, true);
+          validateScannedBarcode(scan.trim(), bloc.currentProduct, bloc, true);
       if (!isok) {
         bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: false));
         bloc.add(ClearScannedValueOrderEvent('product'));
@@ -166,9 +166,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   void validateQuantity(String value) {
     final bloc = context.read<RecepcionBloc>();
 
-    String scan = bloc.scannedValue3.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue3.toLowerCase();
+    String scan = bloc.scannedValue3.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue3.trim().toLowerCase();
 
     _controllerQuantity.text = "";
     final currentProduct = bloc.currentProduct;
@@ -185,7 +185,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       ));
       bloc.add(ClearScannedValueOrderEvent('quantity'));
     } else {
-      validateScannedBarcode(scan, currentProduct, bloc, false);
+      validateScannedBarcode(scan.trim(), currentProduct, bloc, false);
       bloc.add(ClearScannedValueOrderEvent('quantity'));
     }
   }
@@ -202,6 +202,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         builder: (context, state) {
           final recepcionBloc = context.read<RecepcionBloc>();
           return Scaffold(
+           
             backgroundColor: Colors.white,
             body: SizedBox(
               width: size.width * 1,
@@ -996,14 +997,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                 )),
                                     ),
                                     IconButton(
-                                        onPressed: recepcionBloc
-                                                    .configurations
-                                                    .result
-                                                    ?.result
-                                                    ?.manualQuantityPack ==
-                                                false
-                                            ? null
-                                            : recepcionBloc.quantityIsOk &&
+                                        onPressed: recepcionBloc.quantityIsOk &&
                                                     recepcionBloc
                                                             .quantitySelected >=
                                                         0
@@ -1156,7 +1150,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         .read<RecepcionBloc>()
         .listOfBarcodes
         .firstWhere(
-            (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode,
+            (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode.trim(),
             orElse: () =>
                 Barcodes() // Si no se encuentra ningún match, devuelve null
             );
@@ -1209,12 +1203,10 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     final batchBloc = context.read<RecepcionBloc>();
     final currentProduct = batchBloc.currentProduct;
 
-
-
     //validamos que tengamos un lote seleccionado
 
-    if(currentProduct.productTracking =='lot'){
-      if (context.read<RecepcionBloc>().lotesProductCurrent.id ==null ) {
+    if (currentProduct.productTracking == 'lot') {
+      if (context.read<RecepcionBloc>().lotesProductCurrent.id == null) {
         Get.snackbar(
           'Error',
           "Seleccione un lote",
@@ -1229,9 +1221,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     int cantidad = int.parse(_cantidadController.text.isEmpty
         ? batchBloc.quantitySelected.toString()
         : _cantidadController.text);
-
-
-        
 
     if (cantidad == currentProduct.cantidadFaltante) {
       batchBloc.add(ChangeQuantitySeparate(
@@ -1248,6 +1237,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
               return DialogOrderAdvetenciaCantidadScreen(
                   currentProduct: currentProduct,
                   cantidad: cantidad,
+                 
+                 
                   onAccepted: () async {
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
@@ -1260,6 +1251,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                     Navigator.pushReplacementNamed(context, 'recepcion',
                         arguments: [widget.ordenCompra, 1]);
                   },
+
+
                   onSplit: () {
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
@@ -1274,7 +1267,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                   });
             });
       } else if (cantidad > (currentProduct.cantidadFaltante ?? 0).toInt()) {
-      
         batchBloc.add(ChangeQuantitySeparate(
             cantidad,
             int.parse(currentProduct.productId),
@@ -1288,6 +1280,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
   void _finishSeprateProductOrder(BuildContext context, int cantidad) {
     if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
+        print(context.read<RecepcionBloc>().lotesProductCurrent.toMap());
       if (context.read<RecepcionBloc>().selectLote == "") {
         Get.snackbar(
           'Error',
@@ -1313,7 +1306,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     int cantidad,
   ) {
     if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
-      if (context.read<RecepcionBloc>().selectLote == "") {
+      if (context.read<RecepcionBloc>().currentProduct.loteId == "") {
         Get.snackbar(
           'Error',
           "Seleccione un lote",
@@ -1334,9 +1327,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   void termiateProcess() {
     FocusScope.of(context).unfocus();
     context.read<RecepcionBloc>().selectLote = "";
-    context.read<RecepcionBloc>().dateLote = "";
     context.read<RecepcionBloc>().loteIsOk = false;
-    context.read<RecepcionBloc>().lotesProductCurrent = LotesProduct();
 
     context
         .read<RecepcionBloc>()

@@ -29,6 +29,10 @@ class ProductInventarioRepository {
 
           // Preparar los datos del producto para insertarlos o actualizarlos
           Map<String, dynamic> productoMap = {
+            // product_code
+            ProductInventarioTable.columnProductCode:
+                producto.productCode == false ? "" : producto.productCode ?? '',
+
             ProductInventarioTable.columnQuantId: producto.quantId,
             ProductInventarioTable.columnLocationId: producto.locationId,
             ProductInventarioTable.columnLocationName:
@@ -57,9 +61,6 @@ class ProductInventarioRepository {
             ProductInventarioTable.columnQuantity: producto.quantity,
           };
 
-          // Usar el método batch para insertar o actualizar sin bloqueos
-          // El conflicto se resuelve con el algoritmo 'replace', lo que reemplazará
-          // cualquier registro con la misma clave primaria (o índice único).
           batch.insert(
             ProductInventarioTable.tableName,
             productoMap,
@@ -127,8 +128,6 @@ class ProductInventarioRepository {
     }
   }
 
-
-
   //metodo para traer un producto por su id
   Future<Product?> getProductById(int productId) async {
     try {
@@ -148,5 +147,4 @@ class ProductInventarioRepository {
       return null;
     }
   }
-
 }

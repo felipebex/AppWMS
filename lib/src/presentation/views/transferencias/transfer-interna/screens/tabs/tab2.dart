@@ -42,9 +42,9 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
   void validateBarcode(String value, BuildContext context) {
     final bloc = context.read<TransferenciaBloc>();
 
-    String scan = bloc.scannedValue5.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue5.toLowerCase();
+    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue5.trim().toLowerCase();
 
     _controllerToDo.text = "";
 
@@ -55,7 +55,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
 
     // Buscar el producto que coincide con el código de barras escaneado
     final LineasTransferenciaTrans product = listOfProducts.firstWhere(
-      (product) => product.productBarcode == scan,
+      (product) => product.productBarcode == scan.trim(),
       orElse: () =>
           LineasTransferenciaTrans(), // Devuelve null si no se encuentra ningún producto
     );

@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
@@ -54,7 +55,41 @@ class _PackingDetailScreenState extends State<PackingDetailScreen>
   Widget build(BuildContext context) {
     final Size size = MediaQuery.sizeOf(context);
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
-      listener: (context, state) {},
+      listener: (context, state) {
+        if (state is WmsPackingErrorState) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.message,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        }
+        if (state is WmsPackingSuccessState) {
+          Get.snackbar(
+            '360 Software Informa',
+            state.message,
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+        }
+      },
       builder: (context, state) {
         return WillPopScope(
           onWillPop: () async {

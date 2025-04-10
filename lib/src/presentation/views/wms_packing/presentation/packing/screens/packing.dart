@@ -104,9 +104,9 @@ class _PackingScreenState extends State<PackingScreen> {
   void validateLocation(String value) {
     final batchBloc = context.read<WmsPackingBloc>();
 
-    String scan = batchBloc.scannedValue1.toLowerCase() == ""
-        ? value.toLowerCase()
-        : batchBloc.scannedValue1.toLowerCase();
+    String scan = batchBloc.scannedValue1.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : batchBloc.scannedValue1.trim().toLowerCase();
 
     _controllerLocation.text = "";
     final currentProduct = batchBloc.currentProduct;
@@ -125,9 +125,9 @@ class _PackingScreenState extends State<PackingScreen> {
   void validateProduct(String value) {
     final batchBloc = context.read<WmsPackingBloc>();
 
-    String scan = batchBloc.scannedValue2.toLowerCase() == ""
-        ? value.toLowerCase()
-        : batchBloc.scannedValue2.toLowerCase();
+    String scan = batchBloc.scannedValue2.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : batchBloc.scannedValue2.trim().toLowerCase();
 
     _controllerProduct.text = "";
     final currentProduct = batchBloc.currentProduct;
@@ -156,9 +156,9 @@ class _PackingScreenState extends State<PackingScreen> {
   void validateQuantity(String value) {
     final batchBloc = context.read<WmsPackingBloc>();
 
-    String scan = batchBloc.scannedValue3.toLowerCase() == ""
-        ? value.toLowerCase()
-        : batchBloc.scannedValue3.toLowerCase();
+    String scan = batchBloc.scannedValue3.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : batchBloc.scannedValue3.trim().toLowerCase();
 
     _controllerQuantity.text = "";
     final currentProduct = batchBloc.currentProduct;
@@ -179,7 +179,7 @@ class _PackingScreenState extends State<PackingScreen> {
         .read<WmsPackingBloc>()
         .listOfBarcodes
         .firstWhere(
-            (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode,
+            (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode.trim(),
             orElse: () =>
                 Barcodes() // Si no se encuentra ningún match, devuelve null
             );

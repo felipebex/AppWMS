@@ -186,12 +186,15 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     try {
       emit(SendProductLoading());
 
+      int userId = await PrefUtils.getUserId();
+
       final response = await _inventarioRepository.sendProduct(
         SendProductInventario(
           locationId: currentUbication?.id ?? 0, //currentUbication?.id ?? 0,
           productId: currentProduct?.productId ?? 0,
           lotId: currentProductLote?.id ?? 0,
           quantity: event.cantidad,
+          userId: userId,
         ),
         false,
       );
@@ -301,6 +304,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       final response = await _inventarioRepository.fetchAllLotesProduct(
           false, currentProduct?.productId ?? 0);
       listLotesProduct = response;
+      listLotesProductFilters = response;
       emit(GetLotesProductSuccess(response));
     } catch (e, s) {
       emit(GetLotesProductFailure('Error al obtener los lotes del producto'));
@@ -457,10 +461,10 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     }
   }
 
-
-  void getPordutbyid()async{
-     final response = await db.productoInventarioRepository.getProductById(33132);
-     print('response: ${response?.toMap()}');
+  void getPordutsAllBD() async {
+    final response =
+        await db.productoInventarioRepository.getAllProducts();
+    print('response: ${response.length}');
   }
 
   void _onGetProductsBD(
@@ -509,16 +513,16 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       switch (event.scan) {
         case 'location':
           // Acumulador de valores escaneados
-          scannedValue1 += event.scannedValue;
+          scannedValue1 += event.scannedValue.trim();
           emit(UpdateScannedValueState(scannedValue1, event.scan));
           break;
         case 'product':
-          scannedValue2 += event.scannedValue;
+          scannedValue2 += event.scannedValue.trim();
           print('scannedValue2: $scannedValue2');
           emit(UpdateScannedValueState(scannedValue2, event.scan));
           break;
         case 'quantity':
-          scannedValue3 += event.scannedValue;
+          scannedValue3 += event.scannedValue.trim();
           emit(UpdateScannedValueState(scannedValue3, event.scan));
           break;
         default:
@@ -586,6 +590,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       emit(SearchFailure(e.toString()));
     }
   }
+
   void _onSearchLoteEvent(
       SearchLotevent event, Emitter<InventarioState> emit) async {
     try {
@@ -639,6 +644,9 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         ubicaciones = response;
         ubicacionesFilters = ubicaciones;
         print('ubicaciones length: ${ubicaciones.length}');
+
+        add(GetProductsForDB());
+
         emit(LoadLocationsSuccess(ubicaciones));
       } else {
         emit(LoadLocationsFailure('No se encontraron ubicaciones'));

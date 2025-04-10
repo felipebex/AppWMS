@@ -39,7 +39,12 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+
+
+
+
+        },
         builder: (context, state) {
           return Scaffold(
               backgroundColor: white,
@@ -112,7 +117,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              left: size.width * 0.23),
+                                              left: size.width * 0.22),
                                           child: GestureDetector(
                                             onTap: () async {
                                               await DataBaseSqlite()
@@ -123,12 +128,23 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                     true,
                                                   ));
                                             },
-                                            child: const Text(
-                                              'PACKING',
-                                              style: TextStyle(
+                                            child: Row(
+                                              children: [
+                                                const Text(
+                                                  'PACKING',
+                                                  style: TextStyle(
+                                                      color: white,
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold),
+                                                ),
+                                                
+                                                const SizedBox(width: 5),
+                                                Icon(
+                                                  Icons.refresh,
                                                   color: white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
+                                                  size: 20,
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),

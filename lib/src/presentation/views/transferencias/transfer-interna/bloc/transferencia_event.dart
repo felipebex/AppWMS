@@ -8,7 +8,10 @@ class FetchAllTransferencias extends TransferenciaEvent {
   FetchAllTransferencias(this.isLoadingDialog);
 }
 
-class FetchAllTransferenciasDB extends TransferenciaEvent {}
+class FetchAllTransferenciasDB extends TransferenciaEvent {
+  final bool isLoadingDialog;
+  FetchAllTransferenciasDB(this.isLoadingDialog);
+}
 
 class CurrentTransferencia extends TransferenciaEvent {
   final ResultTransFerencias trasnferencia;

@@ -365,6 +365,7 @@ class RecepcionRepository {
           result: resultData != null
               ? ResponSendRecepcionResult(
                   code: resultData['code'],
+                  msg: resultData['msg'],
                   result: resultData['result'] != null
                       ? List<ResultElement>.from(resultData['result']
                           .map((x) => ResultElement.fromMap(x)))

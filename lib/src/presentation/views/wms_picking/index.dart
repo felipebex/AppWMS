@@ -58,6 +58,23 @@ class _PickingPageState extends State<WMSPickingPage> {
       },
       child: MultiBlocListener(
         listeners: [
+          // BlocListener<WMSPickingBloc, PickingState>(
+          //     listener: (context, state) {
+          //   print('state $state');
+          //   if (state is BatchsPickingLoadingState) {
+          //     showDialog(
+          //       context: context,
+          //       barrierDismissible: false,
+          //       builder: (context) => const DialogLoading(
+          //         message: 'Cargando picking...',
+          //       ),
+          //     );
+          //   }
+
+          //   if (state is LoadBatchsSuccesBDState) {
+          //     Navigator.pop(context);
+          //   }
+          // }),
           BlocListener<BatchBloc, BatchState>(
             listener: (context, state) {
               if (state is PickingOkState) {
@@ -174,14 +191,28 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             },
                                             child: Padding(
                                               padding: EdgeInsets.only(
-                                                  left: size.width * 0.25),
-                                              child: const Text(
-                                                'PICKING',
-                                                style: TextStyle(
+                                                  left: size.width * 0.23),
+                                              child: Row(
+                                                children: [
+                                                  const Text(
+                                                    'PICKING',
+                                                    style: TextStyle(
+                                                        color: white,
+                                                        fontSize: 18,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+
+                                                  const SizedBox(
+                                                    width: 5,
+                                                  ),
+                                                  //icono de refres
+                                                  Icon(
+                                                    Icons.refresh,
                                                     color: white,
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                                    size: 20,
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ),

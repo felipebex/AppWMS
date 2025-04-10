@@ -62,7 +62,7 @@ class ResultElement {
     int? idProduct;
     dynamic? qtyDone;
     bool? isDoneItem;
-    String? dateTransaction;
+    dynamic? dateTransaction;
     String? newObservation;
     dynamic? timeLine;
     int? userOperatorId;

@@ -92,7 +92,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
           );
         }
 
-        if (state is FetchOrdenesCompraOfBdSuccess) {
+        if (state is FetchOrdenesCompraSuccess) {
           Navigator.pop(context);
         }
       },
@@ -225,297 +225,348 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                           ),
                         )),
 
-                    Expanded(
-                      child: ListView.builder(
-                          padding: const EdgeInsets.only(top: 2),
-                          itemCount: ordenCompra.length,
-                          itemBuilder: (BuildContext contextList, int index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                              ),
-                              child: Card(
-                                elevation: 3,
-                                color:
-                                    ordenCompra[index].startTimeReception != ""
-                                        ? primaryColorAppLigth
-                                        : ordenCompra[index].isFinish == 1
-                                            ? Colors.green[200]
-                                            : white,
-                                child: ListTile(
-                                  trailing: Icon(Icons.arrow_forward_ios,
-                                      color: primaryColorApp),
-                                  title: Text(ordenCompra[index].name ?? '',
-                                      style: TextStyle(
-                                          color: primaryColorApp,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold)),
-                                  subtitle: Column(
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: [
-                                            Text('Tipo de entrada: ',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: primaryColorApp)),
-                                            Text(
-                                              ordenCompra[index].pickingType ??
-                                                  "",
-                                              style: const TextStyle(
-                                                  fontSize: 12, color: black),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: [
-                                            Text('Prioridad: ',
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: primaryColorApp)),
-                                            Text(
-                                              ordenCompra[index].priority == '0'
-                                                  ? 'Normal'
-                                                  : 'Alta'
-                                                      "",
-                                              style: TextStyle(
+                    (ordenCompra.isEmpty)
+                        ? Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                const Text('No hay recepciones',
+                                    style:
+                                        TextStyle(fontSize: 14, color: grey)),
+                                const Text('Intente buscar otra recepcion',
+                                    style:
+                                        TextStyle(fontSize: 12, color: grey)),
+                                Visibility(
+                                  visible: context
+                                      .read<UserBloc>()
+                                      .fabricante
+                                      .contains("Zebra"),
+                                  child: Container(
+                                    height: 60,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Expanded(
+                            child: ListView.builder(
+                                padding: const EdgeInsets.only(top: 2),
+                                itemCount: ordenCompra.length,
+                                itemBuilder:
+                                    (BuildContext contextList, int index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 10,
+                                      right: 10,
+                                    ),
+                                    child: Card(
+                                      elevation: 3,
+                                      color: ordenCompra[index]
+                                                  .startTimeReception !=
+                                              ""
+                                          ? primaryColorAppLigth
+                                          : ordenCompra[index].isFinish == 1
+                                              ? Colors.green[200]
+                                              : white,
+                                      child: ListTile(
+                                        trailing: Icon(Icons.arrow_forward_ios,
+                                            color: primaryColorApp),
+                                        title: Text(
+                                            ordenCompra[index].name ?? '',
+                                            style: TextStyle(
+                                                color: primaryColorApp,
                                                 fontSize: 12,
-                                                color: ordenCompra[index]
-                                                            .priority ==
-                                                        '0'
-                                                    ? black
-                                                    : red,
+                                                fontWeight: FontWeight.bold)),
+                                        subtitle: Column(
+                                          children: [
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Text('Tipo de entrada: ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp)),
+                                                  Text(
+                                                    ordenCompra[index]
+                                                            .pickingType ??
+                                                        "",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Text('Prioridad: ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp)),
+                                                  Text(
+                                                    ordenCompra[index]
+                                                                .priority ==
+                                                            '0'
+                                                        ? 'Normal'
+                                                        : 'Alta'
+                                                            "",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: ordenCompra[index]
+                                                                  .priority ==
+                                                              '0'
+                                                          ? black
+                                                          : red,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Divider(
+                                              color: black,
+                                              thickness: 1,
+                                              height: 5,
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.calendar_month_sharp,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    ordenCompra[index]
+                                                                .fechaCreacion !=
+                                                            null
+                                                        ? DateFormat(
+                                                                'dd/MM/yyyy hh:mm ')
+                                                            .format(DateTime.parse(
+                                                                ordenCompra[
+                                                                        index]
+                                                                    .fechaCreacion!))
+                                                        : "Sin fecha",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                  ordenCompra[index]
+                                                          .proveedor ??
+                                                      '',
+                                                  style: TextStyle(
+                                                    color: black,
+                                                    fontSize: 12,
+                                                  )),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.shopping_cart_sharp,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    ordenCompra[index]
+                                                                .purchaseOrderName ==
+                                                            ""
+                                                        ? 'Sin orden de compra'
+                                                        : ordenCompra[index]
+                                                                .purchaseOrderName ??
+                                                            '',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Visibility(
+                                              visible: ordenCompra[index]
+                                                      .backorderId !=
+                                                  0,
+                                              child: Row(
+                                                children: [
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Icon(
+                                                        Icons.file_copy_rounded,
+                                                        color: primaryColorApp,
+                                                        size: 15),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 5,
+                                                  ),
+                                                  Text(
+                                                      ordenCompra[index]
+                                                              .backorderName ??
+                                                          '',
+                                                      style: TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                'Ubicacion destino: ',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                ordenCompra[index]
+                                                        .locationDestName ??
+                                                    '',
+                                                style: const TextStyle(
+                                                    fontSize: 12, color: black),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.person,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    ordenCompra[index]
+                                                                .responsable ==
+                                                            ""
+                                                        ? 'sin responsable'
+                                                        : ordenCompra[index]
+                                                                .responsable ??
+                                                            '',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: ordenCompra[
+                                                                        index]
+                                                                    .responsable ==
+                                                                ""
+                                                            ? Colors.red
+                                                            : black),
+                                                  ),
+                                                  Spacer(),
+                                                  ordenCompra[index]
+                                                              .startTimeReception !=
+                                                          ""
+                                                      ? Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  left: 5),
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              showDialog(
+                                                                  context:
+                                                                      context,
+                                                                  builder:
+                                                                      (context) =>
+                                                                          DialogInfo(
+                                                                            title:
+                                                                                'Tiempo de inicio de operacion',
+                                                                            body:
+                                                                                'Este orden fue iniciada a las ${ordenCompra[index].startTimeReception}',
+                                                                          ));
+                                                            },
+                                                            child: Icon(
+                                                              Icons.timer_sharp,
+                                                              color: black,
+                                                              size: 15,
+                                                            ),
+                                                          ),
+                                                        )
+                                                      : const SizedBox(),
+                                                ],
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      Divider(
-                                        color: black,
-                                        thickness: 1,
-                                        height: 5,
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.calendar_month_sharp,
-                                              color: primaryColorApp,
-                                              size: 15,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
+                                        onTap: () async {
+                                          print(
+                                              'ordenCompra: ${ordenCompra[index].toMap()}');
+                                          //cargamos los permisos del usuario
+                                          context.read<RecepcionBloc>().add(
+                                              LoadConfigurationsUserOrder());
+
+                                          //verficamos is la orden de entrada tiene ya un responsable
+                                          if (ordenCompra[index]
+                                                      .responsableId ==
+                                                  null ||
                                               ordenCompra[index]
-                                                          .fechaCreacion !=
-                                                      null
-                                                  ? DateFormat(
-                                                          'dd/MM/yyyy hh:mm ')
-                                                      .format(DateTime.parse(
-                                                          ordenCompra[index]
-                                                              .fechaCreacion!))
-                                                  : "Sin fecha",
-                                              style: const TextStyle(
-                                                  fontSize: 12, color: black),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                            ordenCompra[index].proveedor ?? '',
-                                            style: TextStyle(
-                                              color: black,
-                                              fontSize: 12,
-                                            )),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.shopping_cart_sharp,
-                                              color: primaryColorApp,
-                                              size: 15,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              ordenCompra[index]
-                                                          .purchaseOrderName ==
-                                                      ""
-                                                  ? 'Sin orden de compra'
-                                                  : ordenCompra[index]
-                                                          .purchaseOrderName ??
-                                                      '',
-                                              style: const TextStyle(
-                                                  fontSize: 12, color: black),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Visibility(
-                                        visible:
-                                            ordenCompra[index].backorderId != 0,
-                                        child: Row(
-                                          children: [
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Icon(
-                                                  Icons.file_copy_rounded,
-                                                  color: primaryColorApp,
-                                                  size: 15),
-                                            ),
-                                            const SizedBox(
-                                              width: 5,
-                                            ),
-                                            Text(
-                                                ordenCompra[index]
-                                                        .backorderName ??
-                                                    '',
-                                                style: TextStyle(
-                                                    color: black,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                          ],
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          'Ubicacion destino: ',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp),
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          ordenCompra[index].locationDestName ??
-                                              '',
-                                          style: const TextStyle(
-                                              fontSize: 12, color: black),
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.person,
-                                              color: primaryColorApp,
-                                              size: 15,
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Text(
-                                              ordenCompra[index].responsable ==
-                                                      ""
-                                                  ? 'sin responsable'
-                                                  : ordenCompra[index]
-                                                          .responsable ??
-                                                      '',
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: ordenCompra[index]
-                                                              .responsable ==
-                                                          ""
-                                                      ? Colors.red
-                                                      : black),
-                                            ),
-                                            Spacer(),
-                                            ordenCompra[index]
-                                                        .startTimeReception !=
-                                                    ""
-                                                ? Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 5),
-                                                    child: GestureDetector(
-                                                      onTap: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (context) =>
-                                                                    DialogInfo(
-                                                                      title:
-                                                                          'Tiempo de inicio de operacion',
-                                                                      body:
-                                                                          'Este orden fue iniciada a las ${ordenCompra[index].startTimeReception}',
-                                                                    ));
-                                                      },
-                                                      child: Icon(
-                                                        Icons.timer_sharp,
-                                                        color: black,
-                                                        size: 15,
-                                                      ),
-                                                    ),
-                                                  )
-                                                : const SizedBox(),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  onTap: () async {
-                                    print(
-                                        'ordenCompra: ${ordenCompra[index].toMap()}');
-                                    //cargamos los permisos del usuario
-                                    context
-                                        .read<RecepcionBloc>()
-                                        .add(LoadConfigurationsUserOrder());
+                                                      .responsableId ==
+                                                  0) {
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible:
+                                                  false, // No permitir que el usuario cierre el diálogo manualmente
+                                              builder: (context) =>
+                                                  DialogAsignUserToOrderWidget(
+                                                onAccepted: () async {
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .searchControllerOrderC
+                                                      .clear();
 
-                                    //verficamos is la orden de entrada tiene ya un responsable
-                                    if (ordenCompra[index].responsableId ==
-                                            null ||
-                                        ordenCompra[index].responsableId == 0) {
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible:
-                                            false, // No permitir que el usuario cierre el diálogo manualmente
-                                        builder: (context) =>
-                                            DialogAsignUserToOrderWidget(
-                                          onAccepted: () async {
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .searchControllerOrderC
-                                                .clear();
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .add(
+                                                          SearchOrdenCompraEvent(
+                                                        '',
+                                                      ));
 
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(SearchOrdenCompraEvent(
-                                                  '',
-                                                ));
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .add(ShowKeyboardEvent(
+                                                          false));
 
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(ShowKeyboardEvent(false));
-
-                                            //asignamos el responsable a esa orden de entrada
-                                            context
-                                                .read<RecepcionBloc>()
-                                                .add(AssignUserToOrder(
-                                                  ordenCompra[index],
-                                                ));
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      );
-                                    } else {
-                                      validateTime(ordenCompra[index], context);
-                                    }
-                                  },
-                                ),
-                              ),
-                            );
-                          }),
-                    )
+                                                  //asignamos el responsable a esa orden de entrada
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .add(AssignUserToOrder(
+                                                        ordenCompra[index],
+                                                      ));
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            );
+                                          } else {
+                                            validateTime(
+                                                ordenCompra[index], context);
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                }),
+                          )
                   ],
                 ),
               )),
@@ -665,8 +716,20 @@ class AppBar extends StatelessWidget {
                               .read<RecepcionBloc>()
                               .add(FetchOrdenesCompra(false));
                         },
-                        child: const Text("RECEPCION",
-                            style: TextStyle(color: white, fontSize: 18)),
+                        child: Row(
+                          children: [
+                            const Text("RECEPCION",
+                                style: TextStyle(color: white, fontSize: 18)),
+
+                            ///icono de refresh
+                            const SizedBox(width: 5),
+                            Icon(
+                              Icons.refresh,
+                              color: white,
+                              size: 20,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const Spacer(),

@@ -1,4 +1,4 @@
-// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
 import 'dart:ui';
 
@@ -28,9 +28,7 @@ class Tab1ScreenTrans extends StatelessWidget {
       },
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
         listener: (context, state) {
-
-
-          if(state is LoadLocationsFailure){
+          if (state is LoadLocationsFailure) {
             Get.snackbar(
               '360 Software Informa',
               "No se han podido cargar las ubicaciones",
@@ -38,7 +36,6 @@ class Tab1ScreenTrans extends StatelessWidget {
               colorText: primaryColorApp,
               icon: Icon(Icons.error, color: Colors.red),
             );
-
           }
 
           if (state is AssignUserToTransferSuccess) {
@@ -137,7 +134,7 @@ class Tab1ScreenTrans extends StatelessWidget {
           if (state is CreateBackOrderOrNotSuccess) {
             context
                 .read<TransferenciaBloc>()
-                .add(FetchAllTransferencias(false));
+                .add(FetchAllTransferencias(true));
             //volvemos a llamar las entradas que tenemos guardadas en la bd
             if (state.isBackorder) {
               Get.snackbar("360 Software Informa", state.msg,
@@ -151,7 +148,6 @@ class Tab1ScreenTrans extends StatelessWidget {
                   icon: Icon(Icons.error, color: Colors.green));
             }
 
-            context.read<TransferenciaBloc>().add(FetchAllTransferenciasDB());
             Navigator.pop(context);
             Navigator.pushReplacementNamed(
               context,
@@ -507,13 +503,20 @@ class Tab1ScreenTrans extends StatelessWidget {
                                       Align(
                                         alignment: Alignment.center,
                                         child: Text(
-                                          context
-                                                  .read<TransferenciaBloc>()
-                                                  .listProductsTransfer
-                                                  .where((element) {
-                                            return element.isSeparate == 0 ||
-                                                element.isSeparate == null;
-                                          }).isEmpty
+                                          (context
+                                                      .read<TransferenciaBloc>()
+                                                      .listProductsTransfer
+                                                      .where((element) {
+                                                    return (element.isSeparate ==
+                                                                0 ||
+                                                            element.isSeparate ==
+                                                                null) &&
+                                                        (element.isDoneItem ==
+                                                                0 ||
+                                                            element.isDoneItem ==
+                                                                null);
+                                                  }).length ==
+                                                  0)
                                               ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
                                               : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                                           style: TextStyle(
@@ -525,13 +528,17 @@ class Tab1ScreenTrans extends StatelessWidget {
                                   ),
                                   actions: [
                                     Visibility(
-                                      visible: context
-                                          .read<TransferenciaBloc>()
-                                          .listProductsTransfer
-                                          .where((element) {
-                                        return element.isSeparate == 0 ||
-                                            element.isSeparate == null;
-                                      }).isNotEmpty,
+                                      visible: (context
+                                              .read<TransferenciaBloc>()
+                                              .listProductsTransfer
+                                              .where((element) {
+                                            return (element.isSeparate == 0 ||
+                                                    element.isSeparate ==
+                                                        null) &&
+                                                (element.isDoneItem == 0 ||
+                                                    element.isDoneItem == null);
+                                          }).length >=
+                                          1),
                                       child: ElevatedButton(
                                         onPressed: () {
                                           context.read<TransferenciaBloc>().add(

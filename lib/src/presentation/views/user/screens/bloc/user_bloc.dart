@@ -59,6 +59,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           print("almacenes: ${almacenes.length}");
 
           emit(ConfigurationLoaded(responsebd ?? configurations));
+          
         } else {
           emit(ConfigurationError(
               response.result?.msg ?? 'Error al cargar configuraciones'));
@@ -67,6 +68,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
         print('Error en GetConfigurations.dart: $e =>$s');
       }
     });
+
 
     //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEventUser>(_onLoadInfoDeviceEventUser);
@@ -81,9 +83,18 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       emit(GetUbicacionesLoading());
       final response = await userRepository.ubicaciones();
       if (response != null) {
-        await db.ubicacionesRepository.insertOrUpdateUbicaciones(response);
-        ubicaciones = response;
+
+
+        // filtramos la ubicacion por el almacen
+        ubicaciones = response
+            .where((ubicacion) =>
+                almacenes.any((almacen) => almacen.id == ubicacion.idWarehouse))
+            .toList();
+
+        await db.ubicacionesRepository.insertOrUpdateUbicaciones(ubicaciones);
+
         almacenes = await db.warehouseRepository.getAllowedWarehouse();
+
         await db.warehouseRepository.insertAllowedWarehouse(almacenes);
         print('ubicaciones: ${response.length}');
         emit(GetUbicacionesLoaded(response));
@@ -114,6 +125,13 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       print('idDispositivo: $idDispositivo');
 
       versionApp = packageInfo.version; // Versión de la app
+
+
+      almacenes =
+          await db.warehouseRepository.getAllowedWarehouse();
+
+      print('almacenes: ${almacenes.length}');
+
       emit(LoadInfoDeviceStateUser());
     } catch (e, s) {
       print('Error en LoadInfoDeviceEventUser.dart: $e =>$s');

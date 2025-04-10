@@ -382,13 +382,7 @@ class DataBaseSqlite {
 
   //Todo: Eliminar todos los registros
 
-  Future<void> deleteAdmin() async {
-    delePicking();
-    delePacking();
-    deleRecepcion();
-    deleTrasnferencia();
-    deleInventario();
-  }
+
 
   Future<void> delePicking() async {
     final db = await getDatabaseInstance();
@@ -396,6 +390,7 @@ class DataBaseSqlite {
     await db.delete(BatchPickingTable.tableName);
     await db.delete('tblbatch_products');
     await db.delete(BarcodesPackagesTable.tableName);
+    await db.delete(SubmuellesTable.tableName);
   }
 
   Future<void> delePacking() async {
@@ -405,14 +400,13 @@ class DataBaseSqlite {
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
-    await db.delete(BarcodesPackagesTable.tableName);
   }
 
   Future<void> deleRecepcion() async {
     final db = await getDatabaseInstance();
     //recepcion
     await db.delete(ProductRecepcionTable.tableName);
-    await db.delete('tbl_entradas_recepcion');
+    await db.delete(EntradasRepeccionTable.tableName);
   }
 
   Future<void> deleInventario() async {
@@ -429,21 +423,23 @@ class DataBaseSqlite {
     await db.delete(ProductTransferenciaTable.tableName);
   }
 
-  Future<void> deleteBDCloseSession() async {
+  Future<void> deleOthers() async {
     final db = await getDatabaseInstance();
-    // others
+    await db.delete(BarcodesPackagesTable.tableName);
     await db.delete(ConfigurationsTable.tableName);
     await db.delete(NovedadesTable.tableName);
     await db.delete(UbicacionesTable.tableName);
-    await db.delete(SubmuellesTable.tableName);
+    await db.delete(UrlsRecientesTable.tableName);
+    await db.delete(WarehouseTable.tableName);
+  }
 
-    deleInventario();
-    deleTrasnferencia();
-    delePacking();
-    delePicking();
-    deleRecepcion();
-    
-
+  Future<void> deleteBDCloseSession() async {
+    await delePicking();
+    await delePacking();
+    await deleRecepcion();
+    await deleTrasnferencia();
+    await deleInventario();
+    await deleOthers();
   }
 
   //*metodo para actualizar la tabla de productos de un batch

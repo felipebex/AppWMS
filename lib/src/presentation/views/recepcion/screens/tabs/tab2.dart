@@ -43,9 +43,9 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
   void validateBarcode(String value, BuildContext context) {
     final bloc = context.read<RecepcionBloc>();
 
-    String scan = bloc.scannedValue5.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue5.toLowerCase();
+    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue5.trim().toLowerCase();
 
     _controllerToDo.text = "";
 
@@ -56,7 +56,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
 
     // Buscar el producto que coincide con el código de barras escaneado
     final LineasTransferencia product = listOfProducts.firstWhere(
-      (product) => product.productBarcode == scan,
+      (product) => product.productBarcode == scan.trim(),
       orElse: () =>
           LineasTransferencia(), // Devuelve null si no se encuentra ningún producto
     );

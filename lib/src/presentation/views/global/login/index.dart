@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
+import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -51,6 +52,7 @@ class LoginPage extends StatelessWidget {
                     .read<UserBloc>()
                     .add(GetUbicacionesEvent()); //ubicaciones
               }
+
               if (state is LoginFailure) {
                 Get.back();
                 showModalDialog(context, state.error);
@@ -60,6 +62,8 @@ class LoginPage extends StatelessWidget {
           BlocListener<UserBloc, UserState>(
             listener: (context, state) async {
               if (state is ConfigurationLoaded) {
+                context.read<InventarioBloc>().add(GetProductsEvent(
+                    context.read<UserBloc>().almacenes[0].id ?? 0));
                 final rol = await PrefUtils.getUserRol();
                 if (rol == 'picking') {
                   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
@@ -74,7 +78,7 @@ class LoginPage extends StatelessWidget {
                       .read<TransferenciaBloc>()
                       .add(FetchAllTransferencias(false));
                 }
-                
+
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();
                 Get.back();

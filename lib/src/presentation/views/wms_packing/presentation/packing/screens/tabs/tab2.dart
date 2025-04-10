@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
@@ -41,9 +42,9 @@ class _Tab2ScreenState extends State<Tab2Screen> {
   void validateBarcode(String value, BuildContext context) {
     final bloc = context.read<WmsPackingBloc>();
 
-    String scan = bloc.scannedValue5.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue5.toLowerCase();
+    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue5.trim().toLowerCase();
 
     _controllerToDo.text = "";
 
@@ -110,20 +111,10 @@ class _Tab2ScreenState extends State<Tab2Screen> {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
       listener: (context, state) {
-        if (state is WmsPackingErrorState) {
-          //mostramos el error
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(state.message),
-            backgroundColor: Colors.red[200],
-          ));
-        }
-        if (state is WmsPackingSuccessState) {
-          //mostramos el error
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(state.message),
-            backgroundColor: Colors.green[200],
-          ));
-        }
+
+        print('state: $state');
+
+       
       },
       builder: (context, state) {
         return Scaffold(

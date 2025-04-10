@@ -16,6 +16,9 @@ class ProductInventarioTable {
   static const String columnExpirationDate = 'expiration_date';
   static const String columnAvailableQuantity = 'available_quantity';
   static const String columnQuantity = 'quantity';
+  // product_code
+  static const String columnProductCode = 'product_code';
+
 
   static String createTable() {
     return '''
@@ -24,6 +27,7 @@ class ProductInventarioTable {
         $columnQuantId INTEGER,
         $columnLocationId INTEGER,
         $columnLocationName TEXT,
+        $columnProductCode TEXT,
         $columnProductId INTEGER,
         $columnProductName TEXT,
         $columnBarcode TEXT,

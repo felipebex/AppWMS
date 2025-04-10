@@ -62,12 +62,11 @@ class _TransferenciaScreenState extends State<TransferenciaScreen>
                   //volvemos a llamar las entradas que tenemos guardadas en la bd
                   context
                       .read<TransferenciaBloc>()
-                      .add(FetchAllTransferenciasDB());
+                      .add(FetchAllTransferenciasDB(false));
+                 
 
-                  Navigator.pushReplacementNamed(
-                    context,
-                    'transferencias',
-                  );
+                  Navigator.pushReplacementNamed(context, 'transferencias',
+                    );
                 },
               ),
               title: Text(

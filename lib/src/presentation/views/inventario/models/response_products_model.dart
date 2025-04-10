@@ -64,6 +64,7 @@ class Product {
   String? locationName;
   int? productId;
   String? productName;
+  dynamic? productCode;
   dynamic? barcode;
   String? productTracking;
   List<BarcodeInventario>? otherBarcodes;
@@ -82,6 +83,7 @@ class Product {
     this.productId,
     this.productTracking,
     this.productName,
+    this.productCode,
     this.barcode,
     this.otherBarcodes,
     this.productPacking,
@@ -99,6 +101,7 @@ class Product {
         locationName: json["location_name"],
         productId: json["product_id"],
         productName: json["product_name"],
+        productCode: json["product_code"],
         barcode: json["barcode"],
         otherBarcodes: json["other_barcodes"] == null
             ? []
@@ -123,6 +126,7 @@ class Product {
         "location_name": locationName,
         "product_id": productId,
         "product_name": productName,
+        "product_code": productCode,
         "barcode": barcode,
         "other_barcodes": otherBarcodes == null
             ? []

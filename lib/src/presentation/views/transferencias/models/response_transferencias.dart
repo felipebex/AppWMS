@@ -217,7 +217,6 @@ class ResultTransFerencias {
 }
 
 class LineasTransferenciaTrans {
-  int? id;
   int? idMove;
   int? idTransferencia;
   dynamic productId;
@@ -264,7 +263,6 @@ class LineasTransferenciaTrans {
   final dynamic cantidadFaltante;
 
   LineasTransferenciaTrans({
-    this.id,
     this.idMove,
     this.idTransferencia,
     this.productId,
@@ -308,7 +306,6 @@ class LineasTransferenciaTrans {
 
   factory LineasTransferenciaTrans.fromMap(Map<String, dynamic> json) =>
       LineasTransferenciaTrans(
-        id: json["id"],
         idMove: json["id_move"],
         idTransferencia: json["id_transferencia"],
         productId: json["product_id"],
@@ -357,7 +354,6 @@ class LineasTransferenciaTrans {
       );
 
   Map<String, dynamic> toMap() => {
-        "id": id,
         "id_move": idMove,
         "id_transferencia": idTransferencia,
         "product_id": productId,

@@ -74,7 +74,7 @@ class InfoResult {
   dynamic? peso;
   dynamic? volumen;
   String? codigoBarras;
-  List<Barcodes>? codigosBarrasPaquetes;
+  // List<Barcodes>? codigosBarrasPaquetes;
   String? imagen;
   String? categoria;
   List<Ubicacion>? ubicaciones;
@@ -94,7 +94,7 @@ class InfoResult {
     this.peso,
     this.volumen,
     this.codigoBarras,
-    this.codigosBarrasPaquetes,
+    // this.codigosBarrasPaquetes,
     this.imagen,
     this.categoria,
     this.ubicaciones,
@@ -113,10 +113,10 @@ class InfoResult {
         peso: json["peso"],
         volumen: json["volumen"],
         codigoBarras: json["codigo_barras"],
-        codigosBarrasPaquetes: json["codigos_barras_paquetes"] == null
-            ? []
-            : List<Barcodes>.from(
-                json["codigos_barras_paquetes"]!.map((x) => x)),
+        // codigosBarrasPaquetes: json["codigos_barras_paquetes"] == null
+        //     ? []
+        //     : List<Barcodes>.from(
+        //         json["codigos_barras_paquetes"]!.map((x) => x)),
         imagen: json["imagen"],
         categoria: json["categoria"],
         ubicaciones: json["ubicaciones"] == null
@@ -143,9 +143,9 @@ class InfoResult {
         "peso": peso,
         "volumen": volumen,
         "codigo_barras": codigoBarras,
-        "codigos_barras_paquetes": codigosBarrasPaquetes == null
-            ? []
-            : List<dynamic>.from(codigosBarrasPaquetes!.map((x) => x)),
+        // "codigos_barras_paquetes": codigosBarrasPaquetes == null
+        //     ? []
+        //     : List<dynamic>.from(codigosBarrasPaquetes!.map((x) => x)),
         "imagen": imagen,
         "categoria": categoria,
         "ubicaciones": ubicaciones == null

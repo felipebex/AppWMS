@@ -34,20 +34,24 @@ class ResponSendRecepcion {
 
 class ResponSendRecepcionResult {
     int? code;
+    String? msg;
     List<ResultElement>? result;
 
     ResponSendRecepcionResult({
         this.code,
+        this.msg,
         this.result,
     });
 
     factory ResponSendRecepcionResult.fromMap(Map<String, dynamic> json) => ResponSendRecepcionResult(
         code: json["code"],
+        msg: json["msg"],
         result: json["result"] == null ? [] : List<ResultElement>.from(json["result"]!.map((x) => ResultElement.fromMap(x))),
     );
 
     Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
         "result": result == null ? [] : List<dynamic>.from(result!.map((x) => x.toMap())),
     };
 }

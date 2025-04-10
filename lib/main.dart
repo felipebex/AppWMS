@@ -40,6 +40,16 @@ final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
+// // Cambiar el color del texto de la barra de estado
+//   SystemChrome.setSystemUIOverlayStyle(
+//     SystemUiOverlayStyle(
+//       statusBarColor: Colors.transparent, // O cualquier color que necesites
+//       statusBarIconBrightness:
+//           Brightness.dark, // dark: texto oscuro | light: texto blanco
+//       statusBarBrightness: Brightness.light, // Para iOS
+//     ),
+//   );
+
   ErrorWidget.builder = (FlutterErrorDetails details) => Scaffold(
         body: SizedBox(
           width: double.infinity,

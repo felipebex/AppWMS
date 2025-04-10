@@ -96,7 +96,7 @@ class ProductosPedidosRepository {
                         ? producto.lotId![1]
                         : "",
                 ProductosPedidosTable.columnLocationId: producto.locationId?[1],
-                ProductosPedidosTable.columnIdLocation: producto.idLocation?[0],
+                ProductosPedidosTable.columnIdLocation: producto.locationId?[0],
                 ProductosPedidosTable.columnLocationDestId:
                     producto.locationDestId?[1],
                 ProductosPedidosTable.columnIdLocationDest:
@@ -144,7 +144,7 @@ class ProductosPedidosRepository {
                         ? producto.lotId![1]
                         : "",
                 ProductosPedidosTable.columnLocationId: producto.locationId?[1],
-                ProductosPedidosTable.columnIdLocation: producto.idLocation?[0],
+                ProductosPedidosTable.columnIdLocation: producto.locationId?[0],
                 ProductosPedidosTable.columnLocationDestId:
                     producto.locationDestId?[1],
                 ProductosPedidosTable.columnIdLocationDest:

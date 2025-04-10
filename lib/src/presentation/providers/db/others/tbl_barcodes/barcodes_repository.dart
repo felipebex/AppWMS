@@ -45,35 +45,90 @@ class BarcodesRepository {
     }
   }
 
-  // Método para insertar o actualizar los barcodes de los productos
-  Future<void> insertOrUpdateBarcodes(List<Barcodes> barcodesList) async {
-    int insertedCount = 0; // Contador de registros insertados
-    int updatedCount = 0; // Contador de registros actualizados
+  Future<List<Barcodes>> getBarcodesProductTransfer(
+      int batchId, int productId) async {
+    try {
+      // Obtiene la instancia de la base de datos
+      Database db = await DataBaseSqlite().getDatabaseInstance();
 
+      // Realizamos la consulta para obtener los barcodes
+      final List<Map<String, dynamic>> maps = await db.query(
+        BarcodesPackagesTable.tableName,
+        where: '${BarcodesPackagesTable.columnBatchId} = ? AND '
+            '${BarcodesPackagesTable.columnIdProduct} = ?',
+        whereArgs: [batchId, productId],
+      );
+
+      // Verificamos si la consulta ha devuelto resultados
+      if (maps.isEmpty) {
+        print("No se encontraron barcodes para los parámetros proporcionados.");
+        return [];
+      }
+
+      // Utilizamos un Set para evitar duplicados por el campo barcode
+      final Set<String> seenBarcodes = {};
+      final List<Barcodes> barcodes = [];
+
+      for (final map in maps) {
+        final String barcode = map[BarcodesPackagesTable.columnBarcode];
+
+        if (!seenBarcodes.contains(barcode)) {
+          seenBarcodes.add(barcode);
+          barcodes.add(
+            Barcodes(
+              batchId: map[BarcodesPackagesTable.columnBatchId],
+              idMove: map[BarcodesPackagesTable.columnIdMove],
+              idProduct: map[BarcodesPackagesTable.columnIdProduct],
+              barcode: barcode,
+              cantidad: map[BarcodesPackagesTable.columnCantidad]?.toDouble(),
+            ),
+          );
+        }
+      }
+
+      return barcodes;
+    } catch (e) {
+      print("Error al obtener los barcodes: $e");
+      return [];
+    }
+  }
+
+  // Método para insertar o actualizar los barcodes de los productos
+
+  Future<void> insertOrUpdateBarcodes(List<Barcodes> barcodesList) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
-      // Inicia la transacción
       await db.transaction((txn) async {
-        for (var barcode in barcodesList) {
-          // Realizamos la consulta para verificar si ya existe el producto con este barcode
-          final List<Map<String, dynamic>> existingProduct = await txn.query(
-            BarcodesPackagesTable.tableName,
-            where: '${BarcodesPackagesTable.columnIdProduct} = ? AND '
-                '${BarcodesPackagesTable.columnBatchId} = ? AND '
-                '${BarcodesPackagesTable.columnIdMove} = ? AND '
-                '${BarcodesPackagesTable.columnBarcode} = ?',
-            whereArgs: [
-              barcode.idProduct,
-              barcode.batchId,
-              barcode.idMove,
-              barcode.barcode
-            ],
-          );
+        Batch batch = txn.batch();
 
-          if (existingProduct.isNotEmpty) {
-            // Si el producto ya existe, lo actualizamos
-            await txn.update(
+        final List<Map<String, dynamic>> existingProducts = await txn.query(
+          BarcodesPackagesTable.tableName,
+          columns: [BarcodesPackagesTable.columnId],
+          where: '${BarcodesPackagesTable.columnIdProduct} = ? AND '
+              '${BarcodesPackagesTable.columnBatchId} = ? AND '
+              '${BarcodesPackagesTable.columnIdMove} = ? AND '
+              '${BarcodesPackagesTable.columnBarcode} = ?',
+          whereArgs: [
+            barcodesList.map((barcode) => barcode.idProduct).toList().join(','),
+            barcodesList.map((barcode) => barcode.batchId).toList().join(','),
+            barcodesList.map((barcode) => barcode.idMove).toList().join(','),
+            barcodesList.map((barcode) => barcode.barcode).toList().join(','),
+          ],
+        );
+
+        // Crear un conjunto de los IDs existentes para facilitar la comprobación
+        Set<int> existingIds = Set.from(existingProducts.map((e) {
+          return e[BarcodesPackagesTable.columnId];
+        }));
+
+        for (var barcode in barcodesList) {
+          if (existingIds.contains(barcode.idProduct) &&
+              existingIds.contains(barcode.batchId) &&
+              existingIds.contains(barcode.idMove) &&
+              existingIds.contains(barcode.barcode)) {
+            // Si el barcode ya existe, lo actualizamos
+            batch.update(
               BarcodesPackagesTable.tableName,
               {
                 BarcodesPackagesTable.columnIdProduct: barcode.idProduct,
@@ -90,13 +145,11 @@ class BarcodesRepository {
                 barcode.idProduct,
                 barcode.batchId,
                 barcode.idMove,
-                barcode.barcode
+                barcode.barcode,
               ],
             );
-            updatedCount++; // Incrementamos el contador de actualizaciones
           } else {
-            // Si el producto no existe, lo insertamos
-            await txn.insert(
+            batch.insert(
               BarcodesPackagesTable.tableName,
               {
                 BarcodesPackagesTable.columnIdProduct: barcode.idProduct,
@@ -105,19 +158,13 @@ class BarcodesRepository {
                 BarcodesPackagesTable.columnBarcode: barcode.barcode,
                 BarcodesPackagesTable.columnCantidad: barcode.cantidad ?? 1,
               },
-              conflictAlgorithm: ConflictAlgorithm
-                  .replace, // Reemplaza si hay conflicto en la clave primaria
+              conflictAlgorithm: ConflictAlgorithm.replace,
             );
-            insertedCount++; // Incrementamos el contador de inserciones
           }
         }
-      });
 
-      // Imprimimos el número de registros insertados y actualizados
-      print(
-          "Total de registros insertOrUpdateBarcodes transfer: $insertedCount");
-      print(
-          "Total de registros insertOrUpdateBarcodes transfer: $updatedCount");
+        await batch.commit();
+      });
     } catch (e, s) {
       print("Error al insertar/actualizar barcodes: $e => $s");
     }

@@ -162,9 +162,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
   void validateLocation(String value) {
     final bloc = context.read<TransferenciaBloc>();
 
-    String scan = bloc.scannedValue1.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue1.toLowerCase();
+    String scan = bloc.scannedValue1.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue1.trim().toLowerCase();
 
     _controllerLocation.text = "";
     final currentProduct = bloc.currentProduct;
@@ -186,9 +186,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
   void validateProduct(String value) {
     final bloc = context.read<TransferenciaBloc>();
 
-    String scan = bloc.scannedValue2.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue2.toLowerCase();
+    String scan = bloc.scannedValue2.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue2.trim().toLowerCase();
 
     print('scan product: $scan');
     _controllerProduct.text = "";
@@ -212,9 +212,9 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
   void validateQuantity(String value) {
     final bloc = context.read<TransferenciaBloc>();
 
-    String scan = bloc.scannedValue3.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue3.toLowerCase();
+    String scan = bloc.scannedValue3.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue3.trim().toLowerCase();
 
     _controllerQuantity.text = "";
     final currentProduct = bloc.currentProduct;
@@ -288,9 +288,10 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
   void validateMuelle(String value) {
     final bloc = context.read<TransferenciaBloc>();
-    String scan = bloc.scannedValue4.toLowerCase() == ""
-        ? value.toLowerCase()
-        : bloc.scannedValue4.toLowerCase();
+    
+    String scan = bloc.scannedValue4.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue4.trim().toLowerCase();
 
     _controllerLocationDest.text = "";
     final currentProduct = bloc.currentProduct;
@@ -314,7 +315,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     } else {
       // Buscar el barcode que coincida con el valor escaneado
       ResultUbicaciones? matchedUbicacion = bloc.ubicaciones.firstWhere(
-          (ubicacion) => ubicacion.barcode?.toLowerCase() == scan,
+          (ubicacion) => ubicacion.barcode?.toLowerCase() == scan.trim(),
           orElse: () =>
               ResultUbicaciones() // Si no se encuentra ningún match, devuelve null
           );

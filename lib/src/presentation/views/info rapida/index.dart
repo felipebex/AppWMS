@@ -38,7 +38,8 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     print('value: $value');
 
     final bloc = context.read<InfoRapidaBloc>();
-    String scan = bloc.scannedValue1 == "" ? value : bloc.scannedValue1;
+    
+    String scan = bloc.scannedValue1.trim() == "" ? value : bloc.scannedValue1.trim();
     _controllerSearch.text = "";
     //validamos que el scan no este vacio
 

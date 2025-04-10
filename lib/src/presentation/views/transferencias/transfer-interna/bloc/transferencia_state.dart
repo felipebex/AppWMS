@@ -14,8 +14,9 @@ final class TransferenciaLoaded extends TransferenciaState {
 }
 
 final class TransferenciaBDLoaded extends TransferenciaState {
+  final bool isLoading ;
   final List<ResultTransFerencias> transferencias;
-  TransferenciaBDLoaded(this.transferencias);
+  TransferenciaBDLoaded(this.transferencias, this.isLoading);
 }
 
 final class TransferenciaError extends TransferenciaState {
@@ -45,6 +46,10 @@ class SearchTransferenciasSuccess extends TransferenciaState {
 class ShowKeyboardState extends TransferenciaState {
   final bool showKeyboard;
   ShowKeyboardState({required this.showKeyboard});
+}
+class IsHomeState extends TransferenciaState {
+  final bool isHome;
+  IsHomeState({required this.isHome});
 }
 
 class ConfigurationLoadedOrder extends TransferenciaState {

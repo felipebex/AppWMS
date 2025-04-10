@@ -244,12 +244,16 @@ class AppRoutes {
       },
 
       //transferencias
-      transferencias: (_) => const ListTransferenciasScreen(),
+      transferencias: (_) {
+      
+
+        return ListTransferenciasScreen(
+        );
+      },
       transferExterna: (_) => const TransferExternaScreen(),
       searchProductTrans: (_) => const SearchLocationScreenTrans(),
       searchLocationTrans: (_) => const SearchProductScreenTrans(),
 
-      
       transferenciaDetail: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;

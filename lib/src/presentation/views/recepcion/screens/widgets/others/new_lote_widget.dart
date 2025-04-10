@@ -318,6 +318,9 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                       colorText: primaryColorApp,
                       icon: Icon(Icons.check, color: Colors.green),
                     );
+
+
+                    
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColorApp,

@@ -22,6 +22,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   TextEditingController searchControllerTransfer = TextEditingController();
   //*variables para validar
   bool isKeyboardVisible = false;
+  bool isHome = true;
 
   //*repositorio
   final TransferenciasRepository _transferenciasRepository =
@@ -47,6 +48,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   List<String> warehouseName = [];
 
   LineasTransferenciaTrans currentProduct = LineasTransferenciaTrans();
+  ResultUbicaciones currentLocationDest = ResultUbicaciones();
 
   // //*validaciones de campos del estado de la vista
   bool isLocationOk = true;
@@ -103,6 +105,8 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     //activar el teclado
     on<ShowKeyboardEvent>(_onShowKeyboardEvent);
+
+    //
 
     //*obtener las configuraciones y permisos del usuario desde la bd
     on<LoadConfigurationsUserTransfer>(_onLoadConfigurationsUserEvent);
@@ -168,10 +172,10 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
   void _onClearFieldsEvent(
       CleanFieldsEvent event, Emitter<TransferenciaState> emit) {
-    transferencias.clear();
-    transferenciasDB.clear();
-    transferenciasDbFilters.clear();
-
+    currentLocationDest = ResultUbicaciones();
+    selectedLocation = currentProduct.locationDestName ?? "";
+    locationDestIsOk = false;
+    isLocationDestOk = true;
     emit((TransferenciaInitial()));
   }
 
@@ -391,8 +395,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
               idProducto: int.parse(productBD?.productId),
               idLote: int.parse(productBD!.lotId.toString()),
               idUbicacionOrigen: int.parse(productBD.locationId.toString()),
-              idUbicacionDestino:
-                  int.parse(productBD.locationDestId.toString()),
+              idUbicacionDestino: currentLocationDest.id ?? 0,
               cantidadEnviada: event.quantity,
               idOperario: userid,
               timeLine: time,
@@ -400,11 +403,15 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
               observacion: productBD.observation == ""
                   ? "Sin novedad"
                   : productBD.observation,
-              dividida: productBD.isProductSplit == 0
-                  ? productBD.quantityOrdered != productBD.cantidadFaltante
-                      ? true
-                      : false
-                  : true,
+              
+              
+              dividida: event.isDividio
+                  ? productBD.isProductSplit == 0 //0
+                      ? productBD.quantityOrdered == productBD.cantidadFaltante
+                          ? event.isDividio
+                          : true
+                      : true
+                  : false
             ),
           ],
         ),
@@ -412,6 +419,31 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       );
 
       if (responseSend.result?.code == 200) {
+        //actualizamos la ubicacion destino del producto
+
+        //asiganmos la ubicacion al producto
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          'location_dest_id',
+          currentLocationDest.id ?? 0,
+          currentProduct.idMove ?? 0,
+        );
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          'location_dest_name',
+          currentLocationDest.name ?? "",
+          currentProduct.idMove ?? 0,
+        );
+        await db.productTransferenciaRepository.setFieldTableProductTransfer(
+          currentProduct.idTransferencia ?? 0,
+          int.parse(currentProduct.productId),
+          'location_dest_barcode',
+          currentLocationDest.barcode ?? "",
+          currentProduct.idMove ?? 0,
+        );
+
         // marcamos tiempo final de sepfaracion
         await db.productTransferenciaRepository.setFieldTableProductTransfer(
             currentProduct.idTransferencia ?? 0,
@@ -426,8 +458,11 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
               (currentProduct.cantidadFaltante - event.quantity);
 
           //creamos un nuevo producto (duplicado) con la cantidad separada
-          await db.productTransferenciaRepository
-              .insertDuplicateProducto(currentProduct, pendingQuantity);
+          await db.productTransferenciaRepository.insertDuplicateProducto(
+              currentProduct,
+              pendingQuantity,
+              responseSend.result?.result?.first.idMove ?? 0,
+              responseSend.result?.result?.first.idProduct ?? 0);
         }
 
         add(GetPorductsToTransfer(currentProduct.idTransferencia ?? 0));
@@ -766,29 +801,29 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       switch (event.scan) {
         case 'location':
           // Acumulador de valores escaneados
-          scannedValue1 += event.scannedValue;
+          scannedValue1 += event.scannedValue.trim();
           print('scannedValue1: $scannedValue1');
           emit(UpdateScannedValueState(scannedValue1, event.scan));
           break;
         case 'product':
-          scannedValue2 += event.scannedValue;
+          scannedValue2 += event.scannedValue.trim();
           print('scannedValue2: $scannedValue2');
           emit(UpdateScannedValueState(scannedValue2, event.scan));
           break;
         case 'quantity':
-          scannedValue3 += event.scannedValue;
+          scannedValue3 += event.scannedValue.trim();
           print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValueState(scannedValue3, event.scan));
           break;
         case 'muelle':
           print('scannedValue4: $scannedValue4');
-          scannedValue4 += event.scannedValue;
+          scannedValue4 += event.scannedValue.trim();
           emit(UpdateScannedValueState(scannedValue4, event.scan));
           break;
 
         case 'toDo':
           print('scannedValue5: $scannedValue5');
-          scannedValue5 += event.scannedValue;
+          scannedValue5 += event.scannedValue.trim();
           emit(UpdateScannedValueState(scannedValue5, event.scan));
           break;
         default:
@@ -810,28 +845,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           1,
           event.idMove,
         );
-        //asiganmos la ubicacion al producto
-        await db.productTransferenciaRepository.setFieldTableProductTransfer(
-          event.idTransfer,
-          event.productId,
-          'location_dest_id',
-          event.location.id,
-          event.idMove,
-        );
-        await db.productTransferenciaRepository.setFieldTableProductTransfer(
-          event.idTransfer,
-          event.productId,
-          'location_dest_name',
-          event.location.name,
-          event.idMove,
-        );
-        await db.productTransferenciaRepository.setFieldTableProductTransfer(
-          event.idTransfer,
-          event.productId,
-          'location_dest_barcode',
-          event.location.barcode,
-          event.idMove,
-        );
 
         //actualizamos el tiempo del producto
         await db.productTransferenciaRepository.setFieldTableProductTransfer(
@@ -841,9 +854,10 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           DateTime.now().toString(),
           currentProduct.idMove ?? 0,
         );
+        currentLocationDest = event.location;
+        selectedLocation = event.location.name ?? "";
       }
       locationDestIsOk = event.locationDestIsOk;
-      selectedLocation = event.location.name ?? "";
 
       emit(ChangeLocationDestIsOkState(
         locationDestIsOk,
@@ -987,6 +1001,11 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     }
   }
 
+  void getBarcodeAll() async {
+    final response = await db.barcodesPackagesRepository.getAllBarcodes();
+    print("response: ${response.length}");
+  }
+
   //*metodo para cargar la informacion del producto actual
   void _onFetchPorductTransfer(
       FetchPorductTransfer event, Emitter<TransferenciaState> emit) async {
@@ -1006,10 +1025,10 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       currentProduct = LineasTransferenciaTrans();
       currentProduct = event.product;
 
-      listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
+      listOfBarcodes =
+          await db.barcodesPackagesRepository.getBarcodesProductTransfer(
         currentProduct.idTransferencia ?? 0,
         int.parse(currentProduct.productId),
-        currentProduct.idMove ?? 0,
       );
 
       //cargamos la informacion de las variables de validacion
@@ -1073,6 +1092,11 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       print("❌ Error en el products $e ->$s");
     }
   }
+
+
+
+ 
+
 
   //*metodo para obtener los productos de una entrada por id
   void _onGetProductsToTransfer(
@@ -1156,8 +1180,11 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
             warehouseName.add(warehouse);
           }
         }
-        emit(TransferenciaBDLoaded(transferenciasDbFilters));
+        emit(TransferenciaBDLoaded(
+            transferenciasDbFilters, event.isLoadingDialog));
+        //cargamos novedades y ubicaciones
         add(LoadLocations());
+        add(LoadAllNovedadesTransferEvent());
       } else {
         emit(TransferenciaErrorBD('No se encontraron transferencias'));
       }
@@ -1206,26 +1233,21 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
             _extractSentProducts(response).toList(growable: false);
         final allBarcodes =
             _extractAllBarcodes(response).toList(growable: false);
-
         print('transfer productsToInsert: ${productsToInsert.length}');
-        print('transfer productsSentToInsert: ${productsSentToInsert.length}');
-        print('transfer allBarcodes: ${allBarcodes.length}');
-
+        // print('transfer productsSentToInsert: ${productsSentToInsert.length}');
+        // print('transfer allBarcodes: ${allBarcodes.length}');
         // Enviar la lista agrupada a insertBatchProducts
         await db.productTransferenciaRepository
             .insertarProductoEntrada(productsToInsert);
         //productos de la transferencia enviados
         await db.productTransferenciaRepository
             .insertarProductoEntrada(productsSentToInsert);
-
         // Enviar la lista agrupada de barcodes de un producto para packing
-        await db.barcodesPackagesRepository
-            .insertOrUpdateBarcodes(allBarcodes);
-    
+        await db.barcodesPackagesRepository.insertOrUpdateBarcodes(allBarcodes);
 
         transferencias = response;
         transferenciasDbFilters = response;
-        add(FetchAllTransferenciasDB());
+        add(FetchAllTransferenciasDB(true));
         emit(TransferenciaLoaded(transferenciasDbFilters));
       } else {
         emit(TransferenciaLoaded([]));
@@ -1234,6 +1256,13 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     } catch (e, s) {
       print('Error en el fetch de transferencias: $e=>$s');
     }
+  }
+
+
+
+  void getProductsAll()async{
+    final response = await db.productTransferenciaRepository.getAllProducts();
+    print("response: ${response.length}");
   }
 
   // Generador para productos normales

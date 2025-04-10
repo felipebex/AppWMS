@@ -180,7 +180,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                       ),
                                                     ),
                                                     Text(
-                                                        "${product.cantidadFaltante}",
+                                                        "${product.quantityOrdered}",
                                                         style: const TextStyle(
                                                             fontSize: 12,
                                                             color: black)),

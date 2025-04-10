@@ -177,6 +177,7 @@ class InventarioRepository {
               "product_id": request.productId,
               "lot_id": request.lotId,
               "quantity": request.quantity,
+              'user_id': request.userId,
             }
           });
       if (response.statusCode < 400) {

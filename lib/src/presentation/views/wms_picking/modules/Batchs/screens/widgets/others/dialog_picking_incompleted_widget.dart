@@ -33,7 +33,7 @@ class DialogPickingIncompleted extends StatelessWidget {
             actionsAlignment: MainAxisAlignment.center,
             backgroundColor: Colors.white,
             title: const Center(
-                child: Text('360 Software Informa', style: TextStyle(color: yellow))),
+                child: Text('360 Software Informa', style: TextStyle(color: yellow, fontSize: 14))),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,

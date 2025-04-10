@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/enterprise/bloc/entreprise_bloc.dart';
 import 'package:wms_app/src/presentation/views/global/login/widgets/list_database.dart';
@@ -47,6 +48,7 @@ class SelectEnterpricePage extends StatelessWidget {
               return false;
             },
             child: Scaffold(
+             
               body: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(

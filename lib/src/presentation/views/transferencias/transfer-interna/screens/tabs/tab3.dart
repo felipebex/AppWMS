@@ -178,14 +178,14 @@ class Tab3ScreenTrans extends StatelessWidget {
                                             Row(
                                               children: [
                                                 Text(
-                                                  "Cantidad pedida: ",
+                                                  "Demanda: ",
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
                                                 Text(
-                                                    "${product.cantidadFaltante}",
+                                                    "${product.quantityOrdered}",
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),

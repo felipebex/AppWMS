@@ -26,11 +26,37 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
     _onDataUser();
+
+    // Añadimos el observer para escuchar el ciclo de vida de la app.
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (state == AppLifecycleState.resumed) {
+      if (mounted) {
+        // Aquí se ejecutan las acciones solo si la pantalla aún está montada
+        showDialog(
+          context: context,
+          builder: (context) {
+            return const DialogLoading(
+              message: "Espere un momento...",
+            );
+          },
+        );
+        context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.pop(context);
+        });
+      }
+    }
   }
 
   void _onDataUser() async {
@@ -63,6 +89,7 @@ class _HomePageState extends State<HomePage> {
           return RefreshIndicator(
             onRefresh: () async {
               //* generales
+              context.read<WMSPickingBloc>().add(LoadAllNovedades(context)); //n
               context.read<UserBloc>().add(GetConfigurations(context));
               context.read<UserBloc>().add(GetUbicacionesEvent());
               context.read<UserBloc>().add(LoadInfoDeviceEventUser());
@@ -106,21 +133,6 @@ class _HomePageState extends State<HomePage> {
                       duration: Duration(seconds: 4),
                     ),
                   );
-                }
-
-                // if (context.read<UserBloc>().almacenes.isEmpty) {
-                //   Get.snackbar("360 Software Informa",
-                //       'No tiene almacenes asignados, refresque la pantalla',
-                //       backgroundColor: white,
-                //       colorText: primaryColorApp,
-                //       icon: Icon(Icons.error, color: Colors.green));
-                //   //esperamos 1 segundo para que se cargue la configuracion
-                // }
-
-                else {
-                  await DataBaseSqlite().deleInventario();
-                  context.read<InventarioBloc>().add(GetProductsEvent(
-                      context.read<UserBloc>().almacenes[0].id ?? 0));
                 }
               } else {
                 showDialog(
@@ -209,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                       );
                     }
 
-                    if (state is TransferenciaBDLoaded) {
+                    if (state is TransferenciaLoaded) {
                       Navigator.pop(context);
                     }
                   },
@@ -259,6 +271,13 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
               child: Scaffold(
+                floatingActionButton: FloatingActionButton(
+                  backgroundColor: primaryColorApp,
+                  onPressed: () {
+                    context.read<InventarioBloc>().getPordutsAllBD();
+                  },
+                  child: const Icon(Icons.search),
+                ),
                 backgroundColor: white,
                 body: Container(
                   color: white,
@@ -513,18 +532,12 @@ class _HomePageState extends State<HomePage> {
 
                                               if (rol == 'picking' ||
                                                   rol == 'admin') {
-                                                context
-                                                    .read<WMSPickingBloc>()
-                                                    .add(
-                                                        FilterBatchesBStatusEvent(
-                                                      '',
-                                                    ));
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
                                                       return const DialogLoading(
                                                           message:
-                                                              'Cargando batchs...');
+                                                              'Cargando interfaz...');
                                                     });
 
                                                 await Future.delayed(const Duration(
@@ -532,6 +545,7 @@ class _HomePageState extends State<HomePage> {
                                                         1)); // Ajusta el tiempo si es necesario
 
                                                 Navigator.pop(context);
+
                                                 Navigator.pushReplacementNamed(
                                                     context, 'wms-picking',
                                                     arguments: 0);
@@ -594,11 +608,6 @@ class _HomePageState extends State<HomePage> {
                                                   rol == 'admin') {
                                                 await DataBaseSqlite()
                                                     .delePacking();
-                                                context
-                                                    .read<WmsPackingBloc>()
-                                                    .add(LoadAllPackingEvent(
-                                                      false,
-                                                    ));
 
                                                 showDialog(
                                                     context: context,
@@ -698,8 +707,6 @@ class _HomePageState extends State<HomePage> {
                                               if (homeBloc.userRol ==
                                                       'reception' ||
                                                   homeBloc.userRol == 'admin') {
-                                            
-
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
@@ -757,8 +764,6 @@ class _HomePageState extends State<HomePage> {
                                               if (homeBloc.userRol ==
                                                       'transfer' ||
                                                   homeBloc.userRol == 'admin') {
-                                            
-
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {

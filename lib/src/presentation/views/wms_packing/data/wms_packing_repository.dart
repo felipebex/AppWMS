@@ -184,6 +184,7 @@ class WmsPackingRepository {
           result: resultData != null
               ? ResponseSendPackingResult(
                   code: resultData['code'],
+                  msg: resultData['msg'],
                   result: resultData['result'] != null
                       ? List<ResultElement>.from(resultData['result']
                           .map((x) => ResultElement.fromMap(x)))

@@ -183,7 +183,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ShowDetailvent>(_onShowDetailEvent);
   }
 
-
   //*evento para empezar el tiempo de separacion
   void _onStartTimePickEvent(
       StartTimePack event, Emitter<WmsPackingState> emit) async {
@@ -194,7 +193,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
       await wmsPackingRepository.timePackingUser(
         event.batchId,
-       
         formattedDate,
         'start_time_batch_user',
         'start_time',
@@ -202,7 +200,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       );
       final responseTimeBatch = await wmsPackingRepository.timePackingBatch(
           event.batchId,
-      
           formattedDate,
           'update_start_time',
           'start_time_pack',
@@ -220,12 +217,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     }
   }
 
-
-
-
   //*evento para ver la cantidad
-  void _onShowDetailEvent(
-      ShowDetailvent event, Emitter<WmsPackingState> emit) {
+  void _onShowDetailEvent(ShowDetailvent event, Emitter<WmsPackingState> emit) {
     try {
       viewDetail = !viewDetail;
       emit(ShowDetailState(viewDetail));
@@ -233,6 +226,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       print("❌ Error en _onShowQuantityEvent: $e, $s");
     }
   }
+
   //*evento para ver la cantidad
   void _onShowQuantityEvent(
       ShowQuantityPackEvent event, Emitter<WmsPackingState> emit) {
@@ -287,29 +281,29 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       switch (event.scan) {
         case 'location':
           // Acumulador de valores escaneados
-          scannedValue1 += event.scannedValue;
+          scannedValue1 += event.scannedValue.trim();
           print('scannedValue1: $scannedValue1');
           emit(UpdateScannedValuePackState(scannedValue1, event.scan));
           break;
         case 'product':
-          scannedValue2 += event.scannedValue;
+          scannedValue2 += event.scannedValue.trim();
           print('scannedValue2: $scannedValue2');
           emit(UpdateScannedValuePackState(scannedValue2, event.scan));
           break;
         case 'quantity':
-          scannedValue3 += event.scannedValue;
+          scannedValue3 += event.scannedValue .trim();
           print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValuePackState(scannedValue3, event.scan));
           break;
         case 'muelle':
           print('scannedValue4: $scannedValue4');
-          scannedValue4 += event.scannedValue;
+          scannedValue4 += event.scannedValue .trim();
           emit(UpdateScannedValuePackState(scannedValue4, event.scan));
           break;
 
         case 'toDo':
           print('scannedValue5: $scannedValue5');
-          scannedValue5 += event.scannedValue;
+          scannedValue5 += event.scannedValue .trim();
           emit(UpdateScannedValuePackState(scannedValue5, event.scan));
           break;
 
@@ -329,7 +323,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
       final responseUnPacking = await wmsPackingRepository.unPacking(
         event.request,
-        
       );
 
       if (responseUnPacking.result?.code == 200) {
@@ -743,7 +736,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         final responsePacking = await wmsPackingRepository.sendPackingRequest(
           packingRequest,
           true, // Muestra un diálogo de carga si es necesario
-    
         );
 
         if (responsePacking.result?.code == 200) {
@@ -871,8 +863,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           // Si todo salió bien, podemos notificar a la UI que el empaquetado fue exitoso
           emit(WmsPackingSuccessState('Empaquetado exitoso'));
         } else {
-          emit(WmsPackingErrorState(
-              'Error: No se pudo empaquetar los productos'));
+          emit(WmsPackingErrorState(responsePacking.result?.msg ?? ""));
         }
       }
     } catch (e, s) {
@@ -970,7 +961,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           : currentProduct.quantitySeparate ?? 0;
       products();
 
-   
       emit(WmsProductInfoLoaded());
     } catch (e, s) {
       print('Error en el  _onFetchProductEvent: $e, $s');
@@ -1108,8 +1098,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       LoadAllPackingEvent event, Emitter<WmsPackingState> emit) async {
     emit(WmsPackingWMSLoading());
     try {
-      final response = await wmsPackingRepository.resBatchsPacking(
-          event.isLoadinDialog);
+      final response =
+          await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog);
 
       if (response != null && response is List) {
         // if (response.isNotEmpty) {

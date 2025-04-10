@@ -415,28 +415,28 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                                       : black),
                                             ),
                                             const Spacer(),
-                                            GestureDetector(
-                                              onTap: () {
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return DialogBarcodes(
-                                                          listOfBarcodes: product
-                                                                  ?.codigosBarrasPaquetes ??
-                                                              []);
-                                                    });
-                                              },
-                                              child: Visibility(
-                                                visible: product
-                                                        ?.codigosBarrasPaquetes
-                                                        ?.isNotEmpty ==
-                                                    true,
-                                                child: Image.asset(
-                                                    "assets/icons/package_barcode.png",
-                                                    color: primaryColorApp,
-                                                    width: 20),
-                                              ),
-                                            ),
+                                            // GestureDetector(
+                                            //   onTap: () {
+                                            //     showDialog(
+                                            //         context: context,
+                                            //         builder: (context) {
+                                            //           return DialogBarcodes(
+                                            //               listOfBarcodes: product
+                                            //                       ?.codigosBarrasPaquetes ??
+                                            //                   []);
+                                            //         });
+                                            //   },
+                                            //   child: Visibility(
+                                            //     visible: product
+                                            //             ?.codigosBarrasPaquetes
+                                            //             ?.isNotEmpty ==
+                                            //         true,
+                                            //     child: Image.asset(
+                                            //         "assets/icons/package_barcode.png",
+                                            //         color: primaryColorApp,
+                                            //         width: 20),
+                                            //   ),
+                                            // ),
                                           ],
                                         ),
                                       ),

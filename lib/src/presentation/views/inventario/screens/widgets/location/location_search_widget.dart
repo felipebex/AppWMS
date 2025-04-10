@@ -211,6 +211,8 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (selectedIndex != null) {
+
+                            
                             // seleccionamos la ubicacion
                             final selectedLocation =
                                 bloc.ubicacionesFilters[selectedIndex!];

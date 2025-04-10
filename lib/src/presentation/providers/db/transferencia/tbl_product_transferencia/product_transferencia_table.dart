@@ -1,7 +1,7 @@
 class ProductTransferenciaTable {
   static const String tableName = 'tblproduct_transferencia';
 
-  static const String columnId = 'id';
+  // static const String columnId = 'id';
   static const String columnIdMove = 'id_move';
   static const String columnProductId = 'product_id';
   static const String columnIdTransferencia = 'id_transferencia';
@@ -53,8 +53,7 @@ class ProductTransferenciaTable {
   static String createTable() {
     return '''
     CREATE TABLE $tableName (
-      $columnId INTEGER PRIMARY KEY,
-      $columnIdMove INTEGER,
+      $columnIdMove INTEGER PRIMARY KEY,
       $columnProductId TEXT,
       $columnIdTransferencia INTEGER,
       $columnProductName TEXT,
@@ -93,7 +92,7 @@ class ProductTransferenciaTable {
       $columnIsDoneItem INTEGER,  
       $columnDateTransaction TEXT,
       $columnCantidadFaltante INTEGER,
-      FOREIGN KEY ($columnIdTransferencia) REFERENCES tbl_entradas_recepcion ($columnId)
+      FOREIGN KEY ($columnIdTransferencia) REFERENCES tbl_entradas_recepcion ($columnIdMove)
 
     )
   ''';

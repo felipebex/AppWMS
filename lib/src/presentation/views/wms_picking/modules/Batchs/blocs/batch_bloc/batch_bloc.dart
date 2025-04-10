@@ -2,6 +2,7 @@
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
@@ -282,26 +283,27 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onUpdateScannedValueEvent(
       UpdateScannedValueEvent event, Emitter<BatchState> emit) {
     try {
+      print('scannedValue: ${event.scannedValue}');
       switch (event.scan) {
         case 'location':
           // Acumulador de valores escaneados
-          scannedValue1 += event.scannedValue;
-          print('scannedValue1: $scannedValue1');
+          scannedValue1 += event.scannedValue.trim();
+          print('scannedValue1: $scannedValue1.');
           emit(UpdateScannedValueState(scannedValue1, event.scan));
           break;
         case 'product':
-          scannedValue2 += event.scannedValue;
+          scannedValue2 += event.scannedValue.trim();
           print('scannedValue2: $scannedValue2');
           emit(UpdateScannedValueState(scannedValue2, event.scan));
           break;
         case 'quantity':
-          scannedValue3 += event.scannedValue;
+          scannedValue3 += event.scannedValue.trim();
           print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValueState(scannedValue3, event.scan));
           break;
         case 'muelle':
           print('scannedValue4: $scannedValue4');
-          scannedValue4 += event.scannedValue;
+          scannedValue4 += event.scannedValue.trim();
           emit(UpdateScannedValueState(scannedValue4, event.scan));
           break;
         default:

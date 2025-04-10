@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
@@ -37,7 +38,6 @@ class _DialogAdvetenciaCantidadScreenState
 
   @override
   Widget build(BuildContext context) {
-    print(context.read<TransferenciaBloc>().novedades.length);
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -89,7 +89,8 @@ class _DialogAdvetenciaCantidadScreenState
               ),
             ),
             const Text(
-                "Para continuar, seleccione la novedad o divida la cantidad del producto",
+                // "Para continuar, seleccione la novedad o divida la cantidad del producto",
+                "Para continuar, seleccione la novedad  del producto",
                 style: TextStyle(color: Colors.black, fontSize: 12)),
             const SizedBox(height: 10),
             Card(
@@ -167,19 +168,25 @@ class _DialogAdvetenciaCantidadScreenState
         ),
         actions: [
           ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context); // Cierra el diálogo
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: grey,
-                minimumSize: Size(size.width * 0.3, 30),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 3,
+            onPressed: () async {
+              context.read<TransferenciaBloc>().add(
+                    CleanFieldsEvent(),
+                  );
+              Navigator.pop(context); // Cierra el diálogo
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: grey,
+              minimumSize: Size(size.width * 0.3, 30),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Text('Cancelar',
-                  style: TextStyle(color: Colors.white))),
+              elevation: 3,
+            ),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
           ElevatedButton(
               onPressed: () async {
                 // Validamos que tenga una novedad seleccionada
@@ -192,6 +199,12 @@ class _DialogAdvetenciaCantidadScreenState
                       selectedNovedad ?? '');
                   Navigator.pop(context); // Cierra el diálogo
                   widget.onAccepted(); // Llama al callback
+                } else {
+                  Get.snackbar("360 Software Informa",
+                      'Seleccione una novedad, para continuar',
+                      backgroundColor: white,
+                      colorText: primaryColorApp,
+                      icon: Icon(Icons.error, color: Colors.amber));
                 }
               },
               style: ElevatedButton.styleFrom(
