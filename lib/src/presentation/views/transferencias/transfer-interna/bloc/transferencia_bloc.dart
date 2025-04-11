@@ -405,13 +405,16 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
                   : productBD.observation,
               
               
-              dividida: event.isDividio
-                  ? productBD.isProductSplit == 0 //0
-                      ? productBD.quantityOrdered == productBD.cantidadFaltante
-                          ? event.isDividio
-                          : true
-                      : true
-                  : false
+              dividida: 
+              false,
+              
+              // event.isDividio
+              //     ? productBD.isProductSplit == 0 //0
+              //         ? productBD.quantityOrdered == productBD.cantidadFaltante
+              //             ? event.isDividio
+              //             : true
+              //         : true
+              //     : false
             ),
           ],
         ),
@@ -478,7 +481,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         await db.productTransferenciaRepository.setFieldTableProductTransfer(
             currentProduct.idTransferencia ?? 0,
             int.parse(currentProduct.productId),
-            "quantity_separate",
+            "quantity_done",
             0,
             currentProduct.idMove ?? 0);
 
@@ -727,7 +730,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         await db.productTransferenciaRepository.setFieldTableProductTransfer(
           event.idTransfer,
           event.productId,
-          'quantity_separate',
+          'quantity_done',
           event.quantity,
           event.idMove,
         );
@@ -1039,7 +1042,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       quantityEdit = currentProduct.isQuantityIsOk == 1 ? true : false;
       quantitySelected = currentProduct.isProductSplit == 1
           ? 0
-          : currentProduct.quantitySeparate ?? 0;
+          : currentProduct.quantityDone ?? 0;
 
       selectedLocation = currentProduct.locationDestName ?? '';
 

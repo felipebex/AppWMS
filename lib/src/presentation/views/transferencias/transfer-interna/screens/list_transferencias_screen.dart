@@ -41,6 +41,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
         child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
             listener: (context, state) {
           if (state is TransferenciaLoading) {
+            context.read<TransferenciaBloc>().add(LoadLocations());
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -115,14 +116,14 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
           final transferBloc = context.read<TransferenciaBloc>();
 
           return Scaffold(
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: primaryColorApp,
-              onPressed: () {
-                transferBloc.getProductsAll();
-               
-              },
-              child: const Icon(Icons.add),
-            ),
+            // floatingActionButton: FloatingActionButton(
+            //   backgroundColor: primaryColorApp,
+            //   onPressed: () {
+            //     transferBloc.getProductsAll();
+
+            //   },
+            //   child: const Icon(Icons.add),
+            // ),
             backgroundColor: white,
             bottomNavigationBar: context
                     .read<TransferenciaBloc>()
@@ -132,14 +133,12 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                         .read<TransferenciaBloc>()
                         .searchControllerTransfer,
                     onchanged: () {
-
                       context.read<TransferenciaBloc>().add(SearchTransferEvent(
                             context
                                 .read<TransferenciaBloc>()
                                 .searchControllerTransfer
                                 .text,
                           ));
-                          
                     },
                   )
                 : null,

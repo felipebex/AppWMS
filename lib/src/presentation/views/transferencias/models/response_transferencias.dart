@@ -252,7 +252,6 @@ class LineasTransferenciaTrans {
   late dynamic
       isQuantityIsOk; // Variable para si la cantidad es leída correctamente
   dynamic isProductSplit;
-  dynamic quantitySeparate;
   dynamic isSeparate;
   dynamic isSelected;
   final dynamic time;
@@ -292,7 +291,6 @@ class LineasTransferenciaTrans {
     this.locationDestIsOk,
     this.productIsOk,
     this.isProductSplit,
-    this.quantitySeparate,
     this.isSeparate,
     this.isSelected,
     this.observation,
@@ -341,7 +339,6 @@ class LineasTransferenciaTrans {
         locationDestIsOk: json["location_dest_is_ok"] ?? false,
         isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
         isProductSplit: json['is_product_split'],
-        quantitySeparate: json['quantity_separate'],
         isSeparate: json['is_separate'],
         isSelected: json['is_selected'],
         observation: json['observation'],
@@ -387,7 +384,6 @@ class LineasTransferenciaTrans {
         "location_dest_is_ok": locationDestIsOk,
         "is_quantity_is_ok": isQuantityIsOk,
         "is_product_split": isProductSplit,
-        "quantity_separate": quantitySeparate,
         "is_separate": isSeparate,
         "is_selected": isSelected,
         "observation": observation,

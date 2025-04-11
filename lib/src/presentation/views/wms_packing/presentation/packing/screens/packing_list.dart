@@ -13,12 +13,19 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class PakingListScreen extends StatelessWidget {
+class PakingListScreen extends StatefulWidget {
   const PakingListScreen({Key? key, required this.batchModel})
       : super(key: key);
 
   final BatchPackingModel? batchModel;
 
+  @override
+  State<PakingListScreen> createState() => _PakingListScreenState();
+}
+
+bool isSearch = false;
+
+class _PakingListScreenState extends State<PakingListScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -42,7 +49,7 @@ class PakingListScreen extends StatelessWidget {
                                   .read<WmsPackingBloc>()
                                   .searchControllerPedido
                                   .text,
-                              batchModel?.id ?? 0));
+                              widget.batchModel?.id ?? 0));
                     },
                   )
                 : null,
@@ -126,8 +133,8 @@ class PakingListScreen extends StatelessWidget {
                             //*card informativa
                             Visibility(
                               visible: !context
-                                  .read<WmsPackingBloc>()
-                                  .isKeyboardVisible,
+                                      .read<WmsPackingBloc>()
+                                      .isKeyboardVisible ,
                               child: Card(
                                 elevation: 5,
                                 color: Colors.grey[200],
@@ -141,7 +148,7 @@ class PakingListScreen extends StatelessWidget {
                                       Align(
                                           alignment: Alignment.centerLeft,
                                           child: Text(
-                                            batchModel?.name ?? '',
+                                            widget.batchModel?.name ?? '',
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 color: primaryColorApp,
@@ -159,11 +166,13 @@ class PakingListScreen extends StatelessWidget {
                                           Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                batchModel?.userName == false ||
-                                                        batchModel?.userName ==
+                                                widget.batchModel?.userName ==
+                                                            false ||
+                                                        widget.batchModel
+                                                                ?.userName ==
                                                             ""
                                                     ? 'Sin responsable'
-                                                    : "${batchModel?.userName}",
+                                                    : "${widget.batchModel?.userName}",
                                                 style: TextStyle(
                                                     fontSize: 12,
                                                     color: primaryColorApp),
@@ -180,9 +189,10 @@ class PakingListScreen extends StatelessWidget {
                                       SizedBox(
                                         width: size.width * 0.9,
                                         child: Text(
-                                          batchModel?.pickingTypeId == false
+                                          widget.batchModel?.pickingTypeId ==
+                                                  false
                                               ? 'Sin tipo de operación'
-                                              : "${batchModel?.pickingTypeId}",
+                                              : "${widget.batchModel?.pickingTypeId}",
                                           style: TextStyle(
                                               fontSize: 12,
                                               color: primaryColorApp),
@@ -204,15 +214,18 @@ class PakingListScreen extends StatelessWidget {
                                             builder: (context) {
                                               // Verifica si `scheduledDate` es false o null
                                               String displayDate;
-                                              if (batchModel?.scheduleddate ==
+                                              if (widget.batchModel
+                                                          ?.scheduleddate ==
                                                       false ||
-                                                  batchModel?.scheduleddate ==
+                                                  widget.batchModel
+                                                          ?.scheduleddate ==
                                                       null) {
                                                 displayDate = 'sin fecha';
                                               } else {
                                                 try {
                                                   DateTime dateTime =
-                                                      DateTime.parse(batchModel
+                                                      DateTime.parse(widget
+                                                              .batchModel
                                                               ?.scheduleddate
                                                               .toString() ??
                                                           ""); // Parsear la fecha
@@ -334,12 +347,11 @@ class PakingListScreen extends StatelessWidget {
 
                                                     context
                                                         .read<WmsPackingBloc>()
-                                                        .add(
-                                                            SearchPedidoPackingEvent(
-                                                                '',
-                                                                batchModel
-                                                                        ?.id ??
-                                                                    0));
+                                                        .add(SearchPedidoPackingEvent(
+                                                            '',
+                                                            widget.batchModel
+                                                                    ?.id ??
+                                                                0));
 
                                                     context
                                                         .read<WmsPackingBloc>()
@@ -367,13 +379,19 @@ class PakingListScreen extends StatelessWidget {
                                                   .read<WmsPackingBloc>()
                                                   .add(SearchPedidoPackingEvent(
                                                       value,
-                                                      batchModel?.id ?? 0));
+                                                      widget.batchModel?.id ??
+                                                          0));
                                             },
                                             onTap: !context
                                                     .read<UserBloc>()
                                                     .fabricante
                                                     .contains("Zebra")
-                                                ? null
+                                                ? () {
+                                                    context
+                                                        .read<WmsPackingBloc>()
+                                                        .add(ShowKeyboardEvent(
+                                                            false));
+                                                  }
                                                 : () {
                                                     context
                                                         .read<WmsPackingBloc>()
@@ -432,7 +450,7 @@ class PakingListScreen extends StatelessWidget {
                                         onTap: () {
                                           context
                                               .read<WmsPackingBloc>()
-                                              .add(ShowDetailvent(false));
+                                              .add(ShowDetailvent(true));
 
                                           // Limpiamos la lista de paquetes
                                           context
@@ -450,7 +468,7 @@ class PakingListScreen extends StatelessWidget {
                                               context, 'packing-detail',
                                               arguments: [
                                                 packing,
-                                                batchModel,
+                                                widget.batchModel,
                                                 0
                                               ]);
                                           print(

@@ -29,7 +29,6 @@ class ProductTransferenciaTable {
   static const String columnIsSeparate = 'is_separate';
   static const String columnIsProductSplit = 'is_product_split';
   static const String columnObservation = 'observation';
-  static const String columnQuantitySeparate = 'quantity_separate';
 
   static const String columnLoteId = 'lot_id';
   static const String columnLotName = 'lot_name';
@@ -77,8 +76,6 @@ class ProductTransferenciaTable {
       $columnIsSeparate INTEGER,
       $columnIsProductSplit INTEGER,
       $columnObservation TEXT,
-      $columnQuantitySeparate INTEGER,
-
       $columnLoteId INTEGER,
       $columnLotName TEXT,
       $columnIsLocationIsOk INTEGER,

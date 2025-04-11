@@ -31,7 +31,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   //*lista de batchs para packing
   List<BatchPackingModel> listOfBatchs = [];
   List<BatchPackingModel> listOfBatchsDB = [];
-  List<BatchPackingModel> listOfBatchsDoneDB = [];
 
   //*listad de pedido de un batch
   List<PedidoPacking> listOfPedidos = [];
@@ -82,6 +81,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   bool locationDestIsOk = false;
   bool quantityIsOk = false;
   bool isKeyboardVisible = false;
+  bool isSearch = false;
   bool viewQuantity = false;
   bool viewDetail = true;
 
@@ -291,19 +291,19 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           emit(UpdateScannedValuePackState(scannedValue2, event.scan));
           break;
         case 'quantity':
-          scannedValue3 += event.scannedValue .trim();
+          scannedValue3 += event.scannedValue.trim();
           print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValuePackState(scannedValue3, event.scan));
           break;
         case 'muelle':
           print('scannedValue4: $scannedValue4');
-          scannedValue4 += event.scannedValue .trim();
+          scannedValue4 += event.scannedValue.trim();
           emit(UpdateScannedValuePackState(scannedValue4, event.scan));
           break;
 
         case 'toDo':
           print('scannedValue5: $scannedValue5');
-          scannedValue5 += event.scannedValue .trim();
+          scannedValue5 += event.scannedValue.trim();
           emit(UpdateScannedValuePackState(scannedValue5, event.scan));
           break;
 
@@ -578,6 +578,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
   void _onShowKeyboardEvent(
       ShowKeyboardEvent event, Emitter<WmsPackingState> emit) {
+    isSearch = event.showKeyboard;
     isKeyboardVisible = event.showKeyboard;
     emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
   }
@@ -601,51 +602,31 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
   void _onFilterBatchesBStatusEvent(FilterBatchPackingStatusEvent event,
       Emitter<WmsPackingState> emit) async {
-    if (event.status == '') {
-      final batchsFromDB =
-          await db.batchPackingRepository.getAllBatchsPacking();
-      listOfBatchsDB = batchsFromDB;
-      listOfBatchsDB = listOfBatchsDB
-          .where((element) => element.isSeparate == null)
-          .toList();
-      emit(WmsPackingLoaded());
+    final batchsFromDB = await db.batchPackingRepository.getAllBatchsPacking();
+    listOfBatchsDB = batchsFromDB;
+    listOfBatchsDB =
+        listOfBatchsDB.where((element) => element.isSeparate == null).toList();
+    emit(WmsPackingLoaded());
 
-      return;
-    } else if (event.status == 'done') {
-      listOfBatchsDB = listOfBatchsDoneDB;
-      emit(WmsPackingLoaded());
-
-      return;
-    }
+    return;
   }
 
   //metodo para buscar un batch de packing
   void _onSearchBacthEvent(
       SearchBatchPackingEvent event, Emitter<WmsPackingState> emit) async {
     final query = event.query.toLowerCase();
-    final batchsFromDB = await db.batchPackingRepository.getAllBatchsPacking();
 
-    if (event.indexMenu == 0) {
-      if (query.isEmpty) {
-        listOfBatchsDB = batchsFromDB;
-        listOfBatchsDB = listOfBatchsDB
-            .where((element) => element.isSeparate == null)
-            .toList();
-      } else {
-        listOfBatchsDB = batchsFromDB.where((batch) {
-          return batch.name?.toLowerCase().contains(query) ?? false;
-        }).toList();
-      }
-      // Emitir la lista filtrada
+    if (query.isEmpty) {
+      listOfBatchsDB = listOfBatchs;
+      listOfBatchsDB = listOfBatchsDB
+          .where((element) => element.isSeparate == null)
+          .toList();
     } else {
-      if (query.isEmpty) {
-        listOfBatchsDB = listOfBatchsDoneDB;
-      } else {
-        listOfBatchsDB = listOfBatchsDoneDB.where((batch) {
-          return batch.name?.toLowerCase().contains(query) ?? false;
-        }).toList();
-      }
+      listOfBatchsDB = listOfBatchs.where((batch) {
+        return batch.name?.toLowerCase().contains(query) ?? false;
+      }).toList();
     }
+
     emit(WmsPackingLoaded());
   }
 
@@ -653,17 +634,15 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onSearchPedidoEvent(
       SearchPedidoPackingEvent event, Emitter<WmsPackingState> emit) async {
     try {
-      listOfPedidosFilters = [];
-      listOfPedidosFilters = listOfPedidos;
-
       final query = event.query.toLowerCase();
-      final pedidosFromDB =
-          await db.pedidosPackingRepository.getAllPedidosBatch(event.idBatch);
+
       if (query.isEmpty) {
-        listOfPedidosFilters = pedidosFromDB;
+        listOfPedidosFilters = listOfPedidos;
       } else {
-        listOfPedidosFilters = pedidosFromDB.where((pedido) {
-          return pedido.referencia?.toLowerCase().contains(query) ?? false;
+        listOfPedidosFilters = listOfPedidos.where((pedido) {
+          //BUSCAR POR NOMBRE Y REFERENCIA
+          return (pedido.name?.toLowerCase().contains(query) ??
+              false || pedido.referencia?.toLowerCase().contains(query));
         }).toList();
       }
       emit(WmsPackingLoaded());
@@ -1029,19 +1008,25 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     }
   }
 
+
+  void getPedidosAll()async{
+      final response = await DataBaseSqlite().pedidosPackingRepository.getAllPedidosPacking();
+      print('response pedidos: ${response.length}');
+  }
+
   void _onLoadAllPedidosFromBatchEvent(
       LoadAllPedidosFromBatchEvent event, Emitter<WmsPackingState> emit) async {
     try {
       emit(WmsPackingLoading());
       final response = await DataBaseSqlite()
           .pedidosPackingRepository
-          .getPedidosPacking(event.batchId);
+          .getAllPedidosBatch(event.batchId);
       if (response != null && response is List) {
         print('response pedidos: ${response.length}');
         listOfPedidos.clear();
         listOfPedidosFilters.clear();
-        listOfPedidosFilters.addAll(response);
-        listOfPedidos.addAll(response);
+        listOfPedidosFilters = response;
+        listOfPedidos = response;
         print('pedidosToInsert: ${response.length}');
         emit(WmsPackingLoaded());
       } else {
@@ -1102,14 +1087,11 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog);
 
       if (response != null && response is List) {
-        // if (response.isNotEmpty) {
-        //   LocalNotificationsService().showNotification('Nuevos batchs',
-        //       'Se han agregado nuevos batchs para packing', '');
-        // }
-
         print('response batchs packing: ${response.length}');
         listOfBatchs.clear();
+        listOfBatchsDB.clear();
         listOfBatchs.addAll(response);
+        listOfBatchsDB.addAll(response);
 
         for (var batch in listOfBatchs) {
           try {
@@ -1218,7 +1200,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       final batchsFromDB =
           await db.batchPackingRepository.getAllBatchsPacking();
       listOfBatchsDB.clear();
-      listOfBatchsDB.addAll(batchsFromDB);
+      listOfBatchsDB = batchsFromDB;
       emit(WmsPackingLoadedBD());
     } catch (e, s) {
       print('Error en el  _onLoadBatchsFromDBEvent: $e, $s');

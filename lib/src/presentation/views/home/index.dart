@@ -88,6 +88,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           final homeBloc = context.read<HomeBloc>();
           return RefreshIndicator(
             onRefresh: () async {
+              //mostramos dialogo
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return const DialogLoading(
+                    message: "Espere un momento...",
+                  );
+                },
+              );
+
               //* generales
               context.read<WMSPickingBloc>().add(LoadAllNovedades(context)); //n
               context.read<UserBloc>().add(GetConfigurations(context));
@@ -141,6 +151,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       return const DialogProductsNotSends();
                     });
               }
+
+              //esperamos 2 segundos para cerrar el dialogo
+              await Future.delayed(const Duration(seconds: 2), () {
+                Navigator.pop(context);
+              });
             },
             child: MultiBlocListener(
               listeners: [
@@ -271,13 +286,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ),
               ],
               child: Scaffold(
-                floatingActionButton: FloatingActionButton(
-                  backgroundColor: primaryColorApp,
-                  onPressed: () {
-                    context.read<InventarioBloc>().getPordutsAllBD();
-                  },
-                  child: const Icon(Icons.search),
-                ),
                 backgroundColor: white,
                 body: Container(
                   color: white,
@@ -576,20 +584,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 PickingState>(
                                               builder: (context, state) {
                                                 return ImteModule(
-                                                  count: homeBloc.userRol ==
-                                                          'picking'
-                                                      ? (context
-                                                          .read<
-                                                              WMSPickingBloc>()
-                                                          .listOfBatchs
-                                                          .where((element) {
-                                                          return element
-                                                                      .isSeparate ==
-                                                                  0 ||
-                                                              element.isSeparate ==
-                                                                  null;
-                                                        }).length)
-                                                      : 0,
+                                                  count: (context
+                                                      .read<WMSPickingBloc>()
+                                                      .listOfBatchs
+                                                      .where((element) {
+                                                    return element.isSeparate ==
+                                                            0 ||
+                                                        element.isSeparate ==
+                                                            null;
+                                                  }).length),
                                                   urlImg: "picking.png",
                                                   title: 'Picking',
                                                 );
@@ -606,8 +609,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                               if (rol == 'packing' ||
                                                   rol == 'admin') {
-                                                await DataBaseSqlite()
-                                                    .delePacking();
+                                                context.read<WmsPackingBloc>().add(
+                                                    LoadAllNovedadesPackingEvent());
 
                                                 showDialog(
                                                     context: context,
@@ -620,8 +623,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 // Esperar 3 segundos antes de continuar
                                                 Future.delayed(
                                                     const Duration(
-                                                        milliseconds: 1500),
-                                                    () {
+                                                        milliseconds: 500), () {
                                                   Navigator.pop(context);
                                                   Navigator
                                                       .pushReplacementNamed(
@@ -644,20 +646,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 WmsPackingState>(
                                               builder: (context, state) {
                                                 return ImteModule(
-                                                  count: homeBloc.userRol ==
-                                                          'packing'
-                                                      ? context
-                                                          .read<
-                                                              WmsPackingBloc>()
-                                                          .listOfBatchs
-                                                          .where((element) {
-                                                          return element
-                                                                      .isPacking ==
-                                                                  0 ||
-                                                              element.isPacking ==
-                                                                  null;
-                                                        }).length
-                                                      : 0,
+                                                  count: context
+                                                      .read<WmsPackingBloc>()
+                                                      .listOfBatchs
+                                                      .where((element) {
+                                                    return element.isPacking ==
+                                                            0 ||
+                                                        element.isPacking ==
+                                                            null;
+                                                  }).length,
                                                   urlImg: "packing.png",
                                                   title: 'Packing',
                                                 );
@@ -740,18 +737,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 RecepcionState>(
                                               builder: (context, state) {
                                                 return ImteModule(
-                                                  count: homeBloc.userRol ==
-                                                          'reception'
-                                                      ? context
-                                                          .read<RecepcionBloc>()
-                                                          .listFiltersOrdenesCompra
-                                                          .where((element) =>
-                                                              element.isFinish ==
-                                                                  0 ||
-                                                              element.isFinish ==
-                                                                  null)
-                                                          .length
-                                                      : 0,
+                                                  count: context
+                                                      .read<RecepcionBloc>()
+                                                      .listFiltersOrdenesCompra
+                                                      .where((element) =>
+                                                          element.isFinish ==
+                                                              0 ||
+                                                          element.isFinish ==
+                                                              null)
+                                                      .length,
                                                   urlImg: "recepcion.png",
                                                   title: 'Recepción',
                                                 );
@@ -764,6 +758,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               if (homeBloc.userRol ==
                                                       'transfer' ||
                                                   homeBloc.userRol == 'admin') {
+                                                if (context
+                                                    .read<UserBloc>()
+                                                    .ubicaciones
+                                                    .isEmpty) {
+                                                  context.read<UserBloc>().add(
+                                                      GetUbicacionesEvent());
+                                                }
+
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
@@ -799,20 +801,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 TransferenciaState>(
                                               builder: (context, state) {
                                                 return ImteModule(
-                                                  count: homeBloc.userRol ==
-                                                          'transfer'
-                                                      ? context
-                                                          .read<
-                                                              TransferenciaBloc>()
-                                                          .transferenciasDbFilters
-                                                          .where((element) =>
-                                                              element.isFinish ==
-                                                                  0 ||
-                                                              element.isFinish ==
-                                                                  null)
-                                                          .toList()
-                                                          .length
-                                                      : 0,
+                                                  count: context
+                                                      .read<TransferenciaBloc>()
+                                                      .transferenciasDbFilters
+                                                      .where((element) =>
+                                                          element.isFinish ==
+                                                              0 ||
+                                                          element.isFinish ==
+                                                              null)
+                                                      .toList()
+                                                      .length,
                                                   urlImg: "transferencia.png",
                                                   title: 'Transferencia',
                                                 );
@@ -828,22 +826,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     .read<InventarioBloc>()
                                                     .add(GetLocationsEvent());
 
+                                                context
+                                                    .read<UserBloc>()
+                                                    .add(GetConfigurations(context));
+
                                                 context.read<InventarioBloc>().add(
                                                     LoadConfigurationsUserInventory());
 
                                                 if (context
                                                     .read<UserBloc>()
-                                                    .almacenes
+                                                    .ubicaciones
                                                     .isEmpty) {
-                                                  Get.snackbar(
-                                                      "360 Software Informa",
-                                                      'No tiene almacenes asignados, refresque la pantalla',
-                                                      backgroundColor: white,
-                                                      colorText:
-                                                          primaryColorApp,
-                                                      icon: Icon(Icons.error,
-                                                          color: Colors.green));
-                                                  return;
+                                                  context.read<UserBloc>().add(
+                                                      GetUbicacionesEvent());
                                                 }
 
                                                 showDialog(

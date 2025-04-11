@@ -201,11 +201,7 @@ class Tab3ScreenTrans extends StatelessWidget {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-                                                Text(
-                                                    (product.isSeparate == 0)
-                                                        ? "${product.quantityDone}"
-                                                        : "${product.quantitySeparate}",
-                                                    // "${product.quantityToReceive}",
+                                                Text("${product.quantityDone}",
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),

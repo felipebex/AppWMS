@@ -132,9 +132,7 @@ class Tab1ScreenTrans extends StatelessWidget {
           }
 
           if (state is CreateBackOrderOrNotSuccess) {
-            context
-                .read<TransferenciaBloc>()
-                .add(FetchAllTransferencias(true));
+            context.read<TransferenciaBloc>().add(FetchAllTransferencias(true));
             //volvemos a llamar las entradas que tenemos guardadas en la bd
             if (state.isBackorder) {
               Get.snackbar("360 Software Informa", state.msg,
@@ -158,6 +156,12 @@ class Tab1ScreenTrans extends StatelessWidget {
         builder: (context, state) {
           final bloc = context.read<TransferenciaBloc>();
           final transferenciaDetail = bloc.currentTransferencia;
+
+          final totalEnviadas = context
+              .read<TransferenciaBloc>()
+              .listProductsTransfer
+              .map((e) => e.quantityDone ?? 0)
+              .fold<double>(0, (a, b) => a + b);
 
           return Scaffold(
             backgroundColor: white,
@@ -384,6 +388,25 @@ class Tab1ScreenTrans extends StatelessWidget {
                                       )),
                                 ],
                               ),
+                              Row(
+                                children: [
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        'Unidades recibidas: ',
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: primaryColorApp),
+                                      )),
+                                  Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        totalEnviadas.toString(),
+                                        style: TextStyle(
+                                            fontSize: 12, color: black),
+                                      )),
+                                ],
+                              ),
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
@@ -503,20 +526,9 @@ class Tab1ScreenTrans extends StatelessWidget {
                                       Align(
                                         alignment: Alignment.center,
                                         child: Text(
-                                          (context
-                                                      .read<TransferenciaBloc>()
-                                                      .listProductsTransfer
-                                                      .where((element) {
-                                                    return (element.isSeparate ==
-                                                                0 ||
-                                                            element.isSeparate ==
-                                                                null) &&
-                                                        (element.isDoneItem ==
-                                                                0 ||
-                                                            element.isDoneItem ==
-                                                                null);
-                                                  }).length ==
-                                                  0)
+                                          (totalEnviadas ==
+                                                  transferenciaDetail
+                                                      .numeroItems)
                                               ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
                                               : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                                           style: TextStyle(
@@ -528,17 +540,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                                   ),
                                   actions: [
                                     Visibility(
-                                      visible: (context
-                                              .read<TransferenciaBloc>()
-                                              .listProductsTransfer
-                                              .where((element) {
-                                            return (element.isSeparate == 0 ||
-                                                    element.isSeparate ==
-                                                        null) &&
-                                                (element.isDoneItem == 0 ||
-                                                    element.isDoneItem == null);
-                                          }).length >=
-                                          1),
+                                      visible: (totalEnviadas !=
+                                          transferenciaDetail.numeroItems),
                                       child: ElevatedButton(
                                         onPressed: () {
                                           context.read<TransferenciaBloc>().add(

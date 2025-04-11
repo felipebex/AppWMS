@@ -14,7 +14,6 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/packing_respon
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_start_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -39,15 +38,15 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
-        listener: (context, state) {
-
-
-
-
-        },
+        listener: (context, state) {},
         builder: (context, state) {
           return Scaffold(
+
+
+
+
               backgroundColor: white,
+              
               bottomNavigationBar:
                   context.read<WmsPackingBloc>().isKeyboardVisible
                       ? CustomKeyboard(
@@ -95,7 +94,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                     top: status != ConnectionStatus.online
                                         ? 0
                                         : 35,
-                                    bottom: 10),
+                                    bottom: 0),
                                 child: Column(
                                   children: [
                                     Row(
@@ -135,9 +134,9 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                   style: TextStyle(
                                                       color: white,
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.bold),
+                                                      fontWeight:
+                                                          FontWeight.bold),
                                                 ),
-                                                
                                                 const SizedBox(width: 5),
                                                 Icon(
                                                   Icons.refresh,
@@ -151,29 +150,29 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                         const Spacer(),
                                       ],
                                     ),
-                                    ProgressIndicatorWidget(
-                                      progress: context
-                                              .read<WmsPackingBloc>()
-                                              .listOfBatchs
-                                              .isNotEmpty
-                                          ? context
-                                                  .read<WmsPackingBloc>()
-                                                  .listOfBatchsDoneDB
-                                                  .length /
-                                              context
-                                                  .read<WmsPackingBloc>()
-                                                  .listOfBatchs
-                                                  .length
-                                          : 0.0,
-                                      completed: context
-                                          .read<WmsPackingBloc>()
-                                          .listOfBatchsDoneDB
-                                          .length,
-                                      total: context
-                                          .read<WmsPackingBloc>()
-                                          .listOfBatchs
-                                          .length,
-                                    ),
+                                    // ProgressIndicatorWidget(
+                                    //   progress: context
+                                    //           .read<WmsPackingBloc>()
+                                    //           .listOfBatchs
+                                    //           .isNotEmpty
+                                    //       ? context
+                                    //               .read<WmsPackingBloc>()
+                                    //               .listOfBatchsDoneDB
+                                    //               .length /
+                                    //           context
+                                    //               .read<WmsPackingBloc>()
+                                    //               .listOfBatchs
+                                    //               .length
+                                    //       : 0.0,
+                                    //   completed: context
+                                    //       .read<WmsPackingBloc>()
+                                    //       .listOfBatchsDoneDB
+                                    //       .length,
+                                    //   total: context
+                                    //       .read<WmsPackingBloc>()
+                                    //       .listOfBatchs
+                                    //       .length,
+                                    // ),
                                   ],
                                 ),
                               ),
@@ -222,6 +221,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                 .read<WmsPackingBloc>()
                                                 .searchController
                                                 .clear();
+
                                             context.read<WmsPackingBloc>().add(
                                                 SearchBatchPackingEvent(
                                                     '', controller.index));
@@ -306,8 +306,6 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                       context
                                           .read<WmsPackingBloc>()
                                           .add(LoadConfigurationsUserPack());
-
-                                      print("batch: ${batch.toMap()}");
 
                                       if (batch.startTimePack != "") {
                                         context

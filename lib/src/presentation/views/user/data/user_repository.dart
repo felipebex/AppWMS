@@ -13,6 +13,7 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 class UserRepository {
   Future<Configurations> configurations(
     BuildContext context,
+
   ) async {
     try {
       var connectivityResult = await Connectivity().checkConnectivity();

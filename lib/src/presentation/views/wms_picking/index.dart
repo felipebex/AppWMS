@@ -87,15 +87,7 @@ class _PickingPageState extends State<WMSPickingPage> {
         ],
         child: BlocBuilder<WMSPickingBloc, PickingState>(
           builder: (context, state) {
-            double progress = context
-                    .read<WMSPickingBloc>()
-                    .listOfBatchs
-                    .isNotEmpty
-                ? context.read<WMSPickingBloc>().batchsDone.where((element) {
-                      return element.isSeparate == 1;
-                    }).length /
-                    context.read<WMSPickingBloc>().listOfBatchs.length
-                : 0.0;
+          
 
             return Scaffold(
                 backgroundColor: white,
@@ -144,7 +136,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                       top: status != ConnectionStatus.online
                                           ? 20
                                           : 20,
-                                      bottom: 10),
+                                      bottom: 0),
                                   child: Column(
                                     children: [
                                       Row(
@@ -219,19 +211,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           const Spacer(),
                                         ],
                                       ),
-                                      ProgressIndicatorWidget(
-                                        progress: progress,
-                                        completed: context
-                                            .read<WMSPickingBloc>()
-                                            .batchsDone
-                                            .where((element) {
-                                          return element.isSeparate == 1;
-                                        }).length,
-                                        total: context
-                                            .read<WMSPickingBloc>()
-                                            .listOfBatchs
-                                            .length,
-                                      ),
+                                      
                                     ],
                                   ),
                                 ),

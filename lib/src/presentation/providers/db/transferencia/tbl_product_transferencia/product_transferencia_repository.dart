@@ -67,7 +67,6 @@ class ProductTransferenciaRepository {
           ProductTransferenciaTable.columnWeight: producto.weight ?? 0,
           ProductTransferenciaTable.columnIsSeparate: 0,
           ProductTransferenciaTable.columnIsSelected: 0,
-          ProductTransferenciaTable.columnQuantitySeparate: 0,
           ProductTransferenciaTable.columnLotName: producto.lotName ?? "",
           ProductTransferenciaTable.columnLoteId: producto.lotId ?? "",
           ProductTransferenciaTable.columnLoteDate:
@@ -197,7 +196,6 @@ class ProductTransferenciaRepository {
         ProductTransferenciaTable.columnIsSelected: 0,
         ProductTransferenciaTable.columnObservation: producto.observation ?? '',
 
-        ProductTransferenciaTable.columnQuantitySeparate: 0,
         ProductTransferenciaTable.columnLoteId: producto.lotId ?? '',
         ProductTransferenciaTable.columnLotName: producto.lotName ?? '',
         ProductTransferenciaTable.columnLoteDate:
@@ -285,7 +283,7 @@ class ProductTransferenciaRepository {
     return await db.transaction((txn) async {
       final result = await txn.query(
         ProductTransferenciaTable.tableName,
-        columns: [(ProductTransferenciaTable.columnQuantitySeparate)],
+        columns: [(ProductTransferenciaTable.columnQuantityDone)],
         where:
             '${ProductTransferenciaTable.columnIdTransferencia} = ? AND ${ProductTransferenciaTable.columnProductId} = ? AND ${ProductTransferenciaTable.columnIdMove} = ?',
         whereArgs: [idTransfer, productId, idMove],
@@ -293,12 +291,12 @@ class ProductTransferenciaRepository {
 
       if (result.isNotEmpty) {
         int currentQty = (result
-            .first[ProductTransferenciaTable.columnQuantitySeparate] as int);
+            .first[ProductTransferenciaTable.columnQuantityDone] as int);
 
         int newQty = currentQty + quantity;
         return await txn.update(
           ProductTransferenciaTable.tableName,
-          {ProductTransferenciaTable.columnQuantitySeparate: newQty},
+          {ProductTransferenciaTable.columnQuantityDone: newQty},
           where:
               '${ProductTransferenciaTable.columnIdTransferencia} = ? AND ${ProductTransferenciaTable.columnProductId} = ? AND ${ProductTransferenciaTable.columnIdMove} = ?',
           whereArgs: [idTransfer, productId, idMove],

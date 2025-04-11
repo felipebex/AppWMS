@@ -20,7 +20,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
   //*batchs
   List<BatchsModel> listOfBatchs = [];
   List<BatchsModel> filteredBatchs = []; // Lista para los productos filtrados
-  List<BatchsModel> batchsDone = []; // Lista para los productos filtrados
   List<HistoryBatch> historyBatchs = []; // Lista para los productos filtrados
   List<HistoryBatch> filtersHistoryBatchs =
       []; // Lista para los productos filtrados
@@ -102,7 +101,6 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     final batchsFromDB =
         await _databas.batchPickingRepository.getAllBatchs(userId);
 
-    batchsDone = batchsFromDB.where((batch) => batch.isSeparate == 1).toList();
 
     filteredBatchs = batchsFromDB.where((batch) {
       return batch.isSeparate == null;
@@ -274,7 +272,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
     final int userid = await PrefUtils.getUserId();
     final batchsFromDB =
         await _databas.batchPickingRepository.getAllBatchs(userid);
-    if (event.indexMenu == 0) {
+  
       if (query.isEmpty) {
         filteredBatchs = batchsFromDB;
         filteredBatchs = filteredBatchs
@@ -286,15 +284,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         }).toList();
       }
       // Emitir la lista filtrada
-    } else {
-      if (query.isEmpty) {
-        filteredBatchs = batchsDone;
-      } else {
-        filteredBatchs = batchsDone.where((batch) {
-          return batch.name?.toLowerCase().contains(query) ?? false;
-        }).toList();
-      }
-    }
+    
     emit(LoadBatchsSuccesState(listOfBatchs: filteredBatchs));
   }
 

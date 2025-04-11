@@ -81,25 +81,6 @@ class PedidosPackingRepository {
   }
 
 // Obtener los pedidos de packing por batch_id
-  Future<List<PedidoPacking>> getPedidosPacking(int batchId) async {
-    try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
-      final List<Map<String, dynamic>> maps = await db.query(
-        PedidosPackingTable.tableName,
-        where: '${PedidosPackingTable.columnBatchId} = ?',
-        whereArgs: [batchId],
-      );
-
-      final List<PedidoPacking> pedidos = maps.map((map) {
-        return PedidoPacking.fromMap(map);
-      }).toList();
-
-      return pedidos;
-    } catch (e,s) {
-      print("Error al obtener los pedidos de packing: $e =>$s");
-      return [];
-    }
-  }
 
   // Obtener todos los pedidos de un batch específico
   Future<List<PedidoPacking>> getAllPedidosBatch(int batchId) async {
@@ -121,6 +102,28 @@ class PedidosPackingRepository {
       return [];
     }
   }
+
+
+  //metodo para obtener todos los pedidos de packing
+  Future<List<PedidoPacking>> getAllPedidosPacking() async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> maps = await db.query(
+        PedidosPackingTable.tableName,
+      );
+
+      final List<PedidoPacking> pedidos = maps.map((map) {
+        return PedidoPacking.fromMap(map);
+      }).toList();
+
+      return pedidos;
+    } catch (e) {
+      print("Error al obtener todos los pedidos de packing: $e");
+      return [];
+    }
+  }
+
+
 
   // Método para actualizar un campo específico de un pedido en la tabla
   Future<int?> setFieldTablePedidosPacking(
