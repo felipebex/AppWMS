@@ -73,16 +73,14 @@ class ChangeIsOkQuantity extends InventarioEvent {
 }
 
 class GetProductsEvent extends InventarioEvent {
-  final int warehouseId;
-  GetProductsEvent(this.warehouseId);
 }
 
 class GetProductsForDB extends InventarioEvent {}
 
-class GetProductsByLocationEvent extends InventarioEvent {
-  final int locationId;
-  GetProductsByLocationEvent(this.locationId);
-}
+// class GetProductsByLocationEvent extends InventarioEvent {
+//   final int locationId;
+//   GetProductsByLocationEvent(this.locationId);
+// }
 
 class CleanFieldsEent extends InventarioEvent {}
 

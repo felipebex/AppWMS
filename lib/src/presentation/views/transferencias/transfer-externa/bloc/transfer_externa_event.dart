@@ -48,10 +48,10 @@ class GetProductsByLocationEvent extends TransferExternaEvent {
 
 
 class ChangeProductIsOkEvent extends TransferExternaEvent {
-  final Product productSelect;
-  ChangeProductIsOkEvent(
-    this.productSelect,
-  );
+  // final Product productSelect;
+  // ChangeProductIsOkEvent(
+  //   this.productSelect,
+  // );
 }
 
 

@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           },
         );
         context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+        context.read<WMSPickingBloc>().add(LoadAllNovedades(context)); //n
         Future.delayed(const Duration(seconds: 1), () {
           Navigator.pop(context);
         });
@@ -136,6 +137,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   context
                       .read<TransferenciaBloc>()
                       .add(FetchAllTransferencias(false));
+                } else if (rol == "inventory") {
+                  if (!mounted) return;
+                  await DataBaseSqlite().deleInventario();
+                  context.read<InventarioBloc>().add(GetProductsEvent());
                 } else if (rol == "" || rol == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -540,6 +545,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                               if (rol == 'picking' ||
                                                   rol == 'admin') {
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .add(LoadAllNovedades(
+                                                        context)); //
+
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
@@ -609,6 +619,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                               if (rol == 'packing' ||
                                                   rol == 'admin') {
+                                                context
+                                                    .read<WMSPickingBloc>()
+                                                    .add(LoadAllNovedades(
+                                                        context)); //
+
                                                 context.read<WmsPackingBloc>().add(
                                                     LoadAllNovedadesPackingEvent());
 
@@ -826,20 +841,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     .read<InventarioBloc>()
                                                     .add(GetLocationsEvent());
 
-                                                context
-                                                    .read<UserBloc>()
-                                                    .add(GetConfigurations(context));
-
                                                 context.read<InventarioBloc>().add(
                                                     LoadConfigurationsUserInventory());
-
-                                                if (context
-                                                    .read<UserBloc>()
-                                                    .ubicaciones
-                                                    .isEmpty) {
-                                                  context.read<UserBloc>().add(
-                                                      GetUbicacionesEvent());
-                                                }
 
                                                 showDialog(
                                                     context: context,
@@ -851,7 +854,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                                 await Future.delayed(const Duration(
                                                     seconds:
-                                                        3)); // Ajusta el tiempo si es necesario
+                                                        1)); // Ajusta el tiempo si es necesario
 
                                                 Navigator.pop(context);
                                                 Navigator.pushReplacementNamed(

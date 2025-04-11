@@ -682,7 +682,7 @@ class ApiRequestService {
       {required String endpoint,
       required bool isLoadinDialog,
       required bool isunecodePath,
-      required int idWarehouse}) async {
+    }) async {
     var url = await PrefUtils.getEnterprise();
     var cookie = await PrefUtils.getCookie();
 
@@ -745,7 +745,7 @@ class ApiRequestService {
           var request = http.Request('GET', Uri.parse(url));
           request.body = json.encode({
             "params": {
-              "warehouse_id": idWarehouse,
+              // "warehouse_id": idWarehouse,
             }
           });
           request.headers.addAll(headers);

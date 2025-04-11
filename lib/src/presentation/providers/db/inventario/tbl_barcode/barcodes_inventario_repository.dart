@@ -19,9 +19,8 @@ class BarcodesInventarioRepository {
           final List<Map<String, dynamic>> existingProduct = await txn.query(
             BarcodesInventarioTable.tableName,
             where: '${BarcodesInventarioTable.columnIdProduct} = ? AND '
-                '${BarcodesInventarioTable.columnIdQuant} = ? AND '
                 '${BarcodesInventarioTable.columnBarcode} = ?',
-            whereArgs: [barcode.idProduct, barcode.idQuant, barcode.barcode],
+            whereArgs: [barcode.idProduct,  barcode.barcode],
           );
 
           if (existingProduct.isNotEmpty) {
@@ -30,16 +29,13 @@ class BarcodesInventarioRepository {
               BarcodesInventarioTable.tableName,
               {
                 BarcodesInventarioTable.columnIdProduct: barcode.idProduct,
-                BarcodesInventarioTable.columnIdQuant: barcode.idQuant,
                 BarcodesInventarioTable.columnBarcode: barcode.barcode,
                 BarcodesInventarioTable.columnCantidad: barcode.cantidad ?? 1,
               },
               where: '${BarcodesInventarioTable.columnIdProduct} = ? AND '
-                  '${BarcodesInventarioTable.columnIdQuant} = ? AND '
                   '${BarcodesInventarioTable.columnBarcode} = ?',
               whereArgs: [
                 barcode.idProduct,
-                barcode.idQuant,
                 barcode.barcode,
               ],
             );
@@ -50,7 +46,6 @@ class BarcodesInventarioRepository {
               BarcodesInventarioTable.tableName,
               {
                 BarcodesInventarioTable.columnIdProduct: barcode.idProduct,
-                BarcodesInventarioTable.columnIdQuant: barcode.idQuant,
                 BarcodesInventarioTable.columnBarcode: barcode.barcode,
                 BarcodesInventarioTable.columnCantidad: barcode.cantidad ?? 1,
               },
@@ -85,7 +80,6 @@ class BarcodesInventarioRepository {
       final List<BarcodeInventario> barcodes = maps.map((map) {
         return BarcodeInventario(
           idProduct: map[BarcodesInventarioTable.columnIdProduct],
-          idQuant: map[BarcodesInventarioTable.columnIdQuant],
           barcode: map[BarcodesInventarioTable.columnBarcode],
           cantidad: map[BarcodesInventarioTable.columnCantidad],
         );
@@ -99,7 +93,7 @@ class BarcodesInventarioRepository {
   }
 
   Future<List<BarcodeInventario>> getBarcodesProduct(
-      int productId, int quantId) async {
+      int productId, ) async {
     try {
       // Obtiene la instancia de la base de datos
       Database db = await DataBaseSqlite().getDatabaseInstance();
@@ -107,9 +101,8 @@ class BarcodesInventarioRepository {
       // Realizamos la consulta para obtener los barcodes
       final List<Map<String, dynamic>> maps = await db.query(
         BarcodesInventarioTable.tableName,
-        where: '${BarcodesInventarioTable.columnIdProduct} = ? AND '
-            '${BarcodesInventarioTable.columnIdQuant} = ? ',
-        whereArgs: [productId, quantId],
+        where: '${BarcodesInventarioTable.columnIdProduct} = ? ',
+        whereArgs: [productId, ],
       );
 
       // Verificamos si la consulta ha devuelto resultados
@@ -123,7 +116,6 @@ class BarcodesInventarioRepository {
         return BarcodeInventario(
           idProduct: map[BarcodesInventarioTable.columnIdProduct],
           barcode: map[BarcodesInventarioTable.columnBarcode],
-          idQuant: map[BarcodesInventarioTable.columnIdQuant],
           cantidad: map[BarcodesInventarioTable.columnCantidad]
               , // Asegúrate de convertir el tipo correctamente
         );

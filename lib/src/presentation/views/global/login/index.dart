@@ -62,8 +62,7 @@ class LoginPage extends StatelessWidget {
           BlocListener<UserBloc, UserState>(
             listener: (context, state) async {
               if (state is ConfigurationLoaded) {
-                context.read<InventarioBloc>().add(GetProductsEvent(
-                    context.read<UserBloc>().almacenes[0].id ?? 0));
+                context.read<InventarioBloc>().add(GetProductsEvent());
                 final rol = await PrefUtils.getUserRol();
                 if (rol == 'picking') {
                   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));

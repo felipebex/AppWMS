@@ -17,7 +17,6 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 class InventarioRepository {
   Future<List<Product>> fetAllProducts(
     bool isLoadinDialog,
-    int idWarehouse,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -29,9 +28,8 @@ class InventarioRepository {
 
     try {
       var response = await ApiRequestService().getInventario(
-        endpoint: 'quant',
+        endpoint: 'product',
         isunecodePath: true,
-        idWarehouse: idWarehouse,
         isLoadinDialog: isLoadinDialog,
       );
       if (response.statusCode < 400) {
@@ -46,6 +44,8 @@ class InventarioRepository {
               products.map((data) => Product.fromMap(data)).toList();
 
           return productsResponse;
+
+          
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
             Get.defaultDialog(

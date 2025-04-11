@@ -28,15 +28,7 @@ class Tab1ScreenTrans extends StatelessWidget {
       },
       child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
         listener: (context, state) {
-          if (state is LoadLocationsFailure) {
-            Get.snackbar(
-              '360 Software Informa',
-              "No se han podido cargar las ubicaciones",
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.red),
-            );
-          }
+         
 
           if (state is AssignUserToTransferSuccess) {
             Get.snackbar(

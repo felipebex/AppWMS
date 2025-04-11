@@ -148,7 +148,7 @@ class _NewLoteScreenState extends State<NewLoteInventarioScreen> {
               if (!bloc.isKeyboardVisible)
                 Padding(
                   padding: EdgeInsets.only(bottom: 5, top: viewList ? 0 : 10),
-                  child: Text(widget.currentProduct?.productName ?? '',
+                  child: Text(widget.currentProduct?.name ?? '',
                       style: TextStyle(fontSize: 12, color: black)),
                 ),
 

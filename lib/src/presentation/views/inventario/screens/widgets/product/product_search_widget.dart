@@ -111,7 +111,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                             ],
                           ),
                         )),
-                    (bloc.productosUbicacionFilters.isEmpty)
+                    (bloc.productosFilters.isEmpty)
                         ? Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -138,7 +138,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                         : Expanded(
                             child: ListView.builder(
                                 itemCount:
-                                    bloc.productosUbicacionFilters.length,
+                                    bloc.productosFilters.length,
                                 itemBuilder: (context, index) {
                                   bool isSelected = selectedIndex == index;
 
@@ -182,9 +182,9 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                             .centerLeft,
                                                         child: Text(
                                                           bloc
-                                                                  .productosUbicacionFilters[
+                                                                  .productosFilters[
                                                                       index]
-                                                                  .productName ??
+                                                                  .name ??
                                                               '',
                                                           style: TextStyle(
                                                             color:
@@ -207,19 +207,19 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                       const SizedBox(width: 5),
                                                       Text(
                                                         bloc
-                                                                    .productosUbicacionFilters[
+                                                                    .productosFilters[
                                                                         index]
                                                                     .barcode ==
                                                                 false
                                                             ? 'Sin barcode'
                                                             : bloc
-                                                                    .productosUbicacionFilters[
+                                                                    .productosFilters[
                                                                         index]
                                                                     .barcode ??
                                                                 '',
                                                         style: TextStyle(
                                                           color: bloc
-                                                                      .productosUbicacionFilters[
+                                                                      .productosFilters[
                                                                           index]
                                                                       .barcode ==
                                                                   false
@@ -232,9 +232,9 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                   ),
                                                   Visibility(
                                                     visible: bloc
-                                                            .productosUbicacionFilters[
+                                                            .productosFilters[
                                                                 index]
-                                                            .productTracking ==
+                                                            .tracking ==
                                                         'lot',
                                                     child: Row(
                                                       children: [
@@ -249,19 +249,19 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                             width: 5),
                                                         Text(
                                                           bloc
-                                                                      .productosUbicacionFilters[
+                                                                      .productosFilters[
                                                                           index]
                                                                       .lotName ==
                                                                   false
                                                               ? 'Sin barcode'
                                                               : bloc
-                                                                      .productosUbicacionFilters[
+                                                                      .productosFilters[
                                                                           index]
                                                                       .lotName ??
                                                                   '',
                                                           style: TextStyle(
                                                             color: bloc
-                                                                        .productosUbicacionFilters[
+                                                                        .productosFilters[
                                                                             index]
                                                                         .lotName ==
                                                                     false
@@ -289,7 +289,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                         onPressed: () {
                           if (selectedIndex != null) {
                             final selectedProduct =
-                                bloc.productosUbicacionFilters[selectedIndex!];
+                                bloc.productosFilters[selectedIndex!];
 
                             bloc.add(ShowKeyboardEvent(false));
                             FocusScope.of(context).unfocus();
@@ -313,7 +313,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
 
                             Get.snackbar(
                               'Producto Seleccionado',
-                              'Has seleccionado el producto: ${selectedProduct.productName}',
+                              'Has seleccionado el producto: ${selectedProduct.name}',
                               backgroundColor: white,
                               colorText: primaryColorApp,
                               icon: Icon(Icons.check, color: Colors.green),

@@ -31,34 +31,33 @@ class ProductInventarioRepository {
           Map<String, dynamic> productoMap = {
             // product_code
             ProductInventarioTable.columnProductCode:
-                producto.productCode == false ? "" : producto.productCode ?? '',
-
-            ProductInventarioTable.columnQuantId: producto.quantId,
-            ProductInventarioTable.columnLocationId: producto.locationId,
-            ProductInventarioTable.columnLocationName:
-                producto.locationName ?? '',
+                producto.code == false ? "" : producto.code ?? '',
             ProductInventarioTable.columnProductId: producto.productId,
-            ProductInventarioTable.columnProductName:
-                producto.productName ?? '',
+            ProductInventarioTable.columnProductName: producto.name ?? '',
             ProductInventarioTable.columnBarcode:
                 producto.barcode == false ? "" : producto.barcode ?? '',
             ProductInventarioTable.columnProductracking:
-                producto.productTracking == false
-                    ? "none"
-                    : producto.productTracking ?? '',
+                producto.tracking == false ? "none" : producto.tracking ?? '',
             ProductInventarioTable.columnLotId:
                 producto.lotId == false ? 0 : producto.lotId ?? 0,
             ProductInventarioTable.columnLotName:
                 producto.lotName == false ? "" : producto.lotName ?? '',
-            ProductInventarioTable.columnInDate:
-                producto.inDate == false ? "" : producto.inDate ?? '',
             ProductInventarioTable.columnExpirationDate:
                 producto.expirationDate == false
                     ? ""
                     : producto.expirationDate ?? '',
-            ProductInventarioTable.columnAvailableQuantity:
-                producto.availableQuantity ?? 0,
-            ProductInventarioTable.columnQuantity: producto.quantity,
+            ProductInventarioTable.columnWeight:
+                producto.weight == false ? 0 : producto.weight ?? 0,
+            ProductInventarioTable.columnWeightUomName:
+                producto.weightUomName == false
+                    ? ""
+                    : producto.weightUomName ?? '',
+            ProductInventarioTable.columnVolume:
+                producto.volume == false ? 0 : producto.volume ?? 0,
+            ProductInventarioTable.columnVolumeUomName:
+                producto.volumeUomName == false
+                    ? ""
+                    : producto.volumeUomName ?? '',
           };
 
           batch.insert(
@@ -104,29 +103,7 @@ class ProductInventarioRepository {
     }
   }
 
-  //metodo para traer todos los productos de una ubicacion
-  Future<List<Product>> getAllProductsByLocation(int locationId) async {
-    try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
-      print("locationId: $locationId");
-      List<Map<String, dynamic>> maps = await db.query(
-        ProductInventarioTable.tableName,
-        where: '${ProductInventarioTable.columnLocationId} = ?',
-        whereArgs: [locationId],
-      );
-      if (maps.isNotEmpty) {
-        return List.generate(
-          maps.length,
-          (i) => Product.fromMap(maps[i]),
-        );
-      } else {
-        return [];
-      }
-    } catch (e, s) {
-      print("Error al obtener productos por ubicacion: $e ==> $s");
-      return [];
-    }
-  }
+
 
   //metodo para traer un producto por su id
   Future<Product?> getProductById(int productId) async {

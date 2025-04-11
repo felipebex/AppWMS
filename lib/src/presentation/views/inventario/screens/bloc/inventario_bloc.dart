@@ -57,9 +57,10 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
   //lista de productos
   List<Product> productos = [];
+  List<Product> productosFilters = [];
   //lista de productos de una ubicacion
-  List<Product> productosUbicacion = [];
-  List<Product> productosUbicacionFilters = [];
+  // List<Product> productosUbicacion = [];
+  // List<Product> productosUbicacionFilters = [];
 
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
@@ -102,8 +103,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     on<GetProductsEvent>(_onGetProducts);
     on<GetProductsForDB>(_onGetProductsBD);
 
-    //*traermos solo los productos de una ubicacion
-    on<GetProductsByLocationEvent>(_onGetProductsByLocation);
+    // //*traermos solo los productos de una ubicacion
+    // on<GetProductsByLocationEvent>(_onGetProductsByLocation);
     //*limpiamos los campos y el estado
     on<CleanFieldsEent>(_onCleanFields);
 
@@ -228,12 +229,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   void _onAddQuantitySeparateEvent(
       AddQuantitySeparate event, Emitter<InventarioState> emit) async {
     try {
-      if (quantitySelected > (currentProduct?.quantity ?? 0)) {
-        return;
-      } else {
-        quantitySelected = quantitySelected + event.quantity;
-        emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
-      }
+      quantitySelected = quantitySelected + event.quantity;
+      emit(ChangeQuantitySeparateStateSuccess(quantitySelected));
     } catch (e, s) {
       emit(ChangeQuantitySeparateStateError('Error al aumentar cantidad'));
       print("❌ Error en el AddQuantitySeparate $e ->$s");
@@ -246,12 +243,17 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     try {
       barcodeInventario.clear();
 
-      barcodeInventario =
-          await db.barcodesInventarioRepository.getBarcodesProduct(
+      final response = await db.barcodesInventarioRepository.getBarcodesProduct(
         currentProduct?.productId ?? 0,
-        currentProduct?.quantId ?? 0,
       );
-      print("barcodeInventario: ${barcodeInventario.length}");
+
+      if (response.isNotEmpty) {
+        barcodeInventario = response;
+        emit(BarcodesProductLoadedState(listOfBarcodes: barcodeInventario));
+      } else {
+        emit(BarcodesProductLoadedState(listOfBarcodes: []));
+        return;
+      }
     } catch (e, s) {
       print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
     }
@@ -361,7 +363,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       if (isProductOk) {
         currentProduct = event.productSelect;
         add(FetchBarcodesProductEvent());
-        if (currentProduct?.productTracking == 'lot') {
+        if (currentProduct?.tracking == 'lot') {
           add(GetLotesProduct());
         }
         viewQuantity = false;
@@ -384,7 +386,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         currentUbication = event.locationSelect;
         locationIsOk = true;
 
-        add(GetProductsByLocationEvent(event.locationSelect.id ?? 0));
+        // add(GetProductsByLocationEvent(event.locationSelect.id ?? 0));
         emit(ChangeLocationIsOkState(
           locationIsOk,
         ));
@@ -394,30 +396,30 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     }
   }
 
-  void _onGetProductsByLocation(
-      GetProductsByLocationEvent event, Emitter<InventarioState> emit) async {
-    try {
-      print('TRAEMOS LOS PRODUCTOS DEL INVENTARIO DE LA UBICACION');
-      emit(GetProductsLoading());
-      final response =
-          await db.productoInventarioRepository.getAllProductsByLocation(
-        event.locationId,
-      );
-      if (response.isNotEmpty) {
-        productosUbicacionFilters.clear();
-        productosUbicacion.clear();
-        productosUbicacion = response;
-        productosUbicacionFilters = response;
-        print("Products = ${response.length}");
-        emit(GetProductsSuccessByLocation(response));
-      } else {
-        emit(GetProductsFailureByLocation('No se encontraron productos'));
-      }
-    } catch (e, s) {
-      emit(GetProductsFailureByLocation('Error al cargar los productos'));
-      print('Error en el fetch de _onGetProductsByLocation: $e=>$s');
-    }
-  }
+  // void _onGetProductsByLocation(
+  //     GetProductsByLocationEvent event, Emitter<InventarioState> emit) async {
+  //   try {
+  //     print('TRAEMOS LOS PRODUCTOS DEL INVENTARIO DE LA UBICACION');
+  //     emit(GetProductsLoading());
+  //     final response =
+  //         await db.productoInventarioRepository.getAllProductsByLocation(
+  //       event.locationId,
+  //     );
+  //     if (response.isNotEmpty) {
+  //       productosUbicacionFilters.clear();
+  //       productosUbicacion.clear();
+  //       productosUbicacion = response;
+  //       productosUbicacionFilters = response;
+  //       print("Products = ${response.length}");
+  //       emit(GetProductsSuccessByLocation(response));
+  //     } else {
+  //       emit(GetProductsFailureByLocation('No se encontraron productos'));
+  //     }
+  //   } catch (e, s) {
+  //     emit(GetProductsFailureByLocation('Error al cargar los productos'));
+  //     print('Error en el fetch de _onGetProductsByLocation: $e=>$s');
+  //   }
+  // }
 
   void _onGetProducts(
       GetProductsEvent event, Emitter<InventarioState> emit) async {
@@ -426,30 +428,23 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
       await db.deleInventario();
 
-      final response =
-          await _inventarioRepository.fetAllProducts(false, event.warehouseId);
+      final response = await _inventarioRepository.fetAllProducts(
+        false,
+      );
 
       // final response = await db.productoInventarioRepository.insertProductosInventario(productosList);
       if (response.isNotEmpty) {
         await db.productoInventarioRepository
             .insertProductosInventario(response);
-        //Convertir el mapa en una lista los barcodes unicos de cada producto
-        List<BarcodeInventario> barcodesToInsert =
-            productos.expand((product) => product.otherBarcodes!).toList();
 
-        List<BarcodeInventario> barcodesPackingToInsert =
-            productos.expand((product) => product.productPacking!).toList();
-        print("Products = ${response.length}");
-        print('otherBarcodes: ${barcodesToInsert.length}');
-        print('productPacking: ${barcodesPackingToInsert.length}');
-        if (barcodesToInsert.isNotEmpty) {
+        final allBarcodes =
+            _extractAllBarcodes(response).toList(growable: false);
+
+        print('Barcodes: ${allBarcodes.length}');
+
+       
           await db.barcodesInventarioRepository
-              .insertOrUpdateBarcodes(barcodesToInsert);
-        }
-        if (barcodesPackingToInsert.isNotEmpty) {
-          await db.barcodesInventarioRepository
-              .insertOrUpdateBarcodes(barcodesPackingToInsert);
-        }
+              .insertOrUpdateBarcodes(allBarcodes);
         emit(GetProductsSuccess(response));
         add(GetProductsForDB());
       } else {
@@ -461,9 +456,21 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     }
   }
 
+  // Generador para todos los códigos de barras
+  Iterable<BarcodeInventario> _extractAllBarcodes(
+      List<Product> response) sync* {
+    for (final product in response) {
+      if (product.otherBarcodes != null) {
+        yield* product.otherBarcodes!;
+      }
+      if (product.productPacking != null) {
+        yield* product.productPacking!;
+      }
+    }
+  }
+
   void getPordutsAllBD() async {
-    final response =
-        await db.productoInventarioRepository.getAllProducts();
+    final response = await db.productoInventarioRepository.getAllProducts();
     print('response: ${response.length}');
   }
 
@@ -474,7 +481,9 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       final response = await db.productoInventarioRepository.getAllProducts();
       if (response.isNotEmpty) {
         productos.clear();
+        productosFilters.clear();
         productos = response;
+        productosFilters = productos;
         emit(GetProductsSuccessBD(response));
       } else {
         emit(GetProductsFailure('No se encontraron productos'));
@@ -514,6 +523,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         case 'location':
           // Acumulador de valores escaneados
           scannedValue1 += event.scannedValue.trim();
+          print('scannedValue1: $scannedValue1');
           emit(UpdateScannedValueState(scannedValue1, event.scan));
           break;
         case 'product':
@@ -523,6 +533,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
           break;
         case 'quantity':
           scannedValue3 += event.scannedValue.trim();
+          print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValueState(scannedValue3, event.scan));
           break;
         default:
@@ -616,17 +627,17 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       SearchProductEvent event, Emitter<InventarioState> emit) async {
     try {
       emit(SearchLoading());
-      productosUbicacionFilters = [];
-      productosUbicacionFilters = productosUbicacion;
+      productosFilters = [];
+      productosFilters = productos;
       final query = event.query.toLowerCase();
       if (query.isEmpty) {
-        productosUbicacionFilters = productosUbicacion;
+        productosFilters = productos;
       } else {
-        productosUbicacionFilters = productosUbicacion.where((product) {
-          return product.productName?.toLowerCase().contains(query) ?? false;
+        productosFilters = productos.where((product) {
+          return product.name?.toLowerCase().contains(query) ?? false;
         }).toList();
       }
-      emit(SearchProductSuccess(productosUbicacionFilters));
+      emit(SearchProductSuccess(productosFilters));
     } catch (e, s) {
       print('Error en el SearchLocationEvent: $e, $s');
       emit(SearchFailure(e.toString()));

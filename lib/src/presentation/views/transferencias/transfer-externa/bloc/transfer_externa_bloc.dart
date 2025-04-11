@@ -30,18 +30,18 @@ class TransferExternaBloc
   bool isKeyboardVisible = false;
   bool viewQuantity = false;
 
-  //lista de productos
-  List<Product> productos = [];
-  //lista de productos de una ubicacion
-  List<Product> productosUbicacion = [];
-  List<Product> productosUbicacionFilters = [];
+  // //lista de productos
+  // List<Product> productos = [];
+  // //lista de productos de una ubicacion
+  // List<Product> productosUbicacion = [];
+  // List<Product> productosUbicacionFilters = [];
 
   //*lista de ubicaciones
   List<ResultUbicaciones> ubicaciones = [];
   List<ResultUbicaciones> ubicacionesFilters = [];
 
   //producto actual
-  Product? currentProduct;
+  // Product? currentProduct;
   ResultUbicaciones? currentUbication;
 
   //*base de datos
@@ -96,23 +96,23 @@ class TransferExternaBloc
 
     void _onSearchProductEvent(
       SearchProductEvent event, Emitter<TransferExternaState> emit) async {
-    try {
-      emit(SearchLoading());
-      productosUbicacionFilters = [];
-      productosUbicacionFilters = productosUbicacion;
-      final query = event.query.toLowerCase();
-      if (query.isEmpty) {
-        productosUbicacionFilters = productosUbicacion;
-      } else {
-        productosUbicacionFilters = productosUbicacion.where((product) {
-          return product.productName?.toLowerCase().contains(query) ?? false;
-        }).toList();
-      }
-      emit(SearchProductSuccess(productosUbicacionFilters));
-    } catch (e, s) {
-      print('Error en el SearchLocationEvent: $e, $s');
-      emit(SearchFailure(e.toString()));
-    }
+    // try {
+    //   emit(SearchLoading());
+    //   productosUbicacionFilters = [];
+    //   productosUbicacionFilters = productosUbicacion;
+    //   final query = event.query.toLowerCase();
+    //   if (query.isEmpty) {
+    //     productosUbicacionFilters = productosUbicacion;
+    //   } else {
+    //     productosUbicacionFilters = productosUbicacion.where((product) {
+    //       return product.productName?.toLowerCase().contains(query) ?? false;
+    //     }).toList();
+    //   }
+    //   emit(SearchProductSuccess(productosUbicacionFilters));
+    // } catch (e, s) {
+    //   print('Error en el SearchLocationEvent: $e, $s');
+    //   emit(SearchFailure(e.toString()));
+    // }
   }
 
 
@@ -135,7 +135,7 @@ class TransferExternaBloc
       ChangeProductIsOkEvent event, Emitter<TransferExternaState> emit) async {
     try {
       if (isProductOk) {
-        currentProduct = event.productSelect;
+        // currentProduct = event.productSelect;
         viewQuantity = false;
         productIsOk = true;
 
@@ -150,26 +150,26 @@ class TransferExternaBloc
 
   void _onGetProductsByLocation(GetProductsByLocationEvent event,
       Emitter<TransferExternaState> emit) async {
-    try {
-      emit(GetProductsLoading());
-      final response =
-          await db.productoInventarioRepository.getAllProductsByLocation(
-        event.locationId,
-      );
-      if (response.isNotEmpty) {
-        productosUbicacionFilters.clear();
-        productosUbicacion.clear();
-        productosUbicacion = response;
-        productosUbicacionFilters = response;
-        print("Products = ${response.length}");
-        emit(GetProductsSuccessByLocation(response));
-      } else {
-        emit(GetProductsFailureByLocation('No se encontraron productos'));
-      }
-    } catch (e, s) {
-      emit(GetProductsFailureByLocation('Error al cargar los productos'));
-      print('Error en el fetch de _onGetProductsByLocation: $e=>$s');
-    }
+    // try {
+    //   emit(GetProductsLoading());
+    //   final response =
+    //       await db.productoInventarioRepository.getAllProductsByLocation(
+    //     event.locationId,
+    //   );
+    //   if (response.isNotEmpty) {
+    //     // productosUbicacionFilters.clear();
+    //     // productosUbicacion.clear();
+    //     // productosUbicacion = response;
+    //     // productosUbicacionFilters = response;
+    //     print("Products = ${response.length}");
+    //     // emit(GetProductsSuccessByLocation(response));
+    //   } else {
+    //     emit(GetProductsFailureByLocation('No se encontraron productos'));
+    //   }
+    // } catch (e, s) {
+    //   emit(GetProductsFailureByLocation('Error al cargar los productos'));
+    //   print('Error en el fetch de _onGetProductsByLocation: $e=>$s');
+    // }
   }
 
   //*metodo para validar la ubicacion

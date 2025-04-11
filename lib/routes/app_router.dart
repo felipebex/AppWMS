@@ -250,9 +250,9 @@ class AppRoutes {
         return ListTransferenciasScreen(
         );
       },
-      transferExterna: (_) => const TransferExternaScreen(),
+      // transferExterna: (_) => const TransferExternaScreen(),
       searchProductTrans: (_) => const SearchLocationScreenTrans(),
-      searchLocationTrans: (_) => const SearchProductScreenTrans(),
+      // searchLocationTrans: (_) => const SearchProductScreenTrans(),
 
       transferenciaDetail: (context) {
         final arguments =

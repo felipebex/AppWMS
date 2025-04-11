@@ -49,8 +49,8 @@ class ChangeLocationIsOkState extends TransferExternaState {
 class GetProductsLoading extends TransferExternaState {}
 
 class GetProductsSuccessByLocation extends TransferExternaState {
-  final List<Product> products;
-  GetProductsSuccessByLocation(this.products);
+  // final List<Product> products;
+  // GetProductsSuccessByLocation(this.products);
 }
 
 class GetProductsFailure extends TransferExternaState {
@@ -86,8 +86,8 @@ class SearchLocationSuccess extends TransferExternaState {
 }
 
 class SearchProductSuccess extends TransferExternaState {
-  final List<Product> products;
-  SearchProductSuccess(this.products);
+  // final List<Product> products;
+  // SearchProductSuccess(this.products);
 }
 
 

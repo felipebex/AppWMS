@@ -1292,7 +1292,9 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   Iterable<Barcodes> _extractAllBarcodes(
       List<ResultTransFerencias> response) sync* {
     for (final batch in response) {
+
       if (batch.lineasTransferencia != null) {
+        
         for (final product in batch.lineasTransferencia!) {
           if (product.otherBarcodes != null) {
             yield* product.otherBarcodes!;
@@ -1302,6 +1304,8 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           }
         }
       }
+
+
     }
   }
 }

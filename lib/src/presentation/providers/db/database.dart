@@ -429,7 +429,7 @@ class DataBaseSqlite {
     await db.delete(ConfigurationsTable.tableName);
     await db.delete(NovedadesTable.tableName);
     await db.delete(UbicacionesTable.tableName);
-    await db.delete(UrlsRecientesTable.tableName);
+    // await db.delete(UrlsRecientesTable.tableName);
     await db.delete(WarehouseTable.tableName);
   }
 

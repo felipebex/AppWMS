@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final getProductsInventario = getProductsInventarioFromMap(jsonString);
-
 import 'dart:convert';
 
 GetProductsInventario getProductsInventarioFromMap(String str) =>
@@ -59,49 +55,53 @@ class Result {
 }
 
 class Product {
-  int? quantId;
-  int? locationId;
-  String? locationName;
   int? productId;
-  String? productName;
-  dynamic? productCode;
+  String? name;
+  dynamic? code;
+  dynamic? category;
   dynamic? barcode;
-  String? productTracking;
+
   List<BarcodeInventario>? otherBarcodes;
   List<BarcodeInventario>? productPacking;
+
   dynamic lotId;
-  dynamic lotName;
-  dynamic? inDate;
+  dynamic? lotName;
+  String? tracking;
+  bool? useExpirationDate;
+  dynamic? expirationTime;
+  dynamic? weight;
+  dynamic? weightUomName;
+  dynamic? volume;
+  dynamic? volumeUomName;
   dynamic expirationDate;
-  dynamic availableQuantity;
-  dynamic quantity;
 
   Product({
-    this.quantId,
-    this.locationId,
-    this.locationName,
     this.productId,
-    this.productTracking,
-    this.productName,
-    this.productCode,
+    this.name,
+    this.code,
+    this.category,
+    this.lotId,
+    this.lotName,
     this.barcode,
     this.otherBarcodes,
     this.productPacking,
-    this.lotId,
-    this.lotName,
-    this.inDate,
+    this.tracking,
+    this.useExpirationDate,
+    this.expirationTime,
+    this.weight,
+    this.weightUomName,
+    this.volume,
+    this.volumeUomName,
     this.expirationDate,
-    this.availableQuantity,
-    this.quantity,
   });
 
   factory Product.fromMap(Map<String, dynamic> json) => Product(
-        quantId: json["quant_id"],
-        locationId: json["location_id"],
-        locationName: json["location_name"],
         productId: json["product_id"],
-        productName: json["product_name"],
-        productCode: json["product_code"],
+        name: json["name"],
+        code: json["code"],
+        category: json["category"],
+        lotId: json["lot_id"],
+        lotName: json["lot_name"],
         barcode: json["barcode"],
         otherBarcodes: json["other_barcodes"] == null
             ? []
@@ -111,63 +111,62 @@ class Product {
             ? []
             : List<BarcodeInventario>.from(json["product_packing"]!
                 .map((x) => BarcodeInventario.fromMap(x))),
-        lotId: json["lot_id"],
-        lotName: json["lot_name"],
-        inDate: json["in_date"],
+        tracking: json["tracking"],
+        useExpirationDate: json["use_expiration_date"],
+        expirationTime: json["expiration_time"],
+        weight: json["weight"]?.toDouble(),
+        weightUomName: json["weight_uom_name"],
+        volume: json["volume"]?.toDouble(),
+        volumeUomName: json["volume_uom_name"],
         expirationDate: json["expiration_date"],
-        availableQuantity: json["available_quantity"],
-        quantity: json["quantity"],
-        productTracking: json["product_tracking"],
       );
 
   Map<String, dynamic> toMap() => {
-        "quant_id": quantId,
-        "location_id": locationId,
-        "location_name": locationName,
         "product_id": productId,
-        "product_name": productName,
-        "product_code": productCode,
+        "name": name,
+        "code": code,
+        "category": category,
+        "lot_id": lotId,
+        "lot_name": lotName,
         "barcode": barcode,
         "other_barcodes": otherBarcodes == null
             ? []
             : List<dynamic>.from(otherBarcodes!.map((x) => x.toMap())),
+            
         "product_packing": productPacking == null
             ? []
-            : List<dynamic>.from(productPacking!.map((x) => x)),
-        "lot_id": lotId,
-        "lot_name": lotName,
-        "in_date": inDate,
+            : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
+        "tracking": tracking,
+        "use_expiration_date": useExpirationDate,
+        "expiration_time": expirationTime,
+        "weight": weight,
+        "weight_uom_name": weightUomName,
+        "volume": volume,
+        "volume_uom_name": volumeUomName,
         "expiration_date": expirationDate,
-        "available_quantity": availableQuantity,
-        "quantity": quantity,
-        "product_tracking": productTracking,
       };
 }
 
 class BarcodeInventario {
   dynamic barcode;
   dynamic idProduct;
-  dynamic idQuant;
   dynamic cantidad;
 
   BarcodeInventario({
     this.barcode,
     this.idProduct,
-    this.idQuant,
     this.cantidad,
   });
 
   factory BarcodeInventario.fromMap(Map<String, dynamic> json) =>
       BarcodeInventario(
           barcode: json["barcode"],
-          idQuant: json["quant_id"],
           idProduct: json["id_product"],
           cantidad: json["cantidad"]);
 
   Map<String, dynamic> toMap() => {
         "barcode": barcode,
-        "quant_id": idQuant,
-        "id_product": idProduct,
         "cantidad": cantidad,
+        "id_product": idProduct,
       };
 }
