@@ -7,8 +7,6 @@ class UbicacionesRepository {
   // Método para insertar o actualizar los barcodes de los productos
   Future<void> insertOrUpdateUbicaciones(
       List<ResultUbicaciones> ubicacionesList) async {
-    int insertedCount = 0; // Contador de registros insertados
-    int updatedCount = 0; // Contador de registros actualizados
 
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
@@ -21,6 +19,7 @@ class UbicacionesRepository {
         // Obtener todas las ubicaciones existentes de una sola vez
         final List<Map<String, dynamic>> existingUbicaciones = await txn.query(
           UbicacionesTable.tableName,
+          columns: [UbicacionesTable.columnId],
           where: '${UbicacionesTable.columnId} IN (?)',
           whereArgs: [
             ubicacionesList.map((ubicacion) => ubicacion.id).toList().join(',')
@@ -32,6 +31,7 @@ class UbicacionesRepository {
             existingUbicaciones.map((e) => e[UbicacionesTable.columnId]));
 
         for (var ubicacion in ubicacionesList) {
+
           // Validación: Si el código de barras está vacío o es null, se salta este registro
           if (ubicacion.barcode == null || ubicacion.barcode == "") {
             continue; // Saltamos esta ubicación y no realizamos ningún insert o update
@@ -50,7 +50,6 @@ class UbicacionesRepository {
               where: '${UbicacionesTable.columnId} = ?',
               whereArgs: [ubicacion.id],
             );
-            updatedCount++; // Incrementamos el contador de actualizaciones
           } else {
             // Si no existe, la insertamos
             batch.insert(
@@ -64,7 +63,6 @@ class UbicacionesRepository {
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
-            insertedCount++; // Incrementamos el contador de inserciones
           }
         }
 
@@ -73,8 +71,6 @@ class UbicacionesRepository {
       });
 
       // Imprimimos el número de registros insertados y actualizados
-      print("Total de registros insertados: $insertedCount");
-      print("Total de registros actualizados: $updatedCount");
     } catch (e, s) {
       print("Error al insertar/actualizar ubicaciones: $e => $s");
     }
@@ -86,9 +82,8 @@ class UbicacionesRepository {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
       // Realizamos la consulta para obtener los barcodes
-      final List<Map<String, dynamic>> maps = await db.query(
-        UbicacionesTable.tableName,
-      );
+      final List<Map<String, dynamic>> maps =
+          await db.query(UbicacionesTable.tableName);
 
       // Convertimos los resultados de la consulta en objetos Barcodes
       final List<ResultUbicaciones> ubicaciones = maps.map((map) {

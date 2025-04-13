@@ -137,8 +137,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                           )
                         : Expanded(
                             child: ListView.builder(
-                                itemCount:
-                                    bloc.productosFilters.length,
+                                itemCount: bloc.productosFilters.length,
                                 itemBuilder: (context, index) {
                                   bool isSelected = selectedIndex == index;
 
@@ -206,11 +205,18 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                       ),
                                                       const SizedBox(width: 5),
                                                       Text(
-                                                        bloc
-                                                                    .productosFilters[
-                                                                        index]
-                                                                    .barcode ==
-                                                                false
+                                                        bloc.productosFilters[index].barcode ==
+                                                                    false ||
+                                                                bloc
+                                                                        .productosFilters[
+                                                                            index]
+                                                                        .barcode ==
+                                                                    "" ||
+                                                                bloc
+                                                                        .productosFilters[
+                                                                            index]
+                                                                        .barcode ==
+                                                                    ""
                                                             ? 'Sin barcode'
                                                             : bloc
                                                                     .productosFilters[
@@ -219,10 +225,13 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                                 '',
                                                         style: TextStyle(
                                                           color: bloc
-                                                                      .productosFilters[
-                                                                          index]
-                                                                      .barcode ==
-                                                                  false
+                                                                          .productosFilters[
+                                                                              index]
+                                                                          .barcode ==
+                                                                      false ||
+                                                                  bloc.productosFilters[index]
+                                                                          .barcode ==
+                                                                      ""
                                                               ? red
                                                               : primaryColorApp,
                                                           fontSize: 12,
@@ -230,49 +239,51 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                       ),
                                                     ],
                                                   ),
-                                                  Visibility(
-                                                    visible: bloc
-                                                            .productosFilters[
-                                                                index]
-                                                            .tracking ==
-                                                        'lot',
-                                                    child: Row(
-                                                      children: [
-                                                        Text(
-                                                          'lote: ',
-                                                          style: TextStyle(
-                                                            color: black,
-                                                            fontSize: 12,
-                                                          ),
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        'Code: ',
+                                                        style: TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
                                                         ),
-                                                        const SizedBox(
-                                                            width: 5),
-                                                        Text(
-                                                          bloc
-                                                                      .productosFilters[
-                                                                          index]
-                                                                      .lotName ==
-                                                                  false
-                                                              ? 'Sin barcode'
-                                                              : bloc
-                                                                      .productosFilters[
-                                                                          index]
-                                                                      .lotName ??
-                                                                  '',
-                                                          style: TextStyle(
-                                                            color: bloc
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Text(
+                                                        bloc.productosFilters[index].code ==
+                                                                    false ||
+                                                                bloc
                                                                         .productosFilters[
                                                                             index]
-                                                                        .lotName ==
-                                                                    false
-                                                                ? red
-                                                                : primaryColorApp,
-                                                            fontSize: 12,
-                                                          ),
+                                                                        .code ==
+                                                                    "" ||
+                                                                bloc
+                                                                        .productosFilters[
+                                                                            index]
+                                                                        .code ==
+                                                                    ""
+                                                            ? 'Sin codigo de producto'
+                                                            : bloc
+                                                                    .productosFilters[
+                                                                        index]
+                                                                    .code ??
+                                                                '',
+                                                        style: TextStyle(
+                                                          color: bloc
+                                                                          .productosFilters[
+                                                                              index]
+                                                                          .code ==
+                                                                      false ||
+                                                                  bloc.productosFilters[index]
+                                                                          .code ==
+                                                                      ""
+                                                              ? red
+                                                              : primaryColorApp,
+                                                          fontSize: 12,
                                                         ),
-                                                      ],
-                                                    ),
-                                                  )
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ],
                                               ),
                                             )),

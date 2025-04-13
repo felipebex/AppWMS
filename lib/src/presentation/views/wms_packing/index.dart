@@ -50,6 +50,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
               bottomNavigationBar:
                   context.read<WmsPackingBloc>().isKeyboardVisible
                       ? CustomKeyboard(
+                        isLogin: false,
                           controller:
                               context.read<WmsPackingBloc>().searchController,
                           onchanged: () {
@@ -208,6 +209,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             .contains("Zebra")
                                         ? true
                                         : false,
+                                      showCursor: true,
                                     textAlignVertical: TextAlignVertical.center,
                                     controller: context
                                         .read<WmsPackingBloc>()
@@ -245,7 +247,8 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                           SearchBatchPackingEvent(
                                               value, controller.index));
                                     },
-                                    onTap: !context
+                                    onTap: 
+                                    !context
                                             .read<UserBloc>()
                                             .fabricante
                                             .contains("Zebra")

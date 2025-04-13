@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously, prefer_if_null_operators
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
@@ -482,6 +483,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       novedades.clear();
       if (response != null) {
         novedades = response;
+
+
 
         print("novedades: ${novedades.length}");
       }

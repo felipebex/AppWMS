@@ -194,16 +194,16 @@ class _DialogAdvetenciaCantidadScreenState
           ElevatedButton(
               onPressed: () async {
                 // Validamos que tenga una novedad seleccionada
-                // if (selectedNovedad != null) {
-                //   DataBaseSqlite db = DataBaseSqlite();
-                //   await db.productEntradaRepository.updateNovedadOrder(
-                //       widget.currentProduct.idRecepcion ?? 0,
-                //       int.parse(widget.currentProduct.productId),
-                //       widget.currentProduct.idMove ?? 0,
-                //       selectedNovedad ?? '');
-                //   Navigator.pop(context); // Cierra el diálogo
-                //   widget.onAccepted(); // Llama al callback
-                // }
+                if (selectedNovedad != null) {
+                  DataBaseSqlite db = DataBaseSqlite();
+                  await db.productEntradaRepository.updateNovedadOrder(
+                      widget.currentProduct.idRecepcion ?? 0,
+                      int.parse(widget.currentProduct.productId),
+                      widget.currentProduct.idMove ?? 0,
+                      selectedNovedad ?? '');
+                  Navigator.pop(context); // Cierra el diálogo
+                  widget.onAccepted(); // Llama al callback
+                }
                  print(context.read<RecepcionBloc>().lotesProductCurrent.toMap());
               },
               style: ElevatedButton.styleFrom(

@@ -249,3 +249,49 @@ class CreateBackOrderOrNotFailure extends RecepcionState {
   final String error;
   CreateBackOrderOrNotFailure(this.error);
 }
+
+
+
+class SearchLoading extends RecepcionState {}
+
+
+class SearchFailure extends RecepcionState {
+  final String error;
+  SearchFailure(this.error);
+}
+
+
+class SearchLoteSuccess extends RecepcionState {
+  final List<LotesProduct> locations;
+  SearchLoteSuccess(this.locations);
+}
+
+
+
+
+
+class LoadLocationsLoading extends RecepcionState {}
+
+class LoadLocationsSuccess extends RecepcionState {
+  final List<ResultUbicaciones> locations;
+  LoadLocationsSuccess(this.locations);
+}
+
+class LoadLocationsFailure extends RecepcionState {
+  final String error;
+  LoadLocationsFailure(this.error);
+}
+
+
+
+
+class SearchLocationSuccess extends RecepcionState {
+  final List<ResultUbicaciones> locations;
+  SearchLocationSuccess(this.locations);
+}
+
+
+class ChangeLocationDestIsOkState extends RecepcionState {
+  final bool isOk;
+  ChangeLocationDestIsOkState(this.isOk);
+}

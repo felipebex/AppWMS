@@ -114,6 +114,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                       .read<RecepcionBloc>()
                       .isKeyboardVisible
                   ? CustomKeyboard(
+                    isLogin: false,
                       controller:
                           context.read<RecepcionBloc>().searchControllerOrderC,
                       onchanged: () {

@@ -260,7 +260,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreenTrans> {
                     Visibility(
                       visible: bloc.isKeyboardVisible &&
                           context.read<UserBloc>().fabricante.contains("Zebra"),
-                      child: CustomKeyboard(
+                      child: CustomKeyboard(isLogin: false,
                         controller: bloc.searchControllerLocation,
                         onchanged: () {
                           bloc.add(SearchLocationEvent(

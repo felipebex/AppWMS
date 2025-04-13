@@ -31,11 +31,6 @@ class _InventarioScreenState extends State<InventarioScreen>
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
   FocusNode focusNode4 = FocusNode(); //cantidad textformfield
 
-  final TextEditingController _controllerLocation = TextEditingController();
-  final TextEditingController _controllerProduct = TextEditingController();
-  final TextEditingController _controllerQuantity = TextEditingController();
-  final TextEditingController _cantidadController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -126,7 +121,7 @@ class _InventarioScreenState extends State<InventarioScreen>
 
     print('scan location: $scan');
 
-    _controllerLocation.text = "";
+    bloc.controllerLocation.clear();
 
     ResultUbicaciones? matchedUbicacion = bloc.ubicaciones.firstWhere(
         (ubicacion) => ubicacion.barcode?.toLowerCase() == scan.trim(),
@@ -155,7 +150,7 @@ class _InventarioScreenState extends State<InventarioScreen>
 
     print('scan product: $scan');
 
-    _controllerProduct.text = "";
+    bloc.controllerProduct.clear();
 
     Product? matchedProducts = bloc.productos.firstWhere(
         (productoUbi) => productoUbi.barcode?.toLowerCase() == scan.trim(),
@@ -183,7 +178,7 @@ class _InventarioScreenState extends State<InventarioScreen>
         ? value.trim().toLowerCase()
         : bloc.scannedValue3.trim().toLowerCase();
     print('scan quantity: $scan');
-    _controllerQuantity.text = "";
+    bloc.controllerQuantity.clear();
     final currentProduct = bloc.currentProduct;
 
     if (scan == currentProduct?.barcode?.toLowerCase()) {
@@ -225,11 +220,16 @@ class _InventarioScreenState extends State<InventarioScreen>
           icon: Icon(Icons.error, color: Colors.amber),
         );
       } else {
-        int cantidad = int.parse(_cantidadController.text.isEmpty
+        int cantidad = int.parse(bloc.cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
-            : _cantidadController.text);
+            : bloc.cantidadController.text);
         bloc.add(SendProductInventarioEnvet(cantidad));
       }
+    } else {
+      int cantidad = int.parse(bloc.cantidadController.text.isEmpty
+          ? bloc.quantitySelected.toString()
+          : bloc.cantidadController.text);
+      bloc.add(SendProductInventarioEnvet(cantidad));
     }
   }
 
@@ -450,17 +450,64 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                           .productIsOk && //false
                                                       !bloc.quantityIsOk
                                                   ? () {
-                                                      context
-                                                          .read<
-                                                              InventarioBloc>()
-                                                          .add(
-                                                              GetLocationsEvent());
+                                                      if (bloc
+                                                          .ubicacionesFilters
+                                                          .isEmpty) {
+                                                        Get.defaultDialog(
+                                                          title:
+                                                              '360 Software Informa',
+                                                          titleStyle: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 18),
+                                                          middleText:
+                                                              "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
+                                                          middleTextStyle:
+                                                              TextStyle(
+                                                                  color: black,
+                                                                  fontSize: 14),
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          radius: 10,
+                                                          actions: [
+                                                            ElevatedButton(
+                                                              onPressed: () {
+                                                                context
+                                                                    .read<
+                                                                        InventarioBloc>()
+                                                                    .add(
+                                                                        GetLocationsEvent());
+                                                                //esperamos 1 segundo para que se vea el dialogo
 
-                                                      Navigator
-                                                          .pushReplacementNamed(
-                                                        context,
-                                                        'search-location',
-                                                      );
+                                                                Get.back();
+                                                              },
+                                                              style:
+                                                                  ElevatedButton
+                                                                      .styleFrom(
+                                                                backgroundColor:
+                                                                    primaryColorApp,
+                                                                shape:
+                                                                    RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                ),
+                                                              ),
+                                                              child: Text(
+                                                                  'Cargar ubicaciones',
+                                                                  style: TextStyle(
+                                                                      color:
+                                                                          white)),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      } else {
+                                                        Navigator
+                                                            .pushReplacementNamed(
+                                                          context,
+                                                          'search-location',
+                                                        );
+                                                      }
                                                     }
                                                   : null,
                                               child: Row(
@@ -492,8 +539,8 @@ class _InventarioScreenState extends State<InventarioScreen>
                                               child: TextFormField(
                                                 autofocus: true,
                                                 showCursor: false,
-                                                controller:
-                                                    _controllerLocation, // Asignamos el controlador
+                                                controller: bloc
+                                                    .controllerLocation, // Asignamos el controlador
                                                 enabled: !bloc
                                                         .locationIsOk && // false
                                                     !bloc
@@ -560,16 +607,67 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                             .productIsOk && //false
                                                         !bloc.quantityIsOk
                                                     ? () {
-                                                        context
-                                                            .read<
-                                                                InventarioBloc>()
-                                                            .add(
-                                                                GetLocationsEvent());
-                                                        Navigator
-                                                            .pushReplacementNamed(
-                                                          context,
-                                                          'search-location',
-                                                        );
+                                                        if (bloc
+                                                            .ubicacionesFilters
+                                                            .isEmpty) {
+                                                          Get.defaultDialog(
+                                                            title:
+                                                                '360 Software Informa',
+                                                            titleStyle:
+                                                                TextStyle(
+                                                                    color: Colors
+                                                                        .red,
+                                                                    fontSize:
+                                                                        18),
+                                                            middleText:
+                                                                "No hay ubicaciones cargadas, por favor cargues las ubicaciones",
+                                                            middleTextStyle:
+                                                                TextStyle(
+                                                                    color:
+                                                                        black,
+                                                                    fontSize:
+                                                                        14),
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            radius: 10,
+                                                            actions: [
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  context
+                                                                      .read<
+                                                                          InventarioBloc>()
+                                                                      .add(
+                                                                          GetLocationsEvent());
+                                                                  //esperamos 1 segundo para que se vea el dialogo
+
+                                                                  Get.back();
+                                                                },
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  backgroundColor:
+                                                                      primaryColorApp,
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10),
+                                                                  ),
+                                                                ),
+                                                                child: Text(
+                                                                    'Cargar ubicaciones',
+                                                                    style: TextStyle(
+                                                                        color:
+                                                                            white)),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        } else {
+                                                          Navigator
+                                                              .pushReplacementNamed(
+                                                            context,
+                                                            'search-location',
+                                                          );
+                                                        }
                                                       }
                                                     : null,
                                                 child: Row(
@@ -659,18 +757,69 @@ class _InventarioScreenState extends State<InventarioScreen>
                                         child: Column(
                                           children: [
                                             GestureDetector(
-                                              onTap: bloc.locationIsOk && //true
-                                                      !bloc
-                                                          .productIsOk && //false
-                                                      !bloc.quantityIsOk
-                                                  ? () {
-                                                      Navigator
-                                                          .pushReplacementNamed(
-                                                        context,
-                                                        'search-product',
-                                                      );
-                                                    }
-                                                  : null,
+                                              onTap:
+
+                                                  // bloc.locationIsOk && //true
+                                                  //         !bloc
+                                                  //             .productIsOk && //false
+                                                  //         !bloc.quantityIsOk
+                                                  //     ?
+                                                  () {
+                                                if (bloc.productos.isEmpty) {
+                                                  Get.defaultDialog(
+                                                    title:
+                                                        '360 Software Informa',
+                                                    titleStyle: TextStyle(
+                                                        color: Colors.red,
+                                                        fontSize: 18),
+                                                    middleText:
+                                                        "No hay productos cargadoss, por favor cargues las productos",
+                                                    middleTextStyle: TextStyle(
+                                                        color: black,
+                                                        fontSize: 14),
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    radius: 10,
+                                                    actions: [
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          context
+                                                              .read<
+                                                                  InventarioBloc>()
+                                                              .add(
+                                                                  GetProductsEvent());
+                                                          //esperamos 1 segundo para que se vea el dialogo
+
+                                                          Get.back();
+                                                        },
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              primaryColorApp,
+                                                          shape:
+                                                              RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                          ),
+                                                        ),
+                                                        child: Text(
+                                                            'Cargar productos',
+                                                            style: TextStyle(
+                                                                color: white)),
+                                                      ),
+                                                    ],
+                                                  );
+                                                } else {
+                                                  Navigator
+                                                      .pushReplacementNamed(
+                                                    context,
+                                                    'search-product',
+                                                  );
+                                                }
+                                              },
+                                              // : null,
                                               child: Row(
                                                 children: [
                                                   Align(
@@ -701,8 +850,8 @@ class _InventarioScreenState extends State<InventarioScreen>
                                               child: TextFormField(
                                                 autofocus: true,
                                                 showCursor: false,
-                                                controller:
-                                                    _controllerProduct, // Asignamos el controlador
+                                                controller: bloc
+                                                    .controllerProduct, // Asignamos el controlador
                                                 enabled: bloc
                                                         .locationIsOk && // false
                                                     !bloc
@@ -893,11 +1042,66 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         !bloc.productIsOk && //false
                                                         !bloc.quantityIsOk
                                                     ? () {
-                                                        Navigator
-                                                            .pushReplacementNamed(
-                                                          context,
-                                                          'search-product',
-                                                        );
+                                                        if (bloc.productos
+                                                            .isEmpty) {
+                                                          Get.defaultDialog(
+                                                            title:
+                                                                '360 Software Informa',
+                                                            titleStyle:
+                                                                TextStyle(
+                                                                    color: Colors
+                                                                        .red,
+                                                                    fontSize:
+                                                                        18),
+                                                            middleText:
+                                                                "No hay productos cargadoss, por favor cargues las productos",
+                                                            middleTextStyle:
+                                                                TextStyle(
+                                                                    color:
+                                                                        black,
+                                                                    fontSize:
+                                                                        14),
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            radius: 10,
+                                                            actions: [
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  context
+                                                                      .read<
+                                                                          InventarioBloc>()
+                                                                      .add(
+                                                                          GetProductsEvent());
+                                                                  //esperamos 1 segundo para que se vea el dialogo
+
+                                                                  Get.back();
+                                                                },
+                                                                style: ElevatedButton
+                                                                    .styleFrom(
+                                                                  backgroundColor:
+                                                                      primaryColorApp,
+                                                                  shape:
+                                                                      RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            10),
+                                                                  ),
+                                                                ),
+                                                                child: Text(
+                                                                    'Cargar productos',
+                                                                    style: TextStyle(
+                                                                        color:
+                                                                            white)),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        } else {
+                                                          Navigator
+                                                              .pushReplacementNamed(
+                                                            context,
+                                                            'search-product',
+                                                          );
+                                                        }
                                                       }
                                                     : null,
                                                 child: Row(
@@ -1253,8 +1457,8 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         bloc.quantityIsOk //true
                                                 ,
                                                 // showCursor: false,
-                                                controller:
-                                                    _controllerQuantity, // Controlador que maneja el texto
+                                                controller: bloc
+                                                    .controllerQuantity, // Controlador que maneja el texto
                                                 focusNode: focusNode3,
                                                 onChanged: (value) {
                                                   validateQuantity(value);
@@ -1359,7 +1563,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                       0; // O cualquier valor que consideres adecuado
                                 }
                               },
-                              controller: _cantidadController,
+                              controller: bloc.cantidadController,
                               keyboardType: TextInputType.number,
                               readOnly: context
                                       .read<UserBloc>()
@@ -1374,7 +1578,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                   onPressed: () {
                                     bloc.add(
                                         ShowQuantityEvent(!bloc.viewQuantity));
-                                    _cantidadController.clear();
+                                    bloc.cantidadController.clear();
                                     //cambiamos el foco pa leer por pda la cantidad
                                     Future.delayed(
                                         const Duration(milliseconds: 100), () {
@@ -1422,7 +1626,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                 .fabricante
                                 .contains("Zebra"),
                         child: CustomKeyboardNumber(
-                          controller: _cantidadController,
+                          controller: bloc.cantidadController,
                           onchanged: () {
                             _validatebuttonquantity();
                           },

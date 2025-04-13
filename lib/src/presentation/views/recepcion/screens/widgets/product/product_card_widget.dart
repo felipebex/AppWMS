@@ -75,9 +75,10 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                           ?.manualProductReading ==
                       false
                   ? null
-                  :  !recepcionBloc.productIsOk
+                  : !recepcionBloc.productIsOk
                       ? (String? newValue) {
-                          if (newValue == currentProduct.productName.toString()) {
+                          if (newValue ==
+                              currentProduct.productName.toString()) {
                             recepcionBloc.add(ValidateFieldsOrderEvent(
                                 field: "product", isOk: true));
 
@@ -95,11 +96,16 @@ class ProductDropdownOrderWidget extends StatelessWidget {
                                 0,
                                 currentProduct.idMove ?? 0));
 
-                            recepcionBloc.add(ChangeIsOkQuantity(
+                            if (recepcionBloc.configurations.result?.result
+                                    ?.scanDestinationLocationReception ==
+                                false) {
+                              recepcionBloc.add(ChangeIsOkQuantity(
                                 currentProduct.idRecepcion ?? 0,
                                 true,
                                 int.parse(currentProduct.productId),
-                                currentProduct.idMove ?? 0));
+                                currentProduct.idMove ?? 0,
+                              ));
+                            }
                           } else {
                             recepcionBloc.add(ValidateFieldsOrderEvent(
                                 field: "product", isOk: false));

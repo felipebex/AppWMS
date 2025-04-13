@@ -118,11 +118,11 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       version = androidInfo.version.release;
       fabricante = androidInfo.manufacturer;
 
-      print('idDispositivo:  ${Ulid().toUuid()}');
 
       idDispositivo =
           androidInfo.id; // Este es el ID único para dispositivos Android
       print('idDispositivo: $idDispositivo');
+      print('fabricante: $fabricante');
 
       versionApp = packageInfo.version; // Versión de la app
 
@@ -130,7 +130,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       almacenes =
           await db.warehouseRepository.getAllowedWarehouse();
 
-      print('almacenes: ${almacenes.length}');
 
       emit(LoadInfoDeviceStateUser());
     } catch (e, s) {

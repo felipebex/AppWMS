@@ -97,6 +97,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                     ? Padding(
                         padding: const EdgeInsets.only(bottom: 36),
                         child: CustomKeyboard(
+                          isLogin: false,
                           controller:
                               context.read<WMSPickingBloc>().searchController,
                           onchanged: () {

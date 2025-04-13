@@ -1022,40 +1022,40 @@ class UserScreen extends StatelessWidget {
                                                               primaryColorApp)),
                                                 ),
                                                 const SizedBox(height: 10),
-                                                Row(
-                                                  children: [
-                                                    const Text(
-                                                        "Mover mas de lo planteado: ",
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: black)),
-                                                    const Spacer(),
-                                                    Checkbox(
-                                                        value: config
-                                                                .result
-                                                                ?.result
-                                                                ?.allowMoveExcess ??
-                                                            false,
-                                                        onChanged: null),
-                                                    IconButton(
-                                                        onPressed: () {
-                                                          showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return const DialogInfo(
-                                                                  title:
-                                                                      "Mover mas de lo planteado",
-                                                                  body:
-                                                                      "Permite al usuario mover mas productos de los experados (por ejemplo: kg, unidades, etc.)",
-                                                                );
-                                                              });
-                                                        },
-                                                        icon: Icon(Icons.help,
-                                                            color:
-                                                                primaryColorApp))
-                                                  ],
-                                                ),
+                                                // Row(
+                                                //   children: [
+                                                //     const Text(
+                                                //         "Mover mas de lo planteado: ",
+                                                //         style: TextStyle(
+                                                //             fontSize: 14,
+                                                //             color: black)),
+                                                //     const Spacer(),
+                                                //     Checkbox(
+                                                //         value: config
+                                                //                 .result
+                                                //                 ?.result
+                                                //                 ?.allowMoveExcess ??
+                                                //             false,
+                                                //         onChanged: null),
+                                                //     IconButton(
+                                                //         onPressed: () {
+                                                //           showDialog(
+                                                //               context: context,
+                                                //               builder:
+                                                //                   (context) {
+                                                //                 return const DialogInfo(
+                                                //                   title:
+                                                //                       "Mover mas de lo planteado",
+                                                //                   body:
+                                                //                       "Permite al usuario mover mas productos de los experados (por ejemplo: kg, unidades, etc.)",
+                                                //                 );
+                                                //               });
+                                                //         },
+                                                //         icon: Icon(Icons.help,
+                                                //             color:
+                                                //                 primaryColorApp))
+                                                //   ],
+                                                // ),
                                                 Row(
                                                   children: [
                                                     const Text(
@@ -1127,7 +1127,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Ubicación de origen: ",
+                                                        "Escanear ubicacion destino: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -1136,7 +1136,7 @@ class UserScreen extends StatelessWidget {
                                                         value: config
                                                                 .result
                                                                 ?.result
-                                                                ?.manualSourceLocation ??
+                                                                ?.scanDestinationLocationReception ??
                                                             false,
                                                         onChanged: null),
                                                     IconButton(
@@ -1147,9 +1147,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Ubicación de origen",
+                                                                      "Escanear ubicacion manual del producto",
                                                                   body:
-                                                                      "Permite al usuario seleccionar de forma manual la ubicacion de origen del producto a recibir",
+                                                                      "El tendra que selecionar o escanear la ubicacion destino del producto a recibir",
                                                                 );
                                                               });
                                                         },
@@ -1158,6 +1158,40 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
+                                                // Row(
+                                                //   children: [
+                                                //     const Text(
+                                                //         "Ubicación de origen: ",
+                                                //         style: TextStyle(
+                                                //             fontSize: 14,
+                                                //             color: black)),
+                                                //     const Spacer(),
+                                                //     Checkbox(
+                                                //         value: config
+                                                //                 .result
+                                                //                 ?.result
+                                                //                 ?.manualSourceLocation ??
+                                                //             false,
+                                                //         onChanged: null),
+                                                //     IconButton(
+                                                //         onPressed: () {
+                                                //           showDialog(
+                                                //               context: context,
+                                                //               builder:
+                                                //                   (context) {
+                                                //                 return const DialogInfo(
+                                                //                   title:
+                                                //                       "Ubicación de origen",
+                                                //                   body:
+                                                //                       "Permite al usuario seleccionar de forma manual la ubicacion de origen del producto a recibir",
+                                                //                 );
+                                                //               });
+                                                //         },
+                                                //         icon: Icon(Icons.help,
+                                                //             color:
+                                                //                 primaryColorApp))
+                                                //   ],
+                                                // ),
                                               ],
                                             ),
                                           ),

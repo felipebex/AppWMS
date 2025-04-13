@@ -45,6 +45,7 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   void _onUpdateScannedValueEvent(
       UpdateScannedValueEvent event, Emitter<InfoRapidaState> emit) {
     scannedValue1 += event.scannedValue.trim();
+    print('scannedValue1: $scannedValue1');
     emit(UpdateScannedValueState(scannedValue1));
   }
 

@@ -129,6 +129,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                     .read<TransferenciaBloc>()
                     .isKeyboardVisible
                 ? CustomKeyboard(
+                  isLogin: false,
                     controller: context
                         .read<TransferenciaBloc>()
                         .searchControllerTransfer,

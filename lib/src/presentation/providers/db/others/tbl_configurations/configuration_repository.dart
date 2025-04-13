@@ -59,16 +59,18 @@ class ConfigurationsRepository {
         ConfigurationsTable.columnShowOwnerField:
             _boolToInt(configuration.result?.result?.showOwnerField),
 
-        ConfigurationsTable.columnManualProductSelectionTransfer:
-            _boolToInt(configuration.result?.result?.manualProductSelectionTransfer),
-    ConfigurationsTable.columnManualSourceLocationTransfer:
-            _boolToInt(configuration.result?.result?.manualSourceLocationTransfer),
-    ConfigurationsTable.columnManualDestLocationTransfer:
-            _boolToInt(configuration.result?.result?.manualDestLocationTransfer),
-    ConfigurationsTable.columnManualQuantityTransfer:
+        ConfigurationsTable.columnManualProductSelectionTransfer: _boolToInt(
+            configuration.result?.result?.manualProductSelectionTransfer),
+        ConfigurationsTable.columnManualSourceLocationTransfer: _boolToInt(
+            configuration.result?.result?.manualSourceLocationTransfer),
+        ConfigurationsTable.columnManualDestLocationTransfer: _boolToInt(
+            configuration.result?.result?.manualDestLocationTransfer),
+        ConfigurationsTable.columnManualQuantityTransfer:
             _boolToInt(configuration.result?.result?.manualQuantityTransfer),
-        
-        
+
+        // columnScanDestinationLocationReception
+        ConfigurationsTable.columnScanDestinationLocationReception: _boolToInt(
+            configuration.result?.result?.scanDestinationLocationReception),
       };
 
       // Realizar la inserción o actualización usando INSERT OR REPLACE
@@ -152,15 +154,16 @@ class ConfigurationsRepository {
                   map[ConfigurationsTable.columnManualSourceLocation]),
               showOwnerField:
                   _intToBool(map[ConfigurationsTable.columnShowOwnerField]),
-              manualProductSelectionTransfer: _intToBool(
-                  map[ConfigurationsTable.columnManualProductSelectionTransfer]),
+              manualProductSelectionTransfer: _intToBool(map[
+                  ConfigurationsTable.columnManualProductSelectionTransfer]),
               manualSourceLocationTransfer: _intToBool(
                   map[ConfigurationsTable.columnManualSourceLocationTransfer]),
               manualDestLocationTransfer: _intToBool(
                   map[ConfigurationsTable.columnManualDestLocationTransfer]),
               manualQuantityTransfer: _intToBool(
                   map[ConfigurationsTable.columnManualQuantityTransfer]),
-              
+              scanDestinationLocationReception: _intToBool(map[
+                  ConfigurationsTable.columnScanDestinationLocationReception]),
             ),
           ),
         );

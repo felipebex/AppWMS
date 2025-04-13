@@ -763,6 +763,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                   : int.parse(_cantidadController.text),
                               context);
                         },
+                        
                       )
                     ],
                   ),

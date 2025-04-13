@@ -40,15 +40,7 @@ final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-// // Cambiar el color del texto de la barra de estado
-//   SystemChrome.setSystemUIOverlayStyle(
-//     SystemUiOverlayStyle(
-//       statusBarColor: Colors.transparent, // O cualquier color que necesites
-//       statusBarIconBrightness:
-//           Brightness.dark, // dark: texto oscuro | light: texto blanco
-//       statusBarBrightness: Brightness.light, // Para iOS
-//     ),
-//   );
+  WidgetsFlutterBinding.ensureInitialized();
 
   ErrorWidget.builder = (FlutterErrorDetails details) => Scaffold(
         body: SizedBox(
@@ -64,8 +56,7 @@ void main() async {
         ),
       );
 
-  WidgetsFlutterBinding
-      .ensureInitialized(); // Asegurarse de que Flutter está preparado.
+// Asegurarse de que Flutter está preparado.
 
   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
   await LocalNotificationsService().initializeNotifications();
@@ -73,6 +64,7 @@ void main() async {
   // Otras inicializaciones, como configuraciones de orientación y preferencias
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) async {
+
     await Preferences.init(); // Inicializa preferencias.
 
     // Luego se inicia la app

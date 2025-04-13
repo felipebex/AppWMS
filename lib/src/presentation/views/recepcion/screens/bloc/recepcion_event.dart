@@ -5,22 +5,15 @@ sealed class RecepcionEvent {}
 
 class FetchOrdenesCompra extends RecepcionEvent {
   final bool isLoadinDialog;
-  FetchOrdenesCompra(this.isLoadinDialog );
+  FetchOrdenesCompra(this.isLoadinDialog);
 }
 
-class FetchOrdenesCompraOfBd extends RecepcionEvent {
-}
-
-
+class FetchOrdenesCompraOfBd extends RecepcionEvent {}
 
 class CurrentOrdenesCompra extends RecepcionEvent {
   ResultEntrada resultEntrada;
-  CurrentOrdenesCompra( this.resultEntrada);
+  CurrentOrdenesCompra(this.resultEntrada);
 }
-
-
-
-
 
 class ShowKeyboardEvent extends RecepcionEvent {
   final bool showKeyboard;
@@ -48,7 +41,9 @@ class GetPorductsToEntrada extends RecepcionEvent {
 
 class FetchPorductOrder extends RecepcionEvent {
   final LineasTransferencia product;
-  FetchPorductOrder(this.product,);
+  FetchPorductOrder(
+    this.product,
+  );
 }
 
 class ValidateFieldsOrderEvent extends RecepcionEvent {
@@ -70,9 +65,6 @@ class UpdateScannedValueOrderEvent extends RecepcionEvent {
 
 //* CAMBIAR VALORES DE VARIABLES
 
-
-
-
 class ChangeProductIsOkEvent extends RecepcionEvent {
   final int idEntrada;
   final bool productIsOk;
@@ -82,6 +74,7 @@ class ChangeProductIsOkEvent extends RecepcionEvent {
   ChangeProductIsOkEvent(this.idEntrada, this.productIsOk, this.productId,
       this.quantity, this.idMove);
 }
+
 class SelectecLoteEvent extends RecepcionEvent {
   final LotesProduct lote;
   SelectecLoteEvent(this.lote);
@@ -122,56 +115,76 @@ class AddQuantitySeparate extends RecepcionEvent {
   );
 }
 
-class LoadAllNovedadesOrderEvent extends RecepcionEvent {}
-
-class FinalizarRecepcionProducto extends RecepcionEvent {
+class ChangeLocationDestIsOkEvent extends RecepcionEvent {
+  final int idEntrada;
+  final bool isOk;
+  final int productId;
+  final int idMove;
+  final ResultUbicaciones locationSelect;
+  ChangeLocationDestIsOkEvent(
+    this.idEntrada,
+    this.isOk,
+    this.productId,
+    this.idMove,
+    this.locationSelect,
+  );
 }
 
+class LoadAllNovedadesOrderEvent extends RecepcionEvent {}
+
+class FinalizarRecepcionProducto extends RecepcionEvent {}
 
 class FinalizarRecepcionProductoSplit extends RecepcionEvent {
-
   final int quantity;
 
   FinalizarRecepcionProductoSplit(this.quantity);
-
 }
 
-
-class GetLotesProduct extends RecepcionEvent {
-  
-}
+class GetLotesProduct extends RecepcionEvent {}
 
 class SendProductToOrder extends RecepcionEvent {
-
   final bool isSplit;
   final int quantity;
 
   SendProductToOrder(this.isSplit, this.quantity);
- 
-
 }
-
 
 class CreateLoteProduct extends RecepcionEvent {
- 
   final String nameLote;
   final String fechaCaducidad;
-  CreateLoteProduct( this.nameLote, this.fechaCaducidad);
+  CreateLoteProduct(this.nameLote, this.fechaCaducidad);
 }
-
-
 
 class StartOrStopTimeOrder extends RecepcionEvent {
-  final int  idRecepcion;
+  final int idRecepcion;
   final String value;
 
-  StartOrStopTimeOrder(this.idRecepcion, this.value, );
+  StartOrStopTimeOrder(
+    this.idRecepcion,
+    this.value,
+  );
 }
 
-
 class CreateBackOrderOrNot extends RecepcionEvent {
-
   final int idRecepcion;
   final bool isBackOrder;
-  CreateBackOrderOrNot( this.idRecepcion, this.isBackOrder);
+  CreateBackOrderOrNot(this.idRecepcion, this.isBackOrder);
+}
+
+class SearchLotevent extends RecepcionEvent {
+  final String query;
+
+  SearchLotevent(
+    this.query,
+  );
+}
+
+class GetLocationsDestEvent extends RecepcionEvent {}
+
+class SearchLocationEvent extends RecepcionEvent {
+  final String query;
+
+  SearchLocationEvent(
+    this.query,
+  );
 }

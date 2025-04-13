@@ -105,6 +105,7 @@ class SelectEnterpricePage extends StatelessWidget {
                                     .fabricante
                                     .contains("Zebra"),
                                 child: CustomKeyboard(
+                                  isLogin: true,
                                     controller: context
                                         .read<EntrepriseBloc>()
                                         .entrepriceController,
@@ -157,6 +158,8 @@ class _loginForm extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: TextFormField(
                     autocorrect: false,
+                    autofocus: true,
+                    showCursor: true,
                     controller:
                         context.read<EntrepriseBloc>().entrepriceController,
                     style: const TextStyle(fontSize: 12),
@@ -187,10 +190,10 @@ class _loginForm extends StatelessWidget {
           Container(
             margin: const EdgeInsets.only(top: 5),
             height: context.read<EntrepriseBloc>().recentUrls.isEmpty
-                ? 90
+                ? 150
                 : context.read<UserBloc>().fabricante.contains("Zebra")
-                    ? 100
-                    : 150, // Altura de la lista de URLs recientes
+                    ? 150
+                    : 200, // Altura de la lista de URLs recientes
             child: ListView.builder(
               padding: const EdgeInsets.all(0),
               itemCount: context.read<EntrepriseBloc>().recentUrls.length,

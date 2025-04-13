@@ -93,6 +93,9 @@ class DataConfig {
   bool? manualQuantityTransfer;
   bool? countQuantityInventory;
 
+  //scan_destination_location_reception
+  bool? scanDestinationLocationReception;
+
   DataConfig({
     this.name,
     this.id,
@@ -124,6 +127,7 @@ class DataConfig {
     this.manualDestLocationTransfer,
     this.manualQuantityTransfer,
     this.countQuantityInventory,
+    this.scanDestinationLocationReception,
   });
 
   factory DataConfig.fromMap(Map<String, dynamic> json) => DataConfig(
@@ -162,6 +166,8 @@ class DataConfig {
         manualDestLocationTransfer: json["manual_dest_location_transfer"],
         manualQuantityTransfer: json["manual_quantity_transfer"],
         countQuantityInventory: json["count_quantity_inventory"],
+        scanDestinationLocationReception:
+            json["scan_destination_location_reception"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -197,6 +203,8 @@ class DataConfig {
         "manual_dest_location_transfer": manualDestLocationTransfer,
         "manual_quantity_transfer": manualQuantityTransfer,
         "count_quantity_inventory": countQuantityInventory,
+        "scan_destination_location_reception":
+            scanDestinationLocationReception,
       };
 }
 

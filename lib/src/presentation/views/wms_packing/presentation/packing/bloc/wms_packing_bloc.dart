@@ -578,7 +578,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 
   void _onShowKeyboardEvent(
       ShowKeyboardEvent event, Emitter<WmsPackingState> emit) {
-    isSearch = event.showKeyboard;
     isKeyboardVisible = event.showKeyboard;
     emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
   }

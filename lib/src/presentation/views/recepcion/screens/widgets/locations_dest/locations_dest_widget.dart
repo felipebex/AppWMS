@@ -3,31 +3,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class SearchLocationScreen extends StatefulWidget {
-  const SearchLocationScreen({Key? key}) : super(key: key);
+import '../../../../../providers/network/check_internet_connection.dart';
+
+class LocationDestRecepScreen extends StatefulWidget {
+  const LocationDestRecepScreen(
+      {Key? key, this.ordenCompra, this.currentProduct})
+      : super(key: key);
+  final ResultEntrada? ordenCompra;
+  final LineasTransferencia? currentProduct;
 
   @override
-  State<SearchLocationScreen> createState() => _SearchLocationScreenState();
+  State<LocationDestRecepScreen> createState() => _LocationDestScreenState();
 }
 
-class _SearchLocationScreenState extends State<SearchLocationScreen> {
+class _LocationDestScreenState extends State<LocationDestRecepScreen> {
   int? selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    return BlocBuilder<InventarioBloc, InventarioState>(
+    return BlocBuilder<RecepcionBloc, RecepcionState>(
       builder: (context, state) {
-        final bloc = context.read<InventarioBloc>();
+        final bloc = context.read<RecepcionBloc>();
         return WillPopScope(
           onWillPop: () async {
             return false;
@@ -39,7 +45,11 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                 height: size.height * 1,
                 child: Column(
                   children: [
-                    _AppBarInfo(size: size),
+                    _AppBarInfo(
+                      size: size,
+                      ordenCompra: widget.ordenCompra,
+                      currentProduct: widget.currentProduct,
+                    ),
                     SizedBox(
                         height: 55,
                         width: size.width * 1,
@@ -65,7 +75,8 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                                         ? true
                                         : false,
                                     textAlignVertical: TextAlignVertical.center,
-                                    controller: bloc.searchControllerLocation,
+                                    controller:
+                                        bloc.searchControllerLocationDest,
                                     decoration: InputDecoration(
                                       prefixIcon: const Icon(
                                         Icons.search,
@@ -74,7 +85,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                                       ),
                                       suffixIcon: IconButton(
                                           onPressed: () {
-                                            bloc.searchControllerLocation
+                                            bloc.searchControllerLocationDest
                                                 .clear();
                                             bloc.add(SearchLocationEvent(
                                               '',
@@ -211,16 +222,26 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                       child: ElevatedButton(
                         onPressed: () {
                           if (selectedIndex != null) {
-
-                            
                             // seleccionamos la ubicacion
                             final selectedLocation =
                                 bloc.ubicacionesFilters[selectedIndex!];
 
-                            //seleccionamos la ubicacion
-                            bloc.add(ValidateFieldsEvent(
-                                field: "location", isOk: true));
-                            bloc.add(ChangeLocationIsOkEvent(selectedLocation));
+                            // seleccionamos la ubicacion
+                            bloc.add(ValidateFieldsOrderEvent(
+                                field: "locationDest", isOk: true));
+                            bloc.add(ChangeLocationDestIsOkEvent(
+                                bloc.currentProduct.idRecepcion ?? 0,
+                                true,
+                                int.parse(bloc.currentProduct.productId),
+                                bloc.currentProduct.idMove ?? 0,
+                                selectedLocation));
+
+                            bloc.add(ChangeIsOkQuantity(
+                              bloc.currentProduct.idRecepcion ?? 0,
+                              true,
+                              int.parse(bloc.currentProduct.productId),
+                              bloc.currentProduct.idMove ?? 0,
+                            ));
 
                             bloc.add(ShowKeyboardEvent(false));
                             FocusScope.of(context).unfocus();
@@ -230,10 +251,10 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                             });
 
                             Navigator.pushReplacementNamed(
-                              context,
-                              'inventario',
-                              arguments: selectedLocation,
-                            );
+                                context, 'scan-product-order', arguments: [
+                              widget.ordenCompra,
+                              widget.currentProduct
+                            ]);
 
                             Get.snackbar(
                               'Ubicacion Seleccionada',
@@ -265,10 +286,10 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                           context.read<UserBloc>().fabricante.contains("Zebra"),
                       child: CustomKeyboard(
                         isLogin: false,
-                        controller: bloc.searchControllerLocation,
+                        controller: bloc.searchControllerLocationDest,
                         onchanged: () {
                           bloc.add(SearchLocationEvent(
-                            bloc.searchControllerLocation.text,
+                            bloc.searchControllerLocationDest.text,
                           ));
                         },
                       ),
@@ -286,9 +307,13 @@ class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({
     super.key,
     required this.size,
+    required this.ordenCompra,
+    required this.currentProduct,
   });
 
   final Size size;
+  final ResultEntrada? ordenCompra;
+  final LineasTransferencia? currentProduct;
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +329,7 @@ class _AppBarInfo extends StatelessWidget {
       width: double.infinity,
       child: BlocProvider(
         create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<InventarioBloc, InventarioState>(
+        child: BlocConsumer<RecepcionBloc, RecepcionState>(
             listener: (context, state) {},
             builder: (context, status) {
               return Column(
@@ -320,12 +345,12 @@ class _AppBarInfo extends StatelessWidget {
                           icon: const Icon(Icons.arrow_back, color: white),
                           onPressed: () {
                             context
-                                .read<InventarioBloc>()
+                                .read<RecepcionBloc>()
                                 .add(ShowKeyboardEvent(false));
+
                             Navigator.pushReplacementNamed(
-                              context,
-                              'inventario',
-                            );
+                                context, 'scan-product-order',
+                                arguments: [ordenCompra, currentProduct]);
                           },
                         ),
                         Padding(

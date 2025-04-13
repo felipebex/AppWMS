@@ -2,9 +2,10 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
+import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
@@ -44,6 +45,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
+  List<LotesProduct> listLotesProductFilters = [];
 
   //*valores de scanvalue
 
@@ -51,6 +53,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   String scannedValue3 = ''; //cantidad
   String scannedValue4 = ''; //lote
   String scannedValue5 = ''; //all product
+  String scannedValue6 = ''; //ubicacion destino
 
   String selectLote = '';
 
@@ -62,11 +65,16 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   TextEditingController searchControllerOrderC = TextEditingController();
   TextEditingController newLoteController = TextEditingController();
   TextEditingController dateLoteController = TextEditingController();
+  TextEditingController searchControllerLote = TextEditingController();
+  TextEditingController locationDestController = TextEditingController();
+
+  TextEditingController searchControllerLocationDest = TextEditingController();
 
   //*variables para validar
   bool productIsOk = false;
   bool loteIsOk = false;
   bool quantityIsOk = false;
+  bool locationsDestIsok = false;
   bool isKeyboardVisible = false;
   bool viewQuantity = false;
 
@@ -74,7 +82,14 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   bool isProductOk = true;
   bool isQuantityOk = true;
   bool isLoteOk = true;
+  bool isLocationDestOk = true;
   int quantitySelected = 0;
+
+  //*lista de ubicaciones
+  List<ResultUbicaciones> ubicaciones = [];
+  List<ResultUbicaciones> ubicacionesFilters = [];
+
+  ResultUbicaciones? currentUbicationDest;
 
 //*base de datos
   DataBaseSqlite db = DataBaseSqlite();
@@ -127,6 +142,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     //*evento para ver la cantidad
     on<ShowQuantityOrderEvent>(_onShowQuantityEvent);
 
+    //*cambiar el estado de las variables
+    on<ChangeLocationDestIsOkEvent>(_onChangeLocationIsOkEvent);
+
     //*evento para obtener las novedades
     on<LoadAllNovedadesOrderEvent>(_onLoadAllNovedadesEvent);
     add(LoadAllNovedadesOrderEvent());
@@ -151,6 +169,103 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     //*metodo para crear barckorder o no
     on<CreateBackOrderOrNot>(_onCreateBackOrder);
+
+    //metodo para buscar un lote
+    on<SearchLotevent>(_onSearchLoteEvent);
+
+    //*metodo para cargar las ubicaciones
+    on<GetLocationsDestEvent>(_onLoadLocations);
+
+    //metodo para buscar una ubicacion
+    on<SearchLocationEvent>(_onSearchLocationEvent);
+  }
+
+  //*metodo para validar la ubicacion
+  void _onChangeLocationIsOkEvent(
+      ChangeLocationDestIsOkEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      if (isLocationDestOk) {
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            event.idEntrada,
+            event.productId,
+            "locationdest_is_ok",
+            1,
+            event.idMove);
+
+        currentUbicationDest = event.locationSelect;
+        locationsDestIsok = true;
+
+        emit(ChangeLocationDestIsOkState(
+          locationsDestIsok,
+        ));
+      }
+    } catch (e, s) {
+      print("❌ Error en el ChangeLocationIsOkEvent $e ->$s");
+    }
+  }
+
+  void _onSearchLocationEvent(
+      SearchLocationEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(SearchLoading());
+      ubicacionesFilters = [];
+      ubicacionesFilters = ubicaciones;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        ubicacionesFilters = ubicaciones;
+      } else {
+        ubicacionesFilters = ubicaciones.where((location) {
+          return location.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(SearchLocationSuccess(ubicacionesFilters));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
+  }
+
+  void _onLoadLocations(
+      GetLocationsDestEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(LoadLocationsLoading());
+      final response = await db.ubicacionesRepository.getAllUbicaciones();
+      ubicaciones.clear();
+      ubicacionesFilters.clear();
+      if (response.isNotEmpty) {
+        ubicaciones = response;
+        ubicacionesFilters = ubicaciones;
+        print('ubicaciones length: ${ubicaciones.length}');
+        emit(LoadLocationsSuccess(ubicaciones));
+      } else {
+        print('No se encontraron ubicaciones');
+        emit(LoadLocationsFailure('No se encontraron ubicaciones'));
+      }
+    } catch (e, s) {
+      emit(LoadLocationsFailure('Error al cargar las ubicaciones'));
+      print('Error en el fetch de ubicaciones: $e=>$s');
+    }
+  }
+
+  void _onSearchLoteEvent(
+      SearchLotevent event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(SearchLoading());
+      listLotesProductFilters = [];
+      listLotesProductFilters = listLotesProduct;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        listLotesProductFilters = listLotesProduct;
+      } else {
+        listLotesProductFilters = listLotesProduct.where((lotes) {
+          return lotes.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(SearchLoteSuccess(listLotesProductFilters));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
   }
 
   void _onCreateBackOrder(
@@ -265,7 +380,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       if (response != null) {
         //agregamos el nuevo lote a la lista de lotes
-        listLotesProduct.add(response.result?.result ?? LotesProduct());
+        listLotesProductFilters.add(response.result?.result ?? LotesProduct());
         selectLote = response.result?.result?.name ?? '';
         lotesProductCurrent = response.result?.result ?? LotesProduct();
 
@@ -314,9 +429,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       emit(SendProductToOrderLoading());
 
       final userid = await PrefUtils.getUserId();
-      
 
-        print("loteeeeeee: ${lotesProductCurrent.toMap()}");
+      print("loteeeeeee: ${lotesProductCurrent.toMap()}");
 
       //calculamos la fecha de transaccion
       DateTime fechaTransaccion = DateTime.now();
@@ -347,7 +461,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       var difference = dateEnd.difference(dateStart);
       int time = difference.inSeconds;
 
-
       //lo convertimos en entero
       //actualizamos el tiempo del producto
       await db.productEntradaRepository.setFieldTableProductEntrada(
@@ -366,7 +479,12 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               idProducto: int.parse(productBD?.productId),
               idMove: productBD?.idMove ?? 0,
               loteProducto: lotesProductCurrent.id ?? 0,
-              ubicacionDestino: productBD?.locationDestId ?? 0,
+              //validamos permiso
+              ubicacionDestino: configurations
+                          .result?.result?.scanDestinationLocationReception ==
+                      true
+                  ? currentUbicationDest?.id ?? 0
+                  : productBD?.locationDestId ?? 0,
               cantidadSeparada: event.quantity,
               observacion: productBD?.observation == ""
                   ? "Sin novedad"
@@ -380,9 +498,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         false,
       );
 
-
-        print("loteeeeeee: ${lotesProductCurrent.toMap()}");
-
+      print("loteeeeeee: ${lotesProductCurrent.toMap()}");
 
       if (responseSend.result?.code == 200) {
         // marcamos tiempo final de sepfaracion
@@ -414,7 +530,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             currentProduct.idMove);
 
         add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
-        emit(SendProductToOrderFailure(responseSend .result?.msg ?? ""));
+        emit(SendProductToOrderFailure(responseSend.result?.msg ?? ""));
       }
     } catch (e, s) {
       emit(SendProductToOrderFailure('Error al enviar el producto'));
@@ -442,6 +558,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       if (response != null && response is List) {
         listLotesProduct = response;
+        listLotesProductFilters = response;
         emit(GetLotesProductSuccess(response));
       } else {
         emit(GetLotesProductFailure('Error al obtener los lotes del producto'));
@@ -570,8 +687,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "is_quantity_is_ok",
           1,
           event.idMove);
+      quantityIsOk = event.isOk;
     }
-    quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
       quantityIsOk,
     ));
@@ -652,7 +769,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     lotesProductCurrent = event.lote;
 
-    
     //actualizamos el lote id
     await db.productEntradaRepository.setFieldTableProductEntrada(
       currentProduct.idRecepcion,
@@ -707,6 +823,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           emit(ClearScannedValueOrderState());
           break;
 
+        case 'locationDest':
+          scannedValue6 = '';
+          emit(ClearScannedValueOrderState());
+          break;
+
         default:
           print('Scan type not recognized: ${event.scan}');
       }
@@ -741,6 +862,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           scannedValue5 += event.scannedValue.trim();
           emit(UpdateScannedValueOrderState(scannedValue5, event.scan));
           break;
+        case 'locationDest':
+          scannedValue6 += event.scannedValue.trim();
+          emit(UpdateScannedValueOrderState(scannedValue6, event.scan));
+          print('scannedValue6: $scannedValue6');
 
         default:
           print('Scan type not recognized: ${event.scan}');
@@ -763,6 +888,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       case 'quantity':
         isQuantityOk = event.isOk;
         break;
+
+      case 'locationDest':
+        isLocationDestOk = event.isOk;
+        break;
     }
     print(' Product: $isProductOk, lote: $isLoteOk, Quantity: $isQuantityOk');
     emit(ValidateFieldsOrderState(isOk: event.isOk));
@@ -774,6 +903,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       isProductOk = true;
       isQuantityOk = true;
+      isLocationDestOk = true;
       isLoteOk = true;
       viewQuantity = false;
 
@@ -801,6 +931,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       quantitySelected = currentProduct.isProductSplit == 1
           ? 0
           : currentProduct.quantitySeparate ?? 0;
+      currentUbicationDest = ResultUbicaciones();
+      locationsDestIsok = false;
+      lotesProductCurrent = LotesProduct();
       //llamamos los productos de esa entrada
       products();
       //cargamos la configuracion del usuario
@@ -817,8 +950,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     // filtramos la lista a productos que no esten separados
     listProductsEntrada = listProductsEntrada
-        .where(
-            (element) => element.isSeparate == 0 || element.isSeparate == null)
+        .where((element) => element.isDoneItem == 0)
         .toList();
 
     // Recorremos los productos del batch
@@ -941,7 +1073,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       emit(FetchOrdenesCompraLoading());
 
-      listFiltersOrdenesCompra.clear() ;
+      listFiltersOrdenesCompra.clear();
 
       await db.deleRecepcion();
 
@@ -1019,6 +1151,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       emit(FetchOrdenesCompraOfBdLoading());
       final listbd = await db.entradasRepository.getAllEntradas();
+      listOrdenesCompra.clear();
+      listFiltersOrdenesCompra.clear();
       if (listbd != null && listbd.isNotEmpty) {
         listOrdenesCompra = listbd;
         listFiltersOrdenesCompra = listbd;

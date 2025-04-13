@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/b
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -291,6 +292,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ),
               ],
               child: Scaffold(
+                // floatingActionButton: FloatingActionButton(
+                //   backgroundColor: primaryColorApp,
+                //   onPressed: () {
+                //     context.read<InventarioBloc>().add(GetProductsForDB());
+                //   },
+                //   child: const Icon(Icons.settings),
+                // ),
                 backgroundColor: white,
                 body: Container(
                   color: white,
@@ -719,12 +727,27 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               if (homeBloc.userRol ==
                                                       'reception' ||
                                                   homeBloc.userRol == 'admin') {
+                                                //pedir ubicaciones
+                                                context
+                                                    .read<RecepcionBloc>()
+                                                    .add(
+                                                        GetLocationsDestEvent());
+                                                //pedir info del usuario
+
+                                                context.read<UserBloc>().add(
+                                                    LoadInfoDeviceEventUser());
+
+                                                //pedir las novedades
+                                                context
+                                                    .read<RecepcionBloc>()
+                                                    .add(LoadAllNovedadesOrderEvent());
+
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
                                                       return const DialogLoading(
                                                           message:
-                                                              'Cargando interfaz...');
+                                                              'Cargando recepciones...');
                                                     });
 
                                                 await Future.delayed(const Duration(
@@ -743,7 +766,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     content: Text(
                                                         "Su usuario no tiene permisos para acceder a este módulo"),
                                                     duration:
-                                                        Duration(seconds: 4),
+                                                        Duration(seconds: 2),
                                                   ),
                                                 );
                                               }
@@ -837,10 +860,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               if (homeBloc.userRol ==
                                                       'inventory' ||
                                                   homeBloc.userRol == 'admin') {
+                                                //obtenemos las ubicaciones
                                                 context
                                                     .read<InventarioBloc>()
                                                     .add(GetLocationsEvent());
-
+                                              //obtenemos los productos 
+                                                context
+                                                    .read<InventarioBloc>()
+                                                    .add(GetProductsForDB());
+                                                //cargamos la configuracion
                                                 context.read<InventarioBloc>().add(
                                                     LoadConfigurationsUserInventory());
 

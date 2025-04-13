@@ -37,6 +37,7 @@ class ProductRecepcionTable {
   
   static const String columnProductIsOk = 'product_is_ok';
   static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
+  static const String columnLocationDestIsOk = 'locationdest_is_ok';
 
   static const String columnDateStart = 'date_start';
   static const String columnDateEnd = 'date_end';
@@ -81,6 +82,7 @@ class ProductRecepcionTable {
       $columnLoteId INTEGER,
       $columnLotName TEXT,
       $columnProductIsOk INTEGER,
+      $columnLocationDestIsOk INTEGER,
       $columnIsQuantityIsOk INTEGER,
       $columnLoteDate TEXT,
       $columnDateStart TEXT,

@@ -25,7 +25,25 @@ class PakingListScreen extends StatefulWidget {
 
 bool isSearch = false;
 
-class _PakingListScreenState extends State<PakingListScreen> {
+class _PakingListScreenState extends State<PakingListScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+      context.read<WmsPackingBloc>().add(ShowKeyboardEvent(false));
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
@@ -37,9 +55,11 @@ class _PakingListScreenState extends State<PakingListScreen> {
         builder: (context, state) {
           return Scaffold(
             bottomNavigationBar: context
-                    .read<WmsPackingBloc>()
-                    .isKeyboardVisible
+                        .read<WmsPackingBloc>()
+                        .isKeyboardVisible &&
+                    context.read<UserBloc>().fabricante.contains("Zebra")
                 ? CustomKeyboard(
+                  isLogin: false,
                     controller:
                         context.read<WmsPackingBloc>().searchControllerPedido,
                     onchanged: () {
@@ -133,8 +153,8 @@ class _PakingListScreenState extends State<PakingListScreen> {
                             //*card informativa
                             Visibility(
                               visible: !context
-                                      .read<WmsPackingBloc>()
-                                      .isKeyboardVisible ,
+                                  .read<WmsPackingBloc>()
+                                  .isKeyboardVisible,
                               child: Card(
                                 elevation: 5,
                                 color: Colors.grey[200],
@@ -321,6 +341,15 @@ class _PakingListScreenState extends State<PakingListScreen> {
                                           color: Colors.white,
                                           elevation: 3,
                                           child: TextFormField(
+                                            //btn de cerrar teclado
+                                            onFieldSubmitted: (value) {
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(
+                                                      ShowKeyboardEvent(false));
+                                              FocusScope.of(context).unfocus();
+                                            },
+
                                             readOnly: context
                                                     .read<UserBloc>()
                                                     .fabricante
@@ -382,22 +411,11 @@ class _PakingListScreenState extends State<PakingListScreen> {
                                                       widget.batchModel?.id ??
                                                           0));
                                             },
-                                            onTap: !context
-                                                    .read<UserBloc>()
-                                                    .fabricante
-                                                    .contains("Zebra")
-                                                ? () {
-                                                    context
-                                                        .read<WmsPackingBloc>()
-                                                        .add(ShowKeyboardEvent(
-                                                            false));
-                                                  }
-                                                : () {
-                                                    context
-                                                        .read<WmsPackingBloc>()
-                                                        .add(ShowKeyboardEvent(
-                                                            true));
-                                                  },
+                                            onTap: () {
+                                              context
+                                                  .read<WmsPackingBloc>()
+                                                  .add(ShowKeyboardEvent(true));
+                                            },
                                           ),
                                         ),
                                       ),

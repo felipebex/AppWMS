@@ -986,6 +986,7 @@ class BatchDetailScreen extends StatelessWidget {
                       visible: context.read<BatchBloc>().isKeyboardVisible &&
                           context.read<UserBloc>().fabricante.contains("Zebra"),
                       child: CustomKeyboard(
+                        isLogin: false,
                         controller: context.read<BatchBloc>().searchController,
                         onchanged: () {
                           context.read<BatchBloc>().add(

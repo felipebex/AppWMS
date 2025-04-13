@@ -232,6 +232,7 @@ class ProductsEntradaRepository {
         ProductRecepcionTable.columnLoteDate: "",
         ProductRecepcionTable.columnIsQuantityIsOk: 0,
         ProductRecepcionTable.columnProductIsOk: 0,
+        ProductRecepcionTable.columnLocationDestIsOk: 0,
         ProductRecepcionTable.columnDateStart: "",
         ProductRecepcionTable.columnDateEnd: "",
         ProductRecepcionTable.columnTime: "",

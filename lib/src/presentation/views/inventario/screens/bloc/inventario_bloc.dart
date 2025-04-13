@@ -2,6 +2,7 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
@@ -21,6 +22,11 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
   TextEditingController newLoteController = TextEditingController();
   TextEditingController dateLoteController = TextEditingController();
+
+  TextEditingController controllerLocation = TextEditingController();
+  TextEditingController controllerProduct = TextEditingController();
+  TextEditingController controllerQuantity = TextEditingController();
+  TextEditingController cantidadController = TextEditingController();
 
   final InventarioRepository _inventarioRepository = InventarioRepository();
 
@@ -58,9 +64,6 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   //lista de productos
   List<Product> productos = [];
   List<Product> productosFilters = [];
-  //lista de productos de una ubicacion
-  // List<Product> productosUbicacion = [];
-  // List<Product> productosUbicacionFilters = [];
 
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
@@ -201,6 +204,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       );
 
       if (response.result?.status == 'success') {
+        clenanFields();
+        cantidadController.clear();
         emit(SendProductSuccess());
       } else {
         emit(SendProductFailure(response.result?.message ?? ""));
@@ -209,6 +214,40 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       emit(SendProductFailure('Error al enviar el producto'));
       print('Error en el _onSendProductInventarioEvent: $e, $s');
     }
+  }
+
+  void clenanFields() {
+    scannedValue1 = '';
+    scannedValue2 = '';
+    scannedValue3 = '';
+    scannedValue4 = '';
+
+    // Reset validation flags
+    locationIsOk = false;
+    productIsOk = false;
+    quantityIsOk = false;
+    viewQuantity = false;
+
+    isLocationOk = true;
+    isProductOk = true;
+    isQuantityOk = true;
+
+    // Reset quantity
+    quantitySelected = 0;
+
+    // Clear search controllers
+    searchControllerLocation.clear();
+    searchControllerProducts.clear();
+
+    // Clear current product
+    currentProduct = null;
+    currentUbication = null;
+    currentProductLote = null;
+
+    listLotesProduct.clear();
+    barcodeInventario.clear();
+
+    loteIsOk = false;
   }
 
   //*metodo para cambiar la cantidad seleccionada
@@ -317,37 +356,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   void _onCleanFields(CleanFieldsEent event, Emitter<InventarioState> emit) {
     try {
       // Reset scanned values
-      scannedValue1 = '';
-      scannedValue2 = '';
-      scannedValue3 = '';
-      scannedValue4 = '';
-
-      // Reset validation flags
-      locationIsOk = false;
-      productIsOk = false;
-      quantityIsOk = false;
-      viewQuantity = false;
-
-      isLocationOk = true;
-      isProductOk = true;
-      isQuantityOk = true;
-
-      // Reset quantity
-      quantitySelected = 0;
-
-      // Clear search controllers
-      searchControllerLocation.clear();
-      searchControllerProducts.clear();
-
-      // Clear current product
-      currentProduct = null;
-      currentUbication = null;
-      currentProductLote = null;
-
-      listLotesProduct.clear();
-      barcodeInventario.clear();
-
-      loteIsOk = false;
+      clenanFields();
 
       // Emit clean fields state
       emit(CleanFieldsState());
@@ -386,7 +395,6 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         currentUbication = event.locationSelect;
         locationIsOk = true;
 
-        // add(GetProductsByLocationEvent(event.locationSelect.id ?? 0));
         emit(ChangeLocationIsOkState(
           locationIsOk,
         ));
@@ -395,31 +403,6 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       print("❌ Error en el ChangeLocationIsOkEvent $e ->$s");
     }
   }
-
-  // void _onGetProductsByLocation(
-  //     GetProductsByLocationEvent event, Emitter<InventarioState> emit) async {
-  //   try {
-  //     print('TRAEMOS LOS PRODUCTOS DEL INVENTARIO DE LA UBICACION');
-  //     emit(GetProductsLoading());
-  //     final response =
-  //         await db.productoInventarioRepository.getAllProductsByLocation(
-  //       event.locationId,
-  //     );
-  //     if (response.isNotEmpty) {
-  //       productosUbicacionFilters.clear();
-  //       productosUbicacion.clear();
-  //       productosUbicacion = response;
-  //       productosUbicacionFilters = response;
-  //       print("Products = ${response.length}");
-  //       emit(GetProductsSuccessByLocation(response));
-  //     } else {
-  //       emit(GetProductsFailureByLocation('No se encontraron productos'));
-  //     }
-  //   } catch (e, s) {
-  //     emit(GetProductsFailureByLocation('Error al cargar los productos'));
-  //     print('Error en el fetch de _onGetProductsByLocation: $e=>$s');
-  //   }
-  // }
 
   void _onGetProducts(
       GetProductsEvent event, Emitter<InventarioState> emit) async {
@@ -442,9 +425,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
         print('Barcodes: ${allBarcodes.length}');
 
-       
-          await db.barcodesInventarioRepository
-              .insertOrUpdateBarcodes(allBarcodes);
+        await db.barcodesInventarioRepository
+            .insertOrUpdateBarcodes(allBarcodes);
         emit(GetProductsSuccess(response));
         add(GetProductsForDB());
       } else {
@@ -479,11 +461,12 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     try {
       emit(GetProductsLoadingBD());
       final response = await db.productoInventarioRepository.getAllProducts();
+      productos.clear();
+      productosFilters.clear();
       if (response.isNotEmpty) {
-        productos.clear();
-        productosFilters.clear();
         productos = response;
         productosFilters = productos;
+
         emit(GetProductsSuccessBD(response));
       } else {
         emit(GetProductsFailure('No se encontraron productos'));
@@ -649,15 +632,11 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     try {
       emit(LoadLocationsLoading());
       final response = await db.ubicacionesRepository.getAllUbicaciones();
+      ubicaciones.clear();
+      ubicacionesFilters.clear();
       if (response.isNotEmpty) {
-        ubicaciones.clear();
-        ubicacionesFilters.clear();
         ubicaciones = response;
         ubicacionesFilters = ubicaciones;
-        print('ubicaciones length: ${ubicaciones.length}');
-
-        add(GetProductsForDB());
-
         emit(LoadLocationsSuccess(ubicaciones));
       } else {
         emit(LoadLocationsFailure('No se encontraron ubicaciones'));

@@ -248,10 +248,7 @@ class _LoginFormState extends State<_LoginForm> {
                       validator: (value) => Validator.email(value, context),
                     ),
                     TextFormField(
-                      // readOnly:
-                      //     context.read<UserBloc>().fabricante.contains("Zebra")
-                      //         ? true
-                      //         : false,
+                      
                       controller: context.read<LoginBloc>().password,
                       autocorrect: false,
                       obscureText: context.watch<LoginBloc>().isVisible,
@@ -380,12 +377,19 @@ class _LoginFormState extends State<_LoginForm> {
                       ),
                     )),
               ),
+              const SizedBox(
+                height: 20,
+              ),
               Visibility(
                 visible: context.read<UserBloc>().fabricante.contains("Zebra"),
                 child: CustomKeyboard(
+                    isLogin: true,
                     controller:
                         activeController, // Cambia el controlador activamente
                     onchanged: () {}),
+              ),
+              const SizedBox(
+                height: 20,
               ),
             ],
           ),

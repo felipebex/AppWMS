@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/inventario/screens/widgets/produc
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/scan_product_screen.dart';
+import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/locations_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
@@ -71,8 +72,9 @@ class AppRoutes {
   static const String recepcion = 'recepcion';
   static const String listOrdenesCompra = 'list-ordenes-compra';
   static const String scanProductOrder = 'scan-product-order';
-  static const String scanProductTransfer = 'scan-product-transfer';
+  static const String locationDestSearch = 'search-location-recep';
 
+  static const String scanProductTransfer = 'scan-product-transfer';
   //new lote
   static const String newLote = 'new-lote';
 
@@ -164,6 +166,20 @@ class AppRoutes {
         );
       },
 
+      //BUSCADOR UBICACION DESTINO
+      locationDestSearch: (context) {
+        // Obtener los argumentos (una lista)
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final ordenCompraArg = arguments[0] as ResultEntrada?;
+        final currentProducArg = arguments[1] as LineasTransferencia?;
+
+        return LocationDestRecepScreen(
+            ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
+      },
+
       // Operaciones
 
       scanProductOrder: (context) {
@@ -245,10 +261,7 @@ class AppRoutes {
 
       //transferencias
       transferencias: (_) {
-      
-
-        return ListTransferenciasScreen(
-        );
+        return ListTransferenciasScreen();
       },
       // transferExterna: (_) => const TransferExternaScreen(),
       searchProductTrans: (_) => const SearchLocationScreenTrans(),

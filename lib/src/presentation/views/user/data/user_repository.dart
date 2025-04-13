@@ -152,7 +152,7 @@ class UserRepository {
         return [];
       }
     } catch (e, s) {
-      print('Error en configurations.dart: $e $s');
+      print('Error en ubicaciones USER: $e $s');
     }
     return [];
   }

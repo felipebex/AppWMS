@@ -34,14 +34,18 @@ class ConfigurationsTable {
   static const String columnManualSourceLocation = 'manual_source_location';
   static const String columnShowOwnerField = 'show_owner_field';
 
+  static const String columnManualSourceLocationTransfer =
+      'manual_source_location_transfer';
+  static const String columnManualDestLocationTransfer =
+      'manual_dest_location_transfer';
+  static const String columnManualQuantityTransfer = 'manual_quantity_transfer';
+  static const String columnManualProductSelectionTransfer =
+      'manual_product_selection_transfer';
 
-   static const String columnManualSourceLocationTransfer = 'manual_source_location_transfer';
-    static const String columnManualDestLocationTransfer = 'manual_dest_location_transfer';
-    static const String columnManualQuantityTransfer = 'manual_quantity_transfer';
-    static const String columnManualProductSelectionTransfer = 'manual_product_selection_transfer';
+  static const String columnCountQuantityInventory = 'count_quantity_inventory';
 
-    static const String columnCountQuantityInventory = 'count_quantity_inventory';
-
+  static const String columnScanDestinationLocationReception =
+      'scan_destination_location_reception';
 
   // Método para crear la tabla
   static String createTable() {
@@ -75,6 +79,7 @@ class ConfigurationsTable {
         $columnManualSourceLocationTransfer INTEGER,
         $columnManualDestLocationTransfer INTEGER,
         $columnManualQuantityTransfer INTEGER,
+        $columnScanDestinationLocationReception INTEGER,
         $columnCountQuantityInventory INTEGER
       )
     ''';
