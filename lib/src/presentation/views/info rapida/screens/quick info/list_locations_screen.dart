@@ -267,7 +267,7 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                             });
 
                             bloc.add(
-                                GetInfoRapida(selectedLocation.id.toString()));
+                                GetInfoRapida(selectedLocation.id.toString(), true, false));
                           }
                         },
                         style: ElevatedButton.styleFrom(

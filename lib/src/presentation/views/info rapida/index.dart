@@ -29,8 +29,6 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     super.dispose();
   }
 
-
-
   void validateBarcode(String value, BuildContext context) {
     print('value: $value');
 
@@ -41,7 +39,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     _controllerSearch.text = "";
     //validamos que el scan no este vacio
 
-    bloc.add(GetInfoRapida(scan.toUpperCase()));
+    bloc.add(GetInfoRapida(scan.toUpperCase(), false, false));
   }
 
   @override
@@ -49,9 +47,6 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
-
-
-        
         if (state is InfoRapidaError) {
           Navigator.pop(context);
           Get.snackbar(
@@ -109,8 +104,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
                 showDialog(
                   context: context,
                   builder: (context) {
-                    return DialogInfoQuick(
-                    );
+                    return DialogInfoQuick();
                   },
                 );
               },

@@ -153,16 +153,32 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   void _onGetInfoRapida(
       GetInfoRapida event, Emitter<InfoRapidaState> emit) async {
     emit(InfoRapidaLoading());
+
     try {
       infoRapidaResult = InfoRapidaResult();
-      InfoRapida infoRapida =
-          await _infoRapidaRepository.getInfoQuick(false, event.barcode.trim());
+
+      InfoRapida infoRapida; // Defínelo fuera del if
+
+      if (event.isManual) {
+        infoRapida = await _infoRapidaRepository.getInfoQuickManual(
+          true,
+          event.barcode.trim(),
+          event.isProduct,
+        );
+      } else {
+        infoRapida = await _infoRapidaRepository.getInfoQuick(
+          false,
+          event.barcode.trim(),
+        );
+      }
+
       if (infoRapida.result?.code == 200) {
         infoRapidaResult = infoRapida.result!;
         emit(InfoRapidaLoaded(infoRapidaResult, infoRapida.result!.type!));
       } else {
         emit(InfoRapidaError());
       }
+
       add(ClearScannedValueEvent());
     } catch (e) {
       emit(InfoRapidaError());

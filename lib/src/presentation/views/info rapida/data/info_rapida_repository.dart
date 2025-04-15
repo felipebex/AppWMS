@@ -21,7 +21,6 @@ class InfoRapidaRepository {
     }
 
     try {
-
       print("barcode $barcode");
       var response = await ApiRequestService().getInfo(
         endpoint: 'transferencias/quickinfo',
@@ -29,6 +28,72 @@ class InfoRapidaRepository {
           "params": {
             "barcode": barcode,
           }
+        },
+        isLoadinDialog: isLoadinDialog,
+      );
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          return InfoRapida.fromMap(jsonResponse);
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+            return InfoRapida();
+          }
+        }
+      } else {}
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return InfoRapida();
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error getInfoQuick: $e, $s');
+    }
+    return InfoRapida();
+  }
+
+  Future<InfoRapida> getInfoQuickManual(
+      bool isLoadinDialog, String id, bool isProduct) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return InfoRapida(); // Si no hay conexión, retornar una lista vacía
+    }
+
+    try {
+      print("id $id");
+      var response = await ApiRequestService().getInfo(
+        endpoint: 'transferencias/quickinfo/id',
+        body: {
+          "params": isProduct ? {"id_product": id} : {"id_location": id}
         },
         isLoadinDialog: isLoadinDialog,
       );

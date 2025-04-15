@@ -5,7 +5,9 @@ sealed class InfoRapidaEvent {}
 
 class GetInfoRapida extends InfoRapidaEvent {
   final String barcode;
-  GetInfoRapida(this.barcode);
+  final bool isManual;
+  final bool isProduct;
+  GetInfoRapida(this.barcode, this.isManual, this.isProduct );
 }
 
 class UpdateScannedValueEvent extends InfoRapidaEvent {

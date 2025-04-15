@@ -306,7 +306,7 @@ class _SearchProductScreenState extends State<ListProductsScreen> {
                             FocusScope.of(context).unfocus();
 
                             bloc.add(
-                                GetInfoRapida(selectedProduct.productId.toString()));
+                                GetInfoRapida(selectedProduct.productId.toString(), true, true));
                           }
                         },
                         style: ElevatedButton.styleFrom(

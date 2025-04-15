@@ -210,7 +210,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
                         //acutalizamos la informacion del producto volviendo a llamar su info
                         context.read<InfoRapidaBloc>().add((GetInfoRapida(
-                            widget.infoRapidaResult?.codigoBarras ?? "")));
+                            widget.infoRapidaResult?.codigoBarras ?? "", false, false)));
 
                         Navigator.pushReplacementNamed(
                           context,

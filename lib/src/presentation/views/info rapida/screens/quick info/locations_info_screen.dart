@@ -150,43 +150,15 @@ class LocationInfoScreen extends StatelessWidget {
                                       icon: Icon(Icons.arrow_forward_ios,
                                           size: 20, color: primaryColorApp),
                                       onPressed: () async {
-                                        if (producto?.codigoBarras == false
-                                            ? true
-                                            : false) {
-                                          Get.snackbar(
-                                            '360 Software Informa',
-                                            'El producto no tiene codigo de barras',
-                                            backgroundColor: white,
-                                            colorText: primaryColorApp,
-                                            icon: Icon(Icons.error,
-                                                color: Colors.red),
-                                          );
-                                          return;
-                                        } else {
-                                          getInfoProduct(
-                                              producto?.codigoBarras ?? '',
-                                              context);
-                                        }
+                                        getInfoProduct(
+                                            producto?.id.toString() ?? '',
+                                            context);
                                       },
                                     ),
                                     onTap: () async {
-                                      if (producto?.codigoBarras == false
-                                          ? true
-                                          : false) {
-                                        Get.snackbar(
-                                          '360 Software Informa',
-                                          'El producto no tiene codigo de barras',
-                                          backgroundColor: white,
-                                          colorText: primaryColorApp,
-                                          icon: Icon(Icons.error,
-                                              color: Colors.red),
-                                        );
-                                        return;
-                                      } else {
-                                        getInfoProduct(
-                                            producto?.codigoBarras ?? '',
-                                            context);
-                                      }
+                                      getInfoProduct(
+                                          producto?.id.toString() ?? '',
+                                          context);
                                     },
                                     title: Text(
                                       producto?.producto ?? 'Sin nombre',
@@ -221,8 +193,10 @@ class LocationInfoScreen extends StatelessWidget {
     );
   }
 
-  void getInfoProduct(String barcode, BuildContext context) {
-    context.read<InfoRapidaBloc>().add(GetInfoRapida(barcode.toUpperCase()));
+  void getInfoProduct(String id, BuildContext context) {
+    context
+        .read<InfoRapidaBloc>()
+        .add(GetInfoRapida(id.toUpperCase(), true, true));
   }
 }
 
