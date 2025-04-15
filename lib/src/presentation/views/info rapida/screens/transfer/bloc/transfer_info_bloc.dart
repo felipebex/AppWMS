@@ -79,8 +79,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
 
         emit(SendTransferInfoSuccess(responseSend.result?.msg ?? ""));
       } else {
-        emit(SendTransferInfoFailureTransfer(
-            'Error al enviar la transferencia'));
+        emit(SendTransferInfoFailureTransfer(responseSend.result?.msg ?? ""));
       }
     } catch (e, s) {
       print("❌ Error en el SetQuantity $e ->$s");
@@ -150,8 +149,8 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
     try {
       emit(LoadLocationsLoadingTransfer());
       final response = await db.ubicacionesRepository.getAllUbicaciones();
-      if (response.isNotEmpty) {
         ubicaciones.clear();
+      if (response.isNotEmpty) {
         ubicaciones = response;
         print('ubicaciones length: ${ubicaciones.length}');
         emit(LoadLocationsSuccessTransfer(ubicaciones));

@@ -156,6 +156,10 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
       focusNode3.unfocus();
       focusNode4.unfocus();
     }
+
+    print('locationDestIsOk: ${bloc.locationDestIsOk}');
+    print('isLocationDestOk: ${bloc.isLocationDestOk}');
+
     setState(() {});
   }
 
@@ -288,7 +292,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
   void validateMuelle(String value) {
     final bloc = context.read<TransferenciaBloc>();
-    
+
     String scan = bloc.scannedValue4.trim().toLowerCase() == ""
         ? value.trim().toLowerCase()
         : bloc.scannedValue4.trim().toLowerCase();
@@ -466,6 +470,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                     onPressed: () {
                                       termiateProcess();
 
+                                      bloc.add(CleanFieldsEvent());
                                       Navigator.pushReplacementNamed(
                                           context, 'transferencia-detail',
                                           arguments: [
@@ -813,8 +818,6 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                         ),
                                                       ),
                                                       const Spacer(),
-
-                                                      
                                                       GestureDetector(
                                                         onTap: () {
                                                           showDialog(
@@ -837,8 +840,6 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                               width: 20),
                                                         ),
                                                       ),
-
-
                                                     ],
                                                   ),
                                               ],

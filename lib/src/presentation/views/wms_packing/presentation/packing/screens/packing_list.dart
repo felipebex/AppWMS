@@ -41,7 +41,7 @@ class _PakingListScreenState extends State<PakingListScreen>
 
   @override
   void didChangeMetrics() {
-      context.read<WmsPackingBloc>().add(ShowKeyboardEvent(false));
+    context.read<WmsPackingBloc>().add(ShowKeyboardEvent(false));
   }
 
   @override
@@ -59,7 +59,7 @@ class _PakingListScreenState extends State<PakingListScreen>
                         .isKeyboardVisible &&
                     context.read<UserBloc>().fabricante.contains("Zebra")
                 ? CustomKeyboard(
-                  isLogin: false,
+                    isLogin: false,
                     controller:
                         context.read<WmsPackingBloc>().searchControllerPedido,
                     onchanged: () {
@@ -356,6 +356,7 @@ class _PakingListScreenState extends State<PakingListScreen>
                                                     .contains("Zebra")
                                                 ? true
                                                 : false,
+                                            showCursor: true,
                                             textAlignVertical:
                                                 TextAlignVertical.center,
                                             controller: context

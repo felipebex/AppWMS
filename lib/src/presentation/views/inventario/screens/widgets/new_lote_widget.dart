@@ -225,14 +225,12 @@ class _NewLoteScreenState extends State<NewLoteInventarioScreen> {
                                         value,
                                       ));
                                     },
-                                    onTap:
-                                     !context
+                                    onTap: !context
                                             .read<UserBloc>()
                                             .fabricante
                                             .contains("Zebra")
                                         ? null
-                                        : 
-                                        () {
+                                        : () {
                                             bloc.add(ShowKeyboardEvent(true));
                                           },
                                   ),
@@ -549,39 +547,5 @@ class _NewLoteScreenState extends State<NewLoteInventarioScreen> {
         ),
       ),
     );
-  }
-
-  void validateDateNewLote() {
-    final bloc = context.read<InventarioBloc>();
-
-    // Convertimos la fecha ingresada por el usuario en el TextFormField
-    String enteredDate = bloc.dateLoteController.text;
-
-    // // Verificamos que la fecha ingresada no esté vacía
-    if (enteredDate.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Por favor, ingrese una fecha de caducidad.',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        icon: Icon(Icons.error, color: Colors.amber),
-      );
-      return;
-    }
-
-    // // Convertir la fecha ingresada en el formato correcto 'yyyy-MM-dd hh:mm' sin segundos
-    // String formattedDate =
-    //     DateFormat('yyyy-MM-dd HH:mm').format(enteredDateTime);
-    // // Asignamos la fecha con el formato correcto al controlador
-    // bloc.dateLoteController.text = formattedDate;
-    // print('formattedDate $formattedDate');
-    //   // Ahora podemos pasar la fecha formateada en el evento
-    // bloc.add(
-    //   CreateLoteProduct(
-    //     bloc.newLoteController.text,
-    //     formattedDate, // Usamos la fecha formateada aquí
-    //   ),
-    // );
-    // }
   }
 }

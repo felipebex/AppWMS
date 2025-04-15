@@ -6,8 +6,10 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
+import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -38,25 +40,63 @@ class UserScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              BlocListener<HomeBloc, HomeState>(
-                listener: (context, state) {
-                  if (state is AppVersionUpdateState) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return UpdateAppDialog();
-                        });
-                  }
+              MultiBlocListener(
+                listeners: [
+                  BlocListener<HomeBloc, HomeState>(
+                    listener: (context, state) {
+                      if (state is AppVersionUpdateState) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return UpdateAppDialog();
+                            });
+                      }
 
-                  if (state is AppVersionLoadedState) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("No hay actualizaciones disponibles"),
-                        duration: Duration(seconds: 3),
-                      ),
-                    );
-                  }
-                },
+                      if (state is AppVersionLoadedState) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("No hay actualizaciones disponibles"),
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  BlocListener<InventarioBloc, InventarioState>(
+                    listener: (context, state) {
+                      if (state is GetProductsLoading) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const DialogLoading(
+                                  message: 'Descargando productos...');
+                            });
+                      }
+
+                      if (state is GetProductsSuccess) {
+                        Navigator.pop(context);
+                        Get.snackbar(
+                          '360 Software Informa',
+                          "Se han descargado ${state.products.length} productos",
+                          backgroundColor: white,
+                          colorText: primaryColorApp,
+                          icon: Icon(Icons.error, color: Colors.green),
+                        );
+                      }
+
+                      if (state is GetProductsFailure) {
+                        Navigator.pop(context);
+                        Get.snackbar(
+                          '360 Software Informa',
+                          state.error,
+                          backgroundColor: white,
+                          colorText: primaryColorApp,
+                          icon: Icon(Icons.error, color: Colors.red),
+                        );
+                      }
+                    },
+                  ),
+                ],
                 child: BlocConsumer<UserBloc, UserState>(
                   listener: (context, state) {
                     if (state is ConfigurationError) {
@@ -332,7 +372,6 @@ class UserScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ))),
-
                               Card(
                                 color: white,
                                 elevation: 2,
@@ -341,225 +380,21 @@ class UserScreen extends StatelessWidget {
                                       horizontal: 8, vertical: 2),
                                   child: ElevatedButton(
                                     onPressed: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              backgroundColor: white,
-                                              title: Center(
-                                                child: Text("Almacenes",
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color:
-                                                            primaryColorApp)),
-                                              ),
-                                              content: SizedBox(
-                                                height: 300,
-                                                width: size.width * 0.9,
-                                                child: ListView.builder(
-                                                  itemCount:
-                                                      bloc.almacenes.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return Card(
-                                                      color: white,
-                                                      elevation: 2,
-                                                      child: ListTile(
-                                                        leading: Icon(
-                                                            Icons.warehouse,
-                                                            color:
-                                                                primaryColorApp,
-                                                            size: 20),
-                                                        trailing: Icon(
-                                                            Icons.download,
-                                                            color:
-                                                                primaryColorApp,
-                                                            size: 20),
-                                                        title: Text(
-                                                            bloc
-                                                                    .almacenes[
-                                                                        index]
-                                                                    .name ??
-                                                                'Sin nombre',
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black)),
-                                                        subtitle: Column(
-                                                          children: [
-                                                            Row(
-                                                              children: [
-                                                                Text("id: ",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            black)),
-                                                                Text(
-                                                                    bloc
-                                                                            .almacenes[
-                                                                                index]
-                                                                            .id
-                                                                            .toString() ??
-                                                                        '0',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            primaryColorApp)),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ),
-                                              actions: [
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(context);
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                          minimumSize:
-                                                              const Size(
-                                                                  double
-                                                                      .infinity,
-                                                                  30),
-                                                          backgroundColor:
-                                                              primaryColorApp),
-                                                  child: const Text("Cerrar",
-                                                      style: TextStyle(
-                                                          color: white)),
-                                                ),
-                                              ],
-                                            );
-                                          });
+                                      context
+                                          .read<InventarioBloc>()
+                                          .add(GetProductsEvent());
                                     },
                                     style: ElevatedButton.styleFrom(
                                         minimumSize:
                                             const Size(double.infinity, 30),
                                         backgroundColor: grey),
                                     child: const Text(
-                                      "Ver Almacenes",
+                                      "Descargar productos",
                                       style: TextStyle(color: white),
                                     ),
                                   ),
                                 ),
                               ),
-
-                              // Card(
-                              //   color: white,
-                              //   elevation: 2,
-                              //   child: Padding(
-                              //     padding: const EdgeInsets.symmetric(
-                              //         horizontal: 8, vertical: 2),
-                              //     child: ElevatedButton(
-                              //       onPressed: () {
-                              //         showDialog(
-                              //             context: context,
-                              //             builder: (context) {
-                              //               return AlertDialog(
-                              //                 backgroundColor: white,
-                              //                 title: Center(
-                              //                   child: Text("Ubicaciones",
-                              //                       style: TextStyle(
-                              //                           fontSize: 14,
-                              //                           color:
-                              //                               primaryColorApp)),
-                              //                 ),
-                              //                 content: Container(
-                              //                   height: 300,
-                              //                   width: size.width * 0.9,
-                              //                   child: ListView.builder(
-                              //                     itemCount:
-                              //                         bloc.ubicaciones.length,
-                              //                     itemBuilder:
-                              //                         (context, index) {
-                              //                       return Card(
-                              //                         color: white,
-                              //                         elevation: 2,
-                              //                         child: ListTile(
-                              //                           title: Text(
-                              //                               bloc
-                              //                                       .ubicaciones[
-                              //                                           index]
-                              //                                       .name ??
-                              //                                   'Sin nombre',
-                              //                               style:
-                              //                                   const TextStyle(
-                              //                                       fontSize:
-                              //                                           12,
-                              //                                       color:
-                              //                                           black)),
-                              //                           subtitle: Row(
-                              //                             children: [
-                              //                               Icon(Icons.qr_code,
-                              //                                   color:
-                              //                                       primaryColorApp,
-                              //                                   size: 12),
-                              //                               const SizedBox(
-                              //                                   width: 5),
-                              //                               Text(
-                              //                                   bloc.ubicaciones[index].barcode ==
-                              //                                           ""
-                              //                                       ? 'Sin codigo de barras'
-                              //                                       : bloc
-                              //                                               .ubicaciones[
-                              //                                                   index]
-                              //                                               .barcode ??
-                              //                                           "",
-                              //                                   style: TextStyle(
-                              //                                       fontSize:
-                              //                                           12,
-                              //                                       color: bloc.ubicaciones[index].barcode ==
-                              //                                               ""
-                              //                                           ? red
-                              //                                           : black)),
-                              //                             ],
-                              //                           ),
-                              //                         ),
-                              //                       );
-                              //                     },
-                              //                   ),
-                              //                 ),
-                              //                 actions: [
-                              //                   ElevatedButton(
-                              //                     onPressed: () {
-                              //                       Navigator.pop(context);
-                              //                     },
-                              //                     style:
-                              //                         ElevatedButton.styleFrom(
-                              //                             minimumSize:
-                              //                                 const Size(
-                              //                                     double
-                              //                                         .infinity,
-                              //                                     30),
-                              //                             backgroundColor:
-                              //                                 primaryColorApp),
-                              //                     child: const Text("Cerrar",
-                              //                         style: TextStyle(
-                              //                             color: white)),
-                              //                   ),
-                              //                 ],
-                              //               );
-                              //             });
-                              //       },
-                              //       style: ElevatedButton.styleFrom(
-                              //           minimumSize:
-                              //               const Size(double.infinity, 30),
-                              //           backgroundColor: grey),
-                              //       child: const Text(
-                              //         "Ver Ubicaciones",
-                              //         style: TextStyle(color: white),
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
                               const SizedBox(height: 20),
                               SizedBox(
                                 width: size.width,

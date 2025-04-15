@@ -498,7 +498,13 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                                 return;
                               }
 
-                              validateDateNewLote();
+
+
+                                bloc.add(CreateLoteProduct(
+                                  bloc.newLoteController.text,
+                                  bloc.dateLoteController.text,
+                                ));
+
                             },
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColorApp,
@@ -535,80 +541,5 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
         },
       ),
     );
-  }
-
-  void validateDateNewLote() {
-    final bloc = context.read<RecepcionBloc>();
-    int dias = widget.currentProduct?.diasVencimiento ??
-        0; // Obtiene los días de vencimiento del producto
-    String dateProduct = widget.currentProduct?.fechaVencimiento ??
-        ''; // Obtiene la fecha de vencimiento del producto
-
-    print('date product: $dateProduct');
-    print('dias: $dias');
-    print('date new lote: ${bloc.dateLoteController.text}');
-
-    // Si no tenemos una fecha de vencimiento del producto, mostramos un mensaje de error.
-    if (dateProduct.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'No se ha encontrado la fecha de vencimiento del producto.',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        icon: Icon(Icons.error, color: Colors.red),
-      );
-      return;
-    }
-
-    // Convertimos la fecha de vencimiento del producto (String) a DateTime
-    DateTime productExpirationDate =
-        DateFormat('yyyy-MM-dd hh:mm').parse(dateProduct);
-
-    // Convertimos la fecha ingresada por el usuario en el TextFormField
-    String enteredDate = bloc.dateLoteController.text;
-
-    // Verificamos que la fecha ingresada no esté vacía
-    if (enteredDate.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Por favor, ingrese una fecha de caducidad.',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        icon: Icon(Icons.error, color: Colors.amber),
-      );
-      return;
-    }
-
-    // Convertimos la fecha ingresada a DateTime
-    DateTime enteredDateTime =
-        DateFormat('yyyy-MM-dd hh:mm').parse(enteredDate);
-
-    // Sumamos los días de vencimiento al producto
-    DateTime maxAllowedDate = productExpirationDate.add(Duration(days: dias));
-
-    // Verificamos si la fecha ingresada es mayor que la fecha máxima permitida
-    if (enteredDateTime.isBefore(maxAllowedDate)) {
-      Get.snackbar(
-        'Error',
-        'La fecha de caducidad ingresada debe ser al menos $dias días después de la fecha de vencimiento del producto.',
-        backgroundColor: white,
-        colorText: primaryColorApp,
-        icon: Icon(Icons.error, color: Colors.red),
-      );
-    } else {
-      // Convertir la fecha ingresada en el formato correcto 'yyyy-MM-dd hh:mm' sin segundos
-      String formattedDate =
-          DateFormat('yyyy-MM-dd HH:mm').format(enteredDateTime);
-      // Asignamos la fecha con el formato correcto al controlador
-      bloc.dateLoteController.text = formattedDate;
-      print('formattedDate $formattedDate');
-      // Ahora podemos pasar la fecha formateada en el evento
-      context.read<RecepcionBloc>().add(
-            CreateLoteProduct(
-              bloc.newLoteController.text,
-              formattedDate, // Usamos la fecha formateada aquí
-            ),
-          );
-    }
   }
 }

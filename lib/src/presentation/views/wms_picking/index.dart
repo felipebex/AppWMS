@@ -15,7 +15,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
@@ -87,8 +86,6 @@ class _PickingPageState extends State<WMSPickingPage> {
         ],
         child: BlocBuilder<WMSPickingBloc, PickingState>(
           builder: (context, state) {
-          
-
             return Scaffold(
                 backgroundColor: white,
                 bottomNavigationBar: context
@@ -212,7 +209,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                           const Spacer(),
                                         ],
                                       ),
-                                      
                                     ],
                                   ),
                                 ),
@@ -412,6 +408,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                         child: context
                                 .read<WMSPickingBloc>()
                                 .filteredBatchs
+                                .where((batch) => batch.isSeparate == null)
                                 .isNotEmpty
                             ? ListView.builder(
                                 padding: EdgeInsets.only(
@@ -421,11 +418,15 @@ class _PickingPageState extends State<WMSPickingPage> {
                                 itemCount: context
                                     .read<WMSPickingBloc>()
                                     .filteredBatchs
+                                    .where((batch) => batch.isSeparate == null)
                                     .length,
                                 itemBuilder: (contextBuilder, index) {
                                   final batch = context
                                       .read<WMSPickingBloc>()
-                                      .filteredBatchs[index];
+                                      .filteredBatchs
+                                      .where(
+                                          (batch) => batch.isSeparate == null)
+                                      .toList()[index];
                                   //convertimos la fecha
 
                                   return Padding(

@@ -7,6 +7,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/widgets/info_widget.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/bloc/transfer_info_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -190,6 +191,7 @@ class ProductInfoScreen extends StatelessWidget {
                                 const SizedBox(height: 5),
                                 GestureDetector(
                                   onTap: () async {
+                                    context.read<TransferInfoBloc>().add(LoadLocationsTransfer());
                                     showDialog(
                                       context: context,
                                       builder: (context) {

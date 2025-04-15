@@ -6,6 +6,7 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/bloc/info_rapida_bloc.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -28,18 +29,15 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     super.dispose();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    FocusScope.of(context).requestFocus(focusNode1);
-  }
+
 
   void validateBarcode(String value, BuildContext context) {
     print('value: $value');
 
     final bloc = context.read<InfoRapidaBloc>();
-    
-    String scan = bloc.scannedValue1.trim() == "" ? value : bloc.scannedValue1.trim();
+
+    String scan =
+        bloc.scannedValue1.trim() == "" ? value : bloc.scannedValue1.trim();
     _controllerSearch.text = "";
     //validamos que el scan no este vacio
 
@@ -51,6 +49,9 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
       listener: (context, state) {
+
+
+        
         if (state is InfoRapidaError) {
           Navigator.pop(context);
           Get.snackbar(
@@ -101,6 +102,20 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
             return false;
           },
           child: Scaffold(
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: primaryColorApp,
+              onPressed: () {
+                //mostramos dialogo
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return DialogInfoQuick(
+                    );
+                  },
+                );
+              },
+              child: const Icon(Icons.search, color: white),
+            ),
             backgroundColor: white,
             body: SizedBox(
                 width: size.width * 1,

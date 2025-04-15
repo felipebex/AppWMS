@@ -629,27 +629,53 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     emit(WmsPackingLoaded());
   }
 
-  //metodo para buscar un pedido de packing
-  void _onSearchPedidoEvent(
-      SearchPedidoPackingEvent event, Emitter<WmsPackingState> emit) async {
-    try {
-      final query = event.query.toLowerCase();
+String normalizeText(String input) {
+  // Normaliza texto: sin tildes, minúsculas, sin espacios a los extremos
+  const Map<String, String> accentMap = {
+    'á': 'a',
+    'é': 'e',
+    'í': 'i',
+    'ó': 'o',
+    'ú': 'u',
+    'ü': 'u',
+    'ñ': 'n',
+  };
 
-      if (query.isEmpty) {
-        listOfPedidosFilters = listOfPedidos;
-      } else {
-        listOfPedidosFilters = listOfPedidos.where((pedido) {
-          //BUSCAR POR NOMBRE Y REFERENCIA
-          return (pedido.name?.toLowerCase().contains(query) ??
-              false || pedido.referencia?.toLowerCase().contains(query));
-        }).toList();
-      }
-      emit(WmsPackingLoaded());
-    } catch (e, s) {
-      print('Error en el _onSearchPedidoEvent: $e, $s');
-      emit(WmsPackingError(e.toString()));
+  return input
+      .trim()
+      .toLowerCase()
+      .split('')
+      .map((char) => accentMap[char] ?? char)
+      .join();
+}
+
+void _onSearchPedidoEvent(
+    SearchPedidoPackingEvent event, Emitter<WmsPackingState> emit) async {
+  try {
+    final query = event.query.trim();
+
+    if (query.isEmpty) {
+      listOfPedidosFilters = listOfPedidos;
+    } else {
+      final normalizedQuery = normalizeText(query);
+
+      listOfPedidosFilters = listOfPedidos.where((pedido) {
+        final name = normalizeText(pedido.name ?? '');
+        final referencia = normalizeText(pedido.referencia ?? '');
+        final contactoName = normalizeText(pedido.contactoName ?? '');
+
+        return name.contains(normalizedQuery) ||
+            referencia.contains(normalizedQuery) ||
+            contactoName.contains(normalizedQuery);
+      }).toList();
     }
+
+    emit(WmsPackingLoaded());
+  } catch (e, s) {
+    print('Error en el _onSearchPedidoEvent: $e, $s');
+    emit(WmsPackingError(e.toString()));
   }
+}
 
   ///*metodo para cambiar el estado del sticker
   void _onChangeStickerEvent(
@@ -1086,35 +1112,18 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog);
 
       if (response != null && response is List) {
-        print('response batchs packing: ${response.length}');
+        
         listOfBatchs.clear();
         listOfBatchsDB.clear();
         listOfBatchs.addAll(response);
         listOfBatchsDB.addAll(response);
 
-        for (var batch in listOfBatchs) {
-          try {
-            if (batch.id != null && batch.name != null) {
-              await DataBaseSqlite()
-                  .batchPackingRepository
-                  .insertBatchPacking(BatchPackingModel(
-                    id: batch.id!,
-                    name: batch.name ?? '',
-                    scheduleddate: batch.scheduleddate.toString(),
-                    pickingTypeId: batch.pickingTypeId,
-                    state: batch.state,
-                    userId: batch.userId.toString(),
-                    userName: batch.userName,
-                    cantidadPedidos: batch.cantidadPedidos,
-                    zonaEntrega: batch.zonaEntrega,
-                    startTimePack: batch.startTimePack,
-                    endTimePack: batch.endTimePack,
-                  ));
-            }
-          } catch (dbError, stackTrace) {
-            print('Error insertBatchPacking: $dbError  $stackTrace');
-          }
+         if (listOfBatchs.isNotEmpty) {
+          await DataBaseSqlite()
+              .batchPackingRepository
+              .insertAllBatchPacking(listOfBatchs);
         }
+
 
         // Convertir el mapa en una lista de pedido unicos del batch para packing
         List<PedidoPacking> pedidosToInsert =

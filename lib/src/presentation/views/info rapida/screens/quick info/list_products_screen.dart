@@ -6,27 +6,27 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class SearchProductScreen extends StatefulWidget {
-  const SearchProductScreen({Key? key}) : super(key: key);
+class ListProductsScreen extends StatefulWidget {
+  const ListProductsScreen({Key? key}) : super(key: key);
 
   @override
-  State<SearchProductScreen> createState() => _SearchProductScreenState();
+  State<ListProductsScreen> createState() => _SearchProductScreenState();
 }
 
-class _SearchProductScreenState extends State<SearchProductScreen> {
+class _SearchProductScreenState extends State<ListProductsScreen> {
   int? selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    return BlocBuilder<InventarioBloc, InventarioState>(
+    return BlocBuilder<InfoRapidaBloc, InfoRapidaState>(
       builder: (context, state) {
-        final bloc = context.read<InventarioBloc>();
+        final bloc = context.read<InfoRapidaBloc>();
         return WillPopScope(
           onWillPop: () async {
             return false;
@@ -120,8 +120,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                 const Text('No hay productos',
                                     style:
                                         TextStyle(fontSize: 14, color: grey)),
-                                const Text(
-                                    'No tiene productos en la base de datos',
+                                const Text('No tiene productos en la base de datos',
                                     style:
                                         TextStyle(fontSize: 12, color: grey)),
                                 Visibility(
@@ -306,30 +305,8 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                             bloc.add(ShowKeyboardEvent(false));
                             FocusScope.of(context).unfocus();
 
-                            //seleccionamos el producto
-
-                            bloc.add(ValidateFieldsEvent(
-                                field: "product", isOk: true));
-                            bloc.add(ChangeProductIsOkEvent(selectedProduct));
-
-                            bloc.add(ChangeIsOkQuantity(true));
-
-                            setState(() {
-                              selectedIndex == null;
-                            });
-
-                            Navigator.pushReplacementNamed(
-                              context,
-                              'inventario',
-                            );
-
-                            Get.snackbar(
-                              'Producto Seleccionado',
-                              'Has seleccionado el producto: ${selectedProduct.name}',
-                              backgroundColor: white,
-                              colorText: primaryColorApp,
-                              icon: Icon(Icons.check, color: Colors.green),
-                            );
+                            bloc.add(
+                                GetInfoRapida(selectedProduct.productId.toString()));
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -379,7 +356,7 @@ class _AppBarInfo extends StatelessWidget {
       width: double.infinity,
       child: BlocProvider(
         create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<InventarioBloc, InventarioState>(
+        child: BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
             listener: (context, state) {},
             builder: (context, status) {
               return Column(
@@ -396,7 +373,7 @@ class _AppBarInfo extends StatelessWidget {
                           onPressed: () {
                             Navigator.pushReplacementNamed(
                               context,
-                              'inventario',
+                              'info-rapida',
                             );
                           },
                         ),

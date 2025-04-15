@@ -35,6 +35,7 @@ import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
+import 'package:wms_app/src/utils/widgets/error_widget.dart';
 
 final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -42,18 +43,14 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  ErrorWidget.builder = (FlutterErrorDetails details) => Scaffold(
-        body: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: Center(
-            child: Card(
-                color: white,
-                elevation: 2,
-                child: Text(
-                    'Ocurrió un error inesperado, por favor reinicia la aplicación')),
-          ),
-        ),
+  ErrorWidget.builder = (FlutterErrorDetails details) => ErrorMessageWidget(
+        title: 'Algo salió mal',
+        message:
+            'No se pudo cargar la información. Verifica tu conexión o intenta nuevamente.',
+        buttonText: 'Cerrar la app',
+        onPressed: () {
+          exit(0);
+        },
       );
 
 // Asegurarse de que Flutter está preparado.
@@ -64,7 +61,6 @@ void main() async {
   // Otras inicializaciones, como configuraciones de orientación y preferencias
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((_) async {
-
     await Preferences.init(); // Inicializa preferencias.
 
     // Luego se inicia la app

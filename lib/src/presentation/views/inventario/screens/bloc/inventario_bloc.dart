@@ -2,7 +2,6 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
@@ -408,14 +407,10 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       GetProductsEvent event, Emitter<InventarioState> emit) async {
     try {
       emit(GetProductsLoading());
-
       await db.deleInventario();
-
       final response = await _inventarioRepository.fetAllProducts(
         false,
       );
-
-      // final response = await db.productoInventarioRepository.insertProductosInventario(productosList);
       if (response.isNotEmpty) {
         await db.productoInventarioRepository
             .insertProductosInventario(response);
@@ -463,6 +458,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       final response = await db.productoInventarioRepository.getAllProducts();
       productos.clear();
       productosFilters.clear();
+      print('productos: ${response.length}');
       if (response.isNotEmpty) {
         productos = response;
         productosFilters = productos;
@@ -634,6 +630,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       final response = await db.ubicacionesRepository.getAllUbicaciones();
       ubicaciones.clear();
       ubicacionesFilters.clear();
+      print('ubicaciones: ${response.length}');
       if (response.isNotEmpty) {
         ubicaciones = response;
         ubicacionesFilters = ubicaciones;

@@ -5,65 +5,53 @@ import 'package:sqflite/sqflite.dart';
 
 class BatchPackingRepository {
   //* Método para insertar o actualizar un batch de packing
-  Future<void> insertBatchPacking(BatchPackingModel batch) async {
+
+  Future<void> insertAllBatchPacking(List<BatchPackingModel> batchList) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
 
       await db.transaction((txn) async {
-        // Verificar si el batch ya existe
-        final List<Map<String, dynamic>> existingBatch = await txn.query(
-          BatchPackingTable.tableName,
-          where: '${BatchPackingTable.columnId} = ?',
-          whereArgs: [batch.id],
-        );
+        final batch = txn.batch();
 
-        if (existingBatch.isNotEmpty) {
-          // Actualizar el batch
-          await txn.update(
+        for (final batchItem in batchList) {
+          if (batchItem.id == null) continue;
+
+          final data = {
+            BatchPackingTable.columnId: batchItem.id,
+            BatchPackingTable.columnName: batchItem.name,
+            BatchPackingTable.columnScheduledDate:
+                batchItem.scheduleddate.toString(),
+            BatchPackingTable.columnPickingTypeId: batchItem.pickingTypeId,
+            BatchPackingTable.columnState: batchItem.state,
+            BatchPackingTable.columnUserId: batchItem.userId,
+            BatchPackingTable.columnUserName: batchItem.userName,
+            BatchPackingTable.columnCantidadPedidos: batchItem.cantidadPedidos,
+            BatchPackingTable.columnZonaEntrega: batchItem.zonaEntrega,
+            BatchPackingTable.columnZonaEntregaTms: batchItem.zonaEntregaTms,
+            BatchPackingTable.columnStartTimePack: batchItem.startTimePack,
+            BatchPackingTable.columnEndTimePack: batchItem.endTimePack,
+          };
+
+          // Elimina si ya existe el registro con ese ID
+          batch.delete(
             BatchPackingTable.tableName,
-            {
-              BatchPackingTable.columnId: batch.id,
-              BatchPackingTable.columnName: batch.name,
-              BatchPackingTable.columnScheduledDate:
-                  batch.scheduleddate.toString(),
-              BatchPackingTable.columnPickingTypeId: batch.pickingTypeId,
-              BatchPackingTable.columnState: batch.state,
-              BatchPackingTable.columnUserId: batch.userId,
-              BatchPackingTable.columnUserName: batch.userName,
-              BatchPackingTable.columnCantidadPedidos: batch.cantidadPedidos,
-              BatchPackingTable.columnZonaEntrega: batch.zonaEntrega,
-              BatchPackingTable.columnZonaEntregaTms: batch.zonaEntregaTms,
-              BatchPackingTable.columnStartTimePack: batch.startTimePack,
-              BatchPackingTable.columnEndTimePack: batch.endTimePack,
-            },
             where: '${BatchPackingTable.columnId} = ?',
-            whereArgs: [batch.id],
+            whereArgs: [batchItem.id],
           );
-        } else {
-          // Insertar nuevo batch
-          await txn.insert(
+
+          // Inserta el nuevo registro (reemplaza si hay conflicto)
+          batch.insert(
             BatchPackingTable.tableName,
-            {
-              BatchPackingTable.columnId: batch.id,
-              BatchPackingTable.columnName: batch.name,
-              BatchPackingTable.columnScheduledDate:
-                  batch.scheduleddate.toString(),
-              BatchPackingTable.columnPickingTypeId: batch.pickingTypeId,
-              BatchPackingTable.columnState: batch.state,
-              BatchPackingTable.columnUserId: batch.userId,
-              BatchPackingTable.columnUserName: batch.userName,
-              BatchPackingTable.columnCantidadPedidos: batch.cantidadPedidos,
-              BatchPackingTable.columnZonaEntrega: batch.zonaEntrega,
-              BatchPackingTable.columnZonaEntregaTms: batch.zonaEntregaTms,
-              BatchPackingTable.columnStartTimePack: batch.startTimePack,
-              BatchPackingTable.columnEndTimePack: batch.endTimePack,
-            },
+            data,
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         }
+
+        // Ejecutar todos los inserts/updates en lote
+        await batch.commit(noResult: true);
       });
     } catch (e) {
-      print("Error al insertar tblbatchs_packing: $e");
+      print("Error insertAllBatchPacking: $e");
     }
   }
 
@@ -103,9 +91,6 @@ class BatchPackingRepository {
     }
   }
 
-
-
-
   // Método para iniciar el cronómetro de un batch de picking
   Future<int?> startStopwatchBatch(int batchId, String date) async {
     try {
@@ -119,11 +104,9 @@ class BatchPackingRepository {
       print("startStopwatchBatchPack: $resUpdate");
       return resUpdate;
     } catch (e) {
-      print("Error al iniciar el cronómetro para el batch en pack: $batchId: $e");
+      print(
+          "Error al iniciar el cronómetro para el batch en pack: $batchId: $e");
       return null;
     }
   }
-
-
-
 }

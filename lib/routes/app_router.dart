@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/list_locations_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/list_products_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/locations_info_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/product_info_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/transfer_info_screen.dart';
@@ -16,9 +18,7 @@ import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/locatio
 import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/transfer_externa_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/widgets/location/location_search_widget.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/widgets/product/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/list_transferencias_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/scan_product_transfer_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/transferencia_screen.dart';
@@ -83,6 +83,8 @@ class AppRoutes {
   static const String productInfo = 'product-info';
   static const String locationInfo = 'location-info';
   static const String transferInfo = 'transfer-info';
+  static const String listLocation = 'list-location';
+  static const String listProduct = 'list-product';
 
   // Mapa de rutas
   static Map<String, Widget Function(BuildContext)> get routes {
@@ -257,6 +259,13 @@ class AppRoutes {
           infoRapidaResult: info,
           ubicacion: ubi,
         );
+      },
+
+      listLocation : (_) {
+        return ListLocationsScreen();
+      },
+      listProduct : (_) {
+        return ListProductsScreen();
       },
 
       //transferencias

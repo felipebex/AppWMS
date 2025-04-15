@@ -6,80 +6,57 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 import 'batch_picking_table.dart'; // Importa el archivo de la tabla
 
 class BatchPickingRepository {
-  // Método para insertar o actualizar un batch
-  Future<void> insertBatch(BatchsModel batch) async {
-    try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
+  Future<void> insertAllBatches(
+      List<BatchsModel> listOfBatchs, int userId) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
 
-      await db.transaction((txn) async {
-        // Verificar si el batch ya existe
-        final List<Map<String, dynamic>> existingBatch = await txn.query(
-          BatchPickingTable.tableName,
-          where: '${BatchPickingTable.columnId} = ?',
-          whereArgs: [batch.id],
-        );
+    await db.transaction((txn) async {
+      final batch = txn.batch();
 
-        if (existingBatch.isNotEmpty) {
-          // Actualizar el batch
-          await txn.update(
+      for (var batchItem in listOfBatchs) {
+        if (batchItem.id != null && batchItem.name != null) {
+          final data = {
+            BatchPickingTable.columnId: batchItem.id,
+            BatchPickingTable.columnName: batchItem.name ?? '',
+            BatchPickingTable.columnScheduledDate:
+                batchItem.scheduleddate.toString(),
+            BatchPickingTable.columnPickingTypeId: batchItem.pickingTypeId,
+            BatchPickingTable.columnMuelle: batchItem.muelle,
+            BatchPickingTable.columnBarcodeMuelle: batchItem.barcodeMuelle,
+            BatchPickingTable.columnIdMuelle: batchItem.idMuelle,
+            BatchPickingTable.columnState: batchItem.state,
+            BatchPickingTable.columnUserId: userId,
+            BatchPickingTable.columnUserName: batchItem.userName,
+            BatchPickingTable.columnIsWave: batchItem.isWave.toString(),
+            BatchPickingTable.columnCountItems: batchItem.countItems,
+            BatchPickingTable.columnTotalQuantityItems:
+                batchItem.totalQuantityItems.toInt(),
+            BatchPickingTable.columnOrderBy: batchItem.orderBy,
+            BatchPickingTable.columnOrderPicking: batchItem.orderPicking,
+            BatchPickingTable.columnIndexList: 0,
+            BatchPickingTable.columnStartTimePick: batchItem.startTimePick,
+            BatchPickingTable.columnEndTimePick: batchItem.endTimePick,
+            BatchPickingTable.columnZonaEntrega: batchItem.zonaEntrega,
+          };
+
+          // Elimina si existe (por ID), y luego inserta
+          batch.delete(
             BatchPickingTable.tableName,
-            {
-              BatchPickingTable.columnId: batch.id,
-              BatchPickingTable.columnName: batch.name,
-              BatchPickingTable.columnScheduledDate: batch.scheduleddate,
-              BatchPickingTable.columnPickingTypeId: batch.pickingTypeId,
-              BatchPickingTable.columnState: batch.state,
-              BatchPickingTable.columnUserId: batch.userId,
-              BatchPickingTable.columnUserName: batch.userName,
-              BatchPickingTable.columnIsWave: batch.isWave,
-              BatchPickingTable.columnMuelle: batch.muelle,
-              BatchPickingTable.columnBarcodeMuelle: batch.barcodeMuelle,
-              BatchPickingTable.columnIdMuelle: batch.idMuelle,
-              BatchPickingTable.columnOrderBy: batch.orderBy,
-              BatchPickingTable.columnOrderPicking: batch.orderPicking,
-              BatchPickingTable.columnCountItems: batch.countItems,
-              BatchPickingTable.columnTotalQuantityItems:
-                  batch.totalQuantityItems,
-              BatchPickingTable.columnStartTimePick: batch.startTimePick,
-              BatchPickingTable.columnEndTimePick: batch.endTimePick,
-              BatchPickingTable.columnZonaEntrega: batch.zonaEntrega,
-            },
             where: '${BatchPickingTable.columnId} = ?',
-            whereArgs: [batch.id],
+            whereArgs: [batchItem.id],
           );
-        } else {
-          // Insertar nuevo batch
-          await txn.insert(
+
+          batch.insert(
             BatchPickingTable.tableName,
-            {
-              BatchPickingTable.columnId: batch.id,
-              BatchPickingTable.columnName: batch.name,
-              BatchPickingTable.columnScheduledDate: batch.scheduleddate,
-              BatchPickingTable.columnPickingTypeId: batch.pickingTypeId,
-              BatchPickingTable.columnState: batch.state,
-              BatchPickingTable.columnUserId: batch.userId,
-              BatchPickingTable.columnUserName: batch.userName,
-              BatchPickingTable.columnIsWave: batch.isWave,
-              BatchPickingTable.columnMuelle: batch.muelle,
-              BatchPickingTable.columnBarcodeMuelle: batch.barcodeMuelle,
-              BatchPickingTable.columnIdMuelle: batch.idMuelle,
-              BatchPickingTable.columnOrderBy: batch.orderBy,
-              BatchPickingTable.columnOrderPicking: batch.orderPicking,
-              BatchPickingTable.columnCountItems: batch.countItems,
-              BatchPickingTable.columnTotalQuantityItems:
-                  batch.totalQuantityItems,
-              BatchPickingTable.columnIndexList: batch.indexList,
-              BatchPickingTable.columnStartTimePick: batch.startTimePick,
-              BatchPickingTable.columnEndTimePick: batch.endTimePick,
-              BatchPickingTable.columnZonaEntrega: batch.zonaEntrega,
-            },
+            data,
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
         }
-      });
-    } catch (e) {
-      print("Error al insertar batch: $e");
-    }
+      }
+
+      // Ejecutar todas las operaciones en lote
+      await batch.commit(noResult: true);
+    });
   }
 
   // Método para obtener un batch por su ID
@@ -110,24 +87,56 @@ class BatchPickingRepository {
 //metodo para obtener todos los batchs de un usuario
   Future<List<BatchsModel>> getAllBatchs(int userId) async {
     try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final db = await DataBaseSqlite().getDatabaseInstance();
 
-      // Agregar una condición de búsqueda por user_id
+      // Consulta optimizada: solo columnas necesarias
       final List<Map<String, dynamic>> maps = await db.query(
         BatchPickingTable.tableName,
-        where: '${BatchPickingTable.columnUserId} = ?', // Condición de búsqueda
-        whereArgs: [userId], // Argumento para el ? (el user_id que buscas)
+        columns: [
+          BatchPickingTable.columnId,
+          BatchPickingTable.columnName,
+          BatchPickingTable.columnScheduledDate,
+          BatchPickingTable.columnPickingTypeId,
+          BatchPickingTable.columnMuelle,
+          BatchPickingTable.columnBarcodeMuelle,
+          BatchPickingTable.columnIdMuelle,
+          BatchPickingTable.columnState,
+          BatchPickingTable.columnUserId,
+          BatchPickingTable.columnUserName,
+          BatchPickingTable.columnIsWave,
+          BatchPickingTable.columnCountItems,
+          BatchPickingTable.columnTotalQuantityItems,
+          BatchPickingTable.columnOrderBy,
+          BatchPickingTable.columnOrderPicking,
+          BatchPickingTable.columnIndexList,
+          BatchPickingTable.columnStartTimePick,
+          BatchPickingTable.columnEndTimePick,
+          BatchPickingTable.columnZonaEntrega,
+          BatchPickingTable.columnIsSeparate,
+        ],
+        where: '${BatchPickingTable.columnUserId} = ?',
+        whereArgs: [userId],
       );
 
-      final List<BatchsModel> batchs = maps.map((map) {
-        return BatchsModel.fromMap(map);
-      }).toList();
-
-      return batchs;
+      // Mapeo directo
+      return maps.map((map) => BatchsModel.fromMap(map)).toList();
     } catch (e, s) {
       print("Error getBatchsByUserId: $e => $s");
+      return [];
     }
-    return [];
+  }
+
+  Future<List<BatchsModel>> getFilteredBatchs(int userId) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+
+    final maps = await db.query(
+      BatchPickingTable.tableName,
+      where:
+          '${BatchPickingTable.columnUserId} = ? AND ${BatchPickingTable.columnIsSeparate} IS NULL',
+      whereArgs: [userId],
+    );
+
+    return maps.map((map) => BatchsModel.fromMap(map)).toList();
   }
 
   // Método para actualizar un campo específico de un batch de picking
@@ -204,8 +213,4 @@ class BatchPickingRepository {
       return null;
     }
   }
-
-
-  
-
 }

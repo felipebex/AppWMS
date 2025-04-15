@@ -210,18 +210,37 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
                         //acutalizamos la informacion del producto volviendo a llamar su info
                         context.read<InfoRapidaBloc>().add((GetInfoRapida(
-                            widget.infoRapidaResult?.codigoBarras ??
-                                "")));
+                            widget.infoRapidaResult?.codigoBarras ?? "")));
 
-                        Navigator.pushReplacementNamed(context, 'product-info',
-                          );
+                        Navigator.pushReplacementNamed(
+                          context,
+                          'product-info',
+                        );
                       } else if (state is SendTransferInfoFailureTransfer) {
-                        Get.snackbar(
-                          '360 Software Informa',
-                          state.error,
-                          backgroundColor: white,
-                          colorText: primaryColorApp,
-                          icon: const Icon(Icons.error, color: Colors.red),
+                        Get.defaultDialog(
+                          title: '360 Software Informa',
+                          titleStyle:
+                              TextStyle(color: Colors.red, fontSize: 18),
+                          middleText: state.error,
+                          middleTextStyle:
+                              TextStyle(color: black, fontSize: 14),
+                          backgroundColor: Colors.white,
+                          radius: 10,
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColorApp,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text('Aceptar',
+                                  style: TextStyle(color: white)),
+                            ),
+                          ],
                         );
                       }
                     }, builder: (context, status) {
@@ -245,8 +264,9 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                         .clearFields();
 
                                     Navigator.pushReplacementNamed(
-                                        context, 'product-info',
-                                        );
+                                      context,
+                                      'product-info',
+                                    );
                                   },
                                 ),
                                 Padding(
@@ -763,7 +783,6 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                   : int.parse(_cantidadController.text),
                               context);
                         },
-                        
                       )
                     ],
                   ),

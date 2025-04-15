@@ -26,8 +26,8 @@
     <application
         android:usesCleartextTraffic="true"
         android:enableOnBackInvokedCallback="true"
-
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:supportsRtl="true"
         android:label="OnPoint"
         android:name="${applicationName}"

@@ -678,11 +678,12 @@ class ApiRequestService {
     }
   }
 
-  Future<http.Response> getInventario(
-      {required String endpoint,
-      required bool isLoadinDialog,
-      required bool isunecodePath,
-    }) async {
+
+  Future<http.Response> getInventario({
+    required String endpoint,
+    required bool isLoadinDialog,
+    required bool isunecodePath,
+  }) async {
     var url = await PrefUtils.getEnterprise();
     var cookie = await PrefUtils.getCookie();
 

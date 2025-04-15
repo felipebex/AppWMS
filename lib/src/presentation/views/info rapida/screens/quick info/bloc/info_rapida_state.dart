@@ -5,9 +5,7 @@ sealed class InfoRapidaState {}
 
 final class InfoRapidaInitial extends InfoRapidaState {}
 
-
 class InfoRapidaLoading extends InfoRapidaState {}
-
 
 class InfoRapidaLoaded extends InfoRapidaState {
   final InfoRapidaResult infoRapidaResult;
@@ -18,10 +16,6 @@ class InfoRapidaLoaded extends InfoRapidaState {
 
 class InfoRapidaError extends InfoRapidaState {}
 
-
-
-
-
 //*estado para actualizar el valor escaneado
 
 class UpdateScannedValueState extends InfoRapidaState {
@@ -30,3 +24,58 @@ class UpdateScannedValueState extends InfoRapidaState {
 }
 
 class ClearScannedValueState extends InfoRapidaState {}
+
+class SearchLoading extends InfoRapidaState {}
+
+class SearchFailure extends InfoRapidaState {
+  final String error;
+  SearchFailure(this.error);
+}
+
+class SearchLocationSuccess extends InfoRapidaState {
+  final List<ResultUbicaciones> locations;
+  SearchLocationSuccess(this.locations);
+}
+
+
+class ShowKeyboardState extends InfoRapidaState {
+  final bool showKeyboard;
+  ShowKeyboardState({required this.showKeyboard});
+}
+
+
+
+
+class LoadLocationsLoading extends InfoRapidaState {}
+
+class LoadLocationsSuccess extends InfoRapidaState {
+  final List<ResultUbicaciones> locations;
+  LoadLocationsSuccess(this.locations);
+}
+
+class LoadLocationsFailure extends InfoRapidaState {
+  final String error;
+  LoadLocationsFailure(this.error);
+}
+
+
+class SearchProductSuccess extends InfoRapidaState {
+  final List<Product> products;
+  SearchProductSuccess(this.products);
+}
+
+
+
+class GetProductsLoading extends InfoRapidaState {}
+
+class GetProductsSuccess extends InfoRapidaState {
+  final List<Product> products;
+  GetProductsSuccess(this.products);
+}
+
+
+class GetProductsFailure extends InfoRapidaState {
+  final String error;
+  GetProductsFailure(this.error);
+}
+

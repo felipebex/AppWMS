@@ -1036,7 +1036,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
       //cargamos la informacion de las variables de validacion
       locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
-      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
       quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
       quantityEdit = currentProduct.isQuantityIsOk == 1 ? true : false;
@@ -1215,6 +1214,8 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       print('Error en el fetch de transferencias: $e=>$s');
     }
   }
+
+
 
   //metodo para traer todas las transferencias
   _onfetchTransferencias(
