@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/b
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -52,7 +53,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           },
         );
         context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-        context.read<WMSPickingBloc>().add(LoadAllNovedades(context)); //n
         Future.delayed(const Duration(seconds: 1), () {
           Navigator.pop(context);
         });
@@ -420,10 +420,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                             if (rol == 'picking' ||
                                                 rol == 'admin') {
-                                              context
-                                                  .read<WMSPickingBloc>()
-                                                  .add(LoadAllNovedades(
-                                                      context)); //
+                                              context.read<BatchBloc>().add(
+                                                  LoadAllNovedadesEvent()); //
 
                                               showDialog(
                                                   context: context,
@@ -495,11 +493,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                             if (rol == 'packing' ||
                                                 rol == 'admin') {
-                                              context
-                                                  .read<WMSPickingBloc>()
-                                                  .add(LoadAllNovedades(
-                                                      context)); //
-
                                               context.read<WmsPackingBloc>().add(
                                                   LoadAllNovedadesPackingEvent());
 
@@ -552,7 +545,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                         const SizedBox(width: 2),
                                         GestureDetector(
                                           onTap: () async {
-                                         
                                             //cargamos inforacion del dispositivo
                                             context
                                                 .read<UserBloc>()
@@ -561,12 +553,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             context
                                                 .read<InfoRapidaBloc>()
                                                 .add(GetListLocationsEvent());
-                                            //obtenemos los productos 
+                                            //obtenemos los productos
                                             context
                                                 .read<InfoRapidaBloc>()
                                                 .add(GetProductsList());
-
-                                            
 
                                             showDialog(
                                                 context: context,
@@ -676,6 +666,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     .read<UserBloc>()
                                                     .add(GetUbicacionesEvent());
                                               }
+
+                                              context.read<TransferenciaBloc>().add(
+                                                  LoadAllNovedadesTransferEvent());
+                                              context
+                                                  .read<TransferenciaBloc>()
+                                                  .add(LoadLocations());
 
                                               showDialog(
                                                   context: context,

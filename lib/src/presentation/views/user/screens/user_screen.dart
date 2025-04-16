@@ -891,6 +891,7 @@ class UserScreen extends StatelessWidget {
                                                 //                 primaryColorApp))
                                                 //   ],
                                                 // ),
+                                              
                                                 Row(
                                                   children: [
                                                     const Text(
@@ -925,10 +926,11 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
+                                                
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Lectura producto: ",
+                                                        "Escanear producto: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -948,7 +950,7 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Lectura manual del producto",
+                                                                      "Escanear manual del producto",
                                                                   body:
                                                                       "El usuario podrá reconocer el producto de forma manual o escaneando el código de barras",
                                                                 );
@@ -1057,7 +1059,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Lectura producto: ",
+                                                        "Escanear producto: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),

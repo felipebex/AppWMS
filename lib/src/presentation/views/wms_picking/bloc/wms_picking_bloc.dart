@@ -126,42 +126,43 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           await DataBaseSqlite()
               .batchPickingRepository
               .insertAllBatches(listOfBatchs, userId);
-        }
-        // Convertir el mapa en una lista de productos únicos con cantidades sumadas
-        final productsIterable =
-            _extractAllProducts(listOfBatchs).toList(growable: false);
 
-        final allBarcodes =
-            _extractAllBarcodes(response).toList(growable: false);
+          // Convertir el mapa en una lista de productos únicos con cantidades sumadas
+          final productsIterable =
+              _extractAllProducts(listOfBatchs).toList(growable: false);
 
-        final List<Muelles> responseMuelles =
-            await wmsPickingRepository.getmuelles(
-          false,
-        );
+          final allBarcodes =
+              _extractAllBarcodes(response).toList(growable: false);
 
-        print('response muelles: ${responseMuelles.length}');
-        print('productsToInsert: ${productsIterable.length}');
-        print('allBarcodes: ${allBarcodes.length}');
+          final List<Muelles> responseMuelles =
+              await wmsPickingRepository.getmuelles(
+            false,
+          );
 
-        await DataBaseSqlite()
-            .submuellesRepository
-            .insertSubmuelles(responseMuelles);
+          print('response muelles: ${responseMuelles.length}');
+          print('productsToInsert: ${productsIterable.length}');
+          print('allBarcodes: ${allBarcodes.length}');
 
-        // Enviar la lista agrupada a insertBatchProducts
-        await DataBaseSqlite().insertBatchProducts(productsIterable);
-
-
-        if (allBarcodes.isNotEmpty) {
-          // Enviar la lista agrupada a insertBarcodesPackageProduct
           await DataBaseSqlite()
-              .barcodesPackagesRepository
-              .insertOrUpdateBarcodes(allBarcodes);
+              .submuellesRepository
+              .insertSubmuelles(responseMuelles);
+
+          // Enviar la lista agrupada a insertBatchProducts
+          await DataBaseSqlite().insertBatchProducts(productsIterable);
+
+          if (allBarcodes.isNotEmpty) {
+            // Enviar la lista agrupada a insertBarcodesPackageProduct
+            await DataBaseSqlite()
+                .barcodesPackagesRepository
+                .insertOrUpdateBarcodes(allBarcodes);
+          }
+
+          // //* Carga los batches desde la base de datos
+          add(FilterBatchesBStatusEvent(
+            '',
+          ));
         }
 
-        // //* Carga los batches desde la base de datos
-        add(FilterBatchesBStatusEvent(
-          '',
-        ));
         emit(LoadBatchsSuccesState(listOfBatchs: listOfBatchs));
       } else {
         print('Error resBatchs: response is null');

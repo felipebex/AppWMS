@@ -8,6 +8,8 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ListProductsScreen extends StatefulWidget {
@@ -24,7 +26,52 @@ class _SearchProductScreenState extends State<ListProductsScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    return BlocBuilder<InfoRapidaBloc, InfoRapidaState>(
+    return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
+      listener: (context, state) {
+        print('state: $state');
+        if (state is InfoRapidaError) {
+          Navigator.pop(context);
+          Get.snackbar(
+            '360 Software Informa',
+            'No se encontró producto, lote, paquete ni ubicación con ese código de barras',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
+          );
+        }
+
+        if (state is InfoRapidaLoading) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const DialogLoading(
+                message: "Buscando informacion...",
+              );
+            },
+          );
+        }
+
+        if (state is InfoRapidaLoaded) {
+          Navigator.pop(context);
+          Get.snackbar(
+            '360 Software Informa',
+            'Información encontrada',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+
+          if (state.infoRapidaResult.type == 'product') {
+            Navigator.pushReplacementNamed(
+              context,
+              'product-info',
+            );
+          } else if (state.infoRapidaResult.type == "ubicacion") {
+            Navigator.pushReplacementNamed(context, 'location-info',
+                arguments: [state.infoRapidaResult]);
+          }
+        }
+      },
       builder: (context, state) {
         final bloc = context.read<InfoRapidaBloc>();
         return WillPopScope(
@@ -56,6 +103,7 @@ class _SearchProductScreenState extends State<ListProductsScreen> {
                                   color: Colors.white,
                                   elevation: 3,
                                   child: TextFormField(
+                                    showCursor: true,
                                     readOnly: context
                                             .read<UserBloc>()
                                             .fabricante
@@ -120,7 +168,8 @@ class _SearchProductScreenState extends State<ListProductsScreen> {
                                 const Text('No hay productos',
                                     style:
                                         TextStyle(fontSize: 14, color: grey)),
-                                const Text('No tiene productos en la base de datos',
+                                const Text(
+                                    'No tiene productos en la base de datos',
                                     style:
                                         TextStyle(fontSize: 12, color: grey)),
                                 Visibility(
@@ -305,8 +354,10 @@ class _SearchProductScreenState extends State<ListProductsScreen> {
                             bloc.add(ShowKeyboardEvent(false));
                             FocusScope.of(context).unfocus();
 
-                            bloc.add(
-                                GetInfoRapida(selectedProduct.productId.toString(), true, true));
+                            bloc.add(GetInfoRapida(
+                                selectedProduct.productId.toString(),
+                                true,
+                                true));
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -325,6 +376,19 @@ class _SearchProductScreenState extends State<ListProductsScreen> {
                     const SizedBox(
                       height: 10,
                     ),
+                    Visibility(
+                      visible: bloc.isKeyboardVisible &&
+                          context.read<UserBloc>().fabricante.contains("Zebra"),
+                      child: CustomKeyboard(
+                        isLogin: false,
+                        controller: bloc.searchControllerProducts,
+                        onchanged: () {
+                          bloc.add(SearchProductEvent(
+                            bloc.searchControllerProducts.text,
+                          ));
+                        },
+                      ),
+                    )
                   ],
                 )),
           ),

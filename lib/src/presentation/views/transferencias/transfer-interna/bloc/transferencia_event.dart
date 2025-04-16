@@ -184,3 +184,12 @@ class CheckAvailabilityEvent extends TransferenciaEvent {
 
 class CleanFieldsEvent extends TransferenciaEvent {
 }
+
+
+class SearchLocationEvent extends TransferenciaEvent {
+  final String query;
+
+  SearchLocationEvent(
+    this.query,
+  );
+}

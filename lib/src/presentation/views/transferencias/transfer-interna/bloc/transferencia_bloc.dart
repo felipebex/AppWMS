@@ -28,6 +28,8 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   final TransferenciasRepository _transferenciasRepository =
       TransferenciasRepository();
 
+  TextEditingController searchControllerLocationDest = TextEditingController();
+
   //*base de datos
   DataBaseSqlite db = DataBaseSqlite();
 
@@ -45,7 +47,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   List<LineasTransferenciaTrans> listProductsTransfer = [];
   //*lista de productos de un una entrada
   List<String> listOfProductsName = [];
-  List<String> warehouseName = [];
 
   LineasTransferenciaTrans currentProduct = LineasTransferenciaTrans();
   ResultUbicaciones currentLocationDest = ResultUbicaciones();
@@ -85,6 +86,9 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
   //*lista de ubicaciones
   List<ResultUbicaciones> ubicaciones = [];
+  List<ResultUbicaciones> ubicacionesFilters = [];
+
+  List<String> tiposTransferencia = [];
 
   //*metodo para empezar o terminar timepo
 
@@ -168,6 +172,30 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     //metodo para limpiar datos
     on<CleanFieldsEvent>(_onClearFieldsEvent);
+
+    //metodo para buscar una ubicacion
+    on<SearchLocationEvent>(_onSearchLocationEvent);
+  }
+
+  void _onSearchLocationEvent(
+      SearchLocationEvent event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(SearchLoading());
+      ubicacionesFilters = [];
+      ubicacionesFilters = ubicaciones;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        ubicacionesFilters = ubicaciones;
+      } else {
+        ubicacionesFilters = ubicaciones.where((location) {
+          return location.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(SearchLocationSuccess(ubicacionesFilters));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
   }
 
   void _onClearFieldsEvent(
@@ -316,9 +344,11 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     try {
       emit(LoadLocationsLoading());
       final response = await db.ubicacionesRepository.getAllUbicaciones();
-      if (response.isNotEmpty) {
         ubicaciones.clear();
+        ubicacionesFilters.clear();
+      if (response.isNotEmpty) {
         ubicaciones = response;
+        ubicacionesFilters = response;
         print('ubicaciones length: ${ubicaciones.length}');
         emit(LoadLocationsSuccess(ubicaciones));
       } else {
@@ -403,18 +433,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
               observacion: productBD.observation == ""
                   ? "Sin novedad"
                   : productBD.observation,
-              
-              
-              dividida: 
-              false,
-              
-              // event.isDividio
-              //     ? productBD.isProductSplit == 0 //0
-              //         ? productBD.quantityOrdered == productBD.cantidadFaltante
-              //             ? event.isDividio
-              //             : true
-              //         : true
-              //     : false
+              dividida: false,
             ),
           ],
         ),
@@ -467,6 +486,9 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
               responseSend.result?.result?.first.idMove ?? 0,
               responseSend.result?.result?.first.idProduct ?? 0);
         }
+
+        locationDestIsOk = false;
+        isLocationDestOk = true;
 
         add(GetPorductsToTransfer(currentProduct.idTransferencia ?? 0));
         emit(SendProductToTransferSuccess());
@@ -1095,11 +1117,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     }
   }
 
-
-
- 
-
-
   //*metodo para obtener los productos de una entrada por id
   void _onGetProductsToTransfer(
       GetPorductsToTransfer event, Emitter<TransferenciaState> emit) async {
@@ -1176,12 +1193,8 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         transferenciasDB = response;
         transferenciasDbFilters = response;
 
-        for (var item in transferenciasDbFilters) {
-          String warehouse = item.warehouseName ?? "";
-          if (!warehouseName.contains(warehouse)) {
-            warehouseName.add(warehouse);
-          }
-        }
+        tiposTransferencia = obtenerTiposTransferencia(transferenciasDbFilters);
+        print('tiposTransferencia: $tiposTransferencia');
         emit(TransferenciaBDLoaded(
             transferenciasDbFilters, event.isLoadingDialog));
         //cargamos novedades y ubicaciones
@@ -1193,6 +1206,25 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     } catch (e, s) {
       print('Error en el fetch de transferencias: $e=>$s');
     }
+  }
+
+  List<String> obtenerTiposTransferencia(
+      List<ResultTransFerencias> transferencias) {
+    final Set<String> tipos = {};
+
+    final RegExp regExp = RegExp(r'^.*?/([^/]+)/');
+
+    for (final t in transferencias) {
+      final name = t.name;
+      if (name != null) {
+        final match = regExp.firstMatch(name);
+        if (match != null && match.groupCount >= 1) {
+          tipos.add(match.group(1)!);
+        }
+      }
+    }
+
+    return tipos.toList();
   }
 
   //metodo para cargar la transferencia actual
@@ -1215,8 +1247,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     }
   }
 
-
-
   //metodo para traer todas las transferencias
   _onfetchTransferencias(
       FetchAllTransferencias event, Emitter<TransferenciaState> emit) async {
@@ -1238,8 +1268,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         final allBarcodes =
             _extractAllBarcodes(response).toList(growable: false);
         print('transfer productsToInsert: ${productsToInsert.length}');
-        // print('transfer productsSentToInsert: ${productsSentToInsert.length}');
-        // print('transfer allBarcodes: ${allBarcodes.length}');
         // Enviar la lista agrupada a insertBatchProducts
         await db.productTransferenciaRepository
             .insertarProductoEntrada(productsToInsert);
@@ -1262,9 +1290,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     }
   }
 
-
-
-  void getProductsAll()async{
+  void getProductsAll() async {
     final response = await db.productTransferenciaRepository.getAllProducts();
     print("response: ${response.length}");
   }
@@ -1293,9 +1319,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   Iterable<Barcodes> _extractAllBarcodes(
       List<ResultTransFerencias> response) sync* {
     for (final batch in response) {
-
       if (batch.lineasTransferencia != null) {
-        
         for (final product in batch.lineasTransferencia!) {
           if (product.otherBarcodes != null) {
             yield* product.otherBarcodes!;
@@ -1305,8 +1329,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           }
         }
       }
-
-
     }
   }
 }

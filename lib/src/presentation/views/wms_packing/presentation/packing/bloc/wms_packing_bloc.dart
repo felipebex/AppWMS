@@ -590,12 +590,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       listOfProductosProgress = listOfProductos.where((product) {
         return product.isSeparate == null || product.isSeparate == 0;
       }).toList();
-      emit(WmsPackingLoaded());
+      emit(WmsPackingLoaded( listOfBatchs: listOfBatchsDB));
     } else {
       listOfProductosProgress = listOfProductos.where((product) {
         return product.productId?.toLowerCase().contains(query) ?? false;
       }).toList();
-      emit(WmsPackingLoaded());
+      emit(WmsPackingLoaded( listOfBatchs: listOfBatchsDB));
     }
   }
 
@@ -605,7 +605,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     listOfBatchsDB = batchsFromDB;
     listOfBatchsDB =
         listOfBatchsDB.where((element) => element.isSeparate == null).toList();
-    emit(WmsPackingLoaded());
+    emit(WmsPackingLoaded( listOfBatchs: listOfBatchsDB));
 
     return;
   }
@@ -626,56 +626,58 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       }).toList();
     }
 
-    emit(WmsPackingLoaded());
+    emit(WmsPackingLoaded( listOfBatchs: listOfBatchsDB));
   }
 
-String normalizeText(String input) {
-  // Normaliza texto: sin tildes, minúsculas, sin espacios a los extremos
-  const Map<String, String> accentMap = {
-    'á': 'a',
-    'é': 'e',
-    'í': 'i',
-    'ó': 'o',
-    'ú': 'u',
-    'ü': 'u',
-    'ñ': 'n',
-  };
+  String normalizeText(String input) {
+    // Normaliza texto: sin tildes, minúsculas, sin espacios a los extremos
+    const Map<String, String> accentMap = {
+      'á': 'a',
+      'é': 'e',
+      'í': 'i',
+      'ó': 'o',
+      'ú': 'u',
+      'ü': 'u',
+      'ñ': 'n',
+    };
 
-  return input
-      .trim()
-      .toLowerCase()
-      .split('')
-      .map((char) => accentMap[char] ?? char)
-      .join();
-}
+    return input
+        .trim()
+        .toLowerCase()
+        .split('')
+        .map((char) => accentMap[char] ?? char)
+        .join();
+  }
 
-void _onSearchPedidoEvent(
-    SearchPedidoPackingEvent event, Emitter<WmsPackingState> emit) async {
-  try {
-    final query = event.query.trim();
+  void _onSearchPedidoEvent(
+      SearchPedidoPackingEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      final query = event.query.trim();
 
-    if (query.isEmpty) {
-      listOfPedidosFilters = listOfPedidos;
-    } else {
-      final normalizedQuery = normalizeText(query);
+      if (query.isEmpty) {
+        listOfPedidosFilters = listOfPedidos;
+      } else {
+        final normalizedQuery = normalizeText(query);
 
-      listOfPedidosFilters = listOfPedidos.where((pedido) {
-        final name = normalizeText(pedido.name ?? '');
-        final referencia = normalizeText(pedido.referencia ?? '');
-        final contactoName = normalizeText(pedido.contactoName ?? '');
+        listOfPedidosFilters = listOfPedidos.where((pedido) {
+          final name = normalizeText(pedido.name ?? '');
+          final referencia = normalizeText(pedido.referencia ?? '');
+          final contactoName = normalizeText(pedido.contactoName ?? '');
 
-        return name.contains(normalizedQuery) ||
-            referencia.contains(normalizedQuery) ||
-            contactoName.contains(normalizedQuery);
-      }).toList();
+          return name.contains(normalizedQuery) ||
+              referencia.contains(normalizedQuery) ||
+              contactoName.contains(normalizedQuery);
+        }).toList();
+      }
+
+      emit(WmsPackingLoaded( 
+        listOfBatchs: listOfBatchsDB,
+      ));
+    } catch (e, s) {
+      print('Error en el _onSearchPedidoEvent: $e, $s');
+      emit(WmsPackingError(e.toString()));
     }
-
-    emit(WmsPackingLoaded());
-  } catch (e, s) {
-    print('Error en el _onSearchPedidoEvent: $e, $s');
-    emit(WmsPackingError(e.toString()));
   }
-}
 
   ///*metodo para cambiar el estado del sticker
   void _onChangeStickerEvent(
@@ -1023,7 +1025,10 @@ void _onSearchPedidoEvent(
         //obtenemos las posiciones de los productos
         getPosicions();
 
-        emit(WmsPackingLoaded());
+        emit(WmsPackingLoaded(
+      listOfBatchs : listOfBatchsDB,
+
+        ));
       } else {
         print('Error _onLoadAllProductsFromPedidoEvent: response is null');
       }
@@ -1033,10 +1038,10 @@ void _onSearchPedidoEvent(
     }
   }
 
-
-  void getPedidosAll()async{
-      final response = await DataBaseSqlite().pedidosPackingRepository.getAllPedidosPacking();
-      print('response pedidos: ${response.length}');
+  void getPedidosAll() async {
+    final response =
+        await DataBaseSqlite().pedidosPackingRepository.getAllPedidosPacking();
+    print('response pedidos: ${response.length}');
   }
 
   void _onLoadAllPedidosFromBatchEvent(
@@ -1053,7 +1058,9 @@ void _onSearchPedidoEvent(
         listOfPedidosFilters = response;
         listOfPedidos = response;
         print('pedidosToInsert: ${response.length}');
-        emit(WmsPackingLoaded());
+        emit(WmsPackingLoaded(
+          listOfBatchs : listOfBatchsDB,
+        ));
       } else {
         print('Error resPedidos: response is null');
       }
@@ -1112,86 +1119,88 @@ void _onSearchPedidoEvent(
           await wmsPackingRepository.resBatchsPacking(event.isLoadinDialog);
 
       if (response != null && response is List) {
-        
         listOfBatchs.clear();
         listOfBatchsDB.clear();
         listOfBatchs.addAll(response);
         listOfBatchsDB.addAll(response);
 
-         if (listOfBatchs.isNotEmpty) {
+        if (listOfBatchs.isNotEmpty) {
           await DataBaseSqlite()
               .batchPackingRepository
               .insertAllBatchPacking(listOfBatchs);
+          // Convertir el mapa en una lista de pedido unicos del batch para packing
+          List<PedidoPacking> pedidosToInsert =
+              listOfBatchs.expand((batch) => batch.listaPedidos!).toList();
+
+          //convertir el mapa en una lista de productos unicos del pedido para packing
+          List<PorductoPedido> productsToInsert = pedidosToInsert
+              .expand((pedido) => pedido.listaProductos!)
+              .toList();
+
+          //Convertir el mapa en una lista los barcodes unicos de cada producto
+          List<Barcodes> barcodesToInsert = productsToInsert
+              .expand((product) => product.productPacking!)
+              .toList();
+
+          //convertir el mapap en una lsita de los otros barcodes de cada producto
+          List<Barcodes> otherBarcodesToInsert = productsToInsert
+              .expand((product) => product.otherBarcode!)
+              .toList();
+
+          //convertir el mapap en una lista de productos unicos de paquetes que se encuentra en un pedido dentro de listado de paquetes y listado de productos
+          List<PorductoPedido> productsPackagesToInsert = pedidosToInsert
+              .expand((pedido) => pedido.listaPaquetes!)
+              .expand((paquete) => paquete.listaProductosInPacking!)
+              .toList();
+
+          //covertir el mapa en una lista de los paquetes de un pedido
+          List<Paquete> packagesToInsert = pedidosToInsert
+              .expand((pedido) => pedido.listaPaquetes!)
+              .toList();
+
+          print(
+              'productsPackagesToInsert Packing : ${productsPackagesToInsert.length}');
+
+          print('pedidosToInsert Packing : ${pedidosToInsert.length}');
+          print('productsToInsert Packing : ${productsToInsert.length}');
+          print('barcode product Packing : ${barcodesToInsert.length}');
+          print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');
+          print('packagesToInsert Packing : ${packagesToInsert.length}');
+
+          // Enviar la lista agrupada de productos de un batch para packing
+          await DataBaseSqlite()
+              .pedidosPackingRepository
+              .insertPedidosBatchPacking(pedidosToInsert);
+          // Enviar la lista agrupada de productos de un pedido para packing
+          await DataBaseSqlite()
+              .productosPedidosRepository
+              .insertProductosPedidos(productsToInsert);
+          // Enviar la lista agrupada de barcodes de un producto para packing
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(barcodesToInsert);
+          // Enviar la lista agrupada de otros barcodes de un producto para packing
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(otherBarcodesToInsert);
+          //guardamos los productos de los paquetes que ya fueron empaquetados
+          await DataBaseSqlite()
+              .productosPedidosRepository
+              .insertProductosOnPackage(productsPackagesToInsert);
+          //enviamos la lista agrupada de los paquetes de un pedido para packing
+          await DataBaseSqlite()
+              .packagesRepository
+              .insertPackages(packagesToInsert);
+
+          //creamos las cajas que ya estan creadas
+
+          // //* Carga los batches desde la base de datos
+          add(LoadBatchPackingFromDBEvent());
         }
 
-
-        // Convertir el mapa en una lista de pedido unicos del batch para packing
-        List<PedidoPacking> pedidosToInsert =
-            listOfBatchs.expand((batch) => batch.listaPedidos!).toList();
-
-        //convertir el mapa en una lista de productos unicos del pedido para packing
-        List<PorductoPedido> productsToInsert =
-            pedidosToInsert.expand((pedido) => pedido.listaProductos!).toList();
-
-        //Convertir el mapa en una lista los barcodes unicos de cada producto
-        List<Barcodes> barcodesToInsert = productsToInsert
-            .expand((product) => product.productPacking!)
-            .toList();
-
-        //convertir el mapap en una lsita de los otros barcodes de cada producto
-        List<Barcodes> otherBarcodesToInsert = productsToInsert
-            .expand((product) => product.otherBarcode!)
-            .toList();
-
-        //convertir el mapap en una lista de productos unicos de paquetes que se encuentra en un pedido dentro de listado de paquetes y listado de productos
-        List<PorductoPedido> productsPackagesToInsert = pedidosToInsert
-            .expand((pedido) => pedido.listaPaquetes!)
-            .expand((paquete) => paquete.listaProductosInPacking!)
-            .toList();
-
-        //covertir el mapa en una lista de los paquetes de un pedido
-        List<Paquete> packagesToInsert =
-            pedidosToInsert.expand((pedido) => pedido.listaPaquetes!).toList();
-
-        print(
-            'productsPackagesToInsert Packing : ${productsPackagesToInsert.length}');
-
-        print('pedidosToInsert Packing : ${pedidosToInsert.length}');
-        print('productsToInsert Packing : ${productsToInsert.length}');
-        print('barcode product Packing : ${barcodesToInsert.length}');
-        print('otherBarcodes    Packing : ${otherBarcodesToInsert.length}');
-        print('packagesToInsert Packing : ${packagesToInsert.length}');
-
-        // Enviar la lista agrupada de productos de un batch para packing
-        await DataBaseSqlite()
-            .pedidosPackingRepository
-            .insertPedidosBatchPacking(pedidosToInsert);
-        // Enviar la lista agrupada de productos de un pedido para packing
-        await DataBaseSqlite()
-            .productosPedidosRepository
-            .insertProductosPedidos(productsToInsert);
-        // Enviar la lista agrupada de barcodes de un producto para packing
-        await DataBaseSqlite()
-            .barcodesPackagesRepository
-            .insertOrUpdateBarcodes(barcodesToInsert);
-        // Enviar la lista agrupada de otros barcodes de un producto para packing
-        await DataBaseSqlite()
-            .barcodesPackagesRepository
-            .insertOrUpdateBarcodes(otherBarcodesToInsert);
-        //guardamos los productos de los paquetes que ya fueron empaquetados
-        await DataBaseSqlite()
-            .productosPedidosRepository
-            .insertProductosOnPackage(productsPackagesToInsert);
-        //enviamos la lista agrupada de los paquetes de un pedido para packing
-        await DataBaseSqlite()
-            .packagesRepository
-            .insertPackages(packagesToInsert);
-
-        //creamos las cajas que ya estan creadas
-
-        // //* Carga los batches desde la base de datos
-        add(LoadBatchPackingFromDBEvent());
-        emit(WmsPackingLoaded());
+        emit(WmsPackingLoaded(
+          listOfBatchs: listOfBatchs,
+        ));
       } else {
         print('Error resBatchs: response is null');
       }

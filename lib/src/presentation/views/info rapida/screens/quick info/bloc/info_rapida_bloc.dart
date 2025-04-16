@@ -90,7 +90,8 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
         productosFilters = productos;
       } else {
         productosFilters = productos.where((product) {
-          return product.name?.toLowerCase().contains(query) ?? false;
+          return (product.name?.toLowerCase().contains(query) ?? false) ||
+              (product.code?.toLowerCase().contains(query) ?? false);
         }).toList();
       }
       emit(SearchProductSuccess(productosFilters));
@@ -158,6 +159,10 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
       infoRapidaResult = InfoRapidaResult();
 
       InfoRapida infoRapida; // Defínelo fuera del if
+
+      print('manual: ${event.isManual}');
+      print('is product: ${event.isProduct}');
+      print('barcode: ${event.barcode.trim()}');
 
       if (event.isManual) {
         infoRapida = await _infoRapidaRepository.getInfoQuickManual(

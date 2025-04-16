@@ -1101,22 +1101,40 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                           .contains("Zebra")
                                       ? Column(
                                           children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  'Ubicación de destino',
-                                                  style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: primaryColorApp,
+                                            GestureDetector(
+                                              onTap: bloc
+                                                          .configurations
+                                                          .result
+                                                          ?.result
+                                                          ?.manualQuantityTransfer ==
+                                                      false
+                                                  ? null
+                                                  : () {
+                                                      Navigator
+                                                          .pushReplacementNamed(
+                                                              context,
+                                                              'seacrh-locationsDest-trans',
+                                                              arguments: [
+                                                            bloc.currentProduct
+                                                          ]);
+                                                    },
+                                              child: Row(
+                                                children: [
+                                                  Text(
+                                                    'Ubicación de destino',
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: primaryColorApp,
+                                                    ),
                                                   ),
-                                                ),
-                                                Spacer(),
-                                                Image.asset(
-                                                  "assets/icons/packing.png",
-                                                  color: primaryColorApp,
-                                                  width: 20,
-                                                ),
-                                              ],
+                                                  Spacer(),
+                                                  Image.asset(
+                                                    "assets/icons/packing.png",
+                                                    color: primaryColorApp,
+                                                    width: 20,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                             Container(
                                               height: 15,
@@ -1170,22 +1188,40 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                           },
                                           child: Column(
                                             children: [
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    'Ubicación de destino',
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: primaryColorApp,
+                                              GestureDetector(
+                                                onTap: bloc
+                                                            .configurations
+                                                            .result
+                                                            ?.result
+                                                            ?.manualQuantityTransfer ==
+                                                        false
+                                                    ? null
+                                                    : () {
+                                                        Navigator
+                                                            .pushReplacementNamed(
+                                                                context,
+                                                                'seacrh-locationsDest-trans',
+                                                                arguments: [
+                                                              bloc.currentProduct
+                                                            ]);
+                                                      },
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                      'Ubicación de destino',
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: primaryColorApp,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  Spacer(),
-                                                  Image.asset(
-                                                    "assets/icons/packing.png",
-                                                    color: primaryColorApp,
-                                                    width: 20,
-                                                  ),
-                                                ],
+                                                    Spacer(),
+                                                    Image.asset(
+                                                      "assets/icons/packing.png",
+                                                      color: primaryColorApp,
+                                                      width: 20,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                               const SizedBox(height: 10),
                                               Align(

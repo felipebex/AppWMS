@@ -71,7 +71,7 @@ class _DialogAdvetenciaCantidadScreenState
                     // Color rojo para quantity
                   ),
                   const TextSpan(
-                    text: 'es menor a la cantidad de la orden ',
+                    text: 'es menor a la cantidad de la transferencia ',
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 12,

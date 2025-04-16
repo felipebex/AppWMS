@@ -273,3 +273,21 @@ class CheckAvailabilityFailure extends TransferenciaState {
   final String error;
   CheckAvailabilityFailure(this.error);
 }
+
+
+
+
+class SearchLoading extends TransferenciaState {}
+
+
+class SearchFailure extends TransferenciaState {
+  final String error;
+  SearchFailure(this.error);
+}
+
+
+
+class SearchLocationSuccess extends TransferenciaState {
+  final List<ResultUbicaciones> locations;
+  SearchLocationSuccess(this.locations);
+}

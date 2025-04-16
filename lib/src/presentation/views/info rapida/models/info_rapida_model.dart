@@ -73,9 +73,8 @@ class InfoResult {
   String? referencia;
   dynamic? peso;
   dynamic? volumen;
-  String? codigoBarras;
+  dynamic? codigoBarras;
   // List<Barcodes>? codigosBarrasPaquetes;
-  String? imagen;
   String? categoria;
   List<Ubicacion>? ubicaciones;
 
@@ -95,7 +94,6 @@ class InfoResult {
     this.volumen,
     this.codigoBarras,
     // this.codigosBarrasPaquetes,
-    this.imagen,
     this.categoria,
     this.ubicaciones,
     this.ubicacionPadre,
@@ -117,7 +115,6 @@ class InfoResult {
         //     ? []
         //     : List<Barcodes>.from(
         //         json["codigos_barras_paquetes"]!.map((x) => x)),
-        imagen: json["imagen"],
         categoria: json["categoria"],
         ubicaciones: json["ubicaciones"] == null
             ? []
@@ -146,7 +143,6 @@ class InfoResult {
         // "codigos_barras_paquetes": codigosBarrasPaquetes == null
         //     ? []
         //     : List<dynamic>.from(codigosBarrasPaquetes!.map((x) => x)),
-        "imagen": imagen,
         "categoria": categoria,
         "ubicaciones": ubicaciones == null
             ? []

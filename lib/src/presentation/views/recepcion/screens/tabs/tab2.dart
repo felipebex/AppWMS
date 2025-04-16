@@ -1,6 +1,5 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -88,12 +87,12 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
         product.idMove ?? 0,
       ));
 
-      bloc.add(ChangeIsOkQuantity(
-        product.idRecepcion ?? 0,
-        true,
-        int.parse(product.productId),
-        product.idMove ?? 0,
-      ));
+      if (bloc.configurations.result?.result
+              ?.scanDestinationLocationReception ==
+          false) {
+        bloc.add(ChangeIsOkQuantity(product.idRecepcion ?? 0, true,
+            int.parse(product.productId), product.idMove ?? 0));
+      }
 
       context.read<RecepcionBloc>().add(FetchPorductOrder(
             product,
@@ -363,7 +362,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                                 false,
                                             child: Row(
                                               children: [
-
                                                 Text(
                                                   "Cantidad: ",
                                                   style: TextStyle(
@@ -371,7 +369,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-                                                
                                                 Text(
                                                     "${product.cantidadFaltante}",
                                                     style: const TextStyle(

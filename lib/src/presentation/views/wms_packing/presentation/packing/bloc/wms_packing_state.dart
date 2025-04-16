@@ -13,7 +13,10 @@ final class WmsProductInfoLoading extends WmsPackingState {}
 
 final class WmsProductInfoLoaded extends WmsPackingState {}
 
-final class WmsPackingLoaded extends WmsPackingState {}
+final class WmsPackingLoaded extends WmsPackingState {
+  final List<BatchPackingModel> listOfBatchs;
+  WmsPackingLoaded({required this.listOfBatchs});
+}
 final class WmsPackingLoadedBD extends WmsPackingState {}
 
 final class WmsPackingError extends WmsPackingState {

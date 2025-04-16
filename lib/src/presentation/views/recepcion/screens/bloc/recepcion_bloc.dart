@@ -2,7 +2,6 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
@@ -907,13 +906,16 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       isLoteOk = true;
       viewQuantity = false;
 
+      final product = await db.productEntradaRepository.getProductById(
+          int.parse(event.product.productId),
+          event.product.idMove,
+          event.product.idRecepcion);
+
       emit(FetchPorductOrderLoading());
 
       // traemos toda la lista de barcodes
       listOfBarcodes.clear();
-      print('listOfBarcodes: ${listOfBarcodes.length}');
-      currentProduct = LineasTransferencia();
-      currentProduct = event.product;
+      currentProduct = product ?? LineasTransferencia();
       listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
         currentProduct.idRecepcion ?? 0,
         int.parse(currentProduct.productId),
@@ -1106,6 +1108,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               .insertOrUpdateBarcodes(allBarcodes);
 
           add(FetchOrdenesCompraOfBd());
+          emit(FetchOrdenesCompraSuccess(
+            response.result?.result ?? [],
+          ));
+        } else {
           emit(FetchOrdenesCompraSuccess(
             response.result?.result ?? [],
           ));

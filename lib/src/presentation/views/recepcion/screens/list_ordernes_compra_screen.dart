@@ -93,6 +93,15 @@ class ListOrdenesCompraScreen extends StatelessWidget {
         }
 
         if (state is FetchOrdenesCompraSuccess) {
+          if (state.ordenesCompra.isEmpty) {
+            Get.snackbar(
+              '360 Software Informa',
+              "No hay recepciones disponibles",
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.amber),
+            );
+          }
           Navigator.pop(context);
         }
       },
@@ -114,7 +123,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                       .read<RecepcionBloc>()
                       .isKeyboardVisible
                   ? CustomKeyboard(
-                    isLogin: false,
+                      isLogin: false,
                       controller:
                           context.read<RecepcionBloc>().searchControllerOrderC,
                       onchanged: () {

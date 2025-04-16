@@ -22,6 +22,7 @@ import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/w
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/list_transferencias_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/scan_product_transfer_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/transferencia_screen.dart';
+import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/location_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing.dart';
@@ -63,6 +64,8 @@ class AppRoutes {
   static const String transferExterna = 'transfer-externa';
   static const String searchProductTrans = 'search-product-trans';
   static const String searchLocationTrans = 'search-location-trans';
+  static const String scanProductTransfer = 'scan-product-transfer';
+  static const String searchLocationDestTrans = 'seacrh-locationsDest-trans';
 
   // Global
   static const String home = 'home';
@@ -74,7 +77,8 @@ class AppRoutes {
   static const String scanProductOrder = 'scan-product-order';
   static const String locationDestSearch = 'search-location-recep';
 
-  static const String scanProductTransfer = 'scan-product-transfer';
+
+
   //new lote
   static const String newLote = 'new-lote';
 
@@ -207,6 +211,21 @@ class AppRoutes {
 
         return ScanProductTrasnferScreen(currentProduct: currentProducArg);
       },
+
+      searchLocationDestTrans: (context) {
+        // Obtener los argumentos (una lista)
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final currentProducArg = arguments[0] as LineasTransferenciaTrans?;
+
+        return LocationDestTransScreen(currentProduct: currentProducArg);
+      },
+
+
+
+
 
       recepcion: (context) {
         // Obtener los argumentos (una lista)

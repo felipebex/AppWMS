@@ -115,15 +115,19 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       focusNode5.unfocus();
     }
 
-    if (batchBloc.productIsOk &&
-        !batchBloc.quantityIsOk &&
-        !batchBloc.locationsDestIsok) {
-      print("🚼 muelle");
-      FocusScope.of(context).requestFocus(focusNode5);
-      //cerramos los demas focos
-      focusNode2.unfocus();
-      focusNode3.unfocus();
-      focusNode4.unfocus();
+    if (batchBloc
+            .configurations.result?.result?.scanDestinationLocationReception ==
+        true) {
+      if (batchBloc.productIsOk &&
+          !batchBloc.quantityIsOk &&
+          !batchBloc.locationsDestIsok) {
+        print("🚼 muelle");
+        FocusScope.of(context).requestFocus(focusNode5);
+        //cerramos los demas focos
+        focusNode2.unfocus();
+        focusNode3.unfocus();
+        focusNode4.unfocus();
+      }
     }
 
     print('quantity: ${batchBloc.quantitySelected}');
@@ -163,6 +167,13 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         0,
         currentProduct.idMove ?? 0,
       ));
+
+      if (bloc.configurations.result?.result
+              ?.scanDestinationLocationReception ==
+          false) {
+        bloc.add(ChangeIsOkQuantity(currentProduct.idRecepcion ?? 0, true,
+            int.parse(currentProduct.productId), currentProduct.idMove ?? 0));
+      }
 
       bloc.add(ClearScannedValueOrderEvent('product'));
     } else {

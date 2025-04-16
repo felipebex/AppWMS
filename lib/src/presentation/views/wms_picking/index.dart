@@ -3,6 +3,7 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
@@ -57,23 +58,20 @@ class _PickingPageState extends State<WMSPickingPage> {
       },
       child: MultiBlocListener(
         listeners: [
-          // BlocListener<WMSPickingBloc, PickingState>(
-          //     listener: (context, state) {
-          //   print('state $state');
-          //   if (state is BatchsPickingLoadingState) {
-          //     showDialog(
-          //       context: context,
-          //       barrierDismissible: false,
-          //       builder: (context) => const DialogLoading(
-          //         message: 'Cargando picking...',
-          //       ),
-          //     );
-          //   }
-
-          //   if (state is LoadBatchsSuccesBDState) {
-          //     Navigator.pop(context);
-          //   }
-          // }),
+          BlocListener<WMSPickingBloc, PickingState>(
+              listener: (context, state) {
+            if (state is LoadBatchsSuccesState) {
+              if (state.listOfBatchs.isEmpty) {
+                Get.snackbar(
+                  '360 Software Informa',
+                  "No hay batch disponibles",
+                  backgroundColor: white,
+                  colorText: primaryColorApp,
+                  icon: Icon(Icons.error, color: Colors.amber),
+                );
+              }
+            }
+          }),
           BlocListener<BatchBloc, BatchState>(
             listener: (context, state) {
               if (state is PickingOkState) {

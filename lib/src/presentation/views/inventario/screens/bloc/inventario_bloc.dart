@@ -613,7 +613,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         productosFilters = productos;
       } else {
         productosFilters = productos.where((product) {
-          return product.name?.toLowerCase().contains(query) ?? false;
+          return (product.name?.toLowerCase().contains(query) ?? false) ||
+              (product.code?.toLowerCase().contains(query) ?? false);
         }).toList();
       }
       emit(SearchProductSuccess(productosFilters));
