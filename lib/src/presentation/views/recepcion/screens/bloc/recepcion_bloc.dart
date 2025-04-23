@@ -1,5 +1,7 @@
 // ignore_for_file: unused_field, unnecessary_null_comparison, unnecessary_type_check, use_build_context_synchronously
 
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -78,6 +80,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   bool locationsDestIsok = false;
   bool isKeyboardVisible = false;
   bool viewQuantity = false;
+
+  String dateInicio = '';
+  String dateFin = "";
 
   // //*validaciones de campos del estado de la vista
   bool isProductOk = true;
@@ -182,6 +187,31 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     ///filtrar transferenica por el type
     on<FilterReceptionByTypeEvent>(_onFilterTransferByTypeEvent);
+
+    on<CleanFieldsEvent>(_onCleanFieldsEvent);
+  }
+
+  void _onCleanFieldsEvent(
+      CleanFieldsEvent event, Emitter<RecepcionState> emit) {
+    scannedValue2 = '';
+    scannedValue3 = '';
+    scannedValue4 = '';
+    scannedValue5 = '';
+    scannedValue6 = '';
+    selectLote = '';
+    currentUbicationDest = null;
+    listLotesProduct.clear();
+    productIsOk = false;
+    loteIsOk = false;
+    quantityIsOk = false;
+    locationsDestIsok = false;
+    isKeyboardVisible = false;
+    viewQuantity = false;
+    isProductOk = true;
+    isQuantityOk = true;
+    isLoteOk = true;
+    isLocationDestOk = true;
+
   }
 
   void _onFilterTransferByTypeEvent(
@@ -479,11 +509,15 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         currentProduct.idRecepcion,
       );
 
-      String dateInicio = productBD?.dateStart ?? "";
-      String dateFin = productBD?.dateEnd ?? "";
-      print("dateInicio: $dateInicio  dateFin: $dateFin");
+
 
       //calculamos la diferencia de tiempo
+      if (dateInicio == "" || dateInicio == null) {
+        dateInicio = DateTime.now().toString();
+      }
+      if (dateFin == "" || dateFin == null) {
+        dateFin = DateTime.now().toString();
+      }
       DateTime dateStart = DateTime.parse(dateInicio);
       DateTime dateEnd = DateTime.parse(dateFin);
 
@@ -547,6 +581,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         }
         add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
         lotesProductCurrent = LotesProduct();
+        dateInicio = '';
+        dateFin = '';
         emit(SendProductToOrderSuccess());
       } else {
         // marcamos tiempo final de sepfaracion
@@ -604,12 +640,14 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     try {
       emit(FinalizarRecepcionProductoSplitLoading());
 
+      dateFin = DateTime.now().toString();
+
       //marcamos tiempo final de separacion
       await db.productEntradaRepository.setFieldTableProductEntrada(
           currentProduct.idRecepcion,
           int.parse(currentProduct.productId),
           "date_end",
-          DateTime.now().toString(),
+          dateFin,
           currentProduct.idMove);
       //actualizamso el estado del producto como separado
       await db.productEntradaRepository.setFieldTableProductEntrada(
@@ -638,6 +676,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       FinalizarRecepcionProducto event, Emitter<RecepcionState> emit) async {
     try {
       emit(FinalizarRecepcionProductoLoading());
+      dateFin = DateTime.now().toString();
       //marcamos el producto como terminado
       await db.productEntradaRepository.setFieldTableProductEntrada(
           currentProduct.idRecepcion,
@@ -651,7 +690,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           currentProduct.idRecepcion,
           int.parse(currentProduct.productId),
           "date_end",
-          DateTime.now().toString(),
+          dateFin,
           currentProduct.idMove ?? 0);
     } catch (e, s) {
       emit(FinalizarRecepcionProductoFailure(
@@ -716,10 +755,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           "is_quantity_is_ok",
           1,
           event.idMove);
-      quantityIsOk = event.isOk;
     }
+    quantityIsOk = event.isOk;
     emit(ChangeIsOkState(
-      quantityIsOk,
+      event.isOk,
     ));
   }
 
@@ -731,7 +770,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         await db.productEntradaRepository.setFieldTableProductEntrada(
             event.idRecepcion,
             event.productId,
-            "quantity_separate",
+            "quantity_done",
             event.quantity,
             event.idMove);
       }
@@ -744,14 +783,16 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<RecepcionState> emit) async {
     if (event.productIsOk) {
+      dateInicio = DateTime.now().toString();
       //actualizmso valor de fecha inicio
       await db.productEntradaRepository.setFieldTableProductEntrada(
         event.idEntrada,
         event.productId,
         'date_start',
-        DateTime.now().toString(),
+        dateInicio,
         event.idMove,
       );
+
 
       //actualizamos la entrada a true
       await db.entradasRepository.setFieldTableEntrada(
@@ -779,7 +820,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       await db.productEntradaRepository.setFieldTableProductEntrada(
         event.idEntrada,
         event.productId,
-        "quantity_separate",
+        "quantity_done",
         event.quantity,
         event.idMove,
       );
@@ -936,16 +977,16 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       isLoteOk = true;
       viewQuantity = false;
 
-      final product = await db.productEntradaRepository.getProductById(
-          int.parse(event.product.productId),
-          event.product.idMove,
-          event.product.idRecepcion);
+      // final product = await db.productEntradaRepository.getProductById(
+      //     int.parse(event.product.productId),
+      //     event.product.idMove,
+      //     event.product.idRecepcion);
 
       emit(FetchPorductOrderLoading());
 
       // traemos toda la lista de barcodes
       listOfBarcodes.clear();
-      currentProduct = product ?? LineasTransferencia();
+      currentProduct = event.product;
       listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
         currentProduct.idRecepcion ?? 0,
         int.parse(currentProduct.productId),
@@ -958,16 +999,29 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       }
 
       //cargamos la informacion de las variables de validacion
-      productIsOk = currentProduct.productIsOk == 1 ? true : false;
-      quantityIsOk = false;
-      // quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
-      quantitySelected =  0;
+      // productIsOk = currentProduct.productIsOk == 1 ? true : false;
+      if (configurations.result?.result?.scanDestinationLocationReception ==
+          true) {
+        quantityIsOk = false;
+      }
+      // else {
+      //   quantityIsOk = productIsOk ;
+      // }
+
+      quantitySelected = 0;
       currentUbicationDest = ResultUbicaciones();
-      locationsDestIsok = false;
+      // locationsDestIsok = false;
       lotesProductCurrent = LotesProduct();
       //llamamos los productos de esa entrada
       products();
       //cargamos la configuracion del usuario
+      if (currentProduct.dateStart != "") {
+        dateInicio = currentProduct.dateStart ?? '';
+      }
+
+      if (currentProduct.dateEnd != "") {
+        dateFin = currentProduct.dateEnd ?? '';
+      }
 
       emit(FetchPorductOrderSuccess(currentProduct));
     } catch (e, s) {
@@ -976,7 +1030,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     }
   }
 
-  products() {
+  void products() {
     listOfProductsName.clear();
 
     // filtramos la lista a productos que no esten separados
@@ -1206,9 +1260,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     }
   }
 
-
-   List<String> obtenerTiposReceptions(
-      List<ResultEntrada> transferencias) {
+  List<String> obtenerTiposReceptions(List<ResultEntrada> transferencias) {
     final Set<String> tipos = {};
 
     final RegExp regExp = RegExp(r'^.*?/([^/]+)/');

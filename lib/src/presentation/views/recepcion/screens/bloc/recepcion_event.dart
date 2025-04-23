@@ -194,3 +194,6 @@ class FilterReceptionByTypeEvent extends RecepcionEvent {
   final String type;
   FilterReceptionByTypeEvent(this.type);
 }
+
+class CleanFieldsEvent extends RecepcionEvent {
+}

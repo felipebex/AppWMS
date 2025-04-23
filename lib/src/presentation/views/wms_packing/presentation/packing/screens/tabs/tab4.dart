@@ -47,7 +47,8 @@ class Tab4Screen extends StatelessWidget {
                                 .read<WmsPackingBloc>()
                                 .productsDonePacking[index];
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
                               child: GestureDetector(
                                 onTap: () {
                                   print("Producto: ${product.toJson()}");
@@ -83,9 +84,11 @@ class Tab4Screen extends StatelessWidget {
                                                           overflow: TextOverflow
                                                               .ellipsis,
                                                           " ${product.productId}",
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              color: black))),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black))),
                                                 ),
                                               ],
                                             ),
@@ -94,7 +97,8 @@ class Tab4Screen extends StatelessWidget {
                                             elevation: 3,
                                             color: white,
                                             child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
                                               child: Column(
                                                 children: [
                                                   Row(
@@ -103,7 +107,8 @@ class Tab4Screen extends StatelessWidget {
                                                         "Certificado: ",
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          color: primaryColorApp,
+                                                          color:
+                                                              primaryColorApp,
                                                         ),
                                                       ),
                                                       Text(
@@ -111,21 +116,27 @@ class Tab4Screen extends StatelessWidget {
                                                                   0
                                                               ? "No"
                                                               : "Si",
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              color: black)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black)),
                                                       const Spacer(),
                                                       Text(
                                                         "Unidades: ",
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          color: primaryColorApp,
+                                                          color:
+                                                              primaryColorApp,
                                                         ),
                                                       ),
-                                                      Text("${product.unidades}",
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              color: black)),
+                                                      Text(
+                                                          "${product.unidades}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black)),
                                                     ],
                                                   ),
                                                   Row(
@@ -134,7 +145,8 @@ class Tab4Screen extends StatelessWidget {
                                                         "Cantidad empacada: ",
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          color: primaryColorApp,
+                                                          color:
+                                                              primaryColorApp,
                                                         ),
                                                       ),
                                                       Text(
@@ -142,9 +154,11 @@ class Tab4Screen extends StatelessWidget {
                                                                   0
                                                               ? "${product.quantity}"
                                                               : "${product.quantitySeparate}",
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              color: black)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black)),
                                                     ],
                                                   ),
                                                   Row(
@@ -153,19 +167,23 @@ class Tab4Screen extends StatelessWidget {
                                                         "Paquete: ",
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          color: primaryColorApp,
+                                                          color:
+                                                              primaryColorApp,
                                                         ),
                                                       ),
                                                       Text(
                                                           "${product.packageName}",
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              color: black)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black)),
                                                     ],
                                                   ),
-                                                 
-                                                  if (product.observation != "" ||
-                                                      product.observation == null)
+                                                  if (product.observation !=
+                                                          "" ||
+                                                      product.observation ==
+                                                          null)
                                                     Row(
                                                       children: [
                                                         Text(
@@ -197,7 +215,8 @@ class Tab4Screen extends StatelessWidget {
                                                         ),
                                                       ],
                                                     ),
-                                                  if (product.isProductSplit == 1)
+                                                  if (product.isProductSplit ==
+                                                      1)
                                                     Row(
                                                       children: [
                                                         Text(
@@ -221,7 +240,7 @@ class Tab4Screen extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          if (product.tracking != false)
+                                          if (product.tracking =='lot')
                                             Row(
                                               children: [
                                                 Text(
@@ -231,8 +250,7 @@ class Tab4Screen extends StatelessWidget {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-                                                Text(
-                                                    "${product.tracking} / ${product.lotId}",
+                                                Text(" ${product.lotId}",
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),

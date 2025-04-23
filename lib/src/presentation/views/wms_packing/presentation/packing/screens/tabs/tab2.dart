@@ -110,10 +110,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<WmsPackingBloc, WmsPackingState>(
       listener: (context, state) {
-
         print('state: $state');
-
-       
       },
       builder: (context, state) {
         return Scaffold(
@@ -124,7 +121,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                       .result
                       ?.result
                       ?.scanProduct ==
-                  false
+                  true
               ? Stack(
                   children: [
                     // El FloatingActionButton
@@ -319,15 +316,12 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                             //* se activa segun el permiso
                                             Visibility(
                                               visible: context
-                                                          .read<
-                                                              WmsPackingBloc>()
-                                                          .configurations
-                                                          .result
-                                                          ?.result
-                                                          ?.scanProduct ==
-                                                      false
-                                                  ? true
-                                                  : false,
+                                                      .read<WmsPackingBloc>()
+                                                      .configurations
+                                                      .result
+                                                      ?.result
+                                                      ?.scanProduct ==
+                                                  true,
                                               child: Checkbox(
                                                 value: context
                                                     .read<WmsPackingBloc>()

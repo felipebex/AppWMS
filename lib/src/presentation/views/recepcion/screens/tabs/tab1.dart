@@ -80,6 +80,13 @@ class Tab1ScreenRecep extends StatelessWidget {
         builder: (context, state) {
           final ordeCompraBd = context.read<RecepcionBloc>().resultEntrada;
 
+          final totalEnviadas = context
+              .read<RecepcionBloc>()
+              .listProductsEntrada
+              .map((e) => e.quantityDone ?? 0)
+              .fold<double>(0, (a, b) => a + b);
+
+
           return Scaffold(
             backgroundColor: white,
             body: Column(
@@ -285,6 +292,24 @@ class Tab1ScreenRecep extends StatelessWidget {
                               ],
                             ),
                           ),
+                          Row(
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Unidades recibidas: ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    totalEnviadas.toString(),
+                                    style:
+                                        TextStyle(fontSize: 12, color: black),
+                                  )),
+                            ],
+                          ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -381,15 +406,10 @@ class Tab1ScreenRecep extends StatelessWidget {
                                     Align(
                                       alignment: Alignment.center,
                                       child: Text(
-                                        context
-                                                .read<RecepcionBloc>()
-                                                .listProductsEntrada
-                                                .where((element) {
-                                          return element.isSeparate == 0 ||
-                                              element.isSeparate == null;
-                                        }).isEmpty
-                                            ? '¿Estás seguro de confirmar la recepcion y dejarla lista para ser enviada?'
-                                            : "Usted ha procesado cantidades de prodcutos menores que los requeridos en el movimiento orignal.",
+                                        (totalEnviadas ==
+                                                ordeCompraBd.numeroItems)
+                                            ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
+                                            : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                                         style: TextStyle(
                                             color: black, fontSize: 14),
                                         textAlign: TextAlign.center,
@@ -399,13 +419,8 @@ class Tab1ScreenRecep extends StatelessWidget {
                                 ),
                                 actions: [
                                   Visibility(
-                                    visible: context
-                                        .read<RecepcionBloc>()
-                                        .listProductsEntrada
-                                        .where((element) {
-                                      return element.isSeparate == 0 ||
-                                          element.isSeparate == null;
-                                    }).isNotEmpty,
+                                    visible: (totalEnviadas !=
+                                        ordeCompraBd.numeroItems),
                                     child: ElevatedButton(
                                       onPressed: () {
                                         context.read<RecepcionBloc>().add(

@@ -206,7 +206,7 @@ class ProductsEntradaRepository {
             producto.fechaVencimiento ?? '',
         ProductRecepcionTable.columnDiasVencimiento:
             producto.diasVencimiento ?? 0,
-        ProductRecepcionTable.columnQuantityOrdered: cantidad,
+        ProductRecepcionTable.columnQuantityOrdered: producto.quantityOrdered ?? 0,
         ProductRecepcionTable.columnQuantityToReceive:
             producto.quantityToReceive ?? 0,
         ProductRecepcionTable.columnQuantityDone: producto.quantityDone ?? 0,
@@ -297,7 +297,11 @@ class ProductsEntradaRepository {
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
     final resUpdate = await db.rawUpdate(
-        'UPDATE ${ProductRecepcionTable.tableName} SET $field = ? WHERE ${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? AND ${ProductRecepcionTable.columnIsDoneItem} = 0',
+        'UPDATE ${ProductRecepcionTable.tableName} SET $field = ?'
+        'WHERE ${ProductRecepcionTable.columnProductId} = ?'
+        'AND ${ProductRecepcionTable.columnIdMove} = ?'
+        'AND ${ProductRecepcionTable.columnIdRecepcion} = ?' 
+        'AND ${ProductRecepcionTable.columnIsDoneItem} = 0',
         [setValue, productId, idMove, idEntrada]);
 
     print(

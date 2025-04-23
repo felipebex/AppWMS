@@ -173,7 +173,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                 child: Row(
                                                   children: [
                                                     Text(
-                                                      "Cantidad pedida: ",
+                                                      "Demanda: ",
                                                       style: TextStyle(
                                                         fontSize: 12,
                                                         color: primaryColorApp,
@@ -198,9 +198,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     ),
                                                   ),
                                                   Text(
-                                                      (product.isSeparate == 0)
-                                                          ? "${product.quantityDone}"
-                                                          : "${product.quantitySeparate}",
+                                                          "${product.quantityDone}",
                                                       // "${product.quantityToReceive}",
                                                       style: const TextStyle(
                                                           fontSize: 12,

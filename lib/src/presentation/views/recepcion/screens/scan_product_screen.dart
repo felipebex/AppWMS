@@ -93,7 +93,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     final batchBloc = context.read<RecepcionBloc>();
 
     if (!batchBloc.productIsOk && //false
-        !batchBloc.quantityIsOk) //true
+        !batchBloc.quantityIsOk) //false
     {
       print('❤️‍🔥 product');
       FocusScope.of(context).requestFocus(focusNode2);
@@ -103,23 +103,11 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     }
     //validamso si el producto tiene lote
 
-    if (batchBloc.productIsOk && //true
-            batchBloc.quantityIsOk && //ttrue
-            batchBloc.locationsDestIsok //false
-            &&
-            !batchBloc.viewQuantity //false
-        ) //false
-    {
-      print('❤️‍🔥 quantity');
-      FocusScope.of(context).requestFocus(focusNode3);
-      focusNode2.unfocus();
-      focusNode4.unfocus();
-      focusNode5.unfocus();
-    }
-
     if (batchBloc
             .configurations.result?.result?.scanDestinationLocationReception ==
         true) {
+      print('con permiso de muelle');
+
       if (batchBloc.productIsOk &&
           !batchBloc.quantityIsOk &&
           !batchBloc.locationsDestIsok) {
@@ -130,12 +118,40 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         focusNode3.unfocus();
         focusNode4.unfocus();
       }
+
+      if (batchBloc.productIsOk && //true
+              batchBloc.quantityIsOk && //ttrue
+              batchBloc.locationsDestIsok //false
+              &&
+              !batchBloc.viewQuantity //false
+          ) //false
+      {
+        print('❤️‍🔥 quantity');
+        FocusScope.of(context).requestFocus(focusNode3);
+        focusNode2.unfocus();
+        focusNode4.unfocus();
+        focusNode5.unfocus();
+      }
     } else {
-      print("🚼 muelle sin permiso");
+      print('sin permiso de muelle');
+
+      if (batchBloc.productIsOk && //true
+              batchBloc.quantityIsOk && //ttrue
+              !batchBloc.viewQuantity //false
+          ) //false
+      {
+        print('❤️‍🔥 quantity');
+        FocusScope.of(context).requestFocus(focusNode3);
+        focusNode2.unfocus();
+        focusNode4.unfocus();
+        focusNode5.unfocus();
+      }
     }
 
-    print('quantity: ${batchBloc.quantitySelected}');
+    print('productIsOk: ${batchBloc.productIsOk}');
     print('quantityIsOk: ${batchBloc.quantityIsOk}');
+    print('viewQuantity: ${batchBloc.viewQuantity}');
+    print('locationsDestIsok: ${batchBloc.locationsDestIsok}');
   }
 
   @override
@@ -289,6 +305,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                       if (state is ChangeProductOrderIsOkState) {
                         //pasamos al foco de lote
                         Future.delayed(const Duration(seconds: 1), () {
+                          if (!mounted) return; // ← Añade esta verificación
                           FocusScope.of(context).requestFocus(focusNode5);
                         });
                         _handleDependencies();
@@ -1654,9 +1671,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
   void termiateProcess() {
     FocusScope.of(context).unfocus();
-    context.read<RecepcionBloc>().selectLote = "";
-    context.read<RecepcionBloc>().loteIsOk = false;
 
+    context.read<RecepcionBloc>().add(CleanFieldsEvent());
     context
         .read<RecepcionBloc>()
         .add(GetPorductsToEntrada(widget.ordenCompra?.id ?? 0));

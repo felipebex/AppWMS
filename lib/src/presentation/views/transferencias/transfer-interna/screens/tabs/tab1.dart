@@ -156,7 +156,7 @@ class Tab1ScreenTrans extends StatelessWidget {
 
           return Scaffold(
             backgroundColor: white,
-            body: Container(
+            body: SizedBox(
               width: size.width,
               height: size.height * 0.95,
               child: SingleChildScrollView(

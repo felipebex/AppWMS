@@ -50,7 +50,8 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
 
     // Obtener la lista de productos desde el Bloc
     final listOfProducts = bloc.listProductsEntrada.where((element) {
-      return element.isSeparate == 0 || element.isSeparate == null;
+      return (element.isSeparate == 0 || element.isSeparate == null) &&
+          (element.isDoneItem == 0 || element.isDoneItem == null);
     }).toList();
 
     // Buscar el producto que coincide con el código de barras escaneado
@@ -90,6 +91,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
       if (bloc.configurations.result?.result
               ?.scanDestinationLocationReception ==
           false) {
+        print('con permiso de muelle desde tab 2');
         bloc.add(ChangeIsOkQuantity(product.idRecepcion ?? 0, true,
             int.parse(product.productId), product.idMove ?? 0));
       }

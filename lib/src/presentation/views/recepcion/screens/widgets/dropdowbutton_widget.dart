@@ -85,7 +85,7 @@ class _DialogAdvetenciaCantidadScreenState
                           ?.hideExpectedQty ==
                       false)
                     TextSpan(
-                      text: '${widget.currentProduct.quantityOrdered}',
+                      text: '${widget.currentProduct.cantidadFaltante}',
                       style: const TextStyle(
                         color: green,
                         fontSize: 14,

@@ -262,12 +262,12 @@ class _PackingScreenState extends State<PackingScreen> {
 
                           if (state is SetPickingPackingOkState) {
                             //Mensaje de confirmacion
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              duration: const Duration(milliseconds: 1000),
-                              content: const Text(
-                                  'Producto certificado, revisa en preparados'),
-                              backgroundColor: Colors.green[200],
-                            ));
+                            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            //   duration: const Duration(milliseconds: 1000),
+                            //   content: const Text(
+                            //       'Producto certificado, revisa en preparados'),
+                            //   backgroundColor: Colors.green[200],
+                            // ));
                             Navigator.pushReplacementNamed(
                               context,
                               'packing-detail',
