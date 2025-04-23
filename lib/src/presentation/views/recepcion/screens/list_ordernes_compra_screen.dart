@@ -743,6 +743,61 @@ class AppBar extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
+                    Visibility(
+                      visible: context
+                              .read<RecepcionBloc>()
+                              .tiposRecepcion
+                              .length >
+                          1,
+                      child: PopupMenuButton<String>(
+                        color: white,
+                        icon: const Icon(
+                          Icons.more_vert,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        onSelected: (value) {
+                          context.read<RecepcionBloc>().add(
+                                FilterReceptionByTypeEvent(value),
+                              );
+                        },
+                        itemBuilder: (BuildContext context) {
+                          // Lista fija de tipos de transferencia que ya tienes
+                          final tipos = [
+                            ...context
+                                .read<RecepcionBloc>()
+                                .tiposRecepcion,
+                            'todas'
+                          ];
+
+                          return tipos.map((tipo) {
+                            final isTodas = tipo.toLowerCase() == 'todas';
+
+                            return PopupMenuItem<String>(
+                              value: tipo,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isTodas
+                                        ? Icons.select_all
+                                        : Icons.file_upload_outlined,
+                                    color:
+                                        isTodas ? Colors.grey : primaryColorApp,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    isTodas ? 'Todas' : tipo,
+                                    style: const TextStyle(
+                                        color: black, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -71,6 +71,10 @@ class ConfigurationsRepository {
         // columnScanDestinationLocationReception
         ConfigurationsTable.columnScanDestinationLocationReception: _boolToInt(
             configuration.result?.result?.scanDestinationLocationReception),
+
+        //hide_validate_transfer
+        ConfigurationsTable.columnHideValidateTransfer:
+            _boolToInt(configuration.result?.result?.hide_validate_transfer),
       };
 
       // Realizar la inserción o actualización usando INSERT OR REPLACE
@@ -164,6 +168,9 @@ class ConfigurationsRepository {
                   map[ConfigurationsTable.columnManualQuantityTransfer]),
               scanDestinationLocationReception: _intToBool(map[
                   ConfigurationsTable.columnScanDestinationLocationReception]),
+
+              hide_validate_transfer: _intToBool(
+                  map[ConfigurationsTable.columnHideValidateTransfer]),
             ),
           ),
         );

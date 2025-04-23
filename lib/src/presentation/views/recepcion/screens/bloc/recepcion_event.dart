@@ -188,3 +188,9 @@ class SearchLocationEvent extends RecepcionEvent {
     this.query,
   );
 }
+
+
+class FilterReceptionByTypeEvent extends RecepcionEvent {
+  final String type;
+  FilterReceptionByTypeEvent(this.type);
+}

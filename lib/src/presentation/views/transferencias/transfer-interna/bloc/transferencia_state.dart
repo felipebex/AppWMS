@@ -291,3 +291,19 @@ class SearchLocationSuccess extends TransferenciaState {
   final List<ResultUbicaciones> locations;
   SearchLocationSuccess(this.locations);
 }
+
+
+//estados para filtrar transferencias por type
+
+class FilterTransferByTypeLoading extends TransferenciaState {}
+
+
+class FilterTransferByTypeSuccess extends TransferenciaState {
+  final List<ResultTransFerencias> transferencias;
+  FilterTransferByTypeSuccess(this.transferencias);
+}
+
+class FilterTransferByTypeFailure extends TransferenciaState {
+  final String error;
+  FilterTransferByTypeFailure(this.error);
+}

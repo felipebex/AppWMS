@@ -235,13 +235,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
                               arguments: selectedLocation,
                             );
 
-                            Get.snackbar(
-                              'Ubicacion Seleccionada',
-                              'Has seleccionado la ubicacion: ${selectedLocation.name}',
-                              backgroundColor: white,
-                              colorText: primaryColorApp,
-                              icon: Icon(Icons.check, color: Colors.green),
-                            );
+                            
                           }
                         },
                         style: ElevatedButton.styleFrom(

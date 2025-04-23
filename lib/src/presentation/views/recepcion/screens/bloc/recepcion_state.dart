@@ -295,3 +295,18 @@ class ChangeLocationDestIsOkState extends RecepcionState {
   final bool isOk;
   ChangeLocationDestIsOkState(this.isOk);
 }
+
+
+
+class FilterReceptionByTypeLoading extends RecepcionState {}
+
+
+class FilterReceptionByTypeSuccess extends RecepcionState {
+  final List<ResultEntrada> receptions;
+  FilterReceptionByTypeSuccess(this.receptions);
+}
+
+class FilterReceptionByTypeFailure extends RecepcionState {
+  final String error;
+  FilterReceptionByTypeFailure(this.error);
+}

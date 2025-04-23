@@ -169,13 +169,11 @@ class _BatchDetailScreenState extends State<BatchScreen>
   }
 
   void validateLocation(String value) {
-    
     final batchBloc = context.read<BatchBloc>();
 
-String scan = batchBloc.scannedValue1.trim().toLowerCase() == ""
-    ? value.trim().toLowerCase()
-    : batchBloc.scannedValue1.trim().toLowerCase();
-
+    String scan = batchBloc.scannedValue1.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : batchBloc.scannedValue1.trim().toLowerCase();
 
     _controllerLocation.text = "";
     final currentProduct = batchBloc.currentProduct;
@@ -772,6 +770,41 @@ String scan = batchBloc.scannedValue1.trim().toLowerCase() == ""
                                                     ),
                                                   ],
                                                 ),
+                                              Visibility(
+                                                visible: currentProduct
+                                                            .origin !=
+                                                        "" && currentProduct.origin !=
+                                                            null,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.file_open_sharp,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text("Doc. origen: ",
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              color: grey)),
+                                                    ),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                          currentProduct.origin ??
+                                                              "",
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ],
                                           ),
                                         ],
@@ -938,6 +971,40 @@ String scan = batchBloc.scannedValue1.trim().toLowerCase() == ""
                                                     ),
                                                   ],
                                                 ),
+                                              Visibility(
+                                                visible: currentProduct
+                                                            .origin !=
+                                                        "",
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.file_open_sharp,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text("Doc. origen: ",
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              color: grey)),
+                                                    ),
+                                                    Align(
+                                                      alignment:
+                                                          Alignment.centerLeft,
+                                                      child: Text(
+                                                          currentProduct.origin ??
+                                                              "",
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  primaryColorApp)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                               ExpiryDateWidget(
                                                   expireDate: currentProduct
                                                                   .expireDate ==

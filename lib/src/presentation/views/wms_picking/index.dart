@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
+import 'dart:ui';
+
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter_holo_date_picker/date_picker.dart';
 import 'package:flutter_holo_date_picker/i18n/date_picker_i18n.dart';
@@ -506,24 +508,112 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             Icons.arrow_forward_ios,
                                             color: primaryColorApp,
                                           ),
-                                          leading: Container(
-                                            padding: const EdgeInsets.all(5),
-                                            decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
+                                          leading: GestureDetector(
+                                            onTap: () {
+                                              context
+                                                  .read<WMSPickingBloc>()
+                                                  .add(LoadDocOriginsEvent(
+                                                    batch.id ?? 0,
+                                                  ));
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) =>
+                                                      BackdropFilter(
+                                                        filter:
+                                                            ImageFilter.blur(
+                                                                sigmaX: 5,
+                                                                sigmaY: 5),
+                                                        child: AlertDialog(
+                                                          actionsAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          title: Center(
+                                                              child: Text(
+                                                            "Documentos de origen",
+                                                            textAlign: TextAlign
+                                                                .center,
+                                                            style: TextStyle(
+                                                                color:
+                                                                    primaryColorApp,
+                                                                fontSize: 20),
+                                                          )),
+                                                          content:
+                                                              //lista de documentos
+                                                              SizedBox(
+                                                            height: 300,
+                                                            width: size.width *
+                                                                0.9,
+                                                            child: ListView
+                                                                .builder(
+                                                              itemCount: context
+                                                                  .read<
+                                                                      WMSPickingBloc>()
+                                                                  .listOfOrigins
+                                                                  .length,
+                                                              itemBuilder:
+                                                                  (context,
+                                                                      index) {
+                                                                return Card(
+                                                                  color: white,
+                                                                  elevation: 2,
+                                                                  child:
+                                                                      ListTile(
+                                                                    title: Text(
+                                                                        context.read<WMSPickingBloc>().listOfOrigins[index].name ??
+                                                                            'Sin nombre',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                12,
+                                                                            color:
+                                                                                black)),
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
+                                                          ),
+                                                          actions: [
+                                                            ElevatedButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                style: ElevatedButton.styleFrom(
+                                                                    backgroundColor:
+                                                                        primaryColorApp,
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                                10))),
+                                                                child:
+                                                                    const Text(
+                                                                  'Aceptar',
+                                                                  style: TextStyle(
+                                                                      color:
+                                                                          white),
+                                                                ))
+                                                          ],
+                                                        ),
+                                                      ));
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(5),
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
 
-                                                //sombras
-                                                boxShadow: const [
-                                                  BoxShadow(
-                                                      color: Colors.black12,
-                                                      blurRadius: 5,
-                                                      offset: Offset(0, 2))
-                                                ]),
-                                            child: Image.asset(
-                                              "assets/icons/producto.png",
-                                              color: primaryColorApp,
-                                              width: 24,
+                                                  //sombras
+                                                  boxShadow: const [
+                                                    BoxShadow(
+                                                        color: Colors.black12,
+                                                        blurRadius: 5,
+                                                        offset: Offset(0, 2))
+                                                  ]),
+                                              child: Image.asset(
+                                                "assets/icons/producto.png",
+                                                color: primaryColorApp,
+                                                width: 24,
+                                              ),
                                             ),
                                           ),
                                           title: Text(batch.name ?? '',

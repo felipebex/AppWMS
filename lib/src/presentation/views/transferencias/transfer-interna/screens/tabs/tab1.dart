@@ -82,6 +82,7 @@ class Tab1ScreenTrans extends StatelessWidget {
               actions: [
                 ElevatedButton(
                   onPressed: () {
+                    Navigator.pop(context);
                     Get.back();
                   },
                   style: ElevatedButton.styleFrom(
@@ -476,149 +477,155 @@ class Tab1ScreenTrans extends StatelessWidget {
                     ),
 
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 5, sigmaY: 5),
-                                      child: AlertDialog(
-                                        backgroundColor: Colors.white,
-                                        actionsAlignment:
-                                            MainAxisAlignment.center,
-                                        title: Text(
-                                          'Confirmar Transferencia',
-                                          style: TextStyle(
-                                              color: primaryColorApp,
-                                              fontSize: 16),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            SizedBox(
-                                              height: 100,
-                                              width: 150,
-                                              child: Image.asset(
-                                                "assets/images/icono.jpeg",
-                                                fit: BoxFit.cover,
+                        Visibility(
+                          visible: context.read<TransferenciaBloc>().configurations.result?.result?.hide_validate_transfer == false,
+                          child: ElevatedButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return BackdropFilter(
+                                        filter: ImageFilter.blur(
+                                            sigmaX: 5, sigmaY: 5),
+                                        child: AlertDialog(
+                                          backgroundColor: Colors.white,
+                                          actionsAlignment:
+                                              MainAxisAlignment.center,
+                                          title: Text(
+                                            'Confirmar Transferencia',
+                                            style: TextStyle(
+                                                color: primaryColorApp,
+                                                fontSize: 16),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              SizedBox(
+                                                height: 100,
+                                                width: 150,
+                                                child: Image.asset(
+                                                  "assets/images/icono.jpeg",
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  (totalEnviadas ==
+                                                          transferenciaDetail
+                                                              .numeroItems)
+                                                      ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
+                                                      : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
+                                                  style: TextStyle(
+                                                      color: black, fontSize: 14),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          actions: [
+                                            Visibility(
+                                              visible: (totalEnviadas !=
+                                                  transferenciaDetail
+                                                      .numeroItems),
+                                              child: ElevatedButton(
+                                                onPressed: () {
+                                                  context
+                                                      .read<TransferenciaBloc>()
+                                                      .add(CreateBackOrderOrNot(
+                                                          transFerencia?.id ?? 0,
+                                                          true));
+                                                  Navigator.pop(context);
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      primaryColorApp,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(10),
+                                                  ),
+                                                  minimumSize:
+                                                      Size(size.width * 0.9, 40),
+                                                ),
+                                                child: const Text(
+                                                  'Confirmar y Crear un Backorder',
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12),
+                                                ),
                                               ),
                                             ),
-                                            Align(
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                (totalEnviadas ==
-                                                        transferenciaDetail
-                                                            .numeroItems)
-                                                    ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
-                                                    : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
-                                                style: TextStyle(
-                                                    color: black, fontSize: 14),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        actions: [
-                                          Visibility(
-                                            visible: (totalEnviadas !=
-                                                transferenciaDetail
-                                                    .numeroItems),
-                                            child: ElevatedButton(
-                                              onPressed: () {
+                                            ElevatedButton(
+                                              onPressed: () async {
                                                 context
                                                     .read<TransferenciaBloc>()
                                                     .add(CreateBackOrderOrNot(
                                                         transFerencia?.id ?? 0,
-                                                        true));
+                                                        false));
                                                 Navigator.pop(context);
                                               },
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    primaryColorApp,
+                                                backgroundColor: primaryColorApp,
+                                                minimumSize:
+                                                    Size(size.width * 0.9, 40),
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius:
                                                       BorderRadius.circular(10),
                                                 ),
-                                                minimumSize:
-                                                    Size(size.width * 0.9, 40),
                                               ),
                                               child: const Text(
-                                                'Confirmar y Crear un Backorder',
+                                                'Confirmar Transferencia',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 12),
                                               ),
                                             ),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () async {
-                                              context
-                                                  .read<TransferenciaBloc>()
-                                                  .add(CreateBackOrderOrNot(
-                                                      transFerencia?.id ?? 0,
-                                                      false));
-                                              Navigator.pop(context);
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: primaryColorApp,
-                                              minimumSize:
-                                                  Size(size.width * 0.9, 40),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                minimumSize:
+                                                    Size(size.width * 0.9, 40),
+                                                backgroundColor: grey,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                              child: const Text(
+                                                'Cancelar',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12),
                                               ),
                                             ),
-                                            child: const Text(
-                                              'Confirmar Transferencia',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12),
-                                            ),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              minimumSize:
-                                                  Size(size.width * 0.9, 40),
-                                              backgroundColor: grey,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            child: const Text(
-                                              'Cancelar',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColorApp,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                                          ],
+                                        ),
+                                      );
+                                    });
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColorApp,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 3,
                               ),
-                              elevation: 3,
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 2, vertical: 3),
-                              child: Text('Terminar\nTransferencia',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: white)),
-                            )),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 2, vertical: 3),
+                                child: Text('Terminar\nTransferencia',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: white)),
+                              )),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
                         Visibility(
                           visible: transferenciaDetail.showCheckAvailability ==
                                   1 ||

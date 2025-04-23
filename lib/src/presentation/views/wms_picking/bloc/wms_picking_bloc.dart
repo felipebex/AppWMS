@@ -2,6 +2,7 @@
 
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/batch_history_id_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/hisotry_done_model.dart';
@@ -26,6 +27,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
   List<Novedad> listOfNovedades = [];
   bool isKeyboardVisible = false;
+  List<Origin> listOfOrigins = [];
 
   HistoryBatchId historyBatchId = HistoryBatchId();
 
@@ -58,6 +60,25 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
     //evento para obtener todas las novedades desde odoo
     on<LoadAllNovedades>(_onLoadAllNovedadesEvent);
+
+    on<LoadDocOriginsEvent>(_onLoadDocOriginsEvent);
+  }
+
+  void _onLoadDocOriginsEvent(
+      LoadDocOriginsEvent event, Emitter<PickingState> emit) async {
+    try {
+      final batchsFromDB = await _databas.docOriginRepository
+          .getAllOriginsByIdBatch(event.idBatch);
+
+      listOfOrigins.clear();
+
+      listOfOrigins = batchsFromDB;
+      print('listOfOrigins: ${listOfOrigins.length}');
+
+      emit(LoadDocOriginsState(listOfOrigins: listOfOrigins));
+    } catch (e, s) {
+      print('Error LoadDocOriginsEvent: $e, $s');
+    }
   }
 
   //*metodo para cargar todas las novedades
@@ -117,9 +138,11 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         event.isLoadinDialog,
       );
 
+      listOfBatchs.clear();
+      filteredBatchs.clear();
+
       if (response != null && response is List) {
         int userId = await PrefUtils.getUserId();
-        listOfBatchs.clear();
         listOfBatchs.addAll(response);
 
         if (listOfBatchs.isNotEmpty) {
@@ -130,6 +153,9 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           // Convertir el mapa en una lista de productos únicos con cantidades sumadas
           final productsIterable =
               _extractAllProducts(listOfBatchs).toList(growable: false);
+
+          final originsIterable =
+              _extractAllOrigins(listOfBatchs).toList(growable: false);
 
           final allBarcodes =
               _extractAllBarcodes(response).toList(growable: false);
@@ -142,6 +168,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           print('response muelles: ${responseMuelles.length}');
           print('productsToInsert: ${productsIterable.length}');
           print('allBarcodes: ${allBarcodes.length}');
+          print('originsIterable: ${originsIterable.length}');
 
           await DataBaseSqlite()
               .submuellesRepository
@@ -149,6 +176,10 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
 
           // Enviar la lista agrupada a insertBatchProducts
           await DataBaseSqlite().insertBatchProducts(productsIterable);
+
+          await DataBaseSqlite()
+              .docOriginRepository
+              .insertAllDocsOrigins(originsIterable, userId);
 
           if (allBarcodes.isNotEmpty) {
             // Enviar la lista agrupada a insertBarcodesPackageProduct
@@ -186,6 +217,15 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
         }
       }
     }
+  }
+
+  Iterable<Origin> _extractAllOrigins(List<BatchsModel> batches) {
+    return batches.expand((batch) {
+      final origins = batch.origin ?? [];
+      return origins.where((p) => p.id != null && p.name != null).map((p) {
+        return Origin(id: p.id!, name: p.name!, idBatch: batch.id);
+      });
+    });
   }
 
   Iterable<ProductsBatch> _extractAllProducts(List<BatchsModel> batches) sync* {

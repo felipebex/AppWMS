@@ -1102,14 +1102,11 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                       ? Column(
                                           children: [
                                             GestureDetector(
-                                              onTap: bloc
-                                                          .configurations
-                                                          .result
-                                                          ?.result
-                                                          ?.manualQuantityTransfer ==
-                                                      false
-                                                  ? null
-                                                  : () {
+                                              onTap: bloc.locationIsOk &&
+                                                      bloc.productIsOk &&
+                                                      !bloc.quantityIsOk &&
+                                                      !bloc.locationDestIsOk
+                                                  ? () {
                                                       Navigator
                                                           .pushReplacementNamed(
                                                               context,
@@ -1117,7 +1114,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                               arguments: [
                                                             bloc.currentProduct
                                                           ]);
-                                                    },
+                                                    }
+                                                  : null,
                                               child: Row(
                                                 children: [
                                                   Text(
@@ -1189,14 +1187,11 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                           child: Column(
                                             children: [
                                               GestureDetector(
-                                                onTap: bloc
-                                                            .configurations
-                                                            .result
-                                                            ?.result
-                                                            ?.manualQuantityTransfer ==
-                                                        false
-                                                    ? null
-                                                    : () {
+                                                onTap: bloc.locationIsOk &&
+                                                        bloc.productIsOk &&
+                                                        !bloc.quantityIsOk &&
+                                                        !bloc.locationDestIsOk
+                                                    ? () {
                                                         Navigator
                                                             .pushReplacementNamed(
                                                                 context,
@@ -1204,7 +1199,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                                 arguments: [
                                                               bloc.currentProduct
                                                             ]);
-                                                      },
+                                                      }
+                                                    : null,
                                                 child: Row(
                                                   children: [
                                                     Text(

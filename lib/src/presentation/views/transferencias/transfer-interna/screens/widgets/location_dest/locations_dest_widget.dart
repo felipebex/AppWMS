@@ -250,13 +250,6 @@ class _LocationDestScreenState extends State<LocationDestTransScreen> {
                                   widget.currentProduct,
                                 ]);
 
-                            Get.snackbar(
-                              'Ubicacion Seleccionada',
-                              'Has seleccionado la ubicacion: ${selectedLocation.name}',
-                              backgroundColor: white,
-                              colorText: primaryColorApp,
-                              icon: Icon(Icons.check, color: Colors.green),
-                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(

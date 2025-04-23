@@ -95,6 +95,7 @@ class BatchsModel {
   final dynamic startTimePick;
   final dynamic endTimePick;
   final String? zonaEntrega;
+  final List<Origin>? origin;
 
   List<ProductsBatch>? listItems;
 
@@ -126,6 +127,7 @@ class BatchsModel {
     this.startTimePick,
     this.endTimePick,
     this.zonaEntrega,
+    this.origin,
   });
 
   factory BatchsModel.fromJson(String str) =>
@@ -164,6 +166,10 @@ class BatchsModel {
         startTimePick: json["start_time_pick"],
         endTimePick: json["end_time_pick"],
         zonaEntrega: json["zona_entrega"],
+        origin: json["origin"] == null
+            ? []
+            : List<Origin>.from(
+                json["origin"]!.map((x) => Origin.fromMap(x))),
       );
 
   Map<String, dynamic> toMap() => {
@@ -196,7 +202,41 @@ class BatchsModel {
         'start_time_pick': startTimePick,
         'end_time_pick': endTimePick,
         'zona_entrega': zonaEntrega,
+        'origin': origin == null
+            ? []
+            : List<dynamic>.from(origin!.map((x) => x.toMap())),
       };
+}
+
+
+class Origin{
+
+  final int? id;
+  final String? name;
+  final int? idBatch;
+
+
+  Origin({
+    this.id,
+    this.name,
+    this.idBatch,
+  });
+
+  factory Origin.fromJson(String str) => Origin.fromMap(json.decode(str));
+  String toJson() => json.encode(toMap());
+  factory Origin.fromMap(Map<String, dynamic> json) => Origin(
+    id: json['id'],
+    name: json['name'],
+    idBatch: json['id_batch'],
+  );
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'name': name,
+    'id_batch': idBatch,
+  };
+
+
 }
 
 class ProductsBatch {
@@ -240,6 +280,7 @@ class ProductsBatch {
   final String? isSendOdooDate;
   final double? weight;
   final dynamic expireDate;
+  final dynamic origin;
 
   // Variables para el picking
   late dynamic
@@ -261,6 +302,7 @@ class ProductsBatch {
     this.expireDate,
     // this.pickingId,
     this.orderProduct,
+    this.origin,
 
     
     this.barcodeLocation,
@@ -310,6 +352,7 @@ class ProductsBatch {
       orderProduct: map['order_product'],
       idProduct: map['id_product'],
       productId: map['product_id'],
+      origin: map['origin'],
       muelleId: map['muelle_id'],
       idMove: map['id_move'],
       barcodeLocation: map['barcode_location'],
@@ -362,6 +405,7 @@ class ProductsBatch {
       "batch_id": batchId,
       "id_move": idMove,
       "muelle_id": muelleId,
+      "origin": origin,
       "order_product": orderProduct,
       "barcode_location_dest": barcodeLocation,
       // "picking_id": pickingId,

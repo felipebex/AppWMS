@@ -605,6 +605,47 @@ class BatchDetailScreen extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
+                                              Visibility(
+                                                visible:
+                                                    productsBatch.origin != "" && 
+                                                        productsBatch.origin !=
+                                                            null,
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(horizontal: 8),
+                                                  child: Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.file_open_sharp,
+                                                        color: primaryColorApp,
+                                                        size: 15,
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                            "Doc. origen: ",
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color: grey)),
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                            productsBatch
+                                                                    .origin ??
+                                                                "",
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    primaryColorApp)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
                                               Padding(
                                                 padding:
                                                     const EdgeInsets.symmetric(
@@ -906,7 +947,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                           const SizedBox(
                                                               width: 5),
                                                           Text(
-                                                              "Unidades: ${productsBatch.unidades ?? ''}",
+                                                              "Unidad de medida: ${productsBatch.unidades ?? ''}",
                                                               style:
                                                                   const TextStyle(
                                                                       fontSize:

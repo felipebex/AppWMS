@@ -20,7 +20,7 @@ import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ListTransferenciasScreen extends StatefulWidget {
-  ListTransferenciasScreen({
+  const ListTransferenciasScreen({
     super.key,
   });
 
@@ -116,20 +116,12 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
           final transferBloc = context.read<TransferenciaBloc>();
 
           return Scaffold(
-            // floatingActionButton: FloatingActionButton(
-            //   backgroundColor: primaryColorApp,
-            //   onPressed: () {
-            //     transferBloc.getProductsAll();
-
-            //   },
-            //   child: const Icon(Icons.add),
-            // ),
             backgroundColor: white,
             bottomNavigationBar: context
                     .read<TransferenciaBloc>()
                     .isKeyboardVisible
                 ? CustomKeyboard(
-                  isLogin: false,
+                    isLogin: false,
                     controller: context
                         .read<TransferenciaBloc>()
                         .searchControllerTransfer,
@@ -229,6 +221,67 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                     ),
                                   ),
                                   const Spacer(),
+                                  Visibility(
+                                    visible: context
+                                            .read<TransferenciaBloc>()
+                                            .tiposTransferencia
+                                            .length >
+                                        1,
+                                    child: PopupMenuButton<String>(
+                                      color: white,
+                                      icon: const Icon(
+                                        Icons.more_vert,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                      onSelected: (value) {
+                                        context.read<TransferenciaBloc>().add(
+                                              FilterTransferByTypeEvent(value),
+                                            );
+                                      },
+                                      itemBuilder: (BuildContext context) {
+                                        // Lista fija de tipos de transferencia que ya tienes
+                                        final tipos = [
+                                          ...context
+                                              .read<TransferenciaBloc>()
+                                              .tiposTransferencia,
+                                          'todas'
+                                        ];
+
+                                        return tipos.map((tipo) {
+                                          final isTodas =
+                                              tipo.toLowerCase() == 'todas';
+
+                                          return PopupMenuItem<String>(
+                                            value: tipo,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  isTodas
+                                                      ? Icons.select_all
+                                                      : Icons
+                                                          .file_upload_outlined,
+                                                  color: isTodas
+                                                      ? Colors.grey
+                                                      : primaryColorApp,
+                                                  size: 20,
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                  isTodas ? 'Todas' : tipo,
+                                                  style: const TextStyle(
+                                                      color: black,
+                                                      fontSize: 12),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList();
+                                      },
+                                    ),
+                                  ),
+                                
+                                
                                 ],
                               ),
                             ),

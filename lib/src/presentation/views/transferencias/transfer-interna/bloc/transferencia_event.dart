@@ -193,3 +193,10 @@ class SearchLocationEvent extends TransferenciaEvent {
     this.query,
   );
 }
+
+
+
+class FilterTransferByTypeEvent extends TransferenciaEvent {
+  final String type;
+  FilterTransferByTypeEvent(this.type);
+}

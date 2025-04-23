@@ -115,3 +115,9 @@ class LoadAllNovedades extends PickingEvent {
   final BuildContext context;
   LoadAllNovedades(this.context);
 }
+
+
+class LoadDocOriginsEvent extends PickingEvent {
+  final int idBatch;
+  LoadDocOriginsEvent(this.idBatch);
+}

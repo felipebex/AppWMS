@@ -1,5 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, collection_methods_unrelated_type, unnecessary_type_check
 
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -175,6 +177,34 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     //metodo para buscar una ubicacion
     on<SearchLocationEvent>(_onSearchLocationEvent);
+
+    ///filtrar transferenica por el type
+    on<FilterTransferByTypeEvent>(_onFilterTransferByTypeEvent);
+  }
+
+  void _onFilterTransferByTypeEvent(
+      FilterTransferByTypeEvent event, Emitter<TransferenciaState> emit) {
+    try {
+      emit(FilterTransferByTypeLoading());
+
+      if (event.type == 'todas') {
+        transferenciasDbFilters = transferenciasDB;
+      } else {
+        transferenciasDbFilters = transferenciasDB.where((item) {
+          final name = item.name;
+          if (name != null) {
+            final parts = name.split('/');
+            return parts.length >= 2 && parts[1] == event.type;
+          }
+          return false;
+        }).toList();
+      }
+
+      emit(FilterTransferByTypeSuccess(transferenciasDbFilters));
+    } catch (e, s) {
+      emit(FilterTransferByTypeFailure('Error al filtrar las transferencias'));
+      print('Error en el _onFilterTransferByTypeEvent: $e, $s');
+    }
   }
 
   void _onSearchLocationEvent(
@@ -344,8 +374,8 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     try {
       emit(LoadLocationsLoading());
       final response = await db.ubicacionesRepository.getAllUbicaciones();
-        ubicaciones.clear();
-        ubicacionesFilters.clear();
+      ubicaciones.clear();
+      ubicacionesFilters.clear();
       if (response.isNotEmpty) {
         ubicaciones = response;
         ubicacionesFilters = response;
@@ -430,10 +460,16 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
               idOperario: userid,
               timeLine: time,
               fechaTransaccion: fechaFormateada,
-              observacion: productBD.observation == ""
-                  ? "Sin novedad"
-                  : productBD.observation,
-              dividida: false,
+              observacion: event.isDividio
+                  ? 'Cantidad dividida'
+                  : productBD.observation == ""
+                      ? "Sin novedad"
+                      : productBD.observation,
+              dividida: event.isDividio,
+              // observacion: productBD.observation == ""
+              //     ? "Sin novedad"
+              //     : productBD.observation,
+              // dividida: false,
             ),
           ],
         ),
@@ -1198,8 +1234,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         emit(TransferenciaBDLoaded(
             transferenciasDbFilters, event.isLoadingDialog));
         //cargamos novedades y ubicaciones
-        add(LoadLocations());
-        add(LoadAllNovedadesTransferEvent());
       } else {
         emit(TransferenciaErrorBD('No se encontraron transferencias'));
       }

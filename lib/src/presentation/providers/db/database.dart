@@ -24,6 +24,8 @@ import 'package:wms_app/src/presentation/providers/db/others/tbl_novedades/noved
 import 'package:wms_app/src/presentation/providers/db/others/tbl_novedades/novedades_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_pedidos_pack/pedidos_pack_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_pedidos_pack/pedidos_pack_table.dart';
+import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_table.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_submuelles/submuelles_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_submuelles/submuelles_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_urlrecientes/urlrecientes_repository.dart';
@@ -100,7 +102,7 @@ class DataBaseSqlite {
         time_separate DECIMAL(10,2),
         time_separate_start VARCHAR(255),
         time_separate_end VARCHAR(255),
-
+        origin VARCHAR(255),
         observation TEXT,
         unidades TEXT,
         weight INTEGER,
@@ -156,6 +158,8 @@ class DataBaseSqlite {
 
     //tabla para crear los almacenes
     await db.execute(WarehouseTable.createTable());
+    //table de documentos de origen de picking
+    await db.execute(DocOriginTable.createTable());
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -213,6 +217,8 @@ class DataBaseSqlite {
 
   WarehouseRepository get warehouseRepository => WarehouseRepository();
 
+  DocOriginRepository get docOriginRepository => DocOriginRepository();
+
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
       return _database!; // Si la base de datos ya está abierta, retornarla
@@ -262,6 +268,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
           "muelle_id": product.locationDestId?[0],
           "barcode": product.barcode == false ? "" : product.barcode,
           "weight": product.weigth,
+          "origin": product.origin,
         };
 
         if (existingSet.contains(key)) {
@@ -358,6 +365,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     await db.delete('tblbatch_products');
     await db.delete(BarcodesPackagesTable.tableName);
     await db.delete(SubmuellesTable.tableName);
+    // await db.delete(DocOriginTable.tableName);
   }
 
   Future<void> delePacking() async {
@@ -388,7 +396,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     //transferencia
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);
-  }
+  } 
 
   Future<void> deleOthers() async {
     final db = await getDatabaseInstance();
@@ -399,6 +407,9 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     // await db.delete(UrlsRecientesTable.tableName);
     await db.delete(WarehouseTable.tableName);
   }
+
+
+
 
   Future<void> deleteBDCloseSession() async {
     await delePicking();

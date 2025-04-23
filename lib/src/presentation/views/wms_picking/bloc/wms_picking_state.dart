@@ -64,3 +64,9 @@ class LoadSuccessNovedadesState extends PickingState {
   final List<Novedad> listOfNovedades;
   LoadSuccessNovedadesState({required this.listOfNovedades});
 }
+
+
+class LoadDocOriginsState extends PickingState {
+  final List<Origin> listOfOrigins;
+  LoadDocOriginsState({required this.listOfOrigins});
+}

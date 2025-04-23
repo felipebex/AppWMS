@@ -42,6 +42,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 //*orden actual
   ResultEntrada resultEntrada = ResultEntrada();
 
+  List<String> tiposRecepcion = [];
+
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
   List<LotesProduct> listLotesProductFilters = [];
@@ -177,6 +179,34 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     //metodo para buscar una ubicacion
     on<SearchLocationEvent>(_onSearchLocationEvent);
+
+    ///filtrar transferenica por el type
+    on<FilterReceptionByTypeEvent>(_onFilterTransferByTypeEvent);
+  }
+
+  void _onFilterTransferByTypeEvent(
+      FilterReceptionByTypeEvent event, Emitter<RecepcionState> emit) {
+    try {
+      emit(FilterReceptionByTypeLoading());
+
+      if (event.type == 'todas') {
+        listFiltersOrdenesCompra = listOrdenesCompra;
+      } else {
+        listFiltersOrdenesCompra = listOrdenesCompra.where((item) {
+          final name = item.name;
+          if (name != null) {
+            final parts = name.split('/');
+            return parts.length >= 2 && parts[1] == event.type;
+          }
+          return false;
+        }).toList();
+      }
+
+      emit(FilterReceptionByTypeSuccess(listFiltersOrdenesCompra));
+    } catch (e, s) {
+      emit(FilterReceptionByTypeFailure('Error al filtrar las transferencias'));
+      print('Error en el _onFilterTransferByTypeEvent: $e, $s');
+    }
   }
 
   //*metodo para validar la ubicacion
@@ -929,10 +959,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       //cargamos la informacion de las variables de validacion
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
-      quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
-      quantitySelected = currentProduct.isProductSplit == 1
-          ? 0
-          : currentProduct.quantitySeparate ?? 0;
+      quantityIsOk = false;
+      // quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+      quantitySelected =  0;
       currentUbicationDest = ResultUbicaciones();
       locationsDestIsok = false;
       lotesProductCurrent = LotesProduct();
@@ -1162,6 +1191,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       if (listbd != null && listbd.isNotEmpty) {
         listOrdenesCompra = listbd;
         listFiltersOrdenesCompra = listbd;
+
+        tiposRecepcion = obtenerTiposReceptions(listFiltersOrdenesCompra);
       } else {
         emit(FetchOrdenesCompraOfBdFailure(
             'No hay ordenes de compra en la base de datos'));
@@ -1173,6 +1204,26 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           'Error al obtener las ordenes de compra'));
       print('Error en el _onFetchOrdenesCompraOfBd: $e, $s');
     }
+  }
+
+
+   List<String> obtenerTiposReceptions(
+      List<ResultEntrada> transferencias) {
+    final Set<String> tipos = {};
+
+    final RegExp regExp = RegExp(r'^.*?/([^/]+)/');
+
+    for (final t in transferencias) {
+      final name = t.name;
+      if (name != null) {
+        final match = regExp.firstMatch(name);
+        if (match != null && match.groupCount >= 1) {
+          tipos.add(match.group(1)!);
+        }
+      }
+    }
+
+    return tipos.toList();
   }
 
   //*metodo para ocultar y mostrar el teclado

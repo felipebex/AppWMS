@@ -89,8 +89,8 @@ class _DialogAdvetenciaCantidadScreenState
               ),
             ),
             const Text(
-                // "Para continuar, seleccione la novedad o divida la cantidad del producto",
-                "Para continuar, seleccione la novedad  del producto",
+                "Para continuar, seleccione la novedad o divida la cantidad del producto",
+                // "Para continuar, seleccione la novedad  del producto",
                 style: TextStyle(color: Colors.black, fontSize: 12)),
             const SizedBox(height: 10),
             Card(
@@ -146,24 +146,24 @@ class _DialogAdvetenciaCantidadScreenState
                 ),
               ),
             ),
-            // Visibility(
-            //   visible: (widget.currentProduct.quantityOrdered > 1),
-            //   child: ElevatedButton(
-            //       onPressed: () async {
-            //         Navigator.pop(context); // Cierra el diálogo
-            //         widget.onSplit(); // L
-            //       },
-            //       style: ElevatedButton.styleFrom(
-            //         backgroundColor: grey,
-            //         minimumSize: Size(size.width * 0.6, 30),
-            //         shape: RoundedRectangleBorder(
-            //           borderRadius: BorderRadius.circular(10),
-            //         ),
-            //         elevation: 3,
-            //       ),
-            //       child: const Text('Dividir Cantidad',
-            //           style: TextStyle(color: Colors.white))),
-            // ),
+            Visibility(
+              visible: (widget.currentProduct.quantityOrdered > 1),
+              child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.pop(context); // Cierra el diálogo
+                    widget.onSplit(); // L
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: grey,
+                    minimumSize: Size(size.width * 0.6, 30),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 3,
+                  ),
+                  child: const Text('Dividir Cantidad',
+                      style: TextStyle(color: Colors.white))),
+            ),
           ],
         ),
         actions: [

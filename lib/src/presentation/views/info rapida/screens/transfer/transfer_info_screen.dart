@@ -156,7 +156,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
           idLote: widget.ubicacion?.loteId,
           idUbicacionOrigen: widget.ubicacion?.idUbicacion ?? 0,
           timeLine: 0,
-          observacion: "sin novedad",
+          observacion: "Sin novedad",
         ),
         quantity));
   }

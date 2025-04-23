@@ -40,7 +40,7 @@ class ProductosPedidosRepository {
         ProductosPedidosTable.columnIsQuantityIsOk: 0,
         ProductosPedidosTable.columnLocationDestIsOk: 0,
         ProductosPedidosTable.columnProductIsOk: 0,
-        ProductosPedidosTable.columnObservation: 'sin novedad',
+        ProductosPedidosTable.columnObservation: 'Sin novedad',
         ProductosPedidosTable.columnIsSelected: 0,
         ProductosPedidosTable.columnIsProductSplit: 1,
       };

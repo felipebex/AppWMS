@@ -59,6 +59,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
             );
           },
         );
+        _handleDependencies();
         Future.delayed(const Duration(seconds: 1), () {
           Navigator.pop(context);
         });
@@ -80,8 +81,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   final TextEditingController _controllerProduct = TextEditingController();
   final TextEditingController _controllerQuantity = TextEditingController();
   final TextEditingController _cantidadController = TextEditingController();
-  final TextEditingController _ubicacionDestinoController =
-      TextEditingController();
 
   @override
   void didChangeDependencies() {
@@ -90,6 +89,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   }
 
   void _handleDependencies() {
+    print('🚼 _handleDependencies');
     final batchBloc = context.read<RecepcionBloc>();
 
     if (!batchBloc.productIsOk && //false
@@ -105,6 +105,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
     if (batchBloc.productIsOk && //true
             batchBloc.quantityIsOk && //ttrue
+            batchBloc.locationsDestIsok //false
+            &&
             !batchBloc.viewQuantity //false
         ) //false
     {
@@ -128,6 +130,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         focusNode3.unfocus();
         focusNode4.unfocus();
       }
+    } else {
+      print("🚼 muelle sin permiso");
     }
 
     print('quantity: ${batchBloc.quantitySelected}');
@@ -262,13 +266,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         builder: (context, state) {
           final recepcionBloc = context.read<RecepcionBloc>();
           return Scaffold(
-            // floatingActionButton: FloatingActionButton(
-            //   backgroundColor: primaryColorApp,
-            //   onPressed: () {
-            //     print('ubicacion destino: ${recepcionBloc.ubicaciones.length}');
-            //   },
-            //   child: const Icon(Icons.check),
-            // ),
             backgroundColor: Colors.white,
             body: Column(
               children: [
@@ -1095,7 +1092,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                       GestureDetector(
                                                         onTap: !recepcionBloc
                                                                     .locationsDestIsok && //false
-                                                                !recepcionBloc
+                                                                recepcionBloc
                                                                     .productIsOk && //false
                                                                 !recepcionBloc
                                                                     .quantityIsOk
@@ -1552,6 +1549,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
           currentProduct.idMove ?? 0));
     } else {
       FocusScope.of(context).unfocus();
+
       if (cantidad < (currentProduct.cantidadFaltante ?? 0).toInt()) {
         showDialog(
             context: context,
@@ -1585,13 +1583,25 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                   });
             });
       } else if (cantidad > (currentProduct.cantidadFaltante ?? 0).toInt()) {
-        batchBloc.add(ChangeQuantitySeparate(
-            cantidad,
-            int.parse(currentProduct.productId),
-            currentProduct.idRecepcion ?? 0,
-            currentProduct.idMove ?? 0));
+        //validamos si tiene el permiso de mover mas de lo planteado
 
-        _finishSeprateProductOrder(context, cantidad);
+        if (batchBloc.configurations.result?.result?.allowMoveExcess == true) {
+          batchBloc.add(ChangeQuantitySeparate(
+              cantidad,
+              int.parse(currentProduct.productId),
+              currentProduct.idRecepcion ?? 0,
+              currentProduct.idMove ?? 0));
+
+          _finishSeprateProductOrder(context, cantidad);
+        } else {
+          Get.snackbar(
+            'Error',
+            "No tiene el permiso de mover mas de lo planteado",
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
+          );
+        }
       }
     }
   }

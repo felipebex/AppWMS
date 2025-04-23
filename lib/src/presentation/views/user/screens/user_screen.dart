@@ -19,7 +19,6 @@ class UserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<UserBloc>();
 
     return Scaffold(
       body: Container(
@@ -430,7 +429,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Ubicacion de origen: ",
+                                                        "Ubicacion origen manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -450,7 +449,7 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Ubicacion de origen manual",
+                                                                      "Ubicacion origen manual",
                                                                   body:
                                                                       "Permite seleccionar la ubicacion de origen en el proceso del picking de forma manual",
                                                                 );
@@ -464,7 +463,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Seleccionar Producto: ",
+                                                        "Seleccion producto manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -484,7 +483,7 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Seleccionar Producto manual",
+                                                                      "Seleccionar producto manual",
                                                                   body:
                                                                       "Permite seleccionar el producto en el proceso del picking de forma manual",
                                                                 );
@@ -498,7 +497,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Seleccionar Cantidad: ",
+                                                        "Seleccionar cantidad manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -518,7 +517,7 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Seleccionar Cantidad manual",
+                                                                      "Seleccionar cantidad manual",
                                                                   body:
                                                                       "Permite seleccionar la cantidad en el proceso del picking de forma manual",
                                                                 );
@@ -532,7 +531,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Seleccionar Muelle: ",
+                                                        "Ubicacion destino manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -552,9 +551,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Seleccionar Muelle manual",
+                                                                      "Ubicacion destino manual",
                                                                   body:
-                                                                      "Permite seleccionar el muelle en el proceso del picking de forma manual",
+                                                                      "Permite seleccionar la ubicacion destino en el proceso del picking de forma manual",
                                                                 );
                                                               });
                                                         },
@@ -622,7 +621,7 @@ class UserScreen extends StatelessWidget {
                                                                   title:
                                                                       "Ver proximas ubicaciones",
                                                                   body:
-                                                                      "Permite ver las proximas ubicaciones a las que se debe dirigir el usuario para completar el picking",
+                                                                      "Permite ver las proximas ubicaciones en los detalles del picking",
                                                                 );
                                                               });
                                                         },
@@ -662,7 +661,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Ubicacion de origen: ",
+                                                        "Ubicacion de origen manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -696,7 +695,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Seleccionar Producto: ",
+                                                        "Seleccion producto manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -716,7 +715,7 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Seleccionar Producto manual",
+                                                                      "Seleccionar producto manual",
                                                                   body:
                                                                       "Permite seleccionar el producto en el proceso del packing de forma manual",
                                                                 );
@@ -730,7 +729,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Seleccionar Cantidad: ",
+                                                        "Seleccionar cantidad manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -750,7 +749,7 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Seleccionar Cantidad manual",
+                                                                      "Seleccionar cantidad manual",
                                                                   body:
                                                                       "Permite seleccionar la cantidad en el proceso del packing de forma manual",
                                                                 );
@@ -764,7 +763,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Seleccionar Muelle: ",
+                                                        "Ubicacion destino manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -784,9 +783,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Seleccionar Muelle manual",
+                                                                      "Ubicacion destino manual",
                                                                   body:
-                                                                      "Permite seleccionar el muelle en el proceso del packing de forma manual",
+                                                                      "Permite seleccionar la ubicacion destino  en el proceso del packing de forma manual",
                                                                 );
                                                               });
                                                         },
@@ -798,7 +797,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Escanear producto: ",
+                                                        "Busqueda de producto por scan: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -818,9 +817,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Escanear producto para packing",
+                                                                      "Busqueda de producto por scan",
                                                                   body:
-                                                                      "Permite escanear el producto en el proceso del packing desde la lista de por hacer",
+                                                                      "Permite escanear el producto en el proceso del packing desde la lista de por hacer para realizar su proceso",
                                                                 );
                                                               });
                                                         },
@@ -835,6 +834,10 @@ class UserScreen extends StatelessWidget {
                                         ),
                                       ),
                                       const SizedBox(height: 10),
+
+
+
+
                                       //todo permisos de recepcion
                                       Visibility(
                                         visible: config.result?.result?.rol ==
@@ -857,45 +860,45 @@ class UserScreen extends StatelessWidget {
                                                               primaryColorApp)),
                                                 ),
                                                 const SizedBox(height: 10),
-                                                // Row(
-                                                //   children: [
-                                                //     const Text(
-                                                //         "Mover mas de lo planteado: ",
-                                                //         style: TextStyle(
-                                                //             fontSize: 14,
-                                                //             color: black)),
-                                                //     const Spacer(),
-                                                //     Checkbox(
-                                                //         value: config
-                                                //                 .result
-                                                //                 ?.result
-                                                //                 ?.allowMoveExcess ??
-                                                //             false,
-                                                //         onChanged: null),
-                                                //     IconButton(
-                                                //         onPressed: () {
-                                                //           showDialog(
-                                                //               context: context,
-                                                //               builder:
-                                                //                   (context) {
-                                                //                 return const DialogInfo(
-                                                //                   title:
-                                                //                       "Mover mas de lo planteado",
-                                                //                   body:
-                                                //                       "Permite al usuario mover mas productos de los experados (por ejemplo: kg, unidades, etc.)",
-                                                //                 );
-                                                //               });
-                                                //         },
-                                                //         icon: Icon(Icons.help,
-                                                //             color:
-                                                //                 primaryColorApp))
-                                                //   ],
-                                                // ),
-                                              
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Ocultar CANT para recibir: ",
+                                                        "Mover mas de lo planteado: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.allowMoveExcess ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Mover mas de lo planteado",
+                                                                  body:
+                                                                      "Permite mover mas de lo planteado en el proceso de recepcion",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ocultar cantidad: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -915,9 +918,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Ocultar CANT para recibir",
+                                                                      "Ocultar cantidad",
                                                                   body:
-                                                                      "El usuario no verá que CANT necesita recibir.",
+                                                                      "Ocualtar cantidad para el proceso de recepcion",
                                                                 );
                                                               });
                                                         },
@@ -926,11 +929,11 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-                                                
+
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Escanear producto: ",
+                                                        "Seleccionar producto manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -950,9 +953,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Escanear manual del producto",
+                                                                      "Seleccionar producto manual",
                                                                   body:
-                                                                      "El usuario podrá reconocer el producto de forma manual o escaneando el código de barras",
+                                                                      "Permite seleccionar el producto en el proceso del recepcion de forma manual",
                                                                 );
                                                               });
                                                         },
@@ -964,7 +967,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Escanear ubicacion destino: ",
+                                                        "Ubicacion destino manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -984,9 +987,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Escanear ubicacion manual del producto",
+                                                                      "Ubicacion destino manual",
                                                                   body:
-                                                                      "El tendra que selecionar o escanear la ubicacion destino del producto a recibir",
+                                                                      "Permite seleccionar la ubicacion destino  en el proceso de recepcion de forma manual",
                                                                 );
                                                               });
                                                         },
@@ -995,40 +998,7 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-                                                // Row(
-                                                //   children: [
-                                                //     const Text(
-                                                //         "Ubicación de origen: ",
-                                                //         style: TextStyle(
-                                                //             fontSize: 14,
-                                                //             color: black)),
-                                                //     const Spacer(),
-                                                //     Checkbox(
-                                                //         value: config
-                                                //                 .result
-                                                //                 ?.result
-                                                //                 ?.manualSourceLocation ??
-                                                //             false,
-                                                //         onChanged: null),
-                                                //     IconButton(
-                                                //         onPressed: () {
-                                                //           showDialog(
-                                                //               context: context,
-                                                //               builder:
-                                                //                   (context) {
-                                                //                 return const DialogInfo(
-                                                //                   title:
-                                                //                       "Ubicación de origen",
-                                                //                   body:
-                                                //                       "Permite al usuario seleccionar de forma manual la ubicacion de origen del producto a recibir",
-                                                //                 );
-                                                //               });
-                                                //         },
-                                                //         icon: Icon(Icons.help,
-                                                //             color:
-                                                //                 primaryColorApp))
-                                                //   ],
-                                                // ),
+                                                
                                               ],
                                             ),
                                           ),
@@ -1056,44 +1026,10 @@ class UserScreen extends StatelessWidget {
                                                               primaryColorApp)),
                                                 ),
                                                 const SizedBox(height: 10),
-                                                Row(
+                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Escanear producto: ",
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: black)),
-                                                    const Spacer(),
-                                                    Checkbox(
-                                                        value: config
-                                                                .result
-                                                                ?.result
-                                                                ?.manualProductSelectionTransfer ??
-                                                            false,
-                                                        onChanged: null),
-                                                    IconButton(
-                                                        onPressed: () {
-                                                          showDialog(
-                                                              context: context,
-                                                              builder:
-                                                                  (context) {
-                                                                return const DialogInfo(
-                                                                  title:
-                                                                      "Lectura manual del producto",
-                                                                  body:
-                                                                      "El usuario podrá reconocer el producto de forma manual o escaneando el código de barras",
-                                                                );
-                                                              });
-                                                        },
-                                                        icon: Icon(Icons.help,
-                                                            color:
-                                                                primaryColorApp))
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    const Text(
-                                                        "Ubicación de origen: ",
+                                                        "Ubicación de origen manual: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -1113,9 +1049,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Ubicación de origen",
+                                                                      "Ubicación de origen manual",
                                                                   body:
-                                                                      "Permite al usuario seleccionar de forma manual la ubicacion de origen del producto a transferir",
+                                                                      "Permite seleccionar la ubicacion de origen en el proceso de transferencia de forma manual",
                                                                 );
                                                               });
                                                         },
@@ -1124,10 +1060,46 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
+
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Ubicación destino : ",
+                                                        "Seleccionar producto manual: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.manualProductSelectionTransfer ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Seleccionar producto manual",
+                                                                  body:
+                                                                      "Permite seleccionar el producto en el proceso de transferencia de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                               
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ubicación destino manual : ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -1147,9 +1119,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Ubicación destino",
+                                                                      "Ubicación destino manual",
                                                                   body:
-                                                                      "Permite al usuario seleccionar de forma manual la ubicacion destino  del producto a transferir",
+                                                                      "Permite seleccionar la ubicacion de destino en el proceso de transferencia de forma manual",
                                                                 );
                                                               });
                                                         },
@@ -1158,10 +1130,11 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
+
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Cantidad Manual : ",
+                                                        "Seleccionar cantidad manual : ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -1181,9 +1154,44 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Ingresar cantidad manual",
+                                                                      "Seleccionar cantidad manual",
                                                                   body:
-                                                                      "Permite al usuario ingresar la cantidad de forma manual que desea transferir",
+                                                                      "Permite seleccionar la cantidad en el proceso de transferencia de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ocultar accion de validar\ntransferencia : ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.hide_validate_transfer ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ocultar accion de validar transferencia",
+                                                                  body:
+                                                                      "Ocultar  accion de validar transferencia en la apalicacion",
                                                                 );
                                                               });
                                                         },
@@ -1221,7 +1229,7 @@ class UserScreen extends StatelessWidget {
                                                 const SizedBox(height: 10),
                                                 Row(
                                                   children: [
-                                                    const Text("Ver cantidad: ",
+                                                    const Text("Ver cantidad a contar: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -1241,9 +1249,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Ver cantidad en inventario",
+                                                                      "Ver cantidad a contar",
                                                                   body:
-                                                                      "El usuario puede ver la cantidad de productos en inventario",
+                                                                      "Permite ver la cantidad a contar en el proceso de inventario",
                                                                 );
                                                               });
                                                         },
