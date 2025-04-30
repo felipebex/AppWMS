@@ -51,7 +51,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   bool isKeyboardVisible = false;
   bool viewQuantity = false;
 
-  int quantitySelected = 0;
+  dynamic quantitySelected = 0;
 
   //*base de datos
   DataBaseSqlite db = DataBaseSqlite();

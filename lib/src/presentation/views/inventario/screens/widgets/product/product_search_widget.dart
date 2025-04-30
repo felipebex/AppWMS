@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class SearchProductScreen extends StatefulWidget {
@@ -62,6 +63,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                             .contains("Zebra")
                                         ? true
                                         : false,
+                                    showCursor: true,
                                     textAlignVertical: TextAlignVertical.center,
                                     controller: bloc.searchControllerProducts,
                                     decoration: InputDecoration(
@@ -283,6 +285,48 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                           fontSize: 12,
                                                         ),
                                                       ),
+                                                      Spacer(),
+                                                       Text(
+                                                        'UND: ',
+                                                        style: TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 5),
+                                                       Text(
+                                                        bloc.productosFilters[index].uom ==
+                                                                    false ||
+                                                                bloc
+                                                                        .productosFilters[
+                                                                            index]
+                                                                        .uom ==
+                                                                    "" ||
+                                                                bloc
+                                                                        .productosFilters[
+                                                                            index]
+                                                                        .uom ==
+                                                                    ""
+                                                            ? 'Sin unidad'
+                                                            : bloc
+                                                                    .productosFilters[
+                                                                        index]
+                                                                    .uom ??
+                                                                '',
+                                                        style: TextStyle(
+                                                          color: bloc
+                                                                          .productosFilters[
+                                                                              index]
+                                                                          .uom ==
+                                                                      false ||
+                                                                  bloc.productosFilters[index]
+                                                                          .uom ==
+                                                                      ""
+                                                              ? red
+                                                              : primaryColorApp,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
                                                     ],
                                                   ),
                                                 ],
@@ -348,6 +392,19 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                     const SizedBox(
                       height: 10,
                     ),
+                    Visibility(
+                      visible: bloc.isKeyboardVisible &&
+                          context.read<UserBloc>().fabricante.contains("Zebra"),
+                      child: CustomKeyboard(
+                        isLogin: false,
+                        controller: bloc.searchControllerProducts,
+                        onchanged: () {
+                          bloc.add(SearchProductEvent(
+                            bloc.searchControllerProducts.text,
+                          ));
+                        },
+                      ),
+                    )
                   ],
                 )),
           ),

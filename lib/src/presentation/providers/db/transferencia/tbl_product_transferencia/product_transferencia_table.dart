@@ -61,9 +61,9 @@ class ProductTransferenciaTable {
       $columnProductTracking TEXT,
       $columnFechaVencimiento TEXT,
       $columnDiasVencimiento INTEGER,
-      $columnQuantityOrdered INTEGER,
-      $columnQuantityToReceive INTEGER,
-      $columnQuantityDone INTEGER,
+      $columnQuantityOrdered REAL,
+      $columnQuantityToReceive REAL,
+      $columnQuantityDone REAL,
       $columnUom TEXT,
       $columnLocationDestId INTEGER,
       $columnLocationDestName TEXT,
@@ -88,7 +88,7 @@ class ProductTransferenciaTable {
       $columnTime INTEGER,
       $columnIsDoneItem INTEGER,  
       $columnDateTransaction TEXT,
-      $columnCantidadFaltante INTEGER,
+      $columnCantidadFaltante REAL,
       FOREIGN KEY ($columnIdTransferencia) REFERENCES tbl_entradas_recepcion ($columnIdMove)
 
     )

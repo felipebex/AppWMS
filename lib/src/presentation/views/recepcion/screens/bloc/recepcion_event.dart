@@ -69,7 +69,7 @@ class ChangeProductIsOkEvent extends RecepcionEvent {
   final int idEntrada;
   final bool productIsOk;
   final int productId;
-  final int quantity;
+  final dynamic quantity;
   final int idMove;
   ChangeProductIsOkEvent(this.idEntrada, this.productIsOk, this.productId,
       this.quantity, this.idMove);
@@ -89,7 +89,7 @@ class ChangeIsOkQuantity extends RecepcionEvent {
 }
 
 class ChangeQuantitySeparate extends RecepcionEvent {
-  final int quantity;
+  final dynamic quantity;
   final int productId;
   final int idRecepcion;
   final int idMove;
@@ -106,7 +106,7 @@ class AddQuantitySeparate extends RecepcionEvent {
   final int idRecepcion;
   final int productId;
   final int idMove;
-  final int quantity;
+  final dynamic quantity;
   AddQuantitySeparate(
     this.idRecepcion,
     this.productId,
@@ -135,7 +135,7 @@ class LoadAllNovedadesOrderEvent extends RecepcionEvent {}
 class FinalizarRecepcionProducto extends RecepcionEvent {}
 
 class FinalizarRecepcionProductoSplit extends RecepcionEvent {
-  final int quantity;
+  final dynamic quantity;
 
   FinalizarRecepcionProductoSplit(this.quantity);
 }
@@ -144,7 +144,7 @@ class GetLotesProduct extends RecepcionEvent {}
 
 class SendProductToOrder extends RecepcionEvent {
   final bool isSplit;
-  final int quantity;
+  final dynamic quantity;
 
   SendProductToOrder(this.isSplit, this.quantity);
 }

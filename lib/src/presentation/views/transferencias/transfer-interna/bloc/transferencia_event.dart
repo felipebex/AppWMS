@@ -43,7 +43,7 @@ class FetchPorductTransfer extends TransferenciaEvent {
 }
 
 class QuantityChanged extends TransferenciaEvent {
-  final int quantity;
+  final dynamic quantity;
   QuantityChanged(this.quantity);
 }
 
@@ -80,7 +80,7 @@ class ChangeProductIsOkEvent extends TransferenciaEvent {
   final bool productIsOk;
   final int productId;
   final int idTransfer;
-  final int quantity;
+  final dynamic quantity;
   final int idMove;
   ChangeProductIsOkEvent(this.productIsOk, this.productId, this.idTransfer,
       this.quantity, this.idMove);
@@ -106,7 +106,7 @@ class ClearScannedValueEvent extends TransferenciaEvent {
 }
 
 class ChangeQuantitySeparate extends TransferenciaEvent {
-  final int quantity;
+  final dynamic quantity;
   final int productId;
   final int idMove;
   final int idTransfer;
@@ -117,7 +117,7 @@ class ChangeQuantitySeparate extends TransferenciaEvent {
 class AddQuantitySeparate extends TransferenciaEvent {
   final int productId;
   final int idMove;
-  final int quantity;
+  final dynamic quantity;
   final bool isOk;
   final int idTransfer;
   AddQuantitySeparate(
@@ -149,14 +149,14 @@ class AssignUserToTransfer extends TransferenciaEvent {
 class FinalizarTransferProducto extends TransferenciaEvent {}
 
 class FinalizarTransferProductoSplit extends TransferenciaEvent {
-  final int quantity;
+  final dynamic quantity;
 
   FinalizarTransferProductoSplit(this.quantity);
 }
 
 class SendProductToTransfer extends TransferenciaEvent {
   final bool isDividio;
-  final int quantity;
+  final dynamic quantity;
   SendProductToTransfer(this.isDividio, this.quantity);
 }
 

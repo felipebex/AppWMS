@@ -19,11 +19,11 @@ class ListItem {
   final int idMove;
   final int idProducto;
   final int idLote;
-  final int idUbicacionOrigen;
+  final int? idUbicacionOrigen;
   final int idUbicacionDestino;
-  final int cantidadEnviada;
+  final dynamic cantidadEnviada;
   final int idOperario;
-  final int timeLine;
+  final dynamic timeLine;
   final String fechaTransaccion;
   final String observacion;
   final bool dividida;
@@ -33,7 +33,7 @@ class ListItem {
     required this.idMove,
     required this.idProducto,
     required this.idLote,
-    required this.idUbicacionOrigen,
+     this.idUbicacionOrigen,
     required this.idUbicacionDestino,
     required this.cantidadEnviada,
     required this.idOperario,

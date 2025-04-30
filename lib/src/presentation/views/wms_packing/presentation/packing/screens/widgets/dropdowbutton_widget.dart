@@ -19,8 +19,8 @@ class DialogPackingAdvetenciaCantidadScreen extends StatefulWidget {
     required this.onSplit,
   });
 
-  final int cantidad; // Variable para almacenar la cantidad
-  final PorductoPedido currentProduct;
+  final double cantidad; // Variable para almacenar la cantidad
+  final ProductoPedido currentProduct;
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
   final VoidCallback onSplit; // Callback para la acción a split
 

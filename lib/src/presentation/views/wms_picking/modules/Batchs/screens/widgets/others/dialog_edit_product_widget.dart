@@ -55,7 +55,10 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                 const SizedBox(width: 5),
                 Text(widget.productsBatch.quantity.toString(),
                     style: const TextStyle(fontSize: 13, color: green)),
-                const Spacer(),
+              ],
+            ),
+            Row(
+              children: [
                 Icon(Icons.check, color: primaryColorApp, size: 20),
                 const SizedBox(width: 5),
                 const Text("Separadas:",
@@ -64,7 +67,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                 Text(
                     widget.productsBatch.quantitySeparate == null
                         ? "0"
-                        : widget.productsBatch.quantitySeparate.toString(),
+                        : widget.productsBatch.quantitySeparate.toStringAsFixed(1),
                     style: const TextStyle(fontSize: 13, color: Colors.amber)),
               ],
             ),
@@ -79,12 +82,14 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                           text: "La cantidad a completar es de ",
                           style: TextStyle(fontSize: 13, color: black)),
                       TextSpan(
-                          text:
-                              "${(widget.productsBatch.quantity - (widget.productsBatch.quantitySeparate ?? 0))} ",
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: primaryColorApp,
-                              fontWeight: FontWeight.bold)),
+                        text:
+                            "${(widget.productsBatch.quantity - (widget.productsBatch.quantitySeparate ?? 0)).toStringAsFixed(1)} ",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: primaryColorApp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )
                     ]),
                   ),
                   const SizedBox(height: 10),
@@ -95,8 +100,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                           context.read<BatchBloc>().editProductController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [
-                        FilteringTextInputFormatter
-                            .digitsOnly, // Solo permite dígitos
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                       ],
                       style: const TextStyle(fontSize: 14, color: Colors.black),
                       decoration: InputDecorations.authInputDecoration(
@@ -125,7 +129,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                       .editProductController
                                       .text = value;
                                   if (value.isNotEmpty) {
-                                    int cantidad = int.parse(value);
+                                    double cantidad = double.parse(value);
                                     if (cantidad == 0) {
                                       context
                                           .read<BatchBloc>()
@@ -162,7 +166,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                 .editProductController
                                 .text) !=
                             null &&
-                        int.parse(context
+                        double.parse(context
                                 .read<BatchBloc>()
                                 .editProductController
                                 .text) ==
@@ -239,7 +243,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                               .isEmpty
                           ? null
                           : () async {
-                              int cantidad = int.parse(context
+                              double cantidad = double.parse(context
                                       .read<BatchBloc>()
                                       .editProductController
                                       .text
@@ -265,7 +269,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                 });
                                 return;
                               } else {
-                                final int cantidadReuqest =
+                                final double cantidadReuqest =
                                     ((widget.productsBatch.quantitySeparate ??
                                             0) +
                                         cantidad);
@@ -289,7 +293,6 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                     .add(SendProductEditOdooEvent(
                                       widget.productsBatch,
                                       cantidadReuqest,
-                                    
                                     ));
 
                                 Navigator.pop(context);
@@ -329,7 +332,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                             .editProductController
                             .text;
                         if (value.isNotEmpty) {
-                          int cantidad = int.parse(value);
+                          double cantidad = double.parse(value);
                           if (cantidad >
                               (widget.productsBatch.quantity -
                                   (widget.productsBatch.quantitySeparate ??

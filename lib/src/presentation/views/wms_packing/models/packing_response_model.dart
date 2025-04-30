@@ -182,7 +182,7 @@ class PedidoPacking {
   final dynamic isTerminate;
   final int? cantidadProductos;
   final int? numeroPaquetes;
-  final List<PorductoPedido>? listaProductos;
+  final List<ProductoPedido>? listaProductos;
   final List<Paquete>? listaPaquetes;
   final String? zonaEntrega;
   final String? zonaEntregaTms;
@@ -230,8 +230,8 @@ class PedidoPacking {
         numeroPaquetes: json["numero paquetes"],
         listaProductos: json["lista_productos"] == null
             ? []
-            : List<PorductoPedido>.from(
-                json["lista_productos"]!.map((x) => PorductoPedido.fromMap(x))),
+            : List<ProductoPedido>.from(
+                json["lista_productos"]!.map((x) => ProductoPedido.fromMap(x))),
         listaPaquetes: json["lista_paquetes"] == null
             ? []
             : List<Paquete>.from(
@@ -272,8 +272,8 @@ class Paquete {
   final String? name;
   final int? batchId;
   final int? pedidoId;
-  final int? cantidadProductos;
-  final List<PorductoPedido>? listaProductosInPacking;
+  final dynamic? cantidadProductos;
+  final List<ProductoPedido>? listaProductosInPacking;
   final bool? isSticker;
   final bool? isCertificate;
   // final DateTime? fechaCreacion;
@@ -304,8 +304,8 @@ class Paquete {
         cantidadProductos: json["cantidad_productos"],
         listaProductosInPacking: json["lista_productos_in_packing"] == null
             ? []
-            : List<PorductoPedido>.from(json["lista_productos_in_packing"]!
-                .map((x) => PorductoPedido.fromMap(x))),
+            : List<ProductoPedido>.from(json["lista_productos_in_packing"]!
+                .map((x) => ProductoPedido.fromMap(x))),
         isSticker: json["is_sticker"],
         isCertificate: json["is_certificate"],
         // fechaCreacion: json["fecha_creacion"] == null ? null : DateTime.parse(json["fecha_creacion"]),

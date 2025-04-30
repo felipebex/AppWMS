@@ -54,7 +54,7 @@ class _Tab2ScreenState extends State<Tab2Screen> {
     final product = listOfProducts.firstWhere(
       (product) => product.barcode.toLowerCase() == scan,
       orElse: () =>
-          PorductoPedido(), // Devuelve null si no se encuentra ningún producto
+          ProductoPedido(), // Devuelve null si no se encuentra ningún producto
     );
 
     if (product.idMove != null) {

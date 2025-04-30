@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -231,7 +232,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
     _controllerQuantity.text = "";
     final currentProduct = batchBloc.currentProduct;
     //validamos que no aumente en cantidad si llego al maximo
-    if (batchBloc.quantitySelected == currentProduct.quantity.toInt()) {
+    if (batchBloc.quantitySelected == currentProduct.quantity) {
       return;
     }
     if (scan == currentProduct.barcode?.toLowerCase()) {
@@ -310,7 +311,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
                     // * validamos en todo cambio de estado de cantidad separada
                     if (state is ChangeQuantitySeparateStateSuccess) {
-                      if (state.quantity == currentProduct.quantity.toInt()) {
+                      if (state.quantity == currentProduct.quantity) {
                         _nextProduct(currentProduct, batchBloc);
                       }
                     }
@@ -771,9 +772,10 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                                   ],
                                                 ),
                                               Visibility(
-                                                visible: currentProduct
-                                                            .origin !=
-                                                        "" && currentProduct.origin !=
+                                                visible:
+                                                    currentProduct.origin !=
+                                                            "" &&
+                                                        currentProduct.origin !=
                                                             null,
                                                 child: Row(
                                                   children: [
@@ -786,7 +788,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                                     Align(
                                                       alignment:
                                                           Alignment.centerLeft,
-                                                      child: Text("Doc. origen: ",
+                                                      child: Text(
+                                                          "Doc. origen: ",
                                                           style: TextStyle(
                                                               fontSize: 12,
                                                               color: grey)),
@@ -795,7 +798,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                                       alignment:
                                                           Alignment.centerLeft,
                                                       child: Text(
-                                                          currentProduct.origin ??
+                                                          currentProduct
+                                                                  .origin ??
                                                               "",
                                                           style: TextStyle(
                                                               fontSize: 12,
@@ -972,9 +976,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                                   ],
                                                 ),
                                               Visibility(
-                                                visible: currentProduct
-                                                            .origin !=
-                                                        "",
+                                                visible:
+                                                    currentProduct.origin != "",
                                                 child: Row(
                                                   children: [
                                                     Icon(
@@ -986,7 +989,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                                     Align(
                                                       alignment:
                                                           Alignment.centerLeft,
-                                                      child: Text("Doc. origen: ",
+                                                      child: Text(
+                                                          "Doc. origen: ",
                                                           style: TextStyle(
                                                               fontSize: 12,
                                                               color: grey)),
@@ -995,7 +999,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                                       alignment:
                                                           Alignment.centerLeft,
                                                       child: Text(
-                                                          currentProduct.origin ??
+                                                          currentProduct
+                                                                  .origin ??
                                                               "",
                                                           style: TextStyle(
                                                               fontSize: 12,
@@ -1636,14 +1641,15 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
                             focusNode: focusNode4,
                             inputFormatters: [
-                              FilteringTextInputFormatter
-                                  .digitsOnly, // Solo permite dígitos
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[0-9.,]')),
                             ],
                             onChanged: (value) {
                               // Verifica si el valor no está vacío y si es un número válido
                               if (value.isNotEmpty) {
                                 try {
-                                  batchBloc.quantitySelected = int.parse(value);
+                                  batchBloc.quantitySelected =
+                                      double.parse(value);
                                 } catch (e) {
                                   // Manejo de errores si la conversión falla
                                   print('Error al convertir a entero: $e');
@@ -1682,7 +1688,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                               //validamos que el texto no este vacio
                               if (value.isNotEmpty) {
                                 if (int.parse(value) >
-                                    (currentProduct.quantity ?? 0).toInt()) {
+                                    (currentProduct.quantity ?? 0)) {
                                   //todo: cantidad fuera del rango
                                   batchBloc.add(ValidateFieldsEvent(
                                       field: "quantity", isOk: false));
@@ -1791,7 +1797,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
   }
 
   // Función que devuelve el color basado en la diferencia
-  Color _getColorForDifference(int difference) {
+  Color _getColorForDifference(dynamic difference) {
     if (difference == 0) {
       return Colors.transparent; // Ocultar el texto cuando la diferencia es 0
     } else if (difference > 10) {
@@ -1810,9 +1816,48 @@ class _BatchDetailScreenState extends State<BatchScreen>
     final batchBloc = context.read<BatchBloc>();
     final currentProduct = batchBloc.currentProduct;
 
-    int cantidad = int.parse(cantidadController.text.isEmpty
-        ? batchBloc.quantitySelected.toString()
-        : cantidadController.text);
+    String input = cantidadController.text.trim();
+
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = batchBloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Intentar convertir a double
+    double? cantidad = double.tryParse(input);
+    if (cantidad == null) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
 
     if (cantidad == currentProduct.quantity) {
       batchBloc.add(ChangeQuantitySeparate(
@@ -1822,27 +1867,30 @@ class _BatchDetailScreenState extends State<BatchScreen>
       ));
     } else {
       FocusScope.of(context).unfocus();
-      if (cantidad < (currentProduct.quantity ?? 0).toInt()) {
+      if (cantidad < (currentProduct.quantity ?? 0).toDouble()) {
         showDialog(
-            context: context,
-            builder: (context) {
-              return DialogAdvetenciaCantidadScreen(
-                  currentProduct: currentProduct,
-                  cantidad: cantidad,
-                  batchId: batchBloc.batchWithProducts.batch?.id ?? 0,
-                  onAccepted: () async {
-                    batchBloc.add(ChangeQuantitySeparate(
-                        cantidad,
-                        currentProduct.idProduct ?? 0,
-                        currentProduct.idMove ?? 0));
-                    _nextProduct(currentProduct, batchBloc);
-                    cantidadController.clear();
-                  });
-            });
+          context: context,
+          builder: (context) {
+            return DialogAdvetenciaCantidadScreen(
+              currentProduct: currentProduct,
+              cantidad: cantidad,
+              batchId: batchBloc.batchWithProducts.batch?.id ?? 0,
+              onAccepted: () async {
+                batchBloc.add(ChangeQuantitySeparate(
+                  cantidad,
+                  currentProduct.idProduct ?? 0,
+                  currentProduct.idMove ?? 0,
+                ));
+                _nextProduct(currentProduct, batchBloc);
+                cantidadController.clear();
+              },
+            );
+          },
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           duration: const Duration(milliseconds: 1000),
-          content: const Text('Cantidad erronea'),
+          content: const Text('Cantidad errónea'),
           backgroundColor: Colors.red[200],
         ));
       }
@@ -1978,7 +2026,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
         return true;
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-        if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
+        if (matchedBarcode.cantidad + batchBloc.quantitySelected >
             currentProduct.quantity!) {
           return false;
         }
@@ -1986,7 +2034,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
         batchBloc.add(AddQuantitySeparate(
             currentProduct.idProduct ?? 0,
             currentProduct.idMove ?? 0,
-            matchedBarcode.cantidad.toInt(),
+            matchedBarcode.cantidad,
             false));
       }
       return false;

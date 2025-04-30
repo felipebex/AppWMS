@@ -33,7 +33,7 @@ class PedidosPackingTable {
         $columnContacto TEXT,
         $columnContactoName TEXT,
         $columnTipoOperacion TEXT,
-        $columnCantidadProductos INTEGER,
+        $columnCantidadProductos REAL,
         $columnNumeroPaquetes INTEGER,
         $columnIsSelected INTEGER,
         $columnIsTerminate INTEGER,

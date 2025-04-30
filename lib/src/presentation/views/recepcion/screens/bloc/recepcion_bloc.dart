@@ -89,7 +89,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   bool isQuantityOk = true;
   bool isLoteOk = true;
   bool isLocationDestOk = true;
-  int quantitySelected = 0;
+  dynamic quantitySelected = 0;
 
   //*lista de ubicaciones
   List<ResultUbicaciones> ubicaciones = [];
@@ -199,7 +199,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     scannedValue5 = '';
     scannedValue6 = '';
     selectLote = '';
-    currentUbicationDest = null;
+    // currentUbicationDest = null;
     listLotesProduct.clear();
     productIsOk = false;
     loteIsOk = false;
@@ -546,6 +546,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               ubicacionDestino: configurations
                           .result?.result?.scanDestinationLocationReception ==
                       true
+                  
+                  
                   ? currentUbicationDest?.id ?? 0
                   : productBD?.locationDestId ?? 0,
               cantidadSeparada: event.quantity,
@@ -765,7 +767,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   void _onChangeQuantitySelectedEvent(
       ChangeQuantitySeparate event, Emitter<RecepcionState> emit) async {
     try {
-      if (event.quantity > 0) {
+      if (event.quantity > 0.0) {
         quantitySelected = event.quantity;
         await db.productEntradaRepository.setFieldTableProductEntrada(
             event.idRecepcion,

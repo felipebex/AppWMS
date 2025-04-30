@@ -699,9 +699,9 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                               enabled: false,
                                               readOnly: false,
                                               inputFormatters: [
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly, // Solo permite dígitos
-                                              ],
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9.,]')),
+                              ],
                                               onChanged: (value) {
                                                 // Verifica si el valor no está vacío y si es un número válido
                                                 if (value.isNotEmpty) {

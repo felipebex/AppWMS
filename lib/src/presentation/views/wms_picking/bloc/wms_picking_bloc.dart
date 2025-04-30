@@ -2,7 +2,6 @@
 
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
-import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/batch_history_id_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/hisotry_done_model.dart';

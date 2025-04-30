@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -223,7 +224,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     _controllerQuantity.text = "";
     final currentProduct = bloc.currentProduct;
     //validamos que no aumente en cantidad si llego al maximo
-    if (bloc.quantitySelected == bloc.currentProduct.cantidadFaltante.toInt()) {
+    if (bloc.quantitySelected == bloc.currentProduct.cantidadFaltante) {
       return;
     }
 
@@ -246,11 +247,51 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     final bloc = context.read<TransferenciaBloc>();
     //desactivamos volver a ingresar la cantidad
 
-    int cantidad = int.parse(_cantidadController.text.isEmpty
-        ? bloc.quantitySelected.toString()
-        : _cantidadController.text);
+     String input = _cantidadController.text.trim();
 
-    if (cantidad > (bloc.currentProduct.cantidadFaltante.toInt())) {
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = bloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Intentar convertir a double
+    double? cantidad = double.tryParse(input);
+    if (cantidad == null) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+
+    if (cantidad > (bloc.currentProduct.cantidadFaltante)) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         duration: const Duration(milliseconds: 1000),
         content: const Text('Cantidad erronea'),
@@ -348,11 +389,11 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     final batchBloc = context.read<TransferenciaBloc>();
     final currentProduct = batchBloc.currentProduct;
 
-    int cantidad = int.parse(_cantidadController.text.isEmpty
+    double cantidad = double.parse(_cantidadController.text.isEmpty
         ? batchBloc.quantitySelected.toString()
         : _cantidadController.text);
 
-    if (cantidad == (batchBloc.currentProduct.cantidadFaltante.toInt())) {
+    if (cantidad == (batchBloc.currentProduct.cantidadFaltante)) {
       _finishSeprateProductOrder(context, cantidad);
       Navigator.pushReplacementNamed(context, 'transferencia-detail',
           arguments: [batchBloc.currentTransferencia, 1]);
@@ -436,7 +477,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                         //*estado cuando la cantidad fue cambiada
                         if (state is ChangeQuantitySeparateStateSuccess) {
                           if (state.quantity ==
-                              (bloc.currentProduct.cantidadFaltante.toInt())) {
+                              (bloc.currentProduct.cantidadFaltante)) {
                             Future.delayed(const Duration(seconds: 1), () {
                               FocusScope.of(context).requestFocus(focusNode5);
                             });
@@ -1281,7 +1322,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                           horizontal: 5),
                                       child: Text(
                                         (bloc.currentProduct.cantidadFaltante
-                                                .toInt())
+                                                )
                                             .toString(),
                                         style: TextStyle(
                                             color: primaryColorApp,
@@ -1291,7 +1332,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                     Visibility(
                                       visible: (bloc.currentProduct
                                                   .cantidadFaltante
-                                                  .toInt()) -
+                                                  ) -
                                               bloc.quantitySelected !=
                                           0,
                                       child: const Text('Pdte:',
@@ -1304,7 +1345,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                             horizontal: 5),
                                         child: (bloc.currentProduct
                                                         .cantidadFaltante
-                                                        .toInt()) -
+                                                        ) -
                                                     bloc.quantitySelected ==
                                                 0
                                             ? Container() // Ocultamos el widget si la diferencia es 0
@@ -1313,10 +1354,10 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                 (bloc.quantitySelected <=
                                                         (bloc.currentProduct
                                                             .cantidadFaltante
-                                                            .toInt())
+                                                            )
                                                     ? ((bloc.currentProduct
                                                                 .cantidadFaltante
-                                                                .toInt()) -
+                                                                ) -
                                                             bloc.quantitySelected)
                                                         .toString()
                                                     : '0'), // Aquí puedes definir qué mostrar si la condición no se cumple
@@ -1325,10 +1366,10 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                     bloc.quantitySelected <=
                                                             (bloc.currentProduct
                                                                 .cantidadFaltante
-                                                                .toInt())
+                                                                )
                                                         ? ((bloc.currentProduct
                                                                 .cantidadFaltante
-                                                                .toInt()) -
+                                                                ) -
                                                             bloc.quantitySelected)
                                                         : 0, // Si no cumple, el color será para diferencia 0
                                                   ),
@@ -1476,10 +1517,10 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                 //tmano del campo
 
                                 focusNode: focusNode4,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter
-                                      .digitsOnly, // Solo permite dígitos
-                                ],
+                               inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9.,]')),
+                              ],
                                 onChanged: (value) {
                                   // Verifica si el valor no está vacío y si es un número válido
                                   if (value.isNotEmpty) {
@@ -1576,7 +1617,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     );
   }
 
-  void _finishSeprateProductOrder(BuildContext context, int cantidad) {
+  void _finishSeprateProductOrder(BuildContext context, dynamic cantidad) {
     context.read<TransferenciaBloc>().add(FinalizarTransferProducto());
     context
         .read<TransferenciaBloc>()
@@ -1586,7 +1627,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
 
   void _finishSeprateProductOrderSplit(
     BuildContext context,
-    int cantidad,
+    dynamic cantidad,
   ) {
     context
         .read<TransferenciaBloc>()
@@ -1605,7 +1646,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
   }
 
   // Función que devuelve el color basado en la diferencia
-  Color _getColorForDifference(int difference) {
+  Color _getColorForDifference(dynamic difference) {
     if (difference == 0) {
       return Colors.transparent; // Ocultar el texto cuando la diferencia es 0
     } else if (difference > 10) {
@@ -1651,15 +1692,15 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
         return true;
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-        if (matchedBarcode.cantidad.toInt() + bloc.quantitySelected >
-            (currentProduct.cantidadFaltante.toInt())) {
+        if (matchedBarcode.cantidad + bloc.quantitySelected >
+            (currentProduct.cantidadFaltante)) {
           return false;
         }
 
         bloc.add(AddQuantitySeparate(
           int.parse(currentProduct.productId),
           currentProduct.idMove ?? 0,
-          matchedBarcode.cantidad.toInt(),
+          matchedBarcode.cantidad,
           false,
           currentProduct.idTransferencia ?? 0,
         ));

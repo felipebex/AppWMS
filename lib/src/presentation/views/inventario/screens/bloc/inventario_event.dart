@@ -113,7 +113,7 @@ class ChangeQuantitySeparate extends InventarioEvent {
 
 class SendProductInventarioEnvet extends InventarioEvent{
 
-  final int cantidad;
+  final dynamic cantidad;
 
 SendProductInventarioEnvet(this.cantidad);
   

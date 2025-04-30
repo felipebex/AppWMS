@@ -310,14 +310,16 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   )),
                             ],
                           ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Ubicacion destino: ',
-                              style: TextStyle(
-                                  fontSize: 14, color: primaryColorApp),
-                            ),
-                          ),
+                          Row(
+                            children: [
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Destino: ',
+                                  style: TextStyle(
+                                      fontSize: 14, color: primaryColorApp),
+                                ),
+                              ),
                           Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
@@ -325,6 +327,8 @@ class Tab1ScreenRecep extends StatelessWidget {
                               style:
                                   const TextStyle(fontSize: 14, color: black),
                             ),
+                          ),
+                            ],
                           ),
                           Align(
                             alignment: Alignment.centerLeft,

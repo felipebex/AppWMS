@@ -57,6 +57,7 @@ class ResponseSenTransferResult {
 }
 
 class ResultElement {
+    String? error;
     int? idMove;
     int? idTransferencia;
     int? idProduct;
@@ -68,6 +69,7 @@ class ResultElement {
     int? userOperatorId;
 
     ResultElement({
+        this.error,
         this.idMove,
         this.idTransferencia,
         this.idProduct,
@@ -80,6 +82,7 @@ class ResultElement {
     });
 
     factory ResultElement.fromMap(Map<String, dynamic> json) => ResultElement(
+        error: json["error"],
         idMove: json["id_move"],
         idTransferencia: json["id_transferencia"],
         idProduct: json["id_product"],
@@ -92,6 +95,7 @@ class ResultElement {
     );
 
     Map<String, dynamic> toMap() => {
+        "error": error,
         "id_move": idMove,
         "id_transferencia": idTransferencia,
         "id_product": idProduct,

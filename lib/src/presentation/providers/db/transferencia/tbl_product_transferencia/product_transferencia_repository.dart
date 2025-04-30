@@ -151,7 +151,7 @@ class ProductTransferenciaRepository {
   }
 
   Future<void> insertDuplicateProducto(LineasTransferenciaTrans producto,
-      int cantidad, int idMove, int idProduct) async {
+      dynamic cantidad, int idMove, int idProduct) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 

@@ -1,9 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison, unnecessary_type_check, avoid_print, prefer_is_empty, use_build_context_synchronously, prefer_if_null_operators
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
@@ -76,7 +74,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   //configuracion del usuario //permisos
   Configurations configurations = Configurations();
 
-  int quantitySelected = 0;
+  dynamic quantitySelected = 0;
 
   //*lista de todas las pocisiones de los productos del batchs
   List<String> positionsOrigen = [];
@@ -484,8 +482,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       if (response != null) {
         novedades = response;
 
-
-
         print("novedades: ${novedades.length}");
       }
       emit(NovedadesLoadedState(listOfNovedades: novedades));
@@ -848,13 +844,13 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         );
       }
     } catch (e, s) {
-      print("❌ Error en el sendProuctOdoo $e ->$s ");
+      print("❌ X $e ->$s ");
     }
   }
 
   Future<bool> sendProuctEditOdoo(
     ProductsBatch productEdit,
-    int cantidad,
+    dynamic cantidad,
   ) async {
     DateTime dateTimeActuality = DateTime.parse(DateTime.now().toString());
     //traemos un producto de la base de datos  ya anteriormente guardado
@@ -1107,17 +1103,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
         // Solo incrementamos el índice si no ha sido incrementado previamente
         index = (batchWithProducts.batch?.indexList ?? 0) + 1;
-
-        // // Calcular la longitud una sola vez
-        // // Contar los productos con isSeparate == 1 usando fold
-        // int separateCount = filteredProducts.fold(0, (count, e) {
-        //   return e.isSeparate == 1 ? count + 1 : count;
-        // });
-
-        // if (index >= separateCount) {
-        //   print('El index ES MAYOR 🍓');
-        //   index = separateCount + 1;
-        // }
 
         if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
           print('El index ES DIFERENTE A INDEXLIST 🍓');
@@ -1409,8 +1394,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           batchWithProducts.products!.isEmpty) {
         return "0.0";
       }
-      int totalSeparadas = 0;
-      int totalCantidades = 0;
+      double totalSeparadas = 0;
+      double totalCantidades = 0;
       for (var product in batchWithProducts.products!) {
         totalSeparadas += product.quantitySeparate ?? 0;
         totalCantidades +=

@@ -26,6 +26,10 @@ import 'package:wms_app/src/presentation/providers/db/packing/tbl_pedidos_pack/p
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_pedidos_pack/pedidos_pack_table.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_doc_origin/doc_origin_table.dart';
+import 'package:wms_app/src/presentation/providers/db/picking/tbl_pick/picking_pick_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/picking/tbl_pick/picking_pick_table.dart';
+import 'package:wms_app/src/presentation/providers/db/picking/tbl_pick_products/pick_products_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/picking/tbl_pick_products/pick_products_table.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_submuelles/submuelles_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/picking/tbl_submuelles/submuelles_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_urlrecientes/urlrecientes_repository.dart';
@@ -42,6 +46,8 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProdu
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 import 'package:sqflite/sqflite.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/PickhWithProducts_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
 
 class DataBaseSqlite {
   static final DataBaseSqlite _instance = DataBaseSqlite._internal();
@@ -160,6 +166,10 @@ class DataBaseSqlite {
     await db.execute(WarehouseTable.createTable());
     //table de documentos de origen de picking
     await db.execute(DocOriginTable.createTable());
+    //tabla de picking por pick
+    await db.execute(PickingPickTable.createTable());
+    //tabla de productos por pick
+    await db.execute(PickProductsTable.createTable());
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -219,6 +229,12 @@ class DataBaseSqlite {
 
   DocOriginRepository get docOriginRepository => DocOriginRepository();
 
+  //metodo  para obtener una instancia del repositorio  de picking por pick
+  PickingPickRepository get pickRepository => PickingPickRepository();
+
+  PickProductsRepository get pickProductsRepository =>
+      PickProductsRepository();
+
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
       return _database!; // Si la base de datos ya está abierta, retornarla
@@ -251,7 +267,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
           "expire_date": product.expireDate == false ? "" : product.expireDate,
           "product_id": product.productId?[1],
           "location_id": product.locationId?[1],
-          "lot_id": product.lotId == "" ? "" : product.lotId?[1],
+          "lot_id": product.lotId == ""  ? "" : product.lotId?[1],
           "rimoval_priority": product.rimovalPriority,
           "barcode_location_dest": product.barcodeLocationDest == false
               ? ""
@@ -353,9 +369,10 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     }
     return null;
   }
+  //* Obtener un batch con sus productos
+  
 
   //Todo: Eliminar todos los registros
-
 
 
   Future<void> delePicking() async {
@@ -366,6 +383,15 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     await db.delete(BarcodesPackagesTable.tableName);
     await db.delete(SubmuellesTable.tableName);
     // await db.delete(DocOriginTable.tableName);
+  }
+
+
+  
+  Future<void> delePick() async {
+    final db = await getDatabaseInstance();
+    // pick
+    await db.delete(PickingPickTable.tableName);
+    await db.delete(PickProductsTable.tableName);
   }
 
   Future<void> delePacking() async {
@@ -413,6 +439,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
 
   Future<void> deleteBDCloseSession() async {
     await delePicking();
+    await delePick();
     await delePacking();
     await deleRecepcion();
     await deleTrasnferencia();
@@ -426,7 +453,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     final db = await getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         ' UPDATE tblbatch_products SET $field = $setValue WHERE batch_id = $batchId AND id_product = $productId AND id_move = $idMove');
-    // print("update tblbatch_products ($field): $resUpdate");
+    print("update tblbatch_products ($field): $resUpdate");
 
     return resUpdate;
   }

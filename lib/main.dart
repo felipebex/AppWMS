@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:cron/cron.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:wms_app/routes/app_router.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';
@@ -25,6 +26,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/services/notification_service.dart';
 
 import 'package:wms_app/src/services/preferences.dart';
@@ -37,49 +39,84 @@ import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/widgets/error_widget.dart';
 
+import 'src/presentation/views/home/index.dart';
+
 final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+
+//   ErrorWidget.builder = (FlutterErrorDetails details) => ErrorMessageWidget(
+//         title: 'Algo salió mal',
+//         message:
+//             'No se pudo cargar la información. Verifica tu conexión o intenta nuevamente.',
+//         buttonText: 'Cerrar la app',
+//         onPressed: () {
+//           exit(0);
+//         },
+//       );
+
+// // Asegurarse de que Flutter está preparado.
+
+//   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
+//   await LocalNotificationsService().initializeNotifications();
+
+//   // Otras inicializaciones, como configuraciones de orientación y preferencias
+//   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+//       .then((_) async {
+//     await Preferences.init(); // Inicializa preferencias.
+
+//     // Luego se inicia la app
+//     runApp(const AppState());
+//   });
+
+//   // Cron para verificar conexión e interacción con Odoo
+//   var cron = Cron();
+//   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+//     try {
+//       final result = await InternetAddress.lookup('example.com');
+//       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+//         final isLogin = await PrefUtils.getIsLoggedIn();
+//         if (isLogin) {
+//           searchProductsNoSendOdoo(navigatorKey.currentContext!);
+//         }
+//       }
+//     } on SocketException catch (_) {}
+//   });
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   ErrorWidget.builder = (FlutterErrorDetails details) => ErrorMessageWidget(
         title: 'Algo salió mal',
-        message:
-            'No se pudo cargar la información. Verifica tu conexión o intenta nuevamente.',
+        message: 'No se pudo cargar la información...',
         buttonText: 'Cerrar la app',
         onPressed: () {
           exit(0);
         },
       );
 
-// Asegurarse de que Flutter está preparado.
-
   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
   await LocalNotificationsService().initializeNotifications();
+  await Preferences.init();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  // Otras inicializaciones, como configuraciones de orientación y preferencias
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((_) async {
-    await Preferences.init(); // Inicializa preferencias.
+  // var cron = Cron();
+  // cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+  //   try {
+  //     final result = await InternetAddress.lookup('example.com');
+  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+  //       final isLogin = await PrefUtils.getIsLoggedIn();
+  //       if (isLogin) {
+  //         searchProductsNoSendOdoo(navigatorKey.currentContext!);
+  //       }
+  //     }
+  //   } on SocketException catch (_) {}
+  // });
 
-    // Luego se inicia la app
-    runApp(const AppState());
-  });
-
-  // Cron para verificar conexión e interacción con Odoo
-  var cron = Cron();
-  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        final isLogin = await PrefUtils.getIsLoggedIn();
-        if (isLogin) {
-          searchProductsNoSendOdoo(navigatorKey.currentContext!);
-        }
-      }
-    } on SocketException catch (_) {}
-  });
+  runApp(const AppState()); // fuera del .then()
 }
 
 class AppState extends StatelessWidget {
@@ -135,9 +172,16 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => TransferExternaBloc(),
-        )
+        ),
+        BlocProvider(
+          create: (_) => PickingPickBloc(),
+        ),
       ],
       child: GetMaterialApp(
+          unknownRoute: GetPage(
+            name: AppRoutes.home,
+            page: () => HomePage(),
+          ),
           navigatorKey: navigatorKey, // Usa el navigatorKey aquí
           debugShowCheckedModeBanner: false,
           initialRoute: AppRoutes.checkout, // Usa la constante de ruta
@@ -248,151 +292,3 @@ void refreshData(BuildContext context) async {
         ));
   }
 }
-
-
-// import 'package:flutter/material.dart';
-// import 'package:zebrautil/zebra_device.dart';
-// import 'package:zebrautil/zebra_printer.dart';
-// import 'package:zebrautil/zebra_util.dart';
-
-// void main() {
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Flutter Demo',
-//       theme: ThemeData(
-//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-//         useMaterial3: true,
-//       ),
-//       home: FutureBuilder(
-//         future: ZebraUtil.getPrinterInstance(),
-//         builder: (context, snapshot) {
-//           if (!snapshot.hasData) {
-//             return const Center(
-//               child: CircularProgressIndicator(),
-//             );
-//           }
-//           final printer = snapshot.data as ZebraPrinter;
-//           return PrinterTemplate(printer);
-//         },
-//       ),
-//     );
-//   }
-// }
-
-// class PrinterTemplate extends StatefulWidget {
-//   const PrinterTemplate(this.printer, {super.key});
-//   final ZebraPrinter printer;
-//   @override
-//   State<PrinterTemplate> createState() => _PrinterTemplateState();
-// }
-
-// class _PrinterTemplateState extends State<PrinterTemplate> {
-//   late ZebraPrinter zebraPrinter;
-//   late ZebraController controller;
-//   final String dataToPrint = """^XA
-//         ^FX Top section with logo, name and address.
-//         ^CF0,60
-//         ^FO50,50^GB100,100,100^FS
-//         ^FO75,75^FR^GB100,100,100^FS
-//         ^FO93,93^GB40,40,40^FS
-//         ^FO220,50^FDIntershipping, Inc.^FS
-//         ^CF0,30
-//         ^FO220,115^FD1000 Hola nevado ^FS
-//         ^FO220,155^FDShelbyville TN 38102^FS
-//         ^FO220,195^FDUnited States (USA)^FS
-//         ^FO50,250^GB700,3,3^FS
-//         ^XZ""";
-
-//   @override
-//   void initState() {
-//     zebraPrinter = widget.printer;
-//     controller = zebraPrinter.controller;
-//     zebraPrinter.startScanning();
-//     super.initState();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         appBar: AppBar(
-//           title: Column(
-//             children: [
-//               const Text("My Printers"),
-//               if (zebraPrinter.isScanning)
-//                 const Text(
-//                   "Seaching for printers...",
-//                   style: TextStyle(color: Colors.grey, fontSize: 12),
-//                 ),
-//             ],
-//           ),
-//         ),
-//         floatingActionButton: FloatingActionButton(
-//           onPressed: () {
-//             if (zebraPrinter.isScanning) {
-//               zebraPrinter.stopScanning();
-//             } else {
-//               zebraPrinter.startScanning();
-//             }
-//             setState(() {});
-//           },
-//           child: Icon(
-//               zebraPrinter.isScanning ? Icons.stop_circle : Icons.play_circle),
-//         ),
-//         body: ListenableBuilder(
-//           listenable: controller,
-//           builder: (context, child) {
-//             final printers = controller.printers;
-//             if (printers.isEmpty) {
-//               return _getNotAvailablePage();
-//             }
-//             return _getListDevices(printers);
-//           },
-//         ));
-//   }
-
-//   Widget _getListDevices(List<ZebraDevice> printers) {
-//     return ListView.builder(
-//         itemBuilder: (BuildContext context, int index) {
-//           return ListTile(
-//             title: Text(printers[index].name),
-//             subtitle: Text(printers[index].status,
-//                 style: TextStyle(color: printers[index].color)),
-//             leading: IconButton(
-//               icon: Icon(Icons.print, color: printers[index].color),
-//               onPressed: () {
-//                 zebraPrinter.print(data: dataToPrint);
-//               },
-//             ),
-//             trailing: IconButton(
-//               icon: Icon(Icons.bluetooth_connected_rounded,
-//                   color: printers[index].color),
-//               onPressed: () {
-//                 zebraPrinter.connectToPrinter(printers[index].address);
-//               },
-//             ),
-//           );
-//         },
-//         itemCount: printers.length);
-//   }
-
-//   SizedBox _getNotAvailablePage() {
-//     return const SizedBox(
-//       width: double.infinity,
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.center,
-//         mainAxisSize: MainAxisSize.max,
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: [
-//           Text("Printers not found"),
-//         ],
-//       ),
-//     );
-//   }
-// }

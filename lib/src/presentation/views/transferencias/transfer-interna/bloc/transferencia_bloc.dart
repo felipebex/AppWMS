@@ -64,7 +64,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
   String selectedLocation = '';
   //*valores de scanvalue
 
-  int quantitySelected = 0;
+  dynamic quantitySelected = 0;
   String scannedValue1 = '';
   String scannedValue2 = '';
   String scannedValue3 = '';

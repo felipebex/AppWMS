@@ -48,9 +48,11 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
             Row(children: _buildNumberRow(['7', '8', '9'])),
             Row(
               children: [
-                _buildConfirmButton(),
-                const SizedBox(width: 3),
-                _buildNumberButton('0'),
+                // _buildConfirmButton(),
+                // const SizedBox(width: 3),
+                _buildNumberButton2(','),
+                _buildNumberButton2('.'),
+                _buildNumberButton2('0'),
                 const SizedBox(width: 3),
                 _buildBackspaceButton(),
               ],
@@ -67,6 +69,33 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
   }
 
   // Crea el botón para los números
+  Widget _buildNumberButton2(String key) {
+    return GestureDetector(
+      onTap: () {
+        context
+            .read<KeyboardBloc>()
+            .add(KeyPressedEvent(key, widget.controller));
+      },
+      child: Container(
+        width:
+        widget.isDialog ? 48 :
+         77, // Tamaño ajustado
+        height: 30, // Tamaño 5justado
+        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 3),
+        decoration: BoxDecoration(
+          color: white, // Color blanco de fondo
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Center(
+          child: Text(
+            key,
+            style: const TextStyle(fontSize: 20), // Tamaño del texto ajustado
+          ),
+        ),
+      ),
+    );
+  }
   Widget _buildNumberButton(String key) {
     return GestureDetector(
       onTap: () {
@@ -96,30 +125,30 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
   }
 
   // Botón de "OK" para confirmar
-  Widget _buildConfirmButton() {
-    return GestureDetector(
-      onTap: () {
-        widget.onchanged();
-      },
-      child: Container(
-        width: 
-        widget.isDialog ? 64 :
-        100, // Tamaño ajustado
-        height: 30, // Tamaño ajustado
-        margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
-        decoration: BoxDecoration(
-          color: primaryColorApp,
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: const Center(
-          child: Text(
-            'OK',
-            style: TextStyle(color: Colors.white, fontSize: 16),
-          ),
-        ),
-      ),
-    );
-  }
+  // Widget _buildConfirmButton() {
+  //   return GestureDetector(
+  //     onTap: () {
+  //       widget.onchanged();
+  //     },
+  //     child: Container(
+  //       width: 
+  //       widget.isDialog ? 64 :
+  //       50, // Tamaño ajustado
+  //       height: 30, // Tamaño ajustado
+  //       margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+  //       decoration: BoxDecoration(
+  //         color: primaryColorApp,
+  //         borderRadius: BorderRadius.circular(5),
+  //       ),
+  //       child: const Center(
+  //         child: Text(
+  //           'OK',
+  //           style: TextStyle(color: Colors.white, fontSize: 16),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   // Botón de borrar
   Widget _buildBackspaceButton() {
@@ -131,8 +160,8 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
       },
       child: Container(
         width: 
-        widget.isDialog ? 64 :
-        100, // Tamaño ajustado
+        widget.isDialog ? 45 :
+        60, // Tamaño ajustado
         height: 30,
         decoration: BoxDecoration(
           color: primaryColorApp,

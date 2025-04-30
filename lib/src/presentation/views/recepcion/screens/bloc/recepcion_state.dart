@@ -128,7 +128,7 @@ class ConfigurationErrorOrder extends RecepcionState {
 }
 
 class ChangeQuantitySeparateState extends RecepcionState {
-  final int quantity;
+  final dynamic quantity;
   ChangeQuantitySeparateState(this.quantity);
 }
 
@@ -138,7 +138,7 @@ class ShowQuantityOrderState extends RecepcionState {
 }
 
 class ChangeQuantitySeparateOrder extends RecepcionState {
-  final int quantity;
+  final dynamic quantity;
   ChangeQuantitySeparateOrder(this.quantity);
 }
 

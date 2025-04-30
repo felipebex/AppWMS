@@ -20,6 +20,8 @@ class ProductInventarioTable {
   static const String columnVolume = 'volume';
   //volume_uom_name
   static const String columnVolumeUomName = 'volume_uom_name';
+  //uom
+  static const String columnUom = 'uom';
 
   static String createTable() {
     return '''
@@ -36,6 +38,7 @@ class ProductInventarioTable {
         $columnWeight REAL,
         $columnWeightUomName TEXT,
         $columnVolume REAL,
+        $columnUom TEXT,
         $columnVolumeUomName TEXT
         )
 

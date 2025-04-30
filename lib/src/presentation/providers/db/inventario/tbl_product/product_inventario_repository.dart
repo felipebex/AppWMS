@@ -58,6 +58,8 @@ class ProductInventarioRepository {
                 producto.volumeUomName == false
                     ? ""
                     : producto.volumeUomName ?? '',
+            ProductInventarioTable.columnUom:
+                producto.uom == false ? "" : producto.uom ?? '',
           };
 
           batch.insert(

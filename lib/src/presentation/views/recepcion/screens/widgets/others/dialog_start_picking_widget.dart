@@ -5,8 +5,9 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogAsignUserToOrderWidget extends StatelessWidget {
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
+  final String title;
 
-  const DialogAsignUserToOrderWidget({super.key, required this.onAccepted});
+  const DialogAsignUserToOrderWidget({super.key, required this.onAccepted, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class DialogAsignUserToOrderWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                  'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+                  title,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: black,

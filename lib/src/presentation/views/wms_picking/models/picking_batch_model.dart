@@ -67,7 +67,7 @@ class BatchsModel {
   final String? name;
   final dynamic scheduleddate;
   final dynamic pickingTypeId;
-  final String? muelle; // es el mismo location_id
+  final String? muelle; 
   final String? barcodeMuelle;
   final dynamic? idMuelle;
   final String? state;
@@ -76,7 +76,7 @@ class BatchsModel {
   final int? countItems;
   final dynamic? totalQuantityItems;
 
-  int? indexList;
+  final int? indexList;
   final dynamic isWave;
   final int? isSeparate;
   final dynamic isSelected;
@@ -250,9 +250,10 @@ class ProductsBatch {
   final int? idProduct;
   final int? orderProduct;
   final dynamic productId;
-  final int? batchId;
+  final dynamic? batchId;
   final String? name;
   final dynamic? rimovalPriority;
+  
   final dynamic lotId;
   final dynamic loteId;
   final dynamic locationId;
@@ -268,7 +269,7 @@ class ProductsBatch {
 
   final int? isMuelle;
 
-  final int? quantitySeparate;
+  final dynamic? quantitySeparate;
   final dynamic isSelected;
   final int? isSeparate;
   final dynamic timeSeparate;

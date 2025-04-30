@@ -75,6 +75,9 @@ class ConfigurationsRepository {
         //hide_validate_transfer
         ConfigurationsTable.columnHideValidateTransfer:
             _boolToInt(configuration.result?.result?.hide_validate_transfer),
+        // count_quantity_inventory
+        ConfigurationsTable.columnCountQuantityInventory:
+            _boolToInt(configuration.result?.result?.countQuantityInventory),
       };
 
       // Realizar la inserción o actualización usando INSERT OR REPLACE
@@ -168,6 +171,8 @@ class ConfigurationsRepository {
                   map[ConfigurationsTable.columnManualQuantityTransfer]),
               scanDestinationLocationReception: _intToBool(map[
                   ConfigurationsTable.columnScanDestinationLocationReception]),
+              countQuantityInventory: _intToBool(
+                  map[ConfigurationsTable.columnCountQuantityInventory]),
 
               hide_validate_transfer: _intToBool(
                   map[ConfigurationsTable.columnHideValidateTransfer]),

@@ -18,7 +18,7 @@ class DialogUnPacking extends StatelessWidget {
     required this.package,
   });
 
-  final PorductoPedido product;
+  final ProductoPedido product;
   final Paquete package;
 
   @override

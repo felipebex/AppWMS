@@ -74,6 +74,7 @@ class Product {
   dynamic? volume;
   dynamic? volumeUomName;
   dynamic expirationDate;
+  dynamic uom;
 
   Product({
     this.productId,
@@ -93,6 +94,7 @@ class Product {
     this.volume,
     this.volumeUomName,
     this.expirationDate,
+    this.uom,
   });
 
   factory Product.fromMap(Map<String, dynamic> json) => Product(
@@ -119,6 +121,7 @@ class Product {
         volume: json["volume"]?.toDouble(),
         volumeUomName: json["volume_uom_name"],
         expirationDate: json["expiration_date"],
+        uom: json["uom"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -144,6 +147,7 @@ class Product {
         "volume": volume,
         "volume_uom_name": volumeUomName,
         "expiration_date": expirationDate,
+        "uom": uom,
       };
 }
 

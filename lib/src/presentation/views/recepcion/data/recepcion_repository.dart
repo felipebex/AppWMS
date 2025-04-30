@@ -382,7 +382,7 @@ class RecepcionRepository {
       return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error en sendPackingRequest: $e, $s');
+      print('Error en sendProductRecepcion: $e, $s');
       return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
     }
     return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
@@ -541,7 +541,7 @@ class RecepcionRepository {
       return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error en sendPackingRequest: $e, $s');
+      print('Error en validateRecepcion: $e, $s');
       return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
     }
     return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red

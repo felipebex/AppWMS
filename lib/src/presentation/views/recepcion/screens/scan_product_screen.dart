@@ -216,7 +216,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     _controllerQuantity.text = "";
     final currentProduct = bloc.currentProduct;
 
-    if (bloc.quantitySelected == currentProduct.cantidadFaltante.toInt()) {
+    if (bloc.quantitySelected == currentProduct.cantidadFaltante) {
       return;
     }
     if (scan == currentProduct.productBarcode?.toLowerCase()) {
@@ -320,14 +320,14 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                       }
 
                       if (state is ChangeQuantitySeparateState) {
-                        if (state.quantity != 0) {
+                        // if (state.quantity != 0.0) {
                           if (state.quantity ==
                               recepcionBloc.currentProduct.cantidadFaltante
-                                  .toInt()) {
+                                  ) {
                             //termianmso el proceso
                             _finishSeprateProductOrder(context, state.quantity);
                           }
-                        }
+                        // }
                       }
                     }, builder: (context, status) {
                       return Column(
@@ -1359,8 +1359,8 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
                               focusNode: focusNode4,
                               inputFormatters: [
-                                FilteringTextInputFormatter
-                                    .digitsOnly, // Solo permite dígitos
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9.,]')),
                               ],
                               showCursor: true,
                               onChanged: (value) {
@@ -1503,7 +1503,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         return true;
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-        if (matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected >
+        if (matchedBarcode.cantidad + batchBloc.quantitySelected >
             currentProduct.cantidadFaltante!) {
           return false;
         }
@@ -1512,7 +1512,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
           currentProduct.idRecepcion,
           int.parse(currentProduct.productId),
           currentProduct.idMove ?? 0,
-          matchedBarcode.cantidad.toInt(),
+          matchedBarcode.cantidad,
         ));
       }
       return false;
@@ -1554,9 +1554,52 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       }
     }
 
-    int cantidad = int.parse(_cantidadController.text.isEmpty
-        ? batchBloc.quantitySelected.toString()
-        : _cantidadController.text);
+    // double cantidad = double.parse(_cantidadController.text.isEmpty
+    //     ? batchBloc.quantitySelected.toString()
+    //     : _cantidadController.text);
+
+    String input = _cantidadController.text.trim();
+
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = batchBloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Intentar convertir a double
+    double? cantidad = double.tryParse(input);
+    if (cantidad == null) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
 
     if (cantidad == currentProduct.cantidadFaltante) {
       batchBloc.add(ChangeQuantitySeparate(
@@ -1567,7 +1610,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     } else {
       FocusScope.of(context).unfocus();
 
-      if (cantidad < (currentProduct.cantidadFaltante ?? 0).toInt()) {
+      if (cantidad < (currentProduct.cantidadFaltante ?? 0)) {
         showDialog(
             context: context,
             builder: (context) {
@@ -1599,7 +1642,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                     _finishSeprateProductOrderSplit(context, cantidad);
                   });
             });
-      } else if (cantidad > (currentProduct.cantidadFaltante ?? 0).toInt()) {
+      } else if (cantidad > (currentProduct.cantidadFaltante ?? 0)) {
         //validamos si tiene el permiso de mover mas de lo planteado
 
         if (batchBloc.configurations.result?.result?.allowMoveExcess == true) {
@@ -1623,7 +1666,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     }
   }
 
-  void _finishSeprateProductOrder(BuildContext context, int cantidad) {
+  void _finishSeprateProductOrder(BuildContext context, dynamic cantidad) {
     if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
       print(context.read<RecepcionBloc>().lotesProductCurrent.toMap());
       if (context.read<RecepcionBloc>().selectLote == "") {
@@ -1648,7 +1691,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
   void _finishSeprateProductOrderSplit(
     BuildContext context,
-    int cantidad,
+    dynamic cantidad,
   ) {
     if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
       if (context.read<RecepcionBloc>().currentProduct.loteId == "") {

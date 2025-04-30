@@ -201,7 +201,7 @@ class _InventarioScreenState extends State<InventarioScreen>
             BarcodeInventario() // Si no se encuentra ningún match, devuelve null
         );
     if (matchedBarcode.barcode != null) {
-      bloc.add(AddQuantitySeparate(matchedBarcode.cantidad!.toInt(), false));
+      bloc.add(AddQuantitySeparate(matchedBarcode.cantidad, false));
       return false;
     }
     return false;
@@ -209,6 +209,17 @@ class _InventarioScreenState extends State<InventarioScreen>
 
   void _validatebuttonquantity() {
     final bloc = context.read<InventarioBloc>();
+
+    if (bloc.currentUbication?.id == null) {
+      Get.snackbar(
+        '360 Software Informa',
+        "No se ha selecionado la ubicacion",
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.error, color: Colors.amber),
+      );
+      return;
+    }
 
     if (bloc.currentProduct?.tracking == 'lot') {
       if (bloc.currentProductLote?.id == null) {
@@ -219,6 +230,7 @@ class _InventarioScreenState extends State<InventarioScreen>
           colorText: primaryColorApp,
           icon: Icon(Icons.error, color: Colors.amber),
         );
+        return;
       } else {
         int cantidad = int.parse(bloc.cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
@@ -226,7 +238,7 @@ class _InventarioScreenState extends State<InventarioScreen>
         bloc.add(SendProductInventarioEnvet(cantidad));
       }
     } else {
-      int cantidad = int.parse(bloc.cantidadController.text.isEmpty
+      double cantidad = double.parse(bloc.cantidadController.text.isEmpty
           ? bloc.quantitySelected.toString()
           : bloc.cantidadController.text);
       bloc.add(SendProductInventarioEnvet(cantidad));
@@ -375,7 +387,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                   onPressed: () {
                                     Navigator.pushReplacementNamed(
                                       context,
-                                      'home',
+                                      '/home',
                                     );
                                   },
                                 ),
@@ -434,7 +446,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                 // color: Colors.amber,
                                 width: size.width * 0.85,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 2),
+                                    horizontal: 0, vertical: 5),
                                 child: context
                                         .read<UserBloc>()
                                         .fabricante
@@ -510,26 +522,34 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                       }
                                                     }
                                                   : null,
-                                              child: Row(
-                                                children: [
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Text(
-                                                      'Ubicación de existencias',
-                                                      style: TextStyle(
-                                                        fontSize: 15,
-                                                        color: primaryColorApp,
+                                              child: Card(
+                                                color: white,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(6.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                          'Ubicación de existencias',
+                                                          style: TextStyle(
+                                                            fontSize: 15,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
+                                                        ),
                                                       ),
-                                                    ),
+                                                      Spacer(),
+                                                      Image.asset(
+                                                        "assets/icons/ubicacion.png",
+                                                        color: primaryColorApp,
+                                                        width: 20,
+                                                      ),
+                                                    ],
                                                   ),
-                                                  Spacer(),
-                                                  Image.asset(
-                                                    "assets/icons/ubicacion.png",
-                                                    color: primaryColorApp,
-                                                    width: 20,
-                                                  ),
-                                                ],
+                                                ),
                                               ),
                                             ),
                                             Container(
@@ -670,27 +690,33 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         }
                                                       }
                                                     : null,
-                                                child: Row(
-                                                  children: [
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        'Ubicación de existencias',
-                                                        style: TextStyle(
-                                                          fontSize: 15,
-                                                          color:
-                                                              primaryColorApp,
+                                                child: Card(
+                                                  color:white,
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(6.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Align(
+                                                          alignment:
+                                                              Alignment.centerLeft,
+                                                          child: Text(
+                                                            'Ubicación de existencias',
+                                                            style: TextStyle(
+                                                              fontSize: 15,
+                                                              color:
+                                                                  primaryColorApp,
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
+                                                        Spacer(),
+                                                        Image.asset(
+                                                          "assets/icons/ubicacion.png",
+                                                          color: primaryColorApp,
+                                                          width: 20,
+                                                        ),
+                                                      ],
                                                     ),
-                                                    Spacer(),
-                                                    Image.asset(
-                                                      "assets/icons/ubicacion.png",
-                                                      color: primaryColorApp,
-                                                      width: 20,
-                                                    ),
-                                                  ],
+                                                  ),
                                                 ),
                                               ),
                                               Align(
@@ -753,93 +779,104 @@ class _InventarioScreenState extends State<InventarioScreen>
                                         .fabricante
                                         .contains("Zebra")
                                     ? Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 0, vertical: 5),
                                         child: Column(
                                           children: [
                                             GestureDetector(
-                                              onTap:
+                                              onTap: (bloc
+                                                          .locationIsOk && //true
+                                                      !bloc
+                                                          .productIsOk && //false
+                                                      !bloc
+                                                          .quantityIsOk) //false
 
-                                                  // bloc.locationIsOk && //true
-                                                  //         !bloc
-                                                  //             .productIsOk && //false
-                                                  //         !bloc.quantityIsOk
-                                                  //     ?
-                                                  () {
-                                                if (bloc.productos.isEmpty) {
-                                                  Get.defaultDialog(
-                                                    title:
-                                                        '360 Software Informa',
-                                                    titleStyle: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 18),
-                                                    middleText:
-                                                        "No hay productos cargadoss, por favor cargues las productos",
-                                                    middleTextStyle: TextStyle(
-                                                        color: black,
-                                                        fontSize: 14),
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                    radius: 10,
-                                                    actions: [
-                                                      ElevatedButton(
-                                                        onPressed: () {
-                                                          context
-                                                              .read<
-                                                                  InventarioBloc>()
-                                                              .add(
-                                                                  GetProductsEvent());
-                                                          //esperamos 1 segundo para que se vea el dialogo
-
-                                                          Get.back();
-                                                        },
-                                                        style: ElevatedButton
-                                                            .styleFrom(
+                                                  ? () {
+                                                      if (bloc
+                                                          .productos.isEmpty) {
+                                                        Get.defaultDialog(
+                                                          title:
+                                                              '360 Software Informa',
+                                                          titleStyle: TextStyle(
+                                                              color: Colors.red,
+                                                              fontSize: 18),
+                                                          middleText:
+                                                              "No hay productos cargadoss, por favor cargues las productos",
+                                                          middleTextStyle:
+                                                              TextStyle(
+                                                                  color: black,
+                                                                  fontSize: 14),
                                                           backgroundColor:
-                                                              primaryColorApp,
-                                                          shape:
-                                                              RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                          ),
-                                                        ),
+                                                              Colors.white,
+                                                          radius: 10,
+                                                          actions: [
+                                                            ElevatedButton(
+                                                              onPressed: () {
+                                                                context
+                                                                    .read<
+                                                                        InventarioBloc>()
+                                                                    .add(
+                                                                        GetProductsEvent());
+                                                                //esperamos 1 segundo para que se vea el dialogo
+                                                                Get.back();
+                                                              },
+                                                              style:
+                                                                  ElevatedButton
+                                                                      .styleFrom(
+                                                                backgroundColor:
+                                                                    primaryColorApp,
+                                                                shape:
+                                                                    RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                ),
+                                                              ),
+                                                              child: Text(
+                                                                  'Cargar productos',
+                                                                  style: TextStyle(
+                                                                      color:
+                                                                          white)),
+                                                            ),
+                                                          ],
+                                                        );
+                                                      } else {
+                                                        Navigator
+                                                            .pushReplacementNamed(
+                                                          context,
+                                                          'search-product',
+                                                        );
+                                                      }
+                                                    }
+                                                  : null,
+                                              child: Card(
+                                                color: white,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(6.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
                                                         child: Text(
-                                                            'Cargar productos',
-                                                            style: TextStyle(
-                                                                color: white)),
+                                                          'Producto',
+                                                          style: TextStyle(
+                                                              fontSize: 14,
+                                                              color:
+                                                                  primaryColorApp),
+                                                        ),
+                                                      ),
+                                                      Spacer(),
+                                                      Image.asset(
+                                                        "assets/icons/producto.png",
+                                                        color: primaryColorApp,
+                                                        width: 20,
                                                       ),
                                                     ],
-                                                  );
-                                                } else {
-                                                  Navigator
-                                                      .pushReplacementNamed(
-                                                    context,
-                                                    'search-product',
-                                                  );
-                                                }
-                                              },
-                                              // : null,
-                                              child: Row(
-                                                children: [
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerLeft,
-                                                    child: Text(
-                                                      'Producto',
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color:
-                                                              primaryColorApp),
-                                                    ),
                                                   ),
-                                                  Spacer(),
-                                                  Image.asset(
-                                                    "assets/icons/producto.png",
-                                                    color: primaryColorApp,
-                                                    width: 20,
-                                                  ),
-                                                ],
+                                                ),
                                               ),
                                             ),
 
@@ -1034,7 +1071,8 @@ class _InventarioScreenState extends State<InventarioScreen>
                                           return KeyEventResult.ignored;
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 0, vertical: 5),
                                           child: Column(
                                             children: [
                                               GestureDetector(
@@ -1104,26 +1142,36 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         }
                                                       }
                                                     : null,
-                                                child: Row(
-                                                  children: [
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                        'Producto',
-                                                        style: TextStyle(
-                                                            fontSize: 14,
-                                                            color:
-                                                                primaryColorApp),
-                                                      ),
+                                                child: Card(
+                                                  color: //transparente
+                                                      white,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            6.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Align(
+                                                          alignment: Alignment
+                                                              .centerLeft,
+                                                          child: Text(
+                                                            'Producto',
+                                                            style: TextStyle(
+                                                                fontSize: 14,
+                                                                color:
+                                                                    primaryColorApp),
+                                                          ),
+                                                        ),
+                                                        Spacer(),
+                                                        Image.asset(
+                                                          "assets/icons/producto.png",
+                                                          color:
+                                                              primaryColorApp,
+                                                          width: 20,
+                                                        ),
+                                                      ],
                                                     ),
-                                                    Spacer(),
-                                                    Image.asset(
-                                                      "assets/icons/producto.png",
-                                                      color: primaryColorApp,
-                                                      width: 20,
-                                                    ),
-                                                  ],
+                                                  ),
                                                 ),
                                               ),
                                               Align(
@@ -1411,7 +1459,6 @@ class _InventarioScreenState extends State<InventarioScreen>
 
                 //todo: cantidad
                 SizedBox(
-                  // color: Colors.amber,
                   width: size.width,
                   height: bloc.viewQuantity == true &&
                           context.read<UserBloc>().fabricante.contains("Zebra")
@@ -1439,6 +1486,17 @@ class _InventarioScreenState extends State<InventarioScreen>
                             child: Center(
                               child: Row(
                                 children: [
+                                  Text('UND: ',
+                                      style: TextStyle(
+                                          fontSize: 14, color: black)),
+                                  Text(
+                                      bloc.currentProduct?.uom == "" ||
+                                              bloc.currentProduct?.uom == null
+                                          ? "Sin unidad"
+                                          : bloc.currentProduct?.uom ?? "",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: primaryColorApp)),
                                   const Spacer(),
                                   Expanded(
                                     child: Container(
@@ -1543,8 +1601,8 @@ class _InventarioScreenState extends State<InventarioScreen>
 
                               focusNode: focusNode4,
                               inputFormatters: [
-                                FilteringTextInputFormatter
-                                    .digitsOnly, // Solo permite dígitos
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9.,]')),
                               ],
                               showCursor: true,
                               onChanged: (value) {

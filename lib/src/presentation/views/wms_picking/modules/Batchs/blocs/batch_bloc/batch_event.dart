@@ -76,7 +76,7 @@ class ChangeProductIsOkEvent extends BatchEvent {
   final bool productIsOk;
   final int productId;
   final int batchId;
-  final int quantity;
+  final dynamic quantity;
   final int idMove;
   ChangeProductIsOkEvent(this.productIsOk, this.productId, this.batchId,
       this.quantity, this.idMove);
@@ -97,7 +97,7 @@ class ChangeCurrentProduct extends BatchEvent {
 }
 
 class QuantityChanged extends BatchEvent {
-  final int quantity;
+  final dynamic quantity;
   QuantityChanged(this.quantity);
 }
 
@@ -115,7 +115,7 @@ class ValidateFieldsEvent extends BatchEvent {
 class LoadDataInfoEvent extends BatchEvent {}
 
 class ChangeQuantitySeparate extends BatchEvent {
-  final int quantity;
+  final dynamic quantity;
   final int productId;
   final int idMove;
   ChangeQuantitySeparate(this.quantity, this.productId, this.idMove);
@@ -124,7 +124,7 @@ class ChangeQuantitySeparate extends BatchEvent {
 class AddQuantitySeparate extends BatchEvent {
   final int productId;
   final int idMove;
-  final int quantity;
+  final dynamic quantity;
   final bool isOk;
   AddQuantitySeparate(this.productId, this.idMove, this.quantity, this.isOk);
 }
@@ -151,7 +151,7 @@ class LoadProductEditEvent extends BatchEvent {}
 
 class SendProductEditOdooEvent extends BatchEvent {
   final ProductsBatch product;
-  final int cantidad;
+  final dynamic cantidad;
 
   SendProductEditOdooEvent(this.product, this.cantidad, );
 }

@@ -189,7 +189,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
 
                                       Navigator.pushReplacementNamed(
                                         context,
-                                        'home',
+                                        '/home',
                                       );
                                     },
                                   ),
@@ -695,6 +695,8 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                                 false, // No permitir que el usuario cierre el diálogo manualmente
                                             builder: (context) =>
                                                 DialogAsignUserToOrderWidget(
+                                                  title:
+                                                  'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
                                               onAccepted: () async {
                                                 context
                                                     .read<TransferenciaBloc>()

@@ -21,7 +21,7 @@ class ListItem {
   final int loteProducto;
 
   final int ubicacionDestino;
-  final int cantidadSeparada;
+  final dynamic cantidadSeparada;
   final String observacion;
   final int idOperario;
   final String fechaTransaccion;

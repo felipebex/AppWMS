@@ -47,7 +47,7 @@ class ValidateFieldsPackingState extends WmsPackingState {
 }
 
 class ChangeQuantitySeparateState extends WmsPackingState {
-  final int quantity;
+  final dynamic quantity;
   ChangeQuantitySeparateState(this.quantity);
 }
 
@@ -62,7 +62,7 @@ class ShowKeyboardState extends WmsPackingState {
 }
 
 class ListOfProductsForPackingState extends WmsPackingState {
-  final List<PorductoPedido> productos;
+  final List<ProductoPedido> productos;
   ListOfProductsForPackingState(this.productos);
 }
 

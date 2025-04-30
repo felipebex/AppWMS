@@ -75,7 +75,7 @@ class CurrentProductChangedStateError extends BatchState {
 class CurrentProductChangedStateLoading extends BatchState {}
 
 final class QuantityChangedState extends BatchState {
-  final int quantity;
+  final dynamic quantity;
   QuantityChangedState(this.quantity);
 }
 
@@ -113,7 +113,7 @@ class LoadDataInfoLoading extends BatchState {}
 
 //*estado para separar la cantidad
 class ChangeQuantitySeparateStateSuccess extends BatchState {
-  final int quantity;
+  final dynamic quantity;
   ChangeQuantitySeparateStateSuccess(this.quantity);
 }
 

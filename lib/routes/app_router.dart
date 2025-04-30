@@ -30,6 +30,9 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_list.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/pick_detail_pick_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/screens/history_detail_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/screens/list_batchs_history_screen.dart';
 
@@ -45,6 +48,10 @@ class AppRoutes {
   static const String batchDetail = 'batch-detail';
   static const String historyLits = 'history-list';
   static const String historyDetail = 'history-detail';
+  //pick
+  static const String pick = 'pick';
+  static const String scanProductPick  ="scan-product-pick";
+  static const String pickDetail = 'pick-detail';
 
   // WMS Packing
   static const String wmsPacking = 'wms-packing';
@@ -68,7 +75,7 @@ class AppRoutes {
   static const String searchLocationDestTrans = 'seacrh-locationsDest-trans';
 
   // Global
-  static const String home = 'home';
+  static const String home = '/home';
   static const String user = 'user';
 
   // Operaciones
@@ -106,6 +113,10 @@ class AppRoutes {
       batchDetail: (_) => const BatchDetailScreen(),
       historyLits: (_) => const HistoryListScreen(),
       historyDetail: (_) => const HistoryDetailScreen(),
+      pick :(_) => const IndexListPickScreen(),
+      scanProductPick :(_) => const ScanProductPickScreen(),
+      pickDetail :(_) => const PickDetailScreen(),
+      
 
       // WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),

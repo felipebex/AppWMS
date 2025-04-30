@@ -49,6 +49,7 @@ class ConfigurationsTable {
 
 //hide_validate_transfer
   static const String columnHideValidateTransfer = 'hide_validate_transfer';
+  
 
   // Método para crear la tabla
   static String createTable() {

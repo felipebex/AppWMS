@@ -2,7 +2,7 @@ class SendProductInventario {
   final int locationId;
   final int productId;
   final int lotId;
-  final int quantity;
+  final dynamic quantity;
   final int? userId;
 
   SendProductInventario({

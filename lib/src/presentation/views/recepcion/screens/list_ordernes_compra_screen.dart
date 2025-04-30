@@ -539,6 +539,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                   false, // No permitir que el usuario cierre el diálogo manualmente
                                               builder: (context) =>
                                                   DialogAsignUserToOrderWidget(
+                                                    title:'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
                                                 onAccepted: () async {
                                                   context
                                                       .read<RecepcionBloc>()
@@ -698,7 +699,7 @@ class AppBar extends StatelessWidget {
 
                         Navigator.pushReplacementNamed(
                           context,
-                          'home',
+                          '/home',
                         );
                       },
                     ),

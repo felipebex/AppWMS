@@ -1,0 +1,302 @@
+import 'package:sqflite/sqflite.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/PickhWithProducts_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
+import 'pick_products_table.dart';
+
+class PickProductsRepository {
+  final String _table = PickProductsTable.tableName;
+  Future<void> insertPickProducts(List<ProductsBatch> pickProducts) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+
+      await db.transaction((txn) async {
+        final batch = txn.batch();
+
+        // Obtener todos los registros existentes una sola vez
+        final existing = await txn.query(_table);
+        final existingSet = existing
+            .map((e) =>
+                '${e[PickProductsTable.columnIdProduct]}_${e[PickProductsTable.columnBatchId]}_${e[PickProductsTable.columnIdMove]}')
+            .toSet();
+
+        for (var product in pickProducts) {
+          final key =
+              '${product.idProduct}_${product.batchId}_${product.idMove}';
+
+          final data = {
+            PickProductsTable.columnIdProduct: product.idProduct,
+            PickProductsTable.columnBatchId: product.batchId,
+            PickProductsTable.columnExpireDate: product.expireDate ?? '',
+            PickProductsTable.columnProductId: product.productId?[1],
+            PickProductsTable.columnLocationId: product.locationId?[1],
+            PickProductsTable.columnLotId:
+                product.lotId == "" ? 0 : product.lotId?[0],
+            PickProductsTable.columnRimovalPriority: product.rimovalPriority,
+            PickProductsTable.columnBarcodeLocationDest:
+                product.barcodeLocationDest ?? '',
+            PickProductsTable.columnBarcodeLocation:
+                product.barcodeLocation ?? '',
+            PickProductsTable.columnLoteId: product.loteId,
+            PickProductsTable.columnIdMove: product.idMove,
+            PickProductsTable.columnLocationDestId: product.locationDestId?[1],
+            PickProductsTable.columnIdLocationDest: product.locationDestId?[0],
+            PickProductsTable.columnQuantity: product.quantity,
+            PickProductsTable.columnUnidades: product.unidades,
+            PickProductsTable.columnMuelleId: product.locationDestId?[0],
+            PickProductsTable.columnBarcode: product.barcode ?? '',
+            PickProductsTable.columnWeight: product.weigth,
+            PickProductsTable.columnOrigin: product.origin,
+          };
+
+          if (existingSet.contains(key)) {
+            batch.update(
+              _table,
+              data,
+              where:
+                  '${PickProductsTable.columnIdProduct} = ? AND ${PickProductsTable.columnBatchId} = ? AND ${PickProductsTable.columnIdMove} = ?',
+              whereArgs: [
+                product.idProduct,
+                product.batchId,
+                product.idMove,
+              ],
+            );
+          } else {
+            batch.insert(
+              _table,
+              data,
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
+        }
+
+        await batch.commit(noResult: true);
+      });
+    } catch (e, s) {
+      print('Error insertPickProducts: $e => $s');
+    }
+  }
+
+  Future<PickWithProducts?> getPickWithProducts(int pickId) async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
+
+      final List<Map<String, dynamic>> pickMaps = await db.query(
+        'tbl_picking_pick',
+        where: 'id = ?',
+        whereArgs: [pickId],
+      );
+
+      if (pickMaps.isEmpty) {
+        return null; // No se encontró el picking
+      }
+
+      final ResultPick pick = ResultPick.fromMap(pickMaps.first);
+
+      final List<Map<String, dynamic>> productMaps = await db.query(
+        'tbl_pick_products',
+        where: 'batch_id = ?',
+        whereArgs: [pickId],
+      );
+
+      final List<ProductsBatch> products =
+          productMaps.map((map) => ProductsBatch.fromMap(map)).toList();
+
+      return PickWithProducts(pick: pick, products: products);
+    } catch (e, s) {
+      print('Error getPickWithProducts: $e => $s');
+      return null;
+    }
+  }
+
+  Future<int?> updateNovedad(
+    int batchId,
+    int productId,
+    String novedad,
+    int idMove,
+  ) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+
+    final resUpdate = await db.rawUpdate(
+      '''
+    UPDATE $_table 
+    SET observation = ? 
+    WHERE batch_id = ? AND id_product = ? AND id_move = ?
+    ''',
+      [novedad, batchId, productId, idMove],
+    );
+
+    print("updateNovedad: $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> setFieldTablePickProducts(
+    int batchId,
+    int productId,
+    String field,
+    dynamic setValue,
+    int idMove,
+  ) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+
+    final resUpdate = await db.rawUpdate(
+      '''
+    UPDATE $_table 
+    SET $field = ? 
+    WHERE batch_id = ? AND id_product = ? AND id_move = ?
+    ''',
+      [setValue, batchId, productId, idMove],
+    );
+
+    print("update $_table ($field): $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> setFieldStringTablePickProducts(
+    int batchId,
+    int productId,
+    String field,
+    String setValue,
+    int idMove,
+  ) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+
+    final resUpdate = await db.rawUpdate(
+      '''
+    UPDATE $_table 
+    SET $field = ? 
+    WHERE batch_id = ? AND id_product = ? AND id_move = ?
+    ''',
+      [setValue, batchId, productId, idMove],
+    );
+
+    print("update $_table ($field): $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> incremenQtyProductSeparate(
+    int batchId,
+    int productId,
+    int idMove,
+    int quantity,
+  ) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+
+    return await db.transaction((txn) async {
+      // Obtener el valor actual de quantity_separate y quantity
+      final result = await txn.query(
+        _table,
+        columns: ['quantity_separate', 'quantity'],
+        where: 'batch_id = ? AND id_product = ? AND id_move = ?',
+        whereArgs: [batchId, productId, idMove],
+      );
+
+      if (result.isNotEmpty) {
+        int currentQtySeparate =
+            (result.first['quantity_separate'] as int?) ?? 0;
+        int currentQty = (result.first['quantity'] as int?) ?? 0;
+
+        int newQtySeparate = currentQtySeparate + quantity;
+
+        // Limitar a no superar la cantidad total
+        if (newQtySeparate > currentQty) {
+          newQtySeparate = currentQty;
+        }
+
+        // Actualizar la tabla
+        return await txn.update(
+          _table,
+          {'quantity_separate': newQtySeparate},
+          where: 'batch_id = ? AND id_product = ? AND id_move = ?',
+          whereArgs: [batchId, productId, idMove],
+        );
+      }
+
+      return null; // No se encontró el registro
+    });
+  }
+
+
+
+
+
+
+  Future<int?> dateTransaccionProduct(
+      int batchId, String date, int productId, int moveId) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+    if (db == null) return null;
+
+    final resUpdate = await db.rawUpdate(
+      "UPDATE $_table SET fecha_transaccion = ? WHERE batch_id = ? AND id_product = ? AND id_move = ?",
+      [date, batchId, productId, moveId],
+    );
+
+    print("dateTransaccionProduct: $resUpdate");
+    return resUpdate;
+  }
+
+  Future<ProductsBatch?> getProductPick(
+      int pickId, int productId, int idMove) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+    if (db == null) return null;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      _table,
+      where: 'batch_id = ? AND id_product = ? AND id_move = ?',
+      whereArgs: [pickId, productId, idMove],
+    );
+
+    if (maps.isNotEmpty) {
+      return ProductsBatch.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  Future<int?> startStopwatch(
+      int batchId, int productId, int moveId, String date) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE $_table SET time_separate_start = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
+    print("startStopwatch: $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> totalStopwatchProduct(
+      int batchId, int productId, int moveId, double time) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE $_table SET time_separate = $time WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
+    print("totalStopwatchProduct: $resUpdate");
+    return resUpdate;
+  }
+
+  Future<int?> endStopwatchProduct(
+      int batchId, String date, int productId, int moveId) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+    final resUpdate = await db!.rawUpdate(
+        "UPDATE $_table SET time_separate_end = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
+    print("endStopwatchProduct: $resUpdate");
+    return resUpdate;
+  }
+
+
+   Future<String> getFieldTableProductsPick(
+      int batchId, int productId, int moveId, String field) async {
+    try {
+     final db = await DataBaseSqlite().getDatabaseInstance();
+      final res = await db!.rawQuery('''
+      SELECT $field FROM  $_table  WHERE batch_id = $batchId AND  id_product = $productId AND id_move = $moveId LIMIT 1
+    ''');
+      if (res.isNotEmpty) {
+        String responsefield = res[0]['${field}'].toString();
+        return responsefield;
+      }
+      return "";
+    } catch (e, s) {
+      print("error getFieldTableProductsPick: $e => $s");
+    }
+    return "";
+  }
+
+}

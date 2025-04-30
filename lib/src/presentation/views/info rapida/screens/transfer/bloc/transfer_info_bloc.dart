@@ -15,7 +15,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
   bool locationDestIsOk = false;
 
   bool quantityIsOk = true;
-  int quantitySelected = 0;
+  dynamic quantitySelected = 0;
   String scannedValue1 = '';
 
   String selectedLocation = '';

@@ -15,7 +15,7 @@ class DialogConfirmatedPacking extends StatelessWidget {
     required this.isCertificate,
   });
 
-  final List<PorductoPedido> productos;
+  final List<ProductoPedido> productos;
   final bool isCertificate;
 
   @override

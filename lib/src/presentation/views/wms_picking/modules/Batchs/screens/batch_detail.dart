@@ -606,10 +606,10 @@ class BatchDetailScreen extends StatelessWidget {
                                                 ),
                                               ),
                                               Visibility(
-                                                visible:
-                                                    productsBatch.origin != "" && 
-                                                        productsBatch.origin !=
-                                                            null,
+                                                visible: productsBatch.origin !=
+                                                        "" &&
+                                                    productsBatch.origin !=
+                                                        null,
                                                 child: Padding(
                                                   padding: const EdgeInsets
                                                       .symmetric(horizontal: 8),
@@ -928,7 +928,8 @@ class BatchDetailScreen extends StatelessWidget {
                                                                   ? "0"
                                                                   : productsBatch
                                                                       .quantitySeparate
-                                                                      .toString(),
+                                                                      .toStringAsFixed(
+                                                                          1),
                                                               style: TextStyle(
                                                                   fontSize: 12,
                                                                   color:

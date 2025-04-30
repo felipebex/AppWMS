@@ -42,7 +42,7 @@ class CheckAuthPage extends StatelessWidget {
                   return Container();
                 } else {
                   Future.microtask(() {
-                    Navigator.pushReplacementNamed(context, 'home');
+                    Navigator.pushReplacementNamed(context, '/home');
                   });
                 }
               }

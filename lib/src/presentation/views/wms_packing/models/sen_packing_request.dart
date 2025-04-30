@@ -32,7 +32,7 @@ class ListItem {
   final int productId;
   final String lote;
   final int locationId;
-  final int cantidadSeparada;
+  final dynamic cantidadSeparada;
   final String observacion;
   final String unidadMedida;
   final int idOperario;

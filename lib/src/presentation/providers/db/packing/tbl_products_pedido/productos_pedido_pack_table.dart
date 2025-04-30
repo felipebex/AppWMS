@@ -58,7 +58,7 @@ class ProductosPedidosTable {
         $columnBarcodeLocation TEXT,
         $columnLocationDestId TEXT,
         $columnIdLocationDest INTEGER,
-        $columnQuantity INTEGER,
+        $columnQuantity REAL,
         $columnTracking TEXT,
 
 
@@ -68,7 +68,7 @@ class ProductosPedidosTable {
         $columnUnidades TEXT,
         $columnIsSelected INTEGER,
         $columnIsSeparate INTEGER,
-        $columnQuantitySeparate INTEGER,
+        $columnQuantitySeparate REAL,
         $columnIsCertificate INTEGER,
         $columnIsLocationIsOk INTEGER,
         $columnIsProductSplit INTEGER,

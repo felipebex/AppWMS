@@ -5,10 +5,10 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 
 class ProductDropdownPackingWidget extends StatelessWidget {
   final String? selectedProduct;
-  final List<PorductoPedido> listOfProductsName;
+  final List<ProductoPedido> listOfProductsName;
   final String currentProductId;
   final WmsPackingBloc batchBloc;
-  final PorductoPedido currentProduct;
+  final ProductoPedido currentProduct;
 
   final bool isPDA;
 
@@ -46,7 +46,7 @@ class ProductDropdownPackingWidget extends StatelessWidget {
                 width: 20,
               ),
               value: selectedProduct,
-              items: listOfProductsName.map((PorductoPedido product) {
+              items: listOfProductsName.map((ProductoPedido product) {
                 return DropdownMenuItem<String>(
                   value: product.productId.toString(),
                   child: Container(

@@ -5,6 +5,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
@@ -420,6 +421,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                             if (rol == 'picking' ||
                                                 rol == 'admin') {
+                                              // context.read<BatchBloc>().add(
+                                              //     LoadAllNovedadesEvent()); //
+                                              // showDialog(
+                                              //   context: context,
+                                              //   builder: (context) {
+                                              //     return DialogPicking(
+                                              //       contextHome: context,
+                                              //     );
+                                              //   },
+                                              // );
                                               context.read<BatchBloc>().add(
                                                   LoadAllNovedadesEvent()); //
 
@@ -434,9 +445,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               await Future.delayed(const Duration(
                                                   seconds:
                                                       1)); // Ajusta el tiempo si es necesario
-
                                               Navigator.pop(context);
-
                                               Navigator.pushReplacementNamed(
                                                   context, 'wms-picking',
                                                   arguments: 0);

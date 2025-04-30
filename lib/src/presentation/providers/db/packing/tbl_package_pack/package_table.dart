@@ -19,7 +19,7 @@ class PackagesTable {
         $columnName VARCHAR(255),
         $columnBatchId INTEGER,
         $columnPedidoId INTEGER,
-        $columnCantidadProductos INTEGER,
+        $columnCantidadProductos REAL,
         $columnIsSticker INTEGER,
         FOREIGN KEY ($columnPedidoId) REFERENCES tblpedidos_packing (id)
       )

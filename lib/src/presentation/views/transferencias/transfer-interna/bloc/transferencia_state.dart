@@ -132,7 +132,7 @@ class ClearScannedValueState extends TransferenciaState {}
 
 //*estado para separar la cantidad
 class ChangeQuantitySeparateStateSuccess extends TransferenciaState {
-  final int quantity;
+  final dynamic quantity;
   ChangeQuantitySeparateStateSuccess(this.quantity);
 }
 

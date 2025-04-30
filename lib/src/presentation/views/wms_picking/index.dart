@@ -150,7 +150,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                   .searchController
                                                   .clear();
                                               Navigator.pushReplacementNamed(
-                                                  context, 'home');
+                                                  context, '/home');
                                             },
                                           ),
                                           GestureDetector(
@@ -181,11 +181,11 @@ class _PickingPageState extends State<WMSPickingPage> {
                                             },
                                             child: Padding(
                                               padding: EdgeInsets.only(
-                                                  left: size.width * 0.23),
+                                                  left: size.width * 0.12),
                                               child: Row(
                                                 children: [
                                                   const Text(
-                                                    'PICKING',
+                                                    'PICKING - BATCH',
                                                     style: TextStyle(
                                                         color: white,
                                                         fontSize: 18,

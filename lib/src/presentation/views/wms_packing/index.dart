@@ -110,7 +110,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                             .add(ShowKeyboardEvent(false));
                                         Navigator.pushReplacementNamed(
                                           context,
-                                          'home',
+                                          '/home',
                                         );
                                       },
                                     ),

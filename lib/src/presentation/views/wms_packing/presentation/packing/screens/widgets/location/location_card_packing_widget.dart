@@ -8,7 +8,7 @@ class LocationPackingDropdownWidget extends StatelessWidget {
   final String positionsOrigen;
   final String currentLocationId;
   final WmsPackingBloc batchBloc;
-  final PorductoPedido currentProduct;
+  final ProductoPedido currentProduct;
   final bool isPDA;
 
   const LocationPackingDropdownWidget({

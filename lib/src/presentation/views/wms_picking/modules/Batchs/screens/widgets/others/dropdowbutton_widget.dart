@@ -19,7 +19,7 @@ class DialogAdvetenciaCantidadScreen extends StatefulWidget {
     required this.batchId,
   });
 
-  final int cantidad; // Variable para almacenar la cantidad
+  final double cantidad; // Variable para almacenar la cantidad
   final ProductsBatch currentProduct;
   final int batchId; // Variable para almacenar el id del lote
   final VoidCallback onAccepted; // Callback para la acción a ejecutar

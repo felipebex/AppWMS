@@ -10,7 +10,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_
 class ProductosPedidosRepository {
   // Insertar producto duplicado
   Future<void> insertDuplicateProductoPedido(
-      PorductoPedido producto, int cantidad) async {
+      ProductoPedido producto, dynamic cantidad) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -58,7 +58,7 @@ class ProductosPedidosRepository {
 
   // Insertar productos en productos_pedidos
   Future<void> insertProductosPedidos(
-      List<PorductoPedido> productosList) async {
+      List<ProductoPedido> productosList) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -174,7 +174,7 @@ class ProductosPedidosRepository {
   }
 
   Future<void> insertProductosOnPackage(
-      List<PorductoPedido> productosList) async {
+      List<ProductoPedido> productosList) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -278,7 +278,7 @@ class ProductosPedidosRepository {
   }
 
   // Obtener productos de un pedido
-  Future<List<PorductoPedido>> getProductosPedido(int pedidoId) async {
+  Future<List<ProductoPedido>> getProductosPedido(int pedidoId) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db.query(
       ProductosPedidosTable.tableName,
@@ -286,7 +286,7 @@ class ProductosPedidosRepository {
       whereArgs: [pedidoId],
     );
 
-    return maps.map((map) => PorductoPedido.fromMap(map)).toList();
+    return maps.map((map) => ProductoPedido.fromMap(map)).toList();
   }
 
   // Actualizar el campo de la tabla productos_pedidos (unpacking)
@@ -356,11 +356,6 @@ class ProductosPedidosRepository {
     return resUpdate;
   }
 
-
-
-
-
-
   //*metodo para actualizar la tabla de productos de un pedido
 
   // Método: Actualizar un campo específico en la tabla productos_pedidos
@@ -421,4 +416,98 @@ class ProductosPedidosRepository {
     print("updateNovedad: $resUpdate");
     return resUpdate;
   }
+
+  // Future<int> updateProductosBatch({
+  //   required List<ProductoPedido> productos,
+  //   required Map<String, dynamic> fieldsToUpdate,
+  //   required bool isCertificate,
+  // }) async {
+  //   if (productos.isEmpty) return 0;
+
+  //   final db = await DataBaseSqlite().getDatabaseInstance();
+
+  //   final ids = productos.map((p) => p.idProduct).whereType<int>().toList();
+  //   final pedidoIds =
+  //       productos.map((p) => p.pedidoId).whereType<int>().toSet().toList();
+  //   final idMoves =
+  //       productos.map((p) => p.idMove).whereType<int>().toSet().toList();
+
+  //   final pedidoId = pedidoIds.first;
+  //   final idMove = idMoves.first;
+
+  //   final setClauses = <String>[];
+  //   final values = <dynamic>[];
+
+  //   fieldsToUpdate.forEach((key, value) {
+  //     setClauses.add("$key = ?");
+  //     values.add(value);
+  //   });
+
+  //   final whereIn = ids.map((_) => '?').join(', ');
+  //   values.addAll([...ids, pedidoId, idMove]);
+
+  //   final condition = isCertificate
+  //       ? "is_certificate = 1 AND is_package = 0"
+  //       : "is_certificate IS NULL";
+
+  //   final sql = '''
+  //   UPDATE ${ProductosPedidosTable.tableName}
+  //   SET ${setClauses.join(', ')}
+  //   WHERE ${ProductosPedidosTable.columnIdProduct} IN ($whereIn)
+  //   AND ${ProductosPedidosTable.columnPedidoId} = ?
+  //   AND ${ProductosPedidosTable.columnIdMove} = ?
+  //   AND $condition
+  // ''';
+
+  //   final resUpdate = await db.rawUpdate(sql, values);
+  //   print("Batch update: $resUpdate");
+  //   return resUpdate;
+  // }
+  Future<int> updateProductosBatch({
+  required List<ProductoPedido> productos,
+  required Map<String, dynamic> fieldsToUpdate,
+  required bool isCertificate,
+}) async {
+  if (productos.isEmpty) return 0;
+
+  final db = await DataBaseSqlite().getDatabaseInstance();
+  int totalUpdated = 0;
+
+  // Usamos una transacción para asegurar atomicidad
+  await db.transaction((txn) async {
+    // Preparamos la consulta base
+    final setClauses = fieldsToUpdate.keys.map((key) => "$key = ?").join(', ');
+    final setValues = fieldsToUpdate.values.toList();
+    final condition = isCertificate 
+        ? "AND is_certificate = 1 AND is_package = 0" 
+        : "AND is_certificate IS NULL";
+
+    // Actualizamos cada producto individualmente pero en una sola transacción
+    for (final producto in productos) {
+      if (producto.idProduct == null || producto.pedidoId == null || producto.idMove == null) {
+        continue;
+      }
+
+      final sql = '''
+        UPDATE ${ProductosPedidosTable.tableName}
+        SET $setClauses
+        WHERE ${ProductosPedidosTable.columnIdProduct} = ?
+        AND ${ProductosPedidosTable.columnPedidoId} = ?
+        AND ${ProductosPedidosTable.columnIdMove} = ?
+        $condition
+      ''';
+
+      final result = await txn.rawUpdate(sql, [
+        ...setValues,
+        producto.idProduct,
+        producto.pedidoId,
+        producto.idMove
+      ]);
+
+      totalUpdated += result;
+    }
+  });
+
+  return totalUpdated;
+}
 }

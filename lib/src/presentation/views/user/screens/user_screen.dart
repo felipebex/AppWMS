@@ -152,7 +152,7 @@ class UserScreen extends StatelessWidget {
                                                 onPressed: () {
                                                   Navigator
                                                       .pushReplacementNamed(
-                                                          context, 'home');
+                                                          context, '/home');
                                                 },
                                                 icon: Icon(Icons.arrow_back,
                                                     color: primaryColorApp,
@@ -1312,7 +1312,7 @@ class UserScreen extends StatelessWidget {
                                                   Navigator.pop(context);
                                                   Navigator
                                                       .pushReplacementNamed(
-                                                          context, 'home');
+                                                          context, '/home');
                                                 },
                                                 child: const Text("Aceptar")),
                                           ],

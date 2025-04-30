@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -90,6 +91,12 @@ class _PackingScreenState extends State<PackingScreen> {
       focusNode2.unfocus();
       focusNode4.unfocus();
     }
+
+    print('❤️‍🔥 locationIsOk: ${batchBloc.locationIsOk}');
+    print('❤️‍🔥 productIsOk: ${batchBloc.productIsOk}');
+    print('❤️‍🔥 quantityIsOk: ${batchBloc.quantityIsOk}');
+    print('❤️‍🔥 locationDestIsOk: ${batchBloc.locationDestIsOk}');
+    print('❤️‍🔥 viewQuantity: ${batchBloc.viewQuantity}');
   }
 
   @override
@@ -173,13 +180,14 @@ class _PackingScreenState extends State<PackingScreen> {
   }
 
   bool validateScannedBarcode(String scannedBarcode,
-      PorductoPedido currentProduct, WmsPackingBloc batchBloc, bool isProduct) {
+      ProductoPedido currentProduct, WmsPackingBloc batchBloc, bool isProduct) {
     // Buscar el barcode que coincida con el valor escaneado
     Barcodes? matchedBarcode = context
         .read<WmsPackingBloc>()
         .listOfBarcodes
         .firstWhere(
-            (barcode) => barcode.barcode?.toLowerCase() == scannedBarcode.trim(),
+            (barcode) =>
+                barcode.barcode?.toLowerCase() == scannedBarcode.trim(),
             orElse: () =>
                 Barcodes() // Si no se encuentra ningún match, devuelve null
             );
@@ -203,12 +211,12 @@ class _PackingScreenState extends State<PackingScreen> {
         return true;
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-        if ((matchedBarcode.cantidad.toInt() + batchBloc.quantitySelected) >
+        if ((matchedBarcode.cantidad + batchBloc.quantitySelected) >
             currentProduct.quantity!) {
           return false;
         }
         batchBloc.add(AddQuantitySeparate(
-            matchedBarcode.cantidad.toInt(),
+            matchedBarcode.cantidad,
             currentProduct.idMove ?? 0,
             currentProduct.idProduct ?? 0,
             currentProduct.pedidoId ?? 0));
@@ -246,7 +254,7 @@ class _PackingScreenState extends State<PackingScreen> {
 
                           if (state is ChangeQuantitySeparateState) {
                             if (state.quantity ==
-                                packinghBloc.currentProduct.quantity.toInt()) {
+                                packinghBloc.currentProduct.quantity) {
                               _finichPackingProduct(context);
                               Navigator.pushReplacementNamed(
                                 context,
@@ -1044,16 +1052,16 @@ class _PackingScreenState extends State<PackingScreen> {
 
                                 focusNode: focusNode4,
                                 inputFormatters: [
-                                  FilteringTextInputFormatter
-                                      .digitsOnly, // Solo permite dígitos
-                                ],
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9.,]')),
+                              ],
                                 showCursor: true,
                                 onChanged: (value) {
                                   // Verifica si el valor no está vacío y si es un número válido
                                   if (value.isNotEmpty) {
                                     try {
                                       packinghBloc.quantitySelected =
-                                          int.parse(value);
+                                          double.parse(value);
                                     } catch (e) {
                                       // Manejo de errores si la conversión falla
                                       print('Error al convertir a entero: $e');
@@ -1158,7 +1166,7 @@ class _PackingScreenState extends State<PackingScreen> {
         batchBloc.currentProduct.idMove ?? 0));
   }
 
-  void _finichPackingProductSplit(BuildContext context, int cantidad) async {
+  void _finichPackingProductSplit(BuildContext context, double cantidad) async {
     //marcamos el producto como terminado
     print('Entramos a _finichPackingProductSplit -----');
     final batchBloc = context.read<WmsPackingBloc>();
@@ -1189,7 +1197,37 @@ class _PackingScreenState extends State<PackingScreen> {
     final batchBloc = context.read<WmsPackingBloc>();
     final currentProduct = batchBloc.currentProduct;
 
-    int cantidad = int.parse(cantidadController.text.isEmpty
+
+
+    String input = cantidadController.text.trim();
+
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = batchBloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    double cantidad = double.parse(cantidadController.text.isEmpty
         ? batchBloc.quantitySelected.toString()
         : cantidadController.text);
 
@@ -1201,7 +1239,7 @@ class _PackingScreenState extends State<PackingScreen> {
           currentProduct.idMove ?? 0));
     } else {
       FocusScope.of(context).unfocus();
-      if (cantidad < (currentProduct.quantity ?? 0).toInt()) {
+      if (cantidad < (currentProduct.quantity ?? 0)) {
         showDialog(
             context: context,
             builder: (context) {

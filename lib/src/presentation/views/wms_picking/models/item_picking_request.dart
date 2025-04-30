@@ -2,7 +2,7 @@ class Item {
   int idMove;
   int productId;
   String lote;
-  int cantidad;
+  dynamic cantidad;
   String novedad;
   double timeLine;
   int muelle;

@@ -21,7 +21,7 @@ class LoadAllPedidosFromBatchEvent extends WmsPackingEvent {
 }
 
 class FetchProductEvent extends WmsPackingEvent {
-  final PorductoPedido pedido;
+  final ProductoPedido pedido;
   FetchProductEvent(
     this.pedido,
   );
@@ -54,7 +54,7 @@ class ValidateFieldsPackingEvent extends WmsPackingEvent {
 }
 
 class ChangeQuantitySeparate extends WmsPackingEvent {
-  final int quantity;
+  final dynamic quantity;
   final int productId;
   final int pedidoId;
   final int idMove;
@@ -82,7 +82,7 @@ class ChangeProductIsOkEvent extends WmsPackingEvent {
   final bool productIsOk;
   final int productId;
   final int pedidoId;
-  final int quantity;
+  final dynamic quantity;
   final int idMove;
   ChangeProductIsOkEvent(this.productIsOk, this.productId, this.pedidoId,
       this.quantity, this.idMove);
@@ -99,7 +99,7 @@ class ChangeIsOkQuantity extends WmsPackingEvent {
 class AddQuantitySeparate extends WmsPackingEvent {
   final int productId;
   final int idMove;
-  final int quantity;
+  final dynamic quantity;
   final int pedidoId;
   AddQuantitySeparate(
       this.quantity, this.idMove, this.productId, this.pedidoId);
@@ -107,7 +107,7 @@ class AddQuantitySeparate extends WmsPackingEvent {
 
 
 class SetPackingsEvent extends WmsPackingEvent {
-  final List<PorductoPedido> productos;
+  final List<ProductoPedido> productos;
   final bool isSticker;
   final bool isCertificate;
  
@@ -142,12 +142,12 @@ class ShowKeyboardEvent extends WmsPackingEvent {
 }
 
 class SelectProductPackingEvent extends WmsPackingEvent {
-  final PorductoPedido producto;
+  final ProductoPedido producto;
   SelectProductPackingEvent(this.producto);
 }
 
 class UnSelectProductPackingEvent extends WmsPackingEvent {
-  final PorductoPedido producto;
+  final ProductoPedido producto;
   UnSelectProductPackingEvent(this.producto);
 }
 
@@ -159,9 +159,9 @@ class LoadConfigurationsUserPack extends WmsPackingEvent {
 }
 
 class SetPickingSplitEvent extends WmsPackingEvent {
-  final PorductoPedido producto;
+  final ProductoPedido producto;
   final int idMove;
-  final int quantity;
+  final dynamic quantity;
   final int productId;
   final int pedidoId;
   SetPickingSplitEvent(this.producto,this.idMove, this.quantity, this.productId, this.pedidoId);

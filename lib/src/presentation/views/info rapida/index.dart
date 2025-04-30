@@ -243,7 +243,7 @@ class AppBar extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacementNamed(
                           context,
-                          'home',
+                          '/home',
                         );
                       },
                     ),

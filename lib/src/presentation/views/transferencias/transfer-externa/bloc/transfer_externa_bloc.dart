@@ -46,7 +46,7 @@ class TransferExternaBloc
 
   //*base de datos
   DataBaseSqlite db = DataBaseSqlite();
-  int quantitySelected = 0;
+  dynamic quantitySelected = 0;
 
   TransferExternaBloc() : super(TransferExternaInitial()) {
     on<TransferExternaEvent>((event, emit) {});
