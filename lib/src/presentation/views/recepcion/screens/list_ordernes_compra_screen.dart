@@ -30,7 +30,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
         if (state is AssignUserToOrderFailure) {
           Get.snackbar(
             '360 Software Informa',
-            "Error al asignar el responsable a la transferencia",
+            state.error,
             backgroundColor: white,
             colorText: primaryColorApp,
             icon: Icon(Icons.error, color: Colors.red),
@@ -539,7 +539,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                   false, // No permitir que el usuario cierre el diálogo manualmente
                                               builder: (context) =>
                                                   DialogAsignUserToOrderWidget(
-                                                    title:'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+                                                title:
+                                                    'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
                                                 onAccepted: () async {
                                                   context
                                                       .read<RecepcionBloc>()
@@ -745,11 +746,9 @@ class AppBar extends StatelessWidget {
                     ),
                     const Spacer(),
                     Visibility(
-                      visible: context
-                              .read<RecepcionBloc>()
-                              .tiposRecepcion
-                              .length >
-                          1,
+                      visible:
+                          context.read<RecepcionBloc>().tiposRecepcion.length >
+                              1,
                       child: PopupMenuButton<String>(
                         color: white,
                         icon: const Icon(
@@ -765,9 +764,7 @@ class AppBar extends StatelessWidget {
                         itemBuilder: (BuildContext context) {
                           // Lista fija de tipos de transferencia que ya tienes
                           final tipos = [
-                            ...context
-                                .read<RecepcionBloc>()
-                                .tiposRecepcion,
+                            ...context.read<RecepcionBloc>().tiposRecepcion,
                             'todas'
                           ];
 

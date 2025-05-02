@@ -45,7 +45,7 @@ class ChangeLocationDestIsOkStateTransfer extends TransferInfoState {
 
 //*estado para separar la cantidad
 class ChangeQuantitySeparateStateSuccessTransfer extends TransferInfoState {
-  final int quantity;
+  final dynamic quantity;
   ChangeQuantitySeparateStateSuccessTransfer(this.quantity);
 }
 

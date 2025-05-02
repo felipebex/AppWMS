@@ -556,10 +556,10 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
 
       if (result.isNotEmpty) {
         // Extraemos el valor actual
-        int currentQty = (result.first['product_separate_qty'] as int?) ?? 0;
+        dynamic currentQty = (result.first['product_separate_qty'] ) ?? 0;
 
         // Incrementamos la cantidad
-        int newQty = currentQty + 1;
+        dynamic newQty = currentQty + 1;
 
         // Actualizamos la tabla
         return await txn.update(
@@ -576,7 +576,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
 
   //incrementar la cantidad de productos separados en la tabla de tblbatch_products
   Future<int?> incremenQtytProductSeparate(
-      int batchId, int productId, int idMove, int quantity) async {
+      int batchId, int productId, int idMove, dynamic quantity) async {
     final db = await getDatabaseInstance();
     return await db!.transaction((txn) async {
       // Primero, obtenemos el valor actual de quantity_separate y quantity
@@ -593,12 +593,12 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
 
       if (result.isNotEmpty) {
         // Extraemos los valores actuales
-        int currentQtySeparate =
-            (result.first['quantity_separate'] as int?) ?? 0;
-        int currentQty = (result.first['quantity'] as int?) ?? 0;
+        dynamic currentQtySeparate =
+            (result.first['quantity_separate'] ) ?? 0;
+        dynamic currentQty = (result.first['quantity'] ) ?? 0;
 
         // Incrementamos la cantidad de quantity_separate
-        int newQtySeparate = currentQtySeparate + quantity;
+        dynamic newQtySeparate = currentQtySeparate + quantity;
 
         // Validamos que quantity_separate no sea mayor que quantity
         if (newQtySeparate > currentQty) {

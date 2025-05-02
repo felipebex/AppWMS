@@ -1360,7 +1360,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                               focusNode: focusNode4,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.,]')),
+                                    RegExp(r'[0-9.]')),
                               ],
                               showCursor: true,
                               onChanged: (value) {

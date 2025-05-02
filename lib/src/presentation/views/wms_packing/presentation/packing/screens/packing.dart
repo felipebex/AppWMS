@@ -1053,7 +1053,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                 focusNode: focusNode4,
                                 inputFormatters: [
                                 FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.,]')),
+                                    RegExp(r'[0-9.]')),
                               ],
                                 showCursor: true,
                                 onChanged: (value) {

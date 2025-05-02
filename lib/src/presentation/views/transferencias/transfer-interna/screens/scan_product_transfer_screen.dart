@@ -247,7 +247,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
     final bloc = context.read<TransferenciaBloc>();
     //desactivamos volver a ingresar la cantidad
 
-     String input = _cantidadController.text.trim();
+    String input = _cantidadController.text.trim();
 
     // Si está vacío, usar la cantidad seleccionada del bloc
     if (input.isEmpty) {
@@ -289,7 +289,6 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
       );
       return;
     }
-
 
     if (cantidad > (bloc.currentProduct.cantidadFaltante)) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -393,7 +392,10 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
         ? batchBloc.quantitySelected.toString()
         : _cantidadController.text);
 
-    if (cantidad == (batchBloc.currentProduct.cantidadFaltante)) {
+    double truncado = double.parse(
+        (batchBloc.currentProduct.cantidadFaltante).toStringAsFixed(2));
+
+    if (cantidad == truncado) {
       _finishSeprateProductOrder(context, cantidad);
       Navigator.pushReplacementNamed(context, 'transferencia-detail',
           arguments: [batchBloc.currentTransferencia, 1]);
@@ -1321,9 +1323,8 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 5),
                                       child: Text(
-                                        (bloc.currentProduct.cantidadFaltante
-                                                )
-                                            .toString(),
+                                        (bloc.currentProduct.cantidadFaltante)
+                                            .toStringAsFixed(2),
                                         style: TextStyle(
                                             color: primaryColorApp,
                                             fontSize: 13),
@@ -1331,8 +1332,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                     ),
                                     Visibility(
                                       visible: (bloc.currentProduct
-                                                  .cantidadFaltante
-                                                  ) -
+                                                  .cantidadFaltante) -
                                               bloc.quantitySelected !=
                                           0,
                                       child: const Text('Pdte:',
@@ -1344,8 +1344,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 5),
                                         child: (bloc.currentProduct
-                                                        .cantidadFaltante
-                                                        ) -
+                                                        .cantidadFaltante) -
                                                     bloc.quantitySelected ==
                                                 0
                                             ? Container() // Ocultamos el widget si la diferencia es 0
@@ -1353,23 +1352,19 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                             : Text(
                                                 (bloc.quantitySelected <=
                                                         (bloc.currentProduct
-                                                            .cantidadFaltante
-                                                            )
+                                                            .cantidadFaltante)
                                                     ? ((bloc.currentProduct
-                                                                .cantidadFaltante
-                                                                ) -
+                                                                .cantidadFaltante) -
                                                             bloc.quantitySelected)
-                                                        .toString()
+                                                        .toStringAsFixed(2)
                                                     : '0'), // Aquí puedes definir qué mostrar si la condición no se cumple
                                                 style: TextStyle(
                                                   color: _getColorForDifference(
                                                     bloc.quantitySelected <=
                                                             (bloc.currentProduct
-                                                                .cantidadFaltante
-                                                                )
+                                                                .cantidadFaltante)
                                                         ? ((bloc.currentProduct
-                                                                .cantidadFaltante
-                                                                ) -
+                                                                .cantidadFaltante) -
                                                             bloc.quantitySelected)
                                                         : 0, // Si no cumple, el color será para diferencia 0
                                                   ),
@@ -1517,10 +1512,10 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                 //tmano del campo
 
                                 focusNode: focusNode4,
-                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.,]')),
-                              ],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[0-9.]')),
+                                ],
                                 onChanged: (value) {
                                   // Verifica si el valor no está vacío y si es un número válido
                                   if (value.isNotEmpty) {

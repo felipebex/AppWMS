@@ -397,7 +397,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                               Row(
                                                 children: [
                                                   Text(
-                                                    "Cantidad pedida: ",
+                                                    "Cantidad pendiente: ",
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       color: primaryColorApp,
@@ -406,7 +406,7 @@ class _Tab2ScreenTransState extends State<Tab2ScreenTrans> {
                                                   Text(
                                                       (product.cantidadFaltante
                                                                   )
-                                                          .toString(),
+                                                          .toStringAsFixed(2),
                                                       style: const TextStyle(
                                                           fontSize: 12,
                                                           color: black)),

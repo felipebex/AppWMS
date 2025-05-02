@@ -1471,7 +1471,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 5),
                                   child: Text(
-                                    currentProduct.quantity?.toString() ?? "",
+                                    currentProduct.quantity?.toStringAsFixed(2) ?? "",
                                     style: TextStyle(
                                         color: primaryColorApp, fontSize: 13),
                                   ),
@@ -1642,7 +1642,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                             focusNode: focusNode4,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
-                                  RegExp(r'[0-9.,]')),
+                                  RegExp(r'[0-9.]')),
                             ],
                             onChanged: (value) {
                               // Verifica si el valor no está vacío y si es un número válido

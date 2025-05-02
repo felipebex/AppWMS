@@ -67,9 +67,7 @@ class PickingPickRepository {
                 pickItem.isSendOdooDate ?? '',
             PickingPickTable.columnOrderBy: pickItem.orderBy,
             PickingPickTable.columnOrderPicking: pickItem.orderPicking,
-            PickingPickTable.columnStartTimePick:
-                pickItem.startTimeTransfer ?? '',
-            PickingPickTable.columnEndTimePick: pickItem.endTimeTransfer ?? '',
+          
 
 
           };
@@ -140,9 +138,7 @@ class PickingPickRepository {
           PickingPickTable.columnIsSendOddo,
           PickingPickTable.columnIsSendOddoDate,
           PickingPickTable.columnOrderBy,
-          PickingPickTable.columnOrderPicking,
-          PickingPickTable.columnStartTimePick,
-          PickingPickTable.columnEndTimePick,
+          PickingPickTable.columnOrderPicking
 
         ],
       
@@ -167,7 +163,7 @@ class PickingPickRepository {
       final resUpdate = await db.rawUpdate(
           'UPDATE ${PickingPickTable.tableName} SET $field = ? WHERE ${PickingPickTable.columnId} = ?',
           [setValue, batchId]);
-
+      print('Se actualizó el campo $field en ${PickingPickTable.tableName} con valor $setValue para el ID $batchId');
       return resUpdate;
     } catch (e) {
       print("Error al actualizar el campo $field en ${PickingPickTable.tableName}: $e");
@@ -175,6 +171,31 @@ class PickingPickRepository {
     }
   }
 
+
+  // Método para obtener un batch por su ID
+  Future<ResultPick?> getPickById(int pickId) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Realiza la consulta a la tabla tblbatchs
+      final List<Map<String, dynamic>> maps = await db.query(
+        PickingPickTable.tableName,
+        where: '${PickingPickTable.columnId} = ?',
+        whereArgs: [pickId],
+      );
+
+      // Si se encontró un registro, lo mapea a un objeto BatchsModel
+      if (maps.isNotEmpty) {
+        return ResultPick.fromMap(maps.first);
+      }
+
+      // Si no se encontró ningún registro, devuelve null
+      return null;
+    } catch (e) {
+      print("Error al obtener el pick por ID: $e");
+      return null; // Devuelve null en caso de error
+    }
+  }
 
 
 }

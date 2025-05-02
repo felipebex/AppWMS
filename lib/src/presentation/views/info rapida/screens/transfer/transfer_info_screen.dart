@@ -14,7 +14,6 @@ import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20inf
 // import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/bloc/transfer_info_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -113,9 +112,55 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
     setState(() {});
   }
 
-  void validateQuantity(int quantity, BuildContext context) {
+  void validateQuantity(dynamic quantity, BuildContext context) {
     final bloc = context.read<TransferInfoBloc>();
-    if (quantity > widget.ubicacion!.cantidad!.toInt()) {
+
+    String input = _cantidadController.text.trim();
+    //validamos quantity
+     
+
+
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = bloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Intentar convertir a double
+    double? cantidad = double.tryParse(input);
+    if (cantidad == null) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+    if (cantidad > widget.ubicacion!.cantidad) {
       Get.snackbar(
         '360 Software Informa',
         'Cantidad superior a la cantidad en ubicacion',
@@ -137,7 +182,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
       return;
     }
 
-    if (quantity == 0) {
+    if (cantidad == 0.0) {
       Get.snackbar(
         '360 Software Informa',
         'Cantidad no valida',
@@ -158,7 +203,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
           timeLine: 0,
           observacion: "Sin novedad",
         ),
-        quantity));
+        cantidad));
   }
 
   @override
@@ -210,7 +255,9 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
 
                         //acutalizamos la informacion del producto volviendo a llamar su info
                         context.read<InfoRapidaBloc>().add((GetInfoRapida(
-                            widget.infoRapidaResult?.codigoBarras ?? "", false, false)));
+                            widget.infoRapidaResult?.codigoBarras ?? "",
+                            false,
+                            false)));
 
                         Navigator.pushReplacementNamed(
                           context,
@@ -677,9 +724,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5),
                                     child: Text(
-                                      widget.ubicacion?.cantidad
-                                              ?.toInt()
-                                              .toString() ??
+                                      widget.ubicacion?.cantidad.toStringAsFixed(2) ??
                                           "",
                                       style: TextStyle(
                                           color: primaryColorApp, fontSize: 15),
@@ -699,9 +744,9 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                               enabled: false,
                                               readOnly: false,
                                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.,]')),
-                              ],
+                                                FilteringTextInputFormatter
+                                                    .allow(RegExp(r'[0-9.,]')),
+                                              ],
                                               onChanged: (value) {
                                                 // Verifica si el valor no está vacío y si es un número válido
                                                 if (value.isNotEmpty) {
@@ -756,7 +801,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                   _cantidadController.text == "" ||
                                           _cantidadController.text.isEmpty
                                       ? 0
-                                      : int.parse(_cantidadController.text),
+                                      : _cantidadController.text,
                                   context);
                             },
                             style: ElevatedButton.styleFrom(

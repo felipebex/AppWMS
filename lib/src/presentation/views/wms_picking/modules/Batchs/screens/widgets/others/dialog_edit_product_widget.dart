@@ -30,6 +30,7 @@ class DialogEditProductWidget extends StatefulWidget {
 class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
   String alerta = "";
   String? selectedNovedad; // Variable para almacenar la opción seleccionada
+  double tolerance = 0.000001; // o un valor adecuado para tu caso
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +68,8 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                 Text(
                     widget.productsBatch.quantitySeparate == null
                         ? "0"
-                        : widget.productsBatch.quantitySeparate.toStringAsFixed(1),
+                        : widget.productsBatch.quantitySeparate
+                            .toStringAsFixed(2),
                     style: const TextStyle(fontSize: 13, color: Colors.amber)),
               ],
             ),
@@ -100,7 +102,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                           context.read<BatchBloc>().editProductController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                       ],
                       style: const TextStyle(fontSize: 14, color: Colors.black),
                       decoration: InputDecorations.authInputDecoration(
@@ -130,7 +132,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                       .text = value;
                                   if (value.isNotEmpty) {
                                     double cantidad = double.parse(value);
-                                    if (cantidad == 0) {
+                                    if (cantidad == 0.0) {
                                       context
                                           .read<BatchBloc>()
                                           .editProductController
@@ -140,8 +142,9 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                       });
                                     } else if (cantidad >
                                         (widget.productsBatch.quantity -
-                                            widget.productsBatch
-                                                .quantitySeparate)) {
+                                                widget.productsBatch
+                                                    .quantitySeparate ??
+                                            0)) {
                                       context
                                           .read<BatchBloc>()
                                           .editProductController
@@ -269,10 +272,11 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                 });
                                 return;
                               } else {
-                                final double cantidadReuqest =
+                                final dynamic cantidadReuqest =
                                     ((widget.productsBatch.quantitySeparate ??
                                             0) +
                                         cantidad);
+
                                 if (selectedNovedad != null && cantidad == 0) {
                                   DataBaseSqlite db = DataBaseSqlite();
                                   await db.updateNovedad(
@@ -294,7 +298,6 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                                       widget.productsBatch,
                                       cantidadReuqest,
                                     ));
-
                                 Navigator.pop(context);
                               }
                             },
@@ -332,18 +335,28 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                             .editProductController
                             .text;
                         if (value.isNotEmpty) {
-                          double cantidad = double.parse(value);
-                          if (cantidad >
-                              (widget.productsBatch.quantity -
-                                  (widget.productsBatch.quantitySeparate ??
-                                      0))) {
-                            setState(() {
-                              alerta =
-                                  "La cantidad no puede ser mayor a la cantidad restante";
-                            });
+                          final parsed = double.tryParse(value);
+                          if (parsed != null) {
+                            double cantidad = parsed;
+
+                            if (cantidad -
+                                    (widget.productsBatch.quantity -
+                                        (widget.productsBatch
+                                                .quantitySeparate ??
+                                            0)) >
+                                tolerance) {
+                              setState(() {
+                                alerta =
+                                    "La cantidad no puede ser mayor a la cantidad restante";
+                              });
+                            } else {
+                              setState(() {
+                                alerta = "";
+                              });
+                            }
                           } else {
                             setState(() {
-                              alerta = "";
+                              alerta = "Por favor ingresa un número válido.";
                             });
                           }
                         }

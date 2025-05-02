@@ -31,8 +31,8 @@ class PickProductsRepository {
             PickProductsTable.columnExpireDate: product.expireDate ?? '',
             PickProductsTable.columnProductId: product.productId?[1],
             PickProductsTable.columnLocationId: product.locationId?[1],
-            PickProductsTable.columnLotId:
-                product.lotId == "" ? 0 : product.lotId?[0],
+            PickProductsTable.columnLote:
+                product.lote  ??"",
             PickProductsTable.columnRimovalPriority: product.rimovalPriority,
             PickProductsTable.columnBarcodeLocationDest:
                 product.barcodeLocationDest ?? '',
@@ -179,7 +179,7 @@ class PickProductsRepository {
     int batchId,
     int productId,
     int idMove,
-    int quantity,
+    dynamic quantity,
   ) async {
     final db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -193,11 +193,11 @@ class PickProductsRepository {
       );
 
       if (result.isNotEmpty) {
-        int currentQtySeparate =
-            (result.first['quantity_separate'] as int?) ?? 0;
-        int currentQty = (result.first['quantity'] as int?) ?? 0;
+        dynamic currentQtySeparate =
+            (result.first['quantity_separate'] ) ?? 0;
+        dynamic currentQty = (result.first['quantity'] ) ?? 0;
 
-        int newQtySeparate = currentQtySeparate + quantity;
+        dynamic newQtySeparate = currentQtySeparate + quantity;
 
         // Limitar a no superar la cantidad total
         if (newQtySeparate > currentQty) {

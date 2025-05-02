@@ -196,3 +196,23 @@ class AssignUserToTransfer extends PickingPickEvent {
   final int id;
   AssignUserToTransfer(this.id);
 }
+
+
+
+class StartOrStopTimeTransfer extends PickingPickEvent {
+  final int id;
+  final String value;
+
+  StartOrStopTimeTransfer(
+    this.id,
+    this.value,
+  );
+}
+
+
+
+class SearchPickEvent extends PickingPickEvent {
+  final String query;
+
+  SearchPickEvent(this.query, );
+}

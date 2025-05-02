@@ -328,7 +328,7 @@ class TransferenciasRepository {
                 transferRequest.listItems.map((item) => item.toMap()).toList(),
           },
         },
-        isLoadinDialog: true,
+        isLoadinDialog: isLoadingDialog,
       );
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa

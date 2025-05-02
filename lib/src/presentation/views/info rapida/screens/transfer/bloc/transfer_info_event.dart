@@ -34,7 +34,7 @@ class ChangeLocationDestIsOkEventTransfer extends TransferInfoEvent {
 
 
 class SendTransferInfo extends TransferInfoEvent{
-final int quantity;
+final dynamic quantity;
 final TransferInfoRequest request;
 SendTransferInfo(this.request, this.quantity);
 }

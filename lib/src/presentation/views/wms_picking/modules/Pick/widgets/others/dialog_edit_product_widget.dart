@@ -30,6 +30,12 @@ class DialogEditProductPickWidget extends StatefulWidget {
 class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
   String alerta = "";
   String? selectedNovedad; // Variable para almacenar la opción seleccionada
+  double tolerance = 0.000001; // o un valor adecuado para tu caso
+  @override
+  void initState() {
+    context.read<PickingPickBloc>().add(LoadAllNovedadesPickEvent());
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +74,8 @@ class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
                 Text(
                     widget.productsBatch.quantitySeparate == null
                         ? "0"
-                        : widget.productsBatch.quantitySeparate.toStringAsFixed(1),
+                        : widget.productsBatch.quantitySeparate
+                            .toStringAsFixed(2),
                     style: const TextStyle(fontSize: 13, color: Colors.amber)),
               ],
             ),
@@ -83,8 +90,8 @@ class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
                           text: "La cantidad a completar es de ",
                           style: TextStyle(fontSize: 13, color: black)),
                       TextSpan(
-                         text:
-                            "${(widget.productsBatch.quantity - (widget.productsBatch.quantitySeparate ?? 0)).toStringAsFixed(1)} ",
+                          text:
+                              "${(widget.productsBatch.quantity - (widget.productsBatch.quantitySeparate ?? 0)).toStringAsFixed(2)} ",
                           style: TextStyle(
                               fontSize: 13,
                               color: primaryColorApp,
@@ -95,10 +102,12 @@ class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
                   SizedBox(
                     height: 35,
                     child: TextFormField(
+                      autofocus: true,
+                      showCursor: true,
                       controller: bloc.editProductController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                       ],
                       style: const TextStyle(fontSize: 14, color: Colors.black),
                       decoration: InputDecorations.authInputDecoration(
@@ -120,21 +129,29 @@ class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
                               ? null
                               : (value) {
                                   bloc.editProductController.text = value;
+
                                   if (value.isNotEmpty) {
-                                    double cantidad = double.parse(value);
-                                    if (cantidad == 0.0) {
+                                    double? cantidad = double.tryParse(value);
+                                    if (cantidad == null) {
+                                      bloc.editProductController.clear();
+                                      setState(() {
+                                        alerta =
+                                            "Por favor ingresa un número válido.";
+                                      });
+                                    } else if (cantidad == 0.0) {
                                       bloc.editProductController.clear();
                                       setState(() {
                                         alerta = "La cantidad no puede ser 0";
                                       });
                                     } else if (cantidad >
                                         (widget.productsBatch.quantity -
-                                            widget.productsBatch
-                                                .quantitySeparate)) {
+                                            (widget.productsBatch
+                                                    .quantitySeparate ??
+                                                0))) {
                                       bloc.editProductController.clear();
                                       setState(() {
                                         alerta =
-                                            "La cantidad no puede ser mayor a la cantidad restante";
+                                            "La cantidad no puede ser mayor a la cantidad restantee";
                                       });
                                     } else {
                                       setState(() {
@@ -232,7 +249,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
                                 });
                                 return;
                               } else {
-                                final double cantidadReuqest =
+                                final dynamic cantidadReuqest =
                                     ((widget.productsBatch.quantitySeparate ??
                                             0) +
                                         cantidad);
@@ -288,18 +305,27 @@ class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
                       onchanged: () {
                         final value = bloc.editProductController.text;
                         if (value.isNotEmpty) {
-                          double cantidad = double.parse(value);
-                          if (cantidad >
-                              (widget.productsBatch.quantity -
-                                  (widget.productsBatch.quantitySeparate ??
-                                      0))) {
-                            setState(() {
-                              alerta =
-                                  "La cantidad no puede ser mayor a la cantidad restante";
-                            });
+                          final parsed = double.tryParse(value);
+                          if (parsed != null) {
+                            double cantidad = parsed;
+                            if (cantidad -
+                                    (widget.productsBatch.quantity -
+                                        (widget.productsBatch
+                                                .quantitySeparate ??
+                                            0)) >
+                                tolerance) {
+                              setState(() {
+                                alerta =
+                                    "La cantidad no puede ser mayor a la cantidad restante";
+                              });
+                            } else {
+                              setState(() {
+                                alerta = "";
+                              });
+                            }
                           } else {
                             setState(() {
-                              alerta = "";
+                              alerta = "Por favor ingresa un número válido.";
                             });
                           }
                         }

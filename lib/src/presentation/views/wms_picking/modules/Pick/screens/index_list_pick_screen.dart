@@ -6,10 +6,12 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class IndexListPickScreen extends StatelessWidget {
@@ -19,6 +21,7 @@ class IndexListPickScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final bloc = context.read<PickingPickBloc>();
+
     return WillPopScope(
       onWillPop: () async {
         return false;
@@ -28,6 +31,20 @@ class IndexListPickScreen extends StatelessWidget {
         builder: (context, state) {
           return Scaffold(
             backgroundColor: white,
+            bottomNavigationBar: bloc.isKeyboardVisible
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: 36),
+                    child: CustomKeyboard(
+                      isLogin: false,
+                      controller: bloc.searchPickController,
+                      onchanged: () {
+                        bloc.add(SearchPickEvent(
+                          bloc.searchPickController.text,
+                        ));
+                      },
+                    ),
+                  )
+                : null,
             body: Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Column(
@@ -114,9 +131,77 @@ class IndexListPickScreen extends StatelessWidget {
                       }),
                     ),
                   ),
+
+                  SizedBox(
+                      // color: Colors.amber,
+                      height: 60, //120
+                      width: size.width * 1,
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              left: 10,
+                              right: 10,
+                            ),
+                            child: SizedBox(
+                              width: size.width * 0.95,
+                              height: 55,
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 3,
+                                child: TextFormField(
+                                    textAlignVertical: TextAlignVertical.center,
+                                    controller: bloc.searchPickController,
+                                    decoration: InputDecoration(
+                                      prefixIcon: const Icon(Icons.search,
+                                          color: grey, size: 20),
+                                      suffixIcon: IconButton(
+                                          onPressed: () {
+                                            bloc.searchPickController.clear();
+                                            bloc.add(SearchPickEvent(
+                                              '',
+                                            ));
+                                            FocusScope.of(context).unfocus();
+                                          },
+                                          icon: IconButton(
+                                            onPressed: () {
+                                              bloc.add(ShowKeyboard(false));
+                                               bloc.add(SearchPickEvent(
+                                              '',
+                                            ));
+                                              bloc.searchPickController.clear();
+                                            },
+                                            icon: const Icon(Icons.close,
+                                                color: grey, size: 20),
+                                          )),
+                                      disabledBorder:
+                                          const OutlineInputBorder(),
+                                      hintText: "Buscar pick",
+                                      hintStyle: const TextStyle(
+                                          color: Colors.grey, fontSize: 12),
+                                      border: InputBorder.none,
+                                    ),
+                                    onChanged: (value) {
+                                      bloc.add(SearchPickEvent(value));
+                                    },
+                                    style: const TextStyle(
+                                        color: Colors.black, fontSize: 14),
+                                    onTap: !context
+                                            .read<UserBloc>()
+                                            .fabricante
+                                            .contains("Zebra")
+                                        ? null
+                                        : () {
+                                            bloc.add(ShowKeyboard(true));
+                                          }),
+                              ),
+                            ),
+                          ),
+                        ],
+                      )),
                   Expanded(
                     child: bloc.listOfPickFiltered
-                            .where((batch) => batch.isSeparate != null)
+                            .where((batch) => batch.isSeparate == 0)
                             .isNotEmpty
                         ? ListView.builder(
                             padding: EdgeInsets.only(
@@ -124,11 +209,11 @@ class IndexListPickScreen extends StatelessWidget {
                             shrinkWrap: true,
                             physics: const ScrollPhysics(),
                             itemCount: bloc.listOfPickFiltered
-                                .where((batch) => batch.isSeparate != null)
+                                .where((batch) => batch.isSeparate == 0)
                                 .length,
                             itemBuilder: (contextBuilder, index) {
                               final batch = bloc.listOfPickFiltered
-                                  .where((batch) => batch.isSeparate != null)
+                                  .where((batch) => batch.isSeparate == 0)
                                   .toList()[index];
                               //convertimos la fecha
 
@@ -139,6 +224,7 @@ class IndexListPickScreen extends StatelessWidget {
                                 child: GestureDetector(
                                   onTap: () async {
                                     // Agrupar eventos de BatchBloc si es necesario
+                                    print("Batch: ${batch.toMap()}");
 
                                     try {
                                       if (batch.startTimeTransfer != "") {
@@ -147,31 +233,44 @@ class IndexListPickScreen extends StatelessWidget {
                                         bloc.add(LoadConfigurationsUser());
 
                                         goBatchInfo(
-                                            contextBuilder, bloc, batch);
-                                      } else {}
+                                            contextBuilder, bloc, batch, true);
+                                      } else {
+                                        showDialog(
+                                          context: context,
+                                          barrierDismissible:
+                                              false, // No permitir que el usuario cierre el diálogo manualmente
+                                          builder: (context) =>
+                                              DialogAsignUserToOrderWidget(
+                                            title:
+                                                'Esta seguro de tomar este pick, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+                                            onAccepted: () async {
+                                              //asignamos el tiempo de inicio
+                                              if (batch.startTimeTransfer ==
+                                                  "") {
+                                                bloc.add(
+                                                    StartOrStopTimeTransfer(
+                                                  batch.id ?? 0,
+                                                  'start_time_transfer',
+                                                ));
+                                              }
 
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible:
-                                            false, // No permitir que el usuario cierre el diálogo manualmente
-                                        builder: (context) =>
-                                            DialogAsignUserToOrderWidget(
-                                          title:
-                                              'Esta seguro de tomar este pick, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-                                          onAccepted: () async {
-                                            //asignamos el responsable a esa orden de entrada
-                                            bloc.add(
-                                              AssignUserToTransfer( batch.id ?? 0),
-                                            );
-                                            bloc.add(FetchPickWithProductsEvent(
-                                                batch.id ?? 0));
-                                            bloc.add(LoadConfigurationsUser());
-                                            goBatchInfo(
-                                                contextBuilder, bloc, batch);
-                                            Navigator.pop(context);
-                                          },
-                                        ),
-                                      );
+                                              //asignamos el responsable a esa orden de entrada
+                                              bloc.add(
+                                                AssignUserToTransfer(
+                                                    batch.id ?? 0),
+                                              );
+                                              bloc.add(
+                                                  FetchPickWithProductsEvent(
+                                                      batch.id ?? 0));
+                                              bloc.add(
+                                                  LoadConfigurationsUser());
+                                              goBatchInfo(contextBuilder, bloc,
+                                                  batch, false);
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                        );
+                                      }
                                     } catch (e) {
                                       // Manejo de errores, por si ocurre algún problema
 
@@ -493,20 +592,22 @@ class IndexListPickScreen extends StatelessWidget {
     );
   }
 
-  void goBatchInfo(
-      BuildContext context, PickingPickBloc batchBloc, ResultPick batch) async {
-    // mostramos un dialogo de carga y despues
-    showDialog(
-      context: context,
-      barrierDismissible:
-          false, // No permitir que el usuario cierre el diálogo manualmente
-      builder: (_) => const DialogLoading(
-        message: 'Cargando interfaz...',
-      ),
-    );
+  void goBatchInfo(BuildContext context, PickingPickBloc batchBloc,
+      ResultPick batch, bool isLoading) async {
+    if (isLoading) {
+      // mostramos un dialogo de carga y despues
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // No permitir que el usuario cierre el diálogo manualmente
+        builder: (_) => const DialogLoading(
+          message: 'Cargando interfaz...',
+        ),
+      );
 
-    await Future.delayed(const Duration(seconds: 1));
-    Navigator.pop(context);
+      await Future.delayed(const Duration(seconds: 1));
+      Navigator.pop(context);
+    }
     // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
     if (batch.isSeparate != 1) {
       Navigator.pushReplacementNamed(context, 'scan-product-pick');

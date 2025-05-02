@@ -41,8 +41,6 @@ class PickingPickTable {
   static const String columnIsSendOddoDate = 'is_send_oddo_date';
   static const String columnOrderBy = 'order_by';
   static const String columnOrderPicking = 'order_picking';
-  static const String columnStartTimePick = 'start_time_pick';
-  static const String columnEndTimePick = 'end_time_pick';
 
   // Método para crear la tabla
   static String createTable() {
@@ -85,9 +83,7 @@ class PickingPickTable {
         $columnIsSendOddo INTEGER,
         $columnIsSendOddoDate VARCHAR(255),
         $columnOrderBy TEXT,
-        $columnOrderPicking TEXT,
-        $columnStartTimePick TEXT,
-        $columnEndTimePick TEXT
+        $columnOrderPicking TEXT
 
       )
     ''';

@@ -1537,7 +1537,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5),
                                     child: Text(
-                                      currentProduct.quantity?.toString() ?? "",
+                                      currentProduct.quantity?.toStringAsFixed(2) ?? "",
                                       style: TextStyle(
                                           color: primaryColorApp, fontSize: 13),
                                     ),
@@ -1564,7 +1564,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                 ? (currentProduct.quantity -
                                                         batchBloc
                                                             .quantitySelected)
-                                                    .toStringAsFixed(1)
+                                                    .toStringAsFixed(2)
                                                 : '0.0'),
                                             style: TextStyle(
                                               color: _getColorForDifference(
@@ -1720,7 +1720,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                               focusNode: focusNode4,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.,]')),
+                                    RegExp(r'[0-9.]')),
                               ],
                               onChanged: (value) {
                                 // Verifica si el valor no está vacío y si es un número válido
@@ -2062,8 +2062,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
             batchBloc.pickWithProducts.pick?.id ?? 0,
             currentProduct.idMove ?? 0));
 
-        // batchBloc.add(EndTimePick(
-        //     batchBloc.pickWithProducts.pick?.id ?? 0, DateTime.now()));
+          batchBloc.add(StartOrStopTimeTransfer(
+          batchBloc.pickWithProducts.pick?.id ?? 0, 'end_time_transfer'));
 
         batchBloc.add(PickingOkEvent(batchBloc.pickWithProducts.pick?.id ?? 00,
             currentProduct.idProduct ?? 0));

@@ -210,6 +210,54 @@ class _InventarioScreenState extends State<InventarioScreen>
   void _validatebuttonquantity() {
     final bloc = context.read<InventarioBloc>();
 
+
+
+    String input = bloc.cantidadController.text.trim();
+    //validamos quantity
+     
+
+
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = bloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Intentar convertir a double
+    double? cantidad = double.tryParse(input);
+    if (cantidad == null) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
     if (bloc.currentUbication?.id == null) {
       Get.snackbar(
         '360 Software Informa',
@@ -232,7 +280,7 @@ class _InventarioScreenState extends State<InventarioScreen>
         );
         return;
       } else {
-        int cantidad = int.parse(bloc.cantidadController.text.isEmpty
+        double cantidad = double.parse(bloc.cantidadController.text.isEmpty
             ? bloc.quantitySelected.toString()
             : bloc.cantidadController.text);
         bloc.add(SendProductInventarioEnvet(cantidad));
@@ -1602,7 +1650,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                               focusNode: focusNode4,
                               inputFormatters: [
                                 FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.,]')),
+                                    RegExp(r'[0-9.]')),
                               ],
                               showCursor: true,
                               onChanged: (value) {

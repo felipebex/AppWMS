@@ -1406,7 +1406,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         return "0.0";
       }
       final progress = (totalSeparadas / totalCantidades) * 100;
-      return progress.toStringAsFixed(1);
+      return progress.toStringAsFixed(2);
     } catch (e, s) {
       print("❌ Error en el calcularUnidadesSeparadas $e ->$s");
       return '';

@@ -50,7 +50,6 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
               children: [
                 // _buildConfirmButton(),
                 // const SizedBox(width: 3),
-                _buildNumberButton2(','),
                 _buildNumberButton2('.'),
                 _buildNumberButton2('0'),
                 const SizedBox(width: 3),
@@ -78,8 +77,8 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
       },
       child: Container(
         width:
-        widget.isDialog ? 48 :
-         77, // Tamaño ajustado
+        widget.isDialog ? 64 :
+         100, // Tamaño ajustado
         height: 30, // Tamaño 5justado
         margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 3),
         decoration: BoxDecoration(
@@ -160,8 +159,8 @@ class _CustomKeyboardNumberState extends State<CustomKeyboardNumber> {
       },
       child: Container(
         width: 
-        widget.isDialog ? 45 :
-        60, // Tamaño ajustado
+        widget.isDialog ? 64 :
+        100, // Tamaño ajustado
         height: 30,
         decoration: BoxDecoration(
           color: primaryColorApp,

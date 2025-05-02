@@ -929,7 +929,7 @@ class BatchDetailScreen extends StatelessWidget {
                                                                   : productsBatch
                                                                       .quantitySeparate
                                                                       .toStringAsFixed(
-                                                                          1),
+                                                                          2),
                                                               style: TextStyle(
                                                                   fontSize: 12,
                                                                   color:

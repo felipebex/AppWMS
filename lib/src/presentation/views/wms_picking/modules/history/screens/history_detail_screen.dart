@@ -441,7 +441,7 @@ class HistoryDetailScreen extends StatelessWidget {
                                                 TextSpan(
                                                   text: batch.listItems?[index]
                                                           .quantityDone
-                                                          .toStringAsFixed(1) ??
+                                                          .toStringAsFixed(2) ??
                                                       '',
                                                   style: TextStyle(
                                                       fontSize: 12,

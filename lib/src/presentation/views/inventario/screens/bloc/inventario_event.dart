@@ -99,7 +99,7 @@ class ShowQuantityEvent extends InventarioEvent {
 class FetchBarcodesProductEvent extends InventarioEvent {}
 
 class AddQuantitySeparate extends InventarioEvent {
-  final int quantity;
+  final dynamic quantity;
   final bool isOk;
   AddQuantitySeparate(this.quantity, this.isOk);
 }

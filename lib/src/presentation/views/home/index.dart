@@ -421,34 +421,34 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                             if (rol == 'picking' ||
                                                 rol == 'admin') {
-                                              // context.read<BatchBloc>().add(
-                                              //     LoadAllNovedadesEvent()); //
-                                              // showDialog(
-                                              //   context: context,
-                                              //   builder: (context) {
-                                              //     return DialogPicking(
-                                              //       contextHome: context,
-                                              //     );
-                                              //   },
-                                              // );
                                               context.read<BatchBloc>().add(
                                                   LoadAllNovedadesEvent()); //
-
                                               showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return const DialogLoading(
-                                                        message:
-                                                            'Cargando interfaz...');
-                                                  });
+                                                context: context,
+                                                builder: (context) {
+                                                  return DialogPicking(
+                                                    contextHome: context,
+                                                  );
+                                                },
+                                              );
+                                              // context.read<BatchBloc>().add(
+                                              //     LoadAllNovedadesEvent()); //
 
-                                              await Future.delayed(const Duration(
-                                                  seconds:
-                                                      1)); // Ajusta el tiempo si es necesario
-                                              Navigator.pop(context);
-                                              Navigator.pushReplacementNamed(
-                                                  context, 'wms-picking',
-                                                  arguments: 0);
+                                              // showDialog(
+                                              //     context: context,
+                                              //     builder: (context) {
+                                              //       return const DialogLoading(
+                                              //           message:
+                                              //               'Cargando interfaz...');
+                                              //     });
+
+                                              // await Future.delayed(const Duration(
+                                              //     seconds:
+                                              //         1)); // Ajusta el tiempo si es necesario
+                                              // Navigator.pop(context);
+                                              // Navigator.pushReplacementNamed(
+                                              //     context, 'wms-picking',
+                                              //     arguments: 0);
                                             } else if (rol == '' ||
                                                 rol == null) {
                                               ScaffoldMessenger.of(context)

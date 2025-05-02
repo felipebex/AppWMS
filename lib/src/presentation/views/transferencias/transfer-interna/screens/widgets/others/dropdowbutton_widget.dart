@@ -78,7 +78,7 @@ class _DialogAdvetenciaCantidadScreenState
                     ), // Color del texto normal
                   ),
                   TextSpan(
-                    text: '${widget.currentProduct.quantityOrdered}',
+                    text: '${widget.currentProduct.cantidadFaltante.toStringAsFixed(2)}',
                     style: const TextStyle(
                       color: green,
                       fontSize: 14,

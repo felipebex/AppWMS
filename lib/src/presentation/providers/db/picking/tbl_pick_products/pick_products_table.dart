@@ -8,7 +8,7 @@ class PickProductsTable {
   static const String columnExpireDate = 'expire_date';
   static const String columnProductId = 'product_id';
   static const String columnPickingId = 'picking_id';
-  static const String columnLotId = 'lot_id';
+  static const String columnLote = 'lote';
   static const String columnLoteId = 'lote_id';
   static const String columnIdMove = 'id_move';
   static const String columnLocationId = 'location_id';
@@ -50,7 +50,7 @@ class PickProductsTable {
         $columnExpireDate VARCHAR(255),
         $columnProductId INTEGER,
         $columnPickingId TEXT,
-        $columnLotId TEXT,
+        $columnLote TEXT,
         $columnLoteId INTEGER,
         $columnIdMove INTEGER,
         $columnLocationId TEXT,

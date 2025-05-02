@@ -1,9 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
+
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
@@ -41,6 +43,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
   //*controller para la busqueda
   TextEditingController searchController = TextEditingController();
+  TextEditingController searchPickController = TextEditingController();
   //*controller para editarProducto
   TextEditingController editProductController = TextEditingController();
 
@@ -151,6 +154,70 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
     //*asignar un usuario a una orden de compra
     on<AssignUserToTransfer>(_onAssignUserToTransfer);
+
+    //* evento para empezar o terminar el tiempo
+    on<StartOrStopTimeTransfer>(_onStartOrStopTimeTransfer);
+
+    //*buscar un batch
+    on<SearchPickEvent>(_onSearchPickEvent);
+  }
+
+  void _onSearchPickEvent(
+      SearchPickEvent event, Emitter<PickingPickState> emit) async {
+    print('event._onSearchPickEvent: ${event.query}');
+    final query = event.query.toLowerCase();
+
+    if (query.isEmpty) {
+      listOfPickFiltered.clear();
+      listOfPickFiltered = listOfPick;
+    } else {
+      listOfPickFiltered = listOfPick.where((batch) {
+        final name = batch.name?.toLowerCase() ?? '';
+        final origin = batch.origin?.toLowerCase() ?? '';
+        return name.contains(query) || origin.contains(query);
+      }).toList();
+    }
+
+    emit(LoadSearchPickingState(
+      listOfPicking: listOfPickFiltered,
+    ));
+  }
+
+  //metodo para empezar o terminar el tiempo
+  void _onStartOrStopTimeTransfer(
+      StartOrStopTimeTransfer event, Emitter<PickingPickState> emit) async {
+    try {
+      final time = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      print("time : $time");
+      if (event.value == "start_time_transfer") {
+        await db.pickRepository.setFieldTablePick(
+          event.id,
+          "start_time_transfer",
+          time,
+        );
+      } else if (event.value == "end_time_transfer") {
+        await db.pickRepository.setFieldTablePick(
+          event.id,
+          "end_time_transfer",
+          time,
+        );
+      }
+      //hacemos la peticion de mandar el tiempo
+      final response = await repository.sendTime(
+        event.id,
+        event.value,
+        time,
+        false,
+      );
+
+      if (response) {
+        emit(StartOrStopTimeTransferSuccess(event.value));
+      } else {
+        emit(StartOrStopTimeTransferFailure('Error al enviar el tiempo'));
+      }
+    } catch (e, s) {
+      print('Error en el _onStartOrStopTimeOrder: $e, $s');
+    }
   }
 
   //*metodo para obtener los permisos del usuario
@@ -164,36 +231,36 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       final response = await repository.assignUserToTransfer(
         true,
         userId,
-        event.id ?? 0,
+        event.id,
       );
 
       if (response) {
         //actualizamos la tabla entrada:
-        // await db.transferenciaRepository.setFieldTableTransfer(
-        //   event.id ?? 0,
-        //   "responsable_id",
-        //   userId,
-        // );
+        await db.pickRepository.setFieldTablePick(
+          event.id,
+          "responsable_id",
+          userId,
+        );
 
-      //   await db.transferenciaRepository.setFieldTableTransfer(
-      //     event.transfer.id ?? 0,
-      //     "responsable",
-      //     nameUser,
-      //   );
-      //   await db.transferenciaRepository.setFieldTableTransfer(
-      //     event.transfer.id ?? 0,
-      //     "is_selected",
-      //     1,
-      //   );
+        await db.pickRepository.setFieldTablePick(
+          event.id,
+          "responsable",
+          nameUser,
+        );
+        await db.pickRepository.setFieldTablePick(
+          event.id,
+          "is_selected",
+          1,
+        );
 
-      //   add(StartOrStopTimeTransfer(
-      //     event.transfer.id ?? 0,
-      //     "start_time_transfer",
-      //   ));
+        add(StartOrStopTimeTransfer(
+          event.id,
+          "start_time_transfer",
+        ));
 
-      //   emit(AssignUserToTransferSuccess(
-      //     event.transfer,
-      //   ));
+        emit(AssignUserToTransferSuccess(
+          event.id,
+        ));
       } else {
         // emit(AssignUserToTransferFailure(
         //     "La recepción ya tiene un responsable asignado"));
@@ -233,8 +300,8 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       PickingOkEvent event, Emitter<PickingPickState> emit) async {
     try {
       emit(PickingOkLoading());
-      await db.batchPickingRepository
-          .setFieldTableBatch(event.batchId, 'is_separate', 1);
+      await db.pickRepository
+          .setFieldTablePick(event.batchId, 'is_separate', 1);
 
       emit(PickingOkState());
     } catch (e, s) {
@@ -305,7 +372,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           ListItem(
             idMove: product?.idMove ?? 0,
             idProducto: product?.idProduct ?? 0,
-            idLote: product?.loteId == "" ? 0 : product?.loteId,
+            idLote: product?.loteId ?? 0,
             idUbicacionDestino: product?.muelleId ?? 0,
             cantidadEnviada: cantidad,
             idOperario: userid,
@@ -379,7 +446,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
             ListItem(
               idMove: event.product.idMove ?? 0,
               idProducto: event.product.idProduct ?? 0,
-              idLote: event.product.loteId == "" ? 0 : event.product.loteId,
+              idLote: event.product.loteId ?? 0,
               idUbicacionDestino: event.product.muelleId ?? 0,
               cantidadEnviada: event.product.quantitySeparate ?? 0,
               idOperario: userid,
@@ -915,7 +982,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
             ListItem(
               idMove: product?.idMove ?? 0,
               idProducto: product?.idProduct ?? 0,
-              idLote: product?.loteId == "" ? 0 : product?.loteId,
+              idLote: product?.loteId ?? 0,
               idUbicacionDestino: product?.muelleId ?? 0,
               cantidadEnviada:
                   (product?.quantitySeparate ?? 0) > (product?.quantity)
@@ -1233,8 +1300,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       final batch = pickWithProducts.pick;
 
       //traemos el batch actualizado
-      final batchUpdated =
-          await db.batchPickingRepository.getBatchById(batch?.id ?? 0);
+      final batchUpdated = await db.pickRepository.getPickById(batch?.id ?? 0);
 
       //ORDENAMOS LOS PRODUCTOS SEGUN EL ORDENAMIENTO QUE DIGA EL BATCH
       switch (batchUpdated?.orderBy) {
@@ -1458,19 +1524,18 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           pickWithProducts.products!.isEmpty) {
         return "0.0";
       }
-      double totalSeparadas = 0;
-      double totalCantidades = 0;
+      dynamic totalSeparadas = 0;
+      dynamic totalCantidades = 0;
       for (var product in pickWithProducts.products!) {
         totalSeparadas += product.quantitySeparate ?? 0;
-        totalCantidades +=
-            (product.quantity as int?) ?? 0; // Aseguramos que sea int
+        totalCantidades += (product.quantity) ?? 0; // Aseguramos que sea int
       }
       // Evitar división por cero
       if (totalCantidades == 0) {
         return "0.0";
       }
       final progress = (totalSeparadas / totalCantidades) * 100;
-      return progress.toStringAsFixed(1);
+      return progress.toStringAsFixed(2);
     } catch (e, s) {
       print("❌ Error en el calcularUnidadesSeparadas $e ->$s");
       return '';

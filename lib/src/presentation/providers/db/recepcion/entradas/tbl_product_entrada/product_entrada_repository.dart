@@ -344,7 +344,7 @@ class ProductsEntradaRepository {
 
   // Incrementar cantidad de producto separado para empaque
   Future<int?> incremenQtytProductSeparatePacking(
-      int idRecepcion, int productId, int idMove, int quantity) async {
+      int idRecepcion, int productId, int idMove, dynamic quantity) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     return await db.transaction((txn) async {
       final result = await txn.query(
@@ -356,10 +356,10 @@ class ProductsEntradaRepository {
       );
 
       if (result.isNotEmpty) {
-        int currentQty =
-            (result.first[ProductRecepcionTable.columnQuantitySeparate] as int);
+        dynamic currentQty =
+            (result.first[ProductRecepcionTable.columnQuantitySeparate] );
 
-        int newQty = currentQty + quantity;
+        dynamic newQty = currentQty + quantity;
         return await txn.update(
           ProductRecepcionTable.tableName,
           {ProductRecepcionTable.columnQuantitySeparate: newQty},

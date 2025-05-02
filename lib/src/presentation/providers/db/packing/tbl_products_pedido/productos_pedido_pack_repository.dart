@@ -386,10 +386,10 @@ class ProductosPedidosRepository {
       );
 
       if (result.isNotEmpty) {
-        int currentQty =
-            (result.first[ProductosPedidosTable.columnQuantitySeparate] as int);
+        dynamic currentQty =
+            (result.first[ProductosPedidosTable.columnQuantitySeparate] );
 
-        int newQty = currentQty + quantity;
+        dynamic newQty = currentQty + quantity;
         return await txn.update(
           ProductosPedidosTable.tableName,
           {ProductosPedidosTable.columnQuantitySeparate: newQty},

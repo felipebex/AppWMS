@@ -5,7 +5,7 @@ class TransferInfoRequest {
   final int idLote;
   final int idUbicacionOrigen;
   final int? idUbicacionDestino;
-  final int? cantidadEnviada;
+  final dynamic? cantidadEnviada;
   final int? idOperario;
   final int? timeLine;
   final String? fechaTransaccion;

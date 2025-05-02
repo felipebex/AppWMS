@@ -256,6 +256,7 @@ class ProductsBatch {
   
   final dynamic lotId;
   final dynamic loteId;
+  final dynamic lote;
   final dynamic locationId;
   final int? muelleId;
   final dynamic locationDestId;
@@ -312,6 +313,7 @@ class ProductsBatch {
     this.lotId,
     this.isMuelle,
     this.loteId,
+    this.lote,
     this.locationId,
     this.locationDestId,
     this.idLocationDest,
@@ -360,6 +362,7 @@ class ProductsBatch {
       barcodeLocationDest: map['barcode_location_dest'],
       lotId: map['lot_id'],
       loteId: map['lote_id'],
+      lote: map['lote'],
       productPacking: map['product_packing'] == null
           ? []
           : List<Barcodes>.from(
@@ -413,6 +416,7 @@ class ProductsBatch {
       "product_id": productId,
       "lot_id": lotId,
       "lote_id": loteId,
+      "lote": lote,
       "location_id": locationId,
       "location_dest_id": locationDestId,
       "id_location_dest": idLocationDest,

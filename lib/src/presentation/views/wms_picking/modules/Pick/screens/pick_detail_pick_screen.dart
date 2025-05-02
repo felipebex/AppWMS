@@ -27,7 +27,6 @@ class PickDetailScreen extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     return BlocConsumer<PickingPickBloc, PickingPickState>(
       listener: (context, state) {
-        
         if (state is ProductEditOk) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -205,9 +204,8 @@ class PickDetailScreen extends StatelessWidget {
                                                 "Unidades separadas: ${bloc.calcularUnidadesSeparadas()}%",
                                                 style: TextStyle(
                                                   fontSize: 12,
-                                                  color: getColorForPercentage(
-                                                      double.parse(bloc
-                                                          .calcularUnidadesSeparadas())), // Convertir a double
+                                                  color: getColorForPercentage(bloc
+                                                      .calcularUnidadesSeparadas()), // Convertir a double
                                                 ),
                                               ),
                                               const Spacer(),
@@ -676,8 +674,15 @@ class PickDetailScreen extends StatelessWidget {
                                                     SizedBox(
                                                       width: size.width * 0.55,
                                                       child: Text(
-                                                          productsBatch.lotId
-                                                              .toString(),
+                                                          productsBatch.lotId ==
+                                                                      "" ||
+                                                                  productsBatch
+                                                                          .lotId ==
+                                                                      null
+                                                              ? 'Sin manejo por lote'
+                                                              : productsBatch
+                                                                  .lotId
+                                                                  .toString(),
                                                           style: TextStyle(
                                                               fontSize: 12,
                                                               color:
@@ -1000,12 +1005,14 @@ class PickDetailScreen extends StatelessWidget {
     );
   }
 
-  Color getColorForPercentage(double percentage) {
-    if (percentage >= 100) {
+  Color getColorForPercentage(dynamic percentage) {
+    //convertir el string en un double
+    double parsedPercentage = double.tryParse(percentage.toString()) ?? 0.0;
+    if (parsedPercentage >= 100) {
       return Colors.green; // Verde para 100%
-    } else if (percentage < 20) {
+    } else if (parsedPercentage < 20) {
       return Colors.red; // Rojo para menos del 20%
-    } else if (percentage < 50) {
+    } else if (parsedPercentage < 50) {
       return Colors.orange; // Naranja para menos del 50%
     } else {
       return const Color.fromARGB(

@@ -218,3 +218,27 @@ class PickingOkState extends PickingPickState {}
 class PickingOkError extends PickingPickState {}
 
 class PickingOkLoading extends PickingPickState {}
+
+
+class StartOrStopTimeTransferSuccess extends PickingPickState {
+  final String isStarted;
+  StartOrStopTimeTransferSuccess(this.isStarted);
+}
+
+class StartOrStopTimeTransferFailure extends PickingPickState {
+  final String error;
+  StartOrStopTimeTransferFailure(this.error);
+}
+
+
+
+class AssignUserToTransferSuccess extends PickingPickState {
+  final int id;
+  AssignUserToTransferSuccess(this.id);
+}
+
+
+class LoadSearchPickingState extends PickingPickState {
+  final List<ResultPick> listOfPicking;
+  LoadSearchPickingState({required this.listOfPicking});
+}
