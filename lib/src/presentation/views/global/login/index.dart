@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/global/login/bloc/login_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
-import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
@@ -82,6 +82,11 @@ class LoginPage extends StatelessWidget {
                 context.read<LoginBloc>().password.clear();
                 Get.back();
                 Navigator.pushReplacementNamed(context, '/home');
+              }
+
+              if(state is ConfigurationError){
+                Get.back();
+                showModalDialog(context, state.message);
               }
             },
           ),

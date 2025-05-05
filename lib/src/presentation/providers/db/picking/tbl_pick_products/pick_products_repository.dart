@@ -110,6 +110,17 @@ class PickProductsRepository {
     }
   }
 
+
+  //* Obtener todos los productos de la tabla
+  Future<List<ProductsBatch>> getProducts() async {
+     final db = await DataBaseSqlite().getDatabaseInstance();
+    final List<Map<String, dynamic>> maps =
+        await db.query(_table);
+    return maps.map((map) => ProductsBatch.fromMap(map)).toList();
+  }
+
+
+
   Future<int?> updateNovedad(
     int batchId,
     int productId,

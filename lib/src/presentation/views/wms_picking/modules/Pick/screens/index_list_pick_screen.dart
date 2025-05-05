@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
@@ -27,7 +29,30 @@ class IndexListPickScreen extends StatelessWidget {
         return false;
       },
       child: BlocConsumer<PickingPickBloc, PickingPickState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is AssignUserToPickError) {
+            Get.snackbar(
+              '360 Software Informa',
+              state.error,
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.red),
+            );
+          }
+
+          if (state is AssignUserToPickSuccess) {
+            Get.snackbar(
+              '360 Software Informa',
+              "Se ha asignado el responsable correctamente",
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.green),
+            );
+            bloc.add(FetchPickWithProductsEvent(state.id));
+            bloc.add(LoadConfigurationsUser());
+            Navigator.pushReplacementNamed(context, 'scan-product-pick');
+          }
+        },
         builder: (context, state) {
           return Scaffold(
             backgroundColor: white,
@@ -166,9 +191,9 @@ class IndexListPickScreen extends StatelessWidget {
                                           icon: IconButton(
                                             onPressed: () {
                                               bloc.add(ShowKeyboard(false));
-                                               bloc.add(SearchPickEvent(
-                                              '',
-                                            ));
+                                              bloc.add(SearchPickEvent(
+                                                '',
+                                              ));
                                               bloc.searchPickController.clear();
                                             },
                                             icon: const Icon(Icons.close,
@@ -227,14 +252,8 @@ class IndexListPickScreen extends StatelessWidget {
                                     print("Batch: ${batch.toMap()}");
 
                                     try {
-                                      if (batch.startTimeTransfer != "") {
-                                        bloc.add(FetchPickWithProductsEvent(
-                                            batch.id ?? 0));
-                                        bloc.add(LoadConfigurationsUser());
-
-                                        goBatchInfo(
-                                            contextBuilder, bloc, batch, true);
-                                      } else {
+                                      if (batch.responsableId == null ||
+                                          batch.responsableId == 0) {
                                         showDialog(
                                           context: context,
                                           barrierDismissible:
@@ -244,32 +263,62 @@ class IndexListPickScreen extends StatelessWidget {
                                             title:
                                                 'Esta seguro de tomar este pick, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
                                             onAccepted: () async {
-                                              //asignamos el tiempo de inicio
-                                              if (batch.startTimeTransfer ==
-                                                  "") {
-                                                bloc.add(
-                                                    StartOrStopTimeTransfer(
-                                                  batch.id ?? 0,
-                                                  'start_time_transfer',
-                                                ));
-                                              }
+                                              // asignamos el tiempo de inicio
 
                                               //asignamos el responsable a esa orden de entrada
                                               bloc.add(
                                                 AssignUserToTransfer(
                                                     batch.id ?? 0),
                                               );
-                                              bloc.add(
-                                                  FetchPickWithProductsEvent(
-                                                      batch.id ?? 0));
-                                              bloc.add(
-                                                  LoadConfigurationsUser());
-                                              goBatchInfo(contextBuilder, bloc,
-                                                  batch, false);
-                                              Navigator.pop(context);
                                             },
                                           ),
                                         );
+                                      } else {
+                                        if (batch.startTimeTransfer == "") {
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible:
+                                                false, // No permitir que el usuario cierre el diálogo manualmente
+                                            builder: (context) =>
+                                                DialogStartTimeWidget(
+                                              onAccepted: () async {
+                                                bloc.add(ShowKeyboard(false));
+                                                bloc.searchPickController
+                                                    .clear();
+                                                bloc.add(SearchPickEvent(
+                                                  '',
+                                                ));
+
+                                                bloc.add(
+                                                    FetchPickWithProductsEvent(
+                                                        batch.id ?? 0));
+                                                bloc.add(
+                                                    LoadConfigurationsUser());
+
+                                                bloc.add(
+                                                    StartOrStopTimeTransfer(
+                                                  batch.id ?? 0,
+                                                  'start_time_transfer',
+                                                ));
+                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                    context,
+                                                    'scan-product-pick');
+                                              },
+                                              title: 'Iniciar Pick',
+                                            ),
+                                          );
+                                        } else {
+                                          bloc.add(FetchPickWithProductsEvent(
+                                              batch.id ?? 0));
+                                          bloc.add(LoadConfigurationsUser());
+
+                                          goBatchInfo(
+                                            contextBuilder,
+                                            bloc,
+                                            batch,
+                                          );
+                                        }
                                       }
                                     } catch (e) {
                                       // Manejo de errores, por si ocurre algún problema
@@ -425,6 +474,35 @@ class IndexListPickScreen extends StatelessWidget {
                                                         TextOverflow.ellipsis,
                                                   ),
                                                 ),
+                                              ],
+                                            ),
+                                          ),
+                                          Visibility(
+                                            visible: batch
+                                                    .backorderId !=
+                                                0,
+                                            child: Row(
+                                              children: [
+                                                Align(
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Icon(
+                                                      Icons.shopping_cart_rounded,
+                                                      color: primaryColorApp,
+                                                      size: 15),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                Text(
+                                                    batch
+                                                            .backorderName ??
+                                                        '',
+                                                    style: TextStyle(
+                                                        color: black,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
                                               ],
                                             ),
                                           ),
@@ -592,22 +670,23 @@ class IndexListPickScreen extends StatelessWidget {
     );
   }
 
-  void goBatchInfo(BuildContext context, PickingPickBloc batchBloc,
-      ResultPick batch, bool isLoading) async {
-    if (isLoading) {
-      // mostramos un dialogo de carga y despues
-      showDialog(
-        context: context,
-        barrierDismissible:
-            false, // No permitir que el usuario cierre el diálogo manualmente
-        builder: (_) => const DialogLoading(
-          message: 'Cargando interfaz...',
-        ),
-      );
+  void goBatchInfo(
+    BuildContext context,
+    PickingPickBloc batchBloc,
+    ResultPick batch,
+  ) async {
+    // mostramos un dialogo de carga y despues
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // No permitir que el usuario cierre el diálogo manualmente
+      builder: (_) => const DialogLoading(
+        message: 'Cargando interfaz...',
+      ),
+    );
 
-      await Future.delayed(const Duration(seconds: 1));
-      Navigator.pop(context);
-    }
+    await Future.delayed(const Duration(seconds: 1));
+    Navigator.pop(context);
     // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
     if (batch.isSeparate != 1) {
       Navigator.pushReplacementNamed(context, 'scan-product-pick');

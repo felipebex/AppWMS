@@ -14,11 +14,13 @@ class DialogPickIncompleted extends StatelessWidget {
     required this.cantidad,
     required this.currentProduct,
     required this.onAccepted,
+    required this.onClose,
   });
 
   final double cantidad; // porcentaje de cantidades completadas
   final ProductsBatch currentProduct;
   final VoidCallback onAccepted; // Callback para la acción a ejecutar
+  final VoidCallback onClose; // Callback para la acción a ejecutar
 
   @override
   Widget build(BuildContext context) {
@@ -103,30 +105,8 @@ class DialogPickIncompleted extends StatelessWidget {
             ),
             actions: [
               ElevatedButton(
-                  onPressed: () {
-                    batchBloc.add(
-                        ValidateFieldsEvent(field: "locationDest", isOk: true));
-                    batchBloc.add(ChangeLocationDestIsOkEvent(
-                        true,
-                        currentProduct.idProduct ?? 0,
-                        batchBloc.pickWithProducts.pick?.id ?? 0,
-                        currentProduct.idMove ?? 0));
-
-                    batchBloc.add(PickingOkEvent(
-                        batchBloc.pickWithProducts.pick?.id ?? 0,
-                        currentProduct.idProduct ?? 0));
-
-                    // batchBloc.add(EndTimePick(
-
-                    //      batchBloc.pickWithProducts.pick?.id ?? 0,
-                    //     DateTime.now()));
-
-                    batchBloc.add(FetchPickingPickFromDBEvent(false));
-                    batchBloc.index = 0;
-                    batchBloc.isSearch = true;
-                    Navigator.pop(context);
-                    Navigator.pushReplacementNamed(context, 'pick',
-                        arguments: 1);
+                  onPressed: () async {
+                    onClose(); // Llama al callback
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -135,7 +115,7 @@ class DialogPickIncompleted extends StatelessWidget {
                     ),
                     elevation: 3,
                   ),
-                  child: Text('Cerrar Batch',
+                  child: Text('Cerrar PICK',
                       style: TextStyle(color: primaryColorApp, fontSize: 12))),
               ElevatedButton(
                   onPressed: () async {

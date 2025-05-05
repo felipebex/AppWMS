@@ -1,8 +1,10 @@
 // ignore_for_file: unrelated_type_equality_checks, avoid_print, use_build_context_synchronously
 
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -15,6 +17,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_edit_product_widget.dart';
+import 'package:wms_app/src/presentation/widgets/dialog_error_request_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 import '../../../../../../utils/constans/colors.dart';
@@ -46,27 +49,9 @@ class PickDetailScreen extends StatelessWidget {
 
         if (state is SendProductPickOdooError) {
           Navigator.pop(context);
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
+          ErrorDialog.show(
+            error: state.error,
+            request: state.transferRequest.toMap(),
           );
         }
 
@@ -748,10 +733,13 @@ class PickDetailScreen extends StatelessWidget {
                                                         ElevatedButton(
                                                             onPressed:
                                                                 () async {
-                                                              bloc.add(
-                                                                  SendProductOdooPickEvent(
-                                                                productsBatch,
-                                                              ));
+                                                              bloc.add(SendProductOdooPickEvent(
+                                                                  productsBatch,
+                                                                  (!bloc.isSearch &&
+                                                                      (productsBatch
+                                                                              .quantity !=
+                                                                          productsBatch
+                                                                              .quantitySeparate))));
                                                             },
                                                             style:
                                                                 ElevatedButton

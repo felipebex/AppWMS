@@ -167,8 +167,9 @@ class SearchProductsPickEvent extends PickingPickEvent {
 
 class SendProductOdooPickEvent extends PickingPickEvent {
   final ProductsBatch product;
+  final bool isEdit;
 
-  SendProductOdooPickEvent(this.product, );
+  SendProductOdooPickEvent(this.product, this.isEdit);
 }
 
 
@@ -215,4 +216,11 @@ class SearchPickEvent extends PickingPickEvent {
   final String query;
 
   SearchPickEvent(this.query, );
+}
+
+
+class CreateBackOrderOrNot extends PickingPickEvent {
+  final int idPick;
+  final bool isBackOrder;
+  CreateBackOrderOrNot(this.idPick, this.isBackOrder);
 }

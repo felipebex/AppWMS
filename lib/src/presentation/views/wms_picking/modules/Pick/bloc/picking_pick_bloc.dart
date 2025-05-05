@@ -160,6 +160,49 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
     //*buscar un batch
     on<SearchPickEvent>(_onSearchPickEvent);
+
+    //*metodo para crear barckorder o no
+    on<CreateBackOrderOrNot>(_onCreateBackOrder);
+  }
+
+  void _onCreateBackOrder(
+      CreateBackOrderOrNot event, Emitter<PickingPickState> emit) async {
+    try {
+      emit(CreateBackOrderOrNotLoading());
+      final response = await repository.validateTransfer(
+          event.idPick, event.isBackOrder, false);
+
+      if (response.result?.code == 200) {
+        add(StartOrStopTimeTransfer(
+          event.idPick,
+          'end_time_transfer',
+        ));
+
+        add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+        add(ChangeLocationDestIsOkEvent(true, currentProduct.idProduct ?? 0,
+            pickWithProducts.pick?.id ?? 0, currentProduct.idMove ?? 0));
+
+        index = 0;
+        isSearch = true;
+
+        add(PickingOkEvent(
+            pickWithProducts.pick?.id ?? 0, currentProduct.idProduct ?? 0));
+        //pedimos los nuevos picks
+        add(FetchPickingPickEvent(false));
+
+        print(
+          'response.result?.code: ${response.result?.code}  response.result?.msg: ${response.result?.msg}',
+        );
+
+        emit(CreateBackOrderOrNotSuccess(
+            event.isBackOrder, response.result?.msg ?? ""));
+      } else {
+        emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
+      }
+    } catch (e, s) {
+      emit(CreateBackOrderOrNotFailure('Error al crear la backorder'));
+      print('Error en el _onCreateBackOrder: $e, $s');
+    }
   }
 
   void _onSearchPickEvent(
@@ -195,6 +238,11 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           "start_time_transfer",
           time,
         );
+        await db.pickRepository.setFieldTablePick(
+          event.id,
+          "is_selected",
+          1,
+        );
       } else if (event.value == "end_time_transfer") {
         await db.pickRepository.setFieldTablePick(
           event.id,
@@ -227,9 +275,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       int userId = await PrefUtils.getUserId();
       String nameUser = await PrefUtils.getUserName();
 
-      // emit(AssignUserToTransferLoading());
+      emit(AssignUserToPickLoading());
       final response = await repository.assignUserToTransfer(
-        true,
+        false,
         userId,
         event.id,
       );
@@ -258,15 +306,15 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           "start_time_transfer",
         ));
 
-        emit(AssignUserToTransferSuccess(
+        emit(AssignUserToPickSuccess(
           event.id,
         ));
       } else {
-        // emit(AssignUserToTransferFailure(
-        //     "La recepción ya tiene un responsable asignado"));
+        emit(AssignUserToPickError(
+            "La recepción ya tiene un responsable asignado"));
       }
     } catch (e, s) {
-      // emit(AssignUserToTransferFailure('Error al asignar el usuario'));
+      emit(AssignUserToPickError('Error al asignar el usuario'));
       print('Error en el _onAssignUserToOrder: $e, $s');
     }
   }
@@ -420,6 +468,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       // Si ya está en proceso, no ejecutamos nada
       return;
     }
+    final userid = await PrefUtils.getUserId();
 
     try {
       _isProcessing = true; // Activar la bandera para evitar duplicados
@@ -436,8 +485,6 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       } catch (e) {
         print("❌ Error al parsear la fecha: $e");
       }
-
-      final userid = await PrefUtils.getUserId();
 
       final response = await repository.sendProductTransferPick(
         TransferRequest(
@@ -464,7 +511,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
       if (response.result?.code == 200) {
         // Recorrer todos los resultados de la respuesta
-        await db.setFieldTableBatchProducts(
+        await db.pickProductsRepository.setFieldTablePickProducts(
           event.product.batchId ?? 0,
           event.product.idProduct ?? 0,
           'is_send_odoo',
@@ -474,11 +521,17 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
         final response = await db.pickProductsRepository
             .getPickWithProducts(pickWithProducts.pick?.id ?? 0);
-        final List<ProductsBatch> products = response!.products!
-            .where((product) =>
-                product.quantitySeparate != product.quantity ||
-                product.isSendOdoo == 0)
-            .toList();
+
+        print('isEdit: ${event.isEdit}');
+
+        final List<ProductsBatch> products = event.isEdit
+            ? response!.products!
+                .where((product) =>
+                    product.quantitySeparate != product.quantity ||
+                    product.isSendOdoo == 0)
+                .toList()
+            : response!.products!;
+
         pickWithProducts.products = response.products;
         filteredProducts.clear();
         filteredProducts.addAll(products);
@@ -494,10 +547,51 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           event.product.idMove ?? 0,
         );
         emit(SendProductPickOdooError(
-            response.result?.result?.first.error ?? ""));
+          response.result?.result?.first.error ?? "",
+          TransferRequest(
+            idTransferencia: currentProduct.batchId ?? 0,
+            listItems: [
+              ListItem(
+                idMove: event.product.idMove ?? 0,
+                idProducto: event.product.idProduct ?? 0,
+                idLote: event.product.loteId ?? 0,
+                idUbicacionDestino: event.product.muelleId ?? 0,
+                cantidadEnviada: event.product.quantitySeparate ?? 0,
+                idOperario: userid,
+                timeLine: event.product.timeSeparate == null
+                    ? 30.0
+                    : event.product.timeSeparate.toDouble(),
+                fechaTransaccion: event.product.fechaTransaccion ?? '',
+                observacion: event.product.observation ?? 'Sin novedad',
+                dividida: false,
+              ),
+            ],
+          ),
+        ));
       }
     } catch (e, s) {
-      emit(SendProductPickOdooError(s.toString()));
+      emit(SendProductPickOdooError(
+        s.toString(),
+        TransferRequest(
+          idTransferencia: currentProduct.batchId ?? 0,
+          listItems: [
+            ListItem(
+              idMove: event.product.idMove ?? 0,
+              idProducto: event.product.idProduct ?? 0,
+              idLote: event.product.loteId ?? 0,
+              idUbicacionDestino: event.product.muelleId ?? 0,
+              cantidadEnviada: event.product.quantitySeparate ?? 0,
+              idOperario: userid,
+              timeLine: event.product.timeSeparate == null
+                  ? 30.0
+                  : event.product.timeSeparate.toDouble(),
+              fechaTransaccion: event.product.fechaTransaccion ?? '',
+              observacion: event.product.observation ?? 'Sin novedad',
+              dividida: false,
+            ),
+          ],
+        ),
+      ));
       print("❌ Error en el SendProductOdooEvent: $e ->$s");
     } finally {
       _isProcessing =

@@ -1,8 +1,11 @@
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
+
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_backorder_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_picking_incompleted_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -142,18 +145,16 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
     );
   }
 
-  void validatePicking(
-    PickingPickBloc batchBloc,
-    BuildContext context,
-    ProductsBatch currentProduct,
-  ) async {
+  void validatePicking(PickingPickBloc batchBloc, BuildContext context,
+      ProductsBatch currentProduct) {
     batchBloc.add(
         FetchPickWithProductsEvent(batchBloc.pickWithProducts.pick?.id ?? 0));
 
-    // Validamos que la cantidad de productos separados sea igual a la cantidad de productos pedidos
+    //validamos que la cantidad de productos separados sea igual a la cantidad de productos pedidos
+//validamos el 100 de las unidades separadas
     final double unidadesSeparadas =
         double.parse(batchBloc.calcularUnidadesSeparadas());
-
+//*validamos is tenemos productos que no se han enviado
     if (unidadesSeparadas == "100.0" || unidadesSeparadas >= 100.0) {
       var productsToSend = batchBloc.filteredProducts
           .where((element) => element.isSendOdoo == 0)
@@ -174,18 +175,18 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                    "Tienes productos que no han sido enviados al wms. revisa la lista de productos y envíalos antes de continuar.",
+                    "Tienes productos que no han sido enviados al WMS. revisa la lista de productos y envíalos antes de continuar.",
                     style: TextStyle(color: black, fontSize: 14)),
                 const SizedBox(height: 15),
                 ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      // Navigator.pop(context);
                       if (batchBloc.configurations.result?.result
                               ?.showDetallesPicking ==
                           true) {
                         //cerramos el focus
                         batchBloc.isSearch = false;
-                        // batchBloc.add(LoadProductEditEvent());
+                        batchBloc.add(LoadProductEditEvent());
                         Navigator.pushReplacementNamed(
                           context,
                           'pick-detail',
@@ -213,57 +214,47 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
             ),
           ),
         );
-      } else {
-        batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
-        batchBloc.add(ChangeLocationDestIsOkEvent(
-            true,
-            currentProduct.idProduct ?? 0,
-            batchBloc.pickWithProducts.pick?.id ?? 0,
-            currentProduct.idMove ?? 0));
-
-        batchBloc.add(StartOrStopTimeTransfer(
-          batchBloc.pickWithProducts.pick?.id ?? 0, 'end_time_transfer'));
-
-        batchBloc.add(PickingOkEvent(batchBloc.pickWithProducts.pick?.id ?? 0,
-            currentProduct.idProduct ?? 0));
-        batchBloc.add(FetchPickingPickFromDBEvent(false));
-        batchBloc.index = 0;
-        batchBloc.isSearch = true;
-
-        Navigator.pushReplacementNamed(
-          context,
-          'pick',
-        );
       }
+      return;
     } else {
       showDialog(
           context: context,
           builder: (context) {
             return DialogPickIncompleted(
-                currentProduct: batchBloc.currentProduct,
-                cantidad: unidadesSeparadas,
-                onAccepted: () {
-                  Navigator.pop(context);
-                  if (batchBloc
-                          .configurations.result?.result?.showDetallesPicking ==
-                      true) {
-                    // Cerramos el foco
-                    batchBloc.isSearch = false;
-                    batchBloc.add(LoadProductEditEvent());
-
-                    Navigator.pushReplacementNamed(
-                      context,
-                      'pick-detail',
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        duration: Duration(milliseconds: 1000),
-                        content: Text('No tienes permisos para ver detalles'),
-                      ),
-                    );
-                  }
+              currentProduct: batchBloc.currentProduct,
+              cantidad: unidadesSeparadas,
+              onAccepted: () {
+                if (batchBloc
+                        .configurations.result?.result?.showDetallesPicking ==
+                    true) {
+                  //cerramos el focus
+                  batchBloc.isSearch = false;
+                  batchBloc.add(LoadProductEditEvent());
+                  Navigator.pushReplacementNamed(
+                    context,
+                    'pick-detail',
+                  ).then((_) {});
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      duration: Duration(milliseconds: 1000),
+                      content: Text('No tienes permisos para ver detalles'),
+                    ),
+                  );
+                }
+              },
+              onClose: () {
+                Navigator.pop(context);
+                Future.delayed(Duration.zero, () {
+                  showDialog(
+                      context:
+                          Navigator.of(context, rootNavigator: true).context,
+                      builder: (context) {
+                        return DialogBackorderPick();
+                      });
                 });
+              },
+            );
           });
     }
   }

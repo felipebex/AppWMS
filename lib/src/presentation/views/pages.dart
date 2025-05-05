@@ -1,4 +1,4 @@
-export 'package:wms_app/src/presentation/views/recepcion/screens/recepcion_screen.dart';
+export 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/recepcion_screen.dart';
 
 export 'package:wms_app/src/presentation/views/info%20rapida/index.dart';
 

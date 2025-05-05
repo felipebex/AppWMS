@@ -1,6 +1,11 @@
+// ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
+
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -16,6 +21,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/pic
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/location/location_card_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/muelle/muelle_card_pick_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/DialogAdvetenciaCantidadPick_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_backorder_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_picking_incompleted_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/popunButton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/product/product_widget.dart';
@@ -247,16 +253,13 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
         return true;
       } else {
         //valisamos si la suma de la cantidad del paquete es correcta con lo que se pide
-        if (matchedBarcode.cantidad+ batchBloc.quantitySelected >
+        if (matchedBarcode.cantidad + batchBloc.quantitySelected >
             currentProduct.quantity!) {
           return false;
         }
 
-        batchBloc.add(AddQuantitySeparate(
-            currentProduct.idProduct ?? 0,
-            currentProduct.idMove ?? 0,
-            matchedBarcode.cantidad,
-            false));
+        batchBloc.add(AddQuantitySeparate(currentProduct.idProduct ?? 0,
+            currentProduct.idMove ?? 0, matchedBarcode.cantidad, false));
       }
       return false;
     }
@@ -388,6 +391,67 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                     }, listener: (context, state) {
                       print("❤️‍🔥 state : $state");
 
+                      if (state is CreateBackOrderOrNotLoading) {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const DialogLoading(
+                              message: "Validando informacion...",
+                            );
+                          },
+                        );
+                      }
+
+                      if (state is CreateBackOrderOrNotFailure) {
+                        Navigator.pop(context);
+                        Get.defaultDialog(
+                          title: '360 Software Informa',
+                          titleStyle:
+                              TextStyle(color: Colors.red, fontSize: 18),
+                          middleText: state.error,
+                          middleTextStyle:
+                              TextStyle(color: black, fontSize: 14),
+                          backgroundColor: Colors.white,
+                          radius: 10,
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColorApp,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text('Aceptar',
+                                  style: TextStyle(color: white)),
+                            ),
+                          ],
+                        );
+                      }
+
+                      if (state is CreateBackOrderOrNotSuccess) {
+                        //volvemos a llamar las entradas que tenemos guardadas en la bd
+                        if (state.isBackorder) {
+                          Get.snackbar("360 Software Informa", state.msg,
+                              backgroundColor: white,
+                              colorText: primaryColorApp,
+                              icon: Icon(Icons.error, color: Colors.green));
+                        } else {
+                          Get.snackbar("360 Software Informa", state.msg,
+                              backgroundColor: white,
+                              colorText: primaryColorApp,
+                              icon: Icon(Icons.error, color: Colors.green));
+                        }
+
+                        Navigator.pop(context);
+                        Navigator.pushReplacementNamed(
+                          context,
+                          'pick',
+                        );
+                      }
+
                       // * validamos en todo cambio de estado de cantidad separada
                       if (state is ChangeQuantitySeparateStateSuccess) {
                         if (state.quantity == currentProduct.quantity) {
@@ -500,6 +564,11 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                     cantidadController.clear();
 
                                     // batchBloc.add(ResetValuesEvent());
+                                    batchBloc.add(ShowKeyboard(false));
+                                    batchBloc.searchPickController.clear();
+                                    batchBloc.add(SearchPickEvent(
+                                      '',
+                                    ));
                                     batchBloc.add(
                                         FetchPickingPickFromDBEvent(false));
 
@@ -1537,7 +1606,9 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 5),
                                     child: Text(
-                                      currentProduct.quantity?.toStringAsFixed(2) ?? "",
+                                      currentProduct.quantity
+                                              ?.toStringAsFixed(2) ??
+                                          "",
                                       style: TextStyle(
                                           color: primaryColorApp, fontSize: 13),
                                     ),
@@ -1994,7 +2065,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
 //validamos el 100 de las unidades separadas
     final double unidadesSeparadas =
         double.parse(batchBloc.calcularUnidadesSeparadas());
-
+//*validamos is tenemos productos que no se han enviado
     if (unidadesSeparadas == "100.0" || unidadesSeparadas >= 100.0) {
       var productsToSend = batchBloc.filteredProducts
           .where((element) => element.isSendOdoo == 0)
@@ -2054,51 +2125,47 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
             ),
           ),
         );
-      } else {
-        batchBloc.add(ValidateFieldsEvent(field: "locationDest", isOk: true));
-        batchBloc.add(ChangeLocationDestIsOkEvent(
-            true,
-            currentProduct.idProduct ?? 0,
-            batchBloc.pickWithProducts.pick?.id ?? 0,
-            currentProduct.idMove ?? 0));
-
-          batchBloc.add(StartOrStopTimeTransfer(
-          batchBloc.pickWithProducts.pick?.id ?? 0, 'end_time_transfer'));
-
-        batchBloc.add(PickingOkEvent(batchBloc.pickWithProducts.pick?.id ?? 00,
-            currentProduct.idProduct ?? 0));
-        batchBloc.add(FetchPickingPickFromDBEvent(false));
-        batchBloc.index = 0;
-        batchBloc.isSearch = true;
-        Navigator.pushReplacementNamed(context, 'pick', arguments: 0);
       }
+      return;
     } else {
       showDialog(
           context: context,
           builder: (context) {
             return DialogPickIncompleted(
-                currentProduct: batchBloc.currentProduct,
-                cantidad: unidadesSeparadas,
-                onAccepted: () {
-                  if (batchBloc
-                          .configurations.result?.result?.showDetallesPicking ==
-                      true) {
-                    //cerramos el focus
-                    batchBloc.isSearch = false;
-                    batchBloc.add(LoadProductEditEvent());
-                    Navigator.pushReplacementNamed(
-                      context,
-                      'pick-detail',
-                    ).then((_) {});
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        duration: Duration(milliseconds: 1000),
-                        content: Text('No tienes permisos para ver detalles'),
-                      ),
-                    );
-                  }
+              currentProduct: batchBloc.currentProduct,
+              cantidad: unidadesSeparadas,
+              onAccepted: () {
+                if (batchBloc
+                        .configurations.result?.result?.showDetallesPicking ==
+                    true) {
+                  //cerramos el focus
+                  batchBloc.isSearch = false;
+                  batchBloc.add(LoadProductEditEvent());
+                  Navigator.pushReplacementNamed(
+                    context,
+                    'pick-detail',
+                  ).then((_) {});
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      duration: Duration(milliseconds: 1000),
+                      content: Text('No tienes permisos para ver detalles'),
+                    ),
+                  );
+                }
+              },
+              onClose: () {
+                Navigator.pop(context);
+                Future.delayed(Duration.zero, () {
+                  showDialog(
+                      context:
+                          Navigator.of(context, rootNavigator: true).context,
+                      builder: (context) {
+                        return DialogBackorderPick();
+                      });
                 });
+              },
+            );
           });
     }
   }

@@ -2,23 +2,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/list_locations_screen.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/list_products_screen.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/locations_info_screen.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/product_info_screen.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/transfer_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/list_locations_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/list_products_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/locations_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/product_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/transfer/screens/transfer_info_screen.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/transfer/widget/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/location/location_search_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/product/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
-import 'package:wms_app/src/presentation/views/recepcion/screens/list_ordernes_compra_screen.dart';
-import 'package:wms_app/src/presentation/views/recepcion/screens/scan_product_screen.dart';
-import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/locations_dest/locations_dest_widget.dart';
-import 'package:wms_app/src/presentation/views/recepcion/screens/widgets/others/new_lote_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/list_ordernes_compra_screen.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/scan_product_screen.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/locations_dest/locations_dest_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/widgets/location/location_search_widget.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/list_transferencias_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/scan_product_transfer_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/transferencia_screen.dart';
@@ -50,7 +50,7 @@ class AppRoutes {
   static const String historyDetail = 'history-detail';
   //pick
   static const String pick = 'pick';
-  static const String scanProductPick  ="scan-product-pick";
+  static const String scanProductPick = "scan-product-pick";
   static const String pickDetail = 'pick-detail';
 
   // WMS Packing
@@ -69,7 +69,6 @@ class AppRoutes {
   static const String transferencias = 'transferencias';
   static const String transferenciaDetail = 'transferencia-detail';
   static const String transferExterna = 'transfer-externa';
-  static const String searchProductTrans = 'search-product-trans';
   static const String searchLocationTrans = 'search-location-trans';
   static const String scanProductTransfer = 'scan-product-transfer';
   static const String searchLocationDestTrans = 'seacrh-locationsDest-trans';
@@ -84,8 +83,6 @@ class AppRoutes {
   static const String scanProductOrder = 'scan-product-order';
   static const String locationDestSearch = 'search-location-recep';
 
-
-
   //new lote
   static const String newLote = 'new-lote';
 
@@ -96,6 +93,8 @@ class AppRoutes {
   static const String transferInfo = 'transfer-info';
   static const String listLocation = 'list-location';
   static const String listProduct = 'list-product';
+  static const String searchLocationDestTransInfo =
+      'search-locations-dest-trans-info';
 
   // Mapa de rutas
   static Map<String, Widget Function(BuildContext)> get routes {
@@ -113,10 +112,9 @@ class AppRoutes {
       batchDetail: (_) => const BatchDetailScreen(),
       historyLits: (_) => const HistoryListScreen(),
       historyDetail: (_) => const HistoryDetailScreen(),
-      pick :(_) => const IndexListPickScreen(),
-      scanProductPick :(_) => const ScanProductPickScreen(),
-      pickDetail :(_) => const PickDetailScreen(),
-      
+      pick: (_) => const IndexListPickScreen(),
+      scanProductPick: (_) => const ScanProductPickScreen(),
+      pickDetail: (_) => const PickDetailScreen(),
 
       // WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),
@@ -234,10 +232,6 @@ class AppRoutes {
         return LocationDestTransScreen(currentProduct: currentProducArg);
       },
 
-
-
-
-
       recepcion: (context) {
         // Obtener los argumentos (una lista)
         final arguments =
@@ -291,19 +285,29 @@ class AppRoutes {
         );
       },
 
-      listLocation : (_) {
+      listLocation: (_) {
         return ListLocationsScreen();
       },
-      listProduct : (_) {
+      listProduct: (_) {
         return ListProductsScreen();
+      },
+
+      searchLocationDestTransInfo: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        // Asegurarnos de que la lista tenga al menos dos elementos
+        final info = arguments[0] as InfoResult?;
+        final ubi = arguments[1] as Ubicacion?;
+        return LocationDestTransfInfoScreen(
+          infoRapidaResult: info,
+          ubicacion: ubi,
+        );
       },
 
       //transferencias
       transferencias: (_) {
         return ListTransferenciasScreen();
       },
-      // transferExterna: (_) => const TransferExternaScreen(),
-      searchProductTrans: (_) => const SearchLocationScreenTrans(),
       // searchLocationTrans: (_) => const SearchProductScreenTrans(),
 
       transferenciaDetail: (context) {

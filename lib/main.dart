@@ -14,11 +14,12 @@ import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/quick%20info/bloc/info_rapida_bloc.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/screens/transfer/bloc/transfer_info_bloc.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/modules/transfer/bloc/transfer_info_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
-import 'package:wms_app/src/presentation/views/recepcion/screens/bloc/recepcion_bloc.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-externa/bloc/transfer_externa_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
+import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
@@ -44,48 +45,6 @@ import 'src/presentation/views/home/index.dart';
 final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-
-//   ErrorWidget.builder = (FlutterErrorDetails details) => ErrorMessageWidget(
-//         title: 'Algo salió mal',
-//         message:
-//             'No se pudo cargar la información. Verifica tu conexión o intenta nuevamente.',
-//         buttonText: 'Cerrar la app',
-//         onPressed: () {
-//           exit(0);
-//         },
-//       );
-
-// // Asegurarse de que Flutter está preparado.
-
-//   await LocalNotificationsService.reqyestPermissionsLocalNotifications();
-//   await LocalNotificationsService().initializeNotifications();
-
-//   // Otras inicializaciones, como configuraciones de orientación y preferencias
-//   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-//       .then((_) async {
-//     await Preferences.init(); // Inicializa preferencias.
-
-//     // Luego se inicia la app
-//     runApp(const AppState());
-//   });
-
-//   // Cron para verificar conexión e interacción con Odoo
-//   var cron = Cron();
-//   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-//     try {
-//       final result = await InternetAddress.lookup('example.com');
-//       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-//         final isLogin = await PrefUtils.getIsLoggedIn();
-//         if (isLogin) {
-//           searchProductsNoSendOdoo(navigatorKey.currentContext!);
-//         }
-//       }
-//     } on SocketException catch (_) {}
-//   });
-// }
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -103,18 +62,29 @@ void main() async {
   await Preferences.init();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  // var cron = Cron();
-  // cron.schedule(Schedule.parse('*/1 * * * *'), () async {
-  //   try {
-  //     final result = await InternetAddress.lookup('example.com');
-  //     if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-  //       final isLogin = await PrefUtils.getIsLoggedIn();
-  //       if (isLogin) {
-  //         searchProductsNoSendOdoo(navigatorKey.currentContext!);
-  //       }
-  //     }
-  //   } on SocketException catch (_) {}
-  // });
+  var cron = Cron();
+  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        final isLogin = await PrefUtils.getIsLoggedIn();
+        if (isLogin) {
+          searchProductsNoSendOdoo(navigatorKey.currentContext!);
+        }
+      }
+    } on SocketException catch (_) {}
+  });
+  cron.schedule(Schedule.parse('*/1 * * * *'), () async {
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        final isLogin = await PrefUtils.getIsLoggedIn();
+        if (isLogin) {
+          searchProductsPickNoSendOdoo(navigatorKey.currentContext!);
+        }
+      }
+    } on SocketException catch (_) {}
+  });
 
   runApp(const AppState()); // fuera del .then()
 }
@@ -170,9 +140,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) => InventarioBloc(),
         ),
-        BlocProvider(
-          create: (_) => TransferExternaBloc(),
-        ),
+      
         BlocProvider(
           create: (_) => PickingPickBloc(),
         ),
@@ -260,7 +228,7 @@ void searchProductsNoSendOdoo(BuildContext context) async {
           resultProduct.idBatch ?? 0,
           resultProduct.idProduct ?? 0,
           'is_send_odoo',
-          'true',
+          1,
           resultProduct.idMove ?? 0,
         );
       }
@@ -270,25 +238,68 @@ void searchProductsNoSendOdoo(BuildContext context) async {
         product.batchId ?? 0,
         product.idProduct ?? 0,
         'is_send_odoo',
-        'false',
+        0,
         product.idMove ?? 0,
       );
     }
   }
 }
 
-void refreshData(BuildContext context) async {
-  final String rol = await PrefUtils.getUserRol();
-  if (rol == 'picking') {
-    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
-  } else if (rol == 'admin') {
-    context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
-    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-          false,
-        ));
-  } else {
-    context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-          false,
-        ));
+void searchProductsPickNoSendOdoo(BuildContext context) async {
+  DataBaseSqlite db = DataBaseSqlite();
+  TransferenciasRepository repository = TransferenciasRepository();
+  //traemos todos los productos
+  final products = await db.pickProductsRepository.getProducts();
+  //filtramos la lista de produtos para dejar solo los productos que cumplan esta condicion is_send_odoo == 0
+  final productsNoSendOdoo =
+      products.where((element) => element.isSendOdoo == 0).toList();
+  //recorremos la lista
+  for (var product in productsNoSendOdoo) {
+    final userId = await PrefUtils.getUserId();
+
+    final response = await repository.sendProductTransferPick(
+      TransferRequest(
+        idTransferencia: product.batchId ?? 0,
+        listItems: [
+          ListItem(
+            idMove: product.idMove ?? 0,
+            idProducto: product.idProduct ?? 0,
+            idLote: product.loteId ?? 0,
+            idUbicacionDestino: product.muelleId ?? 0,
+            cantidadEnviada: product.quantitySeparate ?? 0,
+            idOperario: userId,
+            timeLine: product.timeSeparate == null
+                ? 30.0
+                : product.timeSeparate.toDouble(),
+            fechaTransaccion: product.fechaTransaccion ?? '',
+            observacion: product.observation ?? 'Sin novedad',
+            dividida: false,
+          ),
+        ],
+      ),
+      false,
+    );
+
+    if (response.result?.code == 200) {
+      //recorremos todos los resultados de la respuesta
+      for (var resultProduct in response.result!.result!) {
+        db.pickProductsRepository.setFieldTablePickProducts(
+          resultProduct.idTransferencia ?? 0,
+          resultProduct.idProduct ?? 0,
+          'is_send_odoo',
+          1,
+          resultProduct.idMove ?? 0,
+        );
+      }
+    } else {
+      //elementos que no se pudieron enviar a odoo
+      db.pickProductsRepository.setFieldTablePickProducts(
+        product.batchId ?? 0,
+        product.idProduct ?? 0,
+        'is_send_odoo',
+        0,
+        product.idMove ?? 0,
+      );
+    }
   }
 }

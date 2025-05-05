@@ -198,7 +198,8 @@ class SendProductPickOdooSuccess extends PickingPickState {}
 
 class SendProductPickOdooError extends PickingPickState {
   final String error;
-  SendProductPickOdooError(this.error);
+  final TransferRequest transferRequest;
+  SendProductPickOdooError(this.error, this.transferRequest);
 }
 
 //*est
@@ -232,13 +233,37 @@ class StartOrStopTimeTransferFailure extends PickingPickState {
 
 
 
-class AssignUserToTransferSuccess extends PickingPickState {
-  final int id;
-  AssignUserToTransferSuccess(this.id);
-}
 
 
 class LoadSearchPickingState extends PickingPickState {
   final List<ResultPick> listOfPicking;
   LoadSearchPickingState({required this.listOfPicking});
+}
+
+class AssignUserToPickLoading extends PickingPickState {}
+
+
+class AssignUserToPickSuccess extends PickingPickState {
+  final int id;
+  AssignUserToPickSuccess(this.id);
+}
+
+class AssignUserToPickError extends PickingPickState {
+  final String error;
+  AssignUserToPickError(this.error);
+}
+
+
+class CreateBackOrderOrNotLoading extends PickingPickState {}
+
+
+class CreateBackOrderOrNotSuccess extends PickingPickState {
+  final bool isBackorder;
+  final String msg;
+  CreateBackOrderOrNotSuccess(this.isBackorder, this.msg);
+}
+
+class CreateBackOrderOrNotFailure extends PickingPickState {
+  final String error;
+  CreateBackOrderOrNotFailure(this.error);
 }
