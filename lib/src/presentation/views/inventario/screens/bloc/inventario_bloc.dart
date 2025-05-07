@@ -32,6 +32,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   String scannedValue1 = '';
   String scannedValue2 = '';
   String scannedValue3 = '';
+  String selectedAlmacen = '';
   String scannedValue4 = '';
 
   List<BarcodeInventario> barcodeInventario = [];
@@ -132,6 +133,30 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     //metodo para cargar la oncfiguracion del usuario
     //*obtener las configuraciones y permisos del usuario desde la bd
     on<LoadConfigurationsUserInventory>(_onLoadConfigurationsUserEvent);
+    on<FilterUbicacionesAlmacenEvent>(_onFilterUbicacionesEvent);
+  }
+
+  void _onFilterUbicacionesEvent(
+      FilterUbicacionesAlmacenEvent event, Emitter<InventarioState> emit) {
+    try {
+      emit(FilterUbicacionesLoading());
+      selectedAlmacen = '';
+      ubicacionesFilters = [];
+      ubicacionesFilters = ubicaciones;
+      final query = event.almacen.toLowerCase();
+      if (query.isEmpty) {
+        ubicacionesFilters = ubicaciones;
+      } else {
+        selectedAlmacen = event.almacen;
+        ubicacionesFilters = ubicaciones.where((location) {
+          return location.warehouseName?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(FilterUbicacionesSuccess(ubicacionesFilters));
+    } catch (e, s) {
+      print('Error en el FilterUbicacionesEvent: $e, $s');
+      emit(FilterUbicacionesFailure(e.toString()));
+    }
   }
 
   //*metodo para cargar la configuracion del usuario
@@ -567,6 +592,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
       ubicacionesFilters = [];
       ubicacionesFilters = ubicaciones;
       final query = event.query.toLowerCase();
+      selectedAlmacen = '';
       if (query.isEmpty) {
         ubicacionesFilters = ubicaciones;
       } else {

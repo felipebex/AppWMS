@@ -49,6 +49,18 @@ class _LocationDestScreenState extends State<LocationDestRecepScreen> {
                       ordenCompra: widget.ordenCompra,
                       currentProduct: widget.currentProduct,
                     ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                        bloc.selectedAlmacen == null ||
+                                bloc.selectedAlmacen == ''
+                            ? 'Ubicaciones de todos los almacenes'
+                            : 'Ubicaciones del almacen: ${bloc.selectedAlmacen}',
+                        style: TextStyle(
+                            color: black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500)),
                     SizedBox(
                         height: 55,
                         width: size.width * 1,
@@ -254,8 +266,6 @@ class _LocationDestScreenState extends State<LocationDestRecepScreen> {
                               widget.ordenCompra,
                               widget.currentProduct
                             ]);
-
-                            
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -352,6 +362,46 @@ class _AppBarInfo extends StatelessWidget {
                               style: TextStyle(color: white, fontSize: 18)),
                         ),
                         const Spacer(),
+                        PopupMenuButton<String>(
+                          color: white,
+                          icon: const Icon(
+                            Icons.more_vert,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          onSelected: (value) {
+                            context
+                                .read<RecepcionBloc>()
+                                .add(FilterUbicacionesAlmacenEvent(value));
+                          },
+                          itemBuilder: (BuildContext context) {
+                            // Lista fija de tipos de transferencia que ya tienes
+                            final tipos = [
+                              ...context.read<UserBloc>().almacenes,
+                            ];
+
+                            return tipos.map((tipo) {
+                              return PopupMenuItem<String>(
+                                value: tipo.name,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_upload_outlined,
+                                      color: primaryColorApp,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      tipo.name ?? "",
+                                      style: const TextStyle(
+                                          color: black, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList();
+                          },
+                        ),
                       ],
                     ),
                   ),

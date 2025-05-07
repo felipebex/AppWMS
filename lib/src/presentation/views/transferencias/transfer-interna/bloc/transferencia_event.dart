@@ -200,3 +200,9 @@ class FilterTransferByTypeEvent extends TransferenciaEvent {
   final String type;
   FilterTransferByTypeEvent(this.type);
 }
+
+
+class FilterUbicacionesAlmacenEvent extends TransferenciaEvent {
+  final String almacen;
+  FilterUbicacionesAlmacenEvent(this.almacen);
+}

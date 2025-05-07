@@ -46,11 +46,119 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                 height: size.height * 1,
                 child: Column(
                   children: [
-                    _AppBarInfo(
-                      size: size,
-                      infoRapidaResult: widget.infoRapidaResult,
-                      ubicacion: widget.ubicacion,
+                    Container(
+                      padding: const EdgeInsets.only(top: 20),
+                      decoration: BoxDecoration(
+                        color: primaryColorApp,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                      width: double.infinity,
+                      child: BlocProvider(
+                        create: (context) => ConnectionStatusCubit(),
+                        child: BlocConsumer<TransferInfoBloc,
+                                TransferInfoState>(
+                            listener: (context, state) {},
+                            builder: (context, status) {
+                              return Column(
+                                children: [
+                                  const WarningWidgetCubit(),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        top: status != ConnectionStatus.online
+                                            ? 0
+                                            : 35),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.arrow_back,
+                                              color: white),
+                                          onPressed: () {
+                                            context
+                                                .read<TransferInfoBloc>()
+                                                .add(ShowKeyboardEvent(false));
+                                            Navigator.pushReplacementNamed(
+                                                context, 'transfer-info',
+                                                arguments: [
+                                                  widget.infoRapidaResult,
+                                                  widget.ubicacion
+                                                ]);
+                                          },
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              left: size.width * 0.2),
+                                          child: Text('UBICACIONES',
+                                              style: TextStyle(
+                                                  color: white, fontSize: 18)),
+                                        ),
+                                        const Spacer(),
+                                        PopupMenuButton<String>(
+                                          color: white,
+                                          icon: const Icon(
+                                            Icons.more_vert,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                          onSelected: (value) {
+                                            bloc.add(
+                                                FilterUbicacionesEvent(value));
+                                          },
+                                          itemBuilder: (BuildContext context) {
+                                            // Lista fija de tipos de transferencia que ya tienes
+                                            final tipos = [
+                                              ...context
+                                                  .read<UserBloc>()
+                                                  .almacenes,
+                                            ];
+
+                                            return tipos.map((tipo) {
+                                              return PopupMenuItem<String>(
+                                                value: tipo.name,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .file_upload_outlined,
+                                                      color: primaryColorApp,
+                                                      size: 20,
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Text(
+                                                      tipo.name ?? "",
+                                                      style: const TextStyle(
+                                                          color: black,
+                                                          fontSize: 12),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }).toList();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
+                      ),
                     ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                        bloc.selectedAlmacen == null || bloc.selectedAlmacen == ''
+                            ? 'Ubicaciones de todos los almacenes'
+                            : 'Ubicaciones del almacen: ${bloc.selectedAlmacen}',
+                        style: TextStyle(
+                            color: black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500)),
                     SizedBox(
                         height: 55,
                         width: size.width * 1,
@@ -207,6 +315,41 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                                                     ),
                                                   ),
                                                 ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Almacen: ',
+                                                    style: TextStyle(
+                                                      color: black,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    bloc
+                                                                .ubicacionesFilters[
+                                                                    index]
+                                                                .warehouseName ==
+                                                            false
+                                                        ? 'Sin almacen'
+                                                        : bloc
+                                                                .ubicacionesFilters[
+                                                                    index]
+                                                                .warehouseName ??
+                                                            '',
+                                                    style: TextStyle(
+                                                      color: bloc
+                                                                  .ubicacionesFilters[
+                                                                      index]
+                                                                  .warehouseName ==
+                                                              false
+                                                          ? red
+                                                          : primaryColorApp,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
                                               )
                                             ],
                                           ),
@@ -283,74 +426,6 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
           ),
         );
       },
-    );
-  }
-}
-
-class _AppBarInfo extends StatelessWidget {
-  const _AppBarInfo({
-    super.key,
-    required this.size,
-    this.infoRapidaResult,
-    this.ubicacion,
-  });
-
-  final Size size;
-
-  final InfoResult? infoRapidaResult;
-  final Ubicacion? ubicacion;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        color: primaryColorApp,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
-      ),
-      width: double.infinity,
-      child: BlocProvider(
-        create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<TransferInfoBloc, TransferInfoState>(
-            listener: (context, state) {},
-            builder: (context, status) {
-              return Column(
-                children: [
-                  const WarningWidgetCubit(),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: status != ConnectionStatus.online ? 0 : 35),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: white),
-                          onPressed: () {
-                            context
-                                .read<TransferInfoBloc>()
-                                .add(ShowKeyboardEvent(false));
-
-                            Navigator.pushReplacementNamed(
-                                context, 'transfer-info',
-                                arguments: [infoRapidaResult, ubicacion]);
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: size.width * 0.2),
-                          child: Text('UBICACIONES',
-                              style: TextStyle(color: white, fontSize: 18)),
-                        ),
-                        const Spacer(),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }),
-      ),
     );
   }
 }

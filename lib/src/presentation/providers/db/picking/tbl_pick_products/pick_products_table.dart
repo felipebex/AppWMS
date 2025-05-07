@@ -72,7 +72,7 @@ class PickProductsTable {
         $columnOrigin VARCHAR(255),
         $columnObservation TEXT,
         $columnUnidades TEXT,
-        $columnWeight INTEGER,
+        $columnWeight REAL,
         $columnIsMuelle INTEGER,
         $columnMuelleId INTEGER,
         $columnIsLocationIsOk INTEGER,

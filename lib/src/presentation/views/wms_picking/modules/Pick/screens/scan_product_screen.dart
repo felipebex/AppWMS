@@ -1,7 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -103,7 +101,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
         !batchBloc.quantityIsOk && //false
         !batchBloc.locationDestIsOk) //false
     {
-      print("🚼 location");
+      // print("🚼 location");
       FocusScope.of(context).requestFocus(focusNode1);
       //cerramos los demas focos
       focusNode2.unfocus();
@@ -2073,6 +2071,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
 
       // Si hay productos pendientes de enviar a Odoo, mostramos un modal
       if (productsToSend.isNotEmpty) {
+        FocusScope.of(context).unfocus();
+
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -2125,9 +2125,21 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
             ),
           ),
         );
+        return;
+      } else {
+        FocusScope.of(context).unfocus();
+
+        showDialog(
+            context: Navigator.of(context, rootNavigator: true).context,
+            builder: (context) {
+              return DialogBackorderPick(
+                unidadesSeparadas: unidadesSeparadas,
+              );
+            });
       }
-      return;
     } else {
+      FocusScope.of(context).unfocus();
+
       showDialog(
           context: context,
           builder: (context) {
@@ -2156,12 +2168,15 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
               },
               onClose: () {
                 Navigator.pop(context);
+                FocusScope.of(context).unfocus();
                 Future.delayed(Duration.zero, () {
                   showDialog(
                       context:
                           Navigator.of(context, rootNavigator: true).context,
                       builder: (context) {
-                        return DialogBackorderPick();
+                        return DialogBackorderPick(
+                          unidadesSeparadas:unidadesSeparadas,
+                        );
                       });
                 });
               },

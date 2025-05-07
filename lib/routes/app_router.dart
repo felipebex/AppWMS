@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/inventario/screens/widgets/locati
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/product/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/index_list.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/locations_dest/locations_dest_widget.dart';
@@ -77,11 +78,12 @@ class AppRoutes {
   static const String home = '/home';
   static const String user = 'user';
 
-  // Operaciones
+  // recepcion
   static const String recepcion = 'recepcion';
   static const String listOrdenesCompra = 'list-ordenes-compra';
   static const String scanProductOrder = 'scan-product-order';
   static const String locationDestSearch = 'search-location-recep';
+  static const String listReceptionBatch = 'list-recepction-batch';
 
   //new lote
   static const String newLote = 'new-lote';
@@ -195,7 +197,7 @@ class AppRoutes {
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
       },
 
-      // Operaciones
+      // Recepcion
 
       scanProductOrder: (context) {
         // Obtener los argumentos (una lista)
@@ -257,6 +259,7 @@ class AppRoutes {
         return NewLoteScreen(
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
       },
+      listReceptionBatch : (_) => const ListRecepctionBatchScreen(),
 
       //info rapida
       infoRapida: (_) => const InfoRapidaScreen(),

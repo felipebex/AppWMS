@@ -1,7 +1,5 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
@@ -86,6 +84,7 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                             : newValue ==
                                 batchBloc
                                     .pickWithProducts.pick?.barcodeMuelle) {
+                          print('Muelle correcto');
                           // Validación correcta
                           validatePicking(
                             batchBloc,
@@ -214,8 +213,16 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
             ),
           ),
         );
+        return;
+      } else {
+        showDialog(
+            context: Navigator.of(context, rootNavigator: true).context,
+            builder: (context) {
+              return DialogBackorderPick(
+                unidadesSeparadas: unidadesSeparadas,
+              );
+            });
       }
-      return;
     } else {
       showDialog(
           context: context,
@@ -229,6 +236,7 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                     true) {
                   //cerramos el focus
                   batchBloc.isSearch = false;
+                  batchBloc.add(ShowKeyboard(false));
                   batchBloc.add(LoadProductEditEvent());
                   Navigator.pushReplacementNamed(
                     context,
@@ -250,7 +258,9 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                       context:
                           Navigator.of(context, rootNavigator: true).context,
                       builder: (context) {
-                        return DialogBackorderPick();
+                        return DialogBackorderPick(
+                          unidadesSeparadas: unidadesSeparadas,
+                        );
                       });
                 });
               },

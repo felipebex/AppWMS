@@ -386,7 +386,7 @@ class TransferenciasRepository {
             "crear_backorder": isBackorder,
           }
         },
-        isLoadinDialog: true,
+        isLoadinDialog: isLoadingDialog,
       );
       if (response.statusCode <= 500) {
         // Decodifica la respuesta JSON a un mapa

@@ -177,3 +177,16 @@ class ConfigurationErrorInventory extends InventarioState {
 
   ConfigurationErrorInventory(this.error);
 }
+
+
+class FilterUbicacionesLoading extends InventarioState {}
+
+class FilterUbicacionesFailure extends InventarioState {
+  final String error;
+  FilterUbicacionesFailure(this.error);
+}
+
+class FilterUbicacionesSuccess extends InventarioState {
+  final List<ResultUbicaciones> locations;
+  FilterUbicacionesSuccess(this.locations);
+}

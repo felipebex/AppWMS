@@ -7,7 +7,6 @@ class UbicacionesRepository {
   // Método para insertar o actualizar los barcodes de los productos
   Future<void> insertOrUpdateUbicaciones(
       List<ResultUbicaciones> ubicacionesList) async {
-
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -31,7 +30,6 @@ class UbicacionesRepository {
             existingUbicaciones.map((e) => e[UbicacionesTable.columnId]));
 
         for (var ubicacion in ubicacionesList) {
-
           // Validación: Si el código de barras está vacío o es null, se salta este registro
           if (ubicacion.barcode == null || ubicacion.barcode == "") {
             continue; // Saltamos esta ubicación y no realizamos ningún insert o update
@@ -46,6 +44,8 @@ class UbicacionesRepository {
                 UbicacionesTable.columnBarcode: ubicacion.barcode,
                 UbicacionesTable.columnLocationId: ubicacion.locationId,
                 UbicacionesTable.columnLocationName: ubicacion.locationName,
+                UbicacionesTable.columnIdWarehouse: ubicacion.idWarehouse,
+                UbicacionesTable.columnWarehouseName: ubicacion.warehouseName,
               },
               where: '${UbicacionesTable.columnId} = ?',
               whereArgs: [ubicacion.id],
@@ -60,6 +60,8 @@ class UbicacionesRepository {
                 UbicacionesTable.columnBarcode: ubicacion.barcode,
                 UbicacionesTable.columnLocationId: ubicacion.locationId,
                 UbicacionesTable.columnLocationName: ubicacion.locationName,
+                UbicacionesTable.columnIdWarehouse: ubicacion.idWarehouse,
+                UbicacionesTable.columnWarehouseName: ubicacion.warehouseName,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -93,6 +95,8 @@ class UbicacionesRepository {
           barcode: map[UbicacionesTable.columnBarcode],
           locationId: map[UbicacionesTable.columnLocationId],
           locationName: map[UbicacionesTable.columnLocationName],
+          idWarehouse: map[UbicacionesTable.columnIdWarehouse],
+          warehouseName: map[UbicacionesTable.columnWarehouseName],
         );
       }).toList();
 

@@ -310,3 +310,17 @@ class FilterReceptionByTypeFailure extends RecepcionState {
   final String error;
   FilterReceptionByTypeFailure(this.error);
 }
+
+
+
+class FilterUbicacionesLoading extends RecepcionState {}
+
+class FilterUbicacionesFailure extends RecepcionState {
+  final String error;
+  FilterUbicacionesFailure(this.error);
+}
+
+class FilterUbicacionesSuccess extends RecepcionState {
+  final List<ResultUbicaciones> locations;
+  FilterUbicacionesSuccess(this.locations);
+}

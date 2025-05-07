@@ -197,3 +197,10 @@ class FilterReceptionByTypeEvent extends RecepcionEvent {
 
 class CleanFieldsEvent extends RecepcionEvent {
 }
+
+
+
+class FilterUbicacionesAlmacenEvent extends RecepcionEvent {
+  final String almacen;
+  FilterUbicacionesAlmacenEvent(this.almacen);
+}

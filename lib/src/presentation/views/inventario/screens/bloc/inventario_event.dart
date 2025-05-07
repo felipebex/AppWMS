@@ -130,3 +130,8 @@ class CreateLoteProduct extends InventarioEvent {
 
 
 class LoadConfigurationsUserInventory extends InventarioEvent {}
+
+class FilterUbicacionesAlmacenEvent extends InventarioEvent {
+  final String almacen;
+  FilterUbicacionesAlmacenEvent(this.almacen);
+}

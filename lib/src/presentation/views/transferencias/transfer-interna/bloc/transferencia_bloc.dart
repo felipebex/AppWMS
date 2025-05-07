@@ -1,6 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, collection_methods_unrelated_type, unnecessary_type_check
 
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -39,7 +38,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
   //*lista de todas las pocisiones de los productos del batchs
   List<String> positionsOrigen = [];
-
+  String selectedAlmacen = '';
   //lista de transferencias
   List<ResultTransFerencias> transferencias = [];
   List<ResultTransFerencias> transferenciasDB = [];
@@ -179,6 +178,31 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     ///filtrar transferenica por el type
     on<FilterTransferByTypeEvent>(_onFilterTransferByTypeEvent);
+
+    on<FilterUbicacionesAlmacenEvent>(_onFilterUbicacionesEvent);
+  }
+
+  void _onFilterUbicacionesEvent(
+      FilterUbicacionesAlmacenEvent event, Emitter<TransferenciaState> emit) {
+    try {
+      emit(FilterUbicacionesLoading());
+      selectedAlmacen = '';
+      ubicacionesFilters = [];
+      ubicacionesFilters = ubicaciones;
+      final query = event.almacen.toLowerCase();
+      if (query.isEmpty) {
+        ubicacionesFilters = ubicaciones;
+      } else {
+        selectedAlmacen = event.almacen;
+        ubicacionesFilters = ubicaciones.where((location) {
+          return location.warehouseName?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(FilterUbicacionesSuccess(ubicacionesFilters));
+    } catch (e, s) {
+      print('Error en el FilterUbicacionesEvent: $e, $s');
+      emit(FilterUbicacionesFailure(e.toString()));
+    }
   }
 
   void _onFilterTransferByTypeEvent(
@@ -213,6 +237,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
       ubicacionesFilters = [];
       ubicacionesFilters = ubicaciones;
       final query = event.query.toLowerCase();
+      selectedAlmacen = '';
       if (query.isEmpty) {
         ubicacionesFilters = ubicaciones;
       } else {
@@ -465,10 +490,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
                       ? "Sin novedad"
                       : productBD.observation,
               dividida: event.isDividio,
-              // observacion: productBD.observation == ""
-              //     ? "Sin novedad"
-              //     : productBD.observation,
-              // dividida: false,
             ),
           ],
         ),

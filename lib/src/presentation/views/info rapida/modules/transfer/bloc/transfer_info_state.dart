@@ -82,3 +82,15 @@ class SearchLocationSuccess extends TransferInfoState {
   final List<ResultUbicaciones> locations;
   SearchLocationSuccess(this.locations);
 }
+
+class FilterUbicacionesLoading extends TransferInfoState {}
+
+class FilterUbicacionesFailure extends TransferInfoState {
+  final String error;
+  FilterUbicacionesFailure(this.error);
+}
+
+class FilterUbicacionesSuccess extends TransferInfoState {
+  final List<ResultUbicaciones> locations;
+  FilterUbicacionesSuccess(this.locations);
+}

@@ -8,180 +8,119 @@ class ProductsEntradaRepository {
   Future<void> insertarProductoEntrada(
       List<LineasTransferencia> products) async {
     try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
-      // Comienza la transacción
-      await db.transaction(
-        (txn) async {
-          Batch batch = txn.batch();
-          // Primero, obtener todas las IDs de las novedades existentes
+      // Obtener la instancia de la base de datos.
+      Database dbInstance = await DataBaseSqlite().getDatabaseInstance();
 
-          final List<Map<String, dynamic>> existingProducts = await txn.query(
-            ProductRecepcionTable.tableName,
-            columns: [ProductRecepcionTable.columnId],
-            where:
-                '${ProductRecepcionTable.columnId} =? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? ',
-            whereArgs: [
-              products.map((product) => product.productId).toList().join(','),
-              products.map((product) => product.idMove).toList().join(','),
-              products.map((product) => product.idRecepcion).toList().join(','),
-            ],
-          );
+      await dbInstance.transaction((txn) async {
+        Batch batch = txn.batch();
 
-          // Crear un conjunto de los IDs existentes para facilitar la comprobación
-          Set<int> existingIds = Set.from(existingProducts.map((e) {
-            return e[ProductRecepcionTable.columnId];
-          }));
+        // Generar el conjunto de productIds a consultar y crear las claves compuestas de los productos a insertar/actualizar.
+        final productIds =
+            products.map((p) => p.productId ?? 0).toSet().toList();
+        final Set<String> keysToInsert = products
+            .map((p) => '${p.productId}-${p.idMove}-${p.idRecepcion}')
+            .toSet();
 
-          // Recorrer todas las novedades y realizar insert o update según corresponda
-          // ignore: non_constant_identifier_names
-          for (var LineasRecepcion in products) {
-            if (existingIds.contains(LineasRecepcion.productId)) {
-              // Si la novedad ya existe, la actualizamos
-              batch.update(
-                ProductRecepcionTable.tableName,
-                {
-                  ProductRecepcionTable.columnId: LineasRecepcion.id ?? 0,
-                  ProductRecepcionTable.columnIdMove:
-                      LineasRecepcion.idMove ?? 0,
-                  ProductRecepcionTable.columnProductId:
-                      LineasRecepcion.productId ?? 0,
-                  ProductRecepcionTable.columnIdRecepcion:
-                      LineasRecepcion.idRecepcion ?? 0,
-                  ProductRecepcionTable.columnProductName:
-                      LineasRecepcion.productName ?? '',
-                  ProductRecepcionTable.columnProductCode:
-                      LineasRecepcion.productCode ?? '',
-                  ProductRecepcionTable.columnProductBarcode:
-                      LineasRecepcion.productBarcode ?? '',
-                  ProductRecepcionTable.columnProductTracking:
-                      LineasRecepcion.productTracking ?? '',
-                  ProductRecepcionTable.columnFechaVencimiento:
-                      LineasRecepcion.fechaVencimiento ?? "",
-                  ProductRecepcionTable.columnDiasVencimiento:
-                      LineasRecepcion.diasVencimiento ?? '',
-                  ProductRecepcionTable.columnQuantityOrdered:
-                      LineasRecepcion.quantityOrdered ?? 0,
-                  ProductRecepcionTable.columnQuantityToReceive:
-                      LineasRecepcion.quantityToReceive ?? 0,
-                  ProductRecepcionTable.columnQuantityDone:
-                      LineasRecepcion.quantityDone ?? 0,
-                  ProductRecepcionTable.columnUom: LineasRecepcion.uom ?? "",
-                  ProductRecepcionTable.columnLocationDestId:
-                      LineasRecepcion.locationDestId ?? 0,
-                  ProductRecepcionTable.columnLocationDestName:
-                      LineasRecepcion.locationDestName ?? '',
-                  ProductRecepcionTable.columnLocationDestBarcode:
-                      LineasRecepcion.locationDestBarcode ?? '',
-                  ProductRecepcionTable.columnLocationId:
-                      LineasRecepcion.locationId ?? 0,
-                  ProductRecepcionTable.columnLocationBarcode:
-                      LineasRecepcion.locationBarcode ?? '',
-                  ProductRecepcionTable.columnLocationName:
-                      LineasRecepcion.locationName ?? '',
-                  ProductRecepcionTable.columnWeight:
-                      LineasRecepcion.weight ?? 0,
-                  ProductRecepcionTable.columnIsSeparate: 0,
-                  ProductRecepcionTable.columnIsSelected: 0,
-                  ProductRecepcionTable.columnLotName:
-                      LineasRecepcion.lotName ?? "",
-                  ProductRecepcionTable.columnLoteDate:
-                      (LineasRecepcion.lotName != "" ||
-                              LineasRecepcion.lotName != null)
-                          ? LineasRecepcion.fechaVencimiento
-                          : "",
-                  ProductRecepcionTable.columnIsProductSplit: 0,
-                  ProductRecepcionTable.columnObservation: "",
-                  ProductRecepcionTable.columnDateStart: "",
-                  ProductRecepcionTable.columnDateEnd: "",
-                  ProductRecepcionTable.columnTime: LineasRecepcion.time,
-                  ProductRecepcionTable.columnIsDoneItem:
-                      LineasRecepcion.isDoneItem ?? 0,
-                  ProductRecepcionTable.columnDateTransaction:
-                      LineasRecepcion.dateTransaction ?? '',
-                  ProductRecepcionTable.columnCantidadFaltante:
-                      LineasRecepcion.cantidadFaltante ?? 0,
-                },
-                where:
-                    '${ProductRecepcionTable.columnId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ? ',
-                whereArgs: [
-                  LineasRecepcion.productId,
-                  LineasRecepcion.idMove,
-                  LineasRecepcion.idRecepcion
-                ],
-              );
-            } else {
-              batch.insert(
-                ProductRecepcionTable.tableName,
-                {
-                  ProductRecepcionTable.columnId: LineasRecepcion.id ?? 0,
-                  ProductRecepcionTable.columnIdMove:
-                      LineasRecepcion.idMove ?? 0,
-                  ProductRecepcionTable.columnProductId:
-                      LineasRecepcion.productId ?? 0,
-                  ProductRecepcionTable.columnIdRecepcion:
-                      LineasRecepcion.idRecepcion ?? 0,
-                  ProductRecepcionTable.columnProductName:
-                      LineasRecepcion.productName ?? '',
-                  ProductRecepcionTable.columnProductCode:
-                      LineasRecepcion.productCode ?? "",
-                  ProductRecepcionTable.columnProductBarcode:
-                      LineasRecepcion.productBarcode ?? '',
-                  ProductRecepcionTable.columnProductTracking:
-                      LineasRecepcion.productTracking ?? '',
-                  ProductRecepcionTable.columnFechaVencimiento:
-                      LineasRecepcion.fechaVencimiento ?? "",
-                  ProductRecepcionTable.columnDiasVencimiento:
-                      LineasRecepcion.diasVencimiento ?? '',
-                  ProductRecepcionTable.columnQuantityOrdered:
-                      LineasRecepcion.quantityOrdered ?? 0,
-                  ProductRecepcionTable.columnQuantityToReceive:
-                      LineasRecepcion.quantityToReceive ?? 0,
-                  ProductRecepcionTable.columnQuantityDone:
-                      LineasRecepcion.quantityDone ?? 0,
-                  ProductRecepcionTable.columnUom: LineasRecepcion.uom ?? "",
-                  ProductRecepcionTable.columnLocationDestId:
-                      LineasRecepcion.locationDestId ?? 0,
-                  ProductRecepcionTable.columnLocationDestName:
-                      LineasRecepcion.locationDestName ?? '',
-                  ProductRecepcionTable.columnLocationDestBarcode:
-                      LineasRecepcion.locationDestBarcode ?? '',
-                  ProductRecepcionTable.columnLocationId:
-                      LineasRecepcion.locationId ?? 0,
-                  ProductRecepcionTable.columnLocationBarcode:
-                      LineasRecepcion.locationBarcode ?? '',
-                  ProductRecepcionTable.columnLocationName:
-                      LineasRecepcion.locationName ?? '',
-                  ProductRecepcionTable.columnWeight:
-                      LineasRecepcion.weight ?? 0,
-                  ProductRecepcionTable.columnIsSeparate: 0,
-                  ProductRecepcionTable.columnIsSelected: 0,
-                  ProductRecepcionTable.columnLotName:
-                      LineasRecepcion.lotName ?? "",
-                  ProductRecepcionTable.columnLoteDate:
-                      (LineasRecepcion.lotName != "" ||
-                              LineasRecepcion.lotName != null)
-                          ? LineasRecepcion.fechaVencimiento
-                          : "",
-                  ProductRecepcionTable.columnIsProductSplit: 0,
-                  ProductRecepcionTable.columnObservation: "",
-                  ProductRecepcionTable.columnDateStart: "",
-                  ProductRecepcionTable.columnDateEnd: "",
-                  ProductRecepcionTable.columnTime: LineasRecepcion.time,
-                  ProductRecepcionTable.columnIsDoneItem:
-                      LineasRecepcion.isDoneItem ?? 0,
-                  ProductRecepcionTable.columnDateTransaction:
-                      LineasRecepcion.dateTransaction ?? '',
-                  ProductRecepcionTable.columnCantidadFaltante:
-                      LineasRecepcion.cantidadFaltante ?? 0,
-                },
-                conflictAlgorithm: ConflictAlgorithm.replace,
-              );
-            }
+        // Consulta única para obtener los registros existentes en la tabla
+        final List<Map<String, dynamic>> existingRows = await txn.query(
+          ProductRecepcionTable.tableName,
+          columns: [
+            ProductRecepcionTable.columnProductId,
+            ProductRecepcionTable.columnIdMove,
+            ProductRecepcionTable.columnIdRecepcion,
+          ],
+          where:
+              '${ProductRecepcionTable.columnProductId} IN (${List.filled(productIds.length, '?').join(',')})',
+          whereArgs: productIds,
+        );
+
+        // Construir un Set de claves compuestas de los registros existentes.
+        Set<String> existingKeys = existingRows.map((e) {
+          return '${e[ProductRecepcionTable.columnProductId]}-${e[ProductRecepcionTable.columnIdMove]}-${e[ProductRecepcionTable.columnIdRecepcion]}';
+        }).toSet();
+
+        // Recorrer cada producto y definir si se debe hacer UPDATE o INSERT.
+        for (var product in products) {
+          final key =
+              '${product.productId}-${product.idMove}-${product.idRecepcion}';
+
+          // Definir los valores a insertar/actualizar.
+          final Map<String, dynamic> values = {
+            ProductRecepcionTable.columnId: product.id ?? 0,
+            ProductRecepcionTable.columnIdMove: product.idMove ?? 0,
+            ProductRecepcionTable.columnProductId: product.productId ?? 0,
+            ProductRecepcionTable.columnIdRecepcion: product.idRecepcion ?? 0,
+            ProductRecepcionTable.columnProductName: product.productName ?? '',
+            ProductRecepcionTable.columnProductCode: product.productCode ?? '',
+            ProductRecepcionTable.columnProductBarcode:
+                product.productBarcode ?? '',
+            ProductRecepcionTable.columnProductTracking:
+                product.productTracking ?? '',
+            ProductRecepcionTable.columnFechaVencimiento:
+                product.fechaVencimiento ?? "",
+            ProductRecepcionTable.columnDiasVencimiento:
+                product.diasVencimiento ?? '',
+            ProductRecepcionTable.columnQuantityOrdered:
+                product.quantityOrdered ?? 0,
+            ProductRecepcionTable.columnQuantityToReceive:
+                product.quantityToReceive ?? 0,
+            ProductRecepcionTable.columnQuantityDone: product.quantityDone ?? 0,
+            ProductRecepcionTable.columnUom: product.uom ?? "",
+            ProductRecepcionTable.columnLocationDestId:
+                product.locationDestId ?? 0,
+            ProductRecepcionTable.columnLocationDestName:
+                product.locationDestName ?? '',
+            ProductRecepcionTable.columnLocationDestBarcode:
+                product.locationDestBarcode ?? '',
+            ProductRecepcionTable.columnLocationId: product.locationId ?? 0,
+            ProductRecepcionTable.columnLocationBarcode:
+                product.locationBarcode ?? '',
+            ProductRecepcionTable.columnLocationName:
+                product.locationName ?? '',
+            ProductRecepcionTable.columnWeight: product.weight ?? 0,
+            ProductRecepcionTable.columnIsSeparate: 0,
+            ProductRecepcionTable.columnIsSelected: 0,
+            ProductRecepcionTable.columnLotName: product.lotName ?? "",
+            // Se valida que exista el lote para asignar la fecha de vencimiento.
+            ProductRecepcionTable.columnLoteDate:
+                (product.lotName != "" ? product.fechaVencimiento : ""),
+            ProductRecepcionTable.columnIsProductSplit: 0,
+            ProductRecepcionTable.columnObservation: "",
+            ProductRecepcionTable.columnDateStart: "",
+            ProductRecepcionTable.columnDateEnd: "",
+            ProductRecepcionTable.columnTime: product.time,
+            ProductRecepcionTable.columnIsDoneItem: product.isDoneItem ?? 0,
+            ProductRecepcionTable.columnDateTransaction:
+                product.dateTransaction ?? '',
+            ProductRecepcionTable.columnCantidadFaltante:
+                product.cantidadFaltante ?? 0,
+          };
+
+          // Si la clave ya existe, se hace UPDATE; si no, se hace INSERT.
+          if (existingKeys.contains(key)) {
+            batch.update(
+              ProductRecepcionTable.tableName,
+              values,
+              where:
+                  '${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ? AND ${ProductRecepcionTable.columnIdRecepcion} = ?',
+              whereArgs: [
+                product.productId,
+                product.idMove,
+                product.idRecepcion
+              ],
+            );
+          } else {
+            batch.insert(
+              ProductRecepcionTable.tableName,
+              values,
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
           }
-          await batch.commit();
-        },
-      );
-      print('Productos de entragas insertados con éxito.');
+        }
+        // Ejecutar el batch sin esperar los resultados individuales para mayor eficiencia.
+        await batch.commit(noResult: true);
+      });
+      print('Productos de entradas insertados con éxito.');
     } catch (e, s) {
       print('Error en el insertarProductoEntrada: $e, $s');
     }
@@ -206,7 +145,8 @@ class ProductsEntradaRepository {
             producto.fechaVencimiento ?? '',
         ProductRecepcionTable.columnDiasVencimiento:
             producto.diasVencimiento ?? 0,
-        ProductRecepcionTable.columnQuantityOrdered: producto.quantityOrdered ?? 0,
+        ProductRecepcionTable.columnQuantityOrdered:
+            producto.quantityOrdered ?? 0,
         ProductRecepcionTable.columnQuantityToReceive:
             producto.quantityToReceive ?? 0,
         ProductRecepcionTable.columnQuantityDone: producto.quantityDone ?? 0,
@@ -300,7 +240,7 @@ class ProductsEntradaRepository {
         'UPDATE ${ProductRecepcionTable.tableName} SET $field = ?'
         'WHERE ${ProductRecepcionTable.columnProductId} = ?'
         'AND ${ProductRecepcionTable.columnIdMove} = ?'
-        'AND ${ProductRecepcionTable.columnIdRecepcion} = ?' 
+        'AND ${ProductRecepcionTable.columnIdRecepcion} = ?'
         'AND ${ProductRecepcionTable.columnIsDoneItem} = 0',
         [setValue, productId, idMove, idEntrada]);
 
@@ -357,7 +297,7 @@ class ProductsEntradaRepository {
 
       if (result.isNotEmpty) {
         dynamic currentQty =
-            (result.first[ProductRecepcionTable.columnQuantitySeparate] );
+            (result.first[ProductRecepcionTable.columnQuantitySeparate]);
 
         dynamic newQty = currentQty + quantity;
         return await txn.update(

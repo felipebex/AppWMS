@@ -73,8 +73,8 @@ class ResultEntrada {
   int? id;
   String? name;
   String? fechaCreacion;
-  int? proveedorId;
-  String? proveedor;
+  dynamic? proveedorId;
+  dynamic? proveedor;
   int? locationDestId;
   String? locationDestName;
   String? locationDestBarode;

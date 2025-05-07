@@ -242,7 +242,7 @@ class Origin{
 class ProductsBatch {
   final int? id;
   final dynamic barcode;
-  final int? weigth;
+  final dynamic? weigth;
   final String? unidades;
 
   final int? idMove;
@@ -280,7 +280,7 @@ class ProductsBatch {
   final int? isSendOdoo;
   final int? isPending;
   final String? isSendOdooDate;
-  final double? weight;
+  final dynamic? weight;
   final dynamic expireDate;
   final dynamic origin;
 

@@ -15,6 +15,7 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   InfoRapidaResult infoRapidaResult = InfoRapidaResult();
 
   String scannedValue1 = '';
+  String selectedAlmacen = '';
 
   //controller
   TextEditingController searchControllerLocation = TextEditingController();
@@ -55,6 +56,31 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
     on<SearchProductEvent>(_onSearchProductEvent);
 
     on<GetProductsList>(_onGetProductsBD);
+
+    on<FilterUbicacionesAlmacenEvent>(_onFilterUbicacionesEvent);
+  }
+
+  void _onFilterUbicacionesEvent(
+      FilterUbicacionesAlmacenEvent event, Emitter<InfoRapidaState> emit) {
+    try {
+      emit(FilterUbicacionesLoading());
+      selectedAlmacen = '';
+      ubicacionesFilters = [];
+      ubicacionesFilters = ubicaciones;
+      final query = event.almacen.toLowerCase();
+      if (query.isEmpty) {
+        ubicacionesFilters = ubicaciones;
+      } else {
+        selectedAlmacen = event.almacen;
+        ubicacionesFilters = ubicaciones.where((location) {
+          return location.warehouseName?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(FilterUbicacionesSuccess(ubicacionesFilters));
+    } catch (e, s) {
+      print('Error en el FilterUbicacionesEvent: $e, $s');
+      emit(FilterUbicacionesFailure(e.toString()));
+    }
   }
 
   void _onGetProductsBD(
@@ -137,6 +163,7 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
       ubicacionesFilters = [];
       ubicacionesFilters = ubicaciones;
       final query = event.query.toLowerCase();
+      selectedAlmacen = '';
       if (query.isEmpty) {
         ubicacionesFilters = ubicaciones;
       } else {

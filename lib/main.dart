@@ -17,6 +17,7 @@ import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/transfer/bloc/transfer_info_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/data/transferencias_repository.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
@@ -143,6 +144,9 @@ class MyApp extends StatelessWidget {
       
         BlocProvider(
           create: (_) => PickingPickBloc(),
+        ),
+        BlocProvider(
+          create: (_) => RecepcionBatchBloc(),
         ),
       ],
       child: GetMaterialApp(

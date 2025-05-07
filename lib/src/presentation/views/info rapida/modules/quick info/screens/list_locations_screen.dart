@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -84,6 +86,18 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                     _AppBarInfo(
                       size: size,
                     ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                        bloc.selectedAlmacen == null ||
+                                bloc.selectedAlmacen == ''
+                            ? 'Ubicaciones de todos los almacenes'
+                            : 'Ubicaciones del almacen: ${bloc.selectedAlmacen}',
+                        style: TextStyle(
+                            color: black,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500)),
                     SizedBox(
                         height: 55,
                         width: size.width * 1,
@@ -239,6 +253,41 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                                                     ),
                                                   ),
                                                 ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Almacen: ',
+                                                    style: TextStyle(
+                                                      color: black,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    bloc
+                                                                .ubicacionesFilters[
+                                                                    index]
+                                                                .warehouseName ==
+                                                            false
+                                                        ? 'Sin almacen'
+                                                        : bloc
+                                                                .ubicacionesFilters[
+                                                                    index]
+                                                                .warehouseName ??
+                                                            '',
+                                                    style: TextStyle(
+                                                      color: bloc
+                                                                  .ubicacionesFilters[
+                                                                      index]
+                                                                  .warehouseName ==
+                                                              false
+                                                          ? red
+                                                          : primaryColorApp,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
                                               )
                                             ],
                                           ),
@@ -266,8 +315,8 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                               selectedIndex == null;
                             });
 
-                            bloc.add(
-                                GetInfoRapida(selectedLocation.id.toString(), true, false));
+                            bloc.add(GetInfoRapida(
+                                selectedLocation.id.toString(), true, false));
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -347,6 +396,10 @@ class _AppBarInfo extends StatelessWidget {
                           onPressed: () {
                             context
                                 .read<InfoRapidaBloc>()
+                                .searchControllerLocation
+                                .clear();
+                            context
+                                .read<InfoRapidaBloc>()
                                 .add(ShowKeyboardEvent(false));
 
                             Navigator.pushReplacementNamed(
@@ -361,6 +414,46 @@ class _AppBarInfo extends StatelessWidget {
                               style: TextStyle(color: white, fontSize: 18)),
                         ),
                         const Spacer(),
+                        PopupMenuButton<String>(
+                          color: white,
+                          icon: const Icon(
+                            Icons.more_vert,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          onSelected: (value) {
+                            context
+                                .read<InfoRapidaBloc>()
+                                .add(FilterUbicacionesAlmacenEvent(value));
+                          },
+                          itemBuilder: (BuildContext context) {
+                            // Lista fija de tipos de transferencia que ya tienes
+                            final tipos = [
+                              ...context.read<UserBloc>().almacenes,
+                            ];
+
+                            return tipos.map((tipo) {
+                              return PopupMenuItem<String>(
+                                value: tipo.name,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.file_upload_outlined,
+                                      color: primaryColorApp,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      tipo.name ?? "",
+                                      style: const TextStyle(
+                                          color: black, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList();
+                          },
+                        ),
                       ],
                     ),
                   ),

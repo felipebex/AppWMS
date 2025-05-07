@@ -1,6 +1,5 @@
 // ignore_for_file: unused_field, unnecessary_null_comparison, unnecessary_type_check, use_build_context_synchronously
 
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -90,6 +89,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   bool isLocationDestOk = true;
   dynamic quantitySelected = 0;
 
+  String selectedAlmacen = '';
   //*lista de ubicaciones
   List<ResultUbicaciones> ubicaciones = [];
   List<ResultUbicaciones> ubicacionesFilters = [];
@@ -188,6 +188,31 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     on<FilterReceptionByTypeEvent>(_onFilterTransferByTypeEvent);
 
     on<CleanFieldsEvent>(_onCleanFieldsEvent);
+
+    on<FilterUbicacionesAlmacenEvent>(_onFilterUbicacionesEvent);
+  }
+
+  void _onFilterUbicacionesEvent(
+      FilterUbicacionesAlmacenEvent event, Emitter<RecepcionState> emit) {
+    try {
+      emit(FilterUbicacionesLoading());
+      selectedAlmacen = '';
+      ubicacionesFilters = [];
+      ubicacionesFilters = ubicaciones;
+      final query = event.almacen.toLowerCase();
+      if (query.isEmpty) {
+        ubicacionesFilters = ubicaciones;
+      } else {
+        selectedAlmacen = event.almacen;
+        ubicacionesFilters = ubicaciones.where((location) {
+          return location.warehouseName?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(FilterUbicacionesSuccess(ubicacionesFilters));
+    } catch (e, s) {
+      print('Error en el FilterUbicacionesEvent: $e, $s');
+      emit(FilterUbicacionesFailure(e.toString()));
+    }
   }
 
   void _onCleanFieldsEvent(
@@ -210,7 +235,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     isQuantityOk = true;
     isLoteOk = true;
     isLocationDestOk = true;
-
   }
 
   void _onFilterTransferByTypeEvent(
@@ -269,6 +293,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       ubicacionesFilters = [];
       ubicacionesFilters = ubicaciones;
       final query = event.query.toLowerCase();
+       selectedAlmacen = '';
       if (query.isEmpty) {
         ubicacionesFilters = ubicaciones;
       } else {
@@ -508,8 +533,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         currentProduct.idRecepcion,
       );
 
-
-
       //calculamos la diferencia de tiempo
       if (dateInicio == "" || dateInicio == null) {
         dateInicio = DateTime.now().toString();
@@ -545,8 +568,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
               ubicacionDestino: configurations
                           .result?.result?.scanDestinationLocationReception ==
                       true
-                  
-                  
                   ? currentUbicationDest?.id ?? 0
                   : productBD?.locationDestId ?? 0,
               cantidadSeparada: event.quantity,
@@ -793,7 +814,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         dateInicio,
         event.idMove,
       );
-
 
       //actualizamos la entrada a true
       await db.entradasRepository.setFieldTableEntrada(
@@ -1164,7 +1184,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       await db.deleRecepcion();
 
       final response =
-          await _recepcionRepository.resBatchsPacking(event.isLoadinDialog);
+          await _recepcionRepository.fetchAllReceptions(event.isLoadinDialog);
 
       if (response.result?.code == 200) {
         if (response.result?.result?.isNotEmpty == true) {
@@ -1190,6 +1210,11 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           // Enviar la lista agrupada de barcodes de un producto para packing
           await db.barcodesPackagesRepository
               .insertOrUpdateBarcodes(allBarcodes);
+
+          print("listRecepcion: ${listRecepcion.length}");
+          print("productsToInsert: ${productsToInsert.length}");
+          print('productsSedToInsert : ${productsSedToInsert.length}');
+          print("allBarcodes: ${allBarcodes.length}");
 
           add(FetchOrdenesCompraOfBd());
           emit(FetchOrdenesCompraSuccess(

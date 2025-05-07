@@ -55,3 +55,9 @@ class SearchLocationEvent extends TransferInfoEvent {
     this.query,
   );
 }
+
+
+class FilterUbicacionesEvent extends TransferInfoEvent {
+  final String almacen;
+  FilterUbicacionesEvent(this.almacen);
+}

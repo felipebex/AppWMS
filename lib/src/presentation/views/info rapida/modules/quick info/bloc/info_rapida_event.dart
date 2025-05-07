@@ -48,3 +48,9 @@ class SearchProductEvent extends InfoRapidaEvent {
 class GetProductsList extends InfoRapidaEvent {
   GetProductsList();
 }
+
+
+class FilterUbicacionesAlmacenEvent extends InfoRapidaEvent {
+  final String almacen;
+  FilterUbicacionesAlmacenEvent(this.almacen);
+}

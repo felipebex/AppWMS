@@ -307,3 +307,16 @@ class FilterTransferByTypeFailure extends TransferenciaState {
   final String error;
   FilterTransferByTypeFailure(this.error);
 }
+
+
+class FilterUbicacionesLoading extends TransferenciaState {}
+
+class FilterUbicacionesFailure extends TransferenciaState {
+  final String error;
+  FilterUbicacionesFailure(this.error);
+}
+
+class FilterUbicacionesSuccess extends TransferenciaState {
+  final List<ResultUbicaciones> locations;
+  FilterUbicacionesSuccess(this.locations);
+}

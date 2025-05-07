@@ -79,3 +79,16 @@ class GetProductsFailure extends InfoRapidaState {
   GetProductsFailure(this.error);
 }
 
+
+
+class FilterUbicacionesLoading extends InfoRapidaState {}
+
+class FilterUbicacionesFailure extends InfoRapidaState {
+  final String error;
+  FilterUbicacionesFailure(this.error);
+}
+
+class FilterUbicacionesSuccess extends InfoRapidaState {
+  final List<ResultUbicaciones> locations;
+  FilterUbicacionesSuccess(this.locations);
+}

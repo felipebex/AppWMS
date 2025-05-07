@@ -602,34 +602,39 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     'reception' ||
                                                 homeBloc.userRol == 'admin') {
                                               //pedir ubicaciones
-                                              context
-                                                  .read<RecepcionBloc>()
-                                                  .add(GetLocationsDestEvent());
-                                              //pedir info del usuario
+                                              // context
+                                              //     .read<RecepcionBloc>()
+                                              //     .add(GetLocationsDestEvent());
+                                              // //pedir info del usuario
 
-                                              context.read<UserBloc>().add(
-                                                  LoadInfoDeviceEventUser());
+                                              // context.read<UserBloc>().add(
+                                              //     LoadInfoDeviceEventUser());
 
-                                              //pedir las novedades
-                                              context.read<RecepcionBloc>().add(
-                                                  LoadAllNovedadesOrderEvent());
+                                              // //pedir las novedades
+                                              // context.read<RecepcionBloc>().add(
+                                              //     LoadAllNovedadesOrderEvent());
 
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return const DialogLoading(
-                                                        message:
-                                                            'Cargando recepciones...');
-                                                  });
+                                              // showDialog(
+                                              //     context: context,
+                                              //     builder: (context) {
+                                              //       return const DialogLoading(
+                                              //           message:
+                                              //               'Cargando recepciones...');
+                                              //     });
 
-                                              await Future.delayed(const Duration(
-                                                  seconds:
-                                                      1)); // Ajusta el tiempo si es necesario
+                                              // await Future.delayed(const Duration(
+                                              //     seconds:
+                                              //         1)); // Ajusta el tiempo si es necesario
 
-                                              Navigator.pop(context);
+                                              // Navigator.pop(context);
+                                              // Navigator.pushReplacementNamed(
+                                              //   context,
+                                              //   'list-ordenes-compra',
+                                              // );
+
                                               Navigator.pushReplacementNamed(
                                                 context,
-                                                'list-ordenes-compra',
+                                                'list-recepction-batch',
                                               );
                                             } else {
                                               ScaffoldMessenger.of(context)

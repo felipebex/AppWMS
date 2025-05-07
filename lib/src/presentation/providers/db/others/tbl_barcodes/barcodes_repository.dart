@@ -93,82 +93,73 @@ class BarcodesRepository {
     }
   }
 
-  // Método para insertar o actualizar los barcodes de los productos
-
   Future<void> insertOrUpdateBarcodes(List<Barcodes> barcodesList) async {
-    try {
-      Database db = await DataBaseSqlite().getDatabaseInstance();
+  try {
+    final db = await DataBaseSqlite().getDatabaseInstance();
 
-      await db.transaction((txn) async {
-        Batch batch = txn.batch();
+    await db.transaction((txn) async {
+      final Batch batch = txn.batch();
 
-        final List<Map<String, dynamic>> existingProducts = await txn.query(
-          BarcodesPackagesTable.tableName,
-          columns: [BarcodesPackagesTable.columnId],
-          where: '${BarcodesPackagesTable.columnIdProduct} = ? AND '
-              '${BarcodesPackagesTable.columnBatchId} = ? AND '
-              '${BarcodesPackagesTable.columnIdMove} = ? AND '
-              '${BarcodesPackagesTable.columnBarcode} = ?',
-          whereArgs: [
-            barcodesList.map((barcode) => barcode.idProduct).toList().join(','),
-            barcodesList.map((barcode) => barcode.batchId).toList().join(','),
-            barcodesList.map((barcode) => barcode.idMove).toList().join(','),
-            barcodesList.map((barcode) => barcode.barcode).toList().join(','),
-          ],
-        );
+      // Claves únicas para comparar (idProduct-idMove-idBatch-barcode)
+      final Set<String> barcodeKeys = barcodesList.map((b) =>
+        '${b.idProduct}-${b.idMove}-${b.batchId}-${b.barcode}'
+      ).toSet();
 
-        // Crear un conjunto de los IDs existentes para facilitar la comprobación
-        Set<int> existingIds = Set.from(existingProducts.map((e) {
-          return e[BarcodesPackagesTable.columnId];
-        }));
+      // Obtener solo los registros necesarios (solo columnas clave)
+      final List<Map<String, dynamic>> existing = await txn.query(
+        BarcodesPackagesTable.tableName,
+        columns: [
+          BarcodesPackagesTable.columnIdProduct,
+          BarcodesPackagesTable.columnIdMove,
+          BarcodesPackagesTable.columnBatchId,
+          BarcodesPackagesTable.columnBarcode
+        ],
+        where: '${BarcodesPackagesTable.columnIdProduct} IN (${List.filled(barcodesList.length, '?').join(',')})',
+        whereArgs: barcodesList.map((b) => b.idProduct).toList(),
+      );
 
-        for (var barcode in barcodesList) {
-          if (existingIds.contains(barcode.idProduct) &&
-              existingIds.contains(barcode.batchId) &&
-              existingIds.contains(barcode.idMove) &&
-              existingIds.contains(barcode.barcode)) {
-            // Si el barcode ya existe, lo actualizamos
-            batch.update(
-              BarcodesPackagesTable.tableName,
-              {
-                BarcodesPackagesTable.columnIdProduct: barcode.idProduct,
-                BarcodesPackagesTable.columnBatchId: barcode.batchId,
-                BarcodesPackagesTable.columnIdMove: barcode.idMove,
-                BarcodesPackagesTable.columnBarcode: barcode.barcode,
-                BarcodesPackagesTable.columnCantidad: barcode.cantidad ?? 1,
-              },
-              where: '${BarcodesPackagesTable.columnIdProduct} = ? AND '
-                  '${BarcodesPackagesTable.columnBatchId} = ? AND '
-                  '${BarcodesPackagesTable.columnIdMove} = ? AND '
-                  '${BarcodesPackagesTable.columnBarcode} = ?',
-              whereArgs: [
-                barcode.idProduct,
-                barcode.batchId,
-                barcode.idMove,
-                barcode.barcode,
-              ],
-            );
-          } else {
-            batch.insert(
-              BarcodesPackagesTable.tableName,
-              {
-                BarcodesPackagesTable.columnIdProduct: barcode.idProduct,
-                BarcodesPackagesTable.columnBatchId: barcode.batchId,
-                BarcodesPackagesTable.columnIdMove: barcode.idMove,
-                BarcodesPackagesTable.columnBarcode: barcode.barcode,
-                BarcodesPackagesTable.columnCantidad: barcode.cantidad ?? 1,
-              },
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
-          }
+      // Crear conjunto de claves existentes
+      final Set<String> existingKeys = existing.map((e) =>
+        '${e[BarcodesPackagesTable.columnIdProduct]}-${e[BarcodesPackagesTable.columnIdMove]}-${e[BarcodesPackagesTable.columnBatchId]}-${e[BarcodesPackagesTable.columnBarcode]}'
+      ).toSet();
+
+      for (final b in barcodesList) {
+        final key = '${b.idProduct}-${b.idMove}-${b.batchId}-${b.barcode}';
+
+        final data = {
+          BarcodesPackagesTable.columnIdProduct: b.idProduct,
+          BarcodesPackagesTable.columnBatchId: b.batchId,
+          BarcodesPackagesTable.columnIdMove: b.idMove,
+          BarcodesPackagesTable.columnBarcode: b.barcode,
+          BarcodesPackagesTable.columnCantidad: b.cantidad ?? 1,
+        };
+
+        if (existingKeys.contains(key)) {
+          batch.update(
+            BarcodesPackagesTable.tableName,
+            data,
+            where: '${BarcodesPackagesTable.columnIdProduct} = ? AND '
+                   '${BarcodesPackagesTable.columnBatchId} = ? AND '
+                   '${BarcodesPackagesTable.columnIdMove} = ? AND '
+                   '${BarcodesPackagesTable.columnBarcode} = ?',
+            whereArgs: [b.idProduct, b.batchId, b.idMove, b.barcode],
+          );
+        } else {
+          batch.insert(
+            BarcodesPackagesTable.tableName,
+            data,
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
         }
+      }
 
-        await batch.commit();
-      });
-    } catch (e, s) {
-      print("Error al insertar/actualizar barcodes: $e => $s");
-    }
+      await batch.commit(noResult: true);
+    });
+  } catch (e, s) {
+    print("Error en insertOrUpdateBarcodes: $e => $s");
   }
+}
+
 
   //metodo para obtener todos los barcodes
   Future<List<Barcodes>> getAllBarcodes() async {

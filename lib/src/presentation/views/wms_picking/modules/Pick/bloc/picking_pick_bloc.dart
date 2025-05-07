@@ -728,44 +728,42 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       }
 
       // Después, enviamos la petición a Odoo con todos los productos en una sola vez
-
-      // List<Item> itemsToSend = [];
-      // for (var product in event.productsSeparate) {
-      //   // Traemos el tiempo de inicio de separación del producto desde la base de datos
-
-      //   final userid = await PrefUtils.getUserId();
-
-      //   // Creamos los Item a enviar
-      //   itemsToSend.add(Item(
-      //     idMove: product.idMove ?? 0,
-      //     productId: product.idProduct ?? 0,
-      //     lote: product.lotId ?? '',
-      //     cantidad: (product.quantitySeparate ?? 0) > (product.quantity)
-      //         ? product.quantity
-      //         : product.quantitySeparate ?? 0,
-      //     novedad: product.observation ?? 'Sin novedad',
-      //     timeLine: product.timeSeparate ?? 0,
-      //     muelle: event.muelle.id ?? 0,
-      //     idOperario: userid,
-      //     fechaTransaccion: product.fechaTransaccion ?? '',
-      //   ));
-      // }
-
-      // // Enviamos la lista completa de items
-      // final response = await repository.sendPicking(
-      //   idBatch: event.productsSeparate[0].batchId ?? 0,
-      //   timeTotal: 0,
-      //   cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
-      //   listItem: itemsToSend, // Enviamos todos los productos
-      // );
-
-      // if (response.result?.code == 200) {
-      //   add(FetchBatchWithProductsEvent(
-      //       event.productsSeparate[0].batchId ?? 0));
-      //   emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
-      // } else {
-      //   emit(SubMuelleEditFail('Error al asignar el submuelle'));
-      // }
+      List<ListItem> itemsToSend = [];
+      for (var product in event.productsSeparate) {
+        // Traemos el tiempo de inicio de separación del producto desde la base de datos
+        final userid = await PrefUtils.getUserId();
+        // Creamos los Item a enviar
+        itemsToSend.add(
+            ListItem(
+          idMove: product.idMove ?? 0,
+          idProducto: product.idProduct ?? 0,
+          idLote: product.loteId ?? 0,
+          idUbicacionDestino: product.muelleId ?? 0,
+          cantidadEnviada:
+              (product.quantitySeparate ?? 0) > (product.quantity)
+                  ? product.quantity
+                  : product.quantitySeparate ?? 0,
+          idOperario: userid,
+          timeLine: product.timeSeparate ?? 0.0,
+          fechaTransaccion: product.fechaTransaccion ?? '',
+          observacion: product.observation ?? 'Sin novedad',
+          dividida: false,
+        ));
+      }
+       final response = await repository.sendProductTransferPick(
+        TransferRequest(
+          idTransferencia: currentProduct.batchId ?? 0,
+          listItems: itemsToSend,
+        ),
+        false,
+      );
+      if (response.result?.code == 200) {
+        add(FetchPickWithProductsEvent(
+            event.productsSeparate[0].batchId ?? 0));
+        emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
+      } else {
+        emit(SubMuelleEditFail('Error al asignar el submuelle'));
+      }
     } catch (e, s) {
       emit(SubMuelleEditFail('Error al asignar el submuelle'));
       print("❌ Error en el AssignSubmuelleEvent :$s ->$s");

@@ -7,6 +7,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/repcion_requets_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
@@ -18,7 +19,88 @@ import 'package:wms_app/src/utils/constans/colors.dart';
 class RecepcionRepository {
 //metodo para obtener todas las ordenes de compra
 
-  Future<Recepcionresponse> resBatchsPacking(
+  Future<Recepcionresponse> fetchAllReceptions(bool isLoadinDialog) async {
+  final stopwatch = Stopwatch()..start(); // ⏱ Iniciar conteo
+
+  try {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      print("❌ Sin conexión a Internet.");
+      return Recepcionresponse();
+    }
+
+    final response = await ApiRequestService().get(
+      endpoint: 'recepciones',
+      isunecodePath: true,
+      isLoadinDialog: isLoadinDialog,
+    );
+
+    stopwatch.stop(); // ⏹ Finalizar conteo
+    print("⏱ fetchAllReceptions completado en ${stopwatch.elapsedMilliseconds} ms");
+
+    if (response.statusCode >= 400) {
+      print("❌ Error HTTP: ${response.statusCode}");
+      return Recepcionresponse();
+    }
+
+    final jsonResponse = jsonDecode(response.body);
+
+    if (jsonResponse.containsKey('result')) {
+      final result = jsonResponse['result'];
+      if (result['code'] == 200 && result['result'] is List) {
+        final List<ResultEntrada> ordenes = (result['result'] as List)
+            .map((data) => ResultEntrada.fromMap(data))
+            .toList();
+
+        return Recepcionresponse(
+          jsonrpc: jsonResponse['jsonrpc'],
+          id: jsonResponse['id'],
+          result: RecepcionresponseResult(
+            code: result['code'],
+            result: ordenes,
+          ),
+        );
+      } else {
+        print("⚠️ Código no esperado o datos vacíos");
+        return Recepcionresponse();
+      }
+    } else if (jsonResponse.containsKey('error')) {
+      final error = jsonResponse['error'];
+      if (error['code'] == 100) {
+        Get.defaultDialog(
+          title: 'Alerta',
+          titleStyle: const TextStyle(color: Colors.red, fontSize: 18),
+          middleText: 'Sesión expirada, por favor inicie sesión nuevamente',
+          middleTextStyle: const TextStyle(color: Colors.black, fontSize: 14),
+          backgroundColor: Colors.white,
+          radius: 10,
+          actions: [
+            ElevatedButton(
+              onPressed: () => Get.back(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColorApp,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      }
+    }
+  } on SocketException catch (e) {
+    print('🌐 Error de red: $e');
+  } catch (e, s) {
+    print('❌ Error general en fetchAllReceptions: $e');
+    print('📍 Stack: $s');
+  }
+
+  return Recepcionresponse(); // Fallback en todos los casos
+}
+
+
+  Future<ResponseReceptionBatchs> fetchAllBatchReceptions(
     bool isLoadinDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -26,12 +108,12 @@ class RecepcionRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return Recepcionresponse(); // Si no hay conexión, retornar una lista vacía
+      return ResponseReceptionBatchs(); // Si no hay conexión, retornar una lista vacía
     }
 
     try {
       var response = await ApiRequestService().get(
-        endpoint: 'recepciones',
+        endpoint: 'recepciones/batchs',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );
@@ -46,18 +128,18 @@ class RecepcionRepository {
           if (jsonResponse['result']['code'] == 200) {
             List<dynamic> batches = jsonResponse['result']['result'];
             // Mapea los datos decodificados a una lista de BatchsModel
-            List<ResultEntrada> ordenes =
-                batches.map((data) => ResultEntrada.fromMap(data)).toList();
-            return Recepcionresponse(
+            List<ReceptionBatch> ordenes =
+                batches.map((data) => ReceptionBatch.fromMap(data)).toList();
+            return ResponseReceptionBatchs(
               jsonrpc: jsonResponse['jsonrpc'],
               id: jsonResponse['id'],
-              result: RecepcionresponseResult(
+              result: ResponseReceptionBatchsResult(
                 code: jsonResponse['result']['code'],
                 result: ordenes,
               ),
             );
           } else {
-            return Recepcionresponse();
+            return ResponseReceptionBatchs();
           }
         } else if (jsonResponse.containsKey('error')) {
           if (jsonResponse['error']['code'] == 100) {
@@ -83,18 +165,18 @@ class RecepcionRepository {
                 ),
               ],
             );
-            return Recepcionresponse();
+            return ResponseReceptionBatchs();
           }
         }
       } else {}
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return Recepcionresponse();
+      return ResponseReceptionBatchs();
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error resBatchsPacking: $e, $s');
+      print('Error fetchAllBatchReceptions: $e, $s');
     }
-    return Recepcionresponse();
+    return ResponseReceptionBatchs();
   }
 
   Future<List<LotesProduct>> fetchAllLotesProduct(
@@ -184,6 +266,82 @@ class RecepcionRepository {
     try {
       var response = await ApiRequestService().postPacking(
           endpoint: 'asignar_responsable',
+          isLoadinDialog: isLoadinDialog,
+          body: {
+            "params": {
+              "id_recepcion": idRecepcion,
+              "id_responsable": idUser,
+            }
+          });
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          if (jsonResponse['result']['code'] == 200) {
+            return true;
+          } else {
+            return false;
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            //mostramos una alerta de get
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+
+            return false;
+          }
+        }
+      } else {}
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return false;
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error assignUserToOrder: $e, $s');
+    }
+    return false;
+  }
+  //metodo para asignar un usuario a una orden de compra por batch
+  Future<bool> assignUserToReceptionBatch(
+    bool isLoadinDialog,
+    int idUser,
+    int idRecepcion,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return false; // Si no hay conexión, retornar una lista vacía
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+          endpoint: 'asignar_responsable/batch',
           isLoadinDialog: isLoadinDialog,
           body: {
             "params": {

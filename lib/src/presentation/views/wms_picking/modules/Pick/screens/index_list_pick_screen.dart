@@ -40,14 +40,21 @@ class IndexListPickScreen extends StatelessWidget {
             );
           }
 
-          if (state is AssignUserToPickSuccess) {
-            Get.snackbar(
-              '360 Software Informa',
-              "Se ha asignado el responsable correctamente",
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.green),
+          if (state is AssignUserToPickLoading) {
+            // mostramos un dialogo de carga y despues
+            showDialog(
+              context: context,
+              barrierDismissible:
+                  false, // No permitir que el usuario cierre el diálogo manualmente
+              builder: (_) => const DialogLoading(
+                message: 'Cargando interfaz...',
+              ),
             );
+          }
+
+          if (state is AssignUserToPickSuccess) {
+            // cerramos el dialogo de carga
+            Navigator.pop(context);
             bloc.add(FetchPickWithProductsEvent(state.id));
             bloc.add(LoadConfigurationsUser());
             Navigator.pushReplacementNamed(context, 'scan-product-pick');
@@ -266,6 +273,10 @@ class IndexListPickScreen extends StatelessWidget {
                                               // asignamos el tiempo de inicio
 
                                               //asignamos el responsable a esa orden de entrada
+                                              //cerramos el dialogo
+                                              Navigator.pop(context);
+                                              bloc.add(ShowKeyboard(false));
+                                              bloc.searchPickController.clear();
                                               bloc.add(
                                                 AssignUserToTransfer(
                                                     batch.id ?? 0),
@@ -300,6 +311,9 @@ class IndexListPickScreen extends StatelessWidget {
                                                   batch.id ?? 0,
                                                   'start_time_transfer',
                                                 ));
+                                                bloc.add(ShowKeyboard(false));
+                                                bloc.searchPickController
+                                                    .clear();
                                                 Navigator.pop(context);
                                                 Navigator.pushReplacementNamed(
                                                     context,
@@ -478,26 +492,22 @@ class IndexListPickScreen extends StatelessWidget {
                                             ),
                                           ),
                                           Visibility(
-                                            visible: batch
-                                                    .backorderId !=
-                                                0,
+                                            visible: batch.backorderId != 0,
                                             child: Row(
                                               children: [
                                                 Align(
                                                   alignment:
                                                       Alignment.centerLeft,
                                                   child: Icon(
-                                                      Icons.shopping_cart_rounded,
+                                                      Icons
+                                                          .shopping_cart_rounded,
                                                       color: primaryColorApp,
                                                       size: 15),
                                                 ),
                                                 const SizedBox(
                                                   width: 5,
                                                 ),
-                                                Text(
-                                                    batch
-                                                            .backorderName ??
-                                                        '',
+                                                Text(batch.backorderName ?? '',
                                                     style: TextStyle(
                                                         color: black,
                                                         fontSize: 12,
@@ -689,6 +699,8 @@ class IndexListPickScreen extends StatelessWidget {
     Navigator.pop(context);
     // Si batch.isSeparate es 1, entonces navegamos a "batch-detail"
     if (batch.isSeparate != 1) {
+      batchBloc.add(ShowKeyboard(false));
+      batchBloc.searchPickController.clear();
       Navigator.pushReplacementNamed(context, 'scan-product-pick');
     } else {}
   }

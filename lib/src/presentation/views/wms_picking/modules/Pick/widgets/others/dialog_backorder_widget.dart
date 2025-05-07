@@ -8,13 +8,16 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/pic
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogBackorderPick extends StatelessWidget {
-  const DialogBackorderPick({Key? key}) : super(key: key);
+  const DialogBackorderPick({Key? key, required this.unidadesSeparadas}) : super(key: key);
+
+
+final double unidadesSeparadas ;
 
   @override
   Widget build(BuildContext context) {
+    
     final batchBloc = context.read<PickingPickBloc>();
-    final double unidadesSeparadas =
-        double.parse(batchBloc.calcularUnidadesSeparadas());
+  
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -57,6 +60,7 @@ class DialogBackorderPick extends StatelessWidget {
                     : true,
             child: ElevatedButton(
               onPressed: () {
+                batchBloc.add(ShowKeyboard(false));
                 batchBloc.add(CreateBackOrderOrNot(
                     batchBloc.pickWithProducts.pick?.id ?? 0, true));
                 Navigator.pop(context);
@@ -76,6 +80,7 @@ class DialogBackorderPick extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () async {
+              batchBloc.add(ShowKeyboard(false));
               batchBloc.add(CreateBackOrderOrNot(
                   batchBloc.pickWithProducts.pick?.id ?? 0, false));
               Navigator.pop(context);

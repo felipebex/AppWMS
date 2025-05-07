@@ -90,6 +90,7 @@ class ResultUbicaciones {
         locationId: json["location_id"],
         locationName: json["location_name"],
         idWarehouse: json["id_warehouse"],
+        warehouseName: json["warehouse_name"],
       );
 
   Map<String, dynamic> toMap() => {

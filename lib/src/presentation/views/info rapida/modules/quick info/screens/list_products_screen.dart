@@ -435,6 +435,13 @@ class _AppBarInfo extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.arrow_back, color: white),
                           onPressed: () {
+                            context
+                                .read<InfoRapidaBloc>()
+                                .searchControllerProducts
+                                .clear();
+                            context
+                                .read<InfoRapidaBloc>()
+                                .add(ShowKeyboardEvent(false));
                             Navigator.pushReplacementNamed(
                               context,
                               'info-rapida',

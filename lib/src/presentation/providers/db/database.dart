@@ -36,6 +36,8 @@ import 'package:wms_app/src/presentation/providers/db/others/tbl_urlrecientes/ur
 import 'package:wms_app/src/presentation/providers/db/others/tbl_urlrecientes/urlrecientes_table.dart';
 import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_entradas/entradas_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_entradas/entradas_table.dart';
+import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_entradas_batch/entrada_batch_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_entradas_batch/entrada_batch_table.dart';
 import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_product_entrada/product_entrada_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/recepcion/entradas/tbl_product_entrada/product_entrada_table.dart';
 import 'package:wms_app/src/presentation/providers/db/transferencia/tbl_product_transferencia/product_transferencia_repository.dart';
@@ -46,8 +48,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/BatchWithProdu
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 
 import 'package:sqflite/sqflite.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/PickhWithProducts_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
 
 class DataBaseSqlite {
   static final DataBaseSqlite _instance = DataBaseSqlite._internal();
@@ -170,11 +170,14 @@ class DataBaseSqlite {
     await db.execute(PickingPickTable.createTable());
     //tabla de productos por pick
     await db.execute(PickProductsTable.createTable());
+    //tabla de recepciones por batch
+    await db.execute(EntradaBatchTable.createTable());
+    
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 6) {
-      // await db.execute('ALTER TABLE tblbatchs ADD COLUMN id_muelle INTEGER');
+    if (oldVersion < 7) {
+     
     }
   }
 
@@ -232,8 +235,10 @@ class DataBaseSqlite {
   //metodo  para obtener una instancia del repositorio  de picking por pick
   PickingPickRepository get pickRepository => PickingPickRepository();
 
-  PickProductsRepository get pickProductsRepository =>
-      PickProductsRepository();
+  PickProductsRepository get pickProductsRepository => PickProductsRepository();
+  //metodo para obtener una instancia del repositorio de entrada por batch
+  EntradaBatchRepository get entradaBatchRepository =>
+      EntradaBatchRepository();
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -245,77 +250,79 @@ class DataBaseSqlite {
 
   //Todo: Métodos para batchs_products
 
-Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
-  try {
-    final db = await getDatabaseInstance();
-    if (db == null) return;
+  Future<void> insertBatchProducts(
+      List<ProductsBatch> productsBatchList) async {
+    try {
+      final db = await getDatabaseInstance();
+      if (db == null) return;
 
-    await db.transaction((txn) async {
-      final batch = txn.batch();
+      await db.transaction((txn) async {
+        final batch = txn.batch();
 
-      // Obtener todos los registros existentes una sola vez
-      final existing = await txn.query('tblbatch_products');
-      final existingSet = existing.map((e) =>
-          '${e['id_product']}_${e['batch_id']}_${e['id_move']}').toSet();
+        // Obtener todos los registros existentes una sola vez
+        final existing = await txn.query('tblbatch_products');
+        final existingSet = existing
+            .map((e) => '${e['id_product']}_${e['batch_id']}_${e['id_move']}')
+            .toSet();
 
-      for (var product in productsBatchList) {
-        final key = '${product.idProduct}_${product.batchId}_${product.idMove}';
+        for (var product in productsBatchList) {
+          final key =
+              '${product.idProduct}_${product.batchId}_${product.idMove}';
 
-        final data = {
-          "id_product": product.idProduct,
-          "batch_id": product.batchId,
-          "expire_date": product.expireDate == false ? "" : product.expireDate,
-          "product_id": product.productId?[1],
-          "location_id": product.locationId?[1],
-          "lot_id": product.lotId == ""  ? "" : product.lotId?[1],
-          "rimoval_priority": product.rimovalPriority,
-          "barcode_location_dest": product.barcodeLocationDest == false
-              ? ""
-              : product.barcodeLocationDest,
-          "barcode_location": product.barcodeLocation == false
-              ? ""
-              : product.barcodeLocation,
-          "lote_id": product.loteId,
-          "id_move": product.idMove,
-          "location_dest_id": product.locationDestId?[1],
-          "id_location_dest": product.locationDestId?[0],
-          "quantity": product.quantity,
-          "unidades": product.unidades,
-          "muelle_id": product.locationDestId?[0],
-          "barcode": product.barcode == false ? "" : product.barcode,
-          "weight": product.weigth,
-          "origin": product.origin,
-        };
+          final data = {
+            "id_product": product.idProduct,
+            "batch_id": product.batchId,
+            "expire_date":
+                product.expireDate == false ? "" : product.expireDate,
+            "product_id": product.productId?[1],
+            "location_id": product.locationId?[1],
+            "lot_id": product.lotId == "" ? "" : product.lotId?[1],
+            "rimoval_priority": product.rimovalPriority,
+            "barcode_location_dest": product.barcodeLocationDest == false
+                ? ""
+                : product.barcodeLocationDest,
+            "barcode_location":
+                product.barcodeLocation == false ? "" : product.barcodeLocation,
+            "lote_id": product.loteId,
+            "id_move": product.idMove,
+            "location_dest_id": product.locationDestId?[1],
+            "id_location_dest": product.locationDestId?[0],
+            "quantity": product.quantity,
+            "unidades": product.unidades,
+            "muelle_id": product.locationDestId?[0],
+            "barcode": product.barcode == false ? "" : product.barcode,
+            "weight": product.weigth,
+            "origin": product.origin,
+          };
 
-        if (existingSet.contains(key)) {
-          // Actualizar si ya existe
-          batch.update(
-            'tblbatch_products',
-            data,
-            where: 'id_product = ? AND batch_id = ? AND id_move = ?',
-            whereArgs: [
-              product.idProduct,
-              product.batchId,
-              product.idMove,
-            ],
-          );
-        } else {
-          // Insertar si no existe
-          batch.insert(
-            'tblbatch_products',
-            data,
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
+          if (existingSet.contains(key)) {
+            // Actualizar si ya existe
+            batch.update(
+              'tblbatch_products',
+              data,
+              where: 'id_product = ? AND batch_id = ? AND id_move = ?',
+              whereArgs: [
+                product.idProduct,
+                product.batchId,
+                product.idMove,
+              ],
+            );
+          } else {
+            // Insertar si no existe
+            batch.insert(
+              'tblbatch_products',
+              data,
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
         }
-      }
 
-      await batch.commit(noResult: true); // Mejor rendimiento
-    });
-  } catch (e, s) {
-    print('Error insertBatchProducts: $e => $s');
+        await batch.commit(noResult: true); // Mejor rendimiento
+      });
+    } catch (e, s) {
+      print('Error insertBatchProducts: $e => $s');
+    }
   }
-}
-
 
   //metodo para traer un producto de un batch de la tabla tblbatch_products
   Future<ProductsBatch?> getProductBatch(
@@ -370,10 +377,8 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     return null;
   }
   //* Obtener un batch con sus productos
-  
 
   //Todo: Eliminar todos los registros
-
 
   Future<void> delePicking() async {
     final db = await getDatabaseInstance();
@@ -385,14 +390,19 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     // await db.delete(DocOriginTable.tableName);
   }
 
-
-  
   Future<void> delePick() async {
     final db = await getDatabaseInstance();
     // pick
     await db.delete(PickingPickTable.tableName);
     await db.delete(PickProductsTable.tableName);
   }
+  Future<void> deleReceptionBatch() async {
+    final db = await getDatabaseInstance();
+    await db.delete(EntradaBatchTable.tableName);
+  }
+
+
+
 
   Future<void> delePacking() async {
     final db = await getDatabaseInstance();
@@ -422,7 +432,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     //transferencia
     await db.delete(TransferenciaTable.tableName);
     await db.delete(ProductTransferenciaTable.tableName);
-  } 
+  }
 
   Future<void> deleOthers() async {
     final db = await getDatabaseInstance();
@@ -434,9 +444,6 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     await db.delete(WarehouseTable.tableName);
   }
 
-
-
-
   Future<void> deleteBDCloseSession() async {
     await delePicking();
     await delePick();
@@ -445,6 +452,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
     await deleTrasnferencia();
     await deleInventario();
     await deleOthers();
+    await deleReceptionBatch();
   }
 
   //*metodo para actualizar la tabla de productos de un batch
@@ -556,7 +564,7 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
 
       if (result.isNotEmpty) {
         // Extraemos el valor actual
-        dynamic currentQty = (result.first['product_separate_qty'] ) ?? 0;
+        dynamic currentQty = (result.first['product_separate_qty']) ?? 0;
 
         // Incrementamos la cantidad
         dynamic newQty = currentQty + 1;
@@ -593,9 +601,8 @@ Future<void> insertBatchProducts(List<ProductsBatch> productsBatchList) async {
 
       if (result.isNotEmpty) {
         // Extraemos los valores actuales
-        dynamic currentQtySeparate =
-            (result.first['quantity_separate'] ) ?? 0;
-        dynamic currentQty = (result.first['quantity'] ) ?? 0;
+        dynamic currentQtySeparate = (result.first['quantity_separate']) ?? 0;
+        dynamic currentQty = (result.first['quantity']) ?? 0;
 
         // Incrementamos la cantidad de quantity_separate
         dynamic newQtySeparate = currentQtySeparate + quantity;

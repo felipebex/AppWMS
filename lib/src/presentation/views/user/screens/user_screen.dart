@@ -377,20 +377,98 @@ class UserScreen extends StatelessWidget {
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 2),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      context
-                                          .read<InventarioBloc>()
-                                          .add(GetProductsEvent());
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                        minimumSize:
-                                            const Size(double.infinity, 30),
-                                        backgroundColor: grey),
-                                    child: const Text(
-                                      "Descargar productos",
-                                      style: TextStyle(color: white),
-                                    ),
+                                  child: Column(
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          context
+                                              .read<InventarioBloc>()
+                                              .add(GetProductsEvent());
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            minimumSize:
+                                                const Size(double.infinity, 30),
+                                            backgroundColor: grey),
+                                        child: const Text(
+                                          "Descargar productos",
+                                          style: TextStyle(color: white),
+                                        ),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return AlertDialog(
+                                                  backgroundColor: white,
+                                                  title: Center(
+                                                    child: Text("Alamacenes",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color:
+                                                                primaryColorApp)),
+                                                  ),
+                                                  content: SizedBox(
+                                                    height: 300,
+                                                    width: size.width * 0.9,
+                                                    child: ListView.builder(
+                                                      itemCount: context.read<UserBloc>()
+                                                          .almacenes.length,
+                                                      itemBuilder:
+                                                          (context, index) {
+                                                        return Card(
+                                                          color: white,
+                                                          elevation: 2,
+                                                          child: ListTile(
+                                                            title: Text(
+                                                               context.read<UserBloc>()
+                                                                        .almacenes[
+                                                                            index]
+                                                                        .name ??
+                                                                    'Sin nombre',
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                           
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                                  actions: [
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      style: ElevatedButton.styleFrom(
+                                                          minimumSize:
+                                                              const Size(
+                                                                  double
+                                                                      .infinity,
+                                                                  30),
+                                                          backgroundColor:
+                                                              primaryColorApp),
+                                                      child: const Text(
+                                                          "Cerrar",
+                                                          style: TextStyle(
+                                                              color: white)),
+                                                    ),
+                                                  ],
+                                                );
+                                              });
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            minimumSize:
+                                                const Size(double.infinity, 30),
+                                            backgroundColor: grey),
+                                        child: const Text(
+                                          "Ver Almacenes",
+                                          style: TextStyle(color: white),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -835,9 +913,6 @@ class UserScreen extends StatelessWidget {
                                       ),
                                       const SizedBox(height: 10),
 
-
-
-
                                       //todo permisos de recepcion
                                       Visibility(
                                         visible: config.result?.result?.rol ==
@@ -894,7 +969,6 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-
                                                 Row(
                                                   children: [
                                                     const Text(
@@ -929,7 +1003,6 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-
                                                 Row(
                                                   children: [
                                                     const Text(
@@ -998,7 +1071,6 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-                                                
                                               ],
                                             ),
                                           ),
@@ -1026,7 +1098,7 @@ class UserScreen extends StatelessWidget {
                                                               primaryColorApp)),
                                                 ),
                                                 const SizedBox(height: 10),
-                                                 Row(
+                                                Row(
                                                   children: [
                                                     const Text(
                                                         "Ubicación de origen manual: ",
@@ -1060,7 +1132,6 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-
                                                 Row(
                                                   children: [
                                                     const Text(
@@ -1095,7 +1166,6 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-                                               
                                                 Row(
                                                   children: [
                                                     const Text(
@@ -1130,7 +1200,6 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-
                                                 Row(
                                                   children: [
                                                     const Text(
@@ -1165,7 +1234,6 @@ class UserScreen extends StatelessWidget {
                                                                 primaryColorApp))
                                                   ],
                                                 ),
-
                                                 Row(
                                                   children: [
                                                     const Text(
@@ -1229,7 +1297,8 @@ class UserScreen extends StatelessWidget {
                                                 const SizedBox(height: 10),
                                                 Row(
                                                   children: [
-                                                    const Text("Ver cantidad a contar: ",
+                                                    const Text(
+                                                        "Ver cantidad a contar: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),

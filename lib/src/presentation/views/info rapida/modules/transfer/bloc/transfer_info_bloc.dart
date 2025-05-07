@@ -17,6 +17,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
   bool quantityIsOk = true;
   dynamic quantitySelected = 0;
   String scannedValue1 = '';
+  String selectedAlmacen ='';
 
   // String selectedLocation = '';
   // int selectLocationDestId = 0;
@@ -55,6 +56,31 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
     on<ShowKeyboardEvent>(_onShowKeyboardEvent);
     //*metodo para buscar una ubicacion
     on<SearchLocationEvent>(_onSearchLocationEvent);
+    //metodo para filtrar las ubicaciones por almacen
+    on<FilterUbicacionesEvent>(_onFilterUbicacionesEvent);
+  }
+
+  void _onFilterUbicacionesEvent(
+      FilterUbicacionesEvent event, Emitter<TransferInfoState> emit) {
+    try {
+      emit(FilterUbicacionesLoading());
+      selectedAlmacen = '';
+      ubicacionesFilters = [];
+      ubicacionesFilters = ubicaciones;
+      final query = event.almacen.toLowerCase();
+      if (query.isEmpty) {
+        ubicacionesFilters = ubicaciones;
+      } else {
+        selectedAlmacen = event.almacen;
+        ubicacionesFilters = ubicaciones.where((location) {
+          return location.warehouseName?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(FilterUbicacionesSuccess(ubicacionesFilters));
+    } catch (e, s) {
+      print('Error en el FilterUbicacionesEvent: $e, $s');
+      emit(FilterUbicacionesFailure(e.toString()));
+    }
   }
 
   void _onSearchLocationEvent(
@@ -64,6 +90,7 @@ class TransferInfoBloc extends Bloc<TransferInfoEvent, TransferInfoState> {
       ubicacionesFilters = [];
       ubicacionesFilters = ubicaciones;
       final query = event.query.toLowerCase();
+      selectedAlmacen = '';
       if (query.isEmpty) {
         ubicacionesFilters = ubicaciones;
       } else {
