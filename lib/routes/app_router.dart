@@ -12,8 +12,10 @@ import 'package:wms_app/src/presentation/views/inventario/models/response_produc
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/location/location_search_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/product/product_search_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/index_list.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/screens/recepcion_batch_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/locations_dest/locations_dest_widget.dart';
@@ -38,35 +40,35 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/history/scree
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/screens/list_batchs_history_screen.dart';
 
 class AppRoutes {
-  // Mapa estático de rutas
+  //todo  Mapa estático de rutas
   static const String enterprice = 'enterprice';
   static const String auth = 'auth';
   static const String checkout = 'checkout';
 
-  // WMS Picking
+  //todo  WMS Picking
   static const String wmsPicking = 'wms-picking';
   static const String batch = 'batch';
   static const String batchDetail = 'batch-detail';
   static const String historyLits = 'history-list';
   static const String historyDetail = 'history-detail';
-  //pick
+  //todo pick
   static const String pick = 'pick';
   static const String scanProductPick = "scan-product-pick";
   static const String pickDetail = 'pick-detail';
 
-  // WMS Packing
+  //todo WMS Packing
   static const String wmsPacking = 'wms-packing';
   static const String packingList = 'packing-list';
   static const String packing = 'Packing';
   static const String packingDetail = 'packing-detail';
 
-  //inventario
+  //todo inventario
   static const String inventario = 'inventario';
   static const String searchLocation = 'search-location';
   static const String searchProduct = 'search-product';
   static const String newLoteInventario = 'new-lote-inventario';
 
-  //transferencias
+  //todo transferencias
   static const String transferencias = 'transferencias';
   static const String transferenciaDetail = 'transferencia-detail';
   static const String transferExterna = 'transfer-externa';
@@ -74,21 +76,23 @@ class AppRoutes {
   static const String scanProductTransfer = 'scan-product-transfer';
   static const String searchLocationDestTrans = 'seacrh-locationsDest-trans';
 
-  // Global
+  //todo Global
   static const String home = '/home';
   static const String user = 'user';
 
-  // recepcion
+  //todo recepcion
   static const String recepcion = 'recepcion';
   static const String listOrdenesCompra = 'list-ordenes-compra';
   static const String scanProductOrder = 'scan-product-order';
   static const String locationDestSearch = 'search-location-recep';
+  //todo recepcion batch
   static const String listReceptionBatch = 'list-recepction-batch';
+  static const String recepcionBatch = 'recepcion-batch';
 
-  //new lote
+  //todo new lote
   static const String newLote = 'new-lote';
 
-  //info rapida
+  //todo info rapida
   static const String infoRapida = 'info-rapida';
   static const String productInfo = 'product-info';
   static const String locationInfo = 'location-info';
@@ -98,15 +102,15 @@ class AppRoutes {
   static const String searchLocationDestTransInfo =
       'search-locations-dest-trans-info';
 
-  // Mapa de rutas
+
   static Map<String, Widget Function(BuildContext)> get routes {
     return {
-      // Global
+      // todo Global
       enterprice: (_) => const SelectEnterpricePage(),
       auth: (_) => const LoginPage(),
       checkout: (_) => const CheckAuthPage(),
 
-      // WMS Picking
+      // todo WMS Picking
       wmsPicking: (context) => WMSPickingPage(
             indexSelected: ModalRoute.of(context)!.settings.arguments as int,
           ),
@@ -118,7 +122,7 @@ class AppRoutes {
       scanProductPick: (_) => const ScanProductPickScreen(),
       pickDetail: (_) => const PickDetailScreen(),
 
-      // WMS Packing
+      // todo WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),
 
       packingList: (context) {
@@ -131,14 +135,10 @@ class AppRoutes {
       },
 
       packing: (context) {
-        // Obtener los argumentos (una lista)
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final packingModel = arguments[0] as PedidoPacking?;
         final batchModel = arguments[1] as BatchPackingModel?;
-
         return PackingScreen(
           packingModel: packingModel,
           batchModel: batchModel,
@@ -146,11 +146,8 @@ class AppRoutes {
       },
 
       packingDetail: (context) {
-        // Obtener los argumentos (una lista)
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final packingModel = arguments[0] as PedidoPacking?;
         final batchModel = arguments[1] as BatchPackingModel?;
         final initialTabIndex = arguments[2] as int;
@@ -162,11 +159,11 @@ class AppRoutes {
         );
       },
 
-      // global
+      //todo auth
       home: (_) => const HomePage(),
       user: (_) => const UserScreen(),
 
-      // inventario
+      //todo  inventario
       inventario: (_) => const InventarioScreen(),
 
       searchLocation: (_) => const SearchLocationScreen(),
@@ -174,10 +171,7 @@ class AppRoutes {
       newLoteInventario: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final currentProduct = arguments[0] as Product?;
-
         return NewLoteInventarioScreen(
           currentProduct: currentProduct,
         );
@@ -185,60 +179,41 @@ class AppRoutes {
 
       //BUSCADOR UBICACION DESTINO
       locationDestSearch: (context) {
-        // Obtener los argumentos (una lista)
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final ordenCompraArg = arguments[0] as ResultEntrada?;
         final currentProducArg = arguments[1] as LineasTransferencia?;
-
         return LocationDestRecepScreen(
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
       },
 
-      // Recepcion
-
+      // todo Recepcion
       scanProductOrder: (context) {
-        // Obtener los argumentos (una lista)
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final ordenCompraArg = arguments[0] as ResultEntrada?;
         final currentProducArg = arguments[1] as LineasTransferencia?;
-
         return ScanProductOrderScreen(
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
       },
 
       scanProductTransfer: (context) {
-        // Obtener los argumentos (una lista)
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final currentProducArg = arguments[0] as LineasTransferenciaTrans?;
-
         return ScanProductTrasnferScreen(currentProduct: currentProducArg);
       },
 
       searchLocationDestTrans: (context) {
-        // Obtener los argumentos (una lista)
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final currentProducArg = arguments[0] as LineasTransferenciaTrans?;
-
         return LocationDestTransScreen(currentProduct: currentProducArg);
       },
 
       recepcion: (context) {
-        // Obtener los argumentos (una lista)
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final ordenCompraArg = arguments[0] as ResultEntrada?;
         final initialTabIndexArg = arguments[1] as int?;
         return RecepcionScreen(
@@ -247,35 +222,46 @@ class AppRoutes {
       },
 
       listOrdenesCompra: (_) => const ListOrdenesCompraScreen(),
-      newLote: (context) {
-        // Obtener los argumentos (una lista)
+
+      //todo recepcion batch
+      listReceptionBatch: (_) => const ListRecepctionBatchScreen(),
+      
+      recepcionBatch : (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final recepcionBatch = arguments[0] as ReceptionBatch?;
+        final initialTabIndexArg = arguments[1] as int?;
+        return RecepcionBatchScreen(
+            recepcionBatch: recepcionBatch,
+            initialTabIndex: initialTabIndexArg ?? 0);
+      },
 
-        // Asegurarnos de que la lista tenga al menos dos elementos
+      //todo lote
+      newLote: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
         final ordenCompraArg = arguments[0] as ResultEntrada?;
         final currentProducArg = arguments[1] as LineasTransferencia?;
-
         return NewLoteScreen(
             ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
       },
-      listReceptionBatch : (_) => const ListRecepctionBatchScreen(),
 
-      //info rapida
+      //todo info rapida
       infoRapida: (_) => const InfoRapidaScreen(),
+
       productInfo: (context) {
         return ProductInfoScreen();
       },
+
       locationInfo: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final info = arguments[0] as InfoRapidaResult?;
         return LocationInfoScreen(
           infoRapidaResult: info,
         );
       },
+
       transferInfo: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
@@ -298,7 +284,6 @@ class AppRoutes {
       searchLocationDestTransInfo: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final info = arguments[0] as InfoResult?;
         final ubi = arguments[1] as Ubicacion?;
         return LocationDestTransfInfoScreen(
@@ -307,20 +292,15 @@ class AppRoutes {
         );
       },
 
-      //transferencias
+      //todo transferencias
       transferencias: (_) {
         return ListTransferenciasScreen();
       },
-      // searchLocationTrans: (_) => const SearchProductScreenTrans(),
-
       transferenciaDetail: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-
-        // Asegurarnos de que la lista tenga al menos dos elementos
         final transferencia = arguments[0] as ResultTransFerencias?;
         final initialTabIndexArg = arguments[1] as int?;
-
         return TransferenciaScreen(
           transferencia: transferencia,
           initialTabIndex: initialTabIndexArg ?? 0,

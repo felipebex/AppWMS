@@ -459,6 +459,7 @@ class Barcodes {
   final int? idProduct;
   final dynamic barcode;
   final dynamic cantidad;
+  final String? barcodeType;
 
   Barcodes({
     this.batchId,
@@ -466,6 +467,7 @@ class Barcodes {
     this.idProduct,
     this.barcode,
     this.cantidad,
+    this.barcodeType,
   });
 
   factory Barcodes.fromJson(String str) => Barcodes.fromMap(json.decode(str));
@@ -478,6 +480,7 @@ class Barcodes {
         idProduct: json["id_product"],
         barcode: json["barcode"],
         cantidad: json["cantidad"],
+        barcodeType: json["barcode_type"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -486,5 +489,6 @@ class Barcodes {
         "id_product": idProduct,
         "barcode": barcode,
         "cantidad": cantidad,
+        "barcode_type": barcodeType,
       };
 }

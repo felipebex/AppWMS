@@ -3,26 +3,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
-import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
-import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class Tab2ScreenRecep extends StatefulWidget {
-  const Tab2ScreenRecep({
+class Tab2ScreenRecepBatch extends StatefulWidget {
+  const Tab2ScreenRecepBatch({
     super.key,
     required this.ordenCompra,
   });
 
-  final ResultEntrada? ordenCompra;
+  final ReceptionBatch? ordenCompra;
 
   @override
-  State<Tab2ScreenRecep> createState() => _Tab2ScreenRecepState();
+  State<Tab2ScreenRecepBatch> createState() => _Tab2ScreenRecepState();
 }
 
-class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
+class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
   FocusNode focusNode1 = FocusNode(); //cantidad textformfield
 
   final TextEditingController _controllerToDo = TextEditingController();
@@ -40,86 +38,86 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
   }
 
   void validateBarcode(String value, BuildContext context) {
-    final bloc = context.read<RecepcionBloc>();
+    // final bloc = context.read<RecepcionBatchBloc>();
 
-    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
-        ? value.trim().toLowerCase()
-        : bloc.scannedValue5.trim().toLowerCase();
+    // String scan = bloc.scannedValue5.trim().toLowerCase() == ""
+    //     ? value.trim().toLowerCase()
+    //     : bloc.scannedValue5.trim().toLowerCase();
 
-    _controllerToDo.text = "";
+    // _controllerToDo.text = "";
 
-    // Obtener la lista de productos desde el Bloc
-    final listOfProducts = bloc.listProductsEntrada.where((element) {
-      return (element.isSeparate == 0 || element.isSeparate == null) &&
-          (element.isDoneItem == 0 || element.isDoneItem == null);
-    }).toList();
+    // // Obtener la lista de productos desde el Bloc
+    // final listOfProducts = bloc.listProductsEntrada.where((element) {
+    //   return (element.isSeparate == 0 || element.isSeparate == null) &&
+    //       (element.isDoneItem == 0 || element.isDoneItem == null);
+    // }).toList();
 
-    // Buscar el producto que coincide con el código de barras escaneado
-    final LineasTransferencia product = listOfProducts.firstWhere(
-      (product) => product.productBarcode == scan.trim(),
-      orElse: () =>
-          LineasTransferencia(), // Devuelve null si no se encuentra ningún producto
-    );
+    // // Buscar el producto que coincide con el código de barras escaneado
+    // final LineasTransferencia product = listOfProducts.firstWhere(
+    //   (product) => product.productBarcode == scan.trim(),
+    //   orElse: () =>
+    //       LineasTransferencia(), // Devuelve null si no se encuentra ningún producto
+    // );
 
-    if (product.idMove != null) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return const DialogLoading(
-            message: 'Cargando información del producto...',
-          );
-        },
-      );
-      // Si el producto existe, ejecutar los estados necesarios
+    // if (product.idMove != null) {
+    //   showDialog(
+    //     context: context,
+    //     builder: (context) {
+    //       return const DialogLoading(
+    //         message: 'Cargando información del producto...',
+    //       );
+    //     },
+    //   );
+    //   // Si el producto existe, ejecutar los estados necesarios
 
-      bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: true));
+    //   bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: true));
 
-      bloc.add(ChangeQuantitySeparate(
-        0,
-        int.parse(product.productId),
-        product.idRecepcion ?? 0,
-        product.idMove ?? 0,
-      ));
-      bloc.add(ChangeProductIsOkEvent(
-        product.idRecepcion ?? 0,
-        true,
-        int.parse(product.productId),
-        0,
-        product.idMove ?? 0,
-      ));
+    //   bloc.add(ChangeQuantitySeparate(
+    //     0,
+    //     int.parse(product.productId),
+    //     product.idRecepcion ?? 0,
+    //     product.idMove ?? 0,
+    //   ));
+    //   bloc.add(ChangeProductIsOkEvent(
+    //     product.idRecepcion ?? 0,
+    //     true,
+    //     int.parse(product.productId),
+    //     0,
+    //     product.idMove ?? 0,
+    //   ));
 
-      if (bloc.configurations.result?.result
-              ?.scanDestinationLocationReception ==
-          false) {
-        print('con permiso de muelle desde tab 2');
-        bloc.add(ChangeIsOkQuantity(product.idRecepcion ?? 0, true,
-            int.parse(product.productId), product.idMove ?? 0));
-      }
+    //   if (bloc.configurations.result?.result
+    //           ?.scanDestinationLocationReception ==
+    //       false) {
+    //     print('con permiso de muelle desde tab 2');
+    //     bloc.add(ChangeIsOkQuantity(product.idRecepcion ?? 0, true,
+    //         int.parse(product.productId), product.idMove ?? 0));
+    //   }
 
-      context.read<RecepcionBloc>().add(FetchPorductOrder(
-            product,
-          ));
+    //   context.read<RecepcionBloc>().add(FetchPorductOrder(
+    //         product,
+    //       ));
 
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        Navigator.pop(context);
-        Navigator.pushReplacementNamed(
-          context,
-          'scan-product-order',
-          arguments: [widget.ordenCompra, product],
-        );
-      });
-      print(product.toMap());
-      // Limpiar el valor escaneado
-      bloc.add(ClearScannedValueOrderEvent('toDo'));
-    } else {
-      // Mostrar alerta de error si el producto no se encuentra
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text("Código erroneo"),
-        backgroundColor: Colors.red[200],
-        duration: const Duration(milliseconds: 500),
-      ));
-      bloc.add(ClearScannedValueOrderEvent('toDo'));
-    }
+    //   Future.delayed(const Duration(milliseconds: 1000), () {
+    //     Navigator.pop(context);
+    //     Navigator.pushReplacementNamed(
+    //       context,
+    //       'scan-product-order',
+    //       arguments: [widget.ordenCompra, product],
+    //     );
+    //   });
+    //   print(product.toMap());
+    //   // Limpiar el valor escaneado
+    //   bloc.add(ClearScannedValueOrderEvent('toDo'));
+    // } else {
+    //   // Mostrar alerta de error si el producto no se encuentra
+    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //     content: const Text("Código erroneo"),
+    //     backgroundColor: Colors.red[200],
+    //     duration: const Duration(milliseconds: 500),
+    //   ));
+    //   bloc.add(ClearScannedValueOrderEvent('toDo'));
+    // }
   }
 
   @override
@@ -129,45 +127,37 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
       onWillPop: () async {
         return false;
       },
-      child: BlocConsumer<RecepcionBloc, RecepcionState>(
+      child: BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
         listener: (context, state) {
-          // if (state is SendProductToOrderSuccess) {
-          //   Get.snackbar(
-          //     '360 Software Informa',
-          //     "Se ha enviado el producto correctamente",
-          //     backgroundColor: white,
-          //     colorText: primaryColorApp,
-          //     icon: Icon(Icons.error, color: Colors.green),
+          
+
+          // if (state is SendProductToOrderFailure) {
+          //   Get.defaultDialog(
+          //     title: '360 Software Informa',
+          //     titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+          //     middleText: state.error,
+          //     middleTextStyle: TextStyle(color: black, fontSize: 14),
+          //     backgroundColor: Colors.white,
+          //     radius: 10,
+          //     actions: [
+          //       ElevatedButton(
+          //         onPressed: () {
+          //           Get.back();
+          //         },
+          //         style: ElevatedButton.styleFrom(
+          //           backgroundColor: primaryColorApp,
+          //           shape: RoundedRectangleBorder(
+          //             borderRadius: BorderRadius.circular(10),
+          //           ),
+          //         ),
+          //         child: Text('Aceptar', style: TextStyle(color: white)),
+          //       ),
+          //     ],
           //   );
           // }
-
-          if (state is SendProductToOrderFailure) {
-            Get.defaultDialog(
-              title: '360 Software Informa',
-              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-              middleText: state.error,
-              middleTextStyle: TextStyle(color: black, fontSize: 14),
-              backgroundColor: Colors.white,
-              radius: 10,
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Aceptar', style: TextStyle(color: white)),
-                ),
-              ],
-            );
-          }
         },
         builder: (context, state) {
-          final recepcionBloc = context.read<RecepcionBloc>();
+          final recepcionBloc = context.read<RecepcionBatchBloc>();
           return Scaffold(
             backgroundColor: white,
             body: Container(
@@ -211,14 +201,14 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                             if (event is RawKeyDownEvent) {
                               if (event.logicalKey ==
                                   LogicalKeyboardKey.enter) {
-                                validateBarcode(
-                                    context.read<RecepcionBloc>().scannedValue5,
-                                    context);
+                                // validateBarcode(
+                                //     context.read<RecepcionBatchBloc>().scannedValue5,
+                                //     context);
                                 return KeyEventResult.handled;
                               } else {
-                                context.read<RecepcionBloc>().add(
-                                    UpdateScannedValueOrderEvent(
-                                        event.data.keyLabel, 'toDo'));
+                                // context.read<RecepcionBloc>().add(
+                                //     UpdateScannedValueOrderEvent(
+                                //         event.data.keyLabel, 'toDo'));
                                 return KeyEventResult.handled;
                               }
                             }
@@ -291,36 +281,36 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: GestureDetector(
                                       onTap: () async {
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return const DialogLoading(
-                                                message:
-                                                    'Cargando información del producto',
-                                              );
-                                            });
+                                        // showDialog(
+                                        //     context: context,
+                                        //     builder: (context) {
+                                        //       return const DialogLoading(
+                                        //         message:
+                                        //             'Cargando información del producto',
+                                        //       );
+                                        //     });
 
-                                        context
-                                            .read<RecepcionBloc>()
-                                            .add(FetchPorductOrder(
-                                              product,
-                                            ));
+                                        // context
+                                        //     .read<RecepcionBloc>()
+                                        //     .add(FetchPorductOrder(
+                                        //       product,
+                                        //     ));
 
-                                        // Esperar 3 segundos antes de continuar
-                                        Future.delayed(
-                                            const Duration(milliseconds: 300),
-                                            () {
-                                          Navigator.pop(context);
+                                        // // Esperar 3 segundos antes de continuar
+                                        // Future.delayed(
+                                        //     const Duration(milliseconds: 300),
+                                        //     () {
+                                        //   Navigator.pop(context);
 
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            'scan-product-order',
-                                            arguments: [
-                                              widget.ordenCompra,
-                                              product
-                                            ],
-                                          );
-                                        });
+                                        //   Navigator.pushReplacementNamed(
+                                        //     context,
+                                        //     'scan-product-order',
+                                        //     arguments: [
+                                        //       widget.ordenCompra,
+                                        //       product
+                                        //     ],
+                                        //   );
+                                        // });
                                         print(product.toMap());
                                       },
                                       child: Column(

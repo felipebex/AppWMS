@@ -302,10 +302,10 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
         // Enviar la lista agrupada de barcodes de un producto para packing
         await db.barcodesPackagesRepository
-            .insertOrUpdateBarcodes(barcodesToInsert);
+            .insertOrUpdateBarcodes(barcodesToInsert, 'transfer');
         // Enviar la lista agrupada de otros barcodes de un producto para packing
         await db.barcodesPackagesRepository
-            .insertOrUpdateBarcodes(otherBarcodesToInsert);
+            .insertOrUpdateBarcodes(otherBarcodesToInsert, 'transfer');
         //actualizamos los datos de la transferencia actual
         currentTransferencia = response.result!;
         //actualizamos la lista de transferencias
@@ -1082,10 +1082,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     }
   }
 
-  void getBarcodeAll() async {
-    final response = await db.barcodesPackagesRepository.getAllBarcodes();
-    print("response: ${response.length}");
-  }
 
   //*metodo para cargar la informacion del producto actual
   void _onFetchPorductTransfer(
@@ -1110,6 +1106,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
           await db.barcodesPackagesRepository.getBarcodesProductTransfer(
         currentProduct.idTransferencia ?? 0,
         int.parse(currentProduct.productId),
+        'transfer'
       );
 
       //cargamos la informacion de las variables de validacion
@@ -1329,7 +1326,7 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
         await db.productTransferenciaRepository
             .insertarProductoEntrada(productsSentToInsert);
         // Enviar la lista agrupada de barcodes de un producto para packing
-        await db.barcodesPackagesRepository.insertOrUpdateBarcodes(allBarcodes);
+        await db.barcodesPackagesRepository.insertOrUpdateBarcodes(allBarcodes,'transfer');
 
         transferencias = response;
         transferenciasDbFilters = response;

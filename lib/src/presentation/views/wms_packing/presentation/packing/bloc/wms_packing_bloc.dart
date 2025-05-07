@@ -976,6 +976,7 @@ Future<void> _actualizarProductoBatch(
         currentProduct.batchId ?? 0,
         currentProduct.idProduct,
         currentProduct.idMove ?? 0,
+        'packing'
       );
       locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
@@ -1197,11 +1198,11 @@ Future<void> _actualizarProductoBatch(
           // Enviar la lista agrupada de barcodes de un producto para packing
           await DataBaseSqlite()
               .barcodesPackagesRepository
-              .insertOrUpdateBarcodes(barcodesToInsert);
+              .insertOrUpdateBarcodes(barcodesToInsert, 'packing');
           // Enviar la lista agrupada de otros barcodes de un producto para packing
           await DataBaseSqlite()
               .barcodesPackagesRepository
-              .insertOrUpdateBarcodes(otherBarcodesToInsert);
+              .insertOrUpdateBarcodes(otherBarcodesToInsert, 'packing');
           //guardamos los productos de los paquetes que ya fueron empaquetados
           await DataBaseSqlite()
               .productosPedidosRepository

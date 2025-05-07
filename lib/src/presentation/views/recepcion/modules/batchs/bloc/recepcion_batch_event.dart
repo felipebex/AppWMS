@@ -39,3 +39,17 @@ class StartOrStopTimeOrder extends RecepcionBatchEvent {
     this.value,
   );
 }
+
+
+class GetPorductsToEntradaBatch extends RecepcionBatchEvent {
+  final int idEntrada;
+  GetPorductsToEntradaBatch(this.idEntrada);
+}
+
+
+
+
+class CurrentOrdenesCompraBatch extends RecepcionBatchEvent {
+  final ReceptionBatch resultEntrada;
+  CurrentOrdenesCompraBatch(this.resultEntrada);
+}

@@ -453,6 +453,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         batchWithProducts.batch?.id ?? 0,
         currentProduct.idProduct ?? 0,
         currentProduct.idMove ?? 0,
+        'picking'
       );
       print("listOfBarcodes: ${listOfBarcodes.length}");
     } catch (e, s) {

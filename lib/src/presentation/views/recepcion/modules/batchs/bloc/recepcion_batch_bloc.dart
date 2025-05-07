@@ -1,7 +1,8 @@
+// ignore_for_file: unnecessary_type_check
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:meta/meta.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
@@ -23,6 +24,10 @@ class RecepcionBatchBloc
 
   List<ReceptionBatch> listReceptionBatch = [];
   List<ReceptionBatch> listReceptionBatchFilter = [];
+
+  List<LineasRecepcionBatch> listProductsEntrada = [];
+
+  ReceptionBatch resultEntrada = ReceptionBatch();
 
   //controller
   final TextEditingController searchControllerRecepcionBatch =
@@ -49,6 +54,50 @@ class RecepcionBatchBloc
 
     //*metodo para empezar o terminar timepo
     on<StartOrStopTimeOrder>(_onStartOrStopTimeOrder);
+
+    //*obtener todos los productos de una entrada
+    on<GetPorductsToEntradaBatch>(_onGetProductsToEntrada);
+
+    on<CurrentOrdenesCompraBatch>(_onCurrentOrdenesCompra);
+  }
+
+  void _onCurrentOrdenesCompra(
+      CurrentOrdenesCompraBatch event, Emitter<RecepcionBatchState> emit) async {
+    try {
+      resultEntrada = ReceptionBatch();
+      //traemos la orden de compra de la bd
+      final respnonseEntradaDb = await db.entradaBatchRepository
+          .getEntradaById(event.resultEntrada.id ?? 0);
+      resultEntrada = respnonseEntradaDb ?? ReceptionBatch();
+     
+
+      emit(CurrentOrdenesCompraState(resultEntrada));
+    } catch (e, s) {
+      print('Error en _onCurrentOrdenesCompra: $e, $s');
+    }
+  }
+
+  //*metodo para obtener los productos de una entrada por id
+  void _onGetProductsToEntrada(GetPorductsToEntradaBatch event,
+      Emitter<RecepcionBatchState> emit) async {
+    try {
+      emit(GetProductsToEntradaLoading());
+      final response = await db.productsEntradaBatchRepository
+          .getProductsByRecepcionBatchId(event.idEntrada);
+
+      if (response != null && response is List) {
+        listProductsEntrada = [];
+        listProductsEntrada = response;
+        emit(GetProductsToEntradaSuccess(response));
+      } else {
+        emit(GetProductsToEntradaFailure(
+            'Error al obtener los productos de la entrada'));
+      }
+    } catch (e, s) {
+      emit(GetProductsToEntradaFailure(
+          'Error al obtener los productos de la entrada'));
+      print('Error en el _onGetProductsToEntrada: $e, $s');
+    }
   }
 
   ///*metodo para asignar tiempo de inicio o fin
@@ -205,14 +254,23 @@ class RecepcionBatchBloc
 
           //obtenemos los productos de todas las recepciones para guardarlos en la bd:
           final productsToInsert =
-              _getAllProducts(listReceptionBatch!).toList(growable: false);
+              _getAllProducts(listReceptionBatch).toList(growable: false);
 
           final productsSedToInsert =
               _getAllSentProducts(listReceptionBatch).toList(growable: false);
           final allBarcodes =
               _getAllBarcodes(listReceptionBatch).toList(growable: false);
 
-          
+          await db.productsEntradaBatchRepository.insertarProductoEntrada(
+            productsToInsert,
+          );
+
+          await db.productsEntradaBatchRepository.insertarProductoEntrada(
+            productsSedToInsert,
+          );
+
+          await db.barcodesPackagesRepository
+              .insertOrUpdateBarcodes(allBarcodes, 'reception-batch');
 
           add(FetchRecepcionBatchEventFromBD());
           emit(FetchRecepcionBatchSuccess(
@@ -227,14 +285,14 @@ class RecepcionBatchBloc
     }
   }
 
-  Iterable<LineasRecepcion> _getAllProducts(
+  Iterable<LineasRecepcionBatch> _getAllProducts(
       List<ReceptionBatch> batches) sync* {
     for (final batch in batches) {
       if (batch.lineasRecepcion != null) yield* batch.lineasRecepcion!;
     }
   }
 
-  Iterable<LineasRecepcion> _getAllSentProducts(
+  Iterable<LineasRecepcionBatch> _getAllSentProducts(
       List<ReceptionBatch> batches) sync* {
     for (final batch in batches) {
       if (batch.lineasRecepcionEnviadas != null) {

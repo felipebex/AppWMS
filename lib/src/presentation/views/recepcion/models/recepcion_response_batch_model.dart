@@ -100,8 +100,8 @@ class ReceptionBatch {
   int? purchaseOrderId;
   String? purchaseOrderName;
   dynamic showCheckAvailability;
-  List<LineasRecepcion>? lineasRecepcion;
-  List<LineasRecepcion>? lineasRecepcionEnviadas;
+  List<LineasRecepcionBatch>? lineasRecepcion;
+  List<LineasRecepcionBatch>? lineasRecepcionEnviadas;
 
   dynamic isSelected;
   dynamic isStarted;
@@ -141,7 +141,6 @@ class ReceptionBatch {
     this.showCheckAvailability,
     this.lineasRecepcion,
     this.lineasRecepcionEnviadas,
-
     this.isSelected,
     this.isStarted,
     this.isFinish,
@@ -183,16 +182,15 @@ class ReceptionBatch {
         showCheckAvailability: json["show_check_availability"],
         lineasRecepcion: json["lineas_recepcion"] == null
             ? []
-            : List<LineasRecepcion>.from(json["lineas_recepcion"]!
-                .map((x) => LineasRecepcion.fromMap(x))),
+            : List<LineasRecepcionBatch>.from(json["lineas_recepcion"]!
+                .map((x) => LineasRecepcionBatch.fromMap(x))),
         lineasRecepcionEnviadas: json["lineas_recepcion_enviadas"] == null
             ? []
-            : List<LineasRecepcion>.from(json["lineas_recepcion_enviadas"]!
-                .map((x) => LineasRecepcion.fromMap(x))),
+            : List<LineasRecepcionBatch>.from(json["lineas_recepcion_enviadas"]!
+                .map((x) => LineasRecepcionBatch.fromMap(x))),
         isSelected: json["isSelected"],
         isStarted: json["isStarted"],
         isFinish: json["isFinish"],
-
       );
 
   Map<String, dynamic> toMap() => {
@@ -242,12 +240,12 @@ class ReceptionBatch {
       };
 }
 
-class LineasRecepcion {
+class LineasRecepcionBatch {
   int? id;
   int? idMove;
-  int? idBatch;
+  int? idRecepcion;
   String? state;
-  int? productId;
+  dynamic productId;
   String? productName;
   String? productCode;
   String? productBarcode;
@@ -259,6 +257,8 @@ class LineasRecepcion {
   dynamic quantityOrdered;
   dynamic cantidadFaltante;
   dynamic quantityToReceive;
+  dynamic quantityDone;
+
   String? uom;
   int? locationDestId;
   String? locationDestName;
@@ -275,11 +275,18 @@ class LineasRecepcion {
   int? pickingId;
   String? pickingName;
   String? origin;
+  String? observation;
+  String? dateTransaction;
+  dynamic time;
+  dynamic isDoneItem;
+  dynamic isSelected;
+  dynamic isSeparate;
+  dynamic isProductSplit;
 
-  LineasRecepcion({
+  LineasRecepcionBatch({
     this.id,
     this.idMove,
-    this.idBatch,
+    this.idRecepcion,
     this.state,
     this.productId,
     this.productName,
@@ -309,12 +316,21 @@ class LineasRecepcion {
     this.pickingId,
     this.pickingName,
     this.origin,
+    this.observation,
+    this.dateTransaction,
+    this.time,
+    this.isDoneItem,
+    this.isSelected,
+    this.isSeparate,
+    this.isProductSplit,
+    this.quantityDone,
   });
 
-  factory LineasRecepcion.fromMap(Map<String, dynamic> json) => LineasRecepcion(
+  factory LineasRecepcionBatch.fromMap(Map<String, dynamic> json) =>
+      LineasRecepcionBatch(
         id: json["id"],
         idMove: json["id_move"],
-        idBatch: json["id_batch"],
+        idRecepcion: json["id_recepcion"],
         state: json["state"],
         productId: json["product_id"],
         productName: json["product_name"],
@@ -350,12 +366,20 @@ class LineasRecepcion {
         pickingId: json["picking_id"],
         pickingName: json["picking_name"],
         origin: json["origin"],
+        observation: json["observation"],
+        dateTransaction: json["date_transaction"],
+        time: json["time"],
+        isDoneItem: json["is_done_item"],
+        isSelected: json["isSelected"],
+        isSeparate: json["isSeparate"],
+        isProductSplit: json["isProductSplit"],
+        quantityDone: json["quantity_done"],
       );
 
   Map<String, dynamic> toMap() => {
         "id": id,
         "id_move": idMove,
-        "id_batch": idBatch,
+        "id_recepcion": idRecepcion,
         "state": state,
         "product_id": productId,
         "product_name": productName,
@@ -389,6 +413,14 @@ class LineasRecepcion {
         "picking_id": pickingId,
         "picking_name": pickingName,
         "origin": origin,
+        "observation": observation,
+        "date_transaction": dateTransaction,
+        "time": time,
+        "is_done_item": isDoneItem,
+        "isSelected": isSelected,
+        "isSeparate": isSeparate,
+        "isProductSplit": isProductSplit,
+        "quantity_done": quantityDone,
       };
 }
 

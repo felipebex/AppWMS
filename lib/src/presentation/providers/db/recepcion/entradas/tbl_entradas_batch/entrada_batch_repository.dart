@@ -96,6 +96,28 @@ class EntradaBatchRepository {
     }
   }
 
+
+
+  //metodo para obtener una entrada por id
+  Future<ReceptionBatch?> getEntradaById(int id) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final List<Map<String, dynamic>> entradas = await db.query(
+        EntradaBatchTable.tableName,
+        where: '${EntradaBatchTable.columnId} = ?',
+        whereArgs: [id],
+      );
+      if (entradas.isNotEmpty) {
+        return ReceptionBatch.fromMap(entradas.first);
+      }
+      return null;
+    } catch (e, s) {
+      print('Error en getEntradaById: $e ->$s');
+      return null;
+    }
+  }
+
+
   // Método: Actualizar un campo específico en la tabla productos_pedidos
   Future<int?> setFieldTableEntradaBatch(
     int idEntrada,

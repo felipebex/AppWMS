@@ -293,7 +293,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       ubicacionesFilters = [];
       ubicacionesFilters = ubicaciones;
       final query = event.query.toLowerCase();
-       selectedAlmacen = '';
+      selectedAlmacen = '';
       if (query.isEmpty) {
         ubicacionesFilters = ubicaciones;
       } else {
@@ -1009,10 +1009,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       listOfBarcodes.clear();
       currentProduct = event.product;
       listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
-        currentProduct.idRecepcion ?? 0,
-        int.parse(currentProduct.productId),
-        currentProduct.idMove ?? 0,
-      );
+          currentProduct.idRecepcion ?? 0,
+          int.parse(currentProduct.productId),
+          currentProduct.idMove ?? 0,
+          'reception');
 
       //validamos si el prodcuto tiene lote, si es asi llamamos los lotes de ese producto
       if (currentProduct.productTracking == 'lot') {
@@ -1209,7 +1209,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
           // Enviar la lista agrupada de barcodes de un producto para packing
           await db.barcodesPackagesRepository
-              .insertOrUpdateBarcodes(allBarcodes);
+              .insertOrUpdateBarcodes(allBarcodes, 'reception');
 
           print("listRecepcion: ${listRecepcion.length}");
           print("productsToInsert: ${productsToInsert.length}");

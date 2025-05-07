@@ -733,16 +733,14 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         // Traemos el tiempo de inicio de separación del producto desde la base de datos
         final userid = await PrefUtils.getUserId();
         // Creamos los Item a enviar
-        itemsToSend.add(
-            ListItem(
+        itemsToSend.add(ListItem(
           idMove: product.idMove ?? 0,
           idProducto: product.idProduct ?? 0,
           idLote: product.loteId ?? 0,
           idUbicacionDestino: product.muelleId ?? 0,
-          cantidadEnviada:
-              (product.quantitySeparate ?? 0) > (product.quantity)
-                  ? product.quantity
-                  : product.quantitySeparate ?? 0,
+          cantidadEnviada: (product.quantitySeparate ?? 0) > (product.quantity)
+              ? product.quantity
+              : product.quantitySeparate ?? 0,
           idOperario: userid,
           timeLine: product.timeSeparate ?? 0.0,
           fechaTransaccion: product.fechaTransaccion ?? '',
@@ -750,7 +748,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           dividida: false,
         ));
       }
-       final response = await repository.sendProductTransferPick(
+      final response = await repository.sendProductTransferPick(
         TransferRequest(
           idTransferencia: currentProduct.batchId ?? 0,
           listItems: itemsToSend,
@@ -758,8 +756,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         false,
       );
       if (response.result?.code == 200) {
-        add(FetchPickWithProductsEvent(
-            event.productsSeparate[0].batchId ?? 0));
+        add(FetchPickWithProductsEvent(event.productsSeparate[0].batchId ?? 0));
         emit(SubMuelleEditSusses('Submuelle asignado correctamente'));
       } else {
         emit(SubMuelleEditFail('Error al asignar el submuelle'));
@@ -1290,15 +1287,11 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     try {
       listOfBarcodes.clear();
 
-      final responseList = await db.barcodesPackagesRepository.getAllBarcodes();
-
-      print("responseList: ${responseList.length}");
-
       listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
-        pickWithProducts.pick?.id ?? 0,
-        currentProduct.idProduct ?? 0,
-        currentProduct.idMove ?? 0,
-      );
+          pickWithProducts.pick?.id ?? 0,
+          currentProduct.idProduct ?? 0,
+          currentProduct.idMove ?? 0,
+          'pick');
       print("listOfBarcodes: ${listOfBarcodes.length}");
     } catch (e, s) {
       print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
@@ -1522,7 +1515,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           // Enviar la lista agrupada a insertBarcodesPackageProduct
           await DataBaseSqlite()
               .barcodesPackagesRepository
-              .insertOrUpdateBarcodes(allBarcodes);
+              .insertOrUpdateBarcodes(
+                allBarcodes,
+                'pick',
+              );
         }
 
         add(FetchPickingPickFromDBEvent(true));

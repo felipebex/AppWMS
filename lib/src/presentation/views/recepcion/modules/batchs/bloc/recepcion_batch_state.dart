@@ -75,3 +75,23 @@ class StartOrStopTimeOrderFailure extends RecepcionBatchState {
   final String error;
   StartOrStopTimeOrderFailure(this.error);
 }
+
+
+//metodo para obtener los productos de una entrada
+class GetProductsToEntradaLoading extends RecepcionBatchState {}
+
+class GetProductsToEntradaSuccess extends RecepcionBatchState {
+  final List<LineasRecepcionBatch> productos;
+  GetProductsToEntradaSuccess(this.productos);
+}
+
+class GetProductsToEntradaFailure extends RecepcionBatchState {
+  final String error;
+  GetProductsToEntradaFailure(this.error);
+}
+
+class CurrentOrdenesCompraState extends RecepcionBatchState {
+  final ReceptionBatch ordenCompra;
+  CurrentOrdenesCompraState(this.ordenCompra);
+}
+

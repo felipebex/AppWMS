@@ -9,6 +9,7 @@ class BarcodesPackagesTable {
   static const String columnIdProduct = 'id_product';
   static const String columnBarcode = 'barcode';
   static const String columnCantidad = 'cantidad';
+  static const String columnBarcodeType = 'barcode_type';
 
   static String createTable() {
     return '''
@@ -18,6 +19,7 @@ class BarcodesPackagesTable {
       $columnIdMove INTEGER,
       $columnIdProduct INTEGER,
       $columnBarcode TEXT,
+      $columnBarcodeType TEXT,
       $columnCantidad DECIMAL(10,2),
       FOREIGN KEY ($columnBatchId) REFERENCES tblbatchs (id)
     )

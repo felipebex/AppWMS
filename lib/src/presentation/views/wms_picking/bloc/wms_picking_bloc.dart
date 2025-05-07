@@ -184,7 +184,7 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
             // Enviar la lista agrupada a insertBarcodesPackageProduct
             await DataBaseSqlite()
                 .barcodesPackagesRepository
-                .insertOrUpdateBarcodes(allBarcodes);
+                .insertOrUpdateBarcodes(allBarcodes, 'picking');
           }
 
           // //* Carga los batches desde la base de datos
