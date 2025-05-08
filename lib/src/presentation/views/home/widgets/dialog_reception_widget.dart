@@ -3,11 +3,14 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class DialogPicking extends StatelessWidget {
-  const DialogPicking({
+class DialogReception extends StatelessWidget {
+  const DialogReception({
     super.key,
     required this.contextHome,
   });
@@ -26,7 +29,7 @@ class DialogPicking extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('SELECCION DE PICKING',
+            Text('SELECCION DE RECEPCION',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: primaryColorApp,
@@ -35,7 +38,7 @@ class DialogPicking extends StatelessWidget {
             const SizedBox(height: 10),
             Center(
               child: Text(
-                  'Seleccione una de las siguientes opciones para realizar el proceso de picking',
+                  'Seleccione una de las siguientes opciones para realizar el proceso de recepcion',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: black,
@@ -45,10 +48,17 @@ class DialogPicking extends StatelessWidget {
             const SizedBox(height: 10),
             ElevatedButton(
                 onPressed: () {
+                  //pedir ubicaciones
+                  context.read<RecepcionBatchBloc>().add(GetLocationsDestReceptionBatchEvent());
+                  //pedir las novedades
+                  context
+                      .read<RecepcionBatchBloc>()
+                      .add(LoadAllNovedadesReceptionEvent());
                   Navigator.pop(context);
-
-                  Navigator.pushReplacementNamed(contextHome, 'wms-picking',
-                      arguments: 0);
+                  Navigator.pushReplacementNamed(
+                    context,
+                    'list-recepction-batch',
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(200, 40),
@@ -64,11 +74,18 @@ class DialogPicking extends StatelessWidget {
                     ))),
             ElevatedButton(
                 onPressed: () {
+                  //pedir ubicaciones
+                  context.read<RecepcionBloc>().add(GetLocationsDestEvent());
+                  //pedir las novedades
+                  context
+                      .read<RecepcionBloc>()
+                      .add(LoadAllNovedadesOrderEvent());
+
                   //cerramos el dialogo
                   Navigator.pop(context);
                   Navigator.pushReplacementNamed(
-                    contextHome,
-                    'pick',
+                    context,
+                    'list-ordenes-compra',
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -78,7 +95,7 @@ class DialogPicking extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text('POR PICK',
+                child: Text('INDIVIDUAL',
                     style: TextStyle(
                       color: white,
                       fontSize: 14,

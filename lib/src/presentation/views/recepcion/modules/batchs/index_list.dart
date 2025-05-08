@@ -435,63 +435,65 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                           ],
                                         ),
                                         onTap: () async {
+                                          bloc.add(
+                                              LoadConfigurationsUserReception());
+
                                           print(
                                               'ordenCompra: ${recepcionBatch[index].toMap()}');
                                           //validamos si tiene responsable
 
-                                          // if (recepcionBatch[index]
-                                          //             .responsableId ==
-                                          //         0 ||
-                                          //     recepcionBatch[index]
-                                          //             .responsableId ==
-                                          //         null) {
-                                          //   //no tiene responsable
-                                          //   showDialog(
-                                          //     context: context,
-                                          //     barrierDismissible:
-                                          //         false, // No permitir que el usuario cierre el diálogo manualmente
-                                          //     builder: (context) =>
-                                          //         DialogAsignUserToOrderWidget(
-                                          //       title:
-                                          //           'Esta seguro de tomar esta recepcion por batch, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-                                          //       onAccepted: () async {
-                                          //         bloc.searchControllerRecepcionBatch
-                                          //             .clear();
+                                          if (recepcionBatch[index]
+                                                      .responsableId ==
+                                                  0 ||
+                                              recepcionBatch[index]
+                                                      .responsableId ==
+                                                  null) {
+                                            //no tiene responsable
+                                            showDialog(
+                                              context: context,
+                                              barrierDismissible:
+                                                  false, // No permitir que el usuario cierre el diálogo manualmente
+                                              builder: (context) =>
+                                                  DialogAsignUserToOrderWidget(
+                                                title:
+                                                    'Esta seguro de tomar esta recepcion por batch, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+                                                onAccepted: () async {
+                                                  bloc.searchControllerRecepcionBatch
+                                                      .clear();
 
-                                          //         bloc.add(SearchReceptionEvent(
-                                          //           '',
-                                          //         ));
+                                                  bloc.add(SearchReceptionEvent(
+                                                    '',
+                                                  ));
 
-                                          //         bloc.add(
-                                          //             ShowKeyboardEvent(false));
+                                                  bloc.add(
+                                                      ShowKeyboardEvent(false));
 
-                                          //         //asignamos el responsable a esa orden de entrada
-                                          //         bloc.add(
-                                          //             AssignUserToReception(
-                                          //           recepcionBatch[index],
-                                          //         ));
-                                          //         Navigator.pop(context);
-                                          //       },
-                                          //     ),
-                                          //   );
-                                          // } else {
-                                          //   //tiene ya un responsable
-                                          // }
-
-                                          bloc.add(GetPorductsToEntradaBatch(
-                                              recepcionBatch[index].id ?? 0));
-                                          bloc.add(CurrentOrdenesCompraBatch(
-                                            recepcionBatch[index],
-                                          ));
-
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            'recepcion-batch',
-                                            arguments: [
+                                                  //asignamos el responsable a esa orden de entrada
+                                                  bloc.add(
+                                                      AssignUserToReception(
+                                                    recepcionBatch[index],
+                                                  ));
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                            );
+                                          } else {
+                                            //tiene ya un responsable
+                                            bloc.add(GetPorductsToEntradaBatch(
+                                                recepcionBatch[index].id ?? 0));
+                                            bloc.add(CurrentOrdenesCompraBatch(
                                               recepcionBatch[index],
-                                              0
-                                            ],
-                                          );
+                                            ));
+
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'recepcion-batch',
+                                              arguments: [
+                                                recepcionBatch[index],
+                                                0
+                                              ],
+                                            );
+                                          }
 
                                           //cargamos los permisos del usuario
                                         },

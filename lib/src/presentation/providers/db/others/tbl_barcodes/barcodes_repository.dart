@@ -16,8 +16,8 @@ class BarcodesRepository {
       final List<Map<String, dynamic>> maps = await db.query(
         BarcodesPackagesTable.tableName,
         where: '${BarcodesPackagesTable.columnBatchId} = ? AND '
-            '${BarcodesPackagesTable.columnIdMove} = ? AND'
-            '${BarcodesPackagesTable.columnBarcodeType} = ? ',
+            '${BarcodesPackagesTable.columnIdMove} = ? AND '
+            '${BarcodesPackagesTable.columnBarcodeType} = ?',
         whereArgs: [batchId, idMove, barcodeType],
       );
 

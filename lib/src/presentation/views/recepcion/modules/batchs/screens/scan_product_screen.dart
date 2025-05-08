@@ -5,37 +5,43 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/widgets/dropdowbutton_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/widgets/product/product_card_widget.dart';
 
-import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
-import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/dropdowbutton_widget.dart';
-import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/product/product_card_widget.dart';
+
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
+
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
+
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
 
-class ScanProductOrderScreen extends StatefulWidget {
-  const ScanProductOrderScreen({
+class ScanProductRceptionBatchScreen extends StatefulWidget {
+  const ScanProductRceptionBatchScreen({
     super.key,
     required this.ordenCompra,
     required this.currentProduct,
   });
 
-  final ResultEntrada? ordenCompra;
-  final LineasTransferencia? currentProduct;
+  final ReceptionBatch? ordenCompra;
+  final LineasRecepcionBatch? currentProduct;
 
   @override
-  State<ScanProductOrderScreen> createState() => _ScanProductOrderScreenState();
+  State<ScanProductRceptionBatchScreen> createState() =>
+      _ScanProductOrderScreenState();
 }
 
-class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
+class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
     with WidgetsBindingObserver {
   @override
   void initState() {
@@ -90,7 +96,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
   void _handleDependencies() {
     print('🚼 _handleDependencies');
-    final batchBloc = context.read<RecepcionBloc>();
+    final batchBloc = context.read<RecepcionBatchBloc>();
 
     if (!batchBloc.productIsOk && //false
         !batchBloc.quantityIsOk) //false
@@ -162,7 +168,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   }
 
   void validateProduct(String value) {
-    final bloc = context.read<RecepcionBloc>();
+    final bloc = context.read<RecepcionBatchBloc>();
 
     String scan = bloc.scannedValue2.trim().toLowerCase() == ""
         ? value.trim().toLowerCase()
@@ -207,7 +213,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   }
 
   void validateQuantity(String value) {
-    final bloc = context.read<RecepcionBloc>();
+    final bloc = context.read<RecepcionBatchBloc>();
 
     String scan = bloc.scannedValue3.trim().toLowerCase() == ""
         ? value.trim().toLowerCase()
@@ -221,7 +227,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     }
     if (scan == currentProduct.productBarcode?.toLowerCase()) {
       bloc.add(AddQuantitySeparate(
-        currentProduct.idRecepcion,
+        currentProduct.idRecepcion ?? 0,
         int.parse(currentProduct.productId),
         currentProduct.idMove ?? 0,
         1,
@@ -234,7 +240,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   }
 
   void validateLocationDest(String value) {
-    final bloc = context.read<RecepcionBloc>();
+    final bloc = context.read<RecepcionBatchBloc>();
     final currentProduct = bloc.currentProduct;
     String scan = bloc.scannedValue6.trim().toLowerCase() == ""
         ? value.trim().toLowerCase()
@@ -278,9 +284,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       onWillPop: () async {
         return false;
       },
-      child: BlocBuilder<RecepcionBloc, RecepcionState>(
+      child: BlocBuilder<RecepcionBatchBloc, RecepcionBatchState>(
         builder: (context, state) {
-          final recepcionBloc = context.read<RecepcionBloc>();
+          final recepcionBloc = context.read<RecepcionBatchBloc>();
           return Scaffold(
             backgroundColor: Colors.white,
             body: Column(
@@ -297,8 +303,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                   width: double.infinity,
                   child: BlocProvider(
                     create: (context) => ConnectionStatusCubit(),
-                    child: BlocConsumer<RecepcionBloc, RecepcionState>(
-                        listener: (context, state) {
+                    child:
+                        BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
+                            listener: (context, state) {
                       print('STATE ❤️‍🔥 $state');
 
                       //*estado cuando el producto es leido ok
@@ -321,12 +328,11 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
                       if (state is ChangeQuantitySeparateState) {
                         // if (state.quantity != 0.0) {
-                          if (state.quantity ==
-                              recepcionBloc.currentProduct.cantidadFaltante
-                                  ) {
-                            //termianmso el proceso
-                            _finishSeprateProductOrder(context, state.quantity);
-                          }
+                        if (state.quantity ==
+                            recepcionBloc.currentProduct.cantidadFaltante) {
+                          //termianmso el proceso
+                          _finishSeprateProductOrder(context, state.quantity);
+                        }
                         // }
                       }
                     }, builder: (context, status) {
@@ -348,7 +354,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                     termiateProcess();
 
                                     Navigator.pushReplacementNamed(
-                                        context, 'recepcion',
+                                        context, 'recepcion-batch',
                                         arguments: [widget.ordenCompra, 1]);
                                   },
                                 ),
@@ -473,7 +479,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                           .contains("Zebra")
                                       ? Column(
                                           children: [
-                                            ProductDropdownOrderWidget(
+                                            ProductDropdownReceptionBatchWidget(
                                               selectedProduct: selectedLocation,
                                               listOfProductsName: recepcionBloc
                                                   .listOfProductsName,
@@ -610,7 +616,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: [
-                                                ProductDropdownOrderWidget(
+                                                ProductDropdownReceptionBatchWidget(
                                                   selectedProduct:
                                                       selectedLocation,
                                                   listOfProductsName:
@@ -878,7 +884,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                     GestureDetector(
                                       onTap: () {
                                         Navigator.pushReplacementNamed(
-                                            context, 'search-location-recep',
+                                            context, 'search-location-recep-batch',
                                             arguments: [
                                               widget.ordenCompra,
                                               widget.currentProduct,
@@ -987,7 +993,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                           ? () {
                                                               Navigator.pushReplacementNamed(
                                                                   context,
-                                                                  'search-location-recep',
+                                                                  'search-location-recep-batch',
                                                                   arguments: [
                                                                     widget
                                                                         .ordenCompra,
@@ -1116,7 +1122,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                             ? () {
                                                                 Navigator.pushReplacementNamed(
                                                                     context,
-                                                                    'search-location-recep',
+                                                                    'search-location-recep-batch',
                                                                     arguments: [
                                                                       widget
                                                                           .ordenCompra,
@@ -1462,12 +1468,12 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
   bool validateScannedBarcode(
       String scannedBarcode,
-      LineasTransferencia currentProduct,
-      RecepcionBloc batchBloc,
+      LineasRecepcionBatch currentProduct,
+      RecepcionBatchBloc batchBloc,
       bool isProduct) {
     // Buscar el barcode que coincida con el valor escaneado
     Barcodes? matchedBarcode = context
-        .read<RecepcionBloc>()
+        .read<RecepcionBatchBloc>()
         .listOfBarcodes
         .firstWhere(
             (barcode) =>
@@ -1509,7 +1515,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         }
 
         batchBloc.add(AddQuantitySeparate(
-          currentProduct.idRecepcion,
+          currentProduct.idRecepcion ?? 0,
           int.parse(currentProduct.productId),
           currentProduct.idMove ?? 0,
           matchedBarcode.cantidad,
@@ -1521,13 +1527,13 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   }
 
   void _validatebuttonquantity() {
-    final batchBloc = context.read<RecepcionBloc>();
+    final batchBloc = context.read<RecepcionBatchBloc>();
     final currentProduct = batchBloc.currentProduct;
 
     //validamos que tengamos un lote seleccionado
 
     if (currentProduct.productTracking == 'lot') {
-      if (context.read<RecepcionBloc>().lotesProductCurrent.id == null) {
+      if (context.read<RecepcionBatchBloc>().lotesProductCurrent.id == null) {
         Get.snackbar(
           'Error',
           "Seleccione un lote",
@@ -1542,7 +1548,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     if (batchBloc
             .configurations.result?.result?.scanDestinationLocationReception ==
         true) {
-      if (context.read<RecepcionBloc>().currentUbicationDest?.id == null) {
+      if (context.read<RecepcionBatchBloc>().currentUbicationDest?.id == null) {
         Get.snackbar(
           'Error',
           "Seleccione o escanee una ubicacion",
@@ -1553,10 +1559,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         return;
       }
     }
-
-    // double cantidad = double.parse(_cantidadController.text.isEmpty
-    //     ? batchBloc.quantitySelected.toString()
-    //     : _cantidadController.text);
 
     String input = _cantidadController.text.trim();
 
@@ -1614,7 +1616,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         showDialog(
             context: context,
             builder: (context) {
-              return DialogOrderAdvetenciaCantidadScreen(
+              return DialogRecepBatchAdvetenciaCantidadScreen(
                   currentProduct: currentProduct,
                   cantidad: cantidad,
                   onAccepted: () async {
@@ -1626,7 +1628,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                     _cantidadController.clear();
                     _finishSeprateProductOrder(context, cantidad);
 
-                    Navigator.pushReplacementNamed(context, 'recepcion',
+                    Navigator.pushReplacementNamed(context, 'recepcion-batch',
                         arguments: [widget.ordenCompra, 1]);
                   },
                   onSplit: () {
@@ -1636,7 +1638,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         currentProduct.idRecepcion ?? 0,
                         currentProduct.idMove ?? 0));
                     _cantidadController.clear();
-                    Navigator.pushReplacementNamed(context, 'recepcion',
+                    Navigator.pushReplacementNamed(context, 'recepcion-batch',
                         arguments: [widget.ordenCompra, 1]);
 
                     _finishSeprateProductOrderSplit(context, cantidad);
@@ -1667,9 +1669,10 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   }
 
   void _finishSeprateProductOrder(BuildContext context, dynamic cantidad) {
-    if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
-      print(context.read<RecepcionBloc>().lotesProductCurrent.toMap());
-      if (context.read<RecepcionBloc>().selectLote == "") {
+    if (context.read<RecepcionBatchBloc>().currentProduct.productTracking ==
+        "lot") {
+      print(context.read<RecepcionBatchBloc>().lotesProductCurrent.toMap());
+      if (context.read<RecepcionBatchBloc>().selectLote == "") {
         Get.snackbar(
           'Error',
           "Seleccione un lote",
@@ -1681,11 +1684,11 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       }
     }
 
-    context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
-    context.read<RecepcionBloc>().add(SendProductToOrder(false, cantidad));
+    context.read<RecepcionBatchBloc>().add(FinalizarRecepcionProducto());
+    context.read<RecepcionBatchBloc>().add(SendProductToOrder(false, cantidad));
     termiateProcess();
 
-    Navigator.pushReplacementNamed(context, 'recepcion',
+    Navigator.pushReplacementNamed(context, 'recepcion-batch',
         arguments: [widget.ordenCompra, 1]);
   }
 
@@ -1693,8 +1696,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     BuildContext context,
     dynamic cantidad,
   ) {
-    if (context.read<RecepcionBloc>().currentProduct.productTracking == "lot") {
-      if (context.read<RecepcionBloc>().currentProduct.loteId == "") {
+    if (context.read<RecepcionBatchBloc>().currentProduct.productTracking ==
+        "lot") {
+      if (context.read<RecepcionBatchBloc>().currentProduct.lotId == "") {
         Get.snackbar(
           'Error',
           "Seleccione un lote",
@@ -1706,18 +1710,18 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
       }
     }
     context
-        .read<RecepcionBloc>()
+        .read<RecepcionBatchBloc>()
         .add(FinalizarRecepcionProductoSplit(cantidad));
-    context.read<RecepcionBloc>().add(SendProductToOrder(true, cantidad));
+    context.read<RecepcionBatchBloc>().add(SendProductToOrder(true, cantidad));
     termiateProcess();
   }
 
   void termiateProcess() {
     FocusScope.of(context).unfocus();
 
-    context.read<RecepcionBloc>().add(CleanFieldsEvent());
+    context.read<RecepcionBatchBloc>().add(CleanFieldsEvent());
     context
-        .read<RecepcionBloc>()
-        .add(GetPorductsToEntrada(widget.ordenCompra?.id ?? 0));
+        .read<RecepcionBatchBloc>()
+        .add(GetPorductsToEntradaBatch(widget.ordenCompra?.id ?? 0));
   }
 }

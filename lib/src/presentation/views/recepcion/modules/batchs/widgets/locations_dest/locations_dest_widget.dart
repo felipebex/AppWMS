@@ -2,36 +2,37 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
-import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class LocationDestTransScreen extends StatefulWidget {
-  const LocationDestTransScreen({Key? key, this.currentProduct})
-      : super(key: key);
 
-  final LineasTransferenciaTrans? currentProduct;
+class LocationDestRecepBatchScreen extends StatefulWidget {
+  const LocationDestRecepBatchScreen(
+      {Key? key, this.ordenCompra, this.currentProduct})
+      : super(key: key);
+  final ReceptionBatch? ordenCompra;
+  final LineasRecepcionBatch? currentProduct;
 
   @override
-  State<LocationDestTransScreen> createState() => _LocationDestScreenState();
+  State<LocationDestRecepBatchScreen> createState() => _LocationDestScreenState();
 }
 
-class _LocationDestScreenState extends State<LocationDestTransScreen> {
+class _LocationDestScreenState extends State<LocationDestRecepBatchScreen> {
   int? selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    return BlocBuilder<TransferenciaBloc, TransferenciaState>(
+    return BlocBuilder<RecepcionBatchBloc, RecepcionBatchState>(
       builder: (context, state) {
-        final bloc = context.read<TransferenciaBloc>();
+        final bloc = context.read<RecepcionBatchBloc>();
         return WillPopScope(
           onWillPop: () async {
             return false;
@@ -45,6 +46,7 @@ class _LocationDestScreenState extends State<LocationDestTransScreen> {
                   children: [
                     _AppBarInfo(
                       size: size,
+                      ordenCompra: widget.ordenCompra,
                       currentProduct: widget.currentProduct,
                     ),
                     const SizedBox(
@@ -99,8 +101,7 @@ class _LocationDestScreenState extends State<LocationDestTransScreen> {
                                             bloc.add(SearchLocationEvent(
                                               '',
                                             ));
-                                            bloc.add(ShowKeyboardEvent(
-                                                showKeyboard: false));
+                                            bloc.add(ShowKeyboardEvent(false));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -126,8 +127,7 @@ class _LocationDestScreenState extends State<LocationDestTransScreen> {
                                             .contains("Zebra")
                                         ? null
                                         : () {
-                                            bloc.add(ShowKeyboardEvent(
-                                                showKeyboard: mounted));
+                                            bloc.add(ShowKeyboardEvent(true));
                                           },
                                   ),
                                 ),
@@ -217,41 +217,6 @@ class _LocationDestScreenState extends State<LocationDestTransScreen> {
                                                     ),
                                                   ),
                                                 ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Text(
-                                                    'Almacen: ',
-                                                    style: TextStyle(
-                                                      color: black,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(
-                                                    bloc
-                                                                .ubicacionesFilters[
-                                                                    index]
-                                                                .warehouseName ==
-                                                            false
-                                                        ? 'Sin almacen'
-                                                        : bloc
-                                                                .ubicacionesFilters[
-                                                                    index]
-                                                                .warehouseName ??
-                                                            '',
-                                                    style: TextStyle(
-                                                      color: bloc
-                                                                  .ubicacionesFilters[
-                                                                      index]
-                                                                  .warehouseName ==
-                                                              false
-                                                          ? red
-                                                          : primaryColorApp,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ],
                                               )
                                             ],
                                           ),
@@ -272,18 +237,24 @@ class _LocationDestScreenState extends State<LocationDestTransScreen> {
                             final selectedLocation =
                                 bloc.ubicacionesFilters[selectedIndex!];
 
-                            bloc.add(ValidateFieldsEvent(
+                            // seleccionamos la ubicacion
+                            bloc.add(ValidateFieldsOrderEvent(
                                 field: "locationDest", isOk: true));
-
                             bloc.add(ChangeLocationDestIsOkEvent(
+                                bloc.currentProduct.idRecepcion ?? 0,
+                                true,
+                                int.parse(bloc.currentProduct.productId),
+                                bloc.currentProduct.idMove ?? 0,
+                                selectedLocation));
+
+                            bloc.add(ChangeIsOkQuantity(
+                              bloc.currentProduct.idRecepcion ?? 0,
                               true,
                               int.parse(bloc.currentProduct.productId),
-                              bloc.currentProduct.idTransferencia ?? 0,
                               bloc.currentProduct.idMove ?? 0,
-                              selectedLocation,
                             ));
 
-                            bloc.add(ShowKeyboardEvent(showKeyboard: false));
+                            bloc.add(ShowKeyboardEvent(false));
                             FocusScope.of(context).unfocus();
 
                             setState(() {
@@ -291,10 +262,10 @@ class _LocationDestScreenState extends State<LocationDestTransScreen> {
                             });
 
                             Navigator.pushReplacementNamed(
-                                context, 'scan-product-transfer',
-                                arguments: [
-                                  widget.currentProduct,
-                                ]);
+                                context, 'scan-product-reception-batch', arguments: [
+                              widget.ordenCompra,
+                              widget.currentProduct
+                            ]);
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -339,11 +310,13 @@ class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({
     super.key,
     required this.size,
+    required this.ordenCompra,
     required this.currentProduct,
   });
 
   final Size size;
-  final LineasTransferenciaTrans? currentProduct;
+  final ReceptionBatch? ordenCompra;
+  final LineasRecepcionBatch? currentProduct;
 
   @override
   Widget build(BuildContext context) {
@@ -359,7 +332,7 @@ class _AppBarInfo extends StatelessWidget {
       width: double.infinity,
       child: BlocProvider(
         create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
+        child: BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
             listener: (context, state) {},
             builder: (context, status) {
               return Column(
@@ -375,12 +348,12 @@ class _AppBarInfo extends StatelessWidget {
                           icon: const Icon(Icons.arrow_back, color: white),
                           onPressed: () {
                             context
-                                .read<TransferenciaBloc>()
-                                .add(ShowKeyboardEvent(showKeyboard: false));
+                                .read<RecepcionBatchBloc>()
+                                .add(ShowKeyboardEvent(false));
 
                             Navigator.pushReplacementNamed(
-                                context, 'scan-product-transfer',
-                                arguments: [currentProduct]);
+                                context, 'scan-product-reception-batch',
+                                arguments: [ordenCompra, currentProduct]);
                           },
                         ),
                         Padding(
@@ -398,7 +371,7 @@ class _AppBarInfo extends StatelessWidget {
                           ),
                           onSelected: (value) {
                             context
-                                .read<TransferenciaBloc>()
+                                .read<RecepcionBatchBloc>()
                                 .add(FilterUbicacionesAlmacenEvent(value));
                           },
                           itemBuilder: (BuildContext context) {

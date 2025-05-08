@@ -5,7 +5,8 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
-import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/dialog_reception_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
@@ -431,24 +432,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   );
                                                 },
                                               );
-                                              // context.read<BatchBloc>().add(
-                                              //     LoadAllNovedadesEvent()); //
-
-                                              // showDialog(
-                                              //     context: context,
-                                              //     builder: (context) {
-                                              //       return const DialogLoading(
-                                              //           message:
-                                              //               'Cargando interfaz...');
-                                              //     });
-
-                                              // await Future.delayed(const Duration(
-                                              //     seconds:
-                                              //         1)); // Ajusta el tiempo si es necesario
-                                              // Navigator.pop(context);
-                                              // Navigator.pushReplacementNamed(
-                                              //     context, 'wms-picking',
-                                              //     arguments: 0);
+                                             
                                             } else if (rol == '' ||
                                                 rol == null) {
                                               ScaffoldMessenger.of(context)
@@ -601,14 +585,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             if (homeBloc.userRol ==
                                                     'reception' ||
                                                 homeBloc.userRol == 'admin') {
-                                              //pedir ubicaciones
+                                              context.read<UserBloc>().add(
+                                                  LoadInfoDeviceEventUser());
+
+                                              // //pedir ubicaciones
                                               // context
                                               //     .read<RecepcionBloc>()
                                               //     .add(GetLocationsDestEvent());
-                                              // //pedir info del usuario
-
-                                              // context.read<UserBloc>().add(
-                                              //     LoadInfoDeviceEventUser());
 
                                               // //pedir las novedades
                                               // context.read<RecepcionBloc>().add(
@@ -632,10 +615,17 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               //   'list-ordenes-compra',
                                               // );
 
-                                              Navigator.pushReplacementNamed(
-                                                context,
-                                                'list-recepction-batch',
+
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return DialogReception(
+                                                    contextHome: context,
+                                                  );
+                                                },
                                               );
+
+                                             
                                             } else {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(

@@ -59,7 +59,7 @@ class ResponSendRecepcionResult {
 class ResultElement {
     String? producto;
     dynamic cantidad;
-    String? lote;
+    dynamic? lote;
     int? ubicacionDestino;
     String? fechaTransaccion;
     String? dateTransaction;

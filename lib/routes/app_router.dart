@@ -16,6 +16,8 @@ import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_respon
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/index_list.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/screens/recepcion_batch_screen.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/screens/scan_product_screen.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/widgets/locations_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/locations_dest/locations_dest_widget.dart';
@@ -88,6 +90,8 @@ class AppRoutes {
   //todo recepcion batch
   static const String listReceptionBatch = 'list-recepction-batch';
   static const String recepcionBatch = 'recepcion-batch';
+  static const String scanProductReceptionBatch = 'scan-product-reception-batch';
+  static const String locationDestReceptionBatchSearch = 'search-location-recep-batch';
 
   //todo new lote
   static const String newLote = 'new-lote';
@@ -234,6 +238,24 @@ class AppRoutes {
         return RecepcionBatchScreen(
             recepcionBatch: recepcionBatch,
             initialTabIndex: initialTabIndexArg ?? 0);
+      },
+
+      scanProductReceptionBatch: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final recepcionBatch = arguments[0] as ReceptionBatch?;
+        final currentProducArg = arguments[1] as LineasRecepcionBatch?;
+        return ScanProductRceptionBatchScreen(
+            ordenCompra: recepcionBatch, currentProduct: currentProducArg);
+      },
+
+      locationDestReceptionBatchSearch: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final recepcionBatch = arguments[0] as ReceptionBatch?;
+        final currentProducArg = arguments[1] as LineasRecepcionBatch?;
+        return LocationDestRecepBatchScreen(
+            ordenCompra: recepcionBatch, currentProduct: currentProducArg);
       },
 
       //todo lote

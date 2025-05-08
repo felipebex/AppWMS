@@ -5,6 +5,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_respon
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/tabs/tab1.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/tabs/tab2.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/tabs/tab3.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class RecepcionBatchScreen extends StatefulWidget {
@@ -56,8 +57,7 @@ class _RecepcionScreenState extends State<RecepcionBatchScreen>
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               //volvemos a llamar las entradas que tenemos guardadas en la bd
-              context.read<RecepcionBatchBloc>().add(FetchRecepcionBatchEventFromBD());
-
+              // context.read<RecepcionBatchBloc>().add(FetchRecepcionBatchEventFromBD());
               Navigator.pushReplacementNamed(
                 context,
                 'list-recepction-batch',
@@ -128,7 +128,7 @@ class _RecepcionScreenState extends State<RecepcionBatchScreen>
                   Tab2ScreenRecepBatch(
                     ordenCompra: widget.recepcionBatch,
                   ),
-                  Tab1ScreenRecepBatch(
+                  Tab3ScreenRecepBatch(
                     ordenCompra: widget.recepcionBatch,
                   ),
                  

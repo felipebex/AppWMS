@@ -90,7 +90,7 @@ class ProductRecepcionBatchTable {
       $columnIsDoneItem INTEGER,  
       $columnDateTransaction TEXT,
       $columnCantidadFaltante INTEGER,
-      FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion ($columnId)
+      FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion_batch ($columnId)
 
     )
   ''';

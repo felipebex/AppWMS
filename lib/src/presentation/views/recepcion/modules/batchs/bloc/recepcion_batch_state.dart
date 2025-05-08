@@ -95,3 +95,187 @@ class CurrentOrdenesCompraState extends RecepcionBatchState {
   CurrentOrdenesCompraState(this.ordenCompra);
 }
 
+
+
+class ValidateFieldsOrderState extends RecepcionBatchState {
+  final bool isOk;
+  ValidateFieldsOrderState({required this.isOk});
+}
+
+
+class ChangeQuantitySeparateState extends RecepcionBatchState {
+  final dynamic quantity;
+  ChangeQuantitySeparateState(this.quantity);
+}
+
+
+class ChangeQuantitySeparateErrorOrder extends RecepcionBatchState {
+  final String error;
+  ChangeQuantitySeparateErrorOrder(this.error);
+}
+
+class ChangeProductOrderIsOkState extends RecepcionBatchState {
+  final bool isOk;
+  ChangeProductOrderIsOkState(this.isOk);
+}
+
+
+class ChangeIsOkState extends RecepcionBatchState {
+  final bool isOk;
+  ChangeIsOkState(this.isOk);
+}
+
+
+class ClearScannedValueOrderState extends RecepcionBatchState {}
+
+
+class ChangeLocationDestIsOkState extends RecepcionBatchState {
+  final bool isOk;
+  ChangeLocationDestIsOkState(this.isOk);
+}
+
+
+class UpdateScannedValueOrderState extends RecepcionBatchState {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValueOrderState(this.scannedValue, this.scan);
+}
+
+
+class ShowQuantityOrderState extends RecepcionBatchState {
+  final bool showQuantity;
+  ShowQuantityOrderState(this.showQuantity);
+}
+
+
+//*estados para cargar las novedades
+class NovedadesOrderLoadedState extends RecepcionBatchState {
+  final List<Novedad> listOfNovedades;
+  NovedadesOrderLoadedState({required this.listOfNovedades});
+}
+
+class NovedadesOrderLoadingState extends RecepcionBatchState {}
+
+class NovedadesOrderErrorState extends RecepcionBatchState {
+  final String message;
+  NovedadesOrderErrorState(this.message);
+}
+
+
+//metodo para cargar la informacion del producto actual
+class FetchPorductOrderLoading extends RecepcionBatchState {}
+
+class FetchPorductOrderSuccess extends RecepcionBatchState {
+  final LineasRecepcionBatch producto;
+  FetchPorductOrderSuccess(this.producto);
+}
+
+class FetchPorductOrderFailure extends RecepcionBatchState {
+  final String error;
+  FetchPorductOrderFailure(this.error);
+}
+
+
+class GetLotesProductLoading extends RecepcionBatchState {}
+
+class GetLotesProductSuccess extends RecepcionBatchState {
+  final List<LotesProduct> lotesProduct;
+  GetLotesProductSuccess(this.lotesProduct);
+}
+
+class GetLotesProductFailure extends RecepcionBatchState {
+  final String error;
+  GetLotesProductFailure(this.error);
+}
+
+
+class FilterUbicacionesLoading extends RecepcionBatchState {}
+
+class FilterUbicacionesFailure extends RecepcionBatchState {
+  final String error;
+  FilterUbicacionesFailure(this.error);
+}
+
+class FilterUbicacionesSuccess extends RecepcionBatchState {
+  final List<ResultUbicaciones> locations;
+  FilterUbicacionesSuccess(this.locations);
+}
+
+
+class SearchLoading extends RecepcionBatchState {}
+
+
+class SearchFailure extends RecepcionBatchState {
+  final String error;
+  SearchFailure(this.error);
+}
+
+
+
+class SearchLocationSuccess extends RecepcionBatchState {
+  final List<ResultUbicaciones> locations;
+  SearchLocationSuccess(this.locations);
+}
+
+
+
+
+class LoadLocationsLoading extends RecepcionBatchState {}
+
+class LoadLocationsSuccess extends RecepcionBatchState {
+  final List<ResultUbicaciones> locations;
+  LoadLocationsSuccess(this.locations);
+}
+
+class LoadLocationsFailure extends RecepcionBatchState {
+  final String error;
+  LoadLocationsFailure(this.error);
+}
+
+
+class ConfigurationLoadedOrder extends RecepcionBatchState {
+  final Configurations configurations;
+
+  ConfigurationLoadedOrder(this.configurations);
+}
+
+class ConfigurationErrorOrder extends RecepcionBatchState {
+  final String error;
+
+  ConfigurationErrorOrder(this.error);
+}
+
+
+
+
+
+class SendProductToOrderLoading extends RecepcionBatchState {}
+
+class SendProductToOrderSuccess extends RecepcionBatchState {}
+
+class SendProductToOrderFailure extends RecepcionBatchState {
+  final String error;
+  SendProductToOrderFailure(this.error);
+}
+
+
+
+class FinalizarRecepcionProductoLoading extends RecepcionBatchState {}
+
+class FinalizarRecepcionProductoSuccess extends RecepcionBatchState {}
+
+class FinalizarRecepcionProductoFailure extends RecepcionBatchState {
+  final String error;
+  FinalizarRecepcionProductoFailure(this.error);
+}
+
+
+
+class FinalizarRecepcionProductoSplitLoading extends RecepcionBatchState {}
+
+class FinalizarRecepcionProductoSplitSuccess extends RecepcionBatchState {}
+
+class FinalizarRecepcionProductoSplitFailure extends RecepcionBatchState {
+  final String error;
+  FinalizarRecepcionProductoSplitFailure(this.error);
+}

@@ -223,7 +223,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     scannedValue5 = '';
     scannedValue6 = '';
     selectLote = '';
-    // currentUbicationDest = null;
     listLotesProduct.clear();
     productIsOk = false;
     loteIsOk = false;

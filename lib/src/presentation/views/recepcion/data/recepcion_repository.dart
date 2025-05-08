@@ -325,7 +325,6 @@ class RecepcionRepository {
     }
     return false;
   }
-  //metodo para asignar un usuario a una orden de compra por batch
   Future<bool> assignUserToReceptionBatch(
     bool isLoadinDialog,
     int idUser,
@@ -345,7 +344,7 @@ class RecepcionRepository {
           isLoadinDialog: isLoadinDialog,
           body: {
             "params": {
-              "id_recepcion": idRecepcion,
+              "id_batch": idRecepcion,
               "id_responsable": idUser,
             }
           });
@@ -401,6 +400,8 @@ class RecepcionRepository {
     }
     return false;
   }
+  //metodo para asignar un usuario a una orden de compra por batch
+ 
 
   Future<ResponseNewLote> createLote(
     bool isLoadinDialog,
@@ -504,6 +505,66 @@ class RecepcionRepository {
         body: {
           "params": {
             "id_recepcion": recepcionRequest.idRecepcion,
+            "list_items":
+                recepcionRequest.listItems.map((item) => item.toMap()).toList(),
+          },
+        },
+        isLoadinDialog: true,
+      );
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
+        var resultData = jsonResponse['result'];
+
+        return ResponSendRecepcion(
+          jsonrpc: jsonResponse['jsonrpc'],
+          id: jsonResponse['id'],
+          result: resultData != null
+              ? ResponSendRecepcionResult(
+                  code: resultData['code'],
+                  msg: resultData['msg'],
+                  result: resultData['result'] != null
+                      ? List<ResultElement>.from(resultData['result']
+                          .map((x) => ResultElement.fromMap(x)))
+                      : [], // Si no hay elementos en 'result', se retorna una lista vacía
+                )
+              : null, // Si 'result' no existe, asigna null a 'result'
+        );
+      } else {
+        // Manejo de error si la respuesta no es exitosa
+        // ...
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en sendProductRecepcion: $e, $s');
+      return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
+    }
+    return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
+  }
+  Future<ResponSendRecepcion> sendProductRecepcionBatch(
+    RecepcionRequest recepcionRequest,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return ResponSendRecepcion(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'send_recepcion/batch', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_batch": recepcionRequest.idRecepcion,
             "list_items":
                 recepcionRequest.listItems.map((item) => item.toMap()).toList(),
           },

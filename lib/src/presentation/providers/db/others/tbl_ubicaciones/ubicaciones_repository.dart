@@ -102,7 +102,7 @@ class UbicacionesRepository {
 
       return ubicaciones;
     } catch (e) {
-      print("Error al obtener los barcodes: $e");
+      print("Error al obtener las ubicaciones: $e");
       return [];
     }
   }

@@ -49,9 +49,12 @@ class ProductsEntradaBatchRepository {
             ProductRecepcionBatchTable.columnId: product.id ?? 0,
             ProductRecepcionBatchTable.columnIdMove: product.idMove ?? 0,
             ProductRecepcionBatchTable.columnProductId: product.productId ?? 0,
-            ProductRecepcionBatchTable.columnIdRecepcion: product.idRecepcion ?? 0,
-            ProductRecepcionBatchTable.columnProductName: product.productName ?? '',
-            ProductRecepcionBatchTable.columnProductCode: product.productCode ?? '',
+            ProductRecepcionBatchTable.columnIdRecepcion:
+                product.idRecepcion ?? 0,
+            ProductRecepcionBatchTable.columnProductName:
+                product.productName ?? '',
+            ProductRecepcionBatchTable.columnProductCode:
+                product.productCode ?? '',
             ProductRecepcionBatchTable.columnProductBarcode:
                 product.productBarcode ?? '',
             ProductRecepcionBatchTable.columnProductTracking:
@@ -62,9 +65,12 @@ class ProductsEntradaBatchRepository {
                 product.diasVencimiento ?? '',
             ProductRecepcionBatchTable.columnQuantityOrdered:
                 product.quantityOrdered ?? 0,
+
+            ProductRecepcionBatchTable.columnQuantityDone:
+                product.quantityDone ?? 0,
+
             ProductRecepcionBatchTable.columnQuantityToReceive:
                 product.quantityToReceive ?? 0,
-           
             ProductRecepcionBatchTable.columnUom: product.uom ?? "",
             ProductRecepcionBatchTable.columnLocationDestId:
                 product.locationDestId ?? 0,
@@ -72,7 +78,8 @@ class ProductsEntradaBatchRepository {
                 product.locationDestName ?? '',
             ProductRecepcionBatchTable.columnLocationDestBarcode:
                 product.locationDestBarcode ?? '',
-            ProductRecepcionBatchTable.columnLocationId: product.locationId ?? 0,
+            ProductRecepcionBatchTable.columnLocationId:
+                product.locationId ?? 0,
             ProductRecepcionBatchTable.columnLocationBarcode:
                 product.locationBarcode ?? '',
             ProductRecepcionBatchTable.columnLocationName:
@@ -85,11 +92,13 @@ class ProductsEntradaBatchRepository {
             ProductRecepcionBatchTable.columnLoteDate:
                 (product.lotName != "" ? product.fechaVencimiento : ""),
             ProductRecepcionBatchTable.columnIsProductSplit: 0,
-            ProductRecepcionBatchTable.columnObservation: "",
+            ProductRecepcionBatchTable.columnObservation: 
+                product.observation ?? '',
             ProductRecepcionBatchTable.columnDateStart: "",
             ProductRecepcionBatchTable.columnDateEnd: "",
             ProductRecepcionBatchTable.columnTime: product.time,
-            ProductRecepcionBatchTable.columnIsDoneItem: product.isDoneItem ?? 0,
+            ProductRecepcionBatchTable.columnIsDoneItem:
+                product.isDoneItem == true ? 1 : 0,
             ProductRecepcionBatchTable.columnDateTransaction:
                 product.dateTransaction ?? '',
             ProductRecepcionBatchTable.columnCantidadFaltante:
@@ -135,8 +144,10 @@ class ProductsEntradaBatchRepository {
         ProductRecepcionBatchTable.columnIdMove: producto.idMove ?? 0,
         ProductRecepcionBatchTable.columnProductId: producto.productId ?? 0,
         ProductRecepcionBatchTable.columnIdRecepcion: producto.idRecepcion ?? 0,
-        ProductRecepcionBatchTable.columnProductName: producto.productName ?? '',
-        ProductRecepcionBatchTable.columnProductCode: producto.productCode ?? "",
+        ProductRecepcionBatchTable.columnProductName:
+            producto.productName ?? '',
+        ProductRecepcionBatchTable.columnProductCode:
+            producto.productCode ?? "",
         ProductRecepcionBatchTable.columnProductBarcode:
             producto.productBarcode ?? '',
         ProductRecepcionBatchTable.columnProductTracking:
@@ -149,7 +160,6 @@ class ProductsEntradaBatchRepository {
             producto.quantityOrdered ?? 0,
         ProductRecepcionBatchTable.columnQuantityToReceive:
             producto.quantityToReceive ?? 0,
-       
         ProductRecepcionBatchTable.columnUom: producto.uom ?? '',
         ProductRecepcionBatchTable.columnLocationDestId:
             producto.locationDestId ?? 0,
@@ -160,12 +170,14 @@ class ProductsEntradaBatchRepository {
         ProductRecepcionBatchTable.columnLocationId: producto.locationId ?? 0,
         ProductRecepcionBatchTable.columnLocationBarcode:
             producto.locationBarcode ?? '',
-        ProductRecepcionBatchTable.columnLocationName: producto.locationName ?? '',
+        ProductRecepcionBatchTable.columnLocationName:
+            producto.locationName ?? '',
         ProductRecepcionBatchTable.columnWeight: producto.weight ?? 0,
         ProductRecepcionBatchTable.columnIsSeparate: 0,
         ProductRecepcionBatchTable.columnIsProductSplit: 1,
         ProductRecepcionBatchTable.columnIsSelected: 0,
-        ProductRecepcionBatchTable.columnObservation: producto.observation ?? '',
+        ProductRecepcionBatchTable.columnObservation:
+            producto.observation ?? '',
         ProductRecepcionBatchTable.columnQuantitySeparate: 0,
         ProductRecepcionBatchTable.columnLoteId: 0,
         ProductRecepcionBatchTable.columnLotName: "",
@@ -179,6 +191,8 @@ class ProductsEntradaBatchRepository {
         ProductRecepcionBatchTable.columnIsDoneItem: 0,
         ProductRecepcionBatchTable.columnDateTransaction: "",
         ProductRecepcionBatchTable.columnCantidadFaltante: cantidad,
+        ProductRecepcionBatchTable.columnQuantityDone:
+            producto.quantityDone ?? 0,
       };
 
       await db.insert(
@@ -198,6 +212,7 @@ class ProductsEntradaBatchRepository {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       final List<Map<String, dynamic>> products = await db.query(
         ProductRecepcionBatchTable.tableName,
+        where: '${ProductRecepcionBatchTable.columnIsDoneItem} = 1',
       );
       return products
           .map((product) => LineasRecepcionBatch.fromMap(product))
@@ -245,7 +260,7 @@ class ProductsEntradaBatchRepository {
         [setValue, productId, idMove, idEntrada]);
 
     print(
-        "update TableProductEntrada (idProduct ----($productId)) -------($field): $resUpdate");
+        "update TableProductEntradaBatch (idProduct ----($productId)) -------($field): $resUpdate");
 
     return resUpdate;
   }
@@ -284,22 +299,29 @@ class ProductsEntradaBatchRepository {
 
   // Incrementar cantidad de producto separado para empaque
   Future<int?> incremenQtytProductSeparatePacking(
-      int idRecepcion, int productId, int idMove, dynamic quantity) async {
-    Database db = await DataBaseSqlite().getDatabaseInstance();
+    int idRecepcion,
+    int productId,
+    int idMove,
+    int quantity, // Asegúrate de que quantity sea int
+  ) async {
+    final db = await DataBaseSqlite().getDatabaseInstance();
+
     return await db.transaction((txn) async {
       final result = await txn.query(
         ProductRecepcionBatchTable.tableName,
-        columns: [(ProductRecepcionBatchTable.columnQuantitySeparate)],
+        columns: [ProductRecepcionBatchTable.columnQuantitySeparate],
         where:
             '${ProductRecepcionBatchTable.columnIdRecepcion} = ? AND ${ProductRecepcionBatchTable.columnProductId} = ? AND ${ProductRecepcionBatchTable.columnIdMove} = ?',
         whereArgs: [idRecepcion, productId, idMove],
       );
 
       if (result.isNotEmpty) {
-        dynamic currentQty =
-            (result.first[ProductRecepcionBatchTable.columnQuantitySeparate]);
+        final currentQty =
+            result.first[ProductRecepcionBatchTable.columnQuantitySeparate];
+        final int safeCurrentQty = (currentQty is int) ? currentQty : 0;
 
-        dynamic newQty = currentQty + quantity;
+        final int newQty = safeCurrentQty + quantity;
+
         return await txn.update(
           ProductRecepcionBatchTable.tableName,
           {ProductRecepcionBatchTable.columnQuantitySeparate: newQty},
@@ -308,6 +330,7 @@ class ProductsEntradaBatchRepository {
           whereArgs: [idRecepcion, productId, idMove],
         );
       }
+
       return null; // No encontrado
     });
   }

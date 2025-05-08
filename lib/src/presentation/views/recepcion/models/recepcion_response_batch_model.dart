@@ -251,7 +251,7 @@ class LineasRecepcionBatch {
   String? productBarcode;
   String? productTracking;
   String? fechaVencimiento;
-  int? diasVencimiento;
+  dynamic? diasVencimiento;
   List<Barcodes>? otherBarcodes;
   List<Barcodes>? productPacking;
   dynamic quantityOrdered;
@@ -265,7 +265,7 @@ class LineasRecepcionBatch {
   String? locationDestBarcode;
   int? locationId;
   String? locationName;
-  String? locationBarcode;
+  dynamic? locationBarcode;
   double? weight;
   int? rimovalPriority;
   int? lotId;
@@ -275,13 +275,16 @@ class LineasRecepcionBatch {
   int? pickingId;
   String? pickingName;
   String? origin;
-  String? observation;
+  dynamic? observation;
   String? dateTransaction;
   dynamic time;
   dynamic isDoneItem;
   dynamic isSelected;
   dynamic isSeparate;
   dynamic isProductSplit;
+
+    final dynamic dateStart;
+  final dynamic dateEnd;
 
   LineasRecepcionBatch({
     this.id,
@@ -324,6 +327,8 @@ class LineasRecepcionBatch {
     this.isSeparate,
     this.isProductSplit,
     this.quantityDone,
+    this.dateStart,
+    this.dateEnd,
   });
 
   factory LineasRecepcionBatch.fromMap(Map<String, dynamic> json) =>
@@ -374,6 +379,8 @@ class LineasRecepcionBatch {
         isSeparate: json["isSeparate"],
         isProductSplit: json["isProductSplit"],
         quantityDone: json["quantity_done"],
+        dateStart: json["date_start"],
+        dateEnd: json["date_end"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -421,6 +428,8 @@ class LineasRecepcionBatch {
         "isSeparate": isSeparate,
         "isProductSplit": isProductSplit,
         "quantity_done": quantityDone,
+        "date_start": dateStart,
+        "date_end": dateEnd,
       };
 }
 
