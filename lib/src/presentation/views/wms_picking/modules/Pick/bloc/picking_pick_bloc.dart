@@ -24,6 +24,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
   List<ResultPick> listOfPick = [];
   List<ResultPick> listOfPickFiltered = [];
 
+  ///listado de pickos por componenetes
+  List<ResultPick> listOfPickCompo = [];
+  List<ResultPick> listOfPickCompoFiltered = [];
+
   //*lista de productos
   List<ProductsBatch> filteredProducts = [];
   List<String> listOfProductsName = [];
@@ -163,6 +167,78 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
     //*metodo para crear barckorder o no
     on<CreateBackOrderOrNot>(_onCreateBackOrder);
+
+    //todo picking para componentes
+    on<FetchPickingComponentesEvent>(_onFetchPickingComponentesEvent);
+    on<FetchPickingComponentesFromDBEvent>(
+        _onFetchPickingComponentesFromDBEvent);
+  }
+
+  void _onFetchPickingComponentesEvent(FetchPickingComponentesEvent event,
+      Emitter<PickingPickState> emit) async {
+    emit(PickingPickCompoLoading());
+    try {
+      // Aquí llamas a tu repositorio para obtener los datos
+      final result = await pickingPickRepository
+          .resPickingComponentes(event.isLoadinDialog);
+
+      listOfPickCompo = [];
+      listOfPickCompoFiltered = [];
+
+      if (result.isNotEmpty) {
+        await db.pickRepository
+            .insertAllPickingPicks(result, 'pick-componentes');
+
+        // Convertir el mapa en una lista de productos únicos con cantidades sumadas
+        final productsIterable =
+            _extractAllProducts(result).toList(growable: false);
+
+        final allBarcodes = _extractAllBarcodes(result).toList(growable: false);
+        // Enviar la lista agrupada a insertBatchProducts
+        await db.pickProductsRepository
+            .insertPickProducts(productsIterable, 'pick-componentes');
+
+        if (allBarcodes.isNotEmpty) {
+          // Enviar la lista agrupada a insertBarcodesPackageProduct
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(
+                allBarcodes,
+                'pick-componentes',
+              );
+        }
+
+        add(FetchPickingComponentesFromDBEvent(true));
+        emit(PickingPickCompoLoaded(result));
+        return;
+      }
+      emit(PickingPickCompoLoaded(result));
+    } catch (e) {
+      emit(PickingPickCompoError(e.toString()));
+    }
+  }
+
+  void _onFetchPickingComponentesFromDBEvent(
+      FetchPickingComponentesFromDBEvent event,
+      Emitter<PickingPickState> emit) async {
+    emit(PickingPickCompoBDLoading());
+    try {
+      // Aquí llamas a tu repositorio para obtener los datos
+      final result = await db.pickRepository.getAllPickingPicks(
+        'pick-componentes',
+      );
+      listOfPickCompo = [];
+
+      if (result.isNotEmpty) {
+        listOfPickCompo = result;
+        listOfPickCompoFiltered = result;
+        emit(PickingPickCompoLoadedBD(listOfPickCompoFiltered));
+        return;
+      }
+      emit(PickingPickCompoLoadedBD([]));
+    } catch (e) {
+      emit(PickingPickCompoError(e.toString()));
+    }
   }
 
   void _onCreateBackOrder(
@@ -211,18 +287,35 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     final query = event.query.toLowerCase();
 
     if (query.isEmpty) {
-      listOfPickFiltered.clear();
-      listOfPickFiltered = listOfPick;
+      if (event.isComponentes) {
+        //parte de componentes
+        listOfPickCompoFiltered.clear();
+        listOfPickCompoFiltered = listOfPickCompo;
+      } else {
+        listOfPickFiltered.clear();
+        listOfPickFiltered = listOfPick;
+      }
     } else {
-      listOfPickFiltered = listOfPick.where((batch) {
-        final name = batch.name?.toLowerCase() ?? '';
-        final origin = batch.origin?.toLowerCase() ?? '';
-        return name.contains(query) || origin.contains(query);
-      }).toList();
+      if (event.isComponentes) {
+        //parte de componentes
+        listOfPickCompoFiltered = listOfPickCompo.where((batch) {
+          final name = batch.name?.toLowerCase() ?? '';
+          final origin = batch.origin?.toLowerCase() ?? '';
+          return name.contains(query) || origin.contains(query);
+        }).toList();
+      } else {
+        //parte de picking
+        listOfPickFiltered = listOfPick.where((batch) {
+          final name = batch.name?.toLowerCase() ?? '';
+          final origin = batch.origin?.toLowerCase() ?? '';
+          return name.contains(query) || origin.contains(query);
+        }).toList();
+      }
     }
 
     emit(LoadSearchPickingState(
-      listOfPicking: listOfPickFiltered,
+      listOfPicking:
+          event.isComponentes ? listOfPickCompoFiltered : listOfPickFiltered,
     ));
   }
 
@@ -1288,10 +1381,11 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       listOfBarcodes.clear();
 
       listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
-          pickWithProducts.pick?.id ?? 0,
-          currentProduct.idProduct ?? 0,
-          currentProduct.idMove ?? 0,
-          'pick');
+        pickWithProducts.pick?.id ?? 0,
+        currentProduct.idProduct ?? 0,
+        currentProduct.idMove ?? 0,
+        pickWithProducts.pick?.typePick ?? "",
+      );
       print("listOfBarcodes: ${listOfBarcodes.length}");
     } catch (e, s) {
       print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
@@ -1333,6 +1427,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
             listOfProductsBatch: filteredProducts));
       } else {
         pickWithProducts = PickWithProducts();
+        emit(EmptyProductsPick());
         print('No se encontró el batch con ID: ${event.pickId}');
       }
     } catch (e, s) {
@@ -1471,7 +1566,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     emit(PickingPickBDLoading());
     try {
       // Aquí llamas a tu repositorio para obtener los datos
-      final result = await db.pickRepository.getAllPickingPicks();
+      final result = await db.pickRepository.getAllPickingPicks(
+        'pick',
+      );
       listOfPick = [];
 
       if (result.isNotEmpty) {
@@ -1497,7 +1594,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       listOfPickFiltered = [];
 
       if (result.isNotEmpty) {
-        await db.pickRepository.insertAllPickingPicks(result);
+        await db.pickRepository.insertAllPickingPicks(result, 'pick');
 
         // Convertir el mapa en una lista de productos únicos con cantidades sumadas
         final productsIterable =
@@ -1509,7 +1606,8 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         print('allBarcodes: ${allBarcodes.length}');
 
         // Enviar la lista agrupada a insertBatchProducts
-        await db.pickProductsRepository.insertPickProducts(productsIterable);
+        await db.pickProductsRepository
+            .insertPickProducts(productsIterable, 'pick');
 
         if (allBarcodes.isNotEmpty) {
           // Enviar la lista agrupada a insertBarcodesPackageProduct

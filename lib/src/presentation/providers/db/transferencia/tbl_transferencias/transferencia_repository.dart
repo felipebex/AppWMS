@@ -5,7 +5,7 @@ import 'package:wms_app/src/presentation/views/transferencias/models/response_tr
 
 class TransferenciaRepository {
   //metodo para insertar una transferencia
-  Future<void> insertEntrada(List<ResultTransFerencias> transferencias) async {
+  Future<void> insertEntrada(List<ResultTransFerencias> transferencias, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       // Comienza la transacción
@@ -80,6 +80,7 @@ class TransferenciaRepository {
                         : transfer.showCheckAvailability == 0
                             ? 0
                             : 1,
+                TransferenciaTable.columnType: type,
               },
               where: '${TransferenciaTable.columnId} = ?',
               whereArgs: [transfer.id],
@@ -132,6 +133,7 @@ class TransferenciaRepository {
                         : transfer.showCheckAvailability == 0
                             ? 0
                             : 1,
+                TransferenciaTable.columnType: type,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -166,11 +168,13 @@ class TransferenciaRepository {
   }
 
   //metodo para obtener todas las entradas
-  Future<List<ResultTransFerencias>> getAllTransferencias() async {
+  Future<List<ResultTransFerencias>> getAllTransferencias(String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       final List<Map<String, dynamic>> entradas = await db.query(
         TransferenciaTable.tableName,
+        where: '${TransferenciaTable.columnType} = ?',
+        whereArgs: [type],
       );
       return entradas.map((e) => ResultTransFerencias.fromMap(e)).toList();
     } catch (e, s) {

@@ -182,3 +182,25 @@ class FinalizarRecepcionProductoSplit extends RecepcionBatchEvent {
   FinalizarRecepcionProductoSplit(this.quantity);
 }
 
+
+class CreateLoteProduct extends RecepcionBatchEvent {
+  final String nameLote;
+  final String fechaCaducidad;
+  CreateLoteProduct(this.nameLote, this.fechaCaducidad);
+}
+
+
+class SearchLotevent extends RecepcionBatchEvent {
+  final String query;
+
+  SearchLotevent(
+    this.query,
+  );
+}
+
+
+class SelectecLoteEvent extends RecepcionBatchEvent {
+  final LotesProduct lote;
+  SelectecLoteEvent(this.lote);
+}
+

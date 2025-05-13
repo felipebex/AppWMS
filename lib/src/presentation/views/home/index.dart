@@ -6,10 +6,10 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
-import 'package:wms_app/src/presentation/views/home/widgets/dialog_reception_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -17,6 +17,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
@@ -135,7 +136,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   context.read<RecepcionBloc>().add(FetchOrdenesCompra(false));
                 } else if (rol == "transfer") {
                   if (!mounted) return;
-                  await DataBaseSqlite().deleTrasnferencia();
+                  await DataBaseSqlite().deleTrasnferencia('transfer');
                   context
                       .read<TransferenciaBloc>()
                       .add(FetchAllTransferencias(false));
@@ -394,7 +395,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                             Center(
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
+                                    horizontal: 20, vertical: 0),
                                 child: Text("Mis módulos",
                                     style: TextStyle(
                                         color: primaryColorApp,
@@ -407,7 +408,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   horizontal: 10,
                                 ),
                                 width: size.width,
-                                height: size.height * 0.4,
+                                height: size.height * 0.5,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -432,7 +433,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   );
                                                 },
                                               );
-                                             
                                             } else if (rol == '' ||
                                                 rol == null) {
                                               ScaffoldMessenger.of(context)
@@ -475,7 +475,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             },
                                           ),
                                         ),
-                                        const SizedBox(width: 2),
                                         GestureDetector(
                                           onTap: () async {
                                             context
@@ -535,43 +534,72 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             },
                                           ),
                                         ),
-                                        const SizedBox(width: 2),
                                         GestureDetector(
                                           onTap: () async {
-                                            //cargamos inforacion del dispositivo
-                                            context
-                                                .read<UserBloc>()
-                                                .add(LoadInfoDeviceEventUser());
-                                            //cargamos las ubicaciones
-                                            context
-                                                .read<InfoRapidaBloc>()
-                                                .add(GetListLocationsEvent());
-                                            //obtenemos los productos
-                                            context
-                                                .read<InfoRapidaBloc>()
-                                                .add(GetProductsList());
+                                            if (homeBloc.userRol ==
+                                                    'reception' ||
+                                                homeBloc.userRol == 'admin') {
+                                              context.read<UserBloc>().add(
+                                                  LoadInfoDeviceEventUser());
+                                              {
+                                                //pedir ubicaciones
+                                                context
+                                                    .read<RecepcionBatchBloc>()
+                                                    .add(
+                                                        GetLocationsDestReceptionBatchEvent());
+                                                //pedir las novedades
+                                                context
+                                                    .read<RecepcionBatchBloc>()
+                                                    .add(
+                                                        LoadAllNovedadesReceptionEvent());
 
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return const DialogLoading(
-                                                      message:
-                                                          'Cargando interfaz...');
-                                                });
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogLoading(
+                                                          message:
+                                                              'Cargando devoluciones...');
+                                                    });
 
-                                            await Future.delayed(const Duration(
-                                                seconds:
-                                                    1)); // Ajusta el tiempo si es necesario
+                                                await Future.delayed(const Duration(
+                                                    seconds:
+                                                        1)); // Ajusta el tiempo si es necesario
 
-                                            Navigator.pop(context);
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'info-rapida',
-                                            );
+                                                Navigator.pop(context);
+                                                Navigator.pushReplacementNamed(
+                                                  context,
+                                                  'list-recepction-batch',
+                                                );
+                                              }
+                                            } else {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                      "Su usuario no tiene permisos para acceder a este módulo"),
+                                                  duration:
+                                                      Duration(seconds: 2),
+                                                ),
+                                              );
+                                            }
                                           },
-                                          child: const ImteModule(
-                                            urlImg: "info.png",
-                                            title: 'Info Rapida',
+                                          child: BlocBuilder<RecepcionBatchBloc,
+                                              RecepcionBatchState>(
+                                            builder: (context, state) {
+                                              return ImteModule(
+                                                urlImg: "devoluciones.png",
+                                                title: 'Devoluciones',
+                                                count: context.read<
+                                                        RecepcionBatchBloc>()
+                                                    .listReceptionBatchFilter
+                                                    .where((element) =>
+                                                        element.isFinish ==
+                                                            0 ||
+                                                        element.isFinish ==
+                                                            null)
+                                                    .length,
+                                              );
+                                            },
                                           ),
                                         ),
                                       ],
@@ -588,44 +616,32 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               context.read<UserBloc>().add(
                                                   LoadInfoDeviceEventUser());
 
-                                              // //pedir ubicaciones
-                                              // context
-                                              //     .read<RecepcionBloc>()
-                                              //     .add(GetLocationsDestEvent());
+                                              //pedir ubicaciones
+                                              context
+                                                  .read<RecepcionBloc>()
+                                                  .add(GetLocationsDestEvent());
 
-                                              // //pedir las novedades
-                                              // context.read<RecepcionBloc>().add(
-                                              //     LoadAllNovedadesOrderEvent());
-
-                                              // showDialog(
-                                              //     context: context,
-                                              //     builder: (context) {
-                                              //       return const DialogLoading(
-                                              //           message:
-                                              //               'Cargando recepciones...');
-                                              //     });
-
-                                              // await Future.delayed(const Duration(
-                                              //     seconds:
-                                              //         1)); // Ajusta el tiempo si es necesario
-
-                                              // Navigator.pop(context);
-                                              // Navigator.pushReplacementNamed(
-                                              //   context,
-                                              //   'list-ordenes-compra',
-                                              // );
-
+                                              //pedir las novedades
+                                              context.read<RecepcionBloc>().add(
+                                                  LoadAllNovedadesOrderEvent());
 
                                               showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return DialogReception(
-                                                    contextHome: context,
-                                                  );
-                                                },
-                                              );
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogLoading(
+                                                        message:
+                                                            'Cargando recepciones...');
+                                                  });
 
-                                             
+                                              await Future.delayed(const Duration(
+                                                  seconds:
+                                                      1)); // Ajusta el tiempo si es necesario
+
+                                              Navigator.pop(context);
+                                              Navigator.pushReplacementNamed(
+                                                context,
+                                                'list-ordenes-compra',
+                                              );
                                             } else {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
@@ -656,7 +672,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             },
                                           ),
                                         ),
-                                        SizedBox(width: 5),
                                         GestureDetector(
                                           onTap: () async {
                                             if (homeBloc.userRol ==
@@ -779,11 +794,130 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                         ),
                                       ],
                                     ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () async {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando componentes...');
+                                                });
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
+
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'picking-componentes',
+                                            );
+                                          },
+                                          child: BlocBuilder<PickingPickBloc,
+                                              PickingPickState>(
+                                            builder: (context, state) {
+                                              return ImteModule(
+                                                count: context
+                                                    .read<PickingPickBloc>()
+                                                    .listOfPickCompoFiltered
+                                                    .where((element) =>
+                                                        element.isSeparate ==
+                                                            0 ||
+                                                        element.isSeparate ==
+                                                            null)
+                                                    .length,
+                                                urlImg: "pc.png",
+                                                title: 'Picking\nComponentes',
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando entrega de productos...');
+                                                });
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'list-entrada-productos',
+                                            );
+                                          },
+                                          child: BlocBuilder<TransferenciaBloc,
+                                              TransferenciaState>(
+                                            builder: (context, state) {
+                                              return ImteModule(
+                                                count: context
+                                                    .read<TransferenciaBloc>()
+                                                    .entregaProductosBDFilters
+                                                    .where((element) =>
+                                                        element.isFinish == 0 ||
+                                                        element.isFinish ==
+                                                            null)
+                                                    .toList()
+                                                    .length,
+                                                urlImg: "entrega.png",
+                                                title: 'Entrega\nProductos',
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            //cargamos inforacion del dispositivo
+                                            context
+                                                .read<UserBloc>()
+                                                .add(LoadInfoDeviceEventUser());
+                                            //cargamos las ubicaciones
+                                            context
+                                                .read<InfoRapidaBloc>()
+                                                .add(GetListLocationsEvent());
+                                            //obtenemos los productos
+                                            context
+                                                .read<InfoRapidaBloc>()
+                                                .add(GetProductsList());
+
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return const DialogLoading(
+                                                      message:
+                                                          'Cargando interfaz...');
+                                                });
+
+                                            await Future.delayed(const Duration(
+                                                seconds:
+                                                    1)); // Ajusta el tiempo si es necesario
+
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'info-rapida',
+                                            );
+                                          },
+                                          child: const ImteModule(
+                                            urlImg: "info.png",
+                                            title: 'Info Rapida',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ],
                                 )),
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 40),
+                                  horizontal: 20, vertical: 5),
                               child: Center(
                                 child: Column(
                                   children: [

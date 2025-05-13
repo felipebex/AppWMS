@@ -98,6 +98,7 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                   SizedBox(
                     height: 35,
                     child: TextFormField(
+                      readOnly: true,
                       controller:
                           context.read<BatchBloc>().editProductController,
                       keyboardType: TextInputType.number,
@@ -323,46 +324,42 @@ class _DialogEditProductWidgetState extends State<DialogEditProductWidget> {
                       ),
                     ),
                   ),
-                  Visibility(
-                    visible:
-                        context.read<UserBloc>().fabricante.contains("Zebra"),
-                    child: CustomKeyboardNumber(
-                      controller:
-                          context.read<BatchBloc>().editProductController,
-                      onchanged: () {
-                        final value = context
-                            .read<BatchBloc>()
-                            .editProductController
-                            .text;
-                        if (value.isNotEmpty) {
-                          final parsed = double.tryParse(value);
-                          if (parsed != null) {
-                            double cantidad = parsed;
-
-                            if (cantidad -
-                                    (widget.productsBatch.quantity -
-                                        (widget.productsBatch
-                                                .quantitySeparate ??
-                                            0)) >
-                                tolerance) {
-                              setState(() {
-                                alerta =
-                                    "La cantidad no puede ser mayor a la cantidad restante";
-                              });
-                            } else {
-                              setState(() {
-                                alerta = "";
-                              });
-                            }
+                  CustomKeyboardNumber(
+                    controller:
+                        context.read<BatchBloc>().editProductController,
+                    onchanged: () {
+                      final value = context
+                          .read<BatchBloc>()
+                          .editProductController
+                          .text;
+                      if (value.isNotEmpty) {
+                        final parsed = double.tryParse(value);
+                        if (parsed != null) {
+                          double cantidad = parsed;
+                  
+                          if (cantidad -
+                                  (widget.productsBatch.quantity -
+                                      (widget.productsBatch
+                                              .quantitySeparate ??
+                                          0)) >
+                              tolerance) {
+                            setState(() {
+                              alerta =
+                                  "La cantidad no puede ser mayor a la cantidad restante";
+                            });
                           } else {
                             setState(() {
-                              alerta = "Por favor ingresa un número válido.";
+                              alerta = "";
                             });
                           }
+                        } else {
+                          setState(() {
+                            alerta = "Por favor ingresa un número válido.";
+                          });
                         }
-                      },
-                      isDialog: true,
-                    ),
+                      }
+                    },
+                    isDialog: true,
                   )
                 ],
               ),

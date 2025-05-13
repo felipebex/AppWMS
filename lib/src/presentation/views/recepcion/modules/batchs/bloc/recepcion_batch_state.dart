@@ -219,6 +219,13 @@ class SearchLocationSuccess extends RecepcionBatchState {
 
 
 
+class SearchLoteSuccess extends RecepcionBatchState {
+  final List<LotesProduct> locations;
+  SearchLoteSuccess(this.locations);
+}
+
+
+
 
 class LoadLocationsLoading extends RecepcionBatchState {}
 
@@ -278,4 +285,24 @@ class FinalizarRecepcionProductoSplitSuccess extends RecepcionBatchState {}
 class FinalizarRecepcionProductoSplitFailure extends RecepcionBatchState {
   final String error;
   FinalizarRecepcionProductoSplitFailure(this.error);
+}
+
+
+
+
+
+
+class CreateLoteProductLoading extends RecepcionBatchState {}
+
+class CreateLoteProductSuccess extends RecepcionBatchState {}
+
+class CreateLoteProductFailure extends RecepcionBatchState {
+  final String error;
+  CreateLoteProductFailure(this.error);
+}
+
+
+class ChangeLoteOrderIsOkState extends RecepcionBatchState {
+  final bool isOk;
+  ChangeLoteOrderIsOkState(this.isOk);
 }

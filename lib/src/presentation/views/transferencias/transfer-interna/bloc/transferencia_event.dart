@@ -8,9 +8,19 @@ class FetchAllTransferencias extends TransferenciaEvent {
   FetchAllTransferencias(this.isLoadingDialog);
 }
 
+class FetchAllEntrega extends TransferenciaEvent {
+  final bool isLoadingDialog;
+  FetchAllEntrega(this.isLoadingDialog);
+}
+
 class FetchAllTransferenciasDB extends TransferenciaEvent {
   final bool isLoadingDialog;
   FetchAllTransferenciasDB(this.isLoadingDialog);
+}
+
+class FetchAllEntregaDB extends TransferenciaEvent {
+  final bool isLoadingDialog;
+  FetchAllEntregaDB(this.isLoadingDialog);
 }
 
 class CurrentTransferencia extends TransferenciaEvent {
@@ -20,7 +30,8 @@ class CurrentTransferencia extends TransferenciaEvent {
 
 class SearchTransferEvent extends TransferenciaEvent {
   final String query;
-  SearchTransferEvent(this.query);
+  final String type;
+  SearchTransferEvent(this.query, this.type);
 }
 
 class ShowKeyboardEvent extends TransferenciaEvent {
@@ -175,16 +186,13 @@ class FilterTransferByWarehouse extends TransferenciaEvent {
   FilterTransferByWarehouse(this.warehouseName);
 }
 
-
 class CheckAvailabilityEvent extends TransferenciaEvent {
   final int idTransfer;
-  CheckAvailabilityEvent(this.idTransfer, );
+  final String type;
+  CheckAvailabilityEvent(this.idTransfer, this.type);
 }
 
-
-class CleanFieldsEvent extends TransferenciaEvent {
-}
-
+class CleanFieldsEvent extends TransferenciaEvent {}
 
 class SearchLocationEvent extends TransferenciaEvent {
   final String query;
@@ -194,13 +202,10 @@ class SearchLocationEvent extends TransferenciaEvent {
   );
 }
 
-
-
 class FilterTransferByTypeEvent extends TransferenciaEvent {
   final String type;
   FilterTransferByTypeEvent(this.type);
 }
-
 
 class FilterUbicacionesAlmacenEvent extends TransferenciaEvent {
   final String almacen;

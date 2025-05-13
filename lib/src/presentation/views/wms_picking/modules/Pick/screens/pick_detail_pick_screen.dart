@@ -1,10 +1,7 @@
 // ignore_for_file: unrelated_type_equality_checks, avoid_print, use_build_context_synchronously
 
-import 'dart:convert';
 import 'dart:ui';
 
-import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
@@ -113,21 +110,6 @@ class PickDetailScreen extends StatelessWidget {
                                       icon: const Icon(Icons.arrow_back,
                                           color: white),
                                       onPressed: () {
-                                        //     if (bloc
-                                        // .pickWithProducts
-                                        // .pick
-                                        //             ?.isSeparate ==
-                                        //         1) {
-
-                                        //       context
-                                        //           .read<WMSPickingBloc>()
-                                        //           .add(FilterBatchesBStatusEvent(
-                                        //             '',
-                                        //           ));
-                                        //       Navigator.pushReplacementNamed(
-                                        //           context, 'wms-picking',
-                                        //           arguments: 1);
-                                        //     } else {
                                         bloc.add(
                                             ClearSearchProudctsPickEvent());
                                         bloc.add(FetchPickWithProductsEvent(
@@ -135,7 +117,6 @@ class PickDetailScreen extends StatelessWidget {
                                                 0));
                                         Navigator.pushReplacementNamed(
                                             context, 'scan-product-pick');
-                                        // }
                                       },
                                     ),
                                     Padding(

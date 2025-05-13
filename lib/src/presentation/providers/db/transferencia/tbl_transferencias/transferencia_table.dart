@@ -33,6 +33,8 @@ class TransferenciaTable {
   static const String columnShowCheckAvailability = 'show_check_availability';
   static const String columnProveedor = 'proveedor';
 
+  static const String columnType = 'type';
+
 
 
   static String createTable() {
@@ -65,6 +67,7 @@ class TransferenciaTable {
       $columnBackorderName TEXT,
       $columnBackorderId INTEGER,
       $columnProveedor TEXT,
+      $columnType TEXT,
       $columnShowCheckAvailability INTEGER
       
     )

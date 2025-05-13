@@ -90,6 +90,9 @@ class BatchPackingModel {
   final dynamic startTimePack;
   final dynamic endTimePack;
 
+  dynamic? manejaTemperatura;
+  dynamic temperatura;
+
   BatchPackingModel({
     this.id,
     this.name,
@@ -111,6 +114,8 @@ class BatchPackingModel {
     this.zonaEntregaTms,
     this.startTimePack,
     this.endTimePack,
+    this.manejaTemperatura,
+    this.temperatura,
   });
 
   factory BatchPackingModel.fromJson(String str) =>
@@ -142,6 +147,8 @@ class BatchPackingModel {
         zonaEntregaTms: json["zona_entrega_tms"],
         startTimePack: json["start_time_pack"],
         endTimePack: json["end_time_pack"],
+        manejaTemperatura: json["maneja_temperatura"],
+        temperatura: json["temperatura"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -165,6 +172,8 @@ class BatchPackingModel {
         "zona_entrega_tms": zonaEntregaTms,
         'start_time_pack': startTimePack,
         'end_time_pack': endTimePack,
+        "maneja_temperatura": manejaTemperatura,
+        "temperatura": temperatura,
       };
 }
 

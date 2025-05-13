@@ -55,6 +55,10 @@ class EntradasRepository {
           EntradasRepeccionTable.columnDateFinish: entrada.endTimeReception ?? '',
           EntradasRepeccionTable.columnBackorderId: entrada.backorderId ?? 0,
           EntradasRepeccionTable.columnBackorderName: entrada.backorderName ?? "",
+          //maneja_temperatura
+          EntradasRepeccionTable.columnManejaTemperatura: entrada.manejaTemperatura ?? 0,
+          //temperatura
+          EntradasRepeccionTable.columnTemperatura: entrada.temperatura ?? 0,
         };
 
         if (existingIds.contains(id)) {

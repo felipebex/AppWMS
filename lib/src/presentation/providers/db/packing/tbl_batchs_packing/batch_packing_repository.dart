@@ -30,6 +30,12 @@ class BatchPackingRepository {
             BatchPackingTable.columnZonaEntregaTms: batchItem.zonaEntregaTms,
             BatchPackingTable.columnStartTimePack: batchItem.startTimePack,
             BatchPackingTable.columnEndTimePack: batchItem.endTimePack,
+            BatchPackingTable.columnIsSeparate: 0,
+            //maneja_temperatura
+            BatchPackingTable.columnManejaTemperatura:
+                batchItem.manejaTemperatura,
+            //temperatura
+            BatchPackingTable.columnTemperatura: batchItem.temperatura,
           };
 
           // Elimina si ya existe el registro con ese ID

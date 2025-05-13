@@ -20,85 +20,86 @@ class RecepcionRepository {
 //metodo para obtener todas las ordenes de compra
 
   Future<Recepcionresponse> fetchAllReceptions(bool isLoadinDialog) async {
-  final stopwatch = Stopwatch()..start(); // ⏱ Iniciar conteo
+    final stopwatch = Stopwatch()..start(); // ⏱ Iniciar conteo
 
-  try {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) {
-      print("❌ Sin conexión a Internet.");
-      return Recepcionresponse();
-    }
-
-    final response = await ApiRequestService().get(
-      endpoint: 'recepciones',
-      isunecodePath: true,
-      isLoadinDialog: isLoadinDialog,
-    );
-
-    stopwatch.stop(); // ⏹ Finalizar conteo
-    print("⏱ fetchAllReceptions completado en ${stopwatch.elapsedMilliseconds} ms");
-
-    if (response.statusCode >= 400) {
-      print("❌ Error HTTP: ${response.statusCode}");
-      return Recepcionresponse();
-    }
-
-    final jsonResponse = jsonDecode(response.body);
-
-    if (jsonResponse.containsKey('result')) {
-      final result = jsonResponse['result'];
-      if (result['code'] == 200 && result['result'] is List) {
-        final List<ResultEntrada> ordenes = (result['result'] as List)
-            .map((data) => ResultEntrada.fromMap(data))
-            .toList();
-
-        return Recepcionresponse(
-          jsonrpc: jsonResponse['jsonrpc'],
-          id: jsonResponse['id'],
-          result: RecepcionresponseResult(
-            code: result['code'],
-            result: ordenes,
-          ),
-        );
-      } else {
-        print("⚠️ Código no esperado o datos vacíos");
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        print("❌ Sin conexión a Internet.");
         return Recepcionresponse();
       }
-    } else if (jsonResponse.containsKey('error')) {
-      final error = jsonResponse['error'];
-      if (error['code'] == 100) {
-        Get.defaultDialog(
-          title: 'Alerta',
-          titleStyle: const TextStyle(color: Colors.red, fontSize: 18),
-          middleText: 'Sesión expirada, por favor inicie sesión nuevamente',
-          middleTextStyle: const TextStyle(color: Colors.black, fontSize: 14),
-          backgroundColor: Colors.white,
-          radius: 10,
-          actions: [
-            ElevatedButton(
-              onPressed: () => Get.back(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColorApp,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: const Text('Aceptar', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        );
+
+      final response = await ApiRequestService().get(
+        endpoint: 'recepciones',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+      );
+
+      stopwatch.stop(); // ⏹ Finalizar conteo
+      print(
+          "⏱ fetchAllReceptions completado en ${stopwatch.elapsedMilliseconds} ms");
+
+      if (response.statusCode >= 400) {
+        print("❌ Error HTTP: ${response.statusCode}");
+        return Recepcionresponse();
       }
+
+      final jsonResponse = jsonDecode(response.body);
+
+      if (jsonResponse.containsKey('result')) {
+        final result = jsonResponse['result'];
+        if (result['code'] == 200 && result['result'] is List) {
+          final List<ResultEntrada> ordenes = (result['result'] as List)
+              .map((data) => ResultEntrada.fromMap(data))
+              .toList();
+
+          return Recepcionresponse(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: RecepcionresponseResult(
+              code: result['code'],
+              result: ordenes,
+            ),
+          );
+        } else {
+          print("⚠️ Código no esperado o datos vacíos");
+          return Recepcionresponse();
+        }
+      } else if (jsonResponse.containsKey('error')) {
+        final error = jsonResponse['error'];
+        if (error['code'] == 100) {
+          Get.defaultDialog(
+            title: 'Alerta',
+            titleStyle: const TextStyle(color: Colors.red, fontSize: 18),
+            middleText: 'Sesión expirada, por favor inicie sesión nuevamente',
+            middleTextStyle: const TextStyle(color: Colors.black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () => Get.back(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text('Aceptar',
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        }
+      }
+    } on SocketException catch (e) {
+      print('🌐 Error de red: $e');
+    } catch (e, s) {
+      print('❌ Error general en fetchAllReceptions: $e');
+      print('📍 Stack: $s');
     }
-  } on SocketException catch (e) {
-    print('🌐 Error de red: $e');
-  } catch (e, s) {
-    print('❌ Error general en fetchAllReceptions: $e');
-    print('📍 Stack: $s');
+
+    return Recepcionresponse(); // Fallback en todos los casos
   }
-
-  return Recepcionresponse(); // Fallback en todos los casos
-}
-
 
   Future<ResponseReceptionBatchs> fetchAllBatchReceptions(
     bool isLoadinDialog,
@@ -325,6 +326,7 @@ class RecepcionRepository {
     }
     return false;
   }
+
   Future<bool> assignUserToReceptionBatch(
     bool isLoadinDialog,
     int idUser,
@@ -401,7 +403,6 @@ class RecepcionRepository {
     return false;
   }
   //metodo para asignar un usuario a una orden de compra por batch
- 
 
   Future<ResponseNewLote> createLote(
     bool isLoadinDialog,
@@ -546,6 +547,7 @@ class RecepcionRepository {
     }
     return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
   }
+
   Future<ResponSendRecepcion> sendProductRecepcionBatch(
     RecepcionRequest recepcionRequest,
     bool isLoadingDialog,
@@ -764,5 +766,86 @@ class RecepcionRepository {
       return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
     }
     return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
+  }
+
+  //metodo para enviar la temperatura de un lote
+
+  Future<bool> sendTemperature(
+    int idRecepcion,
+    dynamic temperature,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return true; // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'send_temperatura', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id": idRecepcion,
+            "temperatura": temperature,
+          }
+        },
+        isLoadinDialog: false,
+      );
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse.containsKey('result')) {
+          if (jsonResponse['result']['code'] == 200) {
+            return true;
+          } else {
+            return false;
+          }
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            //mostramos una alerta de get
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+
+            return false;
+          }
+        }
+      } else {
+        // Manejo de error si la respuesta no es exitosa
+        // ...
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return false; // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en sendTemperature: $e, $s');
+      return false; // Retornamos un objeto vacío en caso de error de red
+    }
+    return false; // Retornamos un objeto vacío en caso de error de red
   }
 }

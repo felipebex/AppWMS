@@ -222,3 +222,12 @@ class EndTimePack extends WmsPackingEvent {
   final DateTime time;
   EndTimePack( this.batchId, this.time);
 }
+
+
+class SendTemperatureEvent extends WmsPackingEvent {
+  final int idRecepcion;
+  final dynamic temperature;
+  SendTemperatureEvent(
+    this.idRecepcion,
+    this.temperature);
+}

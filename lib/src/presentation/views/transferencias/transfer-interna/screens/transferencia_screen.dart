@@ -46,7 +46,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen>
   Widget build(BuildContext context) {
     return BlocConsumer<TransferenciaBloc, TransferenciaState>(
       listener: (context, state) {
-        // TODO: implement listener
       },
       builder: (context, state) {
         return WillPopScope(
@@ -60,13 +59,24 @@ class _TransferenciaScreenState extends State<TransferenciaScreen>
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () {
                   //volvemos a llamar las entradas que tenemos guardadas en la bd
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferenciasDB(false));
-                 
-
-                  Navigator.pushReplacementNamed(context, 'transferencias',
+                  if (widget.transferencia?.type == 'entrega') {
+                    context
+                        .read<TransferenciaBloc>()
+                        .add(FetchAllEntregaDB(false));
+                    Navigator.pushReplacementNamed(
+                      context,
+                      'list-entrada-productos',
                     );
+                  } else if (widget.transferencia?.type == 'transfer') {
+                    context
+                        .read<TransferenciaBloc>()
+                        .add(FetchAllTransferenciasDB(false));
+
+                    Navigator.pushReplacementNamed(
+                      context,
+                      'transferencias',
+                    );
+                  }
                 },
               ),
               title: Text(

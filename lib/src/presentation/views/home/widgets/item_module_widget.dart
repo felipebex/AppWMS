@@ -28,10 +28,10 @@ class ImteModule extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  height: 60,
-                  width: 60,
+                  height: 40,
+                  width: 40,
                   margin: const EdgeInsets.only(top: 10),
-                  child: Image.asset("assets/icons/$urlImg", fit: BoxFit.cover),
+                  child: Image.asset("assets/icons/$urlImg", fit: BoxFit.cover, color:Colors.black,),
                 ),
                 const SizedBox(height: 2),
                 Center(

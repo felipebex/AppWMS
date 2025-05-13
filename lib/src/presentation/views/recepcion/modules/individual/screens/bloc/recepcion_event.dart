@@ -204,3 +204,11 @@ class FilterUbicacionesAlmacenEvent extends RecepcionEvent {
   final String almacen;
   FilterUbicacionesAlmacenEvent(this.almacen);
 }
+
+class SendTemperatureEvent extends RecepcionEvent {
+  final int idRecepcion;
+  final dynamic temperature;
+  SendTemperatureEvent(
+    this.idRecepcion,
+    this.temperature);
+}

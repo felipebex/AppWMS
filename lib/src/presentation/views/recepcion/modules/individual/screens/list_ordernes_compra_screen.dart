@@ -275,7 +275,8 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                       elevation: 3,
                                       color: ordenCompra[index]
                                                   .startTimeReception !=
-                                              ""
+                                              "" && ordenCompra[index].responsableId !=
+                                                  0
                                           ? primaryColorAppLigth
                                           : ordenCompra[index].isFinish == 1
                                               ? Colors.green[200]

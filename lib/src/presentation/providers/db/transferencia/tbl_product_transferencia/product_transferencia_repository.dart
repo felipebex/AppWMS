@@ -5,92 +5,21 @@ import 'package:wms_app/src/presentation/views/transferencias/models/response_tr
 
 class ProductTransferenciaRepository {
   //metodo para insertar todos los productos de una transferencia
-  Future<void> insertarProductoEntrada(List<LineasTransferenciaTrans> products) async {
-  try {
-    Database db = await DataBaseSqlite().getDatabaseInstance();
+  Future<void> insertarProductoEntrada(
+      List<LineasTransferenciaTrans> products, String type) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
 
-    print('insertarProductoEntrada: ${products.length} productos');
+      print('insertarProductoEntrada: ${products.length} productos');
 
-    await db.transaction((txn) async {
-      Batch batch = txn.batch();
+      await db.transaction((txn) async {
+        Batch batch = txn.batch();
 
-      for (var producto in products) {
-        // Buscar si ya existe un producto con los 4 campos clave
-        final existing = await txn.query(
-          ProductTransferenciaTable.tableName,
-          where:
-              '${ProductTransferenciaTable.columnIdMove} = ? AND '
-              '${ProductTransferenciaTable.columnIdTransferencia} = ? AND '
-              '${ProductTransferenciaTable.columnProductId} = ?',
-          whereArgs: [
-            producto.idMove ?? 0,
-            producto.idTransferencia ?? 0,
-            producto.productId ?? 0,
-          ],
-        );
-
-        // Armar los datos a insertar o actualizar
-        Map<String, dynamic> data = {
-          ProductTransferenciaTable.columnIdMove: producto.idMove ?? 0,
-          ProductTransferenciaTable.columnProductId: producto.productId ?? 0,
-          ProductTransferenciaTable.columnIdTransferencia:
-              producto.idTransferencia ?? 0,
-          ProductTransferenciaTable.columnProductName:
-              producto.productName ?? '',
-          ProductTransferenciaTable.columnProductCode:
-              producto.productCode ?? '',
-          ProductTransferenciaTable.columnProductBarcode:
-              producto.productBarcode ?? '',
-          ProductTransferenciaTable.columnProductTracking:
-              producto.productTracking ?? '',
-          ProductTransferenciaTable.columnFechaVencimiento:
-              producto.fechaVencimiento ?? '',
-          ProductTransferenciaTable.columnDiasVencimiento:
-              producto.diasVencimiento ?? 0,
-          ProductTransferenciaTable.columnQuantityOrdered:
-              producto.quantityOrdered ?? 0,
-          ProductTransferenciaTable.columnQuantityDone:
-              producto.quantityDone ?? 0,
-          ProductTransferenciaTable.columnUom: producto.uom ?? "",
-          ProductTransferenciaTable.columnLocationDestId:
-              producto.locationDestId ?? 0,
-          ProductTransferenciaTable.columnLocationDestName:
-              producto.locationDestName ?? "",
-          ProductTransferenciaTable.columnLocationDestBarcode:
-              producto.locationDestBarcode ?? '',
-          ProductTransferenciaTable.columnLocationId:
-              producto.locationId ?? 0,
-          ProductTransferenciaTable.columnLocationBarcode:
-              producto.locationBarcode ?? '',
-          ProductTransferenciaTable.columnLocationName:
-              producto.locationName ?? '',
-          ProductTransferenciaTable.columnWeight: producto.weight ?? 0,
-          ProductTransferenciaTable.columnIsSeparate: 0,
-          ProductTransferenciaTable.columnIsSelected: 0,
-          ProductTransferenciaTable.columnLotName: producto.lotName ?? "",
-          ProductTransferenciaTable.columnLoteId: producto.lotId ?? "",
-          ProductTransferenciaTable.columnLoteDate:
-              (producto.lotName != "" && producto.lotName != null)
-                  ? producto.fechaVencimiento
-                  : "",
-          ProductTransferenciaTable.columnIsProductSplit: 0,
-          ProductTransferenciaTable.columnObservation: producto.observation,
-          ProductTransferenciaTable.columnDateStart: "",
-          ProductTransferenciaTable.columnDateEnd: "",
-          ProductTransferenciaTable.columnTime: producto.time,
-          ProductTransferenciaTable.columnIsDoneItem:
-              producto.isDoneItem ?? 0,
-          ProductTransferenciaTable.columnCantidadFaltante:
-              producto.cantidadFaltante ?? 0,
-        };
-
-        if (existing.isNotEmpty) {
-          // Si existe exactamente con los 4 campos, actualizar
-          batch.update(
+        for (var producto in products) {
+          // Buscar si ya existe un producto con los 4 campos clave
+          final existing = await txn.query(
             ProductTransferenciaTable.tableName,
-            data,
-            where:
-                '${ProductTransferenciaTable.columnIdMove} = ? AND '
+            where: '${ProductTransferenciaTable.columnIdMove} = ? AND '
                 '${ProductTransferenciaTable.columnIdTransferencia} = ? AND '
                 '${ProductTransferenciaTable.columnProductId} = ?',
             whereArgs: [
@@ -99,24 +28,93 @@ class ProductTransferenciaRepository {
               producto.productId ?? 0,
             ],
           );
-        } else {
-          // No existe esa combinación → insertar
-          batch.insert(
-            ProductTransferenciaTable.tableName,
-            data,
-            conflictAlgorithm: ConflictAlgorithm.ignore,
-          );
+
+          // Armar los datos a insertar o actualizar
+          Map<String, dynamic> data = {
+            ProductTransferenciaTable.columnIdMove: producto.idMove ?? 0,
+            ProductTransferenciaTable.columnProductId: producto.productId ?? 0,
+            ProductTransferenciaTable.columnIdTransferencia:
+                producto.idTransferencia ?? 0,
+            ProductTransferenciaTable.columnProductName:
+                producto.productName ?? '',
+            ProductTransferenciaTable.columnProductCode:
+                producto.productCode ?? '',
+            ProductTransferenciaTable.columnProductBarcode:
+                producto.productBarcode ?? '',
+            ProductTransferenciaTable.columnProductTracking:
+                producto.productTracking ?? '',
+            ProductTransferenciaTable.columnFechaVencimiento:
+                producto.fechaVencimiento ?? '',
+            ProductTransferenciaTable.columnDiasVencimiento:
+                producto.diasVencimiento ?? 0,
+            ProductTransferenciaTable.columnQuantityOrdered:
+                producto.quantityOrdered ?? 0,
+            ProductTransferenciaTable.columnQuantityDone:
+                producto.quantityDone ?? 0,
+            ProductTransferenciaTable.columnUom: producto.uom ?? "",
+            ProductTransferenciaTable.columnLocationDestId:
+                producto.locationDestId ?? 0,
+            ProductTransferenciaTable.columnLocationDestName:
+                producto.locationDestName ?? "",
+            ProductTransferenciaTable.columnLocationDestBarcode:
+                producto.locationDestBarcode ?? '',
+            ProductTransferenciaTable.columnLocationId:
+                producto.locationId ?? 0,
+            ProductTransferenciaTable.columnLocationBarcode:
+                producto.locationBarcode ?? '',
+            ProductTransferenciaTable.columnLocationName:
+                producto.locationName ?? '',
+            ProductTransferenciaTable.columnWeight: producto.weight ?? 0,
+            ProductTransferenciaTable.columnIsSeparate: 0,
+            ProductTransferenciaTable.columnIsSelected: 0,
+            ProductTransferenciaTable.columnLotName: producto.lotName ?? "",
+            ProductTransferenciaTable.columnLoteId: producto.lotId ?? "",
+            ProductTransferenciaTable.columnLoteDate:
+                (producto.lotName != "" && producto.lotName != null)
+                    ? producto.fechaVencimiento
+                    : "",
+            ProductTransferenciaTable.columnIsProductSplit: 0,
+            ProductTransferenciaTable.columnObservation: producto.observation,
+            ProductTransferenciaTable.columnDateStart: "",
+            ProductTransferenciaTable.columnDateEnd: "",
+            ProductTransferenciaTable.columnTime: producto.time,
+            ProductTransferenciaTable.columnIsDoneItem:
+                producto.isDoneItem ?? 0,
+            ProductTransferenciaTable.columnCantidadFaltante:
+                producto.cantidadFaltante ?? 0,
+            ProductTransferenciaTable.columnType: type
+          };
+
+          if (existing.isNotEmpty) {
+            // Si existe exactamente con los 4 campos, actualizar
+            batch.update(
+              ProductTransferenciaTable.tableName,
+              data,
+              where: '${ProductTransferenciaTable.columnIdMove} = ? AND '
+                  '${ProductTransferenciaTable.columnIdTransferencia} = ? AND '
+                  '${ProductTransferenciaTable.columnProductId} = ?',
+              whereArgs: [
+                producto.idMove ?? 0,
+                producto.idTransferencia ?? 0,
+                producto.productId ?? 0,
+              ],
+            );
+          } else {
+            // No existe esa combinación → insertar
+            batch.insert(
+              ProductTransferenciaTable.tableName,
+              data,
+              conflictAlgorithm: ConflictAlgorithm.ignore,
+            );
+          }
         }
-      }
 
-      await batch.commit(noResult: true);
-    });
-
-  } catch (e, s) {
-    print('Error en el insertarProductoEntrada: $e, $s');
+        await batch.commit(noResult: true);
+      });
+    } catch (e, s) {
+      print('Error en el insertarProductoEntrada: $e, $s');
+    }
   }
-}
-
 
   //METODO PARA OBTENER UN PRODUCTO POR SU ID
   Future<LineasTransferenciaTrans?> getProductById(
@@ -151,7 +149,7 @@ class ProductTransferenciaRepository {
   }
 
   Future<void> insertDuplicateProducto(LineasTransferenciaTrans producto,
-      dynamic cantidad, int idMove, int idProduct) async {
+      dynamic cantidad, int idMove, int idProduct, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -208,7 +206,8 @@ class ProductTransferenciaRepository {
         ProductTransferenciaTable.columnTime: "",
         ProductTransferenciaTable.columnIsDoneItem: 0,
         ProductTransferenciaTable.columnDateTransaction: "",
-        ProductTransferenciaTable.columnCantidadFaltante: cantidad
+        ProductTransferenciaTable.columnCantidadFaltante: cantidad,
+        ProductTransferenciaTable.columnType: type,
       };
 
       await db.insert(
@@ -228,9 +227,7 @@ class ProductTransferenciaRepository {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
-
       print('idTransfer: $idTransfer');
-
 
       // Consulta para obtener los productos con el idRecepcion correspondiente
       final List<Map<String, dynamic>> products = await db.query(
@@ -290,8 +287,8 @@ class ProductTransferenciaRepository {
       );
 
       if (result.isNotEmpty) {
-        dynamic currentQty = (result
-            .first[ProductTransferenciaTable.columnQuantityDone] );
+        dynamic currentQty =
+            (result.first[ProductTransferenciaTable.columnQuantityDone]);
 
         dynamic newQty = currentQty + quantity;
         return await txn.update(

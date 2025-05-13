@@ -65,6 +65,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   TextEditingController searchController = TextEditingController();
   TextEditingController searchControllerPedido = TextEditingController();
   TextEditingController searchControllerProduct = TextEditingController();
+  TextEditingController controllerTemperature = TextEditingController();
   //*repositorio
   WmsPackingRepository wmsPackingRepository = WmsPackingRepository();
 
@@ -181,6 +182,34 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     //*evento para ver la cantidad
     on<ShowQuantityPackEvent>(_onShowQuantityEvent);
     on<ShowDetailvent>(_onShowDetailEvent);
+
+    //enviar temperatura
+    on<SendTemperatureEvent>(_onSendTemperatureEvent);
+  }
+
+  void _onSendTemperatureEvent(
+      SendTemperatureEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      emit(SendTemperatureLoading());
+      final response = await wmsPackingRepository.sendTemperature(
+          event.idRecepcion, event.temperature, false);
+      if (response) {
+        await db.batchPackingRepository.setFieldTableBatchPacking(
+            event.idRecepcion, 'temperatura', event.temperature);
+
+        await db.batchPackingRepository.setFieldTableBatchPacking(
+            event.idRecepcion, 'is_separate', 1);
+        
+        //traemos la informacion de la entrada actualizada
+        controllerTemperature.clear();
+        emit(SendTemperatureSuccess('Temperatura enviada correctamente'));
+      } else {
+        emit(SendTemperatureFailure('Error al enviar la temperatura'));
+      }
+    } catch (e, s) {
+      emit(SendTemperatureFailure('Error al enviar la temperatura'));
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+    }
   }
 
   //*evento para empezar el tiempo de separacion
@@ -591,12 +620,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       listOfProductosProgress = listOfProductos.where((product) {
         return product.isSeparate == null || product.isSeparate == 0;
       }).toList();
-      emit(WmsPackingLoaded( listOfBatchs: listOfBatchsDB));
+      emit(WmsPackingLoaded(listOfBatchs: listOfBatchsDB));
     } else {
       listOfProductosProgress = listOfProductos.where((product) {
         return product.productId?.toLowerCase().contains(query) ?? false;
       }).toList();
-      emit(WmsPackingLoaded( listOfBatchs: listOfBatchsDB));
+      emit(WmsPackingLoaded(listOfBatchs: listOfBatchsDB));
     }
   }
 
@@ -606,7 +635,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     listOfBatchsDB = batchsFromDB;
     listOfBatchsDB =
         listOfBatchsDB.where((element) => element.isSeparate == null).toList();
-    emit(WmsPackingLoaded( listOfBatchs: listOfBatchsDB));
+    emit(WmsPackingLoaded(listOfBatchs: listOfBatchsDB));
 
     return;
   }
@@ -627,7 +656,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       }).toList();
     }
 
-    emit(WmsPackingLoaded( listOfBatchs: listOfBatchsDB));
+    emit(WmsPackingLoaded(listOfBatchs: listOfBatchsDB));
   }
 
   String normalizeText(String input) {
@@ -671,7 +700,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         }).toList();
       }
 
-      emit(WmsPackingLoaded( 
+      emit(WmsPackingLoaded(
         listOfBatchs: listOfBatchsDB,
       ));
     } catch (e, s) {
@@ -687,94 +716,98 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     emit(ChangeStickerState(isSticker));
   }
 
+  void _onSetPackingsEvent(
+      SetPackingsEvent event, Emitter<WmsPackingState> emit) async {
+    try {
+      if (event.productos.isEmpty) return;
 
+      emit(WmsPackingLoadingState());
 
-void _onSetPackingsEvent(SetPackingsEvent event, Emitter<WmsPackingState> emit) async {
-  try {
-    if (event.productos.isEmpty) return;
+      final idOperario = await PrefUtils.getUserId();
+      final fechaTransaccion = DateTime.now();
+      final fechaFormateada = formatoFecha(fechaTransaccion);
 
-    emit(WmsPackingLoadingState());
+      List<ListItem> listItems = event.productos.map((producto) {
+        return ListItem(
+          idMove: producto.idMove ?? 0,
+          productId: producto.idProduct,
+          lote: producto.loteId.toString(),
+          locationId: (producto.idLocation is int) ? producto.idLocation : 0,
+          cantidadSeparada: event.isCertificate
+              ? producto.quantitySeparate ?? 0
+              : producto.quantity ?? 0,
+          observacion: producto.observation ?? 'Sin novedad',
+          unidadMedida: producto.unidades ?? '',
+          idOperario: idOperario,
+          fechaTransaccion: fechaFormateada,
+        );
+      }).toList();
 
-    final idOperario = await PrefUtils.getUserId();
-    final fechaTransaccion = DateTime.now();
-    final fechaFormateada = formatoFecha(fechaTransaccion);
-
-    List<ListItem> listItems = event.productos.map((producto) {
-      return ListItem(
-        idMove: producto.idMove ?? 0,
-        productId: producto.idProduct,
-        lote: producto.loteId.toString(),
-        locationId: (producto.idLocation is int) ? producto.idLocation : 0,
-        cantidadSeparada: event.isCertificate
-            ? producto.quantitySeparate ?? 0
-            : producto.quantity ?? 0,
-        observacion: producto.observation ?? 'Sin novedad',
-        unidadMedida: producto.unidades ?? '',
-        idOperario: idOperario,
-        fechaTransaccion: fechaFormateada,
+      final packingRequest = PackingRequest(
+        idBatch: event.productos[0].batchId ?? 0,
+        isSticker: event.isSticker,
+        isCertificate: event.isCertificate,
+        pesoTotalPaquete: 34.0, // Considera calcular esto dinámicamente
+        listItem: listItems,
       );
-    }).toList();
 
-    final packingRequest = PackingRequest(
-      idBatch: event.productos[0].batchId ?? 0,
-      isSticker: event.isSticker,
-      isCertificate: event.isCertificate,
-      pesoTotalPaquete: 34.0, // Considera calcular esto dinámicamente
-      listItem: listItems,
-    );
+      final responsePacking = await wmsPackingRepository.sendPackingRequest(
+        packingRequest,
+        true,
+      );
 
-    final responsePacking = await wmsPackingRepository.sendPackingRequest(
-      packingRequest,
-      true,
-    );
+      if (responsePacking.result?.code != 200) {
+        emit(WmsPackingErrorState(responsePacking.result?.msg ?? ""));
+        return;
+      }
 
-    if (responsePacking.result?.code != 200) {
-      emit(WmsPackingErrorState(responsePacking.result?.msg ?? ""));
-      return;
+      final paquete = Paquete(
+        id: responsePacking.result?.result?[0].idPaquete ?? 0,
+        name: responsePacking.result?.result?[0].namePaquete ?? '',
+        batchId: event.productos[0].batchId,
+        pedidoId: event.productos[0].pedidoId,
+        cantidadProductos: event.productos.length,
+        listaProductosInPacking: event.productos,
+        isSticker: event.isSticker,
+      );
+
+      packages.add(paquete);
+      await db.packagesRepository.insertPackage(paquete);
+
+      await db.pedidosPackingRepository.setFieldTablePedidosPacking(
+        event.productos[0].batchId ?? 0,
+        event.productos[0].pedidoId ?? 0,
+        "is_selected",
+        1,
+      );
+
+      await db.batchPackingRepository.setFieldTableBatchPacking(
+        event.productos[0].batchId ?? 0,
+        "is_selected",
+        1,
+      );
+
+      // Paralelizamos los updates para mejorar rendimiento
+      // await Future.wait(event.productos.map((product) =>
+      //   _actualizarProducto(db, product, paquete, event.isCertificate)
+      // ));
+      await _actualizarProductoBatch(
+        db,
+        event.productos,
+        paquete,
+        event.isCertificate,
+      );
+
+      listOfProductsForPacking = [];
+
+      add(LoadAllProductsFromPedidoEvent(event.productos[0].pedidoId ?? 0));
+
+      emit(WmsPackingSuccessState('Empaquetado exitoso'));
+    } catch (e, s) {
+      print('Error en _onSetPackingsEvent: $e\n$s');
+      emit(WmsPackingErrorState('Ocurrió un error inesperado'));
     }
-
-    final paquete = Paquete(
-      id: responsePacking.result?.result?[0].idPaquete ?? 0,
-      name: responsePacking.result?.result?[0].namePaquete ?? '',
-      batchId: event.productos[0].batchId,
-      pedidoId: event.productos[0].pedidoId,
-      cantidadProductos: event.productos.length,
-      listaProductosInPacking: event.productos,
-      isSticker: event.isSticker,
-    );
-
-    packages.add(paquete);
-    await db.packagesRepository.insertPackage(paquete);
-
-    await db.pedidosPackingRepository.setFieldTablePedidosPacking(
-      event.productos[0].batchId ?? 0,
-      event.productos[0].pedidoId ?? 0,
-      "is_selected",
-      1,
-    );
-
-    await db.batchPackingRepository.setFieldTableBatchPacking(
-      event.productos[0].batchId ?? 0,
-      "is_selected",
-      1,
-    );
-
-    // Paralelizamos los updates para mejorar rendimiento
-    // await Future.wait(event.productos.map((product) =>
-    //   _actualizarProducto(db, product, paquete, event.isCertificate)
-    // ));
-    await _actualizarProductoBatch(db, event.productos, paquete,  event.isCertificate,);
-
-    listOfProductsForPacking = [];
-
-    add(LoadAllProductsFromPedidoEvent(event.productos[0].pedidoId ?? 0));
-
-    emit(WmsPackingSuccessState('Empaquetado exitoso'));
-  } catch (e, s) {
-    print('Error en _onSetPackingsEvent: $e\n$s');
-    emit(WmsPackingErrorState('Ocurrió un error inesperado'));
   }
-}
 
 // Future<void> _actualizarProducto(
 //   DataBaseSqlite db,
@@ -865,38 +898,36 @@ void _onSetPackingsEvent(SetPackingsEvent event, Emitter<WmsPackingState> emit) 
 //   }
 // }
 
+  Future<void> _actualizarProductoBatch(
+    DataBaseSqlite db,
+    List<ProductoPedido> productos,
+    Paquete paquete,
+    bool isCertificate,
+  ) async {
+    final idPaquete = paquete.id;
+    final nombrePaquete = paquete.name;
 
-Future<void> _actualizarProductoBatch(
-  DataBaseSqlite db,
-  List<ProductoPedido> productos,
-  Paquete paquete,
-  bool isCertificate,
-) async {
-  final idPaquete = paquete.id;
-  final nombrePaquete = paquete.name;
+    final fieldsToUpdate = isCertificate
+        ? {
+            "package_name": nombrePaquete,
+            "is_separate": 1,
+            "id_package": idPaquete,
+            "is_package": 1,
+          }
+        : {
+            "package_name": nombrePaquete,
+            "is_separate": 1,
+            "id_package": idPaquete,
+            "is_package": 1,
+            "is_certificate": 0,
+          };
 
-  final fieldsToUpdate = isCertificate
-      ? {
-          "package_name": nombrePaquete,
-          "is_separate": 1,
-          "id_package": idPaquete,
-          "is_package": 1,
-        }
-      : {
-          "package_name": nombrePaquete,
-          "is_separate": 1,
-          "id_package": idPaquete,
-          "is_package": 1,
-          "is_certificate": 0,
-        };
-
-  await db.productosPedidosRepository.updateProductosBatch(
-    productos: productos,
-    fieldsToUpdate: fieldsToUpdate,
-    isCertificate: isCertificate,
-  );
-}
-
+    await db.productosPedidosRepository.updateProductosBatch(
+      productos: productos,
+      fieldsToUpdate: fieldsToUpdate,
+      isCertificate: isCertificate,
+    );
+  }
 
   //*metodo que se encarga de hacer el picking
   void _onSetPickingsEvent(
@@ -973,11 +1004,10 @@ Future<void> _actualizarProductoBatch(
       currentProduct = ProductoPedido();
       currentProduct = event.pedido;
       listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
-        currentProduct.batchId ?? 0,
-        currentProduct.idProduct,
-        currentProduct.idMove ?? 0,
-        'packing'
-      );
+          currentProduct.batchId ?? 0,
+          currentProduct.idProduct,
+          currentProduct.idMove ?? 0,
+          'packing');
       locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
       productIsOk = currentProduct.productIsOk == 1 ? true : false;
       locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
@@ -1046,8 +1076,7 @@ Future<void> _actualizarProductoBatch(
         getPosicions();
 
         emit(WmsPackingLoaded(
-      listOfBatchs : listOfBatchsDB,
-
+          listOfBatchs: listOfBatchsDB,
         ));
       } else {
         print('Error _onLoadAllProductsFromPedidoEvent: response is null');
@@ -1079,7 +1108,7 @@ Future<void> _actualizarProductoBatch(
         listOfPedidos = response;
         print('pedidosToInsert: ${response.length}');
         emit(WmsPackingLoaded(
-          listOfBatchs : listOfBatchsDB,
+          listOfBatchs: listOfBatchsDB,
         ));
       } else {
         print('Error resPedidos: response is null');

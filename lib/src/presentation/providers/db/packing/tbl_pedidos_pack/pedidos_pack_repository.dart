@@ -41,9 +41,9 @@ class PedidosPackingRepository {
                 PedidosPackingTable.columnNumeroPaquetes: pedido.numeroPaquetes,
                 PedidosPackingTable.columnContactoName: pedido.contactoName,
                 PedidosPackingTable.columnIsZonaEntrega: pedido.zonaEntrega,
-                PedidosPackingTable.columnIsZonaEntregaTms: pedido.zonaEntregaTms,
-
-
+                PedidosPackingTable.columnIsZonaEntregaTms:
+                    pedido.zonaEntregaTms,
+                PedidosPackingTable.columnIsTerminate: 0,
               },
               where: '${PedidosPackingTable.columnId} = ?',
               whereArgs: [pedido.id],
@@ -66,7 +66,9 @@ class PedidosPackingRepository {
                 PedidosPackingTable.columnNumeroPaquetes: pedido.numeroPaquetes,
                 PedidosPackingTable.columnContactoName: pedido.contactoName,
                 PedidosPackingTable.columnIsZonaEntrega: pedido.zonaEntrega,
-                PedidosPackingTable.columnIsZonaEntregaTms: pedido.zonaEntregaTms,
+                PedidosPackingTable.columnIsZonaEntregaTms:
+                    pedido.zonaEntregaTms,
+                PedidosPackingTable.columnIsTerminate: 0,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -103,7 +105,6 @@ class PedidosPackingRepository {
     }
   }
 
-
   //metodo para obtener todos los pedidos de packing
   Future<List<PedidoPacking>> getAllPedidosPacking() async {
     try {
@@ -123,8 +124,6 @@ class PedidosPackingRepository {
     }
   }
 
-
-
   // Método para actualizar un campo específico de un pedido en la tabla
   Future<int?> setFieldTablePedidosPacking(
       int batchId, int pedidoId, String field, dynamic setValue) async {
@@ -137,7 +136,8 @@ class PedidosPackingRepository {
       );
 
       // Devolver la cantidad de filas afectadas
-      print("update setFieldTablePedidosPacking  ($field)  pedido $pedidoId batch $batchId => $resUpdate");
+      print(
+          "update setFieldTablePedidosPacking  ($field)  pedido $pedidoId batch $batchId => $resUpdate");
       return resUpdate;
     } catch (e) {
       print("Error al actualizar el campo $field: $e");

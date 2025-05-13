@@ -42,6 +42,8 @@ class PickingPickTable {
   static const String columnOrderBy = 'order_by';
   static const String columnOrderPicking = 'order_picking';
 
+  static const String columnTypePick = 'type_pick';
+
   // Método para crear la tabla
   static String createTable() {
     return '''
@@ -83,6 +85,7 @@ class PickingPickTable {
         $columnIsSendOddo INTEGER,
         $columnIsSendOddoDate VARCHAR(255),
         $columnOrderBy TEXT,
+        $columnTypePick TEXT,
         $columnOrderPicking TEXT
 
       )

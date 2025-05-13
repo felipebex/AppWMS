@@ -444,10 +444,18 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                         }
 
                         Navigator.pop(context);
-                        Navigator.pushReplacementNamed(
-                          context,
-                          'pick',
-                        );
+                        if (batchBloc.pickWithProducts.pick?.typePick ==
+                            'pick') {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            'pick',
+                          );
+                        } else {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            'picking-componentes',
+                          );
+                        }
                       }
 
                       // * validamos en todo cambio de estado de cantidad separada
@@ -566,12 +574,26 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                     batchBloc.searchPickController.clear();
                                     batchBloc.add(SearchPickEvent(
                                       '',
+                                      batchBloc.pickWithProducts.pick
+                                                  ?.typePick ==
+                                              'pick'
+                                          ? false
+                                          : true,
                                     ));
-                                    batchBloc.add(
-                                        FetchPickingPickFromDBEvent(false));
 
-                                    Navigator.pushReplacementNamed(
-                                        context, 'pick');
+                                    if (batchBloc.pickWithProducts.pick
+                                            ?.typePick ==
+                                        'pick') {
+                                      batchBloc.add(
+                                          FetchPickingPickFromDBEvent(false));
+                                      Navigator.pushReplacementNamed(
+                                          context, 'pick');
+                                    } else {
+                                        batchBloc.add(
+                                        FetchPickingComponentesFromDBEvent(false));
+                                      Navigator.pushReplacementNamed(
+                                          context, 'picking-componentes');
+                                    }
                                   },
                                   icon: const Icon(Icons.arrow_back,
                                       color: Colors.white, size: 20),
@@ -2175,7 +2197,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                           Navigator.of(context, rootNavigator: true).context,
                       builder: (context) {
                         return DialogBackorderPick(
-                          unidadesSeparadas:unidadesSeparadas,
+                          unidadesSeparadas: unidadesSeparadas,
                         );
                       });
                 });

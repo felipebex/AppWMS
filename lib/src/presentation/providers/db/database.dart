@@ -389,11 +389,20 @@ class DataBaseSqlite {
     await db.delete('tblbatch_products');
     await db.delete(BarcodesPackagesTable.tableName);
     await db.delete(SubmuellesTable.tableName);
-     await deleBarcodes("picking");
+    await deleBarcodes("picking");
     // await db.delete(DocOriginTable.tableName);
   }
 
-  Future<void> delePick() async {
+  Future<void> delePick(String typPick) async {
+    final db = await getDatabaseInstance();
+    await db.delete(PickingPickTable.tableName,
+        where: '${PickingPickTable.columnTypePick} = ?', whereArgs: [typPick]);
+    await db.delete(PickProductsTable.tableName,
+        where: '${PickProductsTable.columnTypePick} = ?', whereArgs: [typPick]);
+    await deleBarcodes(typPick);
+  }
+
+  Future<void> delePickAll() async {
     final db = await getDatabaseInstance();
     await db.delete(PickingPickTable.tableName);
     await db.delete(PickProductsTable.tableName);
@@ -413,7 +422,7 @@ class DataBaseSqlite {
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
-      await deleBarcodes("packing");
+    await deleBarcodes("packing");
   }
 
   Future<void> deleRecepcion() async {
@@ -427,14 +436,33 @@ class DataBaseSqlite {
     final db = await getDatabaseInstance();
     await db.delete(ProductInventarioTable.tableName);
     await db.delete(BarcodesInventarioTable.tableName);
-
   }
 
-  Future<void> deleTrasnferencia() async {
+  Future<void> deleTrasnferencia(String type) async {
     final db = await getDatabaseInstance();
     //transferencia
-    await db.delete(TransferenciaTable.tableName);
-    await db.delete(ProductTransferenciaTable.tableName);
+    await db.delete(
+      TransferenciaTable.tableName,
+      where: '${TransferenciaTable.columnType} = ?',
+      whereArgs: [type],
+    );
+    await db.delete(
+      ProductTransferenciaTable.tableName,
+      where: '${ProductTransferenciaTable.columnType} = ?',
+      whereArgs: [type],
+    );
+    await deleBarcodes("transfer");
+  }
+
+  Future<void> deleAllTrasnferencia() async {
+    final db = await getDatabaseInstance();
+    //transferencia
+    await db.delete(
+      TransferenciaTable.tableName,
+    );
+    await db.delete(
+      ProductTransferenciaTable.tableName,
+    );
     await deleBarcodes("transfer");
   }
 
@@ -450,7 +478,8 @@ class DataBaseSqlite {
     final db = await getDatabaseInstance();
     //eliminamos los codigos de barras que tienen el mismo tipo
     await db.delete(BarcodesPackagesTable.tableName,
-        where: '${BarcodesPackagesTable.columnBarcodeType} = ?', whereArgs: [barcodeType]);
+        where: '${BarcodesPackagesTable.columnBarcodeType} = ?',
+        whereArgs: [barcodeType]);
   }
 
   Future<void> deleAllBarcodes() async {
@@ -461,10 +490,10 @@ class DataBaseSqlite {
 
   Future<void> deleteBDCloseSession() async {
     await delePicking();
-    await delePick();
+    await delePickAll();
     await delePacking();
     await deleRecepcion();
-    await deleTrasnferencia();
+    await deleAllTrasnferencia();
     await deleInventario();
     await deleOthers();
     await deleReceptionBatch();

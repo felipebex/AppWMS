@@ -92,6 +92,8 @@ class ResultPick {
   String? backorderName;
   dynamic showCheckAvailability;
 
+  String? typePick;
+
   //valores para el pick
   dynamic isSeparate;
   dynamic isSelected;
@@ -152,6 +154,7 @@ class ResultPick {
     this.observation,
     this.orderBy,
     this.orderPicking,
+    this.typePick,
 
   });
 
@@ -200,6 +203,7 @@ class ResultPick {
         observation: json["observation"],
         orderBy: json["order_by"],
         orderPicking: json["order_picking"],
+        typePick: json["type_pick"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -246,5 +250,6 @@ class ResultPick {
         "observation": observation,
         "order_by": orderBy,
         "order_picking": orderPicking,
+        "type_pick": typePick,
       };
 }

@@ -23,6 +23,10 @@ class BatchPackingTable {
   static const String columnStartTimePack = 'start_time_pack';
   static const String columnEndTimePack = 'end_time_pack';
   static const String columnTimeSeparateEnd = 'time_separate_end';
+  //maneja_temperatura
+  static const String columnManejaTemperatura = 'maneja_temperatura';
+  //temperatura
+  static const String columnTemperatura = 'temperatura';
 
   // Método para crear la tabla
   static String createTable() {
@@ -46,6 +50,8 @@ class BatchPackingTable {
         $columnTimeSeparateStart VARCHAR(255),
         $columnStartTimePack VARCHAR(255),
         $columnEndTimePack VARCHAR(255),
+        $columnManejaTemperatura INTEGER,
+        $columnTemperatura REAL,
         $columnTimeSeparateEnd VARCHAR(255)
       )
     ''';

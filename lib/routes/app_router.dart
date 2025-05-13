@@ -18,11 +18,13 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/index_li
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/screens/recepcion_batch_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/widgets/locations_dest/locations_dest_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/widgets/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/locations_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/pages.dart';
+import 'package:wms_app/src/presentation/views/transferencias/entrega-productos/list_entrada_productos_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/models/response_transferencias.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/list_transferencias_screen.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/scan_product_transfer_screen.dart';
@@ -40,6 +42,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/screens/history_detail_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/screens/list_batchs_history_screen.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/picking_componentes/index_list_picking_componentes_screen.dart';
 
 class AppRoutes {
   //todo  Mapa estático de rutas
@@ -57,6 +60,9 @@ class AppRoutes {
   static const String pick = 'pick';
   static const String scanProductPick = "scan-product-pick";
   static const String pickDetail = 'pick-detail';
+
+  //todo picking componentes
+  static const String pickingComponentes = 'picking-componentes';
 
   //todo WMS Packing
   static const String wmsPacking = 'wms-packing';
@@ -78,6 +84,9 @@ class AppRoutes {
   static const String scanProductTransfer = 'scan-product-transfer';
   static const String searchLocationDestTrans = 'seacrh-locationsDest-trans';
 
+  //todo entrada de productos
+  static const String entradaProductos = 'list-entrada-productos';
+
   //todo Global
   static const String home = '/home';
   static const String user = 'user';
@@ -92,6 +101,8 @@ class AppRoutes {
   static const String recepcionBatch = 'recepcion-batch';
   static const String scanProductReceptionBatch = 'scan-product-reception-batch';
   static const String locationDestReceptionBatchSearch = 'search-location-recep-batch';
+    static const String newLoteRecepBatch = 'new-lote-recep-batch';
+
 
   //todo new lote
   static const String newLote = 'new-lote';
@@ -125,6 +136,10 @@ class AppRoutes {
       pick: (_) => const IndexListPickScreen(),
       scanProductPick: (_) => const ScanProductPickScreen(),
       pickDetail: (_) => const PickDetailScreen(),
+
+
+      //todo picking componentes
+      pickingComponentes: (_) => const IndexListPickComponentsScreen(),
 
       // todo WMS Packing
       wmsPacking: (_) => const WmsPackingScreen(),
@@ -258,6 +273,16 @@ class AppRoutes {
             ordenCompra: recepcionBatch, currentProduct: currentProducArg);
       },
 
+        //todo lote por batch
+      newLoteRecepBatch: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final ordenCompraArg = arguments[0] as ReceptionBatch?;
+        final currentProducArg = arguments[1] as LineasRecepcionBatch?;
+        return NewLoteRecepBatchScreen(
+            ordenCompra: ordenCompraArg, currentProduct: currentProducArg);
+      },
+
       //todo lote
       newLote: (context) {
         final arguments =
@@ -314,10 +339,21 @@ class AppRoutes {
         );
       },
 
+      
+      //todo entrada de productos
+      entradaProductos: (_){
+        return ListEntradaProductsScreen();
+      },
+      
+      
       //todo transferencias
       transferencias: (_) {
         return ListTransferenciasScreen();
       },
+
+
+
+
       transferenciaDetail: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;

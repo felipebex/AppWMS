@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
@@ -9,7 +10,9 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/widgets/dialog_temperatura_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -51,7 +54,41 @@ class _PakingListScreenState extends State<PakingListScreen>
       onWillPop: () async {
         return false;
       },
-      child: BlocBuilder<WmsPackingBloc, WmsPackingState>(
+      child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
+        listener: (context, state) {
+          if (state is SendTemperatureLoading) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const DialogLoading(
+                  message: "Enviando temperatura...",
+                );
+              },
+            );
+          }
+
+          if (state is SendTemperatureSuccess) {
+            Navigator.pop(context);
+            context.read<WmsPackingBloc>().add(LoadBatchPackingFromDBEvent());
+            Get.snackbar("360 Software Informa", state.message,
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.green));
+
+            Navigator.pushReplacementNamed(
+              context,
+              'wms-packing',
+            );
+          }
+
+          if (state is SendTemperatureFailure) {
+            Navigator.pop(context);
+            Get.snackbar("360 Software Informa", state.error,
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.red));
+          }
+        },
         builder: (context, state) {
           return Scaffold(
             bottomNavigationBar: context
@@ -151,172 +188,252 @@ class _PakingListScreenState extends State<PakingListScreen>
                         child: Column(
                           children: [
                             //*card informativa
-                            Visibility(
-                              visible: !context
-                                  .read<WmsPackingBloc>()
-                                  .isKeyboardVisible,
-                              child: Card(
-                                elevation: 5,
-                                color: Colors.grey[200],
-                                child: Container(
-                                  padding: const EdgeInsets.only(
-                                      left: 10, right: 10, bottom: 10),
-                                  margin: const EdgeInsets.only(top: 10),
-                                  width: size.width * 0.9,
-                                  child: Column(
-                                    children: [
-                                      Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            widget.batchModel?.name ?? '',
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: primaryColorApp,
-                                                fontWeight: FontWeight.bold),
-                                          )),
-                                      Row(
-                                        children: [
-                                          const Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                'Responsable: ',
-                                                style: TextStyle(
-                                                    fontSize: 12, color: black),
-                                              )),
-                                          Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                widget.batchModel?.userName ==
-                                                            false ||
-                                                        widget.batchModel
-                                                                ?.userName ==
-                                                            ""
-                                                    ? 'Sin responsable'
-                                                    : "${widget.batchModel?.userName}",
-                                                style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: primaryColorApp),
-                                              )),
-                                        ],
-                                      ),
-                                      const Align(
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                            "Tipo de operación: ",
-                                            style: TextStyle(
-                                                fontSize: 12, color: black),
-                                          )),
-                                      SizedBox(
-                                        width: size.width * 0.9,
-                                        child: Text(
-                                          widget.batchModel?.pickingTypeId ==
-                                                  false
-                                              ? 'Sin tipo de operación'
-                                              : "${widget.batchModel?.pickingTypeId}",
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp),
-                                        ),
-                                      ),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          const Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text(
-                                                "Fecha programada:",
-                                                style: TextStyle(
-                                                    fontSize: 12, color: black),
-                                              )),
-                                          const SizedBox(width: 10),
-                                          Builder(
-                                            builder: (context) {
-                                              // Verifica si `scheduledDate` es false o null
-                                              String displayDate;
-                                              if (widget.batchModel
-                                                          ?.scheduleddate ==
-                                                      false ||
-                                                  widget.batchModel
-                                                          ?.scheduleddate ==
-                                                      null) {
-                                                displayDate = 'sin fecha';
-                                              } else {
-                                                try {
-                                                  DateTime dateTime =
-                                                      DateTime.parse(widget
-                                                              .batchModel
-                                                              ?.scheduleddate
-                                                              .toString() ??
-                                                          ""); // Parsear la fecha
-                                                  // Formatear la fecha usando Intl
-                                                  displayDate = DateFormat(
-                                                          'dd MMMM yyyy',
-                                                          'es_ES')
-                                                      .format(dateTime);
-                                                } catch (e) {
-                                                  displayDate =
-                                                      'sin fecha'; // Si ocurre un error al parsear
-                                                }
-                                              }
-
-                                              return Container(
-                                                width: size.width * 0.46,
+                            GestureDetector(
+                              onTap: () {
+                                print(widget.batchModel?.toMap());
+                              },
+                              child: Visibility(
+                                visible: !context
+                                    .read<WmsPackingBloc>()
+                                    .isKeyboardVisible,
+                                child: Card(
+                                  elevation: 5,
+                                  color: Colors.grey[200],
+                                  child: Container(
+                                    padding: const EdgeInsets.only(
+                                        left: 10, right: 10, bottom: 10),
+                                    margin: const EdgeInsets.only(top: 10),
+                                    width: size.width * 0.9,
+                                    child: Column(
+                                      children: [
+                                        Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              widget.batchModel?.name ?? '',
+                                              style: TextStyle(
+                                                  fontSize: 16,
+                                                  color: primaryColorApp,
+                                                  fontWeight: FontWeight.bold),
+                                            )),
+                                        Row(
+                                          children: [
+                                            const Align(
                                                 alignment: Alignment.centerLeft,
                                                 child: Text(
-                                                  displayDate,
+                                                  'Responsable: ',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                )),
+                                            Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  widget.batchModel?.userName ==
+                                                              false ||
+                                                          widget.batchModel
+                                                                  ?.userName ==
+                                                              ""
+                                                      ? 'Sin responsable'
+                                                      : "${widget.batchModel?.userName}",
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       color: primaryColorApp),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Card(
-                                        elevation: 3,
-                                        color: primaryColorApp,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(
-                                              left: 10,
-                                              right: 10,
-                                              top: 10,
-                                              bottom: 5),
-                                          child: ProgressIndicatorWidget(
-                                            progress: context
-                                                    .read<WmsPackingBloc>()
-                                                    .listOfPedidos
-                                                    .isNotEmpty
-                                                ? context
-                                                        .read<WmsPackingBloc>()
-                                                        .listOfPedidos
-                                                        .where((element) =>
-                                                            element
-                                                                .isTerminate ==
-                                                            1)
-                                                        .length /
-                                                    context
-                                                        .read<WmsPackingBloc>()
-                                                        .listOfPedidos
-                                                        .length
-                                                : 0.0,
-                                            completed: context
-                                                .read<WmsPackingBloc>()
-                                                .listOfPedidos
-                                                .where((element) =>
-                                                    element.isTerminate == 1)
-                                                .length,
-                                            total: context
-                                                .read<WmsPackingBloc>()
-                                                .listOfPedidos
-                                                .length,
+                                                )),
+                                          ],
+                                        ),
+                                        const Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              "Tipo de operación: ",
+                                              style: TextStyle(
+                                                  fontSize: 12, color: black),
+                                            )),
+                                        SizedBox(
+                                          width: size.width * 0.9,
+                                          child: Text(
+                                            widget.batchModel?.pickingTypeId ==
+                                                    false
+                                                ? 'Sin tipo de operación'
+                                                : "${widget.batchModel?.pickingTypeId}",
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: primaryColorApp),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            const Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  "Fecha programada:",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                )),
+                                            const SizedBox(width: 10),
+                                            Builder(
+                                              builder: (context) {
+                                                // Verifica si `scheduledDate` es false o null
+                                                String displayDate;
+                                                if (widget.batchModel
+                                                            ?.scheduleddate ==
+                                                        false ||
+                                                    widget.batchModel
+                                                            ?.scheduleddate ==
+                                                        null) {
+                                                  displayDate = 'sin fecha';
+                                                } else {
+                                                  try {
+                                                    DateTime dateTime =
+                                                        DateTime.parse(widget
+                                                                .batchModel
+                                                                ?.scheduleddate
+                                                                .toString() ??
+                                                            ""); // Parsear la fecha
+                                                    // Formatear la fecha usando Intl
+                                                    displayDate = DateFormat(
+                                                            'dd MMMM yyyy',
+                                                            'es_ES')
+                                                        .format(dateTime);
+                                                  } catch (e) {
+                                                    displayDate =
+                                                        'sin fecha'; // Si ocurre un error al parsear
+                                                  }
+                                                }
+
+                                                return Container(
+                                                  width: size.width * 0.46,
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Text(
+                                                    displayDate,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: primaryColorApp),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Card(
+                                          elevation: 3,
+                                          color: primaryColorApp,
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 10,
+                                                right: 10,
+                                                top: 10,
+                                                bottom: 5),
+                                            child: ProgressIndicatorWidget(
+                                              progress: context
+                                                      .read<WmsPackingBloc>()
+                                                      .listOfPedidos
+                                                      .isNotEmpty
+                                                  ? context
+                                                          .read<
+                                                              WmsPackingBloc>()
+                                                          .listOfPedidos
+                                                          .where((element) =>
+                                                              element
+                                                                  .isTerminate ==
+                                                              1)
+                                                          .length /
+                                                      context
+                                                          .read<
+                                                              WmsPackingBloc>()
+                                                          .listOfPedidos
+                                                          .length
+                                                  : 0.0,
+                                              completed: context
+                                                  .read<WmsPackingBloc>()
+                                                  .listOfPedidos
+                                                  .where((element) =>
+                                                      element.isTerminate == 1)
+                                                  .length,
+                                              total: context
+                                                  .read<WmsPackingBloc>()
+                                                  .listOfPedidos
+                                                  .length,
+                                            ),
+                                          ),
+                                        ),
+                                        Visibility(
+                                          visible: widget.batchModel
+                                                      ?.manejaTemperatura ==
+                                                  1 &&
+                                              widget.batchModel?.temperatura ==
+                                                  0.0,
+                                          child: ElevatedButton(
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return DialogTemperature(
+                                                      controller: context
+                                                          .read<
+                                                              WmsPackingBloc>()
+                                                          .controllerTemperature,
+                                                      onConfirm: () {
+                                                        //cerramos el dialog
+                                                        Navigator.pop(context);
+                                                        context
+                                                            .read<
+                                                                WmsPackingBloc>()
+                                                            .add(SendTemperatureEvent(
+                                                                widget.batchModel
+                                                                        ?.id ??
+                                                                    0,
+                                                                double.parse(context
+                                                                    .read<
+                                                                        WmsPackingBloc>()
+                                                                    .controllerTemperature
+                                                                    .text)));
+                                                      },
+                                                      onCancel: () {
+                                                        //cerramos el dialog
+                                                        Navigator.pop(context);
+                                                      },
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    primaryColorApp,
+                                                minimumSize:
+                                                    Size(size.width * 0.7, 40),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  //*icono de temperatura
+                                                  const Icon(
+                                                    Icons.thermostat,
+                                                    color: white,
+                                                    size: 20,
+                                                  ),
+                                                  const SizedBox(width: 10),
+
+                                                  Text('Ingresar Temperatura',
+                                                      style: TextStyle(
+                                                        fontSize: 14,
+                                                        color: white,
+                                                      )),
+                                                ],
+                                              )),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -445,260 +562,306 @@ class _PakingListScreenState extends State<PakingListScreen>
                                   margin: const EdgeInsets.symmetric(
                                     horizontal: 10,
                                   ),
-                                  child: ListView.builder(
-                                    itemCount: packingBloc.listOfPedidosFilters
-                                        .length, // Usamos la lista ordenada
-                                    itemBuilder: (context, index) {
-                                      // Asegúrate de que 'sortedPedidos' esté ordenado por 'orderTms'
-                                      sortedPedidos.sort((a, b) {
-                                        var orderA = a.orderTms;
-                                        var orderB = b.orderTms;
-
-                                        // Comprobamos si 'orderTms' es un número representado como String
-                                        return (int.tryParse(orderA ?? '0') ??
-                                                0)
-                                            .compareTo(
-                                                int.tryParse(orderB ?? '0') ??
-                                                    0);
-                                      });
-
-                                      final PedidoPacking packing =
-                                          sortedPedidos[index];
-
-                                      return GestureDetector(
-                                        onTap: () {
-                                          context
-                                              .read<WmsPackingBloc>()
-                                              .add(ShowDetailvent(true));
-
-                                          // Limpiamos la lista de paquetes
-                                          context
-                                              .read<WmsPackingBloc>()
-                                              .packages = [];
-                                          // Pedimos todos los productos de un pedido
-                                          context.read<WmsPackingBloc>().add(
-                                              LoadAllProductsFromPedidoEvent(
-                                                  packing.id ?? 0));
-                                          //cerramos el teclado focus
-                                          FocusScope.of(context).unfocus();
-
-                                          // Viajamos a la vista de detalle de un pedido
-                                          Navigator.pushReplacementNamed(
-                                              context, 'packing-detail',
-                                              arguments: [
-                                                packing,
-                                                widget.batchModel,
-                                                0
-                                              ]);
-                                          print(
-                                              'Pedido seleccionado: ${packing.toMap()}');
-                                        },
-                                        child: Card(
-                                          elevation: 5,
-                                          color: packing.isTerminate == 1
-                                              ? Colors.green[100]
-                                              : packing.isSelected == 1
-                                                  ? primaryColorAppLigth
-                                                  : Colors.white,
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 15, vertical: 15),
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text("Nombre:",
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp)),
-                                                    const SizedBox(width: 10),
-                                                    SizedBox(
-                                                      width: size.width * 0.65,
-                                                      child: Text(
-                                                          packing.name ?? " ",
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                      black)),
-                                                    ),
-                                                  ],
+                                  child: (packingBloc.listOfPedidosFilters
+                                          .where(
+                                              (batch) => batch.isTerminate == 0)
+                                          .isEmpty)
+                                      ? Expanded(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              const Text('No hay pedidos',
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: grey)),
+                                              const Text(
+                                                  'Intente buscar otro producto',
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: grey)),
+                                              Visibility(
+                                                visible: context
+                                                    .read<UserBloc>()
+                                                    .fabricante
+                                                    .contains("Zebra"),
+                                                child: Container(
+                                                  height: 60,
                                                 ),
-                                                Row(
-                                                  children: [
-                                                    Text("Zona:",
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp)),
-                                                    const SizedBox(width: 10),
-                                                    SizedBox(
-                                                      width: size.width * 0.65,
-                                                      child: Text(
-                                                          packing.zonaEntrega ??
-                                                              " ",
-                                                          style:
-                                                              const TextStyle(
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : ListView.builder(
+                                          itemCount: packingBloc
+                                              .listOfPedidosFilters
+                                              .where((batch) =>
+                                                  batch.isTerminate == 0)
+                                              .length,
+                                          itemBuilder: (context, index) {
+                                            // Asegúrate de que 'sortedPedidos' esté ordenado por 'orderTms'
+                                            sortedPedidos.sort((a, b) {
+                                              var orderA = a.orderTms;
+                                              var orderB = b.orderTms;
+
+                                              // Comprobamos si 'orderTms' es un número representado como String
+                                              return (int.tryParse(
+                                                          orderA ?? '0') ??
+                                                      0)
+                                                  .compareTo(int.tryParse(
+                                                          orderB ?? '0') ??
+                                                      0);
+                                            });
+
+                                            final PedidoPacking packing =
+                                                sortedPedidos[index];
+
+                                            return GestureDetector(
+                                              onTap: () {
+                                                context
+                                                    .read<WmsPackingBloc>()
+                                                    .add(ShowDetailvent(true));
+
+                                                // Limpiamos la lista de paquetes
+                                                context
+                                                    .read<WmsPackingBloc>()
+                                                    .packages = [];
+                                                // Pedimos todos los productos de un pedido
+                                                context.read<WmsPackingBloc>().add(
+                                                    LoadAllProductsFromPedidoEvent(
+                                                        packing.id ?? 0));
+                                                //cerramos el teclado focus
+                                                FocusScope.of(context)
+                                                    .unfocus();
+
+                                                // Viajamos a la vista de detalle de un pedido
+                                                Navigator.pushReplacementNamed(
+                                                    context, 'packing-detail',
+                                                    arguments: [
+                                                      packing,
+                                                      widget.batchModel,
+                                                      0
+                                                    ]);
+                                                print(
+                                                    'Pedido seleccionado: ${packing.toMap()}');
+                                              },
+                                              child: Card(
+                                                elevation: 5,
+                                                color: packing.isTerminate == 1
+                                                    ? Colors.green[100]
+                                                    : packing.isSelected == 1
+                                                        ? primaryColorAppLigth
+                                                        : Colors.white,
+                                                child: Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 15,
+                                                      vertical: 15),
+                                                  child: Column(
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Text("Nombre:",
+                                                              style: TextStyle(
                                                                   fontSize: 12,
                                                                   color:
-                                                                      black)),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Text("Zona TMS:",
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp)),
-                                                    const SizedBox(width: 10),
-                                                    SizedBox(
-                                                      width: size.width * 0.6,
-                                                      child: Text(
-                                                          packing.zonaEntregaTms ??
-                                                              " ",
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                      black)),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Text(
-                                                        "Cantidad de productos:",
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp)),
-                                                    const SizedBox(width: 10),
-                                                    Expanded(
-                                                      child: Text(
-                                                          packing
-                                                              .cantidadProductos
-                                                              .toString(),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                      black)),
-                                                    ),
-                                                    Container(
-                                                      margin:
-                                                          const EdgeInsets.only(
-                                                              left: 10),
-                                                      width: 85,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                          color: packing
-                                                                      .isTerminate ==
-                                                                  1
-                                                              ? primaryColorAppLigth
-                                                              : packing.isSelected !=
-                                                                      1
-                                                                  ? grey
-                                                                  : Colors.green[
-                                                                      100],
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      10)),
-                                                      child: Center(
-                                                        child: Text(
-                                                          packing.isTerminate ==
-                                                                  1
-                                                              ? 'Terminado'
-                                                              : packing.isSelected !=
-                                                                      1
-                                                                  ? 'Sin procesar'
-                                                                  : 'En proceso',
-                                                          style: TextStyle(
-                                                              color: packing
-                                                                          .isTerminate ==
-                                                                      1
-                                                                  ? black
-                                                                  : packing.isSelected !=
-                                                                          1
-                                                                      ? white
-                                                                      : black,
-                                                              fontSize: 12),
-                                                          textAlign:
-                                                              TextAlign.center,
-                                                        ),
+                                                                      primaryColorApp)),
+                                                          const SizedBox(
+                                                              width: 10),
+                                                          SizedBox(
+                                                            width: size.width *
+                                                                0.65,
+                                                            child: Text(
+                                                                packing.name ??
+                                                                    " ",
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                          ),
+                                                        ],
                                                       ),
-                                                    )
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Text('Referencia:',
-                                                        style: TextStyle(
-                                                            color:
-                                                                primaryColorApp,
-                                                            fontSize: 12)),
-                                                    const SizedBox(width: 10),
-                                                    Expanded(
-                                                      child: Text(
-                                                          packing.referencia ??
-                                                              '',
-                                                          style:
-                                                              const TextStyle(
-                                                                  color: black,
+                                                      Row(
+                                                        children: [
+                                                          Text("Zona:",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      primaryColorApp)),
+                                                          const SizedBox(
+                                                              width: 10),
+                                                          SizedBox(
+                                                            width: size.width *
+                                                                0.65,
+                                                            child: Text(
+                                                                packing.zonaEntrega ??
+                                                                    " ",
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          Text("Zona TMS:",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      primaryColorApp)),
+                                                          const SizedBox(
+                                                              width: 10),
+                                                          SizedBox(
+                                                            width: size.width *
+                                                                0.6,
+                                                            child: Text(
+                                                                packing.zonaEntregaTms ??
+                                                                    " ",
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                              "Cantidad de productos:",
+                                                              style: TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      primaryColorApp)),
+                                                          const SizedBox(
+                                                              width: 10),
+                                                          Expanded(
+                                                            child: Text(
+                                                                packing
+                                                                    .cantidadProductos
+                                                                    .toString(),
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                          ),
+                                                          Container(
+                                                            margin:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 10),
+                                                            width: 85,
+                                                            height: 20,
+                                                            decoration: BoxDecoration(
+                                                                color: packing.isTerminate == 1
+                                                                    ? primaryColorAppLigth
+                                                                    : packing.isSelected != 1
+                                                                        ? grey
+                                                                        : Colors.green[100],
+                                                                borderRadius: BorderRadius.circular(10)),
+                                                            child: Center(
+                                                              child: Text(
+                                                                packing.isTerminate ==
+                                                                        1
+                                                                    ? 'Terminado'
+                                                                    : packing.isSelected !=
+                                                                            1
+                                                                        ? 'Sin procesar'
+                                                                        : 'En proceso',
+                                                                style: TextStyle(
+                                                                    color: packing.isTerminate == 1
+                                                                        ? black
+                                                                        : packing.isSelected != 1
+                                                                            ? white
+                                                                            : black,
+                                                                    fontSize: 12),
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                              ),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          Text('Referencia:',
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      primaryColorApp,
                                                                   fontSize:
                                                                       12)),
-                                                    ),
-                                                  ],
+                                                          const SizedBox(
+                                                              width: 10),
+                                                          Expanded(
+                                                            child: Text(
+                                                                packing.referencia ??
+                                                                    '',
+                                                                style: const TextStyle(
+                                                                    color:
+                                                                        black,
+                                                                    fontSize:
+                                                                        12)),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                            "Tipo de operación:",
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    primaryColorApp)),
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      SizedBox(
+                                                        width: size.width * 0.9,
+                                                        child: Text(
+                                                            packing.tipoOperacion ??
+                                                                " ",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                      ),
+                                                      Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text("Contacto:",
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    primaryColorApp)),
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      SizedBox(
+                                                        width: size.width * 0.9,
+                                                        child: Text(
+                                                            packing.contactoName ??
+                                                                " ",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text(
-                                                      "Tipo de operación:",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              primaryColorApp)),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                SizedBox(
-                                                  width: size.width * 0.9,
-                                                  child: Text(
-                                                      packing.tipoOperacion ??
-                                                          " ",
-                                                      style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: black)),
-                                                ),
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Text("Contacto:",
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              primaryColorApp)),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                SizedBox(
-                                                  width: size.width * 0.9,
-                                                  child: Text(
-                                                      packing.contactoName ??
-                                                          " ",
-                                                      style: const TextStyle(
-                                                          fontSize: 12,
-                                                          color: black)),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                              ),
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
                                 );
                               },
                             )

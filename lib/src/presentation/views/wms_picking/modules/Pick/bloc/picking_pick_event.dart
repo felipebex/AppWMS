@@ -8,11 +8,21 @@ class FetchPickingPickEvent extends PickingPickEvent {
 
   FetchPickingPickEvent(this.isLoadinDialog);
 }
+class FetchPickingComponentesEvent extends PickingPickEvent {
+  final bool isLoadinDialog;
+
+  FetchPickingComponentesEvent(this.isLoadinDialog);
+}
 
 class FetchPickingPickFromDBEvent extends PickingPickEvent {
   final bool isLoadinDialog;
 
   FetchPickingPickFromDBEvent(this.isLoadinDialog);
+}
+class FetchPickingComponentesFromDBEvent extends PickingPickEvent {
+  final bool isLoadinDialog;
+
+  FetchPickingComponentesFromDBEvent(this.isLoadinDialog);
 }
 
 class LoadAllNovedadesPickEvent extends PickingPickEvent {}
@@ -214,8 +224,9 @@ class StartOrStopTimeTransfer extends PickingPickEvent {
 
 class SearchPickEvent extends PickingPickEvent {
   final String query;
+  final bool isComponentes;
 
-  SearchPickEvent(this.query, );
+  SearchPickEvent(this.query,this.isComponentes);
 }
 
 

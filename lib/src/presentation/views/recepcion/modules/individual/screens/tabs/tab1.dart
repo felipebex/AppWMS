@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/widgets/dialog_temperatura_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab1ScreenRecep extends StatelessWidget {
@@ -28,6 +29,67 @@ class Tab1ScreenRecep extends StatelessWidget {
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
         listener: (context, state) {
+          if (state is SendTemperatureLoading) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const DialogLoading(
+                  message: "Enviando temperatura...",
+                );
+              },
+            );
+          }
+
+          if (state is SendTemperatureSuccess) {
+            Navigator.pop(context);
+            Get.snackbar("360 Software Informa", state.message,
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.green));
+          }
+
+          if (state is SendTemperatureFailure) {
+            Navigator.pop(context);
+            Get.snackbar("360 Software Informa", state.error,
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.red));
+          }
+
+          if (state is CurrentOrdenesCompraState) {
+            if (ordenCompra?.manejaTemperatura == 1 &&
+                ordenCompra?.temperatura == 0.0) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return DialogTemperature(
+                    controller:
+                        context.read<RecepcionBloc>().controllerTemperature,
+                    onConfirm: () {
+                      //cerramos el dialog
+                      Navigator.pop(context);
+                      context.read<RecepcionBloc>().add(SendTemperatureEvent(
+                          ordenCompra?.id ?? 0,
+                          double.parse(context
+                              .read<RecepcionBloc>()
+                              .controllerTemperature
+                              .text)));
+                    },
+                    onCancel: () {
+                      //cerramos el dialog
+                      Navigator.pop(context);
+                      Navigator.pushReplacementNamed(
+                        context,
+                        'list-ordenes-compra',
+                      );
+                    },
+                  );
+                },
+              );
+            }
+          }
+
+          print("State: $state");
           if (state is CreateBackOrderOrNotLoading) {
             showDialog(
               context: context,
@@ -85,7 +147,6 @@ class Tab1ScreenRecep extends StatelessWidget {
               .listProductsEntrada
               .map((e) => e.quantityDone ?? 0)
               .fold<double>(0, (a, b) => a + b);
-
 
           return Scaffold(
             backgroundColor: white,
@@ -313,6 +374,28 @@ class Tab1ScreenRecep extends StatelessWidget {
                           Row(
                             children: [
                               Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Temperatura: ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    ordeCompraBd.manejaTemperatura == 1
+                                        ? (ordeCompraBd.temperatura == 0.0
+                                            ? 'Sin temperatura'
+                                            : '${ordeCompraBd.temperatura} °C')
+                                        : 'No aplica',
+                                    style:
+                                        TextStyle(fontSize: 12, color: black),
+                                  )),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'Destino: ',
@@ -320,14 +403,14 @@ class Tab1ScreenRecep extends StatelessWidget {
                                       fontSize: 14, color: primaryColorApp),
                                 ),
                               ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              ordeCompraBd.locationDestName ?? '',
-                              style:
-                                  const TextStyle(fontSize: 14, color: black),
-                            ),
-                          ),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  ordeCompraBd.locationDestName ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 14, color: black),
+                                ),
+                              ),
                             ],
                           ),
                           Align(

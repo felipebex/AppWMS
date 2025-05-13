@@ -8,20 +8,36 @@ final class PickingPickInitial extends PickingPickState {}
 final class PickingPickLoading extends PickingPickState {}
 
 final class PickingPickBDLoading extends PickingPickState {}
+final class PickingPickCompoBDLoading extends PickingPickState {}
 
 final class PickingPickLoaded extends PickingPickState {
   final List<ResultPick> result;
   PickingPickLoaded(this.result);
+}
+final class PickingPickCompoLoading extends PickingPickState {}
+
+
+final class PickingPickCompoLoaded extends PickingPickState {
+  final List<ResultPick> result;
+  PickingPickCompoLoaded(this.result);
 }
 
 final class PickingPickLoadedBD extends PickingPickState {
   final List<ResultPick> result;
   PickingPickLoadedBD(this.result);
 }
+final class PickingPickCompoLoadedBD extends PickingPickState {
+  final List<ResultPick> result;
+  PickingPickCompoLoadedBD(this.result);
+}
 
 final class PickingPickError extends PickingPickState {
   final String error;
   PickingPickError(this.error);
+}
+final class PickingPickCompoError extends PickingPickState {
+  final String error;
+  PickingPickCompoError(this.error);
 }
 
 class NovedadesLoadedState extends PickingPickState {

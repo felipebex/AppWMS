@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/providers/db/picking/tbl_pick/picking_pick_table.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/PickhWithProducts_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/response_pick_model.dart';
@@ -7,7 +8,7 @@ import 'pick_products_table.dart';
 
 class PickProductsRepository {
   final String _table = PickProductsTable.tableName;
-  Future<void> insertPickProducts(List<ProductsBatch> pickProducts) async {
+  Future<void> insertPickProducts(List<ProductsBatch> pickProducts, String typePick) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -31,8 +32,7 @@ class PickProductsRepository {
             PickProductsTable.columnExpireDate: product.expireDate ?? '',
             PickProductsTable.columnProductId: product.productId?[1],
             PickProductsTable.columnLocationId: product.locationId?[1],
-            PickProductsTable.columnLote:
-                product.lote  ??"",
+            PickProductsTable.columnLote: product.lote ?? "",
             PickProductsTable.columnRimovalPriority: product.rimovalPriority,
             PickProductsTable.columnBarcodeLocationDest:
                 product.barcodeLocationDest ?? '',
@@ -48,6 +48,9 @@ class PickProductsRepository {
             PickProductsTable.columnBarcode: product.barcode ?? '',
             PickProductsTable.columnWeight: product.weigth,
             PickProductsTable.columnOrigin: product.origin,
+            PickProductsTable.columnTypePick: typePick,
+
+
           };
 
           if (existingSet.contains(key)) {
@@ -83,7 +86,7 @@ class PickProductsRepository {
       final db = await DataBaseSqlite().getDatabaseInstance();
 
       final List<Map<String, dynamic>> pickMaps = await db.query(
-        'tbl_picking_pick',
+       PickingPickTable.tableName,
         where: 'id = ?',
         whereArgs: [pickId],
       );
@@ -95,7 +98,7 @@ class PickProductsRepository {
       final ResultPick pick = ResultPick.fromMap(pickMaps.first);
 
       final List<Map<String, dynamic>> productMaps = await db.query(
-        'tbl_pick_products',
+        PickProductsTable.tableName,
         where: 'batch_id = ?',
         whereArgs: [pickId],
       );
@@ -110,16 +113,12 @@ class PickProductsRepository {
     }
   }
 
-
   //* Obtener todos los productos de la tabla
   Future<List<ProductsBatch>> getProducts() async {
-     final db = await DataBaseSqlite().getDatabaseInstance();
-    final List<Map<String, dynamic>> maps =
-        await db.query(_table);
+    final db = await DataBaseSqlite().getDatabaseInstance();
+    final List<Map<String, dynamic>> maps = await db.query(_table);
     return maps.map((map) => ProductsBatch.fromMap(map)).toList();
   }
-
-
 
   Future<int?> updateNovedad(
     int batchId,
@@ -204,9 +203,8 @@ class PickProductsRepository {
       );
 
       if (result.isNotEmpty) {
-        dynamic currentQtySeparate =
-            (result.first['quantity_separate'] ) ?? 0;
-        dynamic currentQty = (result.first['quantity'] ) ?? 0;
+        dynamic currentQtySeparate = (result.first['quantity_separate']) ?? 0;
+        dynamic currentQty = (result.first['quantity']) ?? 0;
 
         dynamic newQtySeparate = currentQtySeparate + quantity;
 
@@ -227,11 +225,6 @@ class PickProductsRepository {
       return null; // No se encontró el registro
     });
   }
-
-
-
-
-
 
   Future<int?> dateTransaccionProduct(
       int batchId, String date, int productId, int moveId) async {
@@ -291,11 +284,10 @@ class PickProductsRepository {
     return resUpdate;
   }
 
-
-   Future<String> getFieldTableProductsPick(
+  Future<String> getFieldTableProductsPick(
       int batchId, int productId, int moveId, String field) async {
     try {
-     final db = await DataBaseSqlite().getDatabaseInstance();
+      final db = await DataBaseSqlite().getDatabaseInstance();
       final res = await db!.rawQuery('''
       SELECT $field FROM  $_table  WHERE batch_id = $batchId AND  id_product = $productId AND id_move = $moveId LIMIT 1
     ''');
@@ -309,5 +301,4 @@ class PickProductsRepository {
     }
     return "";
   }
-
 }

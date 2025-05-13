@@ -123,7 +123,14 @@ class Tab1ScreenTrans extends StatelessWidget {
           }
 
           if (state is CreateBackOrderOrNotSuccess) {
-            context.read<TransferenciaBloc>().add(FetchAllTransferencias(true));
+            if (transFerencia?.type == "transfer") {
+              context
+                  .read<TransferenciaBloc>()
+                  .add(FetchAllTransferencias(true));
+            } else if (transFerencia?.type == "entrega") {
+              context.read<TransferenciaBloc>().add(FetchAllEntrega(true));
+            }
+
             //volvemos a llamar las entradas que tenemos guardadas en la bd
             if (state.isBackorder) {
               Get.snackbar("360 Software Informa", state.msg,
@@ -138,10 +145,18 @@ class Tab1ScreenTrans extends StatelessWidget {
             }
 
             Navigator.pop(context);
-            Navigator.pushReplacementNamed(
-              context,
-              'transferencias',
-            );
+
+            if (transFerencia?.type == "transfer") {
+              Navigator.pushReplacementNamed(
+                context,
+                'transferencias',
+              );
+            } else if (transFerencia?.type == "entrega") {
+              Navigator.pushReplacementNamed(
+                context,
+                'list-entrada-productos',
+              );
+            }
           }
         },
         builder: (context, state) {
@@ -181,7 +196,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                               children: [
                                 Align(
                                   alignment: Alignment.centerLeft,
-                                  child: Text("${transferenciaDetail?.name}",
+                                  child: Text("${transferenciaDetail.name}",
                                       style: TextStyle(
                                           color: primaryColorApp,
                                           fontSize: 12,
@@ -196,7 +211,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                               fontSize: 12,
                                               color: primaryColorApp)),
                                       Text(
-                                        "${transferenciaDetail?.pickingType}",
+                                        "${transferenciaDetail.pickingType}",
                                         style: const TextStyle(
                                             fontSize: 12, color: black),
                                       ),
@@ -243,12 +258,12 @@ class Tab1ScreenTrans extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 5),
                                       Text(
-                                        transferenciaDetail?.fechaCreacion !=
+                                        transferenciaDetail.fechaCreacion !=
                                                 null
                                             ? DateFormat('dd/MM/yyyy hh:mm ')
                                                 .format(DateTime.parse(
                                                     transferenciaDetail
-                                                            ?.fechaCreacion ??
+                                                            .fechaCreacion ??
                                                         ''))
                                             : "Sin fecha",
                                         style: const TextStyle(
@@ -282,9 +297,9 @@ class Tab1ScreenTrans extends StatelessWidget {
                                       ),
                                       const SizedBox(width: 5),
                                       Text(
-                                        transferenciaDetail?.origin == ""
+                                        transferenciaDetail.origin == ""
                                             ? 'Sin orden de compra'
-                                            : transferenciaDetail?.origin ?? '',
+                                            : transferenciaDetail.origin ?? '',
                                         style: const TextStyle(
                                             fontSize: 12, color: black),
                                       ),
@@ -331,7 +346,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                       child: Text(
                                         // Formateamos el número a 2 decimales
                                         NumberFormat('0.00').format(
-                                            transferenciaDetail?.pesoTotal ??
+                                            transferenciaDetail.pesoTotal ??
                                                 0),
                                         style: TextStyle(
                                           fontSize: 12,
@@ -354,9 +369,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                                     Align(
                                         alignment: Alignment.centerLeft,
                                         child: Text(
-                                          transferenciaDetail?.numeroLineas
-                                                  .toString() ??
-                                              '0',
+                                          transferenciaDetail.numeroLineas
+                                                  .toString(),
                                           style: TextStyle(
                                               fontSize: 12, color: black),
                                         )),
@@ -375,9 +389,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                                     Align(
                                         alignment: Alignment.centerLeft,
                                         child: Text(
-                                          transferenciaDetail?.numeroItems
-                                                  .toString() ??
-                                              '0',
+                                          transferenciaDetail.numeroItems
+                                                  .toString(),
                                           style: TextStyle(
                                               fontSize: 12, color: black),
                                         )),
@@ -413,7 +426,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                 Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    transferenciaDetail?.locationDestName ??
+                                    transferenciaDetail.locationDestName ??
                                         'Sin ubicacion',
                                     style: const TextStyle(
                                         fontSize: 12, color: black),
@@ -480,7 +493,13 @@ class Tab1ScreenTrans extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Visibility(
-                          visible: context.read<TransferenciaBloc>().configurations.result?.result?.hide_validate_transfer == false,
+                          visible: context
+                                  .read<TransferenciaBloc>()
+                                  .configurations
+                                  .result
+                                  ?.result
+                                  ?.hide_validate_transfer ==
+                              false,
                           child: ElevatedButton(
                               onPressed: () {
                                 showDialog(
@@ -520,7 +539,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                                                       ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
                                                       : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                                                   style: TextStyle(
-                                                      color: black, fontSize: 14),
+                                                      color: black,
+                                                      fontSize: 14),
                                                   textAlign: TextAlign.center,
                                                 ),
                                               ),
@@ -536,7 +556,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                                                   context
                                                       .read<TransferenciaBloc>()
                                                       .add(CreateBackOrderOrNot(
-                                                          transFerencia?.id ?? 0,
+                                                          transFerencia?.id ??
+                                                              0,
                                                           true));
                                                   Navigator.pop(context);
                                                 },
@@ -545,10 +566,11 @@ class Tab1ScreenTrans extends StatelessWidget {
                                                       primaryColorApp,
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
+                                                        BorderRadius.circular(
+                                                            10),
                                                   ),
-                                                  minimumSize:
-                                                      Size(size.width * 0.9, 40),
+                                                  minimumSize: Size(
+                                                      size.width * 0.9, 40),
                                                 ),
                                                 child: const Text(
                                                   'Confirmar y Crear un Backorder',
@@ -568,7 +590,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                                                 Navigator.pop(context);
                                               },
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: primaryColorApp,
+                                                backgroundColor:
+                                                    primaryColorApp,
                                                 minimumSize:
                                                     Size(size.width * 0.9, 40),
                                                 shape: RoundedRectangleBorder(
@@ -634,7 +657,8 @@ class Tab1ScreenTrans extends StatelessWidget {
                               onPressed: () {
                                 context.read<TransferenciaBloc>().add(
                                     CheckAvailabilityEvent(
-                                        transferenciaDetail.id ?? 0));
+                                        transferenciaDetail.id ?? 0,
+                                        transferenciaDetail.type ?? ""));
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColorAppLigth,

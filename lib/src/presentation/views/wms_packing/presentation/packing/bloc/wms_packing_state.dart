@@ -169,3 +169,16 @@ class TimeSeparatePackError extends WmsPackingState {
   final String msg;
   TimeSeparatePackError(this.msg);
 }
+
+
+
+class SendTemperatureSuccess extends WmsPackingState {
+  final String message;
+  SendTemperatureSuccess(this.message);
+}
+
+class SendTemperatureLoading extends WmsPackingState {}
+class SendTemperatureFailure extends WmsPackingState {
+  final String error;
+  SendTemperatureFailure(this.error);
+}

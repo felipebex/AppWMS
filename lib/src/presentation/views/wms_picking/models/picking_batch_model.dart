@@ -283,6 +283,7 @@ class ProductsBatch {
   final dynamic? weight;
   final dynamic expireDate;
   final dynamic origin;
+  final String? typePick;
 
   // Variables para el picking
   late dynamic
@@ -344,6 +345,7 @@ class ProductsBatch {
     this.weight,
     this.otherBarcode,
     this.fechaTransaccion,
+    this.typePick,
   });
 
   factory ProductsBatch.fromMap(Map<String, dynamic> map) {
@@ -397,6 +399,7 @@ class ProductsBatch {
       isSendOdooDate: map['is_send_odoo_date'],
       weight: map['weight'],
       fechaTransaccion: map['fecha_transaccion'],
+      typePick: map['type_pick'],
     );
   }
 
@@ -449,6 +452,7 @@ class ProductsBatch {
       "is_send_odoo_date": isSendOdooDate,
       "weight": weight,
       "fecha_transaccion": fechaTransaccion,
+      "type_pick": typePick,
     };
   }
 }

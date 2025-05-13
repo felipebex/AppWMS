@@ -102,8 +102,8 @@ class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
                   SizedBox(
                     height: 35,
                     child: TextFormField(
-                      autofocus: true,
-                      showCursor: true,
+                      showCursor: false,
+                      readOnly: true,
                       controller: bloc.editProductController,
                       keyboardType: TextInputType.number,
                       inputFormatters: [
@@ -297,41 +297,37 @@ class _DialogEditProductWidgetState extends State<DialogEditProductPickWidget> {
                       ),
                     ),
                   ),
-                  Visibility(
-                    visible:
-                        context.read<UserBloc>().fabricante.contains("Zebra"),
-                    child: CustomKeyboardNumber(
-                      controller: bloc.editProductController,
-                      onchanged: () {
-                        final value = bloc.editProductController.text;
-                        if (value.isNotEmpty) {
-                          final parsed = double.tryParse(value);
-                          if (parsed != null) {
-                            double cantidad = parsed;
-                            if (cantidad -
-                                    (widget.productsBatch.quantity -
-                                        (widget.productsBatch
-                                                .quantitySeparate ??
-                                            0)) >
-                                tolerance) {
-                              setState(() {
-                                alerta =
-                                    "La cantidad no puede ser mayor a la cantidad restante";
-                              });
-                            } else {
-                              setState(() {
-                                alerta = "";
-                              });
-                            }
+                  CustomKeyboardNumber(
+                    controller: bloc.editProductController,
+                    onchanged: () {
+                      final value = bloc.editProductController.text;
+                      if (value.isNotEmpty) {
+                        final parsed = double.tryParse(value);
+                        if (parsed != null) {
+                          double cantidad = parsed;
+                          if (cantidad -
+                                  (widget.productsBatch.quantity -
+                                      (widget.productsBatch
+                                              .quantitySeparate ??
+                                          0)) >
+                              tolerance) {
+                            setState(() {
+                              alerta =
+                                  "La cantidad no puede ser mayor a la cantidad restante";
+                            });
                           } else {
                             setState(() {
-                              alerta = "Por favor ingresa un número válido.";
+                              alerta = "";
                             });
                           }
+                        } else {
+                          setState(() {
+                            alerta = "Por favor ingresa un número válido.";
+                          });
                         }
-                      },
-                      isDialog: true,
-                    ),
+                      }
+                    },
+                    isDialog: true,
                   )
                 ],
               ),

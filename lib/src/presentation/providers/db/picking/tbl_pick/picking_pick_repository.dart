@@ -6,6 +6,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/r
 class PickingPickRepository {
   Future<void> insertAllPickingPicks(
     List<ResultPick> listOfPickingPicks,
+    String typePick,
   ) async {
     final db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -57,8 +58,7 @@ class PickingPickRepository {
                 pickItem.isSelected == true ? 1 : 0,
             PickingPickTable.columnZonaEntrega: pickItem.zonaEntrega ?? '',
             PickingPickTable.columnMuelle: pickItem.muelle ?? '',
-            PickingPickTable.columnBarcodeMuelle:
-                pickItem.barcodeMuelle ?? '',
+            PickingPickTable.columnBarcodeMuelle: pickItem.barcodeMuelle ?? '',
             PickingPickTable.columnMuelleId: pickItem.muelleId,
             PickingPickTable.columnIndexList: pickItem.indexList,
             PickingPickTable.columnIsSendOddo:
@@ -67,9 +67,7 @@ class PickingPickRepository {
                 pickItem.isSendOdooDate ?? '',
             PickingPickTable.columnOrderBy: pickItem.orderBy,
             PickingPickTable.columnOrderPicking: pickItem.orderPicking,
-          
-
-
+            PickingPickTable.columnTypePick: typePick,
           };
 
           // Elimina si existe (por ID), y luego inserta
@@ -93,7 +91,7 @@ class PickingPickRepository {
   }
 
 // Método para obtener todos los picking picks de un usuario
-  Future<List<ResultPick>> getAllPickingPicks() async {
+  Future<List<ResultPick>> getAllPickingPicks(String typePick) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -138,10 +136,12 @@ class PickingPickRepository {
           PickingPickTable.columnIsSendOddo,
           PickingPickTable.columnIsSendOddoDate,
           PickingPickTable.columnOrderBy,
-          PickingPickTable.columnOrderPicking
-
+          PickingPickTable.columnOrderPicking,
+          // type_pick
+          PickingPickTable.columnTypePick
         ],
-      
+        where: '${PickingPickTable.columnTypePick} = ?',
+        whereArgs: [typePick],
       );
 
       // Mapeo directo
@@ -152,8 +152,6 @@ class PickingPickRepository {
     }
   }
 
-
-
   Future<int?> setFieldTablePick(
       int batchId, String field, dynamic setValue) async {
     try {
@@ -163,14 +161,15 @@ class PickingPickRepository {
       final resUpdate = await db.rawUpdate(
           'UPDATE ${PickingPickTable.tableName} SET $field = ? WHERE ${PickingPickTable.columnId} = ?',
           [setValue, batchId]);
-      print('Se actualizó el campo $field en ${PickingPickTable.tableName} con valor $setValue para el ID $batchId');
+      print(
+          'Se actualizó el campo $field en ${PickingPickTable.tableName} con valor $setValue para el ID $batchId');
       return resUpdate;
     } catch (e) {
-      print("Error al actualizar el campo $field en ${PickingPickTable.tableName}: $e");
+      print(
+          "Error al actualizar el campo $field en ${PickingPickTable.tableName}: $e");
       return null;
     }
   }
-
 
   // Método para obtener un batch por su ID
   Future<ResultPick?> getPickById(int pickId) async {
@@ -196,6 +195,4 @@ class PickingPickRepository {
       return null; // Devuelve null en caso de error
     }
   }
-
-
 }

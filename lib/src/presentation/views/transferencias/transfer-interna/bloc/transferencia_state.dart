@@ -7,7 +7,13 @@ final class TransferenciaInitial extends TransferenciaState {}
 
 final class TransferenciaLoading extends TransferenciaState {}
 final class TransferenciaLoadingBD extends TransferenciaState {}
+final class EntregaLoading extends TransferenciaState {}
+final class EntregaLoadingBD extends TransferenciaState {}
 
+final class EntregaLoaded extends TransferenciaState {
+  final List<ResultTransFerencias> transferencias;
+  EntregaLoaded(this.transferencias);
+}
 final class TransferenciaLoaded extends TransferenciaState {
   final List<ResultTransFerencias> transferencias;
   TransferenciaLoaded(this.transferencias);
@@ -18,15 +24,28 @@ final class TransferenciaBDLoaded extends TransferenciaState {
   final List<ResultTransFerencias> transferencias;
   TransferenciaBDLoaded(this.transferencias, this.isLoading);
 }
+final class EntregaBDLoaded extends TransferenciaState {
+  final bool isLoading ;
+  final List<ResultTransFerencias> transferencias;
+  EntregaBDLoaded(this.transferencias, this.isLoading);
+}
 
 final class TransferenciaError extends TransferenciaState {
   final String message;
   TransferenciaError(this.message);
 }
+final class EntregaError extends TransferenciaState {
+  final String message;
+  EntregaError(this.message);
+}
 
 final class TransferenciaErrorBD extends TransferenciaState {
   final String message;
   TransferenciaErrorBD(this.message);
+}
+final class EntregaErrorBD extends TransferenciaState {
+  final String message;
+  EntregaErrorBD(this.message);
 }
 
 final class CurrentTransferenciaLoaded extends TransferenciaState {}

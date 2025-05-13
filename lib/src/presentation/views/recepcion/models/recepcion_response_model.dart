@@ -95,6 +95,9 @@ class ResultEntrada {
   String? responsable;
   String? pickingType;
 
+  dynamic? manejaTemperatura;
+  dynamic temperatura;
+
   dynamic startTimeReception;
   dynamic endTimeReception;
   dynamic isSelected;
@@ -141,6 +144,8 @@ class ResultEntrada {
     this.lineasRecepcionEnviadas,
     this.backorderName,
     this.backorderId,
+    this.manejaTemperatura,
+    this.temperatura,
   });
 
   factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
@@ -183,6 +188,8 @@ class ResultEntrada {
                 .map((x) => LineasTransferencia.fromMap(x))),
         backorderName: json["backorder_name"],
         backorderId: json["backorder_id"],
+        manejaTemperatura: json["maneja_temperatura"],
+        temperatura: json["temperatura"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -224,6 +231,8 @@ class ResultEntrada {
                 lineasRecepcionEnviadas!.map((x) => x.toMap())),
         "backorder_name": backorderName,
         "backorder_id": backorderId,
+        "maneja_temperatura": manejaTemperatura,
+        "temperatura": temperatura,
       };
 }
 

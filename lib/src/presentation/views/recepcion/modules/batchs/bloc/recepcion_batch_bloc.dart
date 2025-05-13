@@ -169,6 +169,136 @@ class RecepcionBatchBloc
 
     //*finalizarRececpcionProductoSplit
     on<FinalizarRecepcionProductoSplit>(_onFinalizarRecepcionProductoSplit);
+
+    //*metodo para crear un lote a un producto
+    on<CreateLoteProduct>(_onCreateLoteProduct);
+
+    //metodo para buscar un lote
+    on<SearchLotevent>(_onSearchLoteEvent);
+
+    on<SelectecLoteEvent>(_onChangeLoteIsOkEvent);
+  }
+
+  void _onChangeLoteIsOkEvent(
+      SelectecLoteEvent event, Emitter<RecepcionBatchState> emit) async {
+    //agregamos el lote al producto
+
+    selectLote = event.lote.name ?? '';
+
+    lotesProductCurrent = event.lote;
+
+    //actualizamos el lote id
+    await db.productsEntradaBatchRepository.setFieldTableProductEntradaBatch(
+      currentProduct.idRecepcion ?? 0,
+      int.parse(currentProduct.productId),
+      "lot_id",
+      event.lote.id,
+      currentProduct.idMove ?? 0,
+    );
+    //actualizamos el lote name
+    await db.productsEntradaBatchRepository.setFieldTableProductEntradaBatch(
+      currentProduct.idRecepcion ?? 0,
+      int.parse(currentProduct.productId),
+      "lot_name",
+      event.lote.name,
+      currentProduct.idMove ?? 0,
+    );
+
+    await db.productsEntradaBatchRepository.setFieldTableProductEntradaBatch(
+      currentProduct.idRecepcion ?? 0,
+      int.parse(currentProduct.productId),
+      "lote_date",
+      event.lote.expirationDate ?? '',
+      currentProduct.idMove ?? 0,
+    );
+
+    loteIsOk = true;
+
+    emit(ChangeLoteOrderIsOkState(
+      loteIsOk,
+    ));
+  }
+
+  void _onSearchLoteEvent(
+      SearchLotevent event, Emitter<RecepcionBatchState> emit) async {
+    try {
+      emit(SearchLoading());
+      listLotesProductFilters = [];
+      listLotesProductFilters = listLotesProduct;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        listLotesProductFilters = listLotesProduct;
+      } else {
+        listLotesProductFilters = listLotesProduct.where((lotes) {
+          return lotes.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(SearchLoteSuccess(listLotesProductFilters));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
+  }
+
+  //metodo pea crar un lote a un producto
+  void _onCreateLoteProduct(
+      CreateLoteProduct event, Emitter<RecepcionBatchState> emit) async {
+    try {
+      emit(CreateLoteProductLoading());
+      final response = await _recepcionRepository.createLote(
+        false,
+        int.parse(currentProduct.productId),
+        event.nameLote,
+        event.fechaCaducidad,
+      );
+
+      if (response != null) {
+        //agregamos el nuevo lote a la lista de lotes
+        listLotesProductFilters.add(response.result?.result ?? LotesProduct());
+        selectLote = response.result?.result?.name ?? '';
+        lotesProductCurrent = response.result?.result ?? LotesProduct();
+
+        await db.productsEntradaBatchRepository
+            .setFieldTableProductEntradaBatch(
+          currentProduct.idRecepcion ?? 0,
+          int.parse(currentProduct.productId),
+          "lot_id",
+          response.result?.result?.id ?? 0,
+          currentProduct.idMove ?? 0,
+        );
+        //actualizamos el lote name
+
+        await db.productsEntradaBatchRepository
+            .setFieldTableProductEntradaBatch(
+          currentProduct.idRecepcion ?? 0,
+          int.parse(currentProduct.productId),
+          "lot_name",
+          response.result?.result?.name ?? '',
+          currentProduct.idMove ?? 0,
+        );
+
+        await db.productsEntradaBatchRepository
+            .setFieldTableProductEntradaBatch(
+          currentProduct.idRecepcion ?? 0,
+          int.parse(currentProduct.productId),
+          "lote_date",
+          response.result?.result?.expirationDate ?? '',
+          currentProduct.idMove ?? 0,
+        );
+
+        loteIsOk = true;
+
+        dateLoteController.clear();
+        newLoteController.clear();
+
+        emit(CreateLoteProductSuccess());
+      } else {
+        emit(CreateLoteProductFailure('Error al crear el lote'));
+      }
+    } catch (e, s) {
+      emit(CreateLoteProductFailure('Error al crear el lote'));
+      print('Error en el _onCreateLoteProduct: $e, $s');
+    }
   }
 
   //*Metodo para finalizar un producto Split
@@ -970,6 +1100,7 @@ class RecepcionBatchBloc
   void _onFetchRecepcionBatchEvent(
       FetchRecepcionBatchEvent event, Emitter<RecepcionBatchState> emit) async {
     emit(FetchRecepcionBatchLoading());
+
     try {
       //limpiamos la tabla de recepcion por batch
       await db.deleReceptionBatch();
@@ -1013,9 +1144,9 @@ class RecepcionBatchBloc
           add(FetchRecepcionBatchEventFromBD());
           emit(FetchRecepcionBatchSuccess(
               listReceptionBatch: listReceptionBatch));
+        } else {
+          emit(FetchRecepcionBatchSuccessFromBD(listReceptionBatch: []));
         }
-        emit(FetchRecepcionBatchSuccess(listReceptionBatch: []));
-        emit(FetchRecepcionBatchSuccess(listReceptionBatch: []));
       } else {
         emit(FetchRecepcionBatchFailure(response.result?.msg ?? ""));
       }

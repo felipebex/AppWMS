@@ -324,3 +324,15 @@ class FilterUbicacionesSuccess extends RecepcionState {
   final List<ResultUbicaciones> locations;
   FilterUbicacionesSuccess(this.locations);
 }
+
+
+class SendTemperatureSuccess extends RecepcionState {
+  final String message;
+  SendTemperatureSuccess(this.message);
+}
+
+class SendTemperatureLoading extends RecepcionState {}
+class SendTemperatureFailure extends RecepcionState {
+  final String error;
+  SendTemperatureFailure(this.error);
+}

@@ -788,7 +788,7 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
                                                     Navigator
                                                         .pushReplacementNamed(
                                                       context,
-                                                      'new-lote',
+                                                      'new-lote-recep-batch',
                                                       arguments: [
                                                         widget.ordenCompra,
                                                         widget.currentProduct

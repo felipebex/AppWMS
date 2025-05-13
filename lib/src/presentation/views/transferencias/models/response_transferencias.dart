@@ -93,6 +93,7 @@ class ResultTransFerencias {
   dynamic isFinish;
 
   dynamic proveedor;
+  String? type;
   
 
   List<LineasTransferenciaTrans>? lineasTransferencia;
@@ -134,6 +135,7 @@ class ResultTransFerencias {
     this.backorderId,
     this.showCheckAvailability,
     this.proveedor,
+    this.type,
   });
 
   factory ResultTransFerencias.fromMap(Map<String, dynamic> json) =>
@@ -176,6 +178,7 @@ class ResultTransFerencias {
         backorderId: json["backorder_id"],
         showCheckAvailability: json["show_check_availability"],
         proveedor: json["proveedor"],
+        type: json["type"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -213,6 +216,7 @@ class ResultTransFerencias {
         "backorder_id": backorderId,
         "show_check_availability": showCheckAvailability,
         "proveedor": proveedor,
+        "type": type,
       };
 }
 
@@ -260,6 +264,7 @@ class LineasTransferenciaTrans {
   final dynamic dateStart;
   final dynamic dateEnd;
   final dynamic cantidadFaltante;
+  final String? type;
 
   LineasTransferenciaTrans({
     this.idMove,
@@ -300,6 +305,7 @@ class LineasTransferenciaTrans {
     this.dateStart,
     this.dateEnd,
     this.cantidadFaltante,
+    this.type,
   });
 
   factory LineasTransferenciaTrans.fromMap(Map<String, dynamic> json) =>
@@ -348,6 +354,7 @@ class LineasTransferenciaTrans {
         dateStart: json["date_start"],
         dateEnd: json["date_end"],
         cantidadFaltante: json["cantidad_faltante"],
+        type: json["type"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -393,5 +400,6 @@ class LineasTransferenciaTrans {
         "date_start": dateStart,
         "date_end": dateEnd,
         "cantidad_faltante": cantidadFaltante,
+        "type": type,
       };
 }

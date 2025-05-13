@@ -40,6 +40,8 @@ class PickProductsTable {
   static const String columnFechaTransaccion = 'fecha_transaccion';
   static const String columnIsSendOdoo = 'is_send_odoo';
   static const String columnIsSendOdooDate = 'is_send_odoo_date';
+  //columnTypePick
+  static const String columnTypePick = 'type_pick';
 
   static String createTable() {
     return '''
@@ -82,6 +84,7 @@ class PickProductsTable {
         $columnFechaTransaccion VARCHAR(255),
         $columnIsSendOdoo INTEGER,
         $columnIsSendOdooDate VARCHAR(255),
+        $columnTypePick TEXT,
         FOREIGN KEY ($columnBatchId) REFERENCES tbl_picking_pick (id)
       )
     ''';

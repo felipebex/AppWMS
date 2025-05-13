@@ -265,6 +265,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                   child: context
                           .read<WmsPackingBloc>()
                           .listOfBatchsDB
+                          .where((batch) => batch.isSeparate == 0)
                           .isNotEmpty
                       ? ListView.builder(
                           padding: const EdgeInsets.only(top: 20, bottom: 20),
@@ -273,12 +274,15 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                           itemCount: context
                               .read<WmsPackingBloc>()
                               .listOfBatchsDB
+                              .where((batch) => batch.isSeparate == 0)
                               .length,
                           itemBuilder: (contextBuilder, index) {
                             final List<BatchPackingModel> inProgressBatches =
                                 context
                                     .read<WmsPackingBloc>()
-                                    .listOfBatchsDB; // Convertir a lista
+                                    .listOfBatchsDB
+                                    .where((batch) => batch.isSeparate == 0)
+                                    .toList(); // Convertir a lista
 
                             // Asegurarse de que hay batches en progreso
                             if (inProgressBatches.isEmpty) {

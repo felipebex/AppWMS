@@ -16,8 +16,8 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/models/r
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class IndexListPickScreen extends StatelessWidget {
-  const IndexListPickScreen({Key? key}) : super(key: key);
+class IndexListPickComponentsScreen extends StatelessWidget {
+  const IndexListPickComponentsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,8 +71,7 @@ class IndexListPickScreen extends StatelessWidget {
                       controller: bloc.searchPickController,
                       onchanged: () {
                         bloc.add(SearchPickEvent(
-                          bloc.searchPickController.text,false
-                        ));
+                            bloc.searchPickController.text, true));
                       },
                     ),
                   )
@@ -116,22 +115,26 @@ class IndexListPickScreen extends StatelessWidget {
                                         icon: const Icon(Icons.arrow_back,
                                             color: white),
                                         onPressed: () {
+                                          bloc.searchPickController.clear();
                                           Navigator.pushReplacementNamed(
                                               context, '/home');
                                         },
                                       ),
                                       GestureDetector(
                                         onTap: () async {
-                                          await DataBaseSqlite().delePick('pick');
-                                          bloc.add(FetchPickingPickEvent(true));
+                                          await DataBaseSqlite().delePick(
+                                            'pick-componentes'
+                                          );
+                                          bloc.add(FetchPickingComponentesEvent(
+                                              true));
                                         },
                                         child: Padding(
                                           padding: EdgeInsets.only(
-                                              left: size.width * 0.15),
+                                              left: size.width * 0.05),
                                           child: Row(
                                             children: [
                                               const Text(
-                                                'PICKING - PICK',
+                                                'PICKING COMPONENTES',
                                                 style: TextStyle(
                                                     color: white,
                                                     fontSize: 18,
@@ -165,7 +168,6 @@ class IndexListPickScreen extends StatelessWidget {
                   ),
 
                   SizedBox(
-                      // color: Colors.amber,
                       height: 60, //120
                       width: size.width * 1,
                       child: Column(
@@ -190,20 +192,14 @@ class IndexListPickScreen extends StatelessWidget {
                                       suffixIcon: IconButton(
                                           onPressed: () {
                                             bloc.searchPickController.clear();
-                                            bloc.add(SearchPickEvent(
-                                              '',
-                                              false
-                                            
-                                            ));
+                                            bloc.add(SearchPickEvent('', true));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: IconButton(
                                             onPressed: () {
                                               bloc.add(ShowKeyboard(false));
-                                              bloc.add(SearchPickEvent(
-                                                '',
-                                                false
-                                              ));
+                                              bloc.add(
+                                                  SearchPickEvent('', true));
                                               bloc.searchPickController.clear();
                                             },
                                             icon: const Icon(Icons.close,
@@ -217,7 +213,7 @@ class IndexListPickScreen extends StatelessWidget {
                                       border: InputBorder.none,
                                     ),
                                     onChanged: (value) {
-                                      bloc.add(SearchPickEvent(value, false));
+                                      bloc.add(SearchPickEvent(value, true));
                                     },
                                     style: const TextStyle(
                                         color: Colors.black, fontSize: 14),
@@ -234,8 +230,9 @@ class IndexListPickScreen extends StatelessWidget {
                           ),
                         ],
                       )),
+
                   Expanded(
-                    child: bloc.listOfPickFiltered
+                    child: bloc.listOfPickCompoFiltered
                             .where((batch) => batch.isSeparate == 0)
                             .isNotEmpty
                         ? ListView.builder(
@@ -243,11 +240,11 @@ class IndexListPickScreen extends StatelessWidget {
                                 top: 10, bottom: size.height * 0.15),
                             shrinkWrap: true,
                             physics: const ScrollPhysics(),
-                            itemCount: bloc.listOfPickFiltered
+                            itemCount: bloc.listOfPickCompoFiltered
                                 .where((batch) => batch.isSeparate == 0)
                                 .length,
                             itemBuilder: (contextBuilder, index) {
-                              final batch = bloc.listOfPickFiltered
+                              final batch = bloc.listOfPickCompoFiltered
                                   .where((batch) => batch.isSeparate == 0)
                                   .toList()[index];
                               //convertimos la fecha
@@ -299,10 +296,8 @@ class IndexListPickScreen extends StatelessWidget {
                                                 bloc.add(ShowKeyboard(false));
                                                 bloc.searchPickController
                                                     .clear();
-                                                bloc.add(SearchPickEvent(
-                                                  '',
-                                                  false
-                                                ));
+                                                bloc.add(
+                                                    SearchPickEvent('', true));
 
                                                 bloc.add(
                                                     FetchPickWithProductsEvent(

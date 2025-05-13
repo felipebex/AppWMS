@@ -68,6 +68,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   TextEditingController dateLoteController = TextEditingController();
   TextEditingController searchControllerLote = TextEditingController();
   TextEditingController locationDestController = TextEditingController();
+  TextEditingController controllerTemperature = TextEditingController();
 
   TextEditingController searchControllerLocationDest = TextEditingController();
 
@@ -190,6 +191,30 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     on<CleanFieldsEvent>(_onCleanFieldsEvent);
 
     on<FilterUbicacionesAlmacenEvent>(_onFilterUbicacionesEvent);
+
+    //enviar temperatura
+    on<SendTemperatureEvent>(_onSendTemperatureEvent);
+  }
+
+  void _onSendTemperatureEvent(
+      SendTemperatureEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(SendTemperatureLoading());
+      final response = await _recepcionRepository.sendTemperature(
+          event.idRecepcion, event.temperature, false);
+      if (response) {
+        await db.entradasRepository.setFieldTableEntrada(event.idRecepcion, 'temperatura', event.temperature);
+        //traemos la informacion de la entrada actualizada 
+        resultEntrada = await db.entradasRepository.getEntradaById(event.idRecepcion) ?? ResultEntrada();
+        controllerTemperature.clear();
+        emit(SendTemperatureSuccess('Temperatura enviada correctamente'));
+      } else {
+        emit(SendTemperatureFailure('Error al enviar la temperatura'));
+      }
+    } catch (e, s) {
+      emit(SendTemperatureFailure('Error al enviar la temperatura'));
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+    }
   }
 
   void _onFilterUbicacionesEvent(
