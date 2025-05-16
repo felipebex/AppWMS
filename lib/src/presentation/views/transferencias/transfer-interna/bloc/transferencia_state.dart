@@ -246,7 +246,8 @@ class CreateBackOrderOrNotSuccess extends TransferenciaState {
 
 class CreateBackOrderOrNotFailure extends TransferenciaState {
   final String error;
-  CreateBackOrderOrNotFailure(this.error);
+  final bool isBackorder;
+  CreateBackOrderOrNotFailure(this.error, this.isBackorder);
 }
 
 
@@ -338,4 +339,19 @@ class FilterUbicacionesFailure extends TransferenciaState {
 class FilterUbicacionesSuccess extends TransferenciaState {
   final List<ResultUbicaciones> locations;
   FilterUbicacionesSuccess(this.locations);
+}
+
+
+class ValidateConfirmLoading extends TransferenciaState {}
+
+class ValidateConfirmSuccess extends TransferenciaState {
+  final bool isBackorder;
+  final String msg;
+
+  ValidateConfirmSuccess(this.isBackorder, this.msg);
+}
+
+class ValidateConfirmFailure extends TransferenciaState {
+  final String error;
+  ValidateConfirmFailure(this.error);
 }

@@ -211,3 +211,10 @@ class FilterUbicacionesAlmacenEvent extends TransferenciaEvent {
   final String almacen;
   FilterUbicacionesAlmacenEvent(this.almacen);
 }
+
+
+class ValidateConfirmEvent extends TransferenciaEvent {
+  final int idRecepcion;
+  final bool isBackOrder;
+  ValidateConfirmEvent(this.idRecepcion, this.isBackOrder);
+}

@@ -88,13 +88,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
         product.idMove ?? 0,
       ));
 
-      if (bloc.configurations.result?.result
-              ?.scanDestinationLocationReception ==
-          false) {
-        print('con permiso de muelle desde tab 2');
-        bloc.add(ChangeIsOkQuantity(product.idRecepcion ?? 0, true,
-            int.parse(product.productId), product.idMove ?? 0));
-      }
 
       context.read<RecepcionBloc>().add(FetchPorductOrder(
             product,
@@ -131,15 +124,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
         listener: (context, state) {
-          // if (state is SendProductToOrderSuccess) {
-          //   Get.snackbar(
-          //     '360 Software Informa',
-          //     "Se ha enviado el producto correctamente",
-          //     backgroundColor: white,
-          //     colorText: primaryColorApp,
-          //     icon: Icon(Icons.error, color: Colors.green),
-          //   );
-          // }
 
           if (state is SendProductToOrderFailure) {
             Get.defaultDialog(

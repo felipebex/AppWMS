@@ -235,3 +235,11 @@ class CreateBackOrderOrNot extends PickingPickEvent {
   final bool isBackOrder;
   CreateBackOrderOrNot(this.idPick, this.isBackOrder);
 }
+
+
+class ValidateConfirmEvent extends PickingPickEvent {
+  final int idPick;
+  final bool isBackOrder;
+  final bool isLoadinDialog;
+  ValidateConfirmEvent(this.idPick, this.isBackOrder, this.isLoadinDialog);
+}

@@ -1,99 +1,142 @@
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
+import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class ListRecepctionBatchScreen extends StatelessWidget {
-  const ListRecepctionBatchScreen({super.key});
+class ListDevolutionsScreen extends StatelessWidget {
+  const ListDevolutionsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<RecepcionBatchBloc>();
-    return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
-      child: BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
-        listener: (context, state) {
-          if (state is AssignUserToOrderFailure) {
-            Get.snackbar(
-              '360 Software Informa',
-              state.error,
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.red),
-            );
-          }
 
-          if (state is AssignUserToOrderSuccess) {
-            Get.snackbar(
-              '360 Software Informa',
-              "Se ha asignado el responsable correctamente",
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.green),
-            );
-            bloc.add(GetPorductsToEntradaBatch(state.ordenCompra.id ?? 0));
-            bloc.add(CurrentOrdenesCompraBatch(state.ordenCompra));
-            Navigator.pushReplacementNamed(
-              context,
-              'recepcion-batch',
-              arguments: [state.ordenCompra, 0],
-            );
-          }
+    return BlocConsumer<RecepcionBloc, RecepcionState>(
+      listener: (context, state) {
+        if (state is AssignUserToOrderFailure) {
+          Get.snackbar(
+            '360 Software Informa',
+            state.error,
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.red),
+          );
+        }
 
-          if (state is FetchRecepcionBatchLoading) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => const DialogLoading(
-                message: 'Cargando recepciones...',
-              ),
-            );
-          } else if (state is FetchRecepcionBatchFailure) {
-            Get.defaultDialog(
-              title: '360 Software Informa',
-              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-              middleText: state.error,
-              middleTextStyle: TextStyle(color: black, fontSize: 14),
-              backgroundColor: Colors.white,
-              radius: 10,
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+        if (state is AssignUserToOrderSuccess) {
+          Get.snackbar(
+            '360 Software Informa',
+            "Se ha asignado el responsable correctamente",
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+          context
+              .read<RecepcionBloc>()
+              .add(GetPorductsToEntrada(state.ordenCompra.id ?? 0));
+          context
+              .read<RecepcionBloc>()
+              .add(CurrentOrdenesCompra(state.ordenCompra));
+          Navigator.pushReplacementNamed(
+            context,
+            'recepcion',
+            arguments: [state.ordenCompra, 0],
+          );
+        }
+
+        if (state is FetchDevolucionesLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const DialogLoading(
+              message: 'Cargando recepciones...',
+            ),
+          );
+        }
+        if (state is FetchDevolucionesFailure) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Text('Aceptar', style: TextStyle(color: white)),
                 ),
-              ],
-            );
-          } else if (state is FetchRecepcionBatchSuccessFromBD) {
-            Navigator.pop(context);
-          }
-        },
-        builder: (context, state) {
-          final recepcionBatch = bloc.listReceptionBatchFilter
-              .where((element) =>
-                  element.isFinish == 0 || element.isFinish == null)
-              .toList();
-          return Scaffold(
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        }
+
+        if (state is FetchDevolucionesSuccess) {
+          if (state.ordenesCompra.isEmpty) {
+            Get.snackbar(
+              '360 Software Informa',
+              "No hay recepciones disponibles",
               backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.amber),
+            );
+          }
+          Navigator.pop(context);
+        }
+      },
+      builder: (context, state) {
+        final ordenCompra = context
+            .read<RecepcionBloc>()
+            .listFiltersDevolutions
+            .where(
+                (element) => element.isFinish == 0 || element.isFinish == null)
+            .toList();
+        // ;
+        return WillPopScope(
+          onWillPop: () async {
+            return false;
+          },
+          child: Scaffold(
+              backgroundColor: white,
+              bottomNavigationBar:
+                  context.read<RecepcionBloc>().isKeyboardVisible
+                      ? CustomKeyboard(
+                          isLogin: false,
+                          controller:
+                              context.read<RecepcionBloc>().searchControllerDev,
+                          onchanged: () {
+                            context
+                                .read<RecepcionBloc>()
+                                .add(SearchDevolucionEvent(
+                                  context
+                                      .read<RecepcionBloc>()
+                                      .searchControllerDev
+                                      .text,
+                                ));
+                          },
+                        )
+                      : null,
               body: SizedBox(
                 width: size.width * 1,
                 height: size.height * 1,
@@ -128,8 +171,9 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                         ? true
                                         : false,
                                     textAlignVertical: TextAlignVertical.center,
-                                    controller:
-                                        bloc.searchControllerRecepcionBatch,
+                                    controller: context
+                                        .read<RecepcionBloc>()
+                                        .searchControllerDev,
                                     decoration: InputDecoration(
                                       prefixIcon: const Icon(
                                         Icons.search,
@@ -138,12 +182,21 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                       ),
                                       suffixIcon: IconButton(
                                           onPressed: () {
-                                            bloc.searchControllerRecepcionBatch
+                                            context
+                                                .read<RecepcionBloc>()
+                                                .searchControllerDev
                                                 .clear();
-                                            bloc.add(SearchReceptionEvent(
-                                              '',
-                                            ));
-                                            bloc.add(ShowKeyboardEvent(false));
+
+                                            context
+                                                .read<RecepcionBloc>()
+                                                .add(SearchDevolucionEvent(
+                                                  '',
+                                                ));
+
+                                            context
+                                                .read<RecepcionBloc>()
+                                                .add(ShowKeyboardEvent(false));
+
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -153,15 +206,17 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                           )),
                                       disabledBorder:
                                           const OutlineInputBorder(),
-                                      hintText: "Buscar recepcion ",
+                                      hintText: "Buscar devolucion",
                                       hintStyle: const TextStyle(
                                           color: Colors.grey, fontSize: 14),
                                       border: InputBorder.none,
                                     ),
                                     onChanged: (value) {
-                                      bloc.add(SearchReceptionEvent(
-                                        value,
-                                      ));
+                                      context
+                                          .read<RecepcionBloc>()
+                                          .add(SearchDevolucionEvent(
+                                            value,
+                                          ));
                                     },
                                     onTap: !context
                                             .read<UserBloc>()
@@ -169,7 +224,9 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                             .contains("Zebra")
                                         ? null
                                         : () {
-                                            bloc.add(ShowKeyboardEvent(true));
+                                            context
+                                                .read<RecepcionBloc>()
+                                                .add(ShowKeyboardEvent(true));
                                           },
                                   ),
                                 ),
@@ -178,16 +235,16 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                           ),
                         )),
 
-                    (recepcionBatch.isEmpty)
+                    (ordenCompra.isEmpty)
                         ? Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.max,
                               children: [
-                                const Text('No hay recepciones',
+                                const Text('No hay devoluciones',
                                     style:
                                         TextStyle(fontSize: 14, color: grey)),
-                                const Text('Intente buscar otra recepcion',
+                                const Text('Intente buscar otra devolucion',
                                     style:
                                         TextStyle(fontSize: 12, color: grey)),
                                 Visibility(
@@ -205,7 +262,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                         : Expanded(
                             child: ListView.builder(
                                 padding: const EdgeInsets.only(top: 2),
-                                itemCount: recepcionBatch.length,
+                                itemCount: ordenCompra.length,
                                 itemBuilder:
                                     (BuildContext contextList, int index) {
                                   return Padding(
@@ -215,18 +272,21 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                     ),
                                     child: Card(
                                       elevation: 3,
-                                      color: recepcionBatch[index]
-                                                  .startTimeReception !=
-                                              ""
+                                      color: ordenCompra[index]
+                                                      .startTimeReception !=
+                                                  "" &&
+                                              ordenCompra[index]
+                                                      .responsableId !=
+                                                  0
                                           ? primaryColorAppLigth
-                                          : recepcionBatch[index].isFinish == 1
+                                          : ordenCompra[index].isFinish == 1
                                               ? Colors.green[200]
                                               : white,
                                       child: ListTile(
                                         trailing: Icon(Icons.arrow_forward_ios,
                                             color: primaryColorApp),
                                         title: Text(
-                                            recepcionBatch[index].name ?? '',
+                                            ordenCompra[index].name ?? '',
                                             style: TextStyle(
                                                 color: primaryColorApp,
                                                 fontSize: 12,
@@ -243,7 +303,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                           color:
                                                               primaryColorApp)),
                                                   Text(
-                                                    recepcionBatch[index]
+                                                    ordenCompra[index]
                                                             .pickingType ??
                                                         "",
                                                     style: const TextStyle(
@@ -263,7 +323,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                           color:
                                                               primaryColorApp)),
                                                   Text(
-                                                    recepcionBatch[index]
+                                                    ordenCompra[index]
                                                                 .priority ==
                                                             '0'
                                                         ? 'Normal'
@@ -271,8 +331,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                             "",
                                                     style: TextStyle(
                                                       fontSize: 12,
-                                                      color: recepcionBatch[
-                                                                      index]
+                                                      color: ordenCompra[index]
                                                                   .priority ==
                                                               '0'
                                                           ? black
@@ -298,13 +357,13 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                   ),
                                                   const SizedBox(width: 5),
                                                   Text(
-                                                    recepcionBatch[index]
+                                                    ordenCompra[index]
                                                                 .fechaCreacion !=
                                                             null
                                                         ? DateFormat(
                                                                 'dd/MM/yyyy hh:mm ')
                                                             .format(DateTime.parse(
-                                                                recepcionBatch[
+                                                                ordenCompra[
                                                                         index]
                                                                     .fechaCreacion!))
                                                         : "Sin fecha",
@@ -318,7 +377,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                  recepcionBatch[index]
+                                                  ordenCompra[index]
                                                           .proveedor ??
                                                       '',
                                                   style: TextStyle(
@@ -337,17 +396,46 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                   ),
                                                   const SizedBox(width: 5),
                                                   Text(
-                                                    recepcionBatch[index]
+                                                    ordenCompra[index]
                                                                 .purchaseOrderName ==
                                                             ""
                                                         ? 'Sin orden de compra'
-                                                        : recepcionBatch[index]
+                                                        : ordenCompra[index]
                                                                 .purchaseOrderName ??
                                                             '',
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black),
                                                   ),
+                                                ],
+                                              ),
+                                            ),
+                                            Visibility(
+                                              visible: ordenCompra[index]
+                                                      .backorderId !=
+                                                  0,
+                                              child: Row(
+                                                children: [
+                                                  Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Icon(
+                                                        Icons.file_copy_rounded,
+                                                        color: primaryColorApp,
+                                                        size: 15),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 5,
+                                                  ),
+                                                  Text(
+                                                      ordenCompra[index]
+                                                              .backorderName ??
+                                                          '',
+                                                      style: TextStyle(
+                                                          color: black,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
                                                 ],
                                               ),
                                             ),
@@ -363,7 +451,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
-                                                recepcionBatch[index]
+                                                ordenCompra[index]
                                                         .locationDestName ??
                                                     '',
                                                 style: const TextStyle(
@@ -381,16 +469,16 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                   ),
                                                   const SizedBox(width: 5),
                                                   Text(
-                                                    recepcionBatch[index]
+                                                    ordenCompra[index]
                                                                 .responsable ==
                                                             ""
                                                         ? 'sin responsable'
-                                                        : recepcionBatch[index]
+                                                        : ordenCompra[index]
                                                                 .responsable ??
                                                             '',
                                                     style: TextStyle(
                                                         fontSize: 12,
-                                                        color: recepcionBatch[
+                                                        color: ordenCompra[
                                                                         index]
                                                                     .responsable ==
                                                                 ""
@@ -398,7 +486,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                             : black),
                                                   ),
                                                   Spacer(),
-                                                  recepcionBatch[index]
+                                                  ordenCompra[index]
                                                               .startTimeReception !=
                                                           ""
                                                       ? Padding(
@@ -418,7 +506,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                                             title:
                                                                                 'Tiempo de inicio de operacion',
                                                                             body:
-                                                                                'Este orden fue iniciada a las ${recepcionBatch[index].startTimeReception}',
+                                                                                'Este orden fue iniciada a las ${ordenCompra[index].startTimeReception}',
                                                                           ));
                                                             },
                                                             child: Icon(
@@ -435,20 +523,19 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                           ],
                                         ),
                                         onTap: () async {
-                                          bloc.add(
-                                              LoadConfigurationsUserReception());
-
                                           print(
-                                              'ordenCompra: ${recepcionBatch[index].toMap()}');
-                                          //validamos si tiene responsable
+                                              'ordenCompra: ${ordenCompra[index].toMap()}');
+                                          //cargamos los permisos del usuario
+                                          context.read<RecepcionBloc>().add(
+                                              LoadConfigurationsUserOrder());
 
-                                          if (recepcionBatch[index]
+                                          //verficamos is la orden de entrada tiene ya un responsable
+                                          if (ordenCompra[index]
                                                       .responsableId ==
-                                                  0 ||
-                                              recepcionBatch[index]
+                                                  null ||
+                                              ordenCompra[index]
                                                       .responsableId ==
-                                                  null) {
-                                            //no tiene responsable
+                                                  0) {
                                             showDialog(
                                               context: context,
                                               barrierDismissible:
@@ -456,46 +543,39 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                               builder: (context) =>
                                                   DialogAsignUserToOrderWidget(
                                                 title:
-                                                    'Esta seguro de tomar esta recepcion por batch, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+                                                    'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
                                                 onAccepted: () async {
-                                                  bloc.searchControllerRecepcionBatch
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .searchControllerDev
                                                       .clear();
 
-                                                  bloc.add(SearchReceptionEvent(
-                                                    '',
-                                                  ));
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .add(
+                                                          SearchDevolucionEvent(
+                                                        '',
+                                                      ));
 
-                                                  bloc.add(
-                                                      ShowKeyboardEvent(false));
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .add(ShowKeyboardEvent(
+                                                          false));
 
                                                   //asignamos el responsable a esa orden de entrada
-                                                  bloc.add(
-                                                      AssignUserToReception(
-                                                    recepcionBatch[index],
-                                                  ));
+                                                  context
+                                                      .read<RecepcionBloc>()
+                                                      .add(AssignUserToOrder(
+                                                        ordenCompra[index],
+                                                      ));
                                                   Navigator.pop(context);
                                                 },
                                               ),
                                             );
                                           } else {
-                                            //tiene ya un responsable
-                                            bloc.add(GetPorductsToEntradaBatch(
-                                                recepcionBatch[index].id ?? 0));
-                                            bloc.add(CurrentOrdenesCompraBatch(
-                                              recepcionBatch[index],
-                                            ));
-
-                                            Navigator.pushReplacementNamed(
-                                              context,
-                                              'recepcion-batch',
-                                              arguments: [
-                                                recepcionBatch[index],
-                                                0
-                                              ],
-                                            );
+                                            validateTime(
+                                                ordenCompra[index], context);
                                           }
-
-                                          //cargamos los permisos del usuario
                                         },
                                       ),
                                     ),
@@ -504,10 +584,69 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                           )
                   ],
                 ),
-              ));
-        },
-      ),
+              )),
+        );
+      },
     );
+  }
+
+  void validateTime(ResultEntrada ordenCompra, BuildContext context) {
+    if (ordenCompra.startTimeReception == "" ||
+        ordenCompra.startTimeReception == null) {
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // No permitir que el usuario cierre el diálogo manualmente
+        builder: (context) => DialogStartTimeWidget(
+          onAccepted: () async {
+            context.read<RecepcionBloc>().searchControllerDev.clear();
+
+            context.read<RecepcionBloc>().add(SearchDevolucionEvent(
+                  '',
+                ));
+
+            context.read<RecepcionBloc>().add(ShowKeyboardEvent(false));
+
+            context.read<RecepcionBloc>().add(StartOrStopTimeOrder(
+                  ordenCompra.id ?? 0,
+                  "start_time_reception",
+                ));
+            context
+                .read<RecepcionBloc>()
+                .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
+            //traemos la orden de entrada actual desde la bd actualizada
+            context
+                .read<RecepcionBloc>()
+                .add(CurrentOrdenesCompra(ordenCompra));
+            Navigator.pop(context);
+            Navigator.pushReplacementNamed(
+              context,
+              'recepcion',
+              arguments: [ordenCompra, 0],
+            );
+          },
+          title: 'Iniciar Recepcion',
+        ),
+      );
+    } else {
+      context.read<RecepcionBloc>().searchControllerDev.clear();
+
+      context.read<RecepcionBloc>().add(SearchDevolucionEvent(
+            '',
+          ));
+
+      context.read<RecepcionBloc>().add(ShowKeyboardEvent(false));
+      context
+          .read<RecepcionBloc>()
+          .add(GetPorductsToEntrada(ordenCompra.id ?? 0));
+      //traemos la orden de entrada actual desde la bd actualizada
+      context.read<RecepcionBloc>().add(CurrentOrdenesCompra(ordenCompra));
+      Navigator.pushReplacementNamed(
+        context,
+        'recepcion',
+        arguments: [ordenCompra, 0],
+      );
+    }
   }
 }
 
@@ -542,23 +681,24 @@ class AppBar extends StatelessWidget {
                     bottom: 10,
                     top: status != ConnectionStatus.online ? 0 : 35),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: white),
                       onPressed: () {
                         context
-                            .read<RecepcionBatchBloc>()
-                            .searchControllerRecepcionBatch
+                            .read<RecepcionBloc>()
+                            .searchControllerDev
                             .clear();
 
-                          context
-                              .read<RecepcionBatchBloc>()
-                              .add(SearchReceptionEvent(
-                                '',
-                              ));
+                        context
+                            .read<RecepcionBloc>()
+                            .add(SearchDevolucionEvent(
+                              '',
+                            ));
 
                         context
-                            .read<RecepcionBatchBloc>()
+                            .read<RecepcionBloc>()
                             .add(ShowKeyboardEvent(false));
 
                         Navigator.pushReplacementNamed(
@@ -568,31 +708,32 @@ class AppBar extends StatelessWidget {
                       },
                     ),
                     Padding(
-                      padding: EdgeInsets.only(left: size.width * 0.1),
+                      padding: EdgeInsets.only(left: size.width * 0.17),
                       child: GestureDetector(
                         onTap: () async {
                           context
-                              .read<RecepcionBatchBloc>()
-                              .searchControllerRecepcionBatch
+                              .read<RecepcionBloc>()
+                              .searchControllerDev
                               .clear();
 
                           context
-                              .read<RecepcionBatchBloc>()
-                              .add(SearchReceptionEvent(
+                              .read<RecepcionBloc>()
+                              .add(SearchDevolucionEvent(
                                 '',
                               ));
 
                           context
-                              .read<RecepcionBatchBloc>()
+                              .read<RecepcionBloc>()
                               .add(ShowKeyboardEvent(false));
 
-                          // await DataBaseSqlite().deleRecepcion();
-                          context.read<RecepcionBatchBloc>().add(
-                              FetchRecepcionBatchEvent(isLoadinDialog: false));
+                          await DataBaseSqlite().deleRecepcion('dev');
+                          context
+                              .read<RecepcionBloc>()
+                              .add(FetchDevoluciones(false));
                         },
                         child: Row(
                           children: [
-                            const Text("DEVOLUCIONES BATCH",
+                            const Text("DEVOLUCIONES",
                                 style: TextStyle(color: white, fontSize: 18)),
 
                             ///icono de refresh
@@ -604,6 +745,58 @@ class AppBar extends StatelessWidget {
                             ),
                           ],
                         ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Visibility(
+                      visible:
+                          context.read<RecepcionBloc>().tiposRecepcion.length >
+                              1,
+                      child: PopupMenuButton<String>(
+                        color: white,
+                        icon: const Icon(
+                          Icons.more_vert,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        onSelected: (value) {
+                          context.read<RecepcionBloc>().add(
+                                FilterReceptionByTypeEvent(value),
+                              );
+                        },
+                        itemBuilder: (BuildContext context) {
+                          // Lista fija de tipos de transferencia que ya tienes
+                          final tipos = [
+                            ...context.read<RecepcionBloc>().tiposRecepcion,
+                            'todas'
+                          ];
+
+                          return tipos.map((tipo) {
+                            final isTodas = tipo.toLowerCase() == 'todas';
+
+                            return PopupMenuItem<String>(
+                              value: tipo,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isTodas
+                                        ? Icons.select_all
+                                        : Icons.file_upload_outlined,
+                                    color:
+                                        isTodas ? Colors.grey : primaryColorApp,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    isTodas ? 'Todas' : tipo,
+                                    style: const TextStyle(
+                                        color: black, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList();
+                        },
                       ),
                     ),
                   ],

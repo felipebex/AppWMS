@@ -23,17 +23,18 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   TextEditingController dateLoteController = TextEditingController();
 
   TextEditingController controllerLocation = TextEditingController();
+  TextEditingController controllerLote = TextEditingController();
   TextEditingController controllerProduct = TextEditingController();
   TextEditingController controllerQuantity = TextEditingController();
   TextEditingController cantidadController = TextEditingController();
 
   final InventarioRepository _inventarioRepository = InventarioRepository();
 
-  String scannedValue1 = '';
-  String scannedValue2 = '';
-  String scannedValue3 = '';
+  String scannedValue1 = ''; //ubicacion origen
+  String scannedValue2 = ''; //producto
+  String scannedValue3 = ''; //cantidad
   String selectedAlmacen = '';
-  String scannedValue4 = '';
+  String scannedValue4 = ''; //lote
 
   List<BarcodeInventario> barcodeInventario = [];
 
@@ -251,10 +252,12 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     productIsOk = false;
     quantityIsOk = false;
     viewQuantity = false;
+    loteIsOk = false;
 
     isLocationOk = true;
     isProductOk = true;
     isQuantityOk = true;
+    isLoteOk = true;
 
     // Reset quantity
     quantitySelected = 0;
@@ -270,8 +273,6 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
     listLotesProduct.clear();
     barcodeInventario.clear();
-
-    loteIsOk = false;
   }
 
   //*metodo para cambiar la cantidad seleccionada
@@ -337,6 +338,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   void _onChangeQuantityIsOkEvent(
       ChangeIsOkQuantity event, Emitter<InventarioState> emit) async {
     try {
+      print('activando la cantidad ------');
       if (event.isQuantity) {
         quantityIsOk = true;
       }
@@ -353,6 +355,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     try {
       currentProductLote = event.lote;
       loteIsOk = true;
+      add(ChangeIsOkQuantity(true));
       emit(ChangeLoteIsOkState(
         loteIsOk,
       ));
@@ -397,9 +400,11 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         currentProduct = event.productSelect;
         add(FetchBarcodesProductEvent());
         if (currentProduct?.tracking == 'lot') {
+          // loteIsOk = true;
           add(GetLotesProduct());
+        } else {
+          viewQuantity = false;
         }
-        viewQuantity = false;
         productIsOk = true;
 
         emit(ChangeProductIsOkState(
@@ -511,6 +516,9 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         case 'quantity':
           isQuantityOk = event.isOk;
           break;
+        case 'lote':
+          isLoteOk = event.isOk;
+          break;
       }
       emit(ValidateFieldsStateSuccess(event.isOk));
     } catch (e, s) {
@@ -540,6 +548,12 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
           print('scannedValue3: $scannedValue3');
           emit(UpdateScannedValueState(scannedValue3, event.scan));
           break;
+
+        case 'lote':
+          scannedValue4 += event.scannedValue.trim();
+          print('scannedValue4: $scannedValue4');
+          emit(UpdateScannedValueState(scannedValue4, event.scan));
+          break;
         default:
           print('Scan type not recognized: ${event.scan}');
       }
@@ -565,7 +579,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
           scannedValue3 = '';
           emit(ClearScannedValueState());
           break;
-        case 'muelle':
+        case 'lote':
           scannedValue4 = '';
           emit(ClearScannedValueState());
           break;

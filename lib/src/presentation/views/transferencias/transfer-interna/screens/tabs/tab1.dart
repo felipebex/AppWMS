@@ -98,6 +98,125 @@ class Tab1ScreenTrans extends StatelessWidget {
           }
           if (state is CreateBackOrderOrNotFailure) {
             Navigator.pop(context);
+            if (state.error.contains('expiry.picking.confirmation')) {
+              Get.defaultDialog(
+                title: '360 Software Informa',
+                titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+                middleText:
+                    'Algunos productos tienen fecha de caducidad alcanzada.\n¿Desea continuar con la confirmacion aceptando los productos vencidos?',
+                middleTextStyle: TextStyle(color: black, fontSize: 14),
+                backgroundColor: Colors.white,
+                radius: 10,
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<TransferenciaBloc>()
+                          .add(ValidateConfirmEvent(
+                            transFerencia?.id ?? 0,
+                            state.isBackorder,
+                          ));
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColorApp,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text('Continuar', style: TextStyle(color: white)),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: grey,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text('Descartar', style: TextStyle(color: white)),
+                  ),
+                ],
+              );
+            } else {
+              Get.defaultDialog(
+                title: '360 Software Informa',
+                titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+                middleText: state.error,
+                middleTextStyle: TextStyle(color: black, fontSize: 14),
+                backgroundColor: Colors.white,
+                radius: 10,
+                actions: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColorApp,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Text('Aceptar', style: TextStyle(color: white)),
+                  ),
+                ],
+              );
+            }
+          }
+
+          if (state is ValidateConfirmLoading) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const DialogLoading(
+                  message: "Validando informacion...",
+                );
+              },
+            );
+          }
+
+          if (state is ValidateConfirmSuccess) {
+            if (transFerencia?.type == "transfer") {
+              context
+                  .read<TransferenciaBloc>()
+                  .add(FetchAllTransferencias(true));
+            } else if (transFerencia?.type == "entrega") {
+              context.read<TransferenciaBloc>().add(FetchAllEntrega(true));
+            }
+
+            //volvemos a llamar las entradas que tenemos guardadas en la bd
+            if (state.isBackorder) {
+              Get.snackbar("360 Software Informa", state.msg,
+                  backgroundColor: white,
+                  colorText: primaryColorApp,
+                  icon: Icon(Icons.error, color: Colors.green));
+            } else {
+              Get.snackbar("360 Software Informa", state.msg,
+                  backgroundColor: white,
+                  colorText: primaryColorApp,
+                  icon: Icon(Icons.error, color: Colors.green));
+            }
+
+            Navigator.pop(context);
+
+            if (transFerencia?.type == "transfer") {
+              Navigator.pushReplacementNamed(
+                context,
+                'transferencias',
+              );
+            } else if (transFerencia?.type == "entrega") {
+              Navigator.pushReplacementNamed(
+                context,
+                'list-entrada-productos',
+              );
+            }
+          }
+
+          if (state is ValidateConfirmFailure) {
+            Navigator.pop(context);
+
             Get.defaultDialog(
               title: '360 Software Informa',
               titleStyle: TextStyle(color: Colors.red, fontSize: 18),
@@ -346,8 +465,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                       child: Text(
                                         // Formateamos el número a 2 decimales
                                         NumberFormat('0.00').format(
-                                            transferenciaDetail.pesoTotal ??
-                                                0),
+                                            transferenciaDetail.pesoTotal ?? 0),
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: black,
@@ -370,7 +488,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                         alignment: Alignment.centerLeft,
                                         child: Text(
                                           transferenciaDetail.numeroLineas
-                                                  .toString(),
+                                              .toString(),
                                           style: TextStyle(
                                               fontSize: 12, color: black),
                                         )),
@@ -390,7 +508,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                         alignment: Alignment.centerLeft,
                                         child: Text(
                                           transferenciaDetail.numeroItems
-                                                  .toString(),
+                                              .toString(),
                                           style: TextStyle(
                                               fontSize: 12, color: black),
                                         )),
@@ -498,7 +616,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                   .configurations
                                   .result
                                   ?.result
-                                  ?.hide_validate_transfer ==
+                                  ?.hideValidateTransfer ==
                               false,
                           child: ElevatedButton(
                               onPressed: () {

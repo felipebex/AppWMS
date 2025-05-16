@@ -425,10 +425,18 @@ class DataBaseSqlite {
     await deleBarcodes("packing");
   }
 
-  Future<void> deleRecepcion() async {
+  Future<void> deleRecepcion(String type) async {
     final db = await getDatabaseInstance();
-    await db.delete(ProductRecepcionTable.tableName);
-    await db.delete(EntradasRepeccionTable.tableName);
+    await db.delete(
+      ProductRecepcionTable.tableName,
+      where: '${ProductRecepcionTable.columnType} = ?',
+      whereArgs: [type],
+    );
+    await db.delete(
+      EntradasRepeccionTable.tableName,
+      where: '${EntradasRepeccionTable.columnType} = ?',
+      whereArgs: [type],
+    );
     await deleBarcodes("reception");
   }
 
@@ -488,11 +496,22 @@ class DataBaseSqlite {
     await db.delete(BarcodesPackagesTable.tableName);
   }
 
+  Future<void> deleAllRecepcion() async {
+    final db = await getDatabaseInstance();
+    await db.delete(
+      ProductRecepcionTable.tableName,
+    );
+    await db.delete(
+      EntradasRepeccionTable.tableName,
+    );
+    await deleBarcodes("reception");
+  }
+
   Future<void> deleteBDCloseSession() async {
     await delePicking();
     await delePickAll();
     await delePacking();
-    await deleRecepcion();
+    await deleAllRecepcion();
     await deleAllTrasnferencia();
     await deleInventario();
     await deleOthers();

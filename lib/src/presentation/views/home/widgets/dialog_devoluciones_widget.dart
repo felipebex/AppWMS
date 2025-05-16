@@ -8,8 +8,8 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/rec
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class DialogReception extends StatelessWidget {
-  const DialogReception({
+class DialogDevoluciones extends StatelessWidget {
+  const DialogDevoluciones({
     super.key,
     required this.contextHome,
   });
@@ -28,7 +28,7 @@ class DialogReception extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('SELECCION DE RECEPCION',
+            Text('SELECCION DE DEVOLUCION',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: primaryColorApp,
@@ -37,7 +37,7 @@ class DialogReception extends StatelessWidget {
             const SizedBox(height: 10),
             Center(
               child: Text(
-                  'Seleccione una de las siguientes opciones para realizar el proceso de recepcion',
+                  'Seleccione una de las siguientes opciones para realizar el proceso de devolucion',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: black,
@@ -48,7 +48,9 @@ class DialogReception extends StatelessWidget {
             ElevatedButton(
                 onPressed: () {
                   //pedir ubicaciones
-                  context.read<RecepcionBatchBloc>().add(GetLocationsDestReceptionBatchEvent());
+                  context
+                      .read<RecepcionBatchBloc>()
+                      .add(GetLocationsDestReceptionBatchEvent());
                   //pedir las novedades
                   context
                       .read<RecepcionBatchBloc>()
@@ -79,12 +81,11 @@ class DialogReception extends StatelessWidget {
                   context
                       .read<RecepcionBloc>()
                       .add(LoadAllNovedadesOrderEvent());
-
                   //cerramos el dialogo
                   Navigator.pop(context);
                   Navigator.pushReplacementNamed(
                     context,
-                    'list-ordenes-compra',
+                    'list-devoluciones',
                   );
                 },
                 style: ElevatedButton.styleFrom(

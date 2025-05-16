@@ -491,6 +491,23 @@ class BatchDetailScreen extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Image.asset(
+                                                    "assets/icons/barcode.png",
+                                                    color: primaryColorApp,
+                                                    width: 20,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(productsBatch.barcode,
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black,
+                                                      )),
+                                                ],
+                                              ),
                                               const SizedBox(height: 5),
                                               Visibility(
                                                 visible: context

@@ -12,10 +12,19 @@ class FetchOrdenesCompraSuccess extends RecepcionState {
   final List<ResultEntrada> ordenesCompra;
   FetchOrdenesCompraSuccess(this.ordenesCompra);
 }
-
 class FetchOrdenesCompraFailure extends RecepcionState {
   final String error;
   FetchOrdenesCompraFailure(this.error);
+}
+class FetchDevolucionesLoading extends RecepcionState {}
+class FetchDevolucionesSuccess extends RecepcionState {
+  final List<ResultEntrada> ordenesCompra;
+  FetchDevolucionesSuccess(this.ordenesCompra);
+}
+
+class FetchDevolucionesFailure extends RecepcionState {
+  final String error;
+  FetchDevolucionesFailure(this.error);
 }
 
 class ShowKeyboardState extends RecepcionState {
@@ -29,10 +38,18 @@ class SearchOrdenCompraSuccess extends RecepcionState {
   final List<ResultEntrada> ordenesCompra;
   SearchOrdenCompraSuccess(this.ordenesCompra);
 }
+class SearchDevolucionSuccess extends RecepcionState {
+  final List<ResultEntrada> ordenesCompra;
+  SearchDevolucionSuccess(this.ordenesCompra);
+}
 
 class SearchOrdenCompraFailure extends RecepcionState {
   final String error;
   SearchOrdenCompraFailure(this.error);
+}
+class SearchDevolucionFailure extends RecepcionState {
+  final String error;
+  SearchDevolucionFailure(this.error);
 }
 
 ///metodo para asignar un usuario a una orden de compra
@@ -335,4 +352,19 @@ class SendTemperatureLoading extends RecepcionState {}
 class SendTemperatureFailure extends RecepcionState {
   final String error;
   SendTemperatureFailure(this.error);
+}
+
+
+
+//todo devoluciones
+class FetchDevolucionesLoadingDB extends RecepcionState {}
+
+class FetchDevolucionesSuccessDB extends RecepcionState {
+  final List<ResultEntrada> ordenesCompra;
+  FetchDevolucionesSuccessDB(this.ordenesCompra);
+}
+
+class FetchDevolucionesFailureDB extends RecepcionState {
+  final String error;
+  FetchDevolucionesFailureDB(this.error);
 }

@@ -263,6 +263,7 @@ class LineasTransferencia {
   String? locationName;
   String? locationBarcode;
   double? weight;
+  String? type;
   
 
   final String? observation;
@@ -287,6 +288,7 @@ class LineasTransferencia {
 
   final dynamic isPrincipalItem;
   final dynamic cantidadFaltante;
+
 
   LineasTransferencia({
     this.id,
@@ -330,6 +332,7 @@ class LineasTransferencia {
     this.dateTransaction,
     this.isPrincipalItem,
     this.cantidadFaltante,
+    this.type,
   });
 
   factory LineasTransferencia.fromMap(Map<String, dynamic> json) =>
@@ -383,6 +386,7 @@ class LineasTransferencia {
         dateTransaction: json["fecha_transaccion"],
         isPrincipalItem: json["is_principal_item"],
         cantidadFaltante: json["cantidad_faltante"],
+        type: json["type"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -431,5 +435,6 @@ class LineasTransferencia {
         "fecha_transaccion": dateTransaction,
         "is_principal_item": isPrincipalItem,
         "cantidad_faltante": cantidadFaltante,
+        "type": type,
       };
 }

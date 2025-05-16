@@ -9,6 +9,7 @@ import 'package:wms_app/src/presentation/providers/network/check_internet_connec
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/dropdowbutton_widget.dart';
@@ -73,6 +74,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
   FocusNode focusNode4 = FocusNode(); //cantidad textformfieldƒ
   FocusNode focusNode5 = FocusNode(); //ubicacion destino
+  FocusNode focusNode6 = FocusNode(); //lote
 
   String? selectedLocation;
   String? selectedMuelle;
@@ -88,76 +90,103 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     _handleDependencies();
   }
 
+  void _unfocusAll({required FocusNode except}) {
+    for (final node in [
+      focusNode2,
+      focusNode3,
+      focusNode4,
+      focusNode5,
+      focusNode6
+    ]) {
+      if (node != except) node.unfocus();
+    }
+  }
+
+  void _requestOnly(FocusNode node, String tag) {
+    print("🎯 Enfocando: $tag");
+    FocusScope.of(context).requestFocus(node);
+    _unfocusAll(except: node);
+  }
+
   void _handleDependencies() {
     print('🚼 _handleDependencies');
-    final batchBloc = context.read<RecepcionBloc>();
+    final bloc = context.read<RecepcionBloc>();
 
-    if (!batchBloc.productIsOk && //false
-        !batchBloc.quantityIsOk) //false
-    {
-      print('❤️‍🔥 product');
-      FocusScope.of(context).requestFocus(focusNode2);
-      focusNode3.unfocus();
-      focusNode4.unfocus();
-      focusNode5.unfocus();
+    final hasLote = bloc.currentProduct.productTracking == "lot";
+    final configMuelle =
+        bloc.configurations.result?.result?.scanDestinationLocationReception ??
+            false;
+
+    if (!bloc.productIsOk && !bloc.quantityIsOk) {
+      _requestOnly(focusNode2, 'product');
+      return;
     }
-    //validamso si el producto tiene lote
 
-    if (batchBloc
-            .configurations.result?.result?.scanDestinationLocationReception ==
-        true) {
-      print('con permiso de muelle');
+    if (hasLote) {
+      print('--- CON LOTE ---');
+      print('productIsOk: ${bloc.productIsOk}');
+      print('quantityIsOk: ${bloc.quantityIsOk}');
+      print('loteIsOk: ${bloc.loteIsOk}');
+      print('viewQuantity: ${bloc.viewQuantity}');
+      print('locationsDestIsok: ${bloc.locationsDestIsok}');
 
-      if (batchBloc.productIsOk &&
-          !batchBloc.quantityIsOk &&
-          !batchBloc.locationsDestIsok) {
-        print("🚼 muelle");
-        FocusScope.of(context).requestFocus(focusNode5);
-        //cerramos los demas focos
-        focusNode2.unfocus();
-        focusNode3.unfocus();
-        focusNode4.unfocus();
+      if (bloc.productIsOk &&
+          !bloc.loteIsOk &&
+          !bloc.quantityIsOk &&
+          !bloc.viewQuantity) {
+        _requestOnly(focusNode6, 'lote');
+        return;
       }
 
-      if (batchBloc.productIsOk && //true
-              batchBloc.quantityIsOk && //ttrue
-              batchBloc.locationsDestIsok //false
-              &&
-              !batchBloc.viewQuantity //false
-          ) //false
-      {
-        print('❤️‍🔥 quantity');
-        FocusScope.of(context).requestFocus(focusNode3);
-        focusNode2.unfocus();
-        focusNode4.unfocus();
-        focusNode5.unfocus();
+      if (configMuelle) {
+        if (bloc.productIsOk && !bloc.quantityIsOk && !bloc.locationsDestIsok) {
+          _requestOnly(focusNode5, 'muelle');
+          return;
+        }
+        if (bloc.productIsOk &&
+            bloc.quantityIsOk &&
+            bloc.locationsDestIsok &&
+            !bloc.viewQuantity) {
+          _requestOnly(focusNode3, 'quantity');
+          return;
+        }
+      } else {
+        if (bloc.productIsOk && bloc.quantityIsOk && !bloc.viewQuantity) {
+          _requestOnly(focusNode3, 'quantity');
+          return;
+        }
       }
     } else {
-      print('sin permiso de muelle');
-
-      if (batchBloc.productIsOk && //true
-              batchBloc.quantityIsOk && //ttrue
-              !batchBloc.viewQuantity //false
-          ) //false
-      {
-        print('❤️‍🔥 quantity');
-        FocusScope.of(context).requestFocus(focusNode3);
-        focusNode2.unfocus();
-        focusNode4.unfocus();
-        focusNode5.unfocus();
+      // SIN LOTE
+      print('--- SIN LOTE ---');
+      if (configMuelle) {
+        if (bloc.productIsOk && !bloc.quantityIsOk && !bloc.locationsDestIsok) {
+          _requestOnly(focusNode5, 'muelle');
+          return;
+        }
+        if (bloc.productIsOk &&
+            bloc.quantityIsOk &&
+            bloc.locationsDestIsok &&
+            !bloc.viewQuantity) {
+          _requestOnly(focusNode3, 'quantity');
+          return;
+        }
+      } else {
+        if (bloc.productIsOk && bloc.quantityIsOk && !bloc.viewQuantity) {
+          _requestOnly(focusNode3, 'quantity');
+          return;
+        }
       }
     }
-
-    print('productIsOk: ${batchBloc.productIsOk}');
-    print('quantityIsOk: ${batchBloc.quantityIsOk}');
-    print('viewQuantity: ${batchBloc.viewQuantity}');
-    print('locationsDestIsok: ${batchBloc.locationsDestIsok}');
   }
 
   @override
   void dispose() {
     focusNode2.dispose(); //product
     focusNode3.dispose(); //quantity
+    focusNode4.dispose(); //quantity
+    focusNode5.dispose(); //quantity
+    focusNode6.dispose(); //quantity
     super.dispose();
   }
 
@@ -180,6 +209,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         currentProduct.idRecepcion ?? 0,
         currentProduct.idMove ?? 0,
       ));
+
       bloc.add(ChangeProductIsOkEvent(
         currentProduct.idRecepcion ?? 0,
         true,
@@ -188,12 +218,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         currentProduct.idMove ?? 0,
       ));
 
-      if (bloc.configurations.result?.result
-              ?.scanDestinationLocationReception ==
-          false) {
-        bloc.add(ChangeIsOkQuantity(currentProduct.idRecepcion ?? 0, true,
-            int.parse(currentProduct.productId), currentProduct.idMove ?? 0));
-      }
+     
 
       bloc.add(ClearScannedValueOrderEvent('product'));
     } else {
@@ -203,6 +228,32 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
         bloc.add(ValidateFieldsOrderEvent(field: "product", isOk: false));
         bloc.add(ClearScannedValueOrderEvent('product'));
       }
+    }
+  }
+
+  void validateLote(String value) {
+    final bloc = context.read<RecepcionBloc>();
+    String scan = bloc.scannedValue4.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue4.trim().toLowerCase();
+    print('scan lote: $scan');
+    bloc.loteController.clear();
+    //tengo una lista de lotes el cual quiero validar si el scan es igual a alguno de los lotes
+    LotesProduct? matchedLote = bloc.listLotesProduct.firstWhere(
+        (lotes) => lotes.name?.toLowerCase() == scan.trim(),
+        orElse: () =>
+            LotesProduct() // Si no se encuentra ningún match, devuelve null
+        );
+
+    if (matchedLote.name != null) {
+      print('lote encontrado: ${matchedLote.name}');
+      bloc.add(ValidateFieldsOrderEvent(field: "lote", isOk: true));
+      bloc.add(SelectecLoteEvent(matchedLote));
+      bloc.add(ClearScannedValueOrderEvent('lote'));
+    } else {
+      print('lote no encontrado');
+      bloc.add(ValidateFieldsOrderEvent(field: "lote", isOk: false));
+      bloc.add(ClearScannedValueOrderEvent('lote'));
     }
   }
 
@@ -255,13 +306,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
           int.parse(currentProduct.productId),
           currentProduct.idMove ?? 0,
           matchedUbicacion));
-
-      bloc.add(ChangeIsOkQuantity(
-        currentProduct.idRecepcion ?? 0,
-        true,
-        int.parse(currentProduct.productId),
-        currentProduct.idMove ?? 0,
-      ));
       bloc.add(ClearScannedValueOrderEvent('locationDest'));
     } else {
       print('Ubicacion no encontrada');
@@ -306,7 +350,42 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         //pasamos al foco de lote
                         Future.delayed(const Duration(seconds: 1), () {
                           if (!mounted) return; // ← Añade esta verificación
-                          FocusScope.of(context).requestFocus(focusNode5);
+                          if (context
+                                  .read<RecepcionBloc>()
+                                  .currentProduct
+                                  .productTracking ==
+                              "lot") {
+                            FocusScope.of(context).requestFocus(focusNode6);
+                          } else {
+                            if (context
+                                    .read<RecepcionBloc>()
+                                    .configurations
+                                    .result
+                                    ?.result
+                                    ?.scanDestinationLocationReception ==
+                                false) {
+                              FocusScope.of(context).requestFocus(focusNode3);
+                            } else {
+                              FocusScope.of(context).requestFocus(focusNode5);
+                            }
+                          }
+                        });
+                        _handleDependencies();
+                      }
+
+                      if (state is ChangeLoteOrderIsOkState) {
+                        Future.delayed(const Duration(seconds: 1), () {
+                          if (context
+                                  .read<RecepcionBloc>()
+                                  .configurations
+                                  .result
+                                  ?.result
+                                  ?.scanDestinationLocationReception ==
+                              false) {
+                            FocusScope.of(context).requestFocus(focusNode3);
+                          } else {
+                            FocusScope.of(context).requestFocus(focusNode5);
+                          }
                         });
                         _handleDependencies();
                       }
@@ -321,12 +400,11 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
 
                       if (state is ChangeQuantitySeparateState) {
                         // if (state.quantity != 0.0) {
-                          if (state.quantity ==
-                              recepcionBloc.currentProduct.cantidadFaltante
-                                  ) {
-                            //termianmso el proceso
-                            _finishSeprateProductOrder(context, state.quantity);
-                          }
+                        if (state.quantity ==
+                            recepcionBloc.currentProduct.cantidadFaltante) {
+                          //termianmso el proceso
+                          _finishSeprateProductOrder(context, state.quantity);
+                        }
                         // }
                       }
                     }, builder: (context, status) {
@@ -802,29 +880,146 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                             mainAxisAlignment:
                                                 MainAxisAlignment.start,
                                             children: [
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Row(
-                                                  children: [
-                                                    Text(
-                                                      'Lote: ',
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: black),
+                                              context
+                                                      .read<UserBloc>()
+                                                      .fabricante
+                                                      .contains("Zebra")
+                                                  ? Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 0,
+                                                          vertical: 5),
+                                                      child: Column(
+                                                        children: [
+                                                          Container(
+                                                            height: 20,
+                                                            margin:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    bottom: 5,
+                                                                    top: 5),
+                                                            child:
+                                                                TextFormField(
+                                                              autofocus: true,
+                                                              showCursor: false,
+                                                              controller:
+                                                                  recepcionBloc
+                                                                      .loteController, // Asignamos el controlador
+                                                              enabled: recepcionBloc
+                                                                      .productIsOk && //true
+                                                                  !recepcionBloc
+                                                                      .loteIsOk && //false
+                                                                  !recepcionBloc
+                                                                      .quantityIsOk && //false
+                                                                  !recepcionBloc
+                                                                      .viewQuantity,
+
+                                                              focusNode:
+                                                                  focusNode6,
+                                                              onChanged:
+                                                                  (value) {
+                                                                // Llamamos a la validación al cambiar el texto
+                                                                validateLote(
+                                                                    value);
+                                                              },
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                hintText: recepcionBloc.lotesProductCurrent.name ==
+                                                                            "" ||
+                                                                        recepcionBloc.lotesProductCurrent.name ==
+                                                                            null
+                                                                    ? 'Esperando escaneo'
+                                                                    : recepcionBloc
+                                                                            .lotesProductCurrent
+                                                                            .name ??
+                                                                        "",
+                                                                disabledBorder:
+                                                                    InputBorder
+                                                                        .none,
+                                                                hintStyle:
+                                                                    const TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color:
+                                                                            black),
+                                                                border:
+                                                                    InputBorder
+                                                                        .none,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    )
+                                                  : Focus(
+                                                      focusNode: focusNode6,
+                                                      onKey: (FocusNode node,
+                                                          RawKeyEvent event) {
+                                                        if (event
+                                                            is RawKeyDownEvent) {
+                                                          if (event
+                                                                  .logicalKey ==
+                                                              LogicalKeyboardKey
+                                                                  .enter) {
+                                                            validateLote(
+                                                                recepcionBloc
+                                                                    .scannedValue4);
+
+                                                            return KeyEventResult
+                                                                .handled;
+                                                          } else {
+                                                            recepcionBloc.add(
+                                                                UpdateScannedValueOrderEvent(
+                                                                    event.data
+                                                                        .keyLabel,
+                                                                    'lote'));
+
+                                                            return KeyEventResult
+                                                                .handled;
+                                                          }
+                                                        }
+                                                        return KeyEventResult
+                                                            .ignored;
+                                                      },
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 0,
+                                                                vertical: 5),
+                                                        child: Column(
+                                                          children: [
+                                                            Align(
+                                                              alignment: Alignment
+                                                                  .centerLeft,
+                                                              child: Row(
+                                                                children: [
+                                                                  Text(
+                                                                    'Lote: ',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                        color:
+                                                                            black),
+                                                                  ),
+                                                                  Text(
+                                                                    recepcionBloc
+                                                                            .lotesProductCurrent
+                                                                            .name ??
+                                                                        "Esperando escaneo",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            14,
+                                                                        color:
+                                                                            black),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ),
-                                                    Text(
-                                                      recepcionBloc
-                                                              .lotesProductCurrent
-                                                              .name ??
-                                                          "",
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color:
-                                                              primaryColorApp),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
                                               Align(
                                                 alignment: Alignment.centerLeft,
                                                 child: Row(

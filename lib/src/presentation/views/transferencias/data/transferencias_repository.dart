@@ -452,6 +452,83 @@ class TransferenciasRepository {
           "params": {
             "id_transferencia": idTransfer,
             "crear_backorder": isBackorder,
+            
+          }
+        },
+        isLoadinDialog: isLoadingDialog,
+      );
+      if (response.statusCode <= 500) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        if (jsonResponse.containsKey('result')) {
+          return ResponseValidate(
+            jsonrpc: jsonResponse['jsonrpc'],
+            result: jsonResponse['result'] != null
+                ? ResultValidate.fromMap(jsonResponse['result'])
+                : null,
+          );
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            //mostramos una alerta de get
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+
+            return ResponseValidate();
+          }
+        }
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en validateTransfer: $e, $s');
+      return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
+    }
+    return ResponseValidate(); // Retornamos un objeto vacío en caso de error de red
+  }
+  Future<ResponseValidate> confirmationValidate(
+    int idTransfer,
+    bool isBackorder,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return ResponseValidate(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'complete_transfer/expire', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "id_transferencia": idTransfer,
+            "crear_backorder": isBackorder,
           }
         },
         isLoadinDialog: isLoadingDialog,

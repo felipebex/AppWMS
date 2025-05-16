@@ -7,8 +7,14 @@ class FetchOrdenesCompra extends RecepcionEvent {
   final bool isLoadinDialog;
   FetchOrdenesCompra(this.isLoadinDialog);
 }
+class FetchDevoluciones extends RecepcionEvent {
+  final bool isLoadinDialog;
+  FetchDevoluciones(this.isLoadinDialog);
+}
+
 
 class FetchOrdenesCompraOfBd extends RecepcionEvent {}
+class FetchDevolucionesOfDB extends RecepcionEvent {}
 
 class CurrentOrdenesCompra extends RecepcionEvent {
   ResultEntrada resultEntrada;
@@ -23,6 +29,10 @@ class ShowKeyboardEvent extends RecepcionEvent {
 class SearchOrdenCompraEvent extends RecepcionEvent {
   final String query;
   SearchOrdenCompraEvent(this.query);
+}
+class SearchDevolucionEvent extends RecepcionEvent {
+  final String query;
+  SearchDevolucionEvent(this.query);
 }
 
 class AssignUserToOrder extends RecepcionEvent {

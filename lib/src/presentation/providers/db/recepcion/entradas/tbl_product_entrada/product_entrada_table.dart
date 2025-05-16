@@ -42,6 +42,7 @@ class ProductRecepcionTable {
   static const String columnDateStart = 'date_start';
   static const String columnDateEnd = 'date_end';
   static const String columnTime = 'time';
+  static const String columnType = 'type';
 
   static const String columnIsDoneItem = 'is_done_item';
   static const String columnDateTransaction  = 'date_transaction'; 
@@ -78,6 +79,7 @@ class ProductRecepcionTable {
       $columnIsProductSplit INTEGER,
       $columnObservation TEXT,
       $columnQuantitySeparate REAL,
+      $columnType TEXT,
 
       $columnLoteId INTEGER,
       $columnLotName TEXT,

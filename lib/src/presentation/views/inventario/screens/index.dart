@@ -11,6 +11,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/dialog_barcodes_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
@@ -30,6 +31,7 @@ class _InventarioScreenState extends State<InventarioScreen>
   FocusNode focusNode2 = FocusNode(); // producto
   FocusNode focusNode3 = FocusNode(); // cantidad por pda
   FocusNode focusNode4 = FocusNode(); //cantidad textformfield
+  FocusNode focusNode5 = FocusNode(); //lote
 
   @override
   void initState() {
@@ -69,48 +71,64 @@ class _InventarioScreenState extends State<InventarioScreen>
     _handleDependencies();
   }
 
+  void _focus(FocusNode node, String label) {
+    print("🚼 $label");
+    FocusScope.of(context).requestFocus(node);
+    _unfocusOthers(except: node);
+  }
+
+  void _unfocusOthers({required FocusNode except}) {
+    for (final node in [
+      focusNode1,
+      focusNode2,
+      focusNode3,
+      focusNode4,
+      focusNode5
+    ]) {
+      if (node != except) node.unfocus();
+    }
+  }
+
   void _handleDependencies() {
-    final batchBloc = context.read<InventarioBloc>();
-
-    //validamos que tengamos productos ya descargados
-
-    //mostremos que focus estan activos
-    if (!batchBloc.locationIsOk && //false
-            !batchBloc.productIsOk && //false
-            !batchBloc.quantityIsOk //false
-        ) {
-      print("🚼 location");
-      FocusScope.of(context).requestFocus(focusNode1);
-      //cerramos los demas focos
-      focusNode2.unfocus();
-      focusNode3.unfocus();
-      focusNode4.unfocus();
+    final bloc = context.read<InventarioBloc>();
+    final hasLote = bloc.currentProduct?.tracking == "lot";
+    if (!bloc.locationIsOk && !bloc.productIsOk && !bloc.quantityIsOk) {
+      _focus(focusNode1, "location");
+      return;
     }
-    if (batchBloc.locationIsOk && //true
-        !batchBloc.productIsOk && //false
-        !batchBloc.quantityIsOk) //false
-    {
-      print("🚼 product");
-      FocusScope.of(context).requestFocus(focusNode2);
-      //cerramos los demas focos
-      focusNode1.unfocus();
-      focusNode3.unfocus();
-      focusNode4.unfocus();
+    if (bloc.locationIsOk && !bloc.productIsOk && !bloc.quantityIsOk) {
+      _focus(focusNode2, "product");
+      return;
     }
-    if (batchBloc.locationIsOk && //true
-        batchBloc.productIsOk && //true
-        batchBloc.quantityIsOk && //true
-        !batchBloc.viewQuantity) //false
-    {
-      print("🚼 quantity");
-      FocusScope.of(context).requestFocus(focusNode3);
-      //cerramos los demas focos
-      focusNode1.unfocus();
-      focusNode2.unfocus();
-      focusNode4.unfocus();
+    if (hasLote) {
+      if (bloc.locationIsOk &&
+          bloc.productIsOk &&
+          !bloc.loteIsOk &&
+          !bloc.quantityIsOk &&
+          !bloc.viewQuantity) {
+        _focus(focusNode5, "lote");
+        return;
+      }
+
+      if (bloc.locationIsOk &&
+          bloc.productIsOk &&
+          bloc.loteIsOk &&
+          bloc.quantityIsOk &&
+          !bloc.viewQuantity) {
+        _focus(focusNode3, "quantity");
+        return;
+      }
+    } else {
+      if (bloc.locationIsOk &&
+          bloc.productIsOk &&
+          bloc.quantityIsOk &&
+          !bloc.viewQuantity) {
+        _focus(focusNode3, "quantity");
+        return;
+      }
     }
 
-    setState(() {});
+    setState(() {}); // Solo si realmente se necesita aquí
   }
 
   void validateLocation(String value) {
@@ -141,6 +159,32 @@ class _InventarioScreenState extends State<InventarioScreen>
     }
   }
 
+  void validateLote(String value) {
+    final bloc = context.read<InventarioBloc>();
+    String scan = bloc.scannedValue4.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue4.trim().toLowerCase();
+    print('scan lote: $scan');
+    bloc.controllerLote.clear();
+    //tengo una lista de lotes el cual quiero validar si el scan es igual a alguno de los lotes
+    LotesProduct? matchedLote = bloc.listLotesProduct.firstWhere(
+        (lotes) => lotes.name?.toLowerCase() == scan.trim(),
+        orElse: () =>
+            LotesProduct() // Si no se encuentra ningún match, devuelve null
+        );
+
+    if (matchedLote.name != null) {
+      print('lote encontrado: ${matchedLote.name}');
+      bloc.add(ValidateFieldsEvent(field: "lote", isOk: true));
+      bloc.add(SelectecLoteEvent(matchedLote));
+      bloc.add(ClearScannedValueEvent('lote'));
+    } else {
+      print('Ubicacion no encontrada');
+      bloc.add(ValidateFieldsEvent(field: "lote", isOk: false));
+      bloc.add(ClearScannedValueEvent('lote'));
+    }
+  }
+
   void validateProduct(String value) {
     final bloc = context.read<InventarioBloc>();
 
@@ -162,7 +206,9 @@ class _InventarioScreenState extends State<InventarioScreen>
       print('producto encontrado: ${matchedProducts.name}');
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
       bloc.add(ChangeProductIsOkEvent(matchedProducts));
-      bloc.add(ChangeIsOkQuantity(true));
+      if (bloc.currentProduct?.tracking != "lot") {
+        bloc.add(ChangeIsOkQuantity(true));
+      }
       bloc.add(ClearScannedValueEvent('product'));
     } else {
       print('producto encontrado: ${matchedProducts.name}');
@@ -210,12 +256,8 @@ class _InventarioScreenState extends State<InventarioScreen>
   void _validatebuttonquantity() {
     final bloc = context.read<InventarioBloc>();
 
-
-
     String input = bloc.cantidadController.text.trim();
     //validamos quantity
-     
-
 
     // Si está vacío, usar la cantidad seleccionada del bloc
     if (input.isEmpty) {
@@ -299,6 +341,7 @@ class _InventarioScreenState extends State<InventarioScreen>
     focusNode2.dispose();
     focusNode3.dispose();
     focusNode4.dispose();
+    focusNode5.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -341,6 +384,20 @@ class _InventarioScreenState extends State<InventarioScreen>
         if (state is ChangeProductIsOkState) {
           //cambiamos el foco a cantidad
           Future.delayed(const Duration(seconds: 1), () {
+            //validamso si el producto tiene lote
+            if (context.read<InventarioBloc>().currentProduct?.tracking ==
+                "lot") {
+              FocusScope.of(context).requestFocus(focusNode5);
+            } else {
+              FocusScope.of(context).requestFocus(focusNode3);
+            }
+          });
+          _handleDependencies();
+        }
+
+        if (state is ChangeLoteIsOkState) {
+          Future.delayed(const Duration(seconds: 1), () {
+            //validamso si el producto tiene lote
             FocusScope.of(context).requestFocus(focusNode3);
           });
           _handleDependencies();
@@ -739,14 +796,16 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                       }
                                                     : null,
                                                 child: Card(
-                                                  color:white,
+                                                  color: white,
                                                   child: Padding(
-                                                    padding: const EdgeInsets.all(6.0),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            6.0),
                                                     child: Row(
                                                       children: [
                                                         Align(
-                                                          alignment:
-                                                              Alignment.centerLeft,
+                                                          alignment: Alignment
+                                                              .centerLeft,
                                                           child: Text(
                                                             'Ubicación de existencias',
                                                             style: TextStyle(
@@ -759,7 +818,8 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                         Spacer(),
                                                         Image.asset(
                                                           "assets/icons/ubicacion.png",
-                                                          color: primaryColorApp,
+                                                          color:
+                                                              primaryColorApp,
                                                           width: 20,
                                                         ),
                                                       ],
@@ -1449,27 +1509,144 @@ class _InventarioScreenState extends State<InventarioScreen>
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
                                           children: [
-                                            Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    'Lote: ',
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: black),
+                                            //widget de scan
+                                            context
+                                                    .read<UserBloc>()
+                                                    .fabricante
+                                                    .contains("Zebra")
+                                                ? Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 0,
+                                                        vertical: 5),
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          height: 20,
+                                                          margin:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  bottom: 5,
+                                                                  top: 5),
+                                                          child: TextFormField(
+                                                            autofocus: true,
+                                                            showCursor: false,
+                                                            controller: bloc
+                                                                .controllerLote, // Asignamos el controlador
+                                                            enabled: bloc
+                                                                    .locationIsOk && //true
+                                                                bloc
+                                                                    .productIsOk && //true
+                                                                !bloc
+                                                                    .loteIsOk && //false
+                                                                !bloc
+                                                                    .quantityIsOk && //false
+                                                                !bloc
+                                                                    .viewQuantity,
+
+                                                            focusNode:
+                                                                focusNode5,
+                                                            onChanged: (value) {
+                                                              // Llamamos a la validación al cambiar el texto
+                                                              validateLote(
+                                                                  value);
+                                                            },
+                                                            decoration:
+                                                                InputDecoration(
+                                                              hintText: bloc.currentProductLote
+                                                                              ?.name ==
+                                                                          "" ||
+                                                                      bloc.currentProductLote
+                                                                              ?.name ==
+                                                                          null
+                                                                  ? 'Esperando escaneo'
+                                                                  : bloc.currentProductLote
+                                                                          ?.name ??
+                                                                      "",
+                                                              disabledBorder:
+                                                                  InputBorder
+                                                                      .none,
+                                                              hintStyle:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          black),
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                : Focus(
+                                                    focusNode: focusNode5,
+                                                    onKey: (FocusNode node,
+                                                        RawKeyEvent event) {
+                                                      if (event
+                                                          is RawKeyDownEvent) {
+                                                        if (event.logicalKey ==
+                                                            LogicalKeyboardKey
+                                                                .enter) {
+                                                          validateLote(bloc
+                                                              .scannedValue4);
+
+                                                          return KeyEventResult
+                                                              .handled;
+                                                        } else {
+                                                          bloc.add(
+                                                              UpdateScannedValueEvent(
+                                                                  event.data
+                                                                      .keyLabel,
+                                                                  'lote'));
+
+                                                          return KeyEventResult
+                                                              .handled;
+                                                        }
+                                                      }
+                                                      return KeyEventResult
+                                                          .ignored;
+                                                    },
+                                                    child: Padding(
+                                                      padding: const EdgeInsets
+                                                          .symmetric(
+                                                          horizontal: 0,
+                                                          vertical: 5),
+                                                      child: Column(
+                                                        children: [
+                                                          Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Row(
+                                                              children: [
+                                                                Text(
+                                                                  'Lote: ',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          14,
+                                                                      color:
+                                                                          black),
+                                                                ),
+                                                                Text(
+                                                                  bloc.currentProductLote
+                                                                          ?.name ??
+                                                                      "Esperando escaneo",
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          14,
+                                                                      color:
+                                                                          black),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
                                                   ),
-                                                  Text(
-                                                    bloc.currentProductLote
-                                                            ?.name ??
-                                                        "",
-                                                    style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: primaryColorApp),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
+
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Row(
@@ -1484,10 +1661,17 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                     bloc.currentProductLote
                                                             ?.expirationDate
                                                             .toString() ??
-                                                        "",
+                                                        "Sin fecha",
                                                     style: TextStyle(
                                                         fontSize: 14,
-                                                        color: black),
+                                                        color: bloc.currentProductLote
+                                                                        ?.expirationDate ==
+                                                                    "" ||
+                                                                bloc.currentProductLote
+                                                                        ?.expirationDate ==
+                                                                    null
+                                                            ? red
+                                                            : black),
                                                   ),
                                                 ],
                                               ),

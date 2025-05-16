@@ -19,6 +19,7 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/screens/
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/widgets/locations_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/widgets/new_lote_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/list_devoluctions_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/list_ordernes_compra_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/scan_product_screen.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/locations_dest/locations_dest_widget.dart';
@@ -91,6 +92,9 @@ class AppRoutes {
   static const String home = '/home';
   static const String user = 'user';
 
+  //todo devoluciones individual
+  static const String devoluciones = 'list-devoluciones';
+
   //todo recepcion
   static const String recepcion = 'recepcion';
   static const String listOrdenesCompra = 'list-ordenes-compra';
@@ -99,10 +103,11 @@ class AppRoutes {
   //todo recepcion batch
   static const String listReceptionBatch = 'list-recepction-batch';
   static const String recepcionBatch = 'recepcion-batch';
-  static const String scanProductReceptionBatch = 'scan-product-reception-batch';
-  static const String locationDestReceptionBatchSearch = 'search-location-recep-batch';
-    static const String newLoteRecepBatch = 'new-lote-recep-batch';
-
+  static const String scanProductReceptionBatch =
+      'scan-product-reception-batch';
+  static const String locationDestReceptionBatchSearch =
+      'search-location-recep-batch';
+  static const String newLoteRecepBatch = 'new-lote-recep-batch';
 
   //todo new lote
   static const String newLote = 'new-lote';
@@ -116,7 +121,6 @@ class AppRoutes {
   static const String listProduct = 'list-product';
   static const String searchLocationDestTransInfo =
       'search-locations-dest-trans-info';
-
 
   static Map<String, Widget Function(BuildContext)> get routes {
     return {
@@ -136,7 +140,6 @@ class AppRoutes {
       pick: (_) => const IndexListPickScreen(),
       scanProductPick: (_) => const ScanProductPickScreen(),
       pickDetail: (_) => const PickDetailScreen(),
-
 
       //todo picking componentes
       pickingComponentes: (_) => const IndexListPickComponentsScreen(),
@@ -242,10 +245,13 @@ class AppRoutes {
 
       listOrdenesCompra: (_) => const ListOrdenesCompraScreen(),
 
+      //todo devoluciones individual
+      devoluciones: (_) => const ListDevolutionsScreen(),
+
       //todo recepcion batch
       listReceptionBatch: (_) => const ListRecepctionBatchScreen(),
-      
-      recepcionBatch : (context) {
+
+      recepcionBatch: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
         final recepcionBatch = arguments[0] as ReceptionBatch?;
@@ -273,7 +279,7 @@ class AppRoutes {
             ordenCompra: recepcionBatch, currentProduct: currentProducArg);
       },
 
-        //todo lote por batch
+      //todo lote por batch
       newLoteRecepBatch: (context) {
         final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
@@ -339,20 +345,15 @@ class AppRoutes {
         );
       },
 
-      
       //todo entrada de productos
-      entradaProductos: (_){
+      entradaProductos: (_) {
         return ListEntradaProductsScreen();
       },
-      
-      
+
       //todo transferencias
       transferencias: (_) {
         return ListTransferenciasScreen();
       },
-
-
-
 
       transferenciaDetail: (context) {
         final arguments =

@@ -87,13 +87,7 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecepBatch> {
         product.idMove ?? 0,
       ));
 
-      if (bloc.configurations.result?.result
-              ?.scanDestinationLocationReception ==
-          false) {
-        print('con permiso de muelle desde tab 2');
-        bloc.add(ChangeIsOkQuantity(product.idRecepcion ?? 0, true,
-            int.parse(product.productId), product.idMove ?? 0));
-      }
+     
 
       context.read<RecepcionBatchBloc>().add(FetchPorductOrder(
             product,

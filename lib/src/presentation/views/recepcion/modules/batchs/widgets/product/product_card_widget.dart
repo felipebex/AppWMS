@@ -96,16 +96,7 @@ class ProductDropdownReceptionBatchWidget extends StatelessWidget {
                                 0,
                                 currentProduct.idMove ?? 0));
 
-                            if (recepcionBloc.configurations.result?.result
-                                    ?.scanDestinationLocationReception ==
-                                false) {
-                              recepcionBloc.add(ChangeIsOkQuantity(
-                                currentProduct.idRecepcion ?? 0,
-                                true,
-                                int.parse(currentProduct.productId),
-                                currentProduct.idMove ?? 0,
-                              ));
-                            }
+                           
                           } else {
                             recepcionBloc.add(ValidateFieldsOrderEvent(
                                 field: "product", isOk: false));

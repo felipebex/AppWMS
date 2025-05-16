@@ -23,6 +23,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   List<ResultEntrada> listOrdenesCompra = [];
   List<ResultEntrada> listFiltersOrdenesCompra = [];
 
+  //*listado de devoluciones
+  List<ResultEntrada> listDevolutions = [];
+  List<ResultEntrada> listFiltersDevolutions = [];
+
   //*listado de productos de una entrada
   List<LineasTransferencia> listProductsEntrada = [];
 
@@ -63,13 +67,14 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   //*repositorio
   final RecepcionRepository _recepcionRepository = RecepcionRepository();
   //*controller de busqueda
+  TextEditingController searchControllerDev = TextEditingController();
   TextEditingController searchControllerOrderC = TextEditingController();
   TextEditingController newLoteController = TextEditingController();
   TextEditingController dateLoteController = TextEditingController();
   TextEditingController searchControllerLote = TextEditingController();
   TextEditingController locationDestController = TextEditingController();
+  TextEditingController loteController = TextEditingController();
   TextEditingController controllerTemperature = TextEditingController();
-
   TextEditingController searchControllerLocationDest = TextEditingController();
 
   //*variables para validar
@@ -194,6 +199,121 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     //enviar temperatura
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
+
+    //todo devoluciones
+    on<FetchDevoluciones>(_onFetchDevoluciones);
+    on<FetchDevolucionesOfDB>(_onFetchDevolucionesOfDB);
+    on<SearchDevolucionEvent>(_onSearchDevolucionEvent);
+  }
+
+  //*metodo para buscar una devolucion
+
+  void _onSearchDevolucionEvent(
+      SearchDevolucionEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      listFiltersDevolutions = [];
+      listFiltersDevolutions = listDevolutions;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        listFiltersDevolutions = listDevolutions;
+      } else {
+        listFiltersDevolutions = listFiltersDevolutions.where((element) {
+          // Filtrar por nombre o proveedor (si el proveedor no es nulo o vacío)
+          return element.name!.toLowerCase().contains(query) ||
+              (element.proveedor != null &&
+                  element.proveedor!.toLowerCase().contains(query)) ||
+              (element.purchaseOrderName != null &&
+                  element.purchaseOrderName!.toLowerCase().contains(query));
+        }).toList();
+      }
+
+      emit(SearchDevolucionSuccess(listFiltersDevolutions));
+    } catch (e, s) {
+      emit(SearchDevolucionFailure('Error al buscar la orden de compra'));
+      print('Error en el _onSearchPedidoEvent: $e, $s');
+    }
+  }
+
+  //*metodo para obtener las entradas desde la bd
+  void _onFetchDevolucionesOfDB(
+      FetchDevolucionesOfDB event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(FetchDevolucionesLoadingDB());
+      final listbd = await db.entradasRepository.getAllEntradas('dev');
+      listDevolutions.clear();
+      listFiltersDevolutions.clear();
+      if (listbd != null && listbd.isNotEmpty) {
+        listDevolutions = listbd;
+        listFiltersDevolutions = listbd;
+      } else {
+        emit(FetchDevolucionesFailureDB(
+            'No hay ordenes de compra en la base de datos'));
+      }
+      emit(FetchDevolucionesSuccessDB(listFiltersDevolutions));
+    } catch (e, s) {
+      emit(
+          FetchDevolucionesFailureDB('Error al obtener las ordenes de compra'));
+      print('Error en el _onFetchOrdenesCompraOfBd: $e, $s');
+    }
+  }
+
+  void _onFetchDevoluciones(
+      FetchDevoluciones event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(FetchDevolucionesLoading());
+
+      listFiltersDevolutions.clear();
+
+      await db.deleRecepcion('dev');
+
+      final response =
+          await _recepcionRepository.fetchAllReceptions(event.isLoadinDialog);
+
+      if (response.result?.code == 200) {
+        if (response.result?.result?.isNotEmpty == true) {
+          final listRecepcion = response.result?.result;
+
+          await db.entradasRepository
+              .insertEntrada(response.result?.result ?? [], 'dev');
+
+          final productsToInsert =
+              _getAllProducts(listRecepcion!).toList(growable: false);
+          final productsSedToInsert =
+              _getAllSentProducts(listRecepcion).toList(growable: false);
+          final allBarcodes =
+              _getAllBarcodes(listRecepcion).toList(growable: false);
+
+          // Enviar la lista agrupada a insertBatchProducts
+          await db.productEntradaRepository
+              .insertarProductoEntrada(productsToInsert, 'dev');
+
+          await db.productEntradaRepository
+              .insertarProductoEntrada(productsSedToInsert, 'dev');
+
+          // Enviar la lista agrupada de barcodes de un producto para packing
+          await db.barcodesPackagesRepository
+              .insertOrUpdateBarcodes(allBarcodes, 'dev');
+
+          print("listRecepcion: ${listRecepcion.length}");
+          print("productsToInsert: ${productsToInsert.length}");
+          print('productsSedToInsert : ${productsSedToInsert.length}');
+          print("allBarcodes: ${allBarcodes.length}");
+
+          add(FetchDevolucionesOfDB());
+          emit(FetchDevolucionesSuccess(
+            response.result?.result ?? [],
+          ));
+        } else {
+          emit(FetchDevolucionesSuccess(
+            response.result?.result ?? [],
+          ));
+        }
+      } else {
+        emit(FetchDevolucionesFailure(response.result?.msg ?? ''));
+      }
+    } catch (e, s) {
+      print('Error en RecepcionBloc: $e, $s');
+    }
   }
 
   void _onSendTemperatureEvent(
@@ -203,9 +323,12 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       final response = await _recepcionRepository.sendTemperature(
           event.idRecepcion, event.temperature, false);
       if (response) {
-        await db.entradasRepository.setFieldTableEntrada(event.idRecepcion, 'temperatura', event.temperature);
-        //traemos la informacion de la entrada actualizada 
-        resultEntrada = await db.entradasRepository.getEntradaById(event.idRecepcion) ?? ResultEntrada();
+        await db.entradasRepository.setFieldTableEntrada(
+            event.idRecepcion, 'temperatura', event.temperature);
+        //traemos la informacion de la entrada actualizada
+        resultEntrada =
+            await db.entradasRepository.getEntradaById(event.idRecepcion) ??
+                ResultEntrada();
         controllerTemperature.clear();
         emit(SendTemperatureSuccess('Temperatura enviada correctamente'));
       } else {
@@ -300,6 +423,9 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
         currentUbicationDest = event.locationSelect;
         locationsDestIsok = true;
+
+        add(ChangeIsOkQuantity(currentProduct.idRecepcion ?? 0, true,
+            int.parse(currentProduct.productId), currentProduct.idMove ?? 0));
 
         emit(ChangeLocationDestIsOkState(
           locationsDestIsok,
@@ -622,8 +748,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           var pendingQuantity =
               (currentProduct.cantidadFaltante - event.quantity);
           //creamos un nuevo producto (duplicado) con la cantidad separada
-          await db.productEntradaRepository
-              .insertDuplicateProducto(currentProduct, pendingQuantity);
+          await db.productEntradaRepository.insertDuplicateProducto(
+              currentProduct, pendingQuantity, currentProduct.type ?? "");
         }
         add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
         lotesProductCurrent = LotesProduct();
@@ -869,6 +995,19 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         event.quantity,
         event.idMove,
       );
+
+//validamos si el producto tiene lote
+      if (currentProduct.productTracking != "lot") {
+        if (configurations.result?.result?.scanDestinationLocationReception ==
+            false) {
+          add(ChangeIsOkQuantity(
+            currentProduct.idRecepcion ?? 0,
+            true,
+            int.parse(currentProduct.productId),
+            currentProduct.idMove ?? 0,
+          ));
+        }
+      }
     }
     productIsOk = event.productIsOk;
     emit(ChangeProductOrderIsOkState(
@@ -910,6 +1049,16 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     );
 
     loteIsOk = true;
+
+    if (configurations.result?.result?.scanDestinationLocationReception ==
+        false) {
+      add(ChangeIsOkQuantity(
+        currentProduct.idRecepcion ?? 0,
+        true,
+        int.parse(currentProduct.productId),
+        currentProduct.idMove ?? 0,
+      ));
+    }
 
     emit(ChangeLoteOrderIsOkState(
       loteIsOk,
@@ -1205,7 +1354,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
       listFiltersOrdenesCompra.clear();
 
-      await db.deleRecepcion();
+      await db.deleRecepcion('reception');
 
       final response =
           await _recepcionRepository.fetchAllReceptions(event.isLoadinDialog);
@@ -1215,7 +1364,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           final listRecepcion = response.result?.result;
 
           await db.entradasRepository
-              .insertEntrada(response.result?.result ?? []);
+              .insertEntrada(response.result?.result ?? [], 'reception');
 
           final productsToInsert =
               _getAllProducts(listRecepcion!).toList(growable: false);
@@ -1226,10 +1375,10 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
           // Enviar la lista agrupada a insertBatchProducts
           await db.productEntradaRepository
-              .insertarProductoEntrada(productsToInsert);
+              .insertarProductoEntrada(productsToInsert, 'reception');
 
           await db.productEntradaRepository
-              .insertarProductoEntrada(productsSedToInsert);
+              .insertarProductoEntrada(productsSedToInsert, 'reception');
 
           // Enviar la lista agrupada de barcodes de un producto para packing
           await db.barcodesPackagesRepository
@@ -1289,7 +1438,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       FetchOrdenesCompraOfBd event, Emitter<RecepcionState> emit) async {
     try {
       emit(FetchOrdenesCompraOfBdLoading());
-      final listbd = await db.entradasRepository.getAllEntradas();
+      final listbd = await db.entradasRepository.getAllEntradas('reception');
       listOrdenesCompra.clear();
       listFiltersOrdenesCompra.clear();
       if (listbd != null && listbd.isNotEmpty) {

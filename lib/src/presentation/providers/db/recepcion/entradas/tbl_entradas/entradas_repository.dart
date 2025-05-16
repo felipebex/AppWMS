@@ -6,7 +6,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_respon
 
 class EntradasRepository {
   //metodo para insertar todas las entradas
- Future<void> insertEntrada(List<ResultEntrada> entradas) async {
+ Future<void> insertEntrada(List<ResultEntrada> entradas, String type) async {
   try {
     final db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -55,6 +55,7 @@ class EntradasRepository {
           EntradasRepeccionTable.columnDateFinish: entrada.endTimeReception ?? '',
           EntradasRepeccionTable.columnBackorderId: entrada.backorderId ?? 0,
           EntradasRepeccionTable.columnBackorderName: entrada.backorderName ?? "",
+          EntradasRepeccionTable.columnType :type,
           //maneja_temperatura
           EntradasRepeccionTable.columnManejaTemperatura: entrada.manejaTemperatura ?? 0,
           //temperatura
@@ -88,11 +89,13 @@ class EntradasRepository {
 
 
   //metodo para obtener todas las entradas
-  Future<List<ResultEntrada>> getAllEntradas() async {
+  Future<List<ResultEntrada>> getAllEntradas(String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       final List<Map<String, dynamic>> entradas = await db.query(
         EntradasRepeccionTable.tableName,
+        where: '${EntradasRepeccionTable.columnType} = ?',
+        whereArgs: [type],
       );
       return entradas.map((e) => ResultEntrada.fromMap(e)).toList();
     } catch (e, s) {

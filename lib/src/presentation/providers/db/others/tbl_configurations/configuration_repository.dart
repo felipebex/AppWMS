@@ -74,7 +74,12 @@ class ConfigurationsRepository {
 
         //hide_validate_transfer
         ConfigurationsTable.columnHideValidateTransfer:
-            _boolToInt(configuration.result?.result?.hide_validate_transfer),
+            _boolToInt(configuration.result?.result?.hideValidateTransfer),
+
+        ConfigurationsTable.columnHideValidateReception:
+            _boolToInt(configuration.result?.result?.hideValidateReception),
+
+
         // count_quantity_inventory
         ConfigurationsTable.columnCountQuantityInventory:
             _boolToInt(configuration.result?.result?.countQuantityInventory),
@@ -174,8 +179,12 @@ class ConfigurationsRepository {
               countQuantityInventory: _intToBool(
                   map[ConfigurationsTable.columnCountQuantityInventory]),
 
-              hide_validate_transfer: _intToBool(
+              hideValidateTransfer: _intToBool(
                   map[ConfigurationsTable.columnHideValidateTransfer]),
+
+              hideValidateReception: _intToBool(
+                  map[ConfigurationsTable.columnHideValidateReception]
+              ),
             ),
           ),
         );

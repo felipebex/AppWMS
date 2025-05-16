@@ -100,6 +100,87 @@ class RecepcionRepository {
 
     return Recepcionresponse(); // Fallback en todos los casos
   }
+  Future<Recepcionresponse> fetchAllDevolutions(bool isLoadinDialog) async {
+    final stopwatch = Stopwatch()..start(); // ⏱ Iniciar conteo
+
+    try {
+      final connectivityResult = await Connectivity().checkConnectivity();
+      if (connectivityResult == ConnectivityResult.none) {
+        print("❌ Sin conexión a Internet.");
+        return Recepcionresponse();
+      }
+
+      final response = await ApiRequestService().get(
+        endpoint: 'recepciones/devs',
+        isunecodePath: true,
+        isLoadinDialog: isLoadinDialog,
+      );
+
+      stopwatch.stop(); // ⏹ Finalizar conteo
+      print(
+          "⏱ fetchAllDevolutions completado en ${stopwatch.elapsedMilliseconds} ms");
+
+      if (response.statusCode >= 400) {
+        print("❌ Error HTTP: ${response.statusCode}");
+        return Recepcionresponse();
+      }
+
+      final jsonResponse = jsonDecode(response.body);
+
+      if (jsonResponse.containsKey('result')) {
+        final result = jsonResponse['result'];
+        if (result['code'] == 200 && result['result'] is List) {
+          final List<ResultEntrada> ordenes = (result['result'] as List)
+              .map((data) => ResultEntrada.fromMap(data))
+              .toList();
+
+          return Recepcionresponse(
+            jsonrpc: jsonResponse['jsonrpc'],
+            id: jsonResponse['id'],
+            result: RecepcionresponseResult(
+              code: result['code'],
+              result: ordenes,
+            ),
+          );
+        } else {
+          print("⚠️ Código no esperado o datos vacíos");
+          return Recepcionresponse();
+        }
+      } else if (jsonResponse.containsKey('error')) {
+        final error = jsonResponse['error'];
+        if (error['code'] == 100) {
+          Get.defaultDialog(
+            title: 'Alerta',
+            titleStyle: const TextStyle(color: Colors.red, fontSize: 18),
+            middleText: 'Sesión expirada, por favor inicie sesión nuevamente',
+            middleTextStyle: const TextStyle(color: Colors.black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () => Get.back(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text('Aceptar',
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        }
+      }
+    } on SocketException catch (e) {
+      print('🌐 Error de red: $e');
+    } catch (e, s) {
+      print('❌ Error general en fetchAllDevolutions: $e');
+      print('📍 Stack: $s');
+    }
+
+    return Recepcionresponse(); // Fallback en todos los casos
+  }
 
   Future<ResponseReceptionBatchs> fetchAllBatchReceptions(
     bool isLoadinDialog,

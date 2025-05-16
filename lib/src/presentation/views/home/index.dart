@@ -5,6 +5,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
+import 'package:wms_app/src/presentation/views/home/widgets/dialog_devoluciones_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
@@ -132,7 +133,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       ));
                 } else if (rol == "reception") {
                   if (!mounted) return;
-                  await DataBaseSqlite().deleRecepcion();
+                  await DataBaseSqlite().deleRecepcion('reception');
                   context.read<RecepcionBloc>().add(FetchOrdenesCompra(false));
                 } else if (rol == "transfer") {
                   if (!mounted) return;
@@ -408,7 +409,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                   horizontal: 10,
                                 ),
                                 width: size.width,
-                                height: size.height * 0.5,
+                                // height: size.height * 0.5,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -460,15 +461,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               PickingState>(
                                             builder: (context, state) {
                                               return ImteModule(
-                                                count: (context
-                                                    .read<WMSPickingBloc>()
-                                                    .listOfBatchs
-                                                    .where((element) {
-                                                  return element.isSeparate ==
-                                                          0 ||
-                                                      element.isSeparate ==
-                                                          null;
-                                                }).length),
+                                               
                                                 urlImg: "picking.png",
                                                 title: 'Picking',
                                               );
@@ -542,34 +535,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               context.read<UserBloc>().add(
                                                   LoadInfoDeviceEventUser());
                                               {
-                                                //pedir ubicaciones
-                                                context
-                                                    .read<RecepcionBatchBloc>()
-                                                    .add(
-                                                        GetLocationsDestReceptionBatchEvent());
-                                                //pedir las novedades
-                                                context
-                                                    .read<RecepcionBatchBloc>()
-                                                    .add(
-                                                        LoadAllNovedadesReceptionEvent());
+                                             
 
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
-                                                      return const DialogLoading(
-                                                          message:
-                                                              'Cargando devoluciones...');
+                                                      return DialogDevoluciones(
+                                                        contextHome: context,
+                                                      );
                                                     });
-
-                                                await Future.delayed(const Duration(
-                                                    seconds:
-                                                        1)); // Ajusta el tiempo si es necesario
-
-                                                Navigator.pop(context);
-                                                Navigator.pushReplacementNamed(
-                                                  context,
-                                                  'list-recepction-batch',
-                                                );
                                               }
                                             } else {
                                               ScaffoldMessenger.of(context)
@@ -589,15 +563,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               return ImteModule(
                                                 urlImg: "devoluciones.png",
                                                 title: 'Devoluciones',
-                                                count: context.read<
-                                                        RecepcionBatchBloc>()
-                                                    .listReceptionBatchFilter
-                                                    .where((element) =>
-                                                        element.isFinish ==
-                                                            0 ||
-                                                        element.isFinish ==
-                                                            null)
-                                                    .length,
+                                              
                                               );
                                             },
                                           ),
@@ -915,26 +881,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                     ),
                                   ],
                                 )),
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 5),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    Text("Onpoint",
-                                        style: TextStyle(
-                                          color: grey,
-                                          fontSize: 12,
-                                        )),
-                                    Text("© 2025 - 360 Software",
-                                        style: TextStyle(
-                                          color: grey,
-                                          fontSize: 12,
-                                        )),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            // Padding(
+                            //   padding: EdgeInsets.symmetric(
+                            //       horizontal: 20, vertical: 5),
+                            //   child: Center(
+                            //     child: Column(
+                            //       children: [
+                            //         Text("Onpoint",
+                            //             style: TextStyle(
+                            //               color: grey,
+                            //               fontSize: 12,
+                            //             )),
+                            //         Text("© 2025 - 360 Software",
+                            //             style: TextStyle(
+                            //               color: grey,
+                            //               fontSize: 12,
+                            //             )),
+                            //       ],
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),

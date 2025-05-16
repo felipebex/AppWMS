@@ -399,9 +399,49 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                           },
                         );
                       }
+                      if (state is ValidateConfirmLoading) {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return const DialogLoading(
+                              message: "Validando informacion...",
+                            );
+                          },
+                        );
+                      }
 
-                      if (state is CreateBackOrderOrNotFailure) {
+                      if (state is ValidateConfirmSuccess) {
+                        //volvemos a llamar las entradas que tenemos guardadas en la bd
+                        if (state.isBackorder) {
+                          Get.snackbar("360 Software Informa", state.msg,
+                              backgroundColor: white,
+                              colorText: primaryColorApp,
+                              icon: Icon(Icons.error, color: Colors.green));
+                        } else {
+                          Get.snackbar("360 Software Informa", state.msg,
+                              backgroundColor: white,
+                              colorText: primaryColorApp,
+                              icon: Icon(Icons.error, color: Colors.green));
+                        }
+
                         Navigator.pop(context);
+                        if (batchBloc.pickWithProducts.pick?.typePick ==
+                            'pick') {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            'pick',
+                          );
+                        } else {
+                          Navigator.pushReplacementNamed(
+                            context,
+                            'picking-componentes',
+                          );
+                        }
+                      }
+
+                      if (state is ValidateConfirmFailure) {
+                        Navigator.pop(context);
+
                         Get.defaultDialog(
                           title: '360 Software Informa',
                           titleStyle:
@@ -427,6 +467,84 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                             ),
                           ],
                         );
+                      }
+
+                      if (state is CreateBackOrderOrNotFailure) {
+                        Navigator.pop(context);
+
+                        if (state.error
+                            .contains('expiry.picking.confirmation')) {
+                          Get.defaultDialog(
+                            title: '360 Software Informa',
+                            titleStyle:
+                                TextStyle(color: Colors.red, fontSize: 18),
+                            middleText:
+                                'Algunos productos tienen fecha de caducidad alcanzada.\n¿Desea continuar con la confirmacion aceptando los productos vencidos?',
+                            middleTextStyle:
+                                TextStyle(color: black, fontSize: 14),
+                            backgroundColor: Colors.white,
+                            radius: 10,
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  batchBloc.add(ValidateConfirmEvent(
+                                      batchBloc.pickWithProducts.pick?.id ?? 0,
+                                      state.isBackorder,
+                                      false));
+
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryColorApp,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text('Continuar',
+                                    style: TextStyle(color: white)),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: grey,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text('Descartar',
+                                    style: TextStyle(color: white)),
+                              ),
+                            ],
+                          );
+                        } else {
+                          Get.defaultDialog(
+                            title: '360 Software Informa',
+                            titleStyle:
+                                TextStyle(color: Colors.red, fontSize: 18),
+                            middleText: state.error,
+                            middleTextStyle:
+                                TextStyle(color: black, fontSize: 14),
+                            backgroundColor: Colors.white,
+                            radius: 10,
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryColorApp,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text('Aceptar',
+                                    style: TextStyle(color: white)),
+                              ),
+                            ],
+                          );
+                        }
                       }
 
                       if (state is CreateBackOrderOrNotSuccess) {
@@ -581,16 +699,17 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                           : true,
                                     ));
 
-                                    if (batchBloc.pickWithProducts.pick
-                                            ?.typePick ==
+                                    if (batchBloc
+                                            .pickWithProducts.pick?.typePick ==
                                         'pick') {
                                       batchBloc.add(
                                           FetchPickingPickFromDBEvent(false));
                                       Navigator.pushReplacementNamed(
                                           context, 'pick');
                                     } else {
-                                        batchBloc.add(
-                                        FetchPickingComponentesFromDBEvent(false));
+                                      batchBloc.add(
+                                          FetchPickingComponentesFromDBEvent(
+                                              false));
                                       Navigator.pushReplacementNamed(
                                           context, 'picking-componentes');
                                     }
@@ -903,7 +1022,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                       alignment:
                                                           Alignment.centerLeft,
                                                       child: Text(
-                                                        currentProduct.lotId ??
+                                                        currentProduct.lote ??
                                                             '',
                                                         style: const TextStyle(
                                                             fontSize: 13,
@@ -1098,7 +1217,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                               .centerLeft,
                                                           child: Text(
                                                             currentProduct
-                                                                    .lotId ??
+                                                                    .lote ??
                                                                 '',
                                                             style:
                                                                 const TextStyle(

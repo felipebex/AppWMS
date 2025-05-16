@@ -8,14 +8,15 @@ final class PickingPickInitial extends PickingPickState {}
 final class PickingPickLoading extends PickingPickState {}
 
 final class PickingPickBDLoading extends PickingPickState {}
+
 final class PickingPickCompoBDLoading extends PickingPickState {}
 
 final class PickingPickLoaded extends PickingPickState {
   final List<ResultPick> result;
   PickingPickLoaded(this.result);
 }
-final class PickingPickCompoLoading extends PickingPickState {}
 
+final class PickingPickCompoLoading extends PickingPickState {}
 
 final class PickingPickCompoLoaded extends PickingPickState {
   final List<ResultPick> result;
@@ -26,6 +27,7 @@ final class PickingPickLoadedBD extends PickingPickState {
   final List<ResultPick> result;
   PickingPickLoadedBD(this.result);
 }
+
 final class PickingPickCompoLoadedBD extends PickingPickState {
   final List<ResultPick> result;
   PickingPickCompoLoadedBD(this.result);
@@ -35,6 +37,7 @@ final class PickingPickError extends PickingPickState {
   final String error;
   PickingPickError(this.error);
 }
+
 final class PickingPickCompoError extends PickingPickState {
   final String error;
   PickingPickCompoError(this.error);
@@ -156,12 +159,10 @@ class ShowQuantityState extends PickingPickState {
   ShowQuantityState(this.showQuantity);
 }
 
-
 class SelectSubMuelle extends PickingPickState {
   final Muelles subMuelle;
   SelectSubMuelle(this.subMuelle);
 }
-
 
 class SubMuelleEditSusses extends PickingPickState {
   final String message;
@@ -173,12 +174,10 @@ class SubMuelleEditFail extends PickingPickState {
   SubMuelleEditFail(this.message);
 }
 
-
 class SetIsProcessingState extends PickingPickState {
   final bool isProcessing;
   SetIsProcessingState(this.isProcessing);
 }
-
 
 //*estados para seleccionar una novedad
 class SelectNovedadStateSuccess extends PickingPickState {
@@ -191,8 +190,6 @@ class SelectNovedadStateError extends PickingPickState {
   SelectNovedadStateError(this.msg);
 }
 
-
-
 //*estados para pasar el producto a pendiente
 class ProductPendingSuccess extends PickingPickState {}
 
@@ -200,13 +197,10 @@ class ProductPendingError extends PickingPickState {}
 
 class ProductPendingLoading extends PickingPickState {}
 
-
 final class LoadProductsPickSuccesState extends PickingPickState {
   final List<ProductsBatch> listOfProductsBatch;
   LoadProductsPickSuccesState({required this.listOfProductsBatch});
 }
-
-
 
 class SendProductPickOdooLoading extends PickingPickState {}
 
@@ -222,12 +216,9 @@ class SendProductPickOdooError extends PickingPickState {
 
 class LoadingSendProductEdit extends PickingPickState {}
 
-class ProductEditOk extends PickingPickState {
-}
+class ProductEditOk extends PickingPickState {}
 
-class ProductEditError extends PickingPickState {
-}
-
+class ProductEditError extends PickingPickState {}
 
 //*estados para finalizar la separacion
 class PickingOkState extends PickingPickState {}
@@ -235,7 +226,6 @@ class PickingOkState extends PickingPickState {}
 class PickingOkError extends PickingPickState {}
 
 class PickingOkLoading extends PickingPickState {}
-
 
 class StartOrStopTimeTransferSuccess extends PickingPickState {
   final String isStarted;
@@ -247,17 +237,12 @@ class StartOrStopTimeTransferFailure extends PickingPickState {
   StartOrStopTimeTransferFailure(this.error);
 }
 
-
-
-
-
 class LoadSearchPickingState extends PickingPickState {
   final List<ResultPick> listOfPicking;
   LoadSearchPickingState({required this.listOfPicking});
 }
 
 class AssignUserToPickLoading extends PickingPickState {}
-
 
 class AssignUserToPickSuccess extends PickingPickState {
   final int id;
@@ -269,9 +254,7 @@ class AssignUserToPickError extends PickingPickState {
   AssignUserToPickError(this.error);
 }
 
-
 class CreateBackOrderOrNotLoading extends PickingPickState {}
-
 
 class CreateBackOrderOrNotSuccess extends PickingPickState {
   final bool isBackorder;
@@ -281,5 +264,20 @@ class CreateBackOrderOrNotSuccess extends PickingPickState {
 
 class CreateBackOrderOrNotFailure extends PickingPickState {
   final String error;
-  CreateBackOrderOrNotFailure(this.error);
+  final bool isBackorder;
+  CreateBackOrderOrNotFailure(this.error, this.isBackorder);
+}
+
+class ValidateConfirmLoading extends PickingPickState {}
+
+class ValidateConfirmSuccess extends PickingPickState {
+  final bool isBackorder;
+  final String msg;
+
+  ValidateConfirmSuccess(this.isBackorder, this.msg);
+}
+
+class ValidateConfirmFailure extends PickingPickState {
+  final String error;
+  ValidateConfirmFailure(this.error);
 }

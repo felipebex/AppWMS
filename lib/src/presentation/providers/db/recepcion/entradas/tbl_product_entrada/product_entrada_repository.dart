@@ -6,7 +6,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_respon
 class ProductsEntradaRepository {
   //metodo para insertar todas las entradas
   Future<void> insertarProductoEntrada(
-      List<LineasTransferencia> products) async {
+      List<LineasTransferencia> products, String type) async {
     try {
       // Obtener la instancia de la base de datos.
       Database dbInstance = await DataBaseSqlite().getDatabaseInstance();
@@ -94,6 +94,7 @@ class ProductsEntradaRepository {
                 product.dateTransaction ?? '',
             ProductRecepcionTable.columnCantidadFaltante:
                 product.cantidadFaltante ?? 0,
+            ProductRecepcionTable.columnType: type,
           };
 
           // Si la clave ya existe, se hace UPDATE; si no, se hace INSERT.
@@ -127,7 +128,7 @@ class ProductsEntradaRepository {
   }
 
   Future<void> insertDuplicateProducto(
-      LineasTransferencia producto, dynamic cantidad) async {
+      LineasTransferencia producto, dynamic cantidad, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -179,6 +180,7 @@ class ProductsEntradaRepository {
         ProductRecepcionTable.columnIsDoneItem: 0,
         ProductRecepcionTable.columnDateTransaction: "",
         ProductRecepcionTable.columnCantidadFaltante: cantidad,
+        ProductRecepcionTable.columnType: type,
       };
 
       await db.insert(
@@ -282,24 +284,31 @@ class ProductsEntradaRepository {
     }
   }
 
-  // Incrementar cantidad de producto separado para empaque
   Future<int?> incremenQtytProductSeparatePacking(
       int idRecepcion, int productId, int idMove, dynamic quantity) async {
-    Database db = await DataBaseSqlite().getDatabaseInstance();
+    final db = await DataBaseSqlite().getDatabaseInstance();
+
     return await db.transaction((txn) async {
       final result = await txn.query(
         ProductRecepcionTable.tableName,
-        columns: [(ProductRecepcionTable.columnQuantitySeparate)],
+        columns: [ProductRecepcionTable.columnQuantitySeparate],
         where:
             '${ProductRecepcionTable.columnIdRecepcion} = ? AND ${ProductRecepcionTable.columnProductId} = ? AND ${ProductRecepcionTable.columnIdMove} = ?',
         whereArgs: [idRecepcion, productId, idMove],
       );
 
       if (result.isNotEmpty) {
-        dynamic currentQty =
-            (result.first[ProductRecepcionTable.columnQuantitySeparate]);
+        final rawValue =
+            result.first[ProductRecepcionTable.columnQuantitySeparate];
+        final int currentQty = rawValue is int
+            ? rawValue
+            : (int.tryParse(rawValue.toString()) ?? 0);
+        final int addQty = quantity is int
+            ? quantity
+            : (int.tryParse(quantity.toString()) ?? 0);
 
-        dynamic newQty = currentQty + quantity;
+        final int newQty = currentQty + addQty;
+
         return await txn.update(
           ProductRecepcionTable.tableName,
           {ProductRecepcionTable.columnQuantitySeparate: newQty},
@@ -308,7 +317,8 @@ class ProductsEntradaRepository {
           whereArgs: [idRecepcion, productId, idMove],
         );
       }
-      return null; // No encontrado
+
+      return null; // No se encontró el producto
     });
   }
 

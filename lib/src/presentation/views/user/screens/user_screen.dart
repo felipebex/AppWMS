@@ -412,8 +412,10 @@ class UserScreen extends StatelessWidget {
                                                     height: 300,
                                                     width: size.width * 0.9,
                                                     child: ListView.builder(
-                                                      itemCount: context.read<UserBloc>()
-                                                          .almacenes.length,
+                                                      itemCount: context
+                                                          .read<UserBloc>()
+                                                          .almacenes
+                                                          .length,
                                                       itemBuilder:
                                                           (context, index) {
                                                         return Card(
@@ -421,7 +423,9 @@ class UserScreen extends StatelessWidget {
                                                           elevation: 2,
                                                           child: ListTile(
                                                             title: Text(
-                                                               context.read<UserBloc>()
+                                                                context
+                                                                        .read<
+                                                                            UserBloc>()
                                                                         .almacenes[
                                                                             index]
                                                                         .name ??
@@ -431,7 +435,6 @@ class UserScreen extends StatelessWidget {
                                                                         12,
                                                                     color:
                                                                         black)),
-                                                           
                                                           ),
                                                         );
                                                       },
@@ -875,7 +878,7 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
-                                                        "Busqueda de producto por scan: ",
+                                                        "Seleccion masiva de productos: ",
                                                         style: TextStyle(
                                                             fontSize: 14,
                                                             color: black)),
@@ -895,9 +898,9 @@ class UserScreen extends StatelessWidget {
                                                                   (context) {
                                                                 return const DialogInfo(
                                                                   title:
-                                                                      "Busqueda de producto por scan",
+                                                                      "Seleccion masiva de productos",
                                                                   body:
-                                                                      "Permite escanear el producto en el proceso del packing desde la lista de por hacer para realizar su proceso",
+                                                                      "Permite seleccionar de manera maisvo los productos a empacar directamente sin certificar la cantidad en el procesos de packing",
                                                                 );
                                                               });
                                                         },
@@ -1063,6 +1066,40 @@ class UserScreen extends StatelessWidget {
                                                                       "Ubicacion destino manual",
                                                                   body:
                                                                       "Permite seleccionar la ubicacion destino  en el proceso de recepcion de forma manual",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ocultar accion de validar\nrecepcion : ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.hideValidateReception ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ocultar accion de validar recepcion",
+                                                                  body:
+                                                                      "Ocultar  accion de validar recepcion en la aplicacion",
                                                                 );
                                                               });
                                                         },
@@ -1246,7 +1283,7 @@ class UserScreen extends StatelessWidget {
                                                         value: config
                                                                 .result
                                                                 ?.result
-                                                                ?.hide_validate_transfer ??
+                                                                ?.hideValidateTransfer ??
                                                             false,
                                                         onChanged: null),
                                                     IconButton(
@@ -1259,7 +1296,7 @@ class UserScreen extends StatelessWidget {
                                                                   title:
                                                                       "Ocultar accion de validar transferencia",
                                                                   body:
-                                                                      "Ocultar  accion de validar transferencia en la apalicacion",
+                                                                      "Ocultar  accion de validar transferencia en la aplicacion",
                                                                 );
                                                               });
                                                         },

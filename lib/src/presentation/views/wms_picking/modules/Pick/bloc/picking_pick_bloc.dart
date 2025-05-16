@@ -168,10 +168,35 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     //*metodo para crear barckorder o no
     on<CreateBackOrderOrNot>(_onCreateBackOrder);
 
+    //*metodo para validar la confirmacion
+    on<ValidateConfirmEvent>(_onValidateConfirmEvent);
+
     //todo picking para componentes
     on<FetchPickingComponentesEvent>(_onFetchPickingComponentesEvent);
     on<FetchPickingComponentesFromDBEvent>(
         _onFetchPickingComponentesFromDBEvent);
+  }
+
+  void _onValidateConfirmEvent(
+      ValidateConfirmEvent event, Emitter<PickingPickState> emit) async {
+    try {
+      emit(ValidateConfirmLoading());
+      final response = await repository.confirmationValidate(
+          event.idPick, event.isBackOrder, event.isLoadinDialog);
+
+      if (response.result?.code == 200) {
+        add(PickingOkEvent(
+            pickWithProducts.pick?.id ?? 0, currentProduct.idProduct ?? 0));
+        add(FetchPickingPickEvent(false));
+        emit(ValidateConfirmSuccess(
+            event.isBackOrder, response.result?.msg ?? ""));
+      } else {
+        emit(ValidateConfirmFailure(response.result?.msg ?? ''));
+      }
+    } catch (e, s) {
+      emit(ValidateConfirmFailure('Error al validar la confirmacion'));
+      print('Error en el _onValidateConfirmEvent: $e, $s');
+    }
   }
 
   void _onFetchPickingComponentesEvent(FetchPickingComponentesEvent event,
@@ -257,7 +282,6 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         add(ValidateFieldsEvent(field: "locationDest", isOk: true));
         add(ChangeLocationDestIsOkEvent(true, currentProduct.idProduct ?? 0,
             pickWithProducts.pick?.id ?? 0, currentProduct.idMove ?? 0));
-
         index = 0;
         isSearch = true;
 
@@ -266,17 +290,19 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         //pedimos los nuevos picks
         add(FetchPickingPickEvent(false));
 
-        print(
-          'response.result?.code: ${response.result?.code}  response.result?.msg: ${response.result?.msg}',
-        );
-
         emit(CreateBackOrderOrNotSuccess(
             event.isBackOrder, response.result?.msg ?? ""));
       } else {
-        emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
+        emit(CreateBackOrderOrNotFailure(
+          response.result?.msg ?? '',
+          event.isBackOrder,
+        ));
       }
     } catch (e, s) {
-      emit(CreateBackOrderOrNotFailure('Error al crear la backorder'));
+      emit(CreateBackOrderOrNotFailure(
+        'Error al crear la backorder',
+        event.isBackOrder,
+      ));
       print('Error en el _onCreateBackOrder: $e, $s');
     }
   }

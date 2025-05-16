@@ -1,7 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, collection_methods_unrelated_type, unnecessary_type_check
 
-import 'dart:math';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -188,11 +186,67 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
 
     on<FilterUbicacionesAlmacenEvent>(_onFilterUbicacionesEvent);
 
+    //*metodo para validar la confirmacion
+    on<ValidateConfirmEvent>(_onValidateConfirmEvent);
+
     //TODO PARA ENTRADA DE PRODUCTOS
     //metodo para obtener todas las transferencias
     on<FetchAllEntrega>(_onfetchEntrega);
     //metodo para obtener todas las transferencias de la base de datos
     on<FetchAllEntregaDB>(_onfetchEntradaDB);
+  }
+
+  void _onValidateConfirmEvent(
+      ValidateConfirmEvent event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(ValidateConfirmLoading());
+      final response = await _transferenciasRepository.confirmationValidate(
+          event.idRecepcion, event.isBackOrder, false);
+
+      if (response.result?.code == 200) {
+        add(StartOrStopTimeTransfer(
+          event.idRecepcion,
+          'end_time_transfer',
+        ));
+        emit(ValidateConfirmSuccess(
+            event.isBackOrder, response.result?.msg ?? ""));
+      } else {
+        emit(ValidateConfirmFailure(response.result?.msg ?? ''));
+      }
+    } catch (e, s) {
+      emit(ValidateConfirmFailure('Error al validar la confirmacion'));
+      print('Error en el _onValidateConfirmEvent: $e, $s');
+    }
+  }
+
+  void _onCreateBackOrder(
+      CreateBackOrderOrNot event, Emitter<TransferenciaState> emit) async {
+    try {
+      emit(CreateBackOrderOrNotLoading());
+      final response = await _transferenciasRepository.validateTransfer(
+          event.idRecepcion, event.isBackOrder, false);
+
+      if (response.result?.code == 200) {
+        add(StartOrStopTimeTransfer(
+          event.idRecepcion,
+          'end_time_transfer',
+        ));
+
+        print(
+          'response.result?.code: ${response.result?.code}  response.result?.msg: ${response.result?.msg}',
+        );
+
+        emit(CreateBackOrderOrNotSuccess(
+            event.isBackOrder, response.result?.msg ?? ""));
+      } else {
+        emit(CreateBackOrderOrNotFailure(
+            response.result?.msg ?? '', event.isBackOrder));
+      }
+    } catch (e, s) {
+      emit(CreateBackOrderOrNotFailure(
+          'Error al crear la backorder', event.isBackOrder));
+      print('Error en el _onCreateBackOrder: $e, $s');
+    }
   }
 
   //metodo para obtener todas las transferencias de la base de datos
@@ -445,34 +499,6 @@ class TransferenciaBloc extends Bloc<TransferenciaEvent, TransferenciaState> {
     } catch (e, s) {
       print("Error en __onLoadAllNovedadesEvent: $e, $s");
       emit(NovedadesTransferErrorState(e.toString()));
-    }
-  }
-
-  void _onCreateBackOrder(
-      CreateBackOrderOrNot event, Emitter<TransferenciaState> emit) async {
-    try {
-      emit(CreateBackOrderOrNotLoading());
-      final response = await _transferenciasRepository.validateTransfer(
-          event.idRecepcion, event.isBackOrder, false);
-
-      if (response.result?.code == 200) {
-        add(StartOrStopTimeTransfer(
-          event.idRecepcion,
-          'end_time_transfer',
-        ));
-
-        print(
-          'response.result?.code: ${response.result?.code}  response.result?.msg: ${response.result?.msg}',
-        );
-
-        emit(CreateBackOrderOrNotSuccess(
-            event.isBackOrder, response.result?.msg ?? ""));
-      } else {
-        emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
-      }
-    } catch (e, s) {
-      emit(CreateBackOrderOrNotFailure('Error al crear la backorder'));
-      print('Error en el _onCreateBackOrder: $e, $s');
     }
   }
 

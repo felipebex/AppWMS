@@ -725,7 +725,7 @@ class AppBar extends StatelessWidget {
                               .read<RecepcionBloc>()
                               .add(ShowKeyboardEvent(false));
 
-                          await DataBaseSqlite().deleRecepcion();
+                          await DataBaseSqlite().deleRecepcion('reception');
                           context
                               .read<RecepcionBloc>()
                               .add(FetchOrdenesCompra(false));

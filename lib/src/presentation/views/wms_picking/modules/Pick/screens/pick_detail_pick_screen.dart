@@ -420,7 +420,23 @@ class PickDetailScreen extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
-                                              const SizedBox(height: 5),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Image.asset(
+                                                    "assets/icons/barcode.png",
+                                                    color: primaryColorApp,
+                                                    width: 20,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(productsBatch.barcode,
+                                                      style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black,
+                                                      )),
+                                                ],
+                                              ),
                                               Visibility(
                                                 visible: bloc
                                                         .configurations
@@ -640,14 +656,14 @@ class PickDetailScreen extends StatelessWidget {
                                                     SizedBox(
                                                       width: size.width * 0.55,
                                                       child: Text(
-                                                          productsBatch.lotId ==
+                                                          productsBatch.loteId ==
                                                                       "" ||
                                                                   productsBatch
-                                                                          .lotId ==
+                                                                          .loteId ==
                                                                       null
                                                               ? 'Sin manejo por lote'
                                                               : productsBatch
-                                                                  .lotId
+                                                                  .lote
                                                                   .toString(),
                                                           style: TextStyle(
                                                               fontSize: 12,

@@ -87,6 +87,7 @@ class RecepcionBatchBloc
   TextEditingController dateLoteController = TextEditingController();
   TextEditingController searchControllerLote = TextEditingController();
   TextEditingController locationDestController = TextEditingController();
+  TextEditingController loteController = TextEditingController();
 
   TextEditingController searchControllerLocationDest = TextEditingController();
 
@@ -214,6 +215,15 @@ class RecepcionBatchBloc
 
     loteIsOk = true;
 
+    if (configurations.result?.result?.scanDestinationLocationReception ==
+        false) {
+      add(ChangeIsOkQuantity(
+        currentProduct.idRecepcion ?? 0,
+        true,
+        int.parse(currentProduct.productId),
+        currentProduct.idMove ?? 0,
+      ));
+    }
     emit(ChangeLoteOrderIsOkState(
       loteIsOk,
     ));
@@ -860,7 +870,20 @@ class RecepcionBatchBloc
         event.quantity,
         event.idMove,
       );
+      //validamos si el producto tiene lote
+      if (currentProduct.productTracking != "lot") {
+        if (configurations.result?.result?.scanDestinationLocationReception ==
+            false) {
+          add(ChangeIsOkQuantity(
+            currentProduct.idRecepcion ?? 0,
+            true,
+            int.parse(currentProduct.productId),
+            currentProduct.idMove ?? 0,
+          ));
+        }
+      }
     }
+
     productIsOk = event.productIsOk;
     emit(ChangeProductOrderIsOkState(
       productIsOk,

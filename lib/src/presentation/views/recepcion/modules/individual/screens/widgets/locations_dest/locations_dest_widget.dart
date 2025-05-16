@@ -247,12 +247,7 @@ class _LocationDestScreenState extends State<LocationDestRecepScreen> {
                                 bloc.currentProduct.idMove ?? 0,
                                 selectedLocation));
 
-                            bloc.add(ChangeIsOkQuantity(
-                              bloc.currentProduct.idRecepcion ?? 0,
-                              true,
-                              int.parse(bloc.currentProduct.productId),
-                              bloc.currentProduct.idMove ?? 0,
-                            ));
+                           
 
                             bloc.add(ShowKeyboardEvent(false));
                             FocusScope.of(context).unfocus();

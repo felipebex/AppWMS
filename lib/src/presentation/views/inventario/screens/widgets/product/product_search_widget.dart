@@ -286,7 +286,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                         ),
                                                       ),
                                                       Spacer(),
-                                                       Text(
+                                                      Text(
                                                         'UND: ',
                                                         style: TextStyle(
                                                           color: black,
@@ -294,7 +294,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                                         ),
                                                       ),
                                                       const SizedBox(width: 5),
-                                                       Text(
+                                                      Text(
                                                         bloc.productosFilters[index].uom ==
                                                                     false ||
                                                                 bloc
@@ -356,7 +356,9 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                                 field: "product", isOk: true));
                             bloc.add(ChangeProductIsOkEvent(selectedProduct));
 
-                            bloc.add(ChangeIsOkQuantity(true));
+                            if (selectedProduct.tracking != "lot") {
+                              bloc.add(ChangeIsOkQuantity(true));
+                            }
 
                             setState(() {
                               selectedIndex == null;
