@@ -166,6 +166,34 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
     //*evento para ver la cantidad
     on<ShowQuantityEvent>(_onShowQuantityEvent);
+
+    //evento par aobtener todos los muelles disponibles
+    on<FetchMuellesEvent>(_onFetchMuellesEvent);
+  }
+
+  //*evento para obtener todos los muelles disponibles
+  void _onFetchMuellesEvent(
+      FetchMuellesEvent event, Emitter<BatchState> emit) async {
+    try {
+      emit(MuellesLoadingState());
+      submuelles.clear();
+      final response = await repository.getmuelles(false);
+      if (response != null) {
+        // Filtramos los muelles
+        submuelles = response
+            .where((muelle) =>
+                muelle.locationId == batchWithProducts.batch?.idMuelle)
+            .toList();
+
+        print("submuelles: ${submuelles.length}");
+        emit(MuellesLoadedState(listOfMuelles: submuelles));
+      } else {
+        emit(MuellesErrorState('No se encontraron muelles'));
+      }
+    } catch (e, s) {
+      emit(MuellesErrorState('Error al cargar los muelles'));
+      print("❌ Error en __onLoadAllNovedadesEvent: $e, $s");
+    }
   }
 
   //*evento para empezar el tiempo de separacion
@@ -450,11 +478,10 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
       print("responseList: ${responseList.length}");
 
       listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
-        batchWithProducts.batch?.id ?? 0,
-        currentProduct.idProduct ?? 0,
-        currentProduct.idMove ?? 0,
-        'picking'
-      );
+          batchWithProducts.batch?.id ?? 0,
+          currentProduct.idProduct ?? 0,
+          currentProduct.idMove ?? 0,
+          'picking');
       print("listOfBarcodes: ${listOfBarcodes.length}");
     } catch (e, s) {
       print("❌ Error en _onFetchBarcodesProductEvent: $e, $s");
@@ -538,6 +565,15 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   void _onAssignSubmuelleEvent(
       AssignSubmuelleEvent event, Emitter<BatchState> emit) async {
     try {
+      //realizamos la peticion para ocupar el muelle
+      final responseMuele = await repository.ocuparMuelle(
+          idMuelle: event.muelle.id ?? 0, isFull: event.isOccupied);
+
+      if (responseMuele.result?.code != 200) {
+        emit(SubMuelleOcupadoError(responseMuele.result?.msg ?? ''));
+        return;
+      }
+
       // Primero, actualizamos la base de datos para todos los productos
       for (var product in event.productsSeparate) {
         await db.setFieldTableBatchProducts(product.batchId ?? 0,
@@ -996,24 +1032,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
     }
   }
 
-  void getSubmuelles() async {
-    try {
-      submuelles.clear();
-      final muellesdb =
-          //todo cambiar al id de idMuelle
-          await db.submuellesRepository.getSubmuellesByLocationId(
-        batchWithProducts.batch?.idMuelle == ""
-            ? 0
-            : int.parse(batchWithProducts.batch?.idMuelle.toString() ?? '0'),
-      );
-      if (muellesdb.isNotEmpty) {
-        submuelles.addAll(muellesdb);
-      }
-    } catch (e, s) {
-      print("❌ Error en el getSubmuelles $e ->$s");
-    }
-  }
-
   void products() {
     try {
       // Usamos un Set para evitar duplicados y mejorar el rendimiento de búsqueda
@@ -1298,9 +1316,7 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
         await sortProductsByLocationId();
 
         add(LoadDataInfoEvent());
-        getSubmuelles();
         getPosicions();
-        getMuelles();
         products();
 
         add(FetchBarcodesProductEvent());

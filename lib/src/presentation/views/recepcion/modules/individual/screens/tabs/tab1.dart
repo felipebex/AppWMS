@@ -78,10 +78,18 @@ class Tab1ScreenRecep extends StatelessWidget {
                     onCancel: () {
                       //cerramos el dialog
                       Navigator.pop(context);
-                      Navigator.pushReplacementNamed(
-                        context,
-                        'list-ordenes-compra',
-                      );
+
+                      if (ordenCompra?.type == 'dev') {
+                        Navigator.pushReplacementNamed(
+                          context,
+                          'list-devoluciones',
+                        );
+                      } else {
+                        Navigator.pushReplacementNamed(
+                          context,
+                          'list-ordenes-compra',
+                        );
+                      }
                     },
                   );
                 },
@@ -133,10 +141,18 @@ class Tab1ScreenRecep extends StatelessWidget {
                 colorText: primaryColorApp,
                 icon: Icon(Icons.error, color: Colors.green));
             Navigator.pop(context);
-            Navigator.pushReplacementNamed(
-              context,
-              'list-ordenes-compra',
-            );
+
+            if (ordenCompra?.type == 'dev') {
+              Navigator.pushReplacementNamed(
+                context,
+                'list-devoluciones',
+              );
+            } else {
+              Navigator.pushReplacementNamed(
+                context,
+                'list-ordenes-compra',
+              );
+            }
           }
         },
         builder: (context, state) {
@@ -202,6 +218,27 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: ordeCompraBd.priority == '0'
+                                        ? black
+                                        : red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Text('Propietario: ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp)),
+                                Text(
+                                  ordeCompraBd.propietario == ''
+                                      ? 'Sin propietario'
+                                      : ordeCompraBd.propietario ?? "",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: ordeCompraBd.priority == ''
                                         ? black
                                         : red,
                                   ),
@@ -367,7 +404,7 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   child: Text(
                                     totalEnviadas.toString(),
                                     style:
-                                        TextStyle(fontSize: 12, color: black),
+                                        TextStyle(fontSize: 14, color: black),
                                   )),
                             ],
                           ),
@@ -389,7 +426,7 @@ class Tab1ScreenRecep extends StatelessWidget {
                                             : '${ordeCompraBd.temperatura} °C')
                                         : 'No aplica',
                                     style:
-                                        TextStyle(fontSize: 12, color: black),
+                                        TextStyle(fontSize: 14, color: black),
                                   )),
                             ],
                           ),
@@ -482,7 +519,9 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   backgroundColor: Colors.white,
                                   actionsAlignment: MainAxisAlignment.center,
                                   title: Text(
-                                    'Confirmar Recepcion',
+                                    (ordenCompra?.type == 'dev')
+                                        ? 'Confirmar Devolución'
+                                        : 'Confirmar Recepcion',
                                     style: TextStyle(
                                         color: primaryColorApp, fontSize: 16),
                                     textAlign: TextAlign.center,
@@ -503,7 +542,9 @@ class Tab1ScreenRecep extends StatelessWidget {
                                         child: Text(
                                           (totalEnviadas ==
                                                   ordeCompraBd.numeroItems)
-                                              ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
+                                              ? (ordenCompra?.type == 'dev')
+                                                  ? '¿Estás seguro de confirmar la devolución y dejarla lista para ser enviada?'
+                                                  : '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
                                               : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                                           style: TextStyle(
                                               color: black, fontSize: 14),
@@ -520,7 +561,9 @@ class Tab1ScreenRecep extends StatelessWidget {
                                         onPressed: () {
                                           context.read<RecepcionBloc>().add(
                                               CreateBackOrderOrNot(
-                                                  ordeCompraBd.id ?? 0, true));
+                                                  ordenCompra?.type ?? '',
+                                                  ordeCompraBd.id ?? 0,
+                                                  true));
                                           Navigator.pop(context);
                                         },
                                         style: ElevatedButton.styleFrom(
@@ -544,7 +587,9 @@ class Tab1ScreenRecep extends StatelessWidget {
                                       onPressed: () async {
                                         context.read<RecepcionBloc>().add(
                                             CreateBackOrderOrNot(
-                                                ordeCompraBd.id ?? 0, false));
+                                                ordenCompra?.type ?? '',
+                                                ordeCompraBd.id ?? 0,
+                                                false));
                                         Navigator.pop(context);
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -555,8 +600,10 @@ class Tab1ScreenRecep extends StatelessWidget {
                                               BorderRadius.circular(10),
                                         ),
                                       ),
-                                      child: const Text(
-                                        'Confirmar Recepcion',
+                                      child: Text(
+                                        (ordenCompra?.type == 'dev')
+                                            ? 'Confirmar Devolución'
+                                            : 'Confirmar Recepcion',
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 12),
                                       ),
@@ -592,7 +639,10 @@ class Tab1ScreenRecep extends StatelessWidget {
                         ),
                         elevation: 3,
                       ),
-                      child: Text('Terminar Recepcion',
+                      child: Text(
+                          (ordenCompra?.type == 'dev')
+                              ? 'TERMINAR DEVOLUCIÓN'
+                              : 'TERMINAR RECEPCIÓN',
                           style: TextStyle(color: white))),
                 ),
                 const SizedBox(height: 10),

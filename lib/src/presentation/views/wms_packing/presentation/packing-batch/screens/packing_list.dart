@@ -9,7 +9,7 @@ import 'package:wms_app/src/presentation/providers/network/cubit/connection_stat
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/widgets/dialog_temperatura_widget.dart';
@@ -43,9 +43,7 @@ class _PakingListScreenState extends State<PakingListScreen>
   }
 
   @override
-  void didChangeMetrics() {
-    context.read<WmsPackingBloc>().add(ShowKeyboardEvent(false));
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +88,7 @@ class _PakingListScreenState extends State<PakingListScreen>
           }
         },
         builder: (context, state) {
+          print('isKeyboardVisible: ${context.read<WmsPackingBloc>().isKeyboardVisible}');
           return Scaffold(
             bottomNavigationBar: context
                         .read<WmsPackingBloc>()
@@ -458,14 +457,7 @@ class _PakingListScreenState extends State<PakingListScreen>
                                           color: Colors.white,
                                           elevation: 3,
                                           child: TextFormField(
-                                            //btn de cerrar teclado
-                                            onFieldSubmitted: (value) {
-                                              context
-                                                  .read<WmsPackingBloc>()
-                                                  .add(
-                                                      ShowKeyboardEvent(false));
-                                              FocusScope.of(context).unfocus();
-                                            },
+                                          
 
                                             readOnly: context
                                                     .read<UserBloc>()

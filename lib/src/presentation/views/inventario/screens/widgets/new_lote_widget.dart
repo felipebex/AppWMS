@@ -282,17 +282,37 @@ class _NewLoteScreenState extends State<NewLoteInventarioScreen> {
                                                       color: black,
                                                       fontSize: 12)),
                                               Text(
-                                                  '${bloc.listLotesProductFilters[index].expirationDate == false ? 'Sin fecha' : bloc.listLotesProductFilters[index].expirationDate}',
+                                                  '${bloc.listLotesProductFilters[index].expirationDate == "" ||
+                                                      bloc.listLotesProductFilters[index].expirationDate == false ? 'Sin fecha' : bloc.listLotesProductFilters[index].expirationDate}',
+                                                     
                                                   style: TextStyle(
                                                       color: bloc
-                                                                  .listLotesProductFilters[
-                                                                      index]
-                                                                  .expirationDate ==
-                                                              false
+                                                                      .listLotesProductFilters[
+                                                                          index]
+                                                                      .expirationDate ==
+                                                                  "" ||
+                                                              bloc
+                                                                      .listLotesProductFilters[
+                                                                          index]
+                                                                      .expirationDate ==
+                                                                  false
                                                           ? red
                                                           : black,
                                                       fontSize: 12)),
                                             ],
+                                          ),
+                                          Visibility(
+                                            visible: bloc
+                                                    .listLotesProductFilters[
+                                                        index]
+                                                    .id ==
+                                                bloc.currentProduct?.lotId,
+                                            child: Text('Lote sugerido',
+                                                style: TextStyle(
+                                                    color: primaryColorApp,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                           ),
                                         ],
                                       ),

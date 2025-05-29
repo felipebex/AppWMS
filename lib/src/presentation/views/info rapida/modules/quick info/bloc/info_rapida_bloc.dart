@@ -87,7 +87,7 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
       GetProductsList event, Emitter<InfoRapidaState> emit) async {
     try {
       emit(GetProductsLoading());
-      final response = await db.productoInventarioRepository.getAllProducts();
+      final response = await db.productoInventarioRepository.getAllUniqueProducts();
       productos.clear();
       productosFilters.clear();
       print('productos: ${response.length}');

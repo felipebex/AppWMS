@@ -368,3 +368,16 @@ class FetchDevolucionesFailureDB extends RecepcionState {
   final String error;
   FetchDevolucionesFailureDB(this.error);
 }
+
+
+class DelectedProductWmsLoading   extends RecepcionState {}
+class DelectedProductWmsSuccess extends RecepcionState {
+  final String message;
+  DelectedProductWmsSuccess(this.message);
+}
+
+
+class DelectedProductWmsFailure extends RecepcionState {
+  final String error;
+  DelectedProductWmsFailure(this.error);
+}

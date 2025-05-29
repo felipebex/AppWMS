@@ -19,7 +19,7 @@ class SearchProductScreen extends StatefulWidget {
 }
 
 class _SearchProductScreenState extends State<SearchProductScreen> {
-  int? selectedIndex;
+  String? selectedProductKey;
 
   @override
   Widget build(BuildContext context) {
@@ -28,400 +28,263 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
     return BlocBuilder<InventarioBloc, InventarioState>(
       builder: (context, state) {
         final bloc = context.read<InventarioBloc>();
+
         return WillPopScope(
-          onWillPop: () async {
-            return false;
-          },
+          onWillPop: () async => false,
           child: Scaffold(
             backgroundColor: white,
-            body: SizedBox(
-                width: size.width * 1,
-                height: size.height * 1,
-                child: Column(
-                  children: [
-                    _AppBarInfo(size: size),
-                    SizedBox(
-                        height: 55,
-                        width: size.width * 1,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: size.width * 0.9,
-                                child: Card(
-                                  color: Colors.white,
-                                  elevation: 3,
-                                  child: TextFormField(
-                                    readOnly: context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? true
-                                        : false,
-                                    showCursor: true,
-                                    textAlignVertical: TextAlignVertical.center,
-                                    controller: bloc.searchControllerProducts,
-                                    decoration: InputDecoration(
-                                      prefixIcon: const Icon(
-                                        Icons.search,
-                                        color: grey,
-                                        size: 20,
-                                      ),
-                                      suffixIcon: IconButton(
-                                          onPressed: () {
-                                            bloc.searchControllerProducts
-                                                .clear();
-                                            bloc.add(SearchProductEvent(
-                                              '',
-                                            ));
-                                            bloc.add(ShowKeyboardEvent(false));
-                                            FocusScope.of(context).unfocus();
-                                          },
-                                          icon: const Icon(
-                                            Icons.close,
-                                            color: grey,
-                                            size: 20,
-                                          )),
-                                      disabledBorder:
-                                          const OutlineInputBorder(),
-                                      hintText: "Buscar producto",
-                                      hintStyle: const TextStyle(
-                                          color: Colors.grey, fontSize: 14),
-                                      border: InputBorder.none,
-                                    ),
-                                    onChanged: (value) {
-                                      bloc.add(SearchProductEvent(
-                                        value,
-                                      ));
-                                    },
-                                    onTap: !context
-                                            .read<UserBloc>()
-                                            .fabricante
-                                            .contains("Zebra")
-                                        ? null
-                                        : () {
-                                            bloc.add(ShowKeyboardEvent(true));
-                                          },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
-                    (bloc.productosFilters.isEmpty)
-                        ? Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                const Text('No hay productos',
-                                    style:
-                                        TextStyle(fontSize: 14, color: grey)),
-                                const Text(
-                                    'No tiene productos en la base de datos',
-                                    style:
-                                        TextStyle(fontSize: 12, color: grey)),
-                                Visibility(
-                                  visible: context
-                                      .read<UserBloc>()
-                                      .fabricante
-                                      .contains("Zebra"),
-                                  child: Container(
-                                    height: 60,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : Expanded(
-                            child: ListView.builder(
-                                itemCount: bloc.productosFilters.length,
-                                itemBuilder: (context, index) {
-                                  bool isSelected = selectedIndex == index;
-
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 0),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedIndex =
-                                              isSelected ? null : index;
-                                        });
-                                      },
-                                      child: Card(
-                                        elevation: 3,
-                                        color: isSelected
-                                            ? Colors.green[100]
-                                            : white,
-                                        child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 5),
-                                            child: SizedBox(
-                                              // height: 30,
-                                              child: Column(
-                                                children: [
-                                                  Column(
-                                                    children: [
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          'Nombre: ',
-                                                          style: TextStyle(
-                                                            color: black,
-                                                            fontSize: 12,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text(
-                                                          bloc
-                                                                  .productosFilters[
-                                                                      index]
-                                                                  .name ??
-                                                              '',
-                                                          style: TextStyle(
-                                                            color:
-                                                                primaryColorApp,
-                                                            fontSize: 12,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        'Barcode: ',
-                                                        style: TextStyle(
-                                                          color: black,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        bloc.productosFilters[index].barcode ==
-                                                                    false ||
-                                                                bloc
-                                                                        .productosFilters[
-                                                                            index]
-                                                                        .barcode ==
-                                                                    "" ||
-                                                                bloc
-                                                                        .productosFilters[
-                                                                            index]
-                                                                        .barcode ==
-                                                                    ""
-                                                            ? 'Sin barcode'
-                                                            : bloc
-                                                                    .productosFilters[
-                                                                        index]
-                                                                    .barcode ??
-                                                                '',
-                                                        style: TextStyle(
-                                                          color: bloc
-                                                                          .productosFilters[
-                                                                              index]
-                                                                          .barcode ==
-                                                                      false ||
-                                                                  bloc.productosFilters[index]
-                                                                          .barcode ==
-                                                                      ""
-                                                              ? red
-                                                              : primaryColorApp,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                      Text(
-                                                        'Code: ',
-                                                        style: TextStyle(
-                                                          color: black,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        bloc.productosFilters[index].code ==
-                                                                    false ||
-                                                                bloc
-                                                                        .productosFilters[
-                                                                            index]
-                                                                        .code ==
-                                                                    "" ||
-                                                                bloc
-                                                                        .productosFilters[
-                                                                            index]
-                                                                        .code ==
-                                                                    ""
-                                                            ? 'Sin codigo de producto'
-                                                            : bloc
-                                                                    .productosFilters[
-                                                                        index]
-                                                                    .code ??
-                                                                '',
-                                                        style: TextStyle(
-                                                          color: bloc
-                                                                          .productosFilters[
-                                                                              index]
-                                                                          .code ==
-                                                                      false ||
-                                                                  bloc.productosFilters[index]
-                                                                          .code ==
-                                                                      ""
-                                                              ? red
-                                                              : primaryColorApp,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      Spacer(),
-                                                      Text(
-                                                        'UND: ',
-                                                        style: TextStyle(
-                                                          color: black,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 5),
-                                                      Text(
-                                                        bloc.productosFilters[index].uom ==
-                                                                    false ||
-                                                                bloc
-                                                                        .productosFilters[
-                                                                            index]
-                                                                        .uom ==
-                                                                    "" ||
-                                                                bloc
-                                                                        .productosFilters[
-                                                                            index]
-                                                                        .uom ==
-                                                                    ""
-                                                            ? 'Sin unidad'
-                                                            : bloc
-                                                                    .productosFilters[
-                                                                        index]
-                                                                    .uom ??
-                                                                '',
-                                                        style: TextStyle(
-                                                          color: bloc
-                                                                          .productosFilters[
-                                                                              index]
-                                                                          .uom ==
-                                                                      false ||
-                                                                  bloc.productosFilters[index]
-                                                                          .uom ==
-                                                                      ""
-                                                              ? red
-                                                              : primaryColorApp,
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            )),
-                                      ),
-                                    ),
-                                  );
-                                })),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Visibility(
-                      visible: selectedIndex != null,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (selectedIndex != null) {
-                            final selectedProduct =
-                                bloc.productosFilters[selectedIndex!];
-
-                            bloc.add(ShowKeyboardEvent(false));
-                            FocusScope.of(context).unfocus();
-
-                            //seleccionamos el producto
-
-                            bloc.add(ValidateFieldsEvent(
-                                field: "product", isOk: true));
-                            bloc.add(ChangeProductIsOkEvent(selectedProduct));
-
-                            if (selectedProduct.tracking != "lot") {
-                              bloc.add(ChangeIsOkQuantity(true));
-                            }
-
-                            setState(() {
-                              selectedIndex == null;
-                            });
-
-                            Navigator.pushReplacementNamed(
-                              context,
-                              'inventario',
-                            );
-
-                            Get.snackbar(
-                              'Producto Seleccionado',
-                              'Has seleccionado el producto: ${selectedProduct.name}',
-                              backgroundColor: white,
-                              colorText: primaryColorApp,
-                              icon: Icon(Icons.check, color: Colors.green),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColorApp,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          minimumSize: Size(size.width * 0.9, 40),
-                        ),
-                        child: Text("Seleccionar",
-                            style: TextStyle(
-                              color: white,
-                            )),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Visibility(
-                      visible: bloc.isKeyboardVisible &&
-                          context.read<UserBloc>().fabricante.contains("Zebra"),
-                      child: CustomKeyboard(
-                        isLogin: false,
-                        controller: bloc.searchControllerProducts,
-                        onchanged: () {
-                          bloc.add(SearchProductEvent(
-                            bloc.searchControllerProducts.text,
-                          ));
-                        },
-                      ),
-                    )
-                  ],
-                )),
+            body: Column(
+              children: [
+                _AppBarInfo(size: size),
+                _buildSearchBar(context, bloc, size),
+                Expanded(
+                  child: _buildProductList(context, bloc),
+                ),
+                const SizedBox(height: 20),
+                _buildSelectButton(bloc, size),
+                const SizedBox(height: 10),
+                if (bloc.isKeyboardVisible &&
+                    context.read<UserBloc>().fabricante.contains("Zebra"))
+                  CustomKeyboard(
+                    isLogin: false,
+                    controller: bloc.searchControllerProducts,
+                    onchanged: () {
+                      bloc.add(SearchProductEvent(
+                        bloc.searchControllerProducts.text,
+                      ));
+                    },
+                  )
+              ],
+            ),
           ),
         );
       },
     );
   }
+
+  Widget _buildSearchBar(BuildContext context, InventarioBloc bloc, Size size) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: SizedBox(
+        height: 55,
+        width: size.width,
+        child: Card(
+          color: Colors.white,
+          elevation: 3,
+          child: TextFormField(
+            readOnly: context.read<UserBloc>().fabricante.contains("Zebra"),
+            showCursor: true,
+            textAlignVertical: TextAlignVertical.center,
+            controller: bloc.searchControllerProducts,
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search, color: grey, size: 20),
+              suffixIcon: IconButton(
+                onPressed: () {
+                  bloc.searchControllerProducts.clear();
+                  bloc.add(SearchProductEvent(''));
+                  bloc.add(ShowKeyboardEvent(false));
+                  FocusScope.of(context).unfocus();
+                },
+                icon: const Icon(Icons.close, color: grey, size: 20),
+              ),
+              hintText: "Buscar producto",
+              hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+              border: InputBorder.none,
+            ),
+            onChanged: (value) {
+              bloc.add(SearchProductEvent(value));
+            },
+            onTap: context.read<UserBloc>().fabricante.contains("Zebra")
+                ? () => bloc.add(ShowKeyboardEvent(true))
+                : null,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductList(BuildContext context, InventarioBloc bloc) {
+    final sugeridos = bloc.productosSugeridos;
+    final restantes = bloc.productosRestantes
+        .where((restante) =>
+            !sugeridos.any((s) => s.locationId == restante.locationId))
+        .toList();
+
+    final totalItems = sugeridos.length +
+        restantes.length +
+        (sugeridos.isNotEmpty ? 1 : 0) +
+        (restantes.isNotEmpty ? 1 : 0);
+
+    if (totalItems == 0) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('No se encontraron productos',
+                style: TextStyle(fontSize: 14, color: grey)),
+            Text('Prueba con otro término de búsqueda',
+                style: TextStyle(fontSize: 12, color: grey)),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: totalItems,
+      itemBuilder: (context, index) {
+        if (sugeridos.isNotEmpty && index == 0) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Text(
+              'Productos en la ubicación ${bloc.currentUbication?.name ?? ''}',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: primaryColorApp),
+            ),
+          );
+        }
+
+        if (index > 0 && index <= sugeridos.length) {
+          final product = sugeridos[index - 1];
+          return _buildProductCard(
+              context, bloc, product, product.productId, product.lotId);
+        }
+
+        if (restantes.isNotEmpty && index == sugeridos.length + 1) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            child: Text(
+              'Otros productos',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: grey),
+            ),
+          );
+        }
+
+        final adjustedIndex =
+            index - sugeridos.length - (restantes.isNotEmpty ? 2 : 1);
+        if (adjustedIndex < 0 || adjustedIndex >= restantes.length) {
+          return const SizedBox.shrink();
+        }
+
+        final product = restantes[adjustedIndex];
+        return _buildProductCard(
+            context, bloc, product, product.productId, product.lotId);
+      },
+    );
+  }
+
+  Widget _buildProductCard(BuildContext context, InventarioBloc bloc,
+      dynamic product, dynamic productId, dynamic lotId) {
+    final currentKey = '${productId}_$lotId';
+    final isSelected = selectedProductKey == currentKey;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      child: GestureDetector(
+        onTap: () {
+          print("Selected product: ${product.toMap()}");
+          setState(() => selectedProductKey = isSelected ? null : currentKey);
+        },
+        child: Card(
+          elevation: 3,
+          color: isSelected ? Colors.green[100] : white,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildInfoRow("Nombre:", product.name, highlight: true),
+                _buildInfoRow("Barcode:", product.barcode,
+                    emptyText: 'Sin barcode'),
+                _buildInfoRow("Code:", product.code,
+                    emptyText: 'Sin código de producto'),
+                _buildInfoRow("UND:", product.uom, emptyText: 'Sin unidad'),
+                _buildInfoRow("Ubicacion:", product.locationName,
+                    emptyText: 'Sin ubicacion'),
+                _buildInfoRow("Lote:", product.lotName, emptyText: 'Sin lote'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String? value,
+      {String emptyText = '', bool highlight = false}) {
+    final isEmpty = value == null || value.isEmpty || value == false;
+    return Row(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12, color: black)),
+        const SizedBox(width: 5),
+        Expanded(
+          child: Text(
+            isEmpty ? emptyText : value!,
+            style: TextStyle(
+              fontSize: 12,
+              color: isEmpty ? red : (highlight ? primaryColorApp : black),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectButton(InventarioBloc bloc, Size size) {
+    return Visibility(
+      visible: selectedProductKey != null,
+      child: ElevatedButton(
+        onPressed: () {
+          if (selectedProductKey == null) return;
+
+          final parts = selectedProductKey!.split('_');
+          final selectedProductId = int.parse(parts[0]);
+          final selectedLotId = int.parse(parts[1]);
+
+          final allProducts = [
+            ...bloc.productosSugeridos,
+            ...bloc.productosRestantes
+          ];
+          final selectedProduct = allProducts.firstWhere(
+            (p) => p.productId == selectedProductId && p.lotId == selectedLotId,
+          );
+
+          bloc.add(ShowKeyboardEvent(false));
+          FocusScope.of(context).unfocus();
+
+          bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
+          bloc.add(ChangeProductIsOkEvent(selectedProduct));
+
+          if (selectedProduct.tracking != "lot") {
+            bloc.add(ChangeIsOkQuantity(true));
+          }
+
+          setState(() => selectedProductKey = null);
+
+          Navigator.pushReplacementNamed(context, 'inventario');
+
+          Get.snackbar(
+            'Producto Seleccionado',
+            'Has seleccionado el producto: ${selectedProduct.name}',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: const Icon(Icons.check, color: Colors.green),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColorApp,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          minimumSize: Size(size.width * 0.9, 40),
+        ),
+        child: const Text("Seleccionar", style: TextStyle(color: white)),
+      ),
+    );
+  }
 }
 
 class _AppBarInfo extends StatelessWidget {
-  const _AppBarInfo({
-    super.key,
-    required this.size,
-  });
-
+  const _AppBarInfo({super.key, required this.size});
   final Size size;
 
   @override
@@ -437,40 +300,37 @@ class _AppBarInfo extends StatelessWidget {
       ),
       width: double.infinity,
       child: BlocProvider(
-        create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<InventarioBloc, InventarioState>(
-            listener: (context, state) {},
-            builder: (context, status) {
-              return Column(
-                children: [
-                  const WarningWidgetCubit(),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: status != ConnectionStatus.online ? 0 : 35),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: white),
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(
-                              context,
-                              'inventario',
-                            );
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: size.width * 0.22),
-                          child: Text('PRODUCTOS',
-                              style: TextStyle(color: white, fontSize: 18)),
-                        ),
-                        const Spacer(),
-                      ],
-                    ),
+        create: (_) => ConnectionStatusCubit(),
+        child: BlocBuilder<InventarioBloc, InventarioState>(
+          builder: (context, state) {
+            return Column(
+              children: [
+                const WarningWidgetCubit(),
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: state != ConnectionStatus.online ? 0 : 35),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: white),
+                        onPressed: () {
+                          Navigator.pushReplacementNamed(context, 'inventario');
+                        },
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: size.width * 0.22),
+                        child: const Text('PRODUCTOS',
+                            style: TextStyle(color: white, fontSize: 18)),
+                      ),
+                      const Spacer(),
+                    ],
                   ),
-                ],
-              );
-            }),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

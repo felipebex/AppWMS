@@ -7,7 +7,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/packing_respon
 
 class PackagesRepository {
   // Método para insertar o actualizar un paquete
-  Future<void> insertPackage(Paquete package) async {
+  Future<void> insertPackage(Paquete package, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       await db.transaction((txn) async {
@@ -29,6 +29,7 @@ class PackagesRepository {
               PackagesTable.columnPedidoId: package.pedidoId,
               PackagesTable.columnCantidadProductos: package.cantidadProductos,
               PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
+              PackagesTable.columnType: type,
             },
             where: '${PackagesTable.columnId} = ?',
             whereArgs: [package.id],
@@ -45,6 +46,7 @@ class PackagesRepository {
               PackagesTable.columnPedidoId: package.pedidoId,
               PackagesTable.columnCantidadProductos: package.cantidadProductos,
               PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
+              PackagesTable.columnType: type,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -59,7 +61,7 @@ class PackagesRepository {
 
 
 
-  Future<void> insertPackages(List<Paquete> packages) async {
+  Future<void> insertPackages(List<Paquete> packages, String type) async {
   try {
     Database db = await DataBaseSqlite().getDatabaseInstance();
     await db.transaction((txn) async {
@@ -84,6 +86,7 @@ class PackagesRepository {
               PackagesTable.columnPedidoId: package.pedidoId,
               PackagesTable.columnCantidadProductos: package.cantidadProductos,
               PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
+              PackagesTable.columnType: type,
             },
             where: '${PackagesTable.columnId} = ?',
             whereArgs: [package.id],
@@ -100,8 +103,10 @@ class PackagesRepository {
               PackagesTable.columnPedidoId: package.pedidoId,
               PackagesTable.columnCantidadProductos: package.cantidadProductos,
               PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
+              PackagesTable.columnType: type,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
+
           );
           print("Se agregó la inserción del paquete: ${package.id}");
         }
@@ -134,6 +139,7 @@ class PackagesRepository {
         pedidoId: map[PackagesTable.columnPedidoId],
         cantidadProductos: map[PackagesTable.columnCantidadProductos],
         isSticker: map[PackagesTable.columnIsSticker] == 1,
+        type: map[PackagesTable.columnType],
       );
     }).toList();
     return productos;
@@ -195,6 +201,7 @@ class PackagesRepository {
         pedidoId: maps[0][PackagesTable.columnPedidoId],
         cantidadProductos: maps[0][PackagesTable.columnCantidadProductos],
         isSticker: maps[0][PackagesTable.columnIsSticker] == 1,
+        type: maps[0][PackagesTable.columnType],
       );
     }
     return null;

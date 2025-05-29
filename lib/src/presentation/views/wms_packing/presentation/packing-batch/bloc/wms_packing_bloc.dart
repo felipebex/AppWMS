@@ -197,9 +197,9 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         await db.batchPackingRepository.setFieldTableBatchPacking(
             event.idRecepcion, 'temperatura', event.temperature);
 
-        await db.batchPackingRepository.setFieldTableBatchPacking(
-            event.idRecepcion, 'is_separate', 1);
-        
+        await db.batchPackingRepository
+            .setFieldTableBatchPacking(event.idRecepcion, 'is_separate', 1);
+
         //traemos la informacion de la entrada actualizada
         controllerTemperature.clear();
         emit(SendTemperatureSuccess('Temperatura enviada correctamente'));
@@ -518,8 +518,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
 //calculamos la cantidad pendiente del producto
       var pendingQuantity = (event.producto.quantity - event.quantity);
       //creamos un nuevo producto (duplicado) con la cantidad separada
-      await db.productosPedidosRepository
-          .insertDuplicateProductoPedido(event.producto, pendingQuantity);
+      await db.productosPedidosRepository.insertDuplicateProductoPedido(
+          event.producto, pendingQuantity, event.producto.type ?? "");
 
       //actualizamos la cantidad separada
       quantitySelected = 0;
@@ -772,7 +772,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       );
 
       packages.add(paquete);
-      await db.packagesRepository.insertPackage(paquete);
+      await db.packagesRepository.insertPackage(paquete, 'packing-batch');
 
       await db.pedidosPackingRepository.setFieldTablePedidosPacking(
         event.productos[0].batchId ?? 0,
@@ -808,95 +808,6 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       emit(WmsPackingErrorState('Ocurrió un error inesperado'));
     }
   }
-
-// Future<void> _actualizarProducto(
-//   DataBaseSqlite db,
-//   ProductoPedido product,
-//   Paquete paquete,
-//   bool isCertificate,
-// ) async {
-//   final idPaquete = paquete.id;
-//   final nombrePaquete = paquete.name;
-
-//   try {
-//     final updates = <Future>[];
-
-//     if (isCertificate) {
-//       updates.addAll([
-//         db.productosPedidosRepository.setFieldTableProductosPedidos2String(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "package_name",
-//           nombrePaquete,
-//           product.idMove ?? 0,
-//         ),
-//         db.productosPedidosRepository.setFieldTableProductosPedidos2(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "is_separate",
-//           1,
-//           product.idMove ?? 0,
-//         ),
-//         db.productosPedidosRepository.setFieldTableProductosPedidos2(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "id_package",
-//           idPaquete,
-//           product.idMove ?? 0,
-//         ),
-//         db.productosPedidosRepository.setFieldTableProductosPedidos2(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "is_package",
-//           1,
-//           product.idMove ?? 0,
-//         ),
-//       ]);
-//     } else {
-//       updates.addAll([
-//         db.productosPedidosRepository.setFieldTableProductosPedidos3(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "is_separate",
-//           1,
-//           product.idMove ?? 0,
-//         ),
-//         db.productosPedidosRepository.setFieldTableProductosPedidos3(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "is_package",
-//           1,
-//           product.idMove ?? 0,
-//         ),
-//         db.productosPedidosRepository.setFieldTableProductosPedidos3(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "id_package",
-//           idPaquete,
-//           product.idMove ?? 0,
-//         ),
-//         db.productosPedidosRepository.setFieldTableProductosPedidos3(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "is_certificate",
-//           0,
-//           product.idMove ?? 0,
-//         ),
-//         db.productosPedidosRepository.setFieldTableProductosPedidos3String(
-//           product.pedidoId ?? 0,
-//           product.idProduct ?? 0,
-//           "package_name",
-//           nombrePaquete,
-//           product.idMove ?? 0,
-//         ),
-//       ]);
-//     }
-
-//     await Future.wait(updates);
-//   } catch (e) {
-//     print('Error al actualizar producto ${product.idProduct}: $e');
-//   }
-// }
 
   Future<void> _actualizarProductoBatch(
     DataBaseSqlite db,
@@ -1219,27 +1130,28 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           // Enviar la lista agrupada de productos de un batch para packing
           await DataBaseSqlite()
               .pedidosPackingRepository
-              .insertPedidosBatchPacking(pedidosToInsert);
+              .insertPedidosBatchPacking(pedidosToInsert, 'packing-batch');
           // Enviar la lista agrupada de productos de un pedido para packing
           await DataBaseSqlite()
               .productosPedidosRepository
-              .insertProductosPedidos(productsToInsert);
+              .insertProductosPedidos(productsToInsert, 'packing-batch');
           // Enviar la lista agrupada de barcodes de un producto para packing
           await DataBaseSqlite()
               .barcodesPackagesRepository
-              .insertOrUpdateBarcodes(barcodesToInsert, 'packing');
+              .insertOrUpdateBarcodes(barcodesToInsert, 'packing-batch');
           // Enviar la lista agrupada de otros barcodes de un producto para packing
           await DataBaseSqlite()
               .barcodesPackagesRepository
-              .insertOrUpdateBarcodes(otherBarcodesToInsert, 'packing');
+              .insertOrUpdateBarcodes(otherBarcodesToInsert, 'packing-batch');
           //guardamos los productos de los paquetes que ya fueron empaquetados
           await DataBaseSqlite()
               .productosPedidosRepository
-              .insertProductosOnPackage(productsPackagesToInsert);
+              .insertProductosOnPackage(
+                  productsPackagesToInsert, 'packing-batch');
           //enviamos la lista agrupada de los paquetes de un pedido para packing
           await DataBaseSqlite()
               .packagesRepository
-              .insertPackages(packagesToInsert);
+              .insertPackages(packagesToInsert, 'packing-batch');
 
           //creamos las cajas que ya estan creadas
 

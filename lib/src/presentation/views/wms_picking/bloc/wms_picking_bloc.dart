@@ -159,19 +159,19 @@ class WMSPickingBloc extends Bloc<PickingEvent, PickingState> {
           final allBarcodes =
               _extractAllBarcodes(response).toList(growable: false);
 
-          final List<Muelles> responseMuelles =
-              await wmsPickingRepository.getmuelles(
-            false,
-          );
+          // final List<Muelles> responseMuelles =
+          //     await wmsPickingRepository.getmuelles(
+          //   false,
+          // );
 
-          print('response muelles: ${responseMuelles.length}');
+          // print('response muelles: ${responseMuelles.length}');
           print('productsToInsert: ${productsIterable.length}');
           print('allBarcodes: ${allBarcodes.length}');
           print('originsIterable: ${originsIterable.length}');
 
-          await DataBaseSqlite()
-              .submuellesRepository
-              .insertSubmuelles(responseMuelles);
+          // await DataBaseSqlite()
+          //     .submuellesRepository
+          //     .insertSubmuelles(responseMuelles);
 
           // Enviar la lista agrupada a insertBatchProducts
           await DataBaseSqlite().insertBatchProducts(productsIterable);

@@ -56,17 +56,27 @@ class _RecepcionScreenState extends State<RecepcionScreen>
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
-              //volvemos a llamar las entradas que tenemos guardadas en la bd
-              context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
+              //validamos que type es la recepcion
+              if (widget.ordenCompra?.type == 'dev') {
+                context.read<RecepcionBloc>().add(FetchDevolucionesOfDB());
+                Navigator.pushReplacementNamed(
+                  context,
+                  'list-devoluciones',
+                );
+              } else {
+                context.read<RecepcionBloc>().add(FetchOrdenesCompraOfBd());
 
-              Navigator.pushReplacementNamed(
-                context,
-                'list-ordenes-compra',
-              );
+                Navigator.pushReplacementNamed(
+                  context,
+                  'list-ordenes-compra',
+                );
+              }
             },
           ),
           title: Text(
-            'RECEPCIÓN',
+             (widget.ordenCompra?.type == 'dev') 
+                ? 'DEVOLUCIÓN'
+                : 'RECEPCIÓN',
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),
           bottom: TabBar(

@@ -119,24 +119,23 @@ class ListDevolutionsScreen extends StatelessWidget {
           },
           child: Scaffold(
               backgroundColor: white,
-              bottomNavigationBar:
-                  context.read<RecepcionBloc>().isKeyboardVisible
-                      ? CustomKeyboard(
-                          isLogin: false,
-                          controller:
-                              context.read<RecepcionBloc>().searchControllerDev,
-                          onchanged: () {
-                            context
-                                .read<RecepcionBloc>()
-                                .add(SearchDevolucionEvent(
-                                  context
-                                      .read<RecepcionBloc>()
-                                      .searchControllerDev
-                                      .text,
-                                ));
-                          },
-                        )
-                      : null,
+              bottomNavigationBar: context
+                      .read<RecepcionBloc>()
+                      .isKeyboardVisible
+                  ? CustomKeyboard(
+                      isLogin: false,
+                      controller:
+                          context.read<RecepcionBloc>().searchControllerDev,
+                      onchanged: () {
+                        context.read<RecepcionBloc>().add(SearchDevolucionEvent(
+                              context
+                                  .read<RecepcionBloc>()
+                                  .searchControllerDev
+                                  .text,
+                            ));
+                      },
+                    )
+                  : null,
               body: SizedBox(
                 width: size.width * 1,
                 height: size.height * 1,
@@ -463,6 +462,78 @@ class ListDevolutionsScreen extends StatelessWidget {
                                               child: Row(
                                                 children: [
                                                   Icon(
+                                                    Icons.add,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text(
+                                                    "Cantidad Productos: ",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text(
+                                                      ordenCompra[index]
+                                                          .numeroLineas
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.add,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text(
+                                                    "Cantidad unidades: ",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text(
+                                                      ordenCompra[index]
+                                                          .numeroItems
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
                                                     Icons.person,
                                                     color: primaryColorApp,
                                                     size: 15,
@@ -691,9 +762,7 @@ class AppBar extends StatelessWidget {
                             .searchControllerDev
                             .clear();
 
-                        context
-                            .read<RecepcionBloc>()
-                            .add(SearchDevolucionEvent(
+                        context.read<RecepcionBloc>().add(SearchDevolucionEvent(
                               '',
                             ));
 

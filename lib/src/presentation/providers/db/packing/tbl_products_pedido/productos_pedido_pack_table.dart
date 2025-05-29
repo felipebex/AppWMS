@@ -37,6 +37,7 @@ class ProductosPedidosTable {
   static const String columnIsPacking = 'is_packing';
   static const String columnIdPackage = 'id_package';
   static const String columnPackageName = 'package_name';
+  static const String columnType = 'type'; // si es de type batch o pedido
 
   // Método para crear la tabla
   static String createTable() {
@@ -80,6 +81,7 @@ class ProductosPedidosTable {
         $columnIsPacking INTEGER,
         $columnIdPackage INTEGER,
         $columnPackageName TEXT,
+        $columnType TEXT,
         FOREIGN KEY ($columnIdPackage) REFERENCES tblpackages ($columnId),
         FOREIGN KEY ($columnPedidoId) REFERENCES tblpedidos_packing (id)
       )

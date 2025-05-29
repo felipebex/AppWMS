@@ -7,6 +7,7 @@ import 'package:wms_app/src/presentation/views/transferencias/data/transferencia
 import 'package:wms_app/src/presentation/views/transferencias/models/requets_transfer_model.dart';
 
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/data/picking_pick_repository.dart';
@@ -83,6 +84,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
   Configurations configurations = Configurations();
 
   TransferenciasRepository repository = TransferenciasRepository();
+  WmsPickingRepository repositoryBatch = WmsPickingRepository();
 
   dynamic quantitySelected = 0;
 
@@ -170,11 +172,38 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
     //*metodo para validar la confirmacion
     on<ValidateConfirmEvent>(_onValidateConfirmEvent);
+    //evento par aobtener todos los muelles disponibles
+    on<FetchMuellesEvent>(_onFetchMuellesEvent);
 
     //todo picking para componentes
     on<FetchPickingComponentesEvent>(_onFetchPickingComponentesEvent);
     on<FetchPickingComponentesFromDBEvent>(
         _onFetchPickingComponentesFromDBEvent);
+  }
+
+  //*evento para obtener todos los muelles disponibles
+  void _onFetchMuellesEvent(
+      FetchMuellesEvent event, Emitter<PickingPickState> emit) async {
+    try {
+      emit(MuellesLoadingState());
+      submuelles.clear();
+      final response = await repositoryBatch.getmuelles(false);
+      if (response != null) {
+        // Filtramos los muelles
+        submuelles = response
+            .where((muelle) =>
+                muelle.locationId == pickWithProducts.pick?.muelleId)
+            .toList();
+
+        print("submuelles: ${submuelles.length}");
+        emit(MuellesLoadedState(listOfMuelles: submuelles));
+      } else {
+        emit(MuellesErrorState('No se encontraron muelles'));
+      }
+    } catch (e, s) {
+      emit(MuellesErrorState('Error al cargar los muelles'));
+      print("❌ Error en __onLoadAllNovedadesEvent: $e, $s");
+    }
   }
 
   void _onValidateConfirmEvent(
@@ -813,6 +842,15 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
   void _onAssignSubmuelleEvent(
       AssignSubmuelleEvent event, Emitter<PickingPickState> emit) async {
     try {
+      //realizamos la peticion para ocupar el muelle
+      final responseMuele = await repositoryBatch.ocuparMuelle(
+          idMuelle: event.muelle.id ?? 0, isFull: event.isOccupied);
+
+      if (responseMuele.result?.code != 200) {
+        emit(SubMuelleOcupadoError(responseMuele.result?.msg ?? ''));
+        return;
+      }
+
       // Primero, actualizamos la base de datos para todos los productos
       for (var product in event.productsSeparate) {
         await db.pickProductsRepository.setFieldTablePickProducts(
@@ -856,7 +894,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           idMove: product.idMove ?? 0,
           idProducto: product.idProduct ?? 0,
           idLote: product.loteId ?? 0,
-          idUbicacionDestino: product.muelleId ?? 0,
+          idUbicacionDestino: event.muelle.id ?? 0,
           cantidadEnviada: (product.quantitySeparate ?? 0) > (product.quantity)
               ? product.quantity
               : product.quantitySeparate ?? 0,
@@ -1442,9 +1480,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         await sortProductsByLocationId();
 
         add(LoadDataInfoEvent());
-        getSubmuelles();
         getPosicions();
-        getMuelles();
         products();
 
         add(FetchBarcodesProductEvent());
@@ -1663,25 +1699,6 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       }
     } catch (e, s) {
       print("❌ Error en el getMuelles $e ->$s");
-    }
-  }
-
-  void getSubmuelles() async {
-    try {
-      submuelles.clear();
-      final muellesdb =
-          //todo cambiar al id de idMuelle
-          await DataBaseSqlite().submuellesRepository.getSubmuellesByLocationId(
-                pickWithProducts.pick?.muelleId == ""
-                    ? 0
-                    : int.parse(
-                        pickWithProducts.pick?.muelleId.toString() ?? '0'),
-              );
-      if (muellesdb.isNotEmpty) {
-        submuelles.addAll(muellesdb);
-      }
-    } catch (e, s) {
-      print("❌ Error en el getSubmuelles $e ->$s");
     }
   }
 

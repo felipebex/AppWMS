@@ -14,7 +14,7 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/rec
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
                 } else if (rol == 'packing') {
                   if (!mounted) return;
-                  await DataBaseSqlite().delePacking();
+                  await DataBaseSqlite().delePacking('packing-batch');
                   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
                         false,
                       ));
@@ -170,7 +170,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               // floatingActionButton: FloatingActionButton(
               //   backgroundColor: primaryColorApp,
               //   onPressed: () {
-              //     context.read<InventarioBloc>().add(GetProductsForDB());
+              //     //navgeamos a la vista de ocr
+              //     Navigator.pushNamed(context, 'ocr');
               //   },
               //   child: const Icon(Icons.settings),
               // ),
@@ -461,7 +462,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               PickingState>(
                                             builder: (context, state) {
                                               return ImteModule(
-                                               
                                                 urlImg: "picking.png",
                                                 title: 'Picking',
                                               );
@@ -478,6 +478,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                             if (rol == 'packing' ||
                                                 rol == 'admin') {
+
                                               context.read<WmsPackingBloc>().add(
                                                   LoadAllNovedadesPackingEvent());
 
@@ -497,6 +498,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 Navigator.pushReplacementNamed(
                                                     context, 'wms-packing');
                                               });
+
+
+
+                                                // Navigator.pushReplacementNamed(
+                                                //     context, 'list-packing');
+
+                                              
                                             } else {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
@@ -535,8 +543,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               context.read<UserBloc>().add(
                                                   LoadInfoDeviceEventUser());
                                               {
-                                             
-
                                                 showDialog(
                                                     context: context,
                                                     builder: (context) {
@@ -563,7 +569,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               return ImteModule(
                                                 urlImg: "devoluciones.png",
                                                 title: 'Devoluciones',
-                                              
                                               );
                                             },
                                           ),

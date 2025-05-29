@@ -103,11 +103,13 @@ class ResultEntrada {
   dynamic isSelected;
   dynamic isStarted;
   dynamic isFinish;
+  String? type;
+  String? propietario;
 
   List<LineasTransferencia>? lineasRecepcion;
   List<LineasTransferencia>? lineasRecepcionEnviadas;
 
-    final dynamic backorderName;
+  final dynamic backorderName;
   final dynamic backorderId;
 
   ResultEntrada({
@@ -146,6 +148,8 @@ class ResultEntrada {
     this.backorderId,
     this.manejaTemperatura,
     this.temperatura,
+    this.type,
+    this.propietario,
   });
 
   factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
@@ -190,6 +194,8 @@ class ResultEntrada {
         backorderId: json["backorder_id"],
         manejaTemperatura: json["maneja_temperatura"],
         temperatura: json["temperatura"],
+        type: json["type"],
+        propietario: json["propietario"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -233,7 +239,9 @@ class ResultEntrada {
         "backorder_id": backorderId,
         "maneja_temperatura": manejaTemperatura,
         "temperatura": temperatura,
-      };
+        "type": type,
+        "propietario": propietario,
+        };
 }
 
 class LineasTransferencia {
@@ -264,7 +272,6 @@ class LineasTransferencia {
   String? locationBarcode;
   double? weight;
   String? type;
-  
 
   final String? observation;
 
@@ -288,7 +295,6 @@ class LineasTransferencia {
 
   final dynamic isPrincipalItem;
   final dynamic cantidadFaltante;
-
 
   LineasTransferencia({
     this.id,
@@ -351,12 +357,10 @@ class LineasTransferencia {
             ? []
             : List<Barcodes>.from(
                 json["other_barcodes"]!.map((x) => Barcodes.fromMap(x))),
-       
         productPacking: json["product_packing"] == null
             ? []
             : List<Barcodes>.from(
                 json["product_packing"]!.map((x) => Barcodes.fromMap(x))),
-
         quantityOrdered: json["quantity_ordered"],
         quantityToReceive: json["quantity_to_receive"],
         quantityDone: json["quantity_done"],

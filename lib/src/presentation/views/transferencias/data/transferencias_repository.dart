@@ -401,10 +401,8 @@ class TransferenciasRepository {
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-
         // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
         var resultData = jsonResponse['result'];
-
         return ResponseSenTransfer(
           jsonrpc: jsonResponse['jsonrpc'],
           id: jsonResponse['id'],

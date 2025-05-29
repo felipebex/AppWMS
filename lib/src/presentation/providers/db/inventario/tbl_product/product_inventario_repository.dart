@@ -60,6 +60,14 @@ class ProductInventarioRepository {
                     : producto.volumeUomName ?? '',
             ProductInventarioTable.columnUom:
                 producto.uom == false ? "" : producto.uom ?? '',
+            ProductInventarioTable.columnLocationId:
+                producto.locationId == false ? 0 : producto.locationId ?? 0,
+            ProductInventarioTable.columnLocationName:
+                producto.locationName == false
+                    ? ""
+                    : producto.locationName ?? '',
+            ProductInventarioTable.columnQuantity:
+                producto.quantity == false ? 0.0 : producto.quantity ?? 0.0,
           };
 
           batch.insert(
@@ -105,7 +113,22 @@ class ProductInventarioRepository {
     }
   }
 
+  Future<List<Product>> getAllUniqueProducts() async {
+    try {
+      final db = await DataBaseSqlite().getDatabaseInstance();
 
+      // Consulta para agrupar por productId
+      final maps = await db.rawQuery('''
+      SELECT * FROM ${ProductInventarioTable.tableName}
+      GROUP BY ${ProductInventarioTable.columnProductId}
+    ''');
+
+      return maps.map((map) => Product.fromMap(map)).toList();
+    } catch (e, s) {
+      print("Error al obtener productos únicos por ID: $e ==> $s");
+      return [];
+    }
+  }
 
   //metodo para traer un producto por su id
   Future<Product?> getProductById(int productId) async {

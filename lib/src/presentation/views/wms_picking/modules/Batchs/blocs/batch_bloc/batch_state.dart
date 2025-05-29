@@ -173,6 +173,10 @@ class SubMuelleEditSusses extends BatchState {
   final String message;
   SubMuelleEditSusses(this.message);
 }
+class SubMuelleOcupadoError extends BatchState {
+  final String error;
+  SubMuelleOcupadoError(this.error);
+}
 
 class SubMuelleEditFail extends BatchState {
   final String message;
@@ -239,4 +243,17 @@ class TimeSeparateSuccess extends BatchState {
 class TimeSeparateError extends BatchState {
   final String msg;
   TimeSeparateError(this.msg);
+}
+
+
+class MuellesLoadingState extends BatchState {}
+
+class MuellesLoadedState extends BatchState {
+  final List<Muelles> listOfMuelles;
+  MuellesLoadedState({required this.listOfMuelles});
+}
+
+class MuellesErrorState extends BatchState {
+  final String error;
+  MuellesErrorState(this.error);
 }

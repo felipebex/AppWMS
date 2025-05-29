@@ -19,6 +19,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/pic
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/location/location_card_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/muelle/muelle_card_pick_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/DialogAdvetenciaCantidadPick_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/SelectSubMuelleBottomSheet_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_backorder_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/dialog_picking_incompleted_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/widgets/others/popunButton_widget.dart';
@@ -437,6 +438,63 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                             'picking-componentes',
                           );
                         }
+                      }
+
+                      if (state is MuellesLoadingState) {
+                        showDialog(
+                          context: context,
+                          barrierDismissible:
+                              false, // No permitir que el usuario cierre el diálogo manualmente
+                          builder: (context) => const DialogLoading(
+                            message: 'Cargando muelles...',
+                          ),
+                        );
+                      }
+
+                      if (state is MuellesErrorState) {
+                        Navigator.pop(context);
+
+                        Get.defaultDialog(
+                          title: '360 Software Informa',
+                          titleStyle:
+                              TextStyle(color: Colors.red, fontSize: 18),
+                          middleText: state.error,
+                          middleTextStyle:
+                              TextStyle(color: black, fontSize: 14),
+                          backgroundColor: Colors.white,
+                          radius: 10,
+                          actions: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Get.back();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColorApp,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: Text('Aceptar',
+                                  style: TextStyle(color: white)),
+                            ),
+                          ],
+                        );
+                      }
+
+                      if (state is MuellesLoadedState) {
+                        Navigator.pop(context);
+                        showModalBottomSheet(
+                          backgroundColor: white,
+                          context: context,
+                          isDismissible: false,
+                          enableDrag: false,
+                          builder: (context) {
+                            return SelectSubMuelleBottomSheetPick(
+                              controller: _controllerSubMuelle,
+                              focusNode: focusNode6,
+                            );
+                          },
+                        );
                       }
 
                       if (state is ValidateConfirmFailure) {
@@ -1475,218 +1533,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                               .isEmpty
                                           ? null
                                           : () {
-                                              showModalBottomSheet(
-                                                context: context,
-                                                isDismissible: false,
-                                                enableDrag: false,
-                                                builder: (context) {
-                                                  return BlocBuilder<
-                                                      PickingPickBloc,
-                                                      PickingPickState>(
-                                                    builder: (context, state) {
-                                                      return Container(
-                                                        height: 400,
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(16.0),
-                                                        margin: const EdgeInsets
-                                                            .only(bottom: 20),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            Text(
-                                                              'Seleccione la sub ubicación de destino para los productos',
-                                                              style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                      primaryColorApp),
-                                                            ),
-                                                            const SizedBox(
-                                                                height: 10),
-                                                            Expanded(
-                                                              child: ListView
-                                                                  .builder(
-                                                                itemCount:
-                                                                    batchBloc
-                                                                        .submuelles
-                                                                        .length,
-                                                                itemBuilder:
-                                                                    (context,
-                                                                        index) {
-                                                                  final muelle =
-                                                                      batchBloc
-                                                                              .submuelles[
-                                                                          index];
-                                                                  bool
-                                                                      isSelected =
-                                                                      muelle ==
-                                                                          batchBloc
-                                                                              .subMuelleSelected;
-
-                                                                  return Card(
-                                                                    color: isSelected
-                                                                        ? Colors.green[
-                                                                            300]
-                                                                        : Colors
-                                                                            .white, // Cambia el color de la card
-                                                                    elevation:
-                                                                        3,
-                                                                    child:
-                                                                        ListTile(
-                                                                      title:
-                                                                          Text(
-                                                                        muelle.completeName ??
-                                                                            '',
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color: isSelected
-                                                                              ? Colors.white
-                                                                              : black,
-                                                                        ),
-                                                                      ),
-                                                                      subtitle: muelle.barcode == null ||
-                                                                              muelle.barcode == ""
-                                                                          ? Text(
-                                                                              "Sin codigo de barras",
-                                                                              style: TextStyle(
-                                                                                fontSize: 12,
-                                                                                color: isSelected ? Colors.white : red,
-                                                                              ),
-                                                                            )
-                                                                          : null,
-                                                                      onTap:
-                                                                          () {
-                                                                        batchBloc
-                                                                            .add(SelectedSubMuelleEvent(muelle));
-                                                                      },
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              height: 15,
-                                                              margin:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                      bottom:
-                                                                          5),
-                                                              child:
-                                                                  TextFormField(
-                                                                showCursor:
-                                                                    false,
-                                                                controller:
-                                                                    _controllerSubMuelle, // Asignamos el controlador
-                                                                enabled: true,
-                                                                focusNode:
-                                                                    focusNode6,
-                                                                onChanged:
-                                                                    (value) {},
-                                                                decoration:
-                                                                    const InputDecoration(
-                                                                  disabledBorder:
-                                                                      InputBorder
-                                                                          .none,
-                                                                  hintStyle: TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color:
-                                                                          black),
-                                                                  border:
-                                                                      InputBorder
-                                                                          .none,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            Center(
-                                                              child: Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .center,
-                                                                children: [
-                                                                  ElevatedButton(
-                                                                    onPressed:
-                                                                        () async {
-                                                                      batchBloc
-                                                                              .subMuelleSelected =
-                                                                          Muelles();
-                                                                      Navigator.pop(
-                                                                          context);
-                                                                    },
-                                                                    style: ElevatedButton
-                                                                        .styleFrom(
-                                                                      backgroundColor:
-                                                                          grey,
-                                                                      shape:
-                                                                          RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                      ),
-                                                                    ),
-                                                                    child:
-                                                                        const Text(
-                                                                      'Cancelar',
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              white),
-                                                                    ),
-                                                                  ),
-                                                                  const SizedBox(
-                                                                      width:
-                                                                          10),
-                                                                  ElevatedButton(
-                                                                    onPressed: batchBloc.subMuelleSelected.completeName ==
-                                                                            null
-                                                                        ? null
-                                                                        : () async {
-                                                                            print("Submuelle seleccionado: ${batchBloc.subMuelleSelected.completeName}");
-                                                                            batchBloc.add(AssignSubmuelleEvent(
-                                                                              batchBloc.filteredProducts.where((e) {
-                                                                                return e.isMuelle == null && e.isSeparate == 1;
-                                                                              }).toList(),
-                                                                              batchBloc.subMuelleSelected,
-                                                                            ));
-
-                                                                            Navigator.pop(context);
-                                                                          },
-                                                                    style: ElevatedButton
-                                                                        .styleFrom(
-                                                                      backgroundColor:
-                                                                          primaryColorApp,
-                                                                      shape:
-                                                                          RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                      ),
-                                                                    ),
-                                                                    child:
-                                                                        const Text(
-                                                                      'Aceptar',
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              white),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              );
+                                              batchBloc
+                                                  .add(FetchMuellesEvent());
                                             },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: primaryColorAppLigth,

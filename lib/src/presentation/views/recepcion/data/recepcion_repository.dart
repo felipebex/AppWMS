@@ -10,6 +10,7 @@ import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/repcion_requets_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_deleted_product_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_new_lote_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_send_recepcion_model.dart';
@@ -100,6 +101,7 @@ class RecepcionRepository {
 
     return Recepcionresponse(); // Fallback en todos los casos
   }
+
   Future<Recepcionresponse> fetchAllDevolutions(bool isLoadinDialog) async {
     final stopwatch = Stopwatch()..start(); // ⏱ Iniciar conteo
 
@@ -566,10 +568,90 @@ class RecepcionRepository {
     }
     return ResponseNewLote();
   }
-
-//metodo para enviar los productos recepcionados de la orden de entrada
   Future<ResponSendRecepcion> sendProductRecepcion(
-    RecepcionRequest recepcionRequest,
+  RecepcionRequest recepcionRequest,
+  bool isLoadingDialog,
+) async {
+  // Verificar si el dispositivo tiene acceso a Internet
+  var connectivityResult = await Connectivity().checkConnectivity();
+
+  if (connectivityResult == ConnectivityResult.none) {
+    print("❌ Error: No hay conexión a Internet.");
+    return ResponSendRecepcion(
+      result: ResponSendRecepcionResult(
+        code: 0,
+        msg: "No hay conexión a Internet.",
+        result: [],
+      ),
+    );
+  }
+
+  try {
+    var response = await ApiRequestService().postPacking(
+      endpoint: 'send_recepcion',
+      body: {
+        "params": {
+          "id_recepcion": recepcionRequest.idRecepcion,
+          "list_items":
+              recepcionRequest.listItems.map((item) => item.toMap()).toList(),
+        },
+      },
+      isLoadinDialog: isLoadingDialog,
+    );
+
+    if (response.statusCode < 400) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+      var resultData = jsonResponse['result'];
+
+      return ResponSendRecepcion(
+        jsonrpc: jsonResponse['jsonrpc'],
+        id: jsonResponse['id'],
+        result: resultData != null
+            ? ResponSendRecepcionResult(
+                code: resultData['code'],
+                msg: resultData['msg'],
+                result: resultData['result'] != null
+                    ? List<ResultElement>.from(
+                        resultData['result'].map((x) => ResultElement.fromMap(x)))
+                    : [],
+              )
+            : null,
+      );
+    } else {
+      return ResponSendRecepcion(
+        result: ResponSendRecepcionResult(
+          code: response.statusCode,
+          msg: "Error al enviar la recepción. Código: ${response.statusCode}",
+          result: [],
+        ),
+      );
+    }
+  } on SocketException catch (e) {
+    print('❌ Error de red: $e');
+    return ResponSendRecepcion(
+      result: ResponSendRecepcionResult(
+        code: 0,
+        msg: "Error de red: No se pudo conectar al servidor.",
+        result: [],
+      ),
+    );
+  } catch (e, s) {
+    print('❌ Error inesperado: $e\n$s');
+    return ResponSendRecepcion(
+      result: ResponSendRecepcionResult(
+        code: 0,
+        msg: "Ocurrió un error inesperado. Error detallado: $e \n$s",
+        result: [],
+      ),
+    );
+  }
+}
+
+
+  //metodo para eliminar una linea ya enviada
+  Future<DeletedProduct> deleteProductInWms(
+    int idRecepcion,
+    List<int> idLineas,
     bool isLoadingDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -577,39 +659,41 @@ class RecepcionRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return ResponSendRecepcion(); // Si no hay conexión, terminamos la ejecución
+      return DeletedProduct(); // Si no hay conexión, terminamos la ejecución
     }
 
     try {
+      final listItemsFormatted = idLineas.map((id) => {"id_move": id}).toList();
+
       var response = await ApiRequestService().postPacking(
-        endpoint:
-            'send_recepcion', // Cambiado para que sea el endpoint correspondiente
+        endpoint: 'update_recepcion',
         body: {
           "params": {
-            "id_recepcion": recepcionRequest.idRecepcion,
-            "list_items":
-                recepcionRequest.listItems.map((item) => item.toMap()).toList(),
+            "id_recepcion": idRecepcion,
+            "list_items": listItemsFormatted,
           },
         },
         isLoadinDialog: true,
       );
       if (response.statusCode < 400) {
+        print('Se elimino correctamente la linea');
+        print('response: ${response.body}');
         // Decodifica la respuesta JSON a un mapa
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
         // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
         var resultData = jsonResponse['result'];
 
-        return ResponSendRecepcion(
+        return DeletedProduct(
           jsonrpc: jsonResponse['jsonrpc'],
           id: jsonResponse['id'],
           result: resultData != null
-              ? ResponSendRecepcionResult(
+              ? DeletedProductResult(
                   code: resultData['code'],
-                  msg: resultData['msg'],
+                  mensaje: resultData['mensaje'],
                   result: resultData['result'] != null
-                      ? List<ResultElement>.from(resultData['result']
-                          .map((x) => ResultElement.fromMap(x)))
+                      ? List<ProductDeleted>.from(resultData['result']
+                          .map((x) => ProductDeleted.fromMap(x)))
                       : [], // Si no hay elementos en 'result', se retorna una lista vacía
                 )
               : null, // Si 'result' no existe, asigna null a 'result'
@@ -620,13 +704,13 @@ class RecepcionRepository {
       }
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
+      return DeletedProduct(); // Retornamos un objeto vacío en caso de error de red
     } catch (e, s) {
       // Manejo de otros errores
-      print('Error en sendProductRecepcion: $e, $s');
-      return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
+      print('Error en deleteProductInWms: $e, $s');
+      return DeletedProduct(); // Retornamos un objeto vacío en caso de error de red
     }
-    return ResponSendRecepcion(); // Retornamos un objeto vacío en caso de error de red
+    return DeletedProduct(); // Retornamos un objeto vacío en caso de error de red
   }
 
   Future<ResponSendRecepcion> sendProductRecepcionBatch(

@@ -54,6 +54,9 @@ class EntradaBatchRepository {
             EntradaBatchTable.columnZonaEntrega: entrada.zonaEntrega ?? "",
             EntradaBatchTable.columnOrderBy: entrada.orderBy ?? "",
             EntradaBatchTable.columnOrderPicking: entrada.orderPicking ?? "",
+            //propietario
+            EntradaBatchTable.columnPropietario: entrada.propietario ?? "",
+
           };
 
           if (existingIds.contains(entrada.id)) {

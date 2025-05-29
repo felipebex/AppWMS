@@ -1137,6 +1137,9 @@ class RecepcionBatchBloc
           final listReceptionBatch = response.result?.result;
           print('cantidad de recepciones: ${listReceptionBatch?.length}');
           //insertamos en la base de datos
+
+          await db.deleRecepcion('reception-batch');
+
           await db.entradaBatchRepository.insertEntradaBatch(
             listReceptionBatch!,
           );
@@ -1213,11 +1216,14 @@ class RecepcionBatchBloc
     try {
       listReceptionBatch.clear();
       listReceptionBatchFilter.clear();
+      print('listReceptionBatch: ${listReceptionBatch.length}');
+
       final response = await db.entradaBatchRepository.getAllEntradaBatch();
 
+      print('response: ${response.length}');
       if (response.isNotEmpty) {
-        listReceptionBatch.addAll(response);
-        listReceptionBatchFilter.addAll(response);
+        listReceptionBatch = response;
+        listReceptionBatchFilter = response;
         emit(FetchRecepcionBatchSuccessFromBD(listReceptionBatch: response));
       } else {
         emit(FetchRecepcionBatchFailureFromBD("No hay recepciones por batch"));

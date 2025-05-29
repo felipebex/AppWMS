@@ -57,6 +57,7 @@ class ResponSendRecepcionResult {
 }
 
 class ResultElement {
+    int? id;
     String? producto;
     dynamic cantidad;
     dynamic? lote;
@@ -69,6 +70,7 @@ class ResultElement {
     bool? isDoneItem;
 
     ResultElement({
+        this.id,
         this.producto,
         this.cantidad,
         this.lote,
@@ -82,6 +84,7 @@ class ResultElement {
     });
 
     factory ResultElement.fromMap(Map<String, dynamic> json) => ResultElement(
+        id: json["id"],
         producto: json["producto"],
         cantidad: json["cantidad"],
         lote: json["lote"],
@@ -95,6 +98,7 @@ class ResultElement {
     );
 
     Map<String, dynamic> toMap() => {
+        "id": id,
         "producto": producto,
         "cantidad": cantidad,
         "lote": lote,

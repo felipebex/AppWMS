@@ -46,6 +46,7 @@ class ProductoPedido {
   final dynamic
       locationDestIsOk; // Variable para si la ubicación destino está leída
   final dynamic isQuantityIsOk; // V
+  final String? type;
   
 
   ProductoPedido({
@@ -86,6 +87,7 @@ class ProductoPedido {
     this.otherBarcode,
     this.barcodeLocation,
     this.expireDate,
+    this.type,
   });
 
   factory ProductoPedido.fromJson(String str) =>
@@ -136,6 +138,7 @@ class ProductoPedido {
             : List<Barcodes>.from(
                 json['other_barcode'].map((x) => Barcodes.fromMap(x))),
         barcodeLocation: json["barcode_location"],
+        type: json["type"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -179,5 +182,6 @@ class ProductoPedido {
             ? []
             : List<dynamic>.from(otherBarcode!.map((x) => x.toMap())),
         "barcode_location": barcodeLocation,
+        "type": type,
       };
 }

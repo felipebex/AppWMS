@@ -8,7 +8,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/packing_respon
 class PedidosPackingRepository {
   // Método para insertar o actualizar pedidos
   Future<void> insertPedidosBatchPacking(
-      List<PedidoPacking> pedidosList) async {
+      List<PedidoPacking> pedidosList, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -44,6 +44,7 @@ class PedidosPackingRepository {
                 PedidosPackingTable.columnIsZonaEntregaTms:
                     pedido.zonaEntregaTms,
                 PedidosPackingTable.columnIsTerminate: 0,
+                PedidosPackingTable.columnType: type,
               },
               where: '${PedidosPackingTable.columnId} = ?',
               whereArgs: [pedido.id],
@@ -69,6 +70,7 @@ class PedidosPackingRepository {
                 PedidosPackingTable.columnIsZonaEntregaTms:
                     pedido.zonaEntregaTms,
                 PedidosPackingTable.columnIsTerminate: 0,
+                PedidosPackingTable.columnType: type,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );

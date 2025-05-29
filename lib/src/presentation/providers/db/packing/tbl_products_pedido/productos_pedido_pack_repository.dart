@@ -10,7 +10,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_
 class ProductosPedidosRepository {
   // Insertar producto duplicado
   Future<void> insertDuplicateProductoPedido(
-      ProductoPedido producto, dynamic cantidad) async {
+      ProductoPedido producto, dynamic cantidad, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -43,6 +43,7 @@ class ProductosPedidosRepository {
         ProductosPedidosTable.columnObservation: 'Sin novedad',
         ProductosPedidosTable.columnIsSelected: 0,
         ProductosPedidosTable.columnIsProductSplit: 1,
+        ProductosPedidosTable.columnType: type,
       };
 
       await db.insert(
@@ -58,7 +59,7 @@ class ProductosPedidosRepository {
 
   // Insertar productos en productos_pedidos
   Future<void> insertProductosPedidos(
-      List<ProductoPedido> productosList) async {
+      List<ProductoPedido> productosList, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -114,6 +115,7 @@ class ProductosPedidosRepository {
                 ProductosPedidosTable.columnUnidades: producto.unidades == false
                     ? ""
                     : producto.unidades.toString(),
+                ProductosPedidosTable.columnType: type,
               },
               where:
                   '${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnBatchId} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
@@ -162,6 +164,7 @@ class ProductosPedidosRepository {
                 ProductosPedidosTable.columnUnidades: producto.unidades == false
                     ? ""
                     : producto.unidades.toString(),
+                ProductosPedidosTable.columnType: type,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -174,7 +177,7 @@ class ProductosPedidosRepository {
   }
 
   Future<void> insertProductosOnPackage(
-      List<ProductoPedido> productosList) async {
+      List<ProductoPedido> productosList, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -224,6 +227,7 @@ class ProductosPedidosRepository {
                 ProductosPedidosTable.columnTracking: producto.tracking == false
                     ? ""
                     : producto.tracking.toString(),
+                ProductosPedidosTable.columnType: type,
               },
               where:
                   '${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnBatchId} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
@@ -266,6 +270,7 @@ class ProductosPedidosRepository {
                 ProductosPedidosTable.columnTracking: producto.tracking == false
                     ? ""
                     : producto.tracking.toString(),
+                ProductosPedidosTable.columnType: type,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -387,7 +392,7 @@ class ProductosPedidosRepository {
 
       if (result.isNotEmpty) {
         dynamic currentQty =
-            (result.first[ProductosPedidosTable.columnQuantitySeparate] );
+            (result.first[ProductosPedidosTable.columnQuantitySeparate]);
 
         dynamic newQty = currentQty + quantity;
         return await txn.update(
@@ -417,78 +422,36 @@ class ProductosPedidosRepository {
     return resUpdate;
   }
 
-  // Future<int> updateProductosBatch({
-  //   required List<ProductoPedido> productos,
-  //   required Map<String, dynamic> fieldsToUpdate,
-  //   required bool isCertificate,
-  // }) async {
-  //   if (productos.isEmpty) return 0;
-
-  //   final db = await DataBaseSqlite().getDatabaseInstance();
-
-  //   final ids = productos.map((p) => p.idProduct).whereType<int>().toList();
-  //   final pedidoIds =
-  //       productos.map((p) => p.pedidoId).whereType<int>().toSet().toList();
-  //   final idMoves =
-  //       productos.map((p) => p.idMove).whereType<int>().toSet().toList();
-
-  //   final pedidoId = pedidoIds.first;
-  //   final idMove = idMoves.first;
-
-  //   final setClauses = <String>[];
-  //   final values = <dynamic>[];
-
-  //   fieldsToUpdate.forEach((key, value) {
-  //     setClauses.add("$key = ?");
-  //     values.add(value);
-  //   });
-
-  //   final whereIn = ids.map((_) => '?').join(', ');
-  //   values.addAll([...ids, pedidoId, idMove]);
-
-  //   final condition = isCertificate
-  //       ? "is_certificate = 1 AND is_package = 0"
-  //       : "is_certificate IS NULL";
-
-  //   final sql = '''
-  //   UPDATE ${ProductosPedidosTable.tableName}
-  //   SET ${setClauses.join(', ')}
-  //   WHERE ${ProductosPedidosTable.columnIdProduct} IN ($whereIn)
-  //   AND ${ProductosPedidosTable.columnPedidoId} = ?
-  //   AND ${ProductosPedidosTable.columnIdMove} = ?
-  //   AND $condition
-  // ''';
-
-  //   final resUpdate = await db.rawUpdate(sql, values);
-  //   print("Batch update: $resUpdate");
-  //   return resUpdate;
-  // }
+  
   Future<int> updateProductosBatch({
-  required List<ProductoPedido> productos,
-  required Map<String, dynamic> fieldsToUpdate,
-  required bool isCertificate,
-}) async {
-  if (productos.isEmpty) return 0;
+    required List<ProductoPedido> productos,
+    required Map<String, dynamic> fieldsToUpdate,
+    required bool isCertificate,
+  }) async {
+    if (productos.isEmpty) return 0;
 
-  final db = await DataBaseSqlite().getDatabaseInstance();
-  int totalUpdated = 0;
+    final db = await DataBaseSqlite().getDatabaseInstance();
+    int totalUpdated = 0;
 
-  // Usamos una transacción para asegurar atomicidad
-  await db.transaction((txn) async {
-    // Preparamos la consulta base
-    final setClauses = fieldsToUpdate.keys.map((key) => "$key = ?").join(', ');
-    final setValues = fieldsToUpdate.values.toList();
-    final condition = isCertificate 
-        ? "AND is_certificate = 1 AND is_package = 0" 
-        : "AND is_certificate IS NULL";
+    // Usamos una transacción para asegurar atomicidad
+    await db.transaction((txn) async {
+      // Preparamos la consulta base
+      final setClauses =
+          fieldsToUpdate.keys.map((key) => "$key = ?").join(', ');
+      final setValues = fieldsToUpdate.values.toList();
+      final condition = isCertificate
+          ? "AND is_certificate = 1 AND is_package = 0"
+          : "AND is_certificate IS NULL";
 
-    // Actualizamos cada producto individualmente pero en una sola transacción
-    for (final producto in productos) {
-      if (producto.idProduct == null || producto.pedidoId == null || producto.idMove == null) {
-        continue;
-      }
+      // Actualizamos cada producto individualmente pero en una sola transacción
+      for (final producto in productos) {
+        if (producto.idProduct == null ||
+            producto.pedidoId == null ||
+            producto.idMove == null) {
+          continue;
+        }
 
-      final sql = '''
+        final sql = '''
         UPDATE ${ProductosPedidosTable.tableName}
         SET $setClauses
         WHERE ${ProductosPedidosTable.columnIdProduct} = ?
@@ -497,17 +460,17 @@ class ProductosPedidosRepository {
         $condition
       ''';
 
-      final result = await txn.rawUpdate(sql, [
-        ...setValues,
-        producto.idProduct,
-        producto.pedidoId,
-        producto.idMove
-      ]);
+        final result = await txn.rawUpdate(sql, [
+          ...setValues,
+          producto.idProduct,
+          producto.pedidoId,
+          producto.idMove
+        ]);
 
-      totalUpdated += result;
-    }
-  });
+        totalUpdated += result;
+      }
+    });
 
-  return totalUpdated;
-}
+    return totalUpdated;
+  }
 }

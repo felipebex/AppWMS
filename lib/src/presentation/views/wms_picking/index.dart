@@ -712,31 +712,6 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                 child: Row(
                                                   children: [
                                                     Icon(
-                                                      Icons.person,
-                                                      color: primaryColorApp,
-                                                      size: 15,
-                                                    ),
-                                                    const SizedBox(width: 5),
-                                                    Expanded(
-                                                      child: Text(
-                                                        batch.userName ??
-                                                            "Sin usuario",
-                                                        style: const TextStyle(
-                                                            fontSize: 12,
-                                                            color: black),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                              Align(
-                                                alignment: Alignment.centerLeft,
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
                                                       Icons.add,
                                                       color: primaryColorApp,
                                                       size: 15,
@@ -794,6 +769,31 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                             fontSize: 12,
                                                             color:
                                                                 primaryColorApp),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.person,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Expanded(
+                                                      child: Text(
+                                                        batch.userName ??
+                                                            "Sin responsable",
+                                                        style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: black),
                                                         maxLines: 2,
                                                         overflow: TextOverflow
                                                             .ellipsis,

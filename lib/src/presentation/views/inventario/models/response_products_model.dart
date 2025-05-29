@@ -76,6 +76,10 @@ class Product {
   dynamic expirationDate;
   dynamic uom;
 
+  int? locationId;
+  String? locationName;
+  dynamic quantity;
+
   Product({
     this.productId,
     this.name,
@@ -95,6 +99,10 @@ class Product {
     this.volumeUomName,
     this.expirationDate,
     this.uom,
+    this.locationId,
+    this.locationName,
+    this.quantity 
+
   });
 
   factory Product.fromMap(Map<String, dynamic> json) => Product(
@@ -122,6 +130,10 @@ class Product {
         volumeUomName: json["volume_uom_name"],
         expirationDate: json["expiration_date"],
         uom: json["uom"],
+        locationId: json['location_id'],
+        locationName: json['location_name'],
+        quantity: json['quantity'],
+
       );
 
   Map<String, dynamic> toMap() => {
@@ -135,7 +147,6 @@ class Product {
         "other_barcodes": otherBarcodes == null
             ? []
             : List<dynamic>.from(otherBarcodes!.map((x) => x.toMap())),
-            
         "product_packing": productPacking == null
             ? []
             : List<dynamic>.from(productPacking!.map((x) => x.toMap())),
@@ -148,6 +159,9 @@ class Product {
         "volume_uom_name": volumeUomName,
         "expiration_date": expirationDate,
         "uom": uom,
+        "location_id": locationId,
+        "location_name": locationName,
+        "quantity": quantity,
       };
 }
 

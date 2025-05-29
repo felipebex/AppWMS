@@ -66,6 +66,9 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
   List<Product> productos = [];
   List<Product> productosFilters = [];
 
+  List<Product> productosSugeridos = []; // productos en la ubicación actual
+  List<Product> productosRestantes = []; // otros productos sin repetir
+
   //lista de lotes de un producto
   List<LotesProduct> listLotesProduct = [];
   List<LotesProduct> listLotesProductFilters = [];
@@ -424,13 +427,31 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         currentUbication = event.locationSelect;
         locationIsOk = true;
 
-        emit(ChangeLocationIsOkState(
-          locationIsOk,
-        ));
+        separarProductosPorUbicacionActual(); // 🔥 aquí separamos
+
+        emit(ChangeLocationIsOkState(locationIsOk));
       }
     } catch (e, s) {
-      print("❌ Error en el ChangeLocationIsOkEvent $e ->$s");
+      print("❌ Error en ChangeLocationIsOkEvent $e ->$s");
     }
+  }
+
+  void separarProductosPorUbicacionActual() {
+    final ubicacionId = currentUbication?.id;
+    if (ubicacionId == null) {
+      productosSugeridos = [];
+      productosRestantes = productos;
+      return;
+    }
+
+    productosSugeridos =
+        productos.where((p) => p.locationId == ubicacionId).toList();
+
+    // Para evitar repetir productos, usa Set de IDs sugeridos
+    final idsSugeridos = productosSugeridos.map((e) => e.locationId).toSet();
+
+    productosRestantes =
+        productos.where((p) => !idsSugeridos.contains(p.locationId)).toList();
   }
 
   void _onGetProducts(
@@ -448,7 +469,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         final allBarcodes =
             _extractAllBarcodes(response).toList(growable: false);
 
-        print('Barcodes: ${allBarcodes.length}');
+        print('productos: ${response.length}');
 
         await db.barcodesInventarioRepository
             .insertOrUpdateBarcodes(allBarcodes);
@@ -642,24 +663,41 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     }
   }
 
-  void _onSearchProductEvent(
-      SearchProductEvent event, Emitter<InventarioState> emit) async {
+void _onSearchProductEvent(
+    SearchProductEvent event,
+    Emitter<InventarioState> emit,
+  ) async {
     try {
       emit(SearchLoading());
-      productosFilters = [];
-      productosFilters = productos;
       final query = event.query.toLowerCase();
-      if (query.isEmpty) {
-        productosFilters = productos;
+
+      final List<Product> filtrados = productos.where((product) {
+        final nameMatch = product.name?.toLowerCase().contains(query) ?? false;
+        final codeMatch = product.code?.toLowerCase().contains(query) ?? false;
+        final barcodeMatch = product.barcode?.toLowerCase().contains(query) ?? false;
+        return nameMatch || codeMatch || barcodeMatch;
+      }).toList();
+
+      productosFilters = filtrados;
+
+      final ubicacionId = currentUbication?.id;
+      if (ubicacionId != null) {
+        productosSugeridos = filtrados
+            .where((product) => product.locationId == ubicacionId)
+            .toList();
+
+        final sugeridosIds = productosSugeridos.map((e) => e.productId).toSet();
+        productosRestantes = filtrados
+            .where((product) => !sugeridosIds.contains(product.productId))
+            .toList();
       } else {
-        productosFilters = productos.where((product) {
-          return (product.name?.toLowerCase().contains(query) ?? false) ||
-              (product.code?.toLowerCase().contains(query) ?? false);
-        }).toList();
+        productosSugeridos = [];
+        productosRestantes = filtrados;
       }
-      emit(SearchProductSuccess(productosFilters));
+
+      emit(SearchProductSuccess(filtrados));
     } catch (e, s) {
-      print('Error en el SearchLocationEvent: $e, $s');
+      print('Error en el SearchProductEvent: $e, $s');
       emit(SearchFailure(e.toString()));
     }
   }

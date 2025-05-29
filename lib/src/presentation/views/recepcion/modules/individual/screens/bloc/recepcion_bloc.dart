@@ -200,10 +200,43 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     //enviar temperatura
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
 
+    //evento para eliminar un producto ya enviado
+    on<DelectedProductWmsEvent>(_onDelectedProductWmsEvent);
+
     //todo devoluciones
     on<FetchDevoluciones>(_onFetchDevoluciones);
     on<FetchDevolucionesOfDB>(_onFetchDevolucionesOfDB);
     on<SearchDevolucionEvent>(_onSearchDevolucionEvent);
+  }
+
+  //*metodo para eliminar un producto ya enviado
+  void _onDelectedProductWmsEvent(
+      DelectedProductWmsEvent event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(DelectedProductWmsLoading());
+
+      final response = await _recepcionRepository.deleteProductInWms(
+          event.idRecepcion, event.listIdMove, false);
+
+      if (response.result?.code == 200) {
+        // Antes de eliminar, actualizamos la cantidad faltante
+        await db.productEntradaRepository
+            .updateCantidadAndDeleteProductsEntrada(
+          idRecepcion: event.idRecepcion,
+          products: response.result?.result ?? [],
+        );
+
+        ///pedimos nuevamente los productos de la entrada
+        add(GetPorductsToEntrada(event.idRecepcion));
+
+        emit(DelectedProductWmsSuccess('Línea eliminada correctamente'));
+      } else {
+        emit(DelectedProductWmsFailure(response.result?.mensaje ?? ""));
+      }
+    } catch (e, s) {
+      emit(DelectedProductWmsFailure('Error al eliminar el producto'));
+      print('Error en _onDelectedProductWmsEvent: $e, $s');
+    }
   }
 
   //*metodo para buscar una devolucion
@@ -267,7 +300,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
       await db.deleRecepcion('dev');
 
       final response =
-          await _recepcionRepository.fetchAllReceptions(event.isLoadinDialog);
+          await _recepcionRepository.fetchAllDevolutions(event.isLoadinDialog);
 
       if (response.result?.code == 200) {
         if (response.result?.result?.isNotEmpty == true) {
@@ -521,7 +554,12 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         );
         emit(CreateBackOrderOrNotSuccess(
             event.isBackOrder, response.result?.msg ?? ""));
-        add(FetchOrdenesCompraOfBd());
+
+        if (event.type == 'dev') {
+          add(FetchDevolucionesOfDB());
+        } else {
+          add(FetchOrdenesCompraOfBd());
+        }
       } else {
         emit(CreateBackOrderOrNotFailure(response.result?.msg ?? ''));
       }
@@ -751,19 +789,70 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           await db.productEntradaRepository.insertDuplicateProducto(
               currentProduct, pendingQuantity, currentProduct.type ?? "");
         }
+
+        //actualizamos el idMove del producto que ya fue enviado
+        await db.productEntradaRepository.setFieldTableProductSendEntrada(
+            currentProduct.idRecepcion ?? 0,
+            int.parse(currentProduct.productId),
+            "id_move",
+            responseSend.result?.result?.first.id ?? 0,
+            currentProduct.idMove);
+
         add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
         lotesProductCurrent = LotesProduct();
         dateInicio = '';
         dateFin = '';
         emit(SendProductToOrderSuccess());
       } else {
-        // marcamos tiempo final de sepfaracion
+        // actualizamos estos datos si el producto no fue enviado correctamente
 
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion,
+            int.parse(currentProduct.productId),
+            "quantity_done",
+            0,
+            currentProduct.idMove);
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion,
+            int.parse(currentProduct.productId),
+            "is_selected",
+            0,
+            currentProduct.idMove);
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion,
+            int.parse(currentProduct.productId),
+            "quantity_separate",
+            null,
+            currentProduct.idMove);
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion,
+            int.parse(currentProduct.productId),
+            "date_end",
+            "",
+            currentProduct.idMove);
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion,
+            int.parse(currentProduct.productId),
+            "date_transaction",
+            "",
+            currentProduct.idMove);
         await db.productEntradaRepository.setFieldTableProductEntrada(
             currentProduct.idRecepcion,
             int.parse(currentProduct.productId),
             "is_separate",
             0,
+            currentProduct.idMove);
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion,
+            int.parse(currentProduct.productId),
+            "is_product_split",
+            0,
+            currentProduct.idMove);
+        await db.productEntradaRepository.setFieldTableProductEntrada(
+            currentProduct.idRecepcion,
+            int.parse(currentProduct.productId),
+            "time",
+            null,
             currentProduct.idMove);
 
         add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));

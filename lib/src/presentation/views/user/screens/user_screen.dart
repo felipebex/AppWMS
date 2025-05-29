@@ -975,6 +975,40 @@ class UserScreen extends StatelessWidget {
                                                 Row(
                                                   children: [
                                                     const Text(
+                                                        "Mostrar campo propietario: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.showOwnerField ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Mostrar campo propietario",
+                                                                  body:
+                                                                      "Permite mostrar el campo de propietario en el proceso de recepcion",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
                                                         "Ocultar cantidad: ",
                                                         style: TextStyle(
                                                             fontSize: 14,

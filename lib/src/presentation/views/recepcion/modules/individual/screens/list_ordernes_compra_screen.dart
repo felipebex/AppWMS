@@ -145,7 +145,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                   children: [
                     //* appbar
                     AppBar(size: size),
-                   //*barra buscar
+                    //*barra buscar
                     Container(
                         margin: const EdgeInsets.only(top: 5, bottom: 5),
                         height: 55,
@@ -274,8 +274,10 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                     child: Card(
                                       elevation: 3,
                                       color: ordenCompra[index]
-                                                  .startTimeReception !=
-                                              "" && ordenCompra[index].responsableId !=
+                                                      .startTimeReception !=
+                                                  "" &&
+                                              ordenCompra[index]
+                                                      .responsableId !=
                                                   0
                                           ? primaryColorAppLigth
                                           : ordenCompra[index].isFinish == 1
@@ -338,6 +340,38 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                     ),
                                                   ),
                                                 ],
+                                              ),
+                                            ),
+                                            Visibility(
+                                              child: Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Row(
+                                                  children: [
+                                                    Text('Propietario: ',
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp)),
+                                                    Text(
+                                                      ordenCompra[index]
+                                                                  .propietario ==
+                                                              ''
+                                                          ? 'Sin propietario'
+                                                          : ordenCompra[index]
+                                                                  .propietario ??
+                                                              "",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: ordenCompra[
+                                                                        index]
+                                                                    .priority ==
+                                                                ''
+                                                            ? black
+                                                            : red,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
                                             Divider(
@@ -455,6 +489,76 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                     '',
                                                 style: const TextStyle(
                                                     fontSize: 12, color: black),
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.add,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text(
+                                                    "Cantidad Productos: ",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text(
+                                                      ordenCompra[index].numeroLineas
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.centerLeft,
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.add,
+                                                    color: primaryColorApp,
+                                                    size: 15,
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  const Text(
+                                                    "Cantidad unidades: ",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: black),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                  Expanded(
+                                                    child: Text(
+                                                      ordenCompra[index].numeroItems
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             Align(

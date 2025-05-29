@@ -12,6 +12,7 @@ import 'package:wms_app/src/presentation/views/inventario/models/response_produc
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/location/location_search_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/product/product_search_widget.dart';
+import 'package:wms_app/src/presentation/views/ocr/widget/ocr_wodget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/index_list.dart';
@@ -33,9 +34,10 @@ import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/s
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/screens/widgets/location_dest/locations_dest_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/user_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_detail.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_list.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing_detail.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing_list.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/index.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick_screen.dart';
@@ -46,6 +48,10 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/history/scree
 import 'package:wms_app/src/presentation/views/wms_picking/modules/picking_componentes/index_list_picking_componentes_screen.dart';
 
 class AppRoutes {
+
+
+  //todo ocr
+  static const String ocr = 'ocr';
   //todo  Mapa estático de rutas
   static const String enterprice = 'enterprice';
   static const String auth = 'auth';
@@ -70,6 +76,9 @@ class AppRoutes {
   static const String packingList = 'packing-list';
   static const String packing = 'Packing';
   static const String packingDetail = 'packing-detail';
+
+  //todo packing por pedido
+  static const String listPacking = 'list-packing';
 
   //todo inventario
   static const String inventario = 'inventario';
@@ -124,6 +133,10 @@ class AppRoutes {
 
   static Map<String, Widget Function(BuildContext)> get routes {
     return {
+
+
+      //todo ocr
+      ocr: (_) =>  OcrScreen(),
       // todo Global
       enterprice: (_) => const SelectEnterpricePage(),
       auth: (_) => const LoginPage(),
@@ -180,6 +193,9 @@ class AppRoutes {
           initialTabIndex: initialTabIndex,
         );
       },
+
+      //todo packign por pedido
+      listPacking: (_) => ListPackingScreen(),
 
       //todo auth
       home: (_) => const HomePage(),

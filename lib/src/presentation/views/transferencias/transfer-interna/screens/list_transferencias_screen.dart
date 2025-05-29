@@ -127,12 +127,11 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                         .searchControllerTransfer,
                     onchanged: () {
                       context.read<TransferenciaBloc>().add(SearchTransferEvent(
-                            context
-                                .read<TransferenciaBloc>()
-                                .searchControllerTransfer
-                                .text,
-                                'transfer'
-                          ));
+                          context
+                              .read<TransferenciaBloc>()
+                              .searchControllerTransfer
+                              .text,
+                          'transfer'));
                     },
                   )
                 : null,
@@ -182,12 +181,8 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                           .searchControllerTransfer
                                           .clear();
 
-                                      context
-                                          .read<TransferenciaBloc>()
-                                          .add(SearchTransferEvent(
-                                            "",
-                                            'transfer'
-                                          ));
+                                      context.read<TransferenciaBloc>().add(
+                                          SearchTransferEvent("", 'transfer'));
 
                                       Navigator.pushReplacementNamed(
                                         context,
@@ -201,9 +196,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                     child: GestureDetector(
                                       onTap: () async {
                                         await DataBaseSqlite()
-                                            .deleTrasnferencia(
-                                              'transfer'
-                                            );
+                                            .deleTrasnferencia('transfer');
                                         context
                                             .read<TransferenciaBloc>()
                                             .add(FetchAllTransferencias(false));
@@ -284,8 +277,6 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                       },
                                     ),
                                   ),
-                                
-                                
                                 ],
                               ),
                             ),
@@ -337,12 +328,9 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                               .searchControllerTransfer
                                               .clear();
 
-                                          context
-                                              .read<TransferenciaBloc>()
-                                              .add(SearchTransferEvent(
-                                                "",
-                                                'transfer'
-                                              ));
+                                          context.read<TransferenciaBloc>().add(
+                                              SearchTransferEvent(
+                                                  "", 'transfer'));
 
                                           context.read<TransferenciaBloc>().add(
                                               ShowKeyboardEvent(
@@ -362,12 +350,8 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                     border: InputBorder.none,
                                   ),
                                   onChanged: (value) {
-                                    context
-                                        .read<TransferenciaBloc>()
-                                        .add(SearchTransferEvent(
-                                          value,
-                                          'transfer'
-                                        ));
+                                    context.read<TransferenciaBloc>().add(
+                                        SearchTransferEvent(value, 'transfer'));
                                   },
                                   onTap: !context
                                           .read<UserBloc>()
@@ -607,6 +591,76 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                             child: Row(
                                               children: [
                                                 Icon(
+                                                  Icons.add,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                const Text(
+                                                  "Cantidad Productos: ",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    transferenciaDetail
+                                                        .numeroLineas
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: primaryColorApp),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.add,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                const Text(
+                                                  "Cantidad unidades: ",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    transferenciaDetail
+                                                        .numeroItems
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: primaryColorApp),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
                                                   Icons.person,
                                                   color: primaryColorApp,
                                                   size: 15,
@@ -701,7 +755,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                                 false, // No permitir que el usuario cierre el diálogo manualmente
                                             builder: (context) =>
                                                 DialogAsignUserToOrderWidget(
-                                                  title:
+                                              title:
                                                   'Esta seguro de tomar esta orden, una vez aceptada no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
                                               onAccepted: () async {
                                                 context
@@ -717,9 +771,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                                 context
                                                     .read<TransferenciaBloc>()
                                                     .add(SearchTransferEvent(
-                                                      "",
-                                                      'transfer'
-                                                    ));
+                                                        "", 'transfer'));
                                                 //asignamos el responsable a esa orden de entrada
                                                 context
                                                     .read<TransferenciaBloc>()
@@ -763,10 +815,9 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
 
             context.read<TransferenciaBloc>().searchControllerTransfer.clear();
 
-            context.read<TransferenciaBloc>().add(SearchTransferEvent(
-                  "",
-                  'transfer'
-                ));
+            context
+                .read<TransferenciaBloc>()
+                .add(SearchTransferEvent("", 'transfer'));
 
             context.read<TransferenciaBloc>().add(StartOrStopTimeTransfer(
                   transfer.id ?? 0,
@@ -796,10 +847,9 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
 
       context.read<TransferenciaBloc>().searchControllerTransfer.clear();
 
-      context.read<TransferenciaBloc>().add(SearchTransferEvent(
-            "",
-            'transfer'
-          ));
+      context
+          .read<TransferenciaBloc>()
+          .add(SearchTransferEvent("", 'transfer'));
 
       context
           .read<TransferenciaBloc>()

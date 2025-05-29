@@ -41,6 +41,8 @@ class EntradasRepeccionTable {
   //temperatura
   static const String columnTemperatura = 'temperatura';
   static const String columnType = 'type';
+  //propietario
+  static const String columnPropietario = 'propietario';
 
   static String createTable() {
     return '''
@@ -77,6 +79,8 @@ class EntradasRepeccionTable {
       $columnManejaTemperatura INTEGER,
       $columnTemperatura REAL,
       $columnType TEXT,
+      $columnPropietario TEXT,
+
       $columnBackorderId INTEGER
 
     )

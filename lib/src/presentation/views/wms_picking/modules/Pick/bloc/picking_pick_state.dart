@@ -281,3 +281,24 @@ class ValidateConfirmFailure extends PickingPickState {
   final String error;
   ValidateConfirmFailure(this.error);
 }
+
+
+
+class MuellesLoadingState extends PickingPickState {}
+
+class MuellesLoadedState extends PickingPickState {
+  final List<Muelles> listOfMuelles;
+  MuellesLoadedState({required this.listOfMuelles});
+}
+
+class MuellesErrorState extends PickingPickState {
+  final String error;
+  MuellesErrorState(this.error);
+}
+
+
+
+class SubMuelleOcupadoError extends PickingPickState {
+  final String error;
+  SubMuelleOcupadoError(this.error);
+}

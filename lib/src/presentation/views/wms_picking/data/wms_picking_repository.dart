@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/response_ocupar_muelle_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/batch_history_id_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/history/models/hisotry_done_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
@@ -389,6 +390,43 @@ class WmsPickingRepository {
       print('Error sendPicking: $e, $s');
     }
     return SendPickingResponse();
+  }
+
+  Future<OcuparMuelle> ocuparMuelle({
+    required int idMuelle,
+    required bool isFull,
+    //
+  }) async {
+    try {
+      var response = await ApiRequestService().postPicking(
+        endpoint: 'update_dock',
+        isunecodePath: true,
+        body: {
+          "params": {
+            "muelle_id": idMuelle,
+            "is_full": isFull,
+          }
+        },
+        isLoadinDialog: false,
+      );
+
+      print(response);
+      return OcuparMuelle.fromJson(response.body);
+    } on SocketException catch (e) {
+      // Manejo de error de red
+      print('Error de red: $e');
+    } catch (e, s) {
+      Get.snackbar(
+        'Error',
+        'Error en ocuparMuelle: $e $s',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        icon: Icon(Icons.check, color: Colors.red),
+      );
+      // Manejo de otros errores
+      print('Error ocuparMuelle: $e, $s');
+    }
+    return OcuparMuelle();
   }
 
   //metod para obtener las novedades:

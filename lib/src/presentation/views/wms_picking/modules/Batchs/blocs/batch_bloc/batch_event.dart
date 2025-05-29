@@ -159,8 +159,9 @@ class SendProductEditOdooEvent extends BatchEvent {
 class AssignSubmuelleEvent extends BatchEvent {
   final List<ProductsBatch> productsSeparate;
   final Muelles muelle;
+  final bool isOccupied;
   
-  AssignSubmuelleEvent(this.productsSeparate, this.muelle, );
+  AssignSubmuelleEvent(this.productsSeparate, this.muelle, this.isOccupied );
 }
 
 class ScanBarcodeEvent extends BatchEvent {}
@@ -216,3 +217,8 @@ class SetIsProcessingEvent extends BatchEvent {
 }
 
 class CloseStateEvent extends BatchEvent {}
+
+
+class FetchMuellesEvent extends BatchEvent {
+
+}

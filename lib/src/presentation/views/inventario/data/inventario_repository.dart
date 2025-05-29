@@ -28,7 +28,7 @@ class InventarioRepository {
 
     try {
       var response = await ApiRequestService().getInventario(
-        endpoint: 'product',
+        endpoint: 'product_quants',
         isunecodePath: true,
         isLoadinDialog: isLoadinDialog,
       );

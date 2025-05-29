@@ -71,8 +71,7 @@ class IndexListPickScreen extends StatelessWidget {
                       controller: bloc.searchPickController,
                       onchanged: () {
                         bloc.add(SearchPickEvent(
-                          bloc.searchPickController.text,false
-                        ));
+                            bloc.searchPickController.text, false));
                       },
                     ),
                   )
@@ -122,7 +121,8 @@ class IndexListPickScreen extends StatelessWidget {
                                       ),
                                       GestureDetector(
                                         onTap: () async {
-                                          await DataBaseSqlite().delePick('pick');
+                                          await DataBaseSqlite()
+                                              .delePick('pick');
                                           bloc.add(FetchPickingPickEvent(true));
                                         },
                                         child: Padding(
@@ -190,20 +190,15 @@ class IndexListPickScreen extends StatelessWidget {
                                       suffixIcon: IconButton(
                                           onPressed: () {
                                             bloc.searchPickController.clear();
-                                            bloc.add(SearchPickEvent(
-                                              '',
-                                              false
-                                            
-                                            ));
+                                            bloc.add(
+                                                SearchPickEvent('', false));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: IconButton(
                                             onPressed: () {
                                               bloc.add(ShowKeyboard(false));
-                                              bloc.add(SearchPickEvent(
-                                                '',
-                                                false
-                                              ));
+                                              bloc.add(
+                                                  SearchPickEvent('', false));
                                               bloc.searchPickController.clear();
                                             },
                                             icon: const Icon(Icons.close,
@@ -299,10 +294,8 @@ class IndexListPickScreen extends StatelessWidget {
                                                 bloc.add(ShowKeyboard(false));
                                                 bloc.searchPickController
                                                     .clear();
-                                                bloc.add(SearchPickEvent(
-                                                  '',
-                                                  false
-                                                ));
+                                                bloc.add(
+                                                    SearchPickEvent('', false));
 
                                                 bloc.add(
                                                     FetchPickWithProductsEvent(
@@ -363,83 +356,79 @@ class IndexListPickScreen extends StatelessWidget {
                                         Icons.arrow_forward_ios,
                                         color: primaryColorApp,
                                       ),
-                                      leading: Container(
-                                        padding: const EdgeInsets.all(5),
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-
-                                            //sombras
-                                            boxShadow: const [
-                                              BoxShadow(
-                                                  color: Colors.black12,
-                                                  blurRadius: 5,
-                                                  offset: Offset(0, 2))
-                                            ]),
-                                        child: Image.asset(
-                                          "assets/icons/producto.png",
-                                          color: primaryColorApp,
-                                          width: 24,
-                                        ),
-                                      ),
                                       title: Text(batch.name ?? '',
-                                          style: const TextStyle(fontSize: 14)),
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: primaryColorApp,
+                                              fontWeight: FontWeight.bold)),
                                       subtitle: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(batch.zonaEntrega ?? '',
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: black)),
+                                          Row(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                    batch.zonaEntrega ?? '',
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                              ),
+                                            ],
                                           ),
                                           Row(
                                             children: [
-                                              const Align(
+                                              Align(
                                                 alignment: Alignment.centerLeft,
-                                                child: Text(
-                                                    "Tipo de operación:",
+                                                child: Text("Operación: ",
                                                     style: TextStyle(
                                                         fontSize: 12,
-                                                        color: grey)),
+                                                        color:
+                                                            primaryColorApp)),
                                               ),
-                                              Spacer(),
-                                              batch.startTimeTransfer != ""
-                                                  ? GestureDetector(
-                                                      onTap: () {
-                                                        showDialog(
-                                                            context: context,
-                                                            builder:
-                                                                (context) =>
-                                                                    DialogInfo(
-                                                                      title:
-                                                                          'Tiempo de inicio',
-                                                                      body:
-                                                                          'Este Pick fue iniciado a las ${batch.startTimeTransfer}',
-                                                                    ));
-                                                      },
-                                                      child: Icon(
-                                                        Icons.timer_sharp,
-                                                        color: primaryColorApp,
-                                                        size: 15,
-                                                      ),
-                                                    )
-                                                  : const SizedBox(),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  batch.pickingType.toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
                                             ],
                                           ),
                                           Align(
                                             alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              batch.pickingType.toString(),
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: primaryColorApp),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
+                                            child: Row(
+                                              children: [
+                                                Text('Prioridad: ',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            primaryColorApp)),
+                                                Text(
+                                                  batch.priority == '0'
+                                                      ? 'Normal'
+                                                      : 'Alta'
+                                                          "",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: batch.priority == '0'
+                                                        ? black
+                                                        : red,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
+                                          ),
+                                          Divider(
+                                            color: black,
+                                            thickness: 1,
+                                            height: 5,
                                           ),
                                           Align(
                                             alignment: Alignment.centerLeft,
@@ -459,38 +448,8 @@ class IndexListPickScreen extends StatelessWidget {
                                                                   .fechaCreacion!))
                                                       : "Sin fecha",
                                                   style: const TextStyle(
+                                                      color: black,
                                                       fontSize: 12),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.person,
-                                                  color: primaryColorApp,
-                                                  size: 15,
-                                                ),
-                                                const SizedBox(width: 5),
-                                                Expanded(
-                                                  child: Text(
-                                                    batch.responsable == ""
-                                                        ? "Sin responsable"
-                                                        : batch.responsable ??
-                                                            '',
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color:
-                                                            batch.responsable ==
-                                                                    ""
-                                                                ? red
-                                                                : black),
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -555,7 +514,7 @@ class IndexListPickScreen extends StatelessWidget {
                                             child: Row(
                                               children: [
                                                 Icon(
-                                                  Icons.file_copy_rounded,
+                                                  Icons.shopping_cart_rounded,
                                                   color: primaryColorApp,
                                                   size: 15,
                                                 ),
@@ -648,6 +607,60 @@ class IndexListPickScreen extends StatelessWidget {
                                                         TextOverflow.ellipsis,
                                                   ),
                                                 ),
+                                              ],
+                                            ),
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.person,
+                                                  color: primaryColorApp,
+                                                  size: 15,
+                                                ),
+                                                const SizedBox(width: 5),
+                                                Expanded(
+                                                  child: Text(
+                                                    batch.responsable == ""
+                                                        ? "Sin responsable"
+                                                        : batch.responsable ??
+                                                            '',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            batch.responsable ==
+                                                                    ""
+                                                                ? red
+                                                                : black),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                Spacer(),
+                                                batch.startTimeTransfer != ""
+                                                    ? GestureDetector(
+                                                        onTap: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) =>
+                                                                      DialogInfo(
+                                                                        title:
+                                                                            'Tiempo de inicio',
+                                                                        body:
+                                                                            'Este Pick fue iniciado a las ${batch.startTimeTransfer}',
+                                                                      ));
+                                                        },
+                                                        child: Icon(
+                                                          Icons.timer_sharp,
+                                                          color:
+                                                              primaryColorApp,
+                                                          size: 15,
+                                                        ),
+                                                      )
+                                                    : const SizedBox(),
                                               ],
                                             ),
                                           ),

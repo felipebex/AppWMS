@@ -12,10 +12,10 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/location/location_card_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/muelle/muelle_card_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/SelectSubMuelleBottomSheet_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/cant_lineas_muelle_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
@@ -25,6 +25,7 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screen
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/popunButton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/progressIndicatos_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/product_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/scanner_location_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/theme/input_decoration.dart';
@@ -408,6 +409,61 @@ class _BatchDetailScreenState extends State<BatchScreen>
                         backgroundColor: Colors.red[200],
                       ));
                     }
+
+                    if (state is MuellesLoadingState) {
+                      showDialog(
+                        context: context,
+                        barrierDismissible:
+                            false, // No permitir que el usuario cierre el diálogo manualmente
+                        builder: (context) => const DialogLoading(
+                          message: 'Cargando muelles...',
+                        ),
+                      );
+                    }
+
+                    if (state is MuellesErrorState) {
+                      Navigator.pop(context);
+
+                      Get.defaultDialog(
+                        title: '360 Software Informa',
+                        titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+                        middleText: state.error,
+                        middleTextStyle: TextStyle(color: black, fontSize: 14),
+                        backgroundColor: Colors.white,
+                        radius: 10,
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Get.back();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColorApp,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child:
+                                Text('Aceptar', style: TextStyle(color: white)),
+                          ),
+                        ],
+                      );
+                    }
+
+                    if (state is MuellesLoadedState) {
+                      Navigator.pop(context);
+                      showModalBottomSheet(
+                        backgroundColor: white,
+                        context: context,
+                        isDismissible: false,
+                        enableDrag: false,
+                        builder: (context) {
+                          return SelectSubMuelleBottomSheet(
+                            controller: _controllerSubMuelle,
+                            focusNode: focusNode6,
+                          );
+                        },
+                      );
+                    }
                   }, builder: (context, status) {
                     return Column(
                       children: [
@@ -474,123 +530,151 @@ class _BatchDetailScreenState extends State<BatchScreen>
                     child: Column(
                       children: [
                         //todo : ubicacion de origen
-                        Row(
-                          children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color:
-                                      batchBloc.locationIsOk ? green : yellow,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                            Card(
-                              color: batchBloc.isLocationOk
-                                  ? batchBloc.locationIsOk
-                                      ? Colors.green[100]
-                                      : Colors.grey[300]
-                                  : Colors.red[200],
-                              elevation: 5,
-                              child: Container(
-                                // color: Colors.amber,
-                                width: size.width * 0.85,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 2),
-                                child: batchBloc.isPdaZebra
-                                    ? Column(
-                                        children: [
-                                          LocationDropdownWidget(
-                                            isPDA: false,
-                                            selectedLocation: selectedLocation,
-                                            positionsOrigen:
-                                                batchBloc.positionsOrigen,
-                                            currentLocationId: batchBloc
-                                                .currentProduct.locationId
-                                                .toString(),
-                                            batchBloc: batchBloc,
-                                            currentProduct: currentProduct,
-                                          ),
-                                          Container(
-                                            height: 15,
-                                            margin: const EdgeInsets.only(
-                                                bottom: 5),
-                                            child: TextFormField(
-                                              autofocus: true,
-                                              showCursor: false,
-                                              controller:
-                                                  _controllerLocation, // Asignamos el controlador
-                                              enabled: !batchBloc
-                                                      .locationIsOk && // false
-                                                  !batchBloc
-                                                      .productIsOk && // false
-                                                  !batchBloc
-                                                      .quantityIsOk && // false
-                                                  !batchBloc.locationDestIsOk,
+                        // Row(
+                        //   children: [
+                        //     Padding(
+                        //       padding:
+                        //           const EdgeInsets.symmetric(horizontal: 10),
+                        //       child: Container(
+                        //         width: 10,
+                        //         height: 10,
+                        //         decoration: BoxDecoration(
+                        //           color:
+                        //               batchBloc.locationIsOk ? green : yellow,
+                        //           shape: BoxShape.circle,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     Card(
+                        //       color: batchBloc.isLocationOk
+                        //           ? batchBloc.locationIsOk
+                        //               ? Colors.green[100]
+                        //               : Colors.grey[300]
+                        //           : Colors.red[200],
+                        //       elevation: 5,
+                        //       child: Container(
+                        //         // color: Colors.amber,
+                        //         width: size.width * 0.85,
+                        //         padding: const EdgeInsets.symmetric(
+                        //             horizontal: 10, vertical: 2),
+                        //         child: batchBloc.isPdaZebra
+                        //             ? Column(
+                        //                 children: [
+                        //                   LocationDropdownWidget(
+                        //                     isPDA: false,
+                        //                     selectedLocation: selectedLocation,
+                        //                     positionsOrigen:
+                        //                         batchBloc.positionsOrigen,
+                        //                     currentLocationId: batchBloc
+                        //                         .currentProduct.locationId
+                        //                         .toString(),
+                        //                     batchBloc: batchBloc,
+                        //                     currentProduct: currentProduct,
+                        //                   ),
+                        //                   Container(
+                        //                     height: 15,
+                        //                     margin: const EdgeInsets.only(
+                        //                         bottom: 5),
+                        //                     child: TextFormField(
+                        //                       autofocus: true,
+                        //                       showCursor: false,
+                        //                       controller:
+                        //                           _controllerLocation, // Asignamos el controlador
+                        //                       enabled: !batchBloc
+                        //                               .locationIsOk && // false
+                        //                           !batchBloc
+                        //                               .productIsOk && // false
+                        //                           !batchBloc
+                        //                               .quantityIsOk && // false
+                        //                           !batchBloc.locationDestIsOk,
 
-                                              focusNode: focusNode1,
-                                              onChanged: (value) {
-                                                // Llamamos a la validación al cambiar el texto
-                                                validateLocation(value);
-                                              },
-                                              decoration: InputDecoration(
-                                                hintText: batchBloc
-                                                    .currentProduct.locationId
-                                                    .toString(),
-                                                disabledBorder:
-                                                    InputBorder.none,
-                                                hintStyle: const TextStyle(
-                                                    fontSize: 14, color: black),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : Focus(
-                                        focusNode: focusNode1,
-                                        onKey: (FocusNode node,
-                                            RawKeyEvent event) {
-                                          if (event is RawKeyDownEvent) {
-                                            if (event.logicalKey ==
-                                                LogicalKeyboardKey.enter) {
-                                              validateLocation(
-                                                  //validamos la ubicacion
-                                                  context
-                                                      .read<BatchBloc>()
-                                                      .scannedValue1);
+                        //                       focusNode: focusNode1,
+                        //                       onChanged: (value) {
+                        //                         // Llamamos a la validación al cambiar el texto
+                        //                         validateLocation(value);
+                        //                       },
+                        //                       decoration: InputDecoration(
+                        //                         hintText: batchBloc
+                        //                             .currentProduct.locationId
+                        //                             .toString(),
+                        //                         disabledBorder:
+                        //                             InputBorder.none,
+                        //                         hintStyle: const TextStyle(
+                        //                             fontSize: 14, color: black),
+                        //                         border: InputBorder.none,
+                        //                       ),
+                        //                     ),
+                        //                   ),
+                        //                 ],
+                        //               )
+                        //             : Focus(
+                        //                 focusNode: focusNode1,
+                        //                 onKey: (FocusNode node,
+                        //                     RawKeyEvent event) {
+                        //                   if (event is RawKeyDownEvent) {
+                        //                     if (event.logicalKey ==
+                        //                         LogicalKeyboardKey.enter) {
+                        //                       validateLocation(
+                        //                           //validamos la ubicacion
+                        //                           context
+                        //                               .read<BatchBloc>()
+                        //                               .scannedValue1);
 
-                                              return KeyEventResult.handled;
-                                            } else {
-                                              context.read<BatchBloc>().add(
-                                                  UpdateScannedValueEvent(
-                                                      event.data.keyLabel,
-                                                      'location'));
+                        //                       return KeyEventResult.handled;
+                        //                     } else {
+                        //                       context.read<BatchBloc>().add(
+                        //                           UpdateScannedValueEvent(
+                        //                               event.data.keyLabel,
+                        //                               'location'));
 
-                                              return KeyEventResult.handled;
-                                            }
-                                          }
-                                          return KeyEventResult.ignored;
-                                        },
-                                        child: LocationDropdownWidget(
-                                          isPDA: true,
-                                          selectedLocation: selectedLocation,
-                                          positionsOrigen:
-                                              batchBloc.positionsOrigen,
-                                          currentLocationId: batchBloc
-                                              .currentProduct.locationId
-                                              .toString(),
-                                          batchBloc: batchBloc,
-                                          currentProduct: currentProduct,
-                                        ),
-                                      ),
-                              ),
-                            ),
-                          ],
+                        //                       return KeyEventResult.handled;
+                        //                     }
+                        //                   }
+                        //                   return KeyEventResult.ignored;
+                        //                 },
+                        //                 child: LocationDropdownWidget(
+                        //                   isPDA: true,
+                        //                   selectedLocation: selectedLocation,
+                        //                   positionsOrigen:
+                        //                       batchBloc.positionsOrigen,
+                        //                   currentLocationId: batchBloc
+                        //                       .currentProduct.locationId
+                        //                       .toString(),
+                        //                   batchBloc: batchBloc,
+                        //                   currentProduct: currentProduct,
+                        //                 ),
+                        //               ),
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
+
+                        LocationScannerWidget(
+                          isLocationOk: batchBloc.isLocationOk,
+                          locationIsOk: batchBloc.locationIsOk,
+                          productIsOk: batchBloc.productIsOk,
+                          quantityIsOk: batchBloc.quantityIsOk,
+                          locationDestIsOk: batchBloc.locationDestIsOk,
+                          currentLocationId:
+                              batchBloc.currentProduct.locationId.toString(),
+                          onValidateLocation: (value) {
+                            validateLocation(value);
+                          },
+                          onKeyScanned: (keyLabel) {
+                            context.read<BatchBloc>().add(
+                                UpdateScannedValueEvent(keyLabel, 'location'));
+                          },
+                          focusNode: focusNode1,
+                          controller: _controllerLocation,
+                          locationDropdown: LocationDropdownWidget(
+                            isPDA: !context.read<UserBloc>().fabricante.contains("Zebra"),
+                            selectedLocation: selectedLocation,
+                            positionsOrigen: batchBloc.positionsOrigen,
+                            currentLocationId:
+                                batchBloc.currentProduct.locationId.toString(),
+                            batchBloc: batchBloc,
+                            currentProduct: currentProduct,
+                          ),
                         ),
 
                         // todo: Producto
@@ -1194,226 +1278,7 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                             .isEmpty
                                         ? null
                                         : () {
-                                            showModalBottomSheet(
-                                              context: context,
-                                              isDismissible: false,
-                                              enableDrag: false,
-                                              builder: (context) {
-                                                return BlocBuilder<BatchBloc,
-                                                    BatchState>(
-                                                  builder: (context, state) {
-                                                    return Container(
-                                                      height: 400,
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              16.0),
-                                                      margin:
-                                                          const EdgeInsets.only(
-                                                              bottom: 20),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          Text(
-                                                            'Seleccione la sub ubicación de destino para los productos',
-                                                            style: TextStyle(
-                                                                fontSize: 12,
-                                                                color:
-                                                                    primaryColorApp),
-                                                          ),
-                                                          const SizedBox(
-                                                              height: 10),
-                                                          Expanded(
-                                                            child: ListView
-                                                                .builder(
-                                                              itemCount:
-                                                                  batchBloc
-                                                                      .submuelles
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      index) {
-                                                                final muelle =
-                                                                    batchBloc
-                                                                            .submuelles[
-                                                                        index];
-                                                                bool
-                                                                    isSelected =
-                                                                    muelle ==
-                                                                        batchBloc
-                                                                            .subMuelleSelected;
-
-                                                                return Card(
-                                                                  color: isSelected
-                                                                      ? Colors.green[
-                                                                          300]
-                                                                      : Colors
-                                                                          .white, // Cambia el color de la card
-                                                                  elevation: 3,
-                                                                  child:
-                                                                      ListTile(
-                                                                    title: Text(
-                                                                      muelle.completeName ??
-                                                                          '',
-                                                                      style:
-                                                                          TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color: isSelected
-                                                                            ? Colors.white
-                                                                            : black,
-                                                                      ),
-                                                                    ),
-                                                                    subtitle: muelle.barcode ==
-                                                                                null ||
-                                                                            muelle.barcode ==
-                                                                                ""
-                                                                        ? Text(
-                                                                            "Sin codigo de barras",
-                                                                            style:
-                                                                                TextStyle(
-                                                                              fontSize: 12,
-                                                                              color: isSelected ? Colors.white : red,
-                                                                            ),
-                                                                          )
-                                                                        : null,
-                                                                    onTap: () {
-                                                                      context
-                                                                          .read<
-                                                                              BatchBloc>()
-                                                                          .add(SelectedSubMuelleEvent(
-                                                                              muelle));
-                                                                    },
-                                                                  ),
-                                                                );
-                                                              },
-                                                            ),
-                                                          ),
-                                                          Container(
-                                                            height: 15,
-                                                            margin:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    bottom: 5),
-                                                            child:
-                                                                TextFormField(
-                                                              showCursor: false,
-                                                              controller:
-                                                                  _controllerSubMuelle, // Asignamos el controlador
-                                                              enabled: true,
-                                                              focusNode:
-                                                                  focusNode6,
-                                                              onChanged:
-                                                                  (value) {},
-                                                              decoration:
-                                                                  const InputDecoration(
-                                                                disabledBorder:
-                                                                    InputBorder
-                                                                        .none,
-                                                                hintStyle:
-                                                                    TextStyle(
-                                                                        fontSize:
-                                                                            14,
-                                                                        color:
-                                                                            black),
-                                                                border:
-                                                                    InputBorder
-                                                                        .none,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Center(
-                                                            child: Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                ElevatedButton(
-                                                                  onPressed:
-                                                                      () async {
-                                                                    batchBloc
-                                                                            .subMuelleSelected =
-                                                                        Muelles();
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                  },
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    backgroundColor:
-                                                                        grey,
-                                                                    shape:
-                                                                        RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              10),
-                                                                    ),
-                                                                  ),
-                                                                  child:
-                                                                      const Text(
-                                                                    'Cancelar',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            white),
-                                                                  ),
-                                                                ),
-                                                                const SizedBox(
-                                                                    width: 10),
-                                                                ElevatedButton(
-                                                                  onPressed: batchBloc
-                                                                              .subMuelleSelected
-                                                                              .completeName ==
-                                                                          null
-                                                                      ? null
-                                                                      : () async {
-                                                                          print(
-                                                                              "Submuelle seleccionado: ${batchBloc.subMuelleSelected.completeName}");
-                                                                          batchBloc
-                                                                              .add(AssignSubmuelleEvent(
-                                                                            batchBloc.filteredProducts.where((e) {
-                                                                              return e.isMuelle == null && e.isSeparate == 1;
-                                                                            }).toList(),
-                                                                            batchBloc.subMuelleSelected,
-                                                                          ));
-
-                                                                          Navigator.pop(
-                                                                              context);
-                                                                        },
-                                                                  style: ElevatedButton
-                                                                      .styleFrom(
-                                                                    backgroundColor:
-                                                                        primaryColorApp,
-                                                                    shape:
-                                                                        RoundedRectangleBorder(
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              10),
-                                                                    ),
-                                                                  ),
-                                                                  child:
-                                                                      const Text(
-                                                                    'Aceptar',
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            white),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                            );
+                                            batchBloc.add(FetchMuellesEvent());
                                           },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: primaryColorAppLigth,
@@ -1471,7 +1336,9 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 5),
                                   child: Text(
-                                    currentProduct.quantity?.toStringAsFixed(2) ?? "",
+                                    currentProduct.quantity
+                                            ?.toStringAsFixed(2) ??
+                                        "",
                                     style: TextStyle(
                                         color: primaryColorApp, fontSize: 13),
                                   ),
@@ -2031,11 +1898,8 @@ class _BatchDetailScreenState extends State<BatchScreen>
           return false;
         }
 
-        batchBloc.add(AddQuantitySeparate(
-            currentProduct.idProduct ?? 0,
-            currentProduct.idMove ?? 0,
-            matchedBarcode.cantidad,
-            false));
+        batchBloc.add(AddQuantitySeparate(currentProduct.idProduct ?? 0,
+            currentProduct.idMove ?? 0, matchedBarcode.cantidad, false));
       }
       return false;
     }

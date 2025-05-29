@@ -79,8 +79,52 @@ class DataBaseSqlite {
   }
 
   Future<void> _createDB(Database db, int version) async {
-    // Crear tablas
-
+    //* tabla de batchs de packing
+    await db.execute(BatchPackingTable.createTable());
+    //*tabla de productos de un pedido de packing
+    await db.execute(ProductosPedidosTable.createTable());
+    //*tabla de barcodes de los productos
+    await db.execute(BarcodesPackagesTable.createTable());
+    //* tabla de paquetes de packing
+    await db.execute(PackagesTable.createTable());
+    //* tabla de batchs de picking
+    await db.execute(BatchPickingTable.createTable());
+    //* tabla de pedidos de packing
+    await db.execute(PedidosPackingTable.createTable());
+    //tabla de configuracion del usuario
+    await db.execute(ConfigurationsTable.createTable());
+    //tabla de urls recientes
+    await db.execute(UrlsRecientesTable.createTable());
+    //tabla para submuelles
+    await db.execute(SubmuellesTable.createTable());
+    //tabla para novedades
+    await db.execute(NovedadesTable.createTable());
+    //tabla para las entradas de mercancia
+    await db.execute(ProductRecepcionTable.createTable());
+    //tabla para las entradas de mercancia
+    await db.execute(EntradasRepeccionTable.createTable());
+    //tabla para las transferencias
+    await db.execute(TransferenciaTable.createTable());
+    //tabla para los productos de una transferencia
+    await db.execute(ProductTransferenciaTable.createTable());
+    //table para las ubicaciones
+    await db.execute(UbicacionesTable.createTable());
+    //table para las barcodes inventario
+    await db.execute(BarcodesInventarioTable.createTable());
+    //table para las producto de inventario
+    await db.execute(ProductInventarioTable.createTable());
+    //tabla para crear los almacenes
+    await db.execute(WarehouseTable.createTable());
+    //table de documentos de origen de picking
+    await db.execute(DocOriginTable.createTable());
+    //tabla de picking por pick
+    await db.execute(PickingPickTable.createTable());
+    //tabla de productos por pick
+    await db.execute(PickProductsTable.createTable());
+    //tabla de recepciones por batch
+    await db.execute(EntradaBatchTable.createTable());
+    //tabal de productos de recepcion por batch
+    await db.execute(ProductRecepcionBatchTable.createTable());
     //* tabla de productos de un batch picking
     await db.execute('''
       CREATE TABLE tblbatch_products (
@@ -126,56 +170,6 @@ class DataBaseSqlite {
         FOREIGN KEY (batch_id) REFERENCES tblbatchs (id)
           )
      ''');
-
-    //* tabla de batchs de packing
-    await db.execute(BatchPackingTable.createTable());
-    //*tabla de productos de un pedido de packing
-    await db.execute(ProductosPedidosTable.createTable());
-    //*tabla de barcodes de los productos
-    await db.execute(BarcodesPackagesTable.createTable());
-    //* tabla de paquetes de packing
-    await db.execute(PackagesTable.createTable());
-    //* tabla de batchs de picking
-    await db.execute(BatchPickingTable.createTable());
-    //* tabla de pedidos de packing
-    await db.execute(PedidosPackingTable.createTable());
-    //tabla de configuracion del usuario
-    await db.execute(ConfigurationsTable.createTable());
-    //tabla de urls recientes
-    await db.execute(UrlsRecientesTable.createTable());
-    //tabla para submuelles
-    await db.execute(SubmuellesTable.createTable());
-    //tabla para novedades
-    await db.execute(NovedadesTable.createTable());
-
-    //tabla para las entradas de mercancia
-    await db.execute(ProductRecepcionTable.createTable());
-    //tabla para las entradas de mercancia
-    await db.execute(EntradasRepeccionTable.createTable());
-    //tabla para las transferencias
-    await db.execute(TransferenciaTable.createTable());
-    //tabla para los productos de una transferencia
-    await db.execute(ProductTransferenciaTable.createTable());
-    //table para las ubicaciones
-    await db.execute(UbicacionesTable.createTable());
-    //table para las barcodes inventario
-    await db.execute(BarcodesInventarioTable.createTable());
-
-    //table para las producto de inventario
-    await db.execute(ProductInventarioTable.createTable());
-
-    //tabla para crear los almacenes
-    await db.execute(WarehouseTable.createTable());
-    //table de documentos de origen de picking
-    await db.execute(DocOriginTable.createTable());
-    //tabla de picking por pick
-    await db.execute(PickingPickTable.createTable());
-    //tabla de productos por pick
-    await db.execute(PickProductsTable.createTable());
-    //tabla de recepciones por batch
-    await db.execute(EntradaBatchTable.createTable());
-    //tabal de productos de recepcion por batch
-    await db.execute(ProductRecepcionBatchTable.createTable());
   }
 
   Future<void> _upgradeDB(Database db, int oldVersion, int newVersion) async {
@@ -407,6 +401,7 @@ class DataBaseSqlite {
     await db.delete(PickingPickTable.tableName);
     await db.delete(PickProductsTable.tableName);
     await deleBarcodes("pick");
+    await deleBarcodes("picking");
   }
 
   Future<void> deleReceptionBatch() async {
@@ -416,12 +411,27 @@ class DataBaseSqlite {
     await deleBarcodes("reception-batch");
   }
 
-  Future<void> delePacking() async {
+  Future<void> delePacking(String type) async {
+    final db = await getDatabaseInstance();
+    if (type == "packing-batch") {
+      await db.delete(BatchPackingTable.tableName);
+    }
+    await db.delete(PedidosPackingTable.tableName,
+        where: '${PedidosPackingTable.columnType} = ?', whereArgs: [type]);
+    await db.delete(ProductosPedidosTable.tableName,
+        where: '${ProductosPedidosTable.columnType} = ?', whereArgs: [type]);
+    await db.delete(PackagesTable.tableName,
+        where: '${PackagesTable.columnType} = ?', whereArgs: [type]);
+    await deleBarcodes(type);
+  }
+
+  Future<void> delePackingAll() async {
     final db = await getDatabaseInstance();
     await db.delete(BatchPackingTable.tableName);
     await db.delete(PedidosPackingTable.tableName);
     await db.delete(ProductosPedidosTable.tableName);
     await db.delete(PackagesTable.tableName);
+    await deleBarcodes("packing-batch");
     await deleBarcodes("packing");
   }
 
@@ -510,7 +520,7 @@ class DataBaseSqlite {
   Future<void> deleteBDCloseSession() async {
     await delePicking();
     await delePickAll();
-    await delePacking();
+    await delePackingAll();
     await deleAllRecepcion();
     await deleAllTrasnferencia();
     await deleInventario();

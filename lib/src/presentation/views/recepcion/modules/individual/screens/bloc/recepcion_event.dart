@@ -7,13 +7,14 @@ class FetchOrdenesCompra extends RecepcionEvent {
   final bool isLoadinDialog;
   FetchOrdenesCompra(this.isLoadinDialog);
 }
+
 class FetchDevoluciones extends RecepcionEvent {
   final bool isLoadinDialog;
   FetchDevoluciones(this.isLoadinDialog);
 }
 
-
 class FetchOrdenesCompraOfBd extends RecepcionEvent {}
+
 class FetchDevolucionesOfDB extends RecepcionEvent {}
 
 class CurrentOrdenesCompra extends RecepcionEvent {
@@ -30,6 +31,7 @@ class SearchOrdenCompraEvent extends RecepcionEvent {
   final String query;
   SearchOrdenCompraEvent(this.query);
 }
+
 class SearchDevolucionEvent extends RecepcionEvent {
   final String query;
   SearchDevolucionEvent(this.query);
@@ -176,9 +178,10 @@ class StartOrStopTimeOrder extends RecepcionEvent {
 }
 
 class CreateBackOrderOrNot extends RecepcionEvent {
+  final String type;
   final int idRecepcion;
   final bool isBackOrder;
-  CreateBackOrderOrNot(this.idRecepcion, this.isBackOrder);
+  CreateBackOrderOrNot(this.type, this.idRecepcion, this.isBackOrder);
 }
 
 class SearchLotevent extends RecepcionEvent {
@@ -199,16 +202,12 @@ class SearchLocationEvent extends RecepcionEvent {
   );
 }
 
-
 class FilterReceptionByTypeEvent extends RecepcionEvent {
   final String type;
   FilterReceptionByTypeEvent(this.type);
 }
 
-class CleanFieldsEvent extends RecepcionEvent {
-}
-
-
+class CleanFieldsEvent extends RecepcionEvent {}
 
 class FilterUbicacionesAlmacenEvent extends RecepcionEvent {
   final String almacen;
@@ -218,7 +217,12 @@ class FilterUbicacionesAlmacenEvent extends RecepcionEvent {
 class SendTemperatureEvent extends RecepcionEvent {
   final int idRecepcion;
   final dynamic temperature;
-  SendTemperatureEvent(
-    this.idRecepcion,
-    this.temperature);
+  SendTemperatureEvent(this.idRecepcion, this.temperature);
+}
+
+
+class DelectedProductWmsEvent extends RecepcionEvent {
+  final int idRecepcion;
+  final List<int> listIdMove;
+  DelectedProductWmsEvent(this.idRecepcion, this.listIdMove);
 }

@@ -4,9 +4,12 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab3ScreenRecep extends StatelessWidget {
@@ -27,7 +30,53 @@ class Tab3ScreenRecep extends StatelessWidget {
         return false;
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is DelectedProductWmsLoading) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return const DialogLoading(
+                  message: "Eliminando producto",
+                );
+              },
+            );
+          }
+
+          if (state is DelectedProductWmsSuccess) {
+            Navigator.pop(context);
+            //mostramos una alerta
+            Get.snackbar("360 Software Informa", state.message,
+                backgroundColor: white,
+                colorText: primaryColorApp,
+                icon: Icon(Icons.error, color: Colors.green));
+          }
+
+          if (state is DelectedProductWmsFailure) {
+            Navigator.pop(context);
+            Get.defaultDialog(
+              title: '360 Software Informa',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: state.error,
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+          }
+        },
         builder: (context, state) {
           return Scaffold(
             backgroundColor: white,
@@ -95,15 +144,127 @@ class Tab3ScreenRecep extends StatelessWidget {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              "Producto:",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: primaryColorApp,
+                                          Row(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  "Producto:",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                              Spacer(),
+                                              //icono de eliminar
+                                              GestureDetector(
+                                                onTap: () {
+                                                  //dialogo de confirmacion
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AlertDialog(
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        title: Center(
+                                                          child: const Text(
+                                                            'Eliminar producto',
+                                                            style: TextStyle(
+                                                              color: Colors.red,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        content: Column(
+                                                          mainAxisSize: 
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            const Text(
+                                                              '¿Está seguro de que desea eliminar este producto?',
+                                                              style: TextStyle(
+                                                                  color: black),
+                                                            ),
+                                                            const SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            const Text(
+                                                              'Después de eliminarlo la cantidad pasara a la lista de productos por hacer.',
+                                                              style: TextStyle(
+                                                                  color: black),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        actions: <Widget>[
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
+                                                              backgroundColor:
+                                                                  grey,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                            ),
+                                                            child: Text(
+                                                              'Cancelar',
+                                                              style: TextStyle(
+                                                                  color: white),
+                                                            ),
+                                                          ),
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              recepcionBloc.add(
+                                                                DelectedProductWmsEvent(
+                                                                  product.idRecepcion ??
+                                                                      0,
+                                                                  [
+                                                                    product.idMove ??
+                                                                        0
+                                                                  ],
+                                                                ),
+                                                              );
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            style:
+                                                                ElevatedButton
+                                                                    .styleFrom(
+                                                              backgroundColor:
+                                                                  primaryColorApp,
+                                                              shape:
+                                                                  RoundedRectangleBorder(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                              ),
+                                                            ),
+                                                            child: Text(
+                                                              'Eliminar',
+                                                              style: TextStyle(
+                                                                  color: white),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: Icon(
+                                                  Icons.delete,
+                                                  size: 20,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                           Align(
                                             alignment: Alignment.centerLeft,
@@ -161,6 +322,16 @@ class Tab3ScreenRecep extends StatelessWidget {
                                           Text("${product.locationName}",
                                               style: const TextStyle(
                                                   fontSize: 12, color: black)),
+                                          Text(
+                                            "Ubicación destino: ",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: primaryColorApp,
+                                            ),
+                                          ),
+                                          Text("${product.locationDestName}",
+                                              style: const TextStyle(
+                                                  fontSize: 12, color: black)),
                                           Row(
                                             children: [
                                               Visibility(
@@ -198,7 +369,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     ),
                                                   ),
                                                   Text(
-                                                          "${product.quantityDone}",
+                                                      "${product.quantityDone}",
                                                       // "${product.quantityToReceive}",
                                                       style: const TextStyle(
                                                           fontSize: 12,
@@ -259,7 +430,6 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     color: black,
                                                   ),
                                                 ),
-                                                
                                                 Text(
                                                   product.observation == ""
                                                       ? "Sin novedad"
@@ -270,9 +440,6 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-
-
-
                                               ],
                                             ),
                                           ),

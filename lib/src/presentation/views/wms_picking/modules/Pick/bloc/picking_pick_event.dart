@@ -8,6 +8,7 @@ class FetchPickingPickEvent extends PickingPickEvent {
 
   FetchPickingPickEvent(this.isLoadinDialog);
 }
+
 class FetchPickingComponentesEvent extends PickingPickEvent {
   final bool isLoadinDialog;
 
@@ -19,6 +20,7 @@ class FetchPickingPickFromDBEvent extends PickingPickEvent {
 
   FetchPickingPickFromDBEvent(this.isLoadinDialog);
 }
+
 class FetchPickingComponentesFromDBEvent extends PickingPickEvent {
   final bool isLoadinDialog;
 
@@ -134,29 +136,24 @@ class ShowQuantityEvent extends PickingPickEvent {
   ShowQuantityEvent(this.showQuantity);
 }
 
-
 class SelectedSubMuelleEvent extends PickingPickEvent {
   final Muelles subMuelleSlected;
 
   SelectedSubMuelleEvent(this.subMuelleSlected);
 }
 
-
 class AssignSubmuelleEvent extends PickingPickEvent {
   final List<ProductsBatch> productsSeparate;
   final Muelles muelle;
-  
-  AssignSubmuelleEvent(this.productsSeparate, this.muelle, );
-}
+  final bool isOccupied;
 
+  AssignSubmuelleEvent(this.productsSeparate, this.muelle, this.isOccupied);
+}
 
 class SetIsProcessingEvent extends PickingPickEvent {
   final bool isProcessing;
   SetIsProcessingEvent(this.isProcessing);
 }
-
-
-
 
 class ProductPendingEvent extends PickingPickEvent {
   final int batchId;
@@ -164,7 +161,6 @@ class ProductPendingEvent extends PickingPickEvent {
 
   ProductPendingEvent(this.batchId, this.product);
 }
-
 
 class ClearSearchProudctsPickEvent extends PickingPickEvent {}
 
@@ -174,7 +170,6 @@ class SearchProductsPickEvent extends PickingPickEvent {
   SearchProductsPickEvent(this.query);
 }
 
-
 class SendProductOdooPickEvent extends PickingPickEvent {
   final ProductsBatch product;
   final bool isEdit;
@@ -182,14 +177,15 @@ class SendProductOdooPickEvent extends PickingPickEvent {
   SendProductOdooPickEvent(this.product, this.isEdit);
 }
 
-
 class SendProductEditOdooEvent extends PickingPickEvent {
   final ProductsBatch product;
   final dynamic cantidad;
 
-  SendProductEditOdooEvent(this.product, this.cantidad, );
+  SendProductEditOdooEvent(
+    this.product,
+    this.cantidad,
+  );
 }
-
 
 class PickingOkEvent extends PickingPickEvent {
   final int batchId;
@@ -200,15 +196,10 @@ class PickingOkEvent extends PickingPickEvent {
 
 class LoadProductEditEvent extends PickingPickEvent {}
 
-
-
-
 class AssignUserToTransfer extends PickingPickEvent {
   final int id;
   AssignUserToTransfer(this.id);
 }
-
-
 
 class StartOrStopTimeTransfer extends PickingPickEvent {
   final int id;
@@ -220,15 +211,12 @@ class StartOrStopTimeTransfer extends PickingPickEvent {
   );
 }
 
-
-
 class SearchPickEvent extends PickingPickEvent {
   final String query;
   final bool isComponentes;
 
-  SearchPickEvent(this.query,this.isComponentes);
+  SearchPickEvent(this.query, this.isComponentes);
 }
-
 
 class CreateBackOrderOrNot extends PickingPickEvent {
   final int idPick;
@@ -236,10 +224,13 @@ class CreateBackOrderOrNot extends PickingPickEvent {
   CreateBackOrderOrNot(this.idPick, this.isBackOrder);
 }
 
-
 class ValidateConfirmEvent extends PickingPickEvent {
   final int idPick;
   final bool isBackOrder;
   final bool isLoadinDialog;
   ValidateConfirmEvent(this.idPick, this.isBackOrder, this.isLoadinDialog);
 }
+
+class FetchMuellesEvent extends PickingPickEvent {}
+
+

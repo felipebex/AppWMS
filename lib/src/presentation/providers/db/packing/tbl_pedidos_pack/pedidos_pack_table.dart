@@ -18,6 +18,7 @@ class PedidosPackingTable {
   static const String columnIsTerminate = 'is_terminate';
   static const String columnIsZonaEntrega = 'zona_entrega';
   static const String columnIsZonaEntregaTms = 'zona_entrega_tms';
+  static const String columnType = 'type'; // si es de type batch o pedido
 
 
 
@@ -39,6 +40,7 @@ class PedidosPackingTable {
         $columnIsTerminate INTEGER,
         $columnIsZonaEntrega TEXT,
         $columnIsZonaEntregaTms TEXT,
+        $columnType TEXT,
         FOREIGN KEY ($columnBatchId) REFERENCES tblbatchs_packing (id)
       )
     ''';

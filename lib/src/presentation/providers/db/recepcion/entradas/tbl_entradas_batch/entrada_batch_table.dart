@@ -30,6 +30,8 @@ class EntradaBatchTable {
   static const String columnIsfinis = 'is_finish';
   static const String columnDateFinish = 'end_time_reception';
   static const String columnDateStart = 'start_time_reception';
+  //propietario
+  static const String columnPropietario = 'propietario';
 
   static String createTable() {
     return '''
@@ -62,6 +64,7 @@ class EntradaBatchTable {
     $columnIsStarted INTEGER DEFAULT 0,
     $columnIsfinis INTEGER DEFAULT 0,
     $columnDateFinish TEXT,
+    $columnPropietario TEXT,
     $columnDateStart TEXT
     )
     ''';

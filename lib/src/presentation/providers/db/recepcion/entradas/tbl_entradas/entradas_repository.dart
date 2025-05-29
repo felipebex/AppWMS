@@ -60,6 +60,8 @@ class EntradasRepository {
           EntradasRepeccionTable.columnManejaTemperatura: entrada.manejaTemperatura ?? 0,
           //temperatura
           EntradasRepeccionTable.columnTemperatura: entrada.temperatura ?? 0,
+          //propietario
+          EntradasRepeccionTable.columnPropietario: entrada.propietario ?? "",
         };
 
         if (existingIds.contains(id)) {

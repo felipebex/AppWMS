@@ -12,8 +12,8 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/wms_packing_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_start_packing_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_start_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
@@ -119,7 +119,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                           left: size.width * 0.22),
                                       child: GestureDetector(
                                         onTap: () async {
-                                          await DataBaseSqlite().delePacking();
+                                          await DataBaseSqlite().delePacking('packing-batch');
                                           context
                                               .read<WmsPackingBloc>()
                                               .add(LoadAllPackingEvent(

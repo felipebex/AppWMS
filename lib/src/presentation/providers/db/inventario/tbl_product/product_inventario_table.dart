@@ -22,6 +22,12 @@ class ProductInventarioTable {
   static const String columnVolumeUomName = 'volume_uom_name';
   //uom
   static const String columnUom = 'uom';
+  // int? locationId;
+  static const String columnLocationId = 'location_id';
+  // String? locationName;
+  static const String columnLocationName = 'location_name';
+  // dynamic quantity;
+  static const String columnQuantity = 'quantity';
 
   static String createTable() {
     return '''
@@ -39,6 +45,9 @@ class ProductInventarioTable {
         $columnWeightUomName TEXT,
         $columnVolume REAL,
         $columnUom TEXT,
+        $columnLocationId INTEGER,
+        $columnLocationName TEXT,
+        $columnQuantity REAL,
         $columnVolumeUomName TEXT
         )
 

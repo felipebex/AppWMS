@@ -196,6 +196,7 @@ class PedidoPacking {
   final String? zonaEntrega;
   final String? zonaEntregaTms;
   final String? orderTms;
+  final String? type;
 
   PedidoPacking({
     this.id,
@@ -216,6 +217,7 @@ class PedidoPacking {
     this.zonaEntrega,
     this.zonaEntregaTms,
     this.orderTms,
+    this.type,
   });
 
   factory PedidoPacking.fromJson(String str) =>
@@ -249,6 +251,7 @@ class PedidoPacking {
         zonaEntrega: json["zona_entrega"],
         zonaEntregaTms: json["zona_entrega_tms"],
         orderTms: json["order_tms"],
+        type: json["type"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -273,6 +276,7 @@ class PedidoPacking {
         "zona_entrega": zonaEntrega,
         "zona_entrega_tms": zonaEntrega,
         "order_tms": orderTms,
+        "type": type,
       };
 }
 
@@ -285,8 +289,7 @@ class Paquete {
   final List<ProductoPedido>? listaProductosInPacking;
   final bool? isSticker;
   final bool? isCertificate;
-  // final DateTime? fechaCreacion;
-  // final DateTime? fechaActualiazacion;
+  final String? type;
 
   Paquete({
     this.id,
@@ -297,8 +300,7 @@ class Paquete {
     this.listaProductosInPacking,
     this.isSticker,
     this.isCertificate,
-    // this.fechaCreacion,
-    // this.fechaActualiazacion,
+    this.type,
   });
 
   factory Paquete.fromJson(String str) => Paquete.fromMap(json.decode(str));
@@ -317,8 +319,7 @@ class Paquete {
                 .map((x) => ProductoPedido.fromMap(x))),
         isSticker: json["is_sticker"],
         isCertificate: json["is_certificate"],
-        // fechaCreacion: json["fecha_creacion"] == null ? null : DateTime.parse(json["fecha_creacion"]),
-        // fechaActualiazacion: json["fecha_actualiazacion"] == null ? null : DateTime.parse(json["fecha_actualiazacion"]),
+        type: json["type"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -333,7 +334,6 @@ class Paquete {
                 listaProductosInPacking!.map((x) => x.toMap())),
         "is_sticker": isSticker,
         "is_certificate": isCertificate,
-        // "fecha_creacion"
-        // "fecha_actualiazacion": "${fechaActualiazacion!.year.toString().padLeft(4, '0')}-${fechaActualiazacion!.month.toString().padLeft(2, '0')}-${fechaActualiazacion!.day.toString().padLeft(2, '0')}",
+        "type": type,
       };
 }

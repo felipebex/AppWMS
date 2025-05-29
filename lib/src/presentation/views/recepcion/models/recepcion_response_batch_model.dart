@@ -106,6 +106,7 @@ class ReceptionBatch {
   dynamic isSelected;
   dynamic isStarted;
   dynamic isFinish;
+  String? propietario;
 
   ReceptionBatch({
     this.id,
@@ -144,6 +145,7 @@ class ReceptionBatch {
     this.isSelected,
     this.isStarted,
     this.isFinish,
+    this.propietario,
   });
 
   factory ReceptionBatch.fromMap(Map<String, dynamic> json) => ReceptionBatch(
@@ -191,6 +193,7 @@ class ReceptionBatch {
         isSelected: json["isSelected"],
         isStarted: json["isStarted"],
         isFinish: json["isFinish"],
+        propietario: json["propietario"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -237,6 +240,7 @@ class ReceptionBatch {
         "isSelected": isSelected,
         "isStarted": isStarted,
         "isFinish": isFinish,
+        "propietario": propietario,
       };
 }
 
