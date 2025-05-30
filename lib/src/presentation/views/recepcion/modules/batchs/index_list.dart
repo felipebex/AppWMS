@@ -530,89 +530,86 @@ class AppBar extends StatelessWidget {
         ),
       ),
       width: double.infinity,
-      child: BlocProvider(
-        create: (context) => ConnectionStatusCubit(),
-        child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-            builder: (context, status) {
-          return Column(
-            children: [
-              const WarningWidgetCubit(),
-              Padding(
-                padding: EdgeInsets.only(
-                    bottom: 10,
-                    top: status != ConnectionStatus.online ? 0 : 35),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: white),
-                      onPressed: () {
+      child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+          builder: (context, status) {
+        return Column(
+          children: [
+            const WarningWidgetCubit(),
+            Padding(
+              padding: EdgeInsets.only(
+                  bottom: 10,
+                  top: status != ConnectionStatus.online ? 0 : 35),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: white),
+                    onPressed: () {
+                      context
+                          .read<RecepcionBatchBloc>()
+                          .searchControllerRecepcionBatch
+                          .clear();
+      
+                        context
+                            .read<RecepcionBatchBloc>()
+                            .add(SearchReceptionEvent(
+                              '',
+                            ));
+      
+                      context
+                          .read<RecepcionBatchBloc>()
+                          .add(ShowKeyboardEvent(false));
+      
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/home',
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: size.width * 0.1),
+                    child: GestureDetector(
+                      onTap: () async {
                         context
                             .read<RecepcionBatchBloc>()
                             .searchControllerRecepcionBatch
                             .clear();
-
-                          context
-                              .read<RecepcionBatchBloc>()
-                              .add(SearchReceptionEvent(
-                                '',
-                              ));
-
+      
+                        context
+                            .read<RecepcionBatchBloc>()
+                            .add(SearchReceptionEvent(
+                              '',
+                            ));
+      
                         context
                             .read<RecepcionBatchBloc>()
                             .add(ShowKeyboardEvent(false));
-
-                        Navigator.pushReplacementNamed(
-                          context,
-                          '/home',
-                        );
+      
+                        // await DataBaseSqlite().deleRecepcion();
+                        context.read<RecepcionBatchBloc>().add(
+                            FetchRecepcionBatchEvent(isLoadinDialog: false));
                       },
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: size.width * 0.1),
-                      child: GestureDetector(
-                        onTap: () async {
-                          context
-                              .read<RecepcionBatchBloc>()
-                              .searchControllerRecepcionBatch
-                              .clear();
-
-                          context
-                              .read<RecepcionBatchBloc>()
-                              .add(SearchReceptionEvent(
-                                '',
-                              ));
-
-                          context
-                              .read<RecepcionBatchBloc>()
-                              .add(ShowKeyboardEvent(false));
-
-                          // await DataBaseSqlite().deleRecepcion();
-                          context.read<RecepcionBatchBloc>().add(
-                              FetchRecepcionBatchEvent(isLoadinDialog: false));
-                        },
-                        child: Row(
-                          children: [
-                            const Text("DEVOLUCIONES BATCH",
-                                style: TextStyle(color: white, fontSize: 18)),
-
-                            ///icono de refresh
-                            const SizedBox(width: 5),
-                            Icon(
-                              Icons.refresh,
-                              color: white,
-                              size: 20,
-                            ),
-                          ],
-                        ),
+                      child: Row(
+                        children: [
+                          const Text("DEVOLUCIONES BATCH",
+                              style: TextStyle(color: white, fontSize: 18)),
+      
+                          ///icono de refresh
+                          const SizedBox(width: 5),
+                          Icon(
+                            Icons.refresh,
+                            color: white,
+                            size: 20,
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          );
-        }),
-      ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }

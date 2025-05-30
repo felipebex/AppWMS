@@ -271,7 +271,6 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
     );
   }
 }
-
 class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({
     super.key,
@@ -282,36 +281,36 @@ class _AppBarInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        color: primaryColorApp,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
-      ),
-      width: double.infinity,
-      child: BlocProvider(
-        create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<InventarioBloc, InventarioState>(
-            listener: (context, state) {},
-            builder: (context, status) {
-              return Column(
+    return BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+      builder: (context, connectionStatus) {
+        return BlocBuilder<InventarioBloc, InventarioState>(
+          builder: (context, state) {
+            return Container(
+              padding: const EdgeInsets.only(top: 20),
+              decoration: BoxDecoration(
+                color: primaryColorApp,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
+              width: double.infinity,
+              child: Column(
                 children: [
-                  const WarningWidgetCubit(),
+                  const WarningWidgetCubit(), // Usa cubit global
                   Padding(
                     padding: EdgeInsets.only(
-                        top: status != ConnectionStatus.online ? 0 : 35),
+                      top: connectionStatus != ConnectionStatus.online ? 0 : 35,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
                           icon: const Icon(Icons.arrow_back, color: white),
                           onPressed: () {
-                            context
-                                .read<InventarioBloc>()
-                                .add(ShowKeyboardEvent(false));
+                            context.read<InventarioBloc>().add(
+                                  ShowKeyboardEvent(false),
+                                );
                             Navigator.pushReplacementNamed(
                               context,
                               'inventario',
@@ -320,8 +319,10 @@ class _AppBarInfo extends StatelessWidget {
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: size.width * 0.2),
-                          child: Text('UBICACIONES',
-                              style: TextStyle(color: white, fontSize: 18)),
+                          child: const Text(
+                            'UBICACIONES',
+                            style: TextStyle(color: white, fontSize: 18),
+                          ),
                         ),
                         const Spacer(),
                         PopupMenuButton<String>(
@@ -332,22 +333,18 @@ class _AppBarInfo extends StatelessWidget {
                             size: 20,
                           ),
                           onSelected: (value) {
-                            context
-                                .read<InventarioBloc>()
-                                .add(FilterUbicacionesAlmacenEvent(value));
+                            context.read<InventarioBloc>().add(
+                                  FilterUbicacionesAlmacenEvent(value),
+                                );
                           },
                           itemBuilder: (BuildContext context) {
-                            // Lista fija de tipos de transferencia que ya tienes
-                            final tipos = [
-                              ...context.read<UserBloc>().almacenes,
-                            ];
-
+                            final tipos = context.read<UserBloc>().almacenes;
                             return tipos.map((tipo) {
                               return PopupMenuItem<String>(
                                 value: tipo.name,
                                 child: Row(
                                   children: [
-                                    Icon(
+                                     Icon(
                                       Icons.file_upload_outlined,
                                       color: primaryColorApp,
                                       size: 20,
@@ -356,7 +353,9 @@ class _AppBarInfo extends StatelessWidget {
                                     Text(
                                       tipo.name ?? "",
                                       style: const TextStyle(
-                                          color: black, fontSize: 12),
+                                        color: black,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -368,9 +367,11 @@ class _AppBarInfo extends StatelessWidget {
                     ),
                   ),
                 ],
-              );
-            }),
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

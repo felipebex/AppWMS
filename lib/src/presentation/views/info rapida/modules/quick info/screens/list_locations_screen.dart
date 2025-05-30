@@ -356,7 +356,6 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
     );
   }
 }
-
 class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({
     super.key,
@@ -377,89 +376,90 @@ class _AppBarInfo extends StatelessWidget {
         ),
       ),
       width: double.infinity,
-      child: BlocProvider(
-        create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
-            listener: (context, state) {},
-            builder: (context, status) {
-              return Column(
-                children: [
-                  const WarningWidgetCubit(),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: status != ConnectionStatus.online ? 0 : 35),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: white),
-                          onPressed: () {
-                            context
-                                .read<InfoRapidaBloc>()
-                                .searchControllerLocation
-                                .clear();
-                            context
-                                .read<InfoRapidaBloc>()
-                                .add(ShowKeyboardEvent(false));
 
-                            Navigator.pushReplacementNamed(
-                              context,
-                              'info-rapida',
-                            );
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: size.width * 0.2),
-                          child: Text('UBICACIONES',
-                              style: TextStyle(color: white, fontSize: 18)),
-                        ),
-                        const Spacer(),
-                        PopupMenuButton<String>(
-                          color: white,
-                          icon: const Icon(
-                            Icons.more_vert,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          onSelected: (value) {
-                            context
-                                .read<InfoRapidaBloc>()
-                                .add(FilterUbicacionesAlmacenEvent(value));
-                          },
-                          itemBuilder: (BuildContext context) {
-                            // Lista fija de tipos de transferencia que ya tienes
-                            final tipos = [
-                              ...context.read<UserBloc>().almacenes,
-                            ];
+      // ✅ Ya NO usas BlocProvider aquí
+      child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+        builder: (context, status) {
+          return Column(
+            children: [
+              const WarningWidgetCubit(), // Este ya usa el mismo cubit global
+              Padding(
+                padding: EdgeInsets.only(
+                  top: status != ConnectionStatus.online ? 0 : 35,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: white),
+                      onPressed: () {
+                        context
+                            .read<InfoRapidaBloc>()
+                            .searchControllerLocation
+                            .clear();
+                        context
+                            .read<InfoRapidaBloc>()
+                            .add(ShowKeyboardEvent(false));
 
-                            return tipos.map((tipo) {
-                              return PopupMenuItem<String>(
-                                value: tipo.name,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.file_upload_outlined,
-                                      color: primaryColorApp,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      tipo.name ?? "",
-                                      style: const TextStyle(
-                                          color: black, fontSize: 12),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList();
-                          },
-                        ),
-                      ],
+                        Navigator.pushReplacementNamed(
+                          context,
+                          'info-rapida',
+                        );
+                      },
                     ),
-                  ),
-                ],
-              );
-            }),
+                    Padding(
+                      padding: EdgeInsets.only(left: size.width * 0.2),
+                      child: const Text(
+                        'UBICACIONES',
+                        style: TextStyle(color: white, fontSize: 18),
+                      ),
+                    ),
+                    const Spacer(),
+                    PopupMenuButton<String>(
+                      color: white,
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onSelected: (value) {
+                        context
+                            .read<InfoRapidaBloc>()
+                            .add(FilterUbicacionesAlmacenEvent(value));
+                      },
+                      itemBuilder: (BuildContext context) {
+                        final tipos = [
+                          ...context.read<UserBloc>().almacenes,
+                        ];
+
+                        return tipos.map((tipo) {
+                          return PopupMenuItem<String>(
+                            value: tipo.name,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.file_upload_outlined,
+                                  color: primaryColorApp,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  tipo.name ?? "",
+                                  style: const TextStyle(
+                                      color: black, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

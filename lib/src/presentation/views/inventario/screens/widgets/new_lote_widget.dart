@@ -72,85 +72,96 @@ class _NewLoteScreenState extends State<NewLoteInventarioScreen> {
               height: size.height * 1,
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.only(top: 20),
-                    decoration: BoxDecoration(
-                      color: primaryColorApp,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                    ),
-                    width: double.infinity,
-                    child: BlocProvider(
-                      create: (context) => ConnectionStatusCubit(),
-                      child: BlocConsumer<InventarioBloc, InventarioState>(
-                          listener: (context, state) {
-                        print('STATE ❤️‍🔥 $state');
+                  BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                    builder: (context, connectionStatus) {
+                      return BlocConsumer<InventarioBloc, InventarioState>(
+                        listener: (context, state) {
+                          print('STATE ❤️‍🔥 $state');
 
-                        if (state is CreateLoteProductSuccess) {
-                          Navigator.pop(context);
-                          Navigator.pushReplacementNamed(context, 'inventario');
-                        }
+                          if (state is CreateLoteProductSuccess) {
+                            Navigator.pop(context);
+                            Navigator.pushReplacementNamed(
+                                context, 'inventario');
+                          }
 
-                        if (state is CreateLoteProductLoading) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return const DialogLoading(
-                                message: "Creando lote espere un momento...",
-                              );
-                            },
-                          );
-                        }
+                          if (state is CreateLoteProductLoading) {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return const DialogLoading(
+                                  message: "Creando lote espere un momento...",
+                                );
+                              },
+                            );
+                          }
 
-                        if (state is CreateLoteProductFailure) {
-                          Get.snackbar(
-                            'Error',
-                            'Ha ocurrido un error al crear el lote',
-                            backgroundColor: white,
-                            colorText: primaryColorApp,
-                            icon: Icon(Icons.check, color: Colors.red),
-                          );
-                        }
-                      }, builder: (context, status) {
-                        return Column(
-                          children: [
-                            const WarningWidgetCubit(),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  top: status != ConnectionStatus.online
-                                      ? 0
-                                      : 35),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back,
-                                        color: white),
-                                    onPressed: () {
-                                      bloc.add(ShowKeyboardEvent(false));
-                                      Navigator.pushReplacementNamed(
-                                          context, 'inventario');
-                                    },
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(left: size.width * 0.2),
-                                    child: Text('CREAR LOTE',
-                                        style: TextStyle(
-                                            color: white, fontSize: 18)),
-                                  ),
-                                  const Spacer(),
-                                ],
+                          if (state is CreateLoteProductFailure) {
+                            Get.snackbar(
+                              'Error',
+                              'Ha ocurrido un error al crear el lote',
+                              backgroundColor: white,
+                              colorText: primaryColorApp,
+                              icon: const Icon(Icons.check, color: Colors.red),
+                            );
+                          }
+                        },
+                        builder: (context, state) {
+                          return Container(
+                            padding: const EdgeInsets.only(top: 20),
+                            decoration: BoxDecoration(
+                              color: primaryColorApp,
+                              borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20),
                               ),
                             ),
-                          ],
-                        );
-                      }),
-                    ),
+                            width: double.infinity,
+                            child: Column(
+                              children: [
+                                const WarningWidgetCubit(),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    top: connectionStatus !=
+                                            ConnectionStatus.online
+                                        ? 0
+                                        : 35,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.arrow_back,
+                                            color: white),
+                                        onPressed: () {
+                                          context.read<InventarioBloc>().add(
+                                                ShowKeyboardEvent(false),
+                                              );
+                                          Navigator.pushReplacementNamed(
+                                              context, 'inventario');
+                                        },
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: size.width * 0.2),
+                                        child: const Text(
+                                          'CREAR LOTE',
+                                          style: TextStyle(
+                                              color: white, fontSize: 18),
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
+
                   const SizedBox(height: 10),
                   if (!bloc.isKeyboardVisible)
                     Padding(
@@ -282,9 +293,7 @@ class _NewLoteScreenState extends State<NewLoteInventarioScreen> {
                                                       color: black,
                                                       fontSize: 12)),
                                               Text(
-                                                  '${bloc.listLotesProductFilters[index].expirationDate == "" ||
-                                                      bloc.listLotesProductFilters[index].expirationDate == false ? 'Sin fecha' : bloc.listLotesProductFilters[index].expirationDate}',
-                                                     
+                                                  '${bloc.listLotesProductFilters[index].expirationDate == "" || bloc.listLotesProductFilters[index].expirationDate == false ? 'Sin fecha' : bloc.listLotesProductFilters[index].expirationDate}',
                                                   style: TextStyle(
                                                       color: bloc
                                                                       .listLotesProductFilters[

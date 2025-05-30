@@ -89,52 +89,49 @@ class PickDetailScreen extends StatelessWidget {
                         ),
                       ),
                       width: double.infinity,
-                      child: BlocProvider(
-                        create: (context) => ConnectionStatusCubit(),
-                        child: BlocBuilder<ConnectionStatusCubit,
-                            ConnectionStatus>(builder: (context, status) {
-                          return Column(
-                            children: [
-                              const WarningWidgetCubit(),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: 5,
-                                    top: status != ConnectionStatus.online
-                                        ? 20
-                                        : 30),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.arrow_back,
-                                          color: white),
-                                      onPressed: () {
-                                        bloc.add(
-                                            ClearSearchProudctsPickEvent());
-                                        bloc.add(FetchPickWithProductsEvent(
-                                            bloc.pickWithProducts.pick?.id ??
-                                                0));
-                                        Navigator.pushReplacementNamed(
-                                            context, 'scan-product-pick');
-                                      },
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: size.width * 0.25),
-                                      child: Text(
-                                          "${bloc.pickWithProducts.pick?.name}",
-                                          style: const TextStyle(
-                                              color: white, fontSize: 12)),
-                                    ),
-                                    const Spacer(),
-                                  ],
-                                ),
+                      child: BlocBuilder<ConnectionStatusCubit,
+                          ConnectionStatus>(builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: 5,
+                                  top: status != ConnectionStatus.online
+                                      ? 20
+                                      : 30),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: white),
+                                    onPressed: () {
+                                      bloc.add(
+                                          ClearSearchProudctsPickEvent());
+                                      bloc.add(FetchPickWithProductsEvent(
+                                          bloc.pickWithProducts.pick?.id ??
+                                              0));
+                                      Navigator.pushReplacementNamed(
+                                          context, 'scan-product-pick');
+                                    },
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: size.width * 0.25),
+                                    child: Text(
+                                        "${bloc.pickWithProducts.pick?.name}",
+                                        style: const TextStyle(
+                                            color: white, fontSize: 12)),
+                                  ),
+                                  const Spacer(),
+                                ],
                               ),
-                            ],
-                          );
-                        }),
-                      ),
+                            ),
+                          ],
+                        );
+                      }),
                     ),
 
                     const SizedBox(height: 5),

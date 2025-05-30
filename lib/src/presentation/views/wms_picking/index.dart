@@ -120,102 +120,99 @@ class _PickingPageState extends State<WMSPickingPage> {
                             bottomRight: Radius.circular(20),
                           ),
                         ),
-                        child: BlocProvider(
-                          create: (context) => ConnectionStatusCubit(),
-                          child: BlocBuilder<ConnectionStatusCubit,
-                              ConnectionStatus>(builder: (context, status) {
-                            return Column(
-                              children: [
-                                const WarningWidgetCubit(),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 10,
-                                      right: 10,
-                                      top: status != ConnectionStatus.online
-                                          ? 20
-                                          : 20,
-                                      bottom: 0),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          IconButton(
-                                            icon: const Icon(Icons.arrow_back,
-                                                color: white),
-                                            onPressed: () {
+                        child: BlocBuilder<ConnectionStatusCubit,
+                            ConnectionStatus>(builder: (context, status) {
+                          return Column(
+                            children: [
+                              const WarningWidgetCubit(),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: 10,
+                                    right: 10,
+                                    top: status != ConnectionStatus.online
+                                        ? 20
+                                        : 20,
+                                    bottom: 0),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.arrow_back,
+                                              color: white),
+                                          onPressed: () {
+                                            context
+                                                .read<WMSPickingBloc>()
+                                                .searchController
+                                                .clear();
+                                            Navigator.pushReplacementNamed(
+                                                context, '/home');
+                                          },
+                                        ),
+                                        GestureDetector(
+                                          onTap: () async {
+                                            final products =
+                                                await DataBaseSqlite()
+                                                    .getProducts();
+                                            final productsNoSendOdoo =
+                                                products
+                                                    .where((element) =>
+                                                        element.isSendOdoo ==
+                                                        0)
+                                                    .toList();
+                                            if (productsNoSendOdoo.isEmpty) {
+                                              await DataBaseSqlite()
+                                                  .delePicking();
                                               context
                                                   .read<WMSPickingBloc>()
-                                                  .searchController
-                                                  .clear();
-                                              Navigator.pushReplacementNamed(
-                                                  context, '/home');
-                                            },
-                                          ),
-                                          GestureDetector(
-                                            onTap: () async {
-                                              final products =
-                                                  await DataBaseSqlite()
-                                                      .getProducts();
-                                              final productsNoSendOdoo =
-                                                  products
-                                                      .where((element) =>
-                                                          element.isSendOdoo ==
-                                                          0)
-                                                      .toList();
-                                              if (productsNoSendOdoo.isEmpty) {
-                                                await DataBaseSqlite()
-                                                    .delePicking();
-                                                context
-                                                    .read<WMSPickingBloc>()
-                                                    .add(LoadAllBatchsEvent(
-                                                        true));
-                                              } else {
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (context) {
-                                                      return const DialogProductsNotSends();
-                                                    });
-                                              }
-                                            },
-                                            child: Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: size.width * 0.12),
-                                              child: Row(
-                                                children: [
-                                                  const Text(
-                                                    'PICKING - BATCH',
-                                                    style: TextStyle(
-                                                        color: white,
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-
-                                                  const SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  //icono de refres
-                                                  Icon(
-                                                    Icons.refresh,
-                                                    color: white,
-                                                    size: 20,
-                                                  ),
-                                                ],
-                                              ),
+                                                  .add(LoadAllBatchsEvent(
+                                                      true));
+                                            } else {
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return const DialogProductsNotSends();
+                                                  });
+                                            }
+                                          },
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                                left: size.width * 0.12),
+                                            child: Row(
+                                              children: [
+                                                const Text(
+                                                  'PICKING - BATCH',
+                                                  style: TextStyle(
+                                                      color: white,
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                        
+                                                const SizedBox(
+                                                  width: 5,
+                                                ),
+                                                //icono de refres
+                                                Icon(
+                                                  Icons.refresh,
+                                                  color: white,
+                                                  size: 20,
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          const Spacer(),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                        ),
+                                        const Spacer(),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            );
-                          }),
-                        ),
+                              ),
+                            ],
+                          );
+                        }),
                       ),
 
                       Container(
@@ -314,92 +311,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                         ),
                       ),
 
-                      //*barra de buscar
-
-                      // SizedBox(
-                      //     // color: Colors.amber,
-                      //     height: 60, //120
-                      //     width: size.width * 1,
-                      //     child: Column(
-                      //       children: [
-                      //         Padding(
-                      //           padding: const EdgeInsets.only(
-                      //             left: 10,
-                      //             right: 10,
-                      //           ),
-                      //           child: SizedBox(
-                      //             width: size.width * 0.95,
-                      //             height: 55,
-                      //             child: Card(
-                      //               color: Colors.white,
-                      //               elevation: 3,
-                      //               child: TextFormField(
-                      //                 focusNode: focusNodeBuscar,
-                      //                   textAlignVertical:
-                      //                       TextAlignVertical.center,
-                      //                   controller: context
-                      //                       .read<WMSPickingBloc>()
-                      //                       .searchController,
-                      //                   decoration: InputDecoration(
-                      //                     prefixIcon: const Icon(Icons.search,
-                      //                         color: grey, size: 20),
-                      //                     suffixIcon: IconButton(
-                      //                         onPressed: () {
-                      //                           context
-                      //                               .read<WMSPickingBloc>()
-                      //                               .searchController
-                      //                               .clear();
-                      //                           context
-                      //                               .read<WMSPickingBloc>()
-                      //                               .add(SearchBatchEvent(
-                      //                                   '', controller.index));
-                      //                           FocusScope.of(context)
-                      //                               .unfocus();
-                      //                         },
-                      //                         icon: IconButton(
-                      //                           onPressed: () {
-                      //                             context
-                      //                                 .read<WMSPickingBloc>()
-                      //                                 .add(ShowKeyboardEvent(
-                      //                                     false));
-                      //                             context
-                      //                                 .read<WMSPickingBloc>()
-                      //                                 .searchController
-                      //                                 .clear();
-                      //                           },
-                      //                           icon: const Icon(Icons.close,
-                      //                               color: grey, size: 20),
-                      //                         )),
-                      //                     disabledBorder:
-                      //                         const OutlineInputBorder(),
-                      //                     hintText: "Buscar batch",
-                      //                     hintStyle: const TextStyle(
-                      //                         color: Colors.grey, fontSize: 12),
-                      //                     border: InputBorder.none,
-                      //                   ),
-                      //                   onChanged: (value) {
-                      //                     context.read<WMSPickingBloc>().add(
-                      //                         SearchBatchEvent(
-                      //                             value, controller.index));
-                      //                   },
-                      //                   style: const TextStyle(
-                      //                       color: Colors.black, fontSize: 14),
-                      //                   onTap: !context
-                      //                           .read<UserBloc>()
-                      //                           .fabricante
-                      //                           .contains("Zebra")
-                      //                       ? null
-                      //                       : () {
-                      //                           context
-                      //                               .read<WMSPickingBloc>()
-                      //                               .add(ShowKeyboardEvent(
-                      //                                   true));
-                      //                         }),
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     )),
+                     
 
                       //filtro por tipo de batch
 

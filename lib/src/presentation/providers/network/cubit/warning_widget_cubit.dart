@@ -11,10 +11,8 @@ class WarningWidgetCubit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ConnectionStatusCubit(),
-      child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-          builder: (context, status) {
+    return BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+      builder: (context, status) {
         return Visibility(
           visible: status != ConnectionStatus.online,
           child: Container(
@@ -24,11 +22,7 @@ class WarningWidgetCubit extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.wifi_off,
-                  color: primaryColorApp,
-                  size: 30,
-                ),
+                Icon(Icons.wifi_off, color: primaryColorApp, size: 30),
                 const SizedBox(width: 8),
                 const Text('No hay conexión a internet',
                     style: TextStyle(color: Colors.white, fontSize: 16)),
@@ -36,7 +30,7 @@ class WarningWidgetCubit extends StatelessWidget {
             ),
           ),
         );
-      }),
+      },
     );
   }
 }

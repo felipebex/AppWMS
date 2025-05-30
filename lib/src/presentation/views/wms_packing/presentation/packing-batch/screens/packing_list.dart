@@ -126,59 +126,56 @@ class _PakingListScreenState extends State<PakingListScreen>
                         ),
                       ),
                       width: double.infinity,
-                      child: BlocProvider(
-                        create: (context) => ConnectionStatusCubit(),
-                        child: BlocBuilder<ConnectionStatusCubit,
-                            ConnectionStatus>(builder: (context, status) {
-                          return Column(
-                            children: [
-                              const WarningWidgetCubit(),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: 10,
-                                    top: status != ConnectionStatus.online
-                                        ? 0
-                                        : 35),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.arrow_back,
-                                          color: white),
-                                      onPressed: () {
-                                        context
-                                            .read<WmsPackingBloc>()
-                                            .add(LoadBatchPackingFromDBEvent());
-                                        context
-                                            .read<WmsPackingBloc>()
-                                            .add(ShowKeyboardEvent(false));
-
-                                        context
-                                            .read<WmsPackingBloc>()
-                                            .searchControllerPedido
-                                            .clear();
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          'wms-packing',
-                                        );
-                                      },
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: size.width * 0.27),
-                                      child: const Text("PACKING",
-                                          style: TextStyle(
-                                              color: white, fontSize: 18)),
-                                    ),
-                                    const Spacer(),
-                                  ],
-                                ),
+                      child: BlocBuilder<ConnectionStatusCubit,
+                          ConnectionStatus>(builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: 10,
+                                  top: status != ConnectionStatus.online
+                                      ? 0
+                                      : 35),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: white),
+                                    onPressed: () {
+                                      context
+                                          .read<WmsPackingBloc>()
+                                          .add(LoadBatchPackingFromDBEvent());
+                                      context
+                                          .read<WmsPackingBloc>()
+                                          .add(ShowKeyboardEvent(false));
+                      
+                                      context
+                                          .read<WmsPackingBloc>()
+                                          .searchControllerPedido
+                                          .clear();
+                                      Navigator.pushReplacementNamed(
+                                        context,
+                                        'wms-packing',
+                                      );
+                                    },
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: size.width * 0.27),
+                                    child: const Text("PACKING",
+                                        style: TextStyle(
+                                            color: white, fontSize: 18)),
+                                  ),
+                                  const Spacer(),
+                                ],
                               ),
-                            ],
-                          );
-                        }),
-                      ),
+                            ),
+                          ],
+                        );
+                      }),
                     ),
 
                     SizedBox(

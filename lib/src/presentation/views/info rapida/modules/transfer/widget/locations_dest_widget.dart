@@ -56,20 +56,22 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                         ),
                       ),
                       width: double.infinity,
-                      child: BlocProvider(
-                        create: (context) => ConnectionStatusCubit(),
-                        child: BlocConsumer<TransferInfoBloc,
-                                TransferInfoState>(
-                            listener: (context, state) {},
-                            builder: (context, status) {
+                      child:
+                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                        builder: (context, connectionStatus) {
+                          return BlocBuilder<TransferInfoBloc,
+                              TransferInfoState>(
+                            builder: (context, state) {
                               return Column(
                                 children: [
                                   const WarningWidgetCubit(),
                                   Padding(
                                     padding: EdgeInsets.only(
-                                        top: status != ConnectionStatus.online
-                                            ? 0
-                                            : 35),
+                                      top: connectionStatus !=
+                                              ConnectionStatus.online
+                                          ? 0
+                                          : 35,
+                                    ),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -80,21 +82,27 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                                           onPressed: () {
                                             context
                                                 .read<TransferInfoBloc>()
-                                                .add(ShowKeyboardEvent(false));
+                                                .add(
+                                                  ShowKeyboardEvent(false),
+                                                );
                                             Navigator.pushReplacementNamed(
-                                                context, 'transfer-info',
-                                                arguments: [
-                                                  widget.infoRapidaResult,
-                                                  widget.ubicacion
-                                                ]);
+                                              context,
+                                              'transfer-info',
+                                              arguments: [
+                                                widget.infoRapidaResult,
+                                                widget.ubicacion,
+                                              ],
+                                            );
                                           },
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(
                                               left: size.width * 0.2),
-                                          child: Text('UBICACIONES',
-                                              style: TextStyle(
-                                                  color: white, fontSize: 18)),
+                                          child: const Text(
+                                            'UBICACIONES',
+                                            style: TextStyle(
+                                                color: white, fontSize: 18),
+                                          ),
                                         ),
                                         const Spacer(),
                                         PopupMenuButton<String>(
@@ -105,17 +113,16 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                                             size: 20,
                                           ),
                                           onSelected: (value) {
-                                            bloc.add(
-                                                FilterUbicacionesEvent(value));
+                                            context
+                                                .read<TransferInfoBloc>()
+                                                .add(
+                                                  FilterUbicacionesEvent(value),
+                                                );
                                           },
                                           itemBuilder: (BuildContext context) {
-                                            // Lista fija de tipos de transferencia que ya tienes
-                                            final tipos = [
-                                              ...context
-                                                  .read<UserBloc>()
-                                                  .almacenes,
-                                            ];
-
+                                            final tipos = context
+                                                .read<UserBloc>()
+                                                .almacenes;
                                             return tipos.map((tipo) {
                                               return PopupMenuItem<String>(
                                                 value: tipo.name,
@@ -131,8 +138,9 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                                                     Text(
                                                       tipo.name ?? "",
                                                       style: const TextStyle(
-                                                          color: black,
-                                                          fontSize: 12),
+                                                        color: black,
+                                                        fontSize: 12,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -145,14 +153,17 @@ class _LocationDestScreenState extends State<LocationDestTransfInfoScreen> {
                                   ),
                                 ],
                               );
-                            }),
+                            },
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(
                       height: 5,
                     ),
                     Text(
-                        bloc.selectedAlmacen == null || bloc.selectedAlmacen == ''
+                        bloc.selectedAlmacen == null ||
+                                bloc.selectedAlmacen == ''
                             ? 'Ubicaciones de todos los almacenes'
                             : 'Ubicaciones del almacen: ${bloc.selectedAlmacen}',
                         style: TextStyle(

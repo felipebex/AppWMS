@@ -89,79 +89,75 @@ class IndexListPickScreen extends StatelessWidget {
                         bottomRight: Radius.circular(20),
                       ),
                     ),
-                    child: BlocProvider(
-                      create: (context) => ConnectionStatusCubit(),
-                      child:
-                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-                              builder: (context, status) {
-                        return Column(
+                    child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                        builder: (context, status) {
+                                            return Column(
+                    children: [
+                      const WarningWidgetCubit(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                            top: status != ConnectionStatus.online
+                                ? 20
+                                : 20,
+                            bottom: 0),
+                        child: Column(
                           children: [
-                            const WarningWidgetCubit(),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 10,
-                                  right: 10,
-                                  top: status != ConnectionStatus.online
-                                      ? 20
-                                      : 20,
-                                  bottom: 0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.arrow_back,
-                                            color: white),
-                                        onPressed: () {
-                                          Navigator.pushReplacementNamed(
-                                              context, '/home');
-                                        },
-                                      ),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          await DataBaseSqlite()
-                                              .delePick('pick');
-                                          bloc.add(FetchPickingPickEvent(true));
-                                        },
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              left: size.width * 0.15),
-                                          child: Row(
-                                            children: [
-                                              const Text(
-                                                'PICKING - PICK',
-                                                style: TextStyle(
-                                                    color: white,
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              //icono de refres
-                                              Icon(
-                                                Icons.refresh,
-                                                color: white,
-                                                size: 20,
-                                              ),
-                                            ],
-                                          ),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back,
+                                      color: white),
+                                  onPressed: () {
+                                    Navigator.pushReplacementNamed(
+                                        context, '/home');
+                                  },
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    await DataBaseSqlite()
+                                        .delePick('pick');
+                                    bloc.add(FetchPickingPickEvent(true));
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        left: size.width * 0.15),
+                                    child: Row(
+                                      children: [
+                                        const Text(
+                                          'PICKING - PICK',
+                                          style: TextStyle(
+                                              color: white,
+                                              fontSize: 18,
+                                              fontWeight:
+                                                  FontWeight.bold),
                                         ),
-                                      ),
-                                      const Spacer(),
-                                    ],
+                    
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        //icono de refres
+                                        Icon(
+                                          Icons.refresh,
+                                          color: white,
+                                          size: 20,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
+                                ),
+                                const Spacer(),
+                              ],
                             ),
                           ],
-                        );
-                      }),
-                    ),
+                        ),
+                      ),
+                    ],
+                                            );
+                                          }),
                   ),
 
                   SizedBox(

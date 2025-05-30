@@ -695,7 +695,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           event.product.idMove ?? 0,
         );
         emit(SendProductPickOdooError(
-          response.result?.result?.first.error ?? "",
+          response.result?.msg ?? 'Error al enviar el producto',
           TransferRequest(
             idTransferencia: currentProduct.batchId ?? 0,
             listItems: [

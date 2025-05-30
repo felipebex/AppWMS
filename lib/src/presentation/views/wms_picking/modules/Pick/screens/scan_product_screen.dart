@@ -5,11 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/models/submeuelle_model.dart';
+
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/cant_lineas_muelle_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
@@ -379,204 +380,81 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
             backgroundColor: white,
             body: Column(
               children: [
-                Container(
-                  width: size.width,
-                  color: primaryColorApp,
-                  child: BlocProvider(
-                    create: (context) => ConnectionStatusCubit(),
-                    child: BlocConsumer<PickingPickBloc, PickingPickState>(
-                        listenWhen: (previous, current) {
-                      return true;
-                    }, listener: (context, state) {
-                      print("❤️‍🔥 state : $state");
+               BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+      builder: (context, status) {
+                    return Container(
+                      width: size.width,
+                      color: primaryColorApp,
+                      child: BlocConsumer<PickingPickBloc, PickingPickState>(
+                          listenWhen: (previous, current) {
+                        return true;
+                      }, listener: (context, state) {
+                        print("❤️‍🔥 state : $state");
 
-                      if (state is CreateBackOrderOrNotLoading) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const DialogLoading(
-                              message: "Validando informacion...",
-                            );
-                          },
-                        );
-                      }
-                      if (state is ValidateConfirmLoading) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const DialogLoading(
-                              message: "Validando informacion...",
-                            );
-                          },
-                        );
-                      }
-
-                      if (state is ValidateConfirmSuccess) {
-                        //volvemos a llamar las entradas que tenemos guardadas en la bd
-                        if (state.isBackorder) {
-                          Get.snackbar("360 Software Informa", state.msg,
-                              backgroundColor: white,
-                              colorText: primaryColorApp,
-                              icon: Icon(Icons.error, color: Colors.green));
-                        } else {
-                          Get.snackbar("360 Software Informa", state.msg,
-                              backgroundColor: white,
-                              colorText: primaryColorApp,
-                              icon: Icon(Icons.error, color: Colors.green));
-                        }
-
-                        Navigator.pop(context);
-                        if (batchBloc.pickWithProducts.pick?.typePick ==
-                            'pick') {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            'pick',
-                          );
-                        } else {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            'picking-componentes',
+                        if (state is CreateBackOrderOrNotLoading) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const DialogLoading(
+                                message: "Validando informacion...",
+                              );
+                            },
                           );
                         }
-                      }
-
-                      if (state is MuellesLoadingState) {
-                        showDialog(
-                          context: context,
-                          barrierDismissible:
-                              false, // No permitir que el usuario cierre el diálogo manualmente
-                          builder: (context) => const DialogLoading(
-                            message: 'Cargando muelles...',
-                          ),
-                        );
-                      }
-
-                      if (state is MuellesErrorState) {
-                        Navigator.pop(context);
-
-                        Get.defaultDialog(
-                          title: '360 Software Informa',
-                          titleStyle:
-                              TextStyle(color: Colors.red, fontSize: 18),
-                          middleText: state.error,
-                          middleTextStyle:
-                              TextStyle(color: black, fontSize: 14),
-                          backgroundColor: Colors.white,
-                          radius: 10,
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Get.back();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryColorApp,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text('Aceptar',
-                                  style: TextStyle(color: white)),
-                            ),
-                          ],
-                        );
-                      }
-
-                      if (state is MuellesLoadedState) {
-                        Navigator.pop(context);
-                        showModalBottomSheet(
-                          backgroundColor: white,
-                          context: context,
-                          isDismissible: false,
-                          enableDrag: false,
-                          builder: (context) {
-                            return SelectSubMuelleBottomSheetPick(
-                              controller: _controllerSubMuelle,
-                              focusNode: focusNode6,
-                            );
-                          },
-                        );
-                      }
-
-                      if (state is ValidateConfirmFailure) {
-                        Navigator.pop(context);
-
-                        Get.defaultDialog(
-                          title: '360 Software Informa',
-                          titleStyle:
-                              TextStyle(color: Colors.red, fontSize: 18),
-                          middleText: state.error,
-                          middleTextStyle:
-                              TextStyle(color: black, fontSize: 14),
-                          backgroundColor: Colors.white,
-                          radius: 10,
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Get.back();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryColorApp,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text('Aceptar',
-                                  style: TextStyle(color: white)),
-                            ),
-                          ],
-                        );
-                      }
-
-                      if (state is CreateBackOrderOrNotFailure) {
-                        Navigator.pop(context);
-
-                        if (state.error
-                            .contains('expiry.picking.confirmation')) {
-                          Get.defaultDialog(
-                            title: '360 Software Informa',
-                            titleStyle:
-                                TextStyle(color: Colors.red, fontSize: 18),
-                            middleText:
-                                'Algunos productos tienen fecha de caducidad alcanzada.\n¿Desea continuar con la confirmacion aceptando los productos vencidos?',
-                            middleTextStyle:
-                                TextStyle(color: black, fontSize: 14),
-                            backgroundColor: Colors.white,
-                            radius: 10,
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  batchBloc.add(ValidateConfirmEvent(
-                                      batchBloc.pickWithProducts.pick?.id ?? 0,
-                                      state.isBackorder,
-                                      false));
-
-                                  Get.back();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text('Continuar',
-                                    style: TextStyle(color: white)),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: grey,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text('Descartar',
-                                    style: TextStyle(color: white)),
-                              ),
-                            ],
+                        if (state is ValidateConfirmLoading) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const DialogLoading(
+                                message: "Validando informacion...",
+                              );
+                            },
                           );
-                        } else {
+                        }
+
+                        if (state is ValidateConfirmSuccess) {
+                          //volvemos a llamar las entradas que tenemos guardadas en la bd
+                          if (state.isBackorder) {
+                            Get.snackbar("360 Software Informa", state.msg,
+                                backgroundColor: white,
+                                colorText: primaryColorApp,
+                                icon: Icon(Icons.error, color: Colors.green));
+                          } else {
+                            Get.snackbar("360 Software Informa", state.msg,
+                                backgroundColor: white,
+                                colorText: primaryColorApp,
+                                icon: Icon(Icons.error, color: Colors.green));
+                          }
+
+                          Navigator.pop(context);
+                          if (batchBloc.pickWithProducts.pick?.typePick ==
+                              'pick') {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'pick',
+                            );
+                          } else {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'picking-componentes',
+                            );
+                          }
+                        }
+
+                        if (state is MuellesLoadingState) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible:
+                                false, // No permitir que el usuario cierre el diálogo manualmente
+                            builder: (context) => const DialogLoading(
+                              message: 'Cargando muelles...',
+                            ),
+                          );
+                        }
+
+                        if (state is MuellesErrorState) {
+                          Navigator.pop(context);
+
                           Get.defaultDialog(
                             title: '360 Software Informa',
                             titleStyle:
@@ -603,209 +481,336 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                             ],
                           );
                         }
-                      }
 
-                      if (state is CreateBackOrderOrNotSuccess) {
-                        //volvemos a llamar las entradas que tenemos guardadas en la bd
-                        if (state.isBackorder) {
-                          Get.snackbar("360 Software Informa", state.msg,
-                              backgroundColor: white,
-                              colorText: primaryColorApp,
-                              icon: Icon(Icons.error, color: Colors.green));
-                        } else {
-                          Get.snackbar("360 Software Informa", state.msg,
-                              backgroundColor: white,
-                              colorText: primaryColorApp,
-                              icon: Icon(Icons.error, color: Colors.green));
-                        }
-
-                        Navigator.pop(context);
-                        if (batchBloc.pickWithProducts.pick?.typePick ==
-                            'pick') {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            'pick',
-                          );
-                        } else {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            'picking-componentes',
-                          );
-                        }
-                      }
-
-                      // * validamos en todo cambio de estado de cantidad separada
-                      if (state is ChangeQuantitySeparateStateSuccess) {
-                        if (state.quantity == currentProduct.quantity) {
-                          _nextProduct(currentProduct, batchBloc);
-                        }
-                      }
-
-                      if (state is CurrentProductChangedStateLoading) {
-                        showDialog(
-                          context: context,
-                          barrierDismissible:
-                              false, // No permitir que el usuario cierre el diálogo manualmente
-                          builder: (context) => const DialogLoading(
-                            message: 'Cargando producto...',
-                          ),
-                        );
-                      }
-
-                      if (state is CurrentProductChangedState) {
-                        Future.delayed(const Duration(seconds: 1), () {
-                          // _handleDependencies();
+                        if (state is MuellesLoadedState) {
                           Navigator.pop(context);
-                        });
-                      }
+                          showModalBottomSheet(
+                            backgroundColor: white,
+                            context: context,
+                            isDismissible: false,
+                            enableDrag: false,
+                            builder: (context) {
+                              return SelectSubMuelleBottomSheetPick(
+                                controller: _controllerSubMuelle,
+                                focusNode: focusNode6,
+                              );
+                            },
+                          );
+                        }
 
-                      if (state is ChangeQuantitySeparateStateError) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: const Duration(milliseconds: 1000),
-                          content: Text(state.msg),
-                          backgroundColor: Colors.red[200],
-                        ));
-                      }
+                        if (state is ValidateConfirmFailure) {
+                          Navigator.pop(context);
 
-                      if (state is CurrentProductChangedStateError) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: const Duration(milliseconds: 1000),
-                          content: Text(state.msg),
-                          backgroundColor: Colors.red[200],
-                        ));
-                      }
-
-                      if (state is ValidateFieldsStateError) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: const Duration(milliseconds: 1000),
-                          content: Text(state.msg),
-                          backgroundColor: Colors.red[200],
-                        ));
-                      }
-
-                      if (state is SelectNovedadStateError) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: const Duration(milliseconds: 1000),
-                          content: Text(state.msg),
-                          backgroundColor: Colors.red[200],
-                        ));
-                      }
-
-                      if (state is LoadDataInfoError) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: const Duration(milliseconds: 1000),
-                          content: Text(state.msg),
-                          backgroundColor: Colors.red[200],
-                        ));
-                      }
-
-                      //*estado cando la ubicacion de origen es cambiada
-                      if (state is ChangeLocationIsOkState) {
-                        //cambiamos el foco
-                        Future.delayed(const Duration(seconds: 1), () {
-                          FocusScope.of(context).requestFocus(focusNode2);
-                        });
-                        _handleDependencies();
-                      }
-
-                      //*estado cuando el producto es leido ok
-                      if (state is ChangeProductIsOkState) {
-                        //cambiamos el foco a cantidad
-                        Future.delayed(const Duration(seconds: 1), () {
-                          FocusScope.of(context).requestFocus(focusNode3);
-                        });
-                        _handleDependencies();
-                      }
-                      //*estado cuando el muelle fue editado
-                      if (state is SubMuelleEditSusses) {
-                        //mostramos alerta
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: const Duration(milliseconds: 1000),
-                          content: Text(state.message),
-                          backgroundColor: Colors.green[200],
-                        ));
-                      }
-
-                      if (state is SubMuelleEditFail) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          duration: const Duration(milliseconds: 1000),
-                          content: Text(state.message),
-                          backgroundColor: Colors.red[200],
-                        ));
-                      }
-                    }, builder: (context, status) {
-                      return Column(
-                        children: [
-                          const WarningWidgetCubit(),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 15),
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    cantidadController.clear();
-
-                                    // batchBloc.add(ResetValuesEvent());
-                                    batchBloc.add(ShowKeyboard(false));
-                                    batchBloc.searchPickController.clear();
-                                    batchBloc.add(SearchPickEvent(
-                                      '',
-                                      batchBloc.pickWithProducts.pick
-                                                  ?.typePick ==
-                                              'pick'
-                                          ? false
-                                          : true,
-                                    ));
-
-                                    if (batchBloc
-                                            .pickWithProducts.pick?.typePick ==
-                                        'pick') {
-                                      batchBloc.add(
-                                          FetchPickingPickFromDBEvent(false));
-                                      Navigator.pushReplacementNamed(
-                                          context, 'pick');
-                                    } else {
-                                      batchBloc.add(
-                                          FetchPickingComponentesFromDBEvent(
-                                              false));
-                                      Navigator.pushReplacementNamed(
-                                          context, 'picking-componentes');
-                                    }
-                                  },
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: Colors.white, size: 20),
-                                ),
-                                const Spacer(),
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    batchBloc.pickWithProducts.pick?.name ?? '',
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 14),
+                          Get.defaultDialog(
+                            title: '360 Software Informa',
+                            titleStyle:
+                                TextStyle(color: Colors.red, fontSize: 18),
+                            middleText: state.error,
+                            middleTextStyle:
+                                TextStyle(color: black, fontSize: 14),
+                            backgroundColor: Colors.white,
+                            radius: 10,
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryColorApp,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                const Spacer(),
-                                PopupMenuButtonPickWidget(
-                                    currentProduct: currentProduct),
+                                child: Text('Aceptar',
+                                    style: TextStyle(color: white)),
+                              ),
+                            ],
+                          );
+                        }
+
+                        if (state is CreateBackOrderOrNotFailure) {
+                          Navigator.pop(context);
+
+                          if (state.error
+                              .contains('expiry.picking.confirmation')) {
+                            Get.defaultDialog(
+                              title: '360 Software Informa',
+                              titleStyle:
+                                  TextStyle(color: Colors.red, fontSize: 18),
+                              middleText:
+                                  'Algunos productos tienen fecha de caducidad alcanzada.\n¿Desea continuar con la confirmacion aceptando los productos vencidos?',
+                              middleTextStyle:
+                                  TextStyle(color: black, fontSize: 14),
+                              backgroundColor: Colors.white,
+                              radius: 10,
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    batchBloc.add(ValidateConfirmEvent(
+                                        batchBloc.pickWithProducts.pick?.id ??
+                                            0,
+                                        state.isBackorder,
+                                        false));
+
+                                    Get.back();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: primaryColorApp,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: Text('Continuar',
+                                      style: TextStyle(color: white)),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: grey,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: Text('Descartar',
+                                      style: TextStyle(color: white)),
+                                ),
                               ],
+                            );
+                          } else {
+                            Get.defaultDialog(
+                              title: '360 Software Informa',
+                              titleStyle:
+                                  TextStyle(color: Colors.red, fontSize: 18),
+                              middleText: state.error,
+                              middleTextStyle:
+                                  TextStyle(color: black, fontSize: 14),
+                              backgroundColor: Colors.white,
+                              radius: 10,
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: primaryColorApp,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  child: Text('Aceptar',
+                                      style: TextStyle(color: white)),
+                                ),
+                              ],
+                            );
+                          }
+                        }
+
+                        if (state is CreateBackOrderOrNotSuccess) {
+                          //volvemos a llamar las entradas que tenemos guardadas en la bd
+                          if (state.isBackorder) {
+                            Get.snackbar("360 Software Informa", state.msg,
+                                backgroundColor: white,
+                                colorText: primaryColorApp,
+                                icon: Icon(Icons.error, color: Colors.green));
+                          } else {
+                            Get.snackbar("360 Software Informa", state.msg,
+                                backgroundColor: white,
+                                colorText: primaryColorApp,
+                                icon: Icon(Icons.error, color: Colors.green));
+                          }
+
+                          Navigator.pop(context);
+                          if (batchBloc.pickWithProducts.pick?.typePick ==
+                              'pick') {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'pick',
+                            );
+                          } else {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'picking-componentes',
+                            );
+                          }
+                        }
+
+                        // * validamos en todo cambio de estado de cantidad separada
+                        if (state is ChangeQuantitySeparateStateSuccess) {
+                          if (state.quantity == currentProduct.quantity) {
+                            _nextProduct(currentProduct, batchBloc);
+                          }
+                        }
+
+                        if (state is CurrentProductChangedStateLoading) {
+                          showDialog(
+                            context: context,
+                            barrierDismissible:
+                                false, // No permitir que el usuario cierre el diálogo manualmente
+                            builder: (context) => const DialogLoading(
+                              message: 'Cargando producto...',
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 0),
-                            child: ProgressIndicatorWidget(
-                              progress: progress,
-                              completed: batchBloc.filteredProducts.where((e) {
-                                return e.isSeparate == 1;
-                              }).length,
-                              total: totalTasks,
+                          );
+                        }
+
+                        if (state is CurrentProductChangedState) {
+                          Future.delayed(const Duration(seconds: 1), () {
+                            // _handleDependencies();
+                            Navigator.pop(context);
+                          });
+                        }
+
+                        if (state is ChangeQuantitySeparateStateError) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: const Duration(milliseconds: 1000),
+                            content: Text(state.msg),
+                            backgroundColor: Colors.red[200],
+                          ));
+                        }
+
+                        if (state is CurrentProductChangedStateError) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: const Duration(milliseconds: 1000),
+                            content: Text(state.msg),
+                            backgroundColor: Colors.red[200],
+                          ));
+                        }
+
+                        if (state is ValidateFieldsStateError) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: const Duration(milliseconds: 1000),
+                            content: Text(state.msg),
+                            backgroundColor: Colors.red[200],
+                          ));
+                        }
+
+                        if (state is SelectNovedadStateError) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: const Duration(milliseconds: 1000),
+                            content: Text(state.msg),
+                            backgroundColor: Colors.red[200],
+                          ));
+                        }
+
+                        if (state is LoadDataInfoError) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: const Duration(milliseconds: 1000),
+                            content: Text(state.msg),
+                            backgroundColor: Colors.red[200],
+                          ));
+                        }
+
+                        //*estado cando la ubicacion de origen es cambiada
+                        if (state is ChangeLocationIsOkState) {
+                          //cambiamos el foco
+                          Future.delayed(const Duration(seconds: 1), () {
+                            FocusScope.of(context).requestFocus(focusNode2);
+                          });
+                          _handleDependencies();
+                        }
+
+                        //*estado cuando el producto es leido ok
+                        if (state is ChangeProductIsOkState) {
+                          //cambiamos el foco a cantidad
+                          Future.delayed(const Duration(seconds: 1), () {
+                            FocusScope.of(context).requestFocus(focusNode3);
+                          });
+                          _handleDependencies();
+                        }
+                        //*estado cuando el muelle fue editado
+                        if (state is SubMuelleEditSusses) {
+                          //mostramos alerta
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: const Duration(milliseconds: 1000),
+                            content: Text(state.message),
+                            backgroundColor: Colors.green[200],
+                          ));
+                        }
+
+                        if (state is SubMuelleEditFail) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            duration: const Duration(milliseconds: 1000),
+                            content: Text(state.message),
+                            backgroundColor: Colors.red[200],
+                          ));
+                        }
+                      }, builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 15),
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    onPressed: () {
+                                      cantidadController.clear();
+
+                                      // batchBloc.add(ResetValuesEvent());
+                                      batchBloc.add(ShowKeyboard(false));
+                                      batchBloc.searchPickController.clear();
+                                      batchBloc.add(SearchPickEvent(
+                                        '',
+                                        batchBloc.pickWithProducts.pick
+                                                    ?.typePick ==
+                                                'pick'
+                                            ? false
+                                            : true,
+                                      ));
+
+                                      if (batchBloc.pickWithProducts.pick
+                                              ?.typePick ==
+                                          'pick') {
+                                        batchBloc.add(
+                                            FetchPickingPickFromDBEvent(false));
+                                        Navigator.pushReplacementNamed(
+                                            context, 'pick');
+                                      } else {
+                                        batchBloc.add(
+                                            FetchPickingComponentesFromDBEvent(
+                                                false));
+                                        Navigator.pushReplacementNamed(
+                                            context, 'picking-componentes');
+                                      }
+                                    },
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: Colors.white, size: 20),
+                                  ),
+                                  const Spacer(),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      batchBloc.pickWithProducts.pick?.name ??
+                                          '',
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 14),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  PopupMenuButtonPickWidget(
+                                      currentProduct: currentProduct),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                      );
-                    }),
-                  ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 0),
+                              child: ProgressIndicatorWidget(
+                                progress: progress,
+                                completed:
+                                    batchBloc.filteredProducts.where((e) {
+                                  return e.isSeparate == 1;
+                                }).length,
+                                total: totalTasks,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        );
+                      }),
+                    );
+                  },
                 ),
                 Expanded(
                   child: Container(

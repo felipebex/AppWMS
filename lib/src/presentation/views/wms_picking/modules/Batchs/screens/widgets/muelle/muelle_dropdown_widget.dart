@@ -12,14 +12,12 @@ class MuelleDropdownWidget extends StatefulWidget {
   final String? selectedMuelle;
   final BatchBloc batchBloc;
   final ProductsBatch currentProduct;
-  final bool isPda;
 
   const MuelleDropdownWidget({
     super.key,
     required this.selectedMuelle,
     required this.batchBloc,
     required this.currentProduct,
-    required this.isPda,
   });
 
   @override
@@ -108,19 +106,7 @@ class _MuelleDropdownWidgetState extends State<MuelleDropdownWidget> {
                     : null,
           ),
 
-          Visibility(
-            visible: widget.isPda,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                widget.batchBloc.configurations.result?.result?.muelleOption ==
-                        "multiple"
-                    ? widget.batchBloc.currentProduct.locationDestId ?? ""
-                    : widget.batchBloc.batchWithProducts.batch?.muelle ?? "",
-                style: const TextStyle(fontSize: 14, color: black),
-              ),
-            ),
-          ),
+          
           Align(
             alignment: Alignment.centerLeft,
             child: Visibility(

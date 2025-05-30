@@ -471,52 +471,49 @@ class _InventarioScreenState extends State<InventarioScreen>
                     ),
                   ),
                   width: double.infinity,
-                  child: BlocProvider(
-                    create: (context) => ConnectionStatusCubit(),
-                    child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-                        builder: (context, status) {
-                      return Column(
-                        children: [
-                          const WarningWidgetCubit(),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                bottom: 0,
-                                top:
-                                    status != ConnectionStatus.online ? 0 : 35),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back,
-                                      size: 20, color: white),
+                  child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                      builder: (context, status) {
+                    return Column(
+                      children: [
+                        const WarningWidgetCubit(),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              bottom: 0,
+                              top:
+                                  status != ConnectionStatus.online ? 0 : 35),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back,
+                                    size: 20, color: white),
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    '/home',
+                                  );
+                                },
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsets.only(left: size.width * 0.2),
+                                child: const Text("INVENTARIO RÁPIDO",
+                                    style: TextStyle(
+                                        color: white, fontSize: 14)),
+                              ),
+                              const Spacer(),
+                              IconButton(
                                   onPressed: () {
-                                    Navigator.pushReplacementNamed(
-                                      context,
-                                      '/home',
-                                    );
+                                    bloc.add(CleanFieldsEent());
                                   },
-                                ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(left: size.width * 0.2),
-                                  child: const Text("INVENTARIO RÁPIDO",
-                                      style: TextStyle(
-                                          color: white, fontSize: 14)),
-                                ),
-                                const Spacer(),
-                                IconButton(
-                                    onPressed: () {
-                                      bloc.add(CleanFieldsEent());
-                                    },
-                                    icon: const Icon(Icons.delete,
-                                        size: 20, color: white)),
-                              ],
-                            ),
+                                  icon: const Icon(Icons.delete,
+                                      size: 20, color: white)),
+                            ],
                           ),
-                        ],
-                      );
-                    }),
-                  ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
 
                 Expanded(

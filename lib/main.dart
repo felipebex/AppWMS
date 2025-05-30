@@ -1,9 +1,6 @@
-// // ignore_for_file: depend_on_referenced_packages, avoid_print, use_build_context_synchronously
-
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, depend_on_referenced_packages, avoid_print
 
 import 'dart:io';
-
 import 'package:cron/cron.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
@@ -30,21 +27,24 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_r
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
 import 'package:wms_app/src/services/notification_service.dart';
-
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 import 'package:wms_app/src/utils/widgets/error_widget.dart';
-
 import 'src/presentation/views/home/index.dart';
+import 'package:get/get.dart';
+import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 
-final internetChecker = CheckInternetConnection();
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final ApiRequestService apiRequestService = ApiRequestService();
+
+// ✅ Instancias únicas
+final internetChecker = CheckInternetConnection();
+final connectionStatusCubit = ConnectionStatusCubit(internetChecker: internetChecker);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,33 +69,26 @@ void main() async {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         final isLogin = await PrefUtils.getIsLoggedIn();
-        if (isLogin) {
+        if (isLogin && navigatorKey.currentContext != null) {
           searchProductsNoSendOdoo(navigatorKey.currentContext!);
         }
       }
     } on SocketException catch (_) {}
   });
+
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         final isLogin = await PrefUtils.getIsLoggedIn();
-        if (isLogin) {
+        if (isLogin && navigatorKey.currentContext != null) {
           searchProductsPickNoSendOdoo(navigatorKey.currentContext!);
         }
       }
     } on SocketException catch (_) {}
   });
 
-  runApp(const AppState()); // fuera del .then()
-}
-
-class AppState extends StatelessWidget {
-  const AppState({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const MyApp();
-  }
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -105,85 +98,56 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
-          create: (_) => UserBloc(),
-        ),
-        BlocProvider(
-          create: (_) => RecepcionBloc(),
-        ),
-        BlocProvider(
-          create: (_) => TransferenciaBloc(),
-        ),
-        BlocProvider(
-          create: (_) => HomeBloc(),
-        ),
-        BlocProvider(
-          create: (_) => WMSPickingBloc(),
-        ),
-        BlocProvider(
-          create: (_) => BatchBloc(),
-        ),
-        BlocProvider(
-          create: (_) => BatchBloc(),
-        ),
-        BlocProvider(
-          create: (_) => WmsPackingBloc(),
-        ),
-        BlocProvider(
-          create: (_) => KeyboardBloc(),
-        ),
-        BlocProvider(
-          create: (_) => TransferInfoBloc(),
-        ),
-        BlocProvider(
-          create: (_) => InfoRapidaBloc(),
-        ),
-        BlocProvider(
-          create: (_) => InventarioBloc(),
-        ),
-      
-        BlocProvider(
-          create: (_) => PickingPickBloc(),
-        ),
-        BlocProvider(
-          create: (_) => RecepcionBatchBloc(),
-        ),
+        // ✅ Reutilizamos la instancia única del ConnectionStatusCubit
+        BlocProvider.value(value: connectionStatusCubit),
+
+        // 👉 Resto de tus BLoC habituales
+        BlocProvider(create: (_) => UserBloc()),
+        BlocProvider(create: (_) => RecepcionBloc()),
+        BlocProvider(create: (_) => TransferenciaBloc()),
+        BlocProvider(create: (_) => HomeBloc()),
+        BlocProvider(create: (_) => WMSPickingBloc()),
+        BlocProvider(create: (_) => BatchBloc()),
+        BlocProvider(create: (_) => WmsPackingBloc()),
+        BlocProvider(create: (_) => KeyboardBloc()),
+        BlocProvider(create: (_) => TransferInfoBloc()),
+        BlocProvider(create: (_) => InfoRapidaBloc()),
+        BlocProvider(create: (_) => InventarioBloc()),
+        BlocProvider(create: (_) => PickingPickBloc()),
+        BlocProvider(create: (_) => RecepcionBatchBloc()),
       ],
       child: GetMaterialApp(
-          unknownRoute: GetPage(
-            name: AppRoutes.home,
-            page: () => HomePage(),
+        navigatorKey: navigatorKey,
+        debugShowCheckedModeBanner: false,
+        initialRoute: AppRoutes.checkout,
+        unknownRoute: GetPage(name: AppRoutes.home, page: () => HomePage()),
+        supportedLocales: const [Locale('es', 'ES')],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        routes: AppRoutes.routes,
+        theme: ThemeData(
+          scaffoldBackgroundColor: Colors.grey[300],
+          appBarTheme: AppBarTheme(elevation: 0, color: primaryColorApp),
+          colorScheme: ColorScheme.light(
+            primary: primaryColorApp,
+            secondary: primaryColorApp,
           ),
-          navigatorKey: navigatorKey, // Usa el navigatorKey aquí
-          debugShowCheckedModeBanner: false,
-          initialRoute: AppRoutes.checkout, // Usa la constante de ruta
-
-          supportedLocales: const [Locale('es', 'ES')],
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          routes: AppRoutes.routes, // Usa el mapa de rutas
-          theme: ThemeData.light().copyWith(
-            scaffoldBackgroundColor: Colors.grey[300],
-            appBarTheme: AppBarTheme(elevation: 0, color: primaryColorApp),
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: primaryColorApp,
-                  secondary: primaryColorApp,
-                ),
-          ),
-          builder: (context, navigator) {
-            final apiRequestService = ApiRequestService();
-            apiRequestService.initialize(
-              unencodePath: '/api',
-              httpHandler: HttpResponseHandler(context),
-            );
-            return navigator!;
-          }),
+        ),
+        builder: (context, navigator) {
+          apiRequestService.initialize(
+            unencodePath: '/api',
+            httpHandler: HttpResponseHandler(context),
+          );
+          return navigator!;
+        },
+      ),
     );
   }
 }
+
 
 ///metodo el cual se encarga de verificar que productos estan con estado no enviado para enviarlos a odoo
 void searchProductsNoSendOdoo(BuildContext context) async {

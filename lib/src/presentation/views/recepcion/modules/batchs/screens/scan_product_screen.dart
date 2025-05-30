@@ -334,35 +334,53 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
             backgroundColor: Colors.white,
             body: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: primaryColorApp,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                  ),
-                  width: double.infinity,
-                  child: BlocProvider(
-                    create: (context) => ConnectionStatusCubit(),
-                    child:
-                        BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
-                            listener: (context, state) {
-                      print('STATE ❤️‍🔥 $state');
+                BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                  builder: (context, status) {
+                    return Container(
+                      padding: const EdgeInsets.only(top: 20),
+                      decoration: BoxDecoration(
+                        color: primaryColorApp,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                      width: double.infinity,
+                      child:
+                          BlocConsumer<RecepcionBatchBloc, RecepcionBatchState>(
+                              listener: (context, state) {
+                        print('STATE ❤️‍🔥 $state');
 
-                      //*estado cuando el producto es leido ok
-                      if (state is ChangeProductOrderIsOkState) {
-                        //pasamos al foco de lote
-                        Future.delayed(const Duration(seconds: 1), () {
-                          if (!mounted) return; // ← Añade esta verificación
-                          if (context
-                                  .read<RecepcionBatchBloc>()
-                                  .currentProduct
-                                  .productTracking ==
-                              "lot") {
-                            FocusScope.of(context).requestFocus(focusNode6);
-                          } else {
+                        //*estado cuando el producto es leido ok
+                        if (state is ChangeProductOrderIsOkState) {
+                          //pasamos al foco de lote
+                          Future.delayed(const Duration(seconds: 1), () {
+                            if (!mounted) return; // ← Añade esta verificación
+                            if (context
+                                    .read<RecepcionBatchBloc>()
+                                    .currentProduct
+                                    .productTracking ==
+                                "lot") {
+                              FocusScope.of(context).requestFocus(focusNode6);
+                            } else {
+                              if (context
+                                      .read<RecepcionBatchBloc>()
+                                      .configurations
+                                      .result
+                                      ?.result
+                                      ?.scanDestinationLocationReception ==
+                                  false) {
+                                FocusScope.of(context).requestFocus(focusNode3);
+                              } else {
+                                FocusScope.of(context).requestFocus(focusNode5);
+                              }
+                            }
+                          });
+                          _handleDependencies();
+                        }
+
+                        if (state is ChangeLoteOrderIsOkState) {
+                          Future.delayed(const Duration(seconds: 1), () {
                             if (context
                                     .read<RecepcionBatchBloc>()
                                     .configurations
@@ -374,83 +392,68 @@ class _ScanProductOrderScreenState extends State<ScanProductRceptionBatchScreen>
                             } else {
                               FocusScope.of(context).requestFocus(focusNode5);
                             }
-                          }
-                        });
-                        _handleDependencies();
-                      }
-
-                      if (state is ChangeLoteOrderIsOkState) {
-                        Future.delayed(const Duration(seconds: 1), () {
-                          if (context
-                                  .read<RecepcionBatchBloc>()
-                                  .configurations
-                                  .result
-                                  ?.result
-                                  ?.scanDestinationLocationReception ==
-                              false) {
-                            FocusScope.of(context).requestFocus(focusNode3);
-                          } else {
-                            FocusScope.of(context).requestFocus(focusNode5);
-                          }
-                        });
-                        _handleDependencies();
-                      }
-
-                      if (state is ChangeLocationDestIsOkState) {
-                        //pasamos al foco de lote
-                        Future.delayed(const Duration(seconds: 1), () {
-                          FocusScope.of(context).requestFocus(focusNode3);
-                        });
-                        _handleDependencies();
-                      }
-
-                      if (state is ChangeQuantitySeparateState) {
-                        // if (state.quantity != 0.0) {
-                        if (state.quantity ==
-                            recepcionBloc.currentProduct.cantidadFaltante) {
-                          //termianmso el proceso
-                          _finishSeprateProductOrder(context, state.quantity);
+                          });
+                          _handleDependencies();
                         }
-                        // }
-                      }
-                    }, builder: (context, status) {
-                      return Column(
-                        children: [
-                          const WarningWidgetCubit(),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                // bottom: 5,
-                                top:
-                                    status != ConnectionStatus.online ? 0 : 35),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: white),
-                                  onPressed: () {
-                                    termiateProcess();
 
-                                    Navigator.pushReplacementNamed(
-                                        context, 'recepcion-batch',
-                                        arguments: [widget.ordenCompra, 1]);
-                                  },
-                                ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(left: size.width * 0.2),
-                                  child: Text(widget.ordenCompra?.name ?? '',
-                                      style: TextStyle(
-                                          color: white, fontSize: 18)),
-                                ),
-                                const Spacer(),
-                              ],
+                        if (state is ChangeLocationDestIsOkState) {
+                          //pasamos al foco de lote
+                          Future.delayed(const Duration(seconds: 1), () {
+                            FocusScope.of(context).requestFocus(focusNode3);
+                          });
+                          _handleDependencies();
+                        }
+
+                        if (state is ChangeQuantitySeparateState) {
+                          // if (state.quantity != 0.0) {
+                          if (state.quantity ==
+                              recepcionBloc.currentProduct.cantidadFaltante) {
+                            //termianmso el proceso
+                            _finishSeprateProductOrder(context, state.quantity);
+                          }
+                          // }
+                        }
+                      }, builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  // bottom: 5,
+                                  top: status != ConnectionStatus.online
+                                      ? 0
+                                      : 35),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: white),
+                                    onPressed: () {
+                                      termiateProcess();
+
+                                      Navigator.pushReplacementNamed(
+                                          context, 'recepcion-batch',
+                                          arguments: [widget.ordenCompra, 1]);
+                                    },
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(left: size.width * 0.2),
+                                    child: Text(widget.ordenCompra?.name ?? '',
+                                        style: TextStyle(
+                                            color: white, fontSize: 18)),
+                                  ),
+                                  const Spacer(),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                    }),
-                  ),
+                          ],
+                        );
+                      }),
+                    );
+                  },
                 ),
                 Expanded(
                   child: Container(

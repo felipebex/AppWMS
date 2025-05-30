@@ -219,42 +219,39 @@ class AppBar extends StatelessWidget {
         ),
       ),
       width: double.infinity,
-      child: BlocProvider(
-        create: (context) => ConnectionStatusCubit(),
-        child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-            builder: (context, status) {
-          return Column(
-            children: [
-              const WarningWidgetCubit(),
-              Padding(
-                padding: EdgeInsets.only(
-                    bottom: 10,
-                    top: status != ConnectionStatus.online ? 0 : 35),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: white),
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(
-                          context,
-                          'info-rapida',
-                        );
-                      },
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: size.width * 0.1),
-                      child: const Text("INFORMACIÓN RÁPIDA",
-                          style: TextStyle(color: white, fontSize: 18)),
-                    ),
-                    const Spacer(),
-                  ],
-                ),
+      child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+          builder: (context, status) {
+        return Column(
+          children: [
+            const WarningWidgetCubit(),
+            Padding(
+              padding: EdgeInsets.only(
+                  bottom: 10,
+                  top: status != ConnectionStatus.online ? 0 : 35),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: white),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(
+                        context,
+                        'info-rapida',
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: size.width * 0.1),
+                    child: const Text("INFORMACIÓN RÁPIDA",
+                        style: TextStyle(color: white, fontSize: 18)),
+                  ),
+                  const Spacer(),
+                ],
               ),
-            ],
-          );
-        }),
-      ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }

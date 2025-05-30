@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -243,19 +244,39 @@ class _PackingScreenState extends State<PackingScreen> {
               body: Column(
                 children: [
                   //*barra de informacion
-                  Container(
-                    width: size.width,
-                    color: primaryColorApp,
-                    child: BlocProvider(
-                      create: (context) => ConnectionStatusCubit(),
-                      child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
-                        listener: (context, state) {
-                          print('❤️‍🔥 state: $state ');
+                  BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                    builder: (context, status) {
+                      return Container(
+                        width: size.width,
+                        color: primaryColorApp,
+                        child: BlocConsumer<WmsPackingBloc, WmsPackingState>(
+                          listener: (context, state) {
+                            print('❤️‍🔥 state: $state ');
 
-                          if (state is ChangeQuantitySeparateState) {
-                            if (state.quantity ==
-                                packinghBloc.currentProduct.quantity) {
-                              _finichPackingProduct(context);
+                            if (state is ChangeQuantitySeparateState) {
+                              if (state.quantity ==
+                                  packinghBloc.currentProduct.quantity) {
+                                _finichPackingProduct(context);
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  'packing-detail',
+                                  arguments: [
+                                    widget.packingModel,
+                                    widget.batchModel,
+                                    1
+                                  ],
+                                );
+                              }
+                            }
+
+                            if (state is SetPickingPackingOkState) {
+                              //Mensaje de confirmacion
+                              // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              //   duration: const Duration(milliseconds: 1000),
+                              //   content: const Text(
+                              //       'Producto certificado, revisa en preparados'),
+                              //   backgroundColor: Colors.green[200],
+                              // ));
                               Navigator.pushReplacementNamed(
                                 context,
                                 'packing-detail',
@@ -266,92 +287,73 @@ class _PackingScreenState extends State<PackingScreen> {
                                 ],
                               );
                             }
-                          }
 
-                          if (state is SetPickingPackingOkState) {
-                            //Mensaje de confirmacion
-                            // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            //   duration: const Duration(milliseconds: 1000),
-                            //   content: const Text(
-                            //       'Producto certificado, revisa en preparados'),
-                            //   backgroundColor: Colors.green[200],
-                            // ));
-                            Navigator.pushReplacementNamed(
-                              context,
-                              'packing-detail',
-                              arguments: [
-                                widget.packingModel,
-                                widget.batchModel,
-                                1
-                              ],
-                            );
-                          }
+                            if (state is ChangeLocationPackingIsOkState) {
+                              Future.delayed(const Duration(seconds: 1), () {
+                                FocusScope.of(context).requestFocus(focusNode2);
+                              });
+                              _handleDependencies();
+                            }
 
-                          if (state is ChangeLocationPackingIsOkState) {
-                            Future.delayed(const Duration(seconds: 1), () {
-                              FocusScope.of(context).requestFocus(focusNode2);
-                            });
-                            _handleDependencies();
-                          }
+                            if (state is ChangeProductPackingIsOkState) {
+                              Future.delayed(const Duration(seconds: 1), () {
+                                FocusScope.of(context).requestFocus(focusNode3);
+                              });
+                              _handleDependencies();
+                            }
+                          },
+                          builder: (context, state) {
+                            return Column(
+                              children: [
+                                const WarningWidgetCubit(),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 25),
+                                  child: Row(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          packinghBloc.quantitySelected = 0;
+                                          cantidadController.clear();
+                                          packinghBloc.oldLocation = "";
 
-                          if (state is ChangeProductPackingIsOkState) {
-                            Future.delayed(const Duration(seconds: 1), () {
-                              FocusScope.of(context).requestFocus(focusNode3);
-                            });
-                            _handleDependencies();
-                          }
-                        },
-                        builder: (context, state) {
-                          return Column(
-                            children: [
-                              const WarningWidgetCubit(),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 25),
-                                child: Row(
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        packinghBloc.quantitySelected = 0;
-                                        cantidadController.clear();
-                                        packinghBloc.oldLocation = "";
-
-                                        context.read<WmsPackingBloc>().add(
-                                            LoadAllProductsFromPedidoEvent(
-                                                packinghBloc.currentProduct
-                                                        .pedidoId ??
-                                                    0));
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          'packing-detail',
-                                          arguments: [
-                                            widget.packingModel,
-                                            widget.batchModel,
-                                            1
-                                          ],
-                                        );
-                                      },
-                                      icon: const Icon(Icons.arrow_back,
-                                          color: Colors.white, size: 30),
-                                    ),
-                                    const Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Center(
-                                        child: Text(
-                                          "Certificación de Packing",
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18),
+                                          context.read<WmsPackingBloc>().add(
+                                              LoadAllProductsFromPedidoEvent(
+                                                  packinghBloc.currentProduct
+                                                          .pedidoId ??
+                                                      0));
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            'packing-detail',
+                                            arguments: [
+                                              widget.packingModel,
+                                              widget.batchModel,
+                                              1
+                                            ],
+                                          );
+                                        },
+                                        icon: const Icon(Icons.arrow_back,
+                                            color: Colors.white, size: 30),
+                                      ),
+                                      const Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Center(
+                                          child: Text(
+                                            "Certificación de Packing",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 18),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
+                              ],
+                            );
+                          },
+                        ),
+                      );
+                    },
                   ),
                   Expanded(
                     child: Container(
@@ -1052,9 +1054,9 @@ class _PackingScreenState extends State<PackingScreen> {
 
                                 focusNode: focusNode4,
                                 inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9.]')),
-                              ],
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[0-9.]')),
+                                ],
                                 showCursor: true,
                                 onChanged: (value) {
                                   // Verifica si el valor no está vacío y si es un número válido
@@ -1196,8 +1198,6 @@ class _PackingScreenState extends State<PackingScreen> {
   void _validatebuttonquantity() {
     final batchBloc = context.read<WmsPackingBloc>();
     final currentProduct = batchBloc.currentProduct;
-
-
 
     String input = cantidadController.text.trim();
 

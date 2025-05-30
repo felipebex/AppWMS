@@ -151,144 +151,140 @@ class _ListTransferenciasScreenState extends State<ListEntradaProductsScreen> {
                       ),
                     ),
                     width: double.infinity,
-                    child: BlocProvider(
-                      create: (context) => ConnectionStatusCubit(),
-                      child:
-                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-                              builder: (context, status) {
-                        return Column(
+                    child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                        builder: (context, status) {
+                                            return Column(
+                    children: [
+                      const WarningWidgetCubit(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            bottom: 10,
+                            top: status != ConnectionStatus.online
+                                ? 0
+                                : 35),
+                        child: Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
                           children: [
-                            const WarningWidgetCubit(),
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back,
+                                  color: white),
+                              onPressed: () {
+                                context.read<TransferenciaBloc>().add(
+                                    ShowKeyboardEvent(
+                                        showKeyboard: false));
+                    
+                                context
+                                    .read<TransferenciaBloc>()
+                                    .searchControllerTransfer
+                                    .clear();
+                    
+                                context
+                                    .read<TransferenciaBloc>()
+                                    .add(SearchTransferEvent(
+                                      "",
+                                      "entrega",
+                                    ));
+                    
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/home',
+                                );
+                              },
+                            ),
                             Padding(
-                              padding: EdgeInsets.only(
-                                  bottom: 10,
-                                  top: status != ConnectionStatus.online
-                                      ? 0
-                                      : 35),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back,
-                                        color: white),
-                                    onPressed: () {
-                                      context.read<TransferenciaBloc>().add(
-                                          ShowKeyboardEvent(
-                                              showKeyboard: false));
-
-                                      context
-                                          .read<TransferenciaBloc>()
-                                          .searchControllerTransfer
-                                          .clear();
-
-                                      context
-                                          .read<TransferenciaBloc>()
-                                          .add(SearchTransferEvent(
-                                            "",
-                                            "entrega",
-                                          ));
-
-                                      Navigator.pushReplacementNamed(
-                                        context,
-                                        '/home',
+                              padding:
+                                  EdgeInsets.only(left: size.width * 0.1),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  await DataBaseSqlite()
+                                      .deleTrasnferencia('entrega');
+                                  context
+                                      .read<TransferenciaBloc>()
+                                      .add(FetchAllEntrega(false));
+                                },
+                                child: Row(
+                                  children: [
+                                    const Text("ENTREGA PRODUCTOS",
+                                        style: TextStyle(
+                                            color: white, fontSize: 18)),
+                                    //icono de refrescar
+                                    const SizedBox(width: 5),
+                                    Icon(
+                                      Icons.refresh,
+                                      color: white,
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            Visibility(
+                              visible: context
+                                      .read<TransferenciaBloc>()
+                                      .tiposTransferencia
+                                      .length >
+                                  1,
+                              child: PopupMenuButton<String>(
+                                color: white,
+                                icon: const Icon(
+                                  Icons.more_vert,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                onSelected: (value) {
+                                  context.read<TransferenciaBloc>().add(
+                                        FilterTransferByTypeEvent(value),
                                       );
-                                    },
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(left: size.width * 0.1),
-                                    child: GestureDetector(
-                                      onTap: () async {
-                                        await DataBaseSqlite()
-                                            .deleTrasnferencia('entrega');
-                                        context
-                                            .read<TransferenciaBloc>()
-                                            .add(FetchAllEntrega(false));
-                                      },
+                                },
+                                itemBuilder: (BuildContext context) {
+                                  // Lista fija de tipos de transferencia que ya tienes
+                                  final tipos = [
+                                    ...context
+                                        .read<TransferenciaBloc>()
+                                        .tiposTransferencia,
+                                    'todas'
+                                  ];
+                    
+                                  return tipos.map((tipo) {
+                                    final isTodas =
+                                        tipo.toLowerCase() == 'todas';
+                    
+                                    return PopupMenuItem<String>(
+                                      value: tipo,
                                       child: Row(
                                         children: [
-                                          const Text("ENTREGA PRODUCTOS",
-                                              style: TextStyle(
-                                                  color: white, fontSize: 18)),
-                                          //icono de refrescar
-                                          const SizedBox(width: 5),
                                           Icon(
-                                            Icons.refresh,
-                                            color: white,
+                                            isTodas
+                                                ? Icons.select_all
+                                                : Icons
+                                                    .file_upload_outlined,
+                                            color: isTodas
+                                                ? Colors.grey
+                                                : primaryColorApp,
                                             size: 20,
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Text(
+                                            isTodas ? 'Todas' : tipo,
+                                            style: const TextStyle(
+                                                color: black,
+                                                fontSize: 12),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  Visibility(
-                                    visible: context
-                                            .read<TransferenciaBloc>()
-                                            .tiposTransferencia
-                                            .length >
-                                        1,
-                                    child: PopupMenuButton<String>(
-                                      color: white,
-                                      icon: const Icon(
-                                        Icons.more_vert,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                      onSelected: (value) {
-                                        context.read<TransferenciaBloc>().add(
-                                              FilterTransferByTypeEvent(value),
-                                            );
-                                      },
-                                      itemBuilder: (BuildContext context) {
-                                        // Lista fija de tipos de transferencia que ya tienes
-                                        final tipos = [
-                                          ...context
-                                              .read<TransferenciaBloc>()
-                                              .tiposTransferencia,
-                                          'todas'
-                                        ];
-
-                                        return tipos.map((tipo) {
-                                          final isTodas =
-                                              tipo.toLowerCase() == 'todas';
-
-                                          return PopupMenuItem<String>(
-                                            value: tipo,
-                                            child: Row(
-                                              children: [
-                                                Icon(
-                                                  isTodas
-                                                      ? Icons.select_all
-                                                      : Icons
-                                                          .file_upload_outlined,
-                                                  color: isTodas
-                                                      ? Colors.grey
-                                                      : primaryColorApp,
-                                                  size: 20,
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Text(
-                                                  isTodas ? 'Todas' : tipo,
-                                                  style: const TextStyle(
-                                                      color: black,
-                                                      fontSize: 12),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList();
-                                      },
-                                    ),
-                                  ),
-                                ],
+                                    );
+                                  }).toList();
+                                },
                               ),
                             ),
                           ],
-                        );
-                      }),
-                    ),
+                        ),
+                      ),
+                    ],
+                                            );
+                                          }),
                   ),
                   //*buscar
                   Container(

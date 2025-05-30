@@ -347,95 +347,96 @@ class _AppBarInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        color: primaryColorApp,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
-      ),
-      width: double.infinity,
-      child: BlocProvider(
-        create: (context) => ConnectionStatusCubit(),
-        child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
-            listener: (context, state) {},
-            builder: (context, status) {
-              return Column(
-                children: [
-                  const WarningWidgetCubit(),
-                  Padding(
-                    padding: EdgeInsets.only(
-                        top: status != ConnectionStatus.online ? 0 : 35),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.arrow_back, color: white),
-                          onPressed: () {
-                            context
-                                .read<TransferenciaBloc>()
-                                .add(ShowKeyboardEvent(showKeyboard: false));
+    return BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+      builder: (context, status) {
+        return Container(
+          padding: const EdgeInsets.only(top: 20),
+          decoration: BoxDecoration(
+            color: primaryColorApp,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+          width: double.infinity,
+          child: BlocConsumer<TransferenciaBloc, TransferenciaState>(
+              listener: (context, state) {},
+              builder: (context, status) {
+                return Column(
+                  children: [
+                    const WarningWidgetCubit(),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          top: status != ConnectionStatus.online ? 0 : 35),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back, color: white),
+                            onPressed: () {
+                              context
+                                  .read<TransferenciaBloc>()
+                                  .add(ShowKeyboardEvent(showKeyboard: false));
 
-                            Navigator.pushReplacementNamed(
-                                context, 'scan-product-transfer',
-                                arguments: [currentProduct]);
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: size.width * 0.2),
-                          child: Text('UBICACIONES',
-                              style: TextStyle(color: white, fontSize: 18)),
-                        ),
-                        const Spacer(),
-                        PopupMenuButton<String>(
-                          color: white,
-                          icon: const Icon(
-                            Icons.more_vert,
-                            color: Colors.white,
-                            size: 20,
+                              Navigator.pushReplacementNamed(
+                                  context, 'scan-product-transfer',
+                                  arguments: [currentProduct]);
+                            },
                           ),
-                          onSelected: (value) {
-                            context
-                                .read<TransferenciaBloc>()
-                                .add(FilterUbicacionesAlmacenEvent(value));
-                          },
-                          itemBuilder: (BuildContext context) {
-                            // Lista fija de tipos de transferencia que ya tienes
-                            final tipos = [
-                              ...context.read<UserBloc>().almacenes,
-                            ];
+                          Padding(
+                            padding: EdgeInsets.only(left: size.width * 0.2),
+                            child: Text('UBICACIONES',
+                                style: TextStyle(color: white, fontSize: 18)),
+                          ),
+                          const Spacer(),
+                          PopupMenuButton<String>(
+                            color: white,
+                            icon: const Icon(
+                              Icons.more_vert,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            onSelected: (value) {
+                              context
+                                  .read<TransferenciaBloc>()
+                                  .add(FilterUbicacionesAlmacenEvent(value));
+                            },
+                            itemBuilder: (BuildContext context) {
+                              // Lista fija de tipos de transferencia que ya tienes
+                              final tipos = [
+                                ...context.read<UserBloc>().almacenes,
+                              ];
 
-                            return tipos.map((tipo) {
-                              return PopupMenuItem<String>(
-                                value: tipo.name,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.file_upload_outlined,
-                                      color: primaryColorApp,
-                                      size: 20,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      tipo.name ?? "",
-                                      style: const TextStyle(
-                                          color: black, fontSize: 12),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList();
-                          },
-                        ),
-                      ],
+                              return tipos.map((tipo) {
+                                return PopupMenuItem<String>(
+                                  value: tipo.name,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.file_upload_outlined,
+                                        color: primaryColorApp,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        tipo.name ?? "",
+                                        style: const TextStyle(
+                                            color: black, fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList();
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }),
-      ),
+                  ],
+                );
+              }),
+        );
+      },
     );
   }
 }

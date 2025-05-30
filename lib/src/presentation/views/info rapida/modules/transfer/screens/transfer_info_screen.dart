@@ -239,99 +239,96 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                     ),
                   ),
                   width: double.infinity,
-                  child: BlocProvider(
-                    create: (context) => ConnectionStatusCubit(),
-                    child: BlocConsumer<TransferInfoBloc, TransferInfoState>(
-                        listener: (context, state) {
-                      if (state is SendTransferInfoSuccess) {
-                        Get.snackbar(
-                          '360 Software Informa',
-                          state.msg,
-                          backgroundColor: white,
-                          colorText: primaryColorApp,
-                          icon: const Icon(Icons.check, color: Colors.green),
-                        );
-
-                        //acutalizamos la informacion del producto volviendo a llamar su info
-                        context.read<InfoRapidaBloc>().add((GetInfoRapida(
-                            widget.infoRapidaResult?.codigoBarras ?? "",
-                            false,
-                            false)));
-
-                        Navigator.pushReplacementNamed(
-                          context,
-                          'product-info',
-                        );
-                      } else if (state is SendTransferInfoFailureTransfer) {
-                        Get.defaultDialog(
-                          title: '360 Software Informa',
-                          titleStyle:
-                              TextStyle(color: Colors.red, fontSize: 18),
-                          middleText: state.error,
-                          middleTextStyle:
-                              TextStyle(color: black, fontSize: 14),
-                          backgroundColor: Colors.white,
-                          radius: 10,
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                Get.back();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: primaryColorApp,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                  child: BlocConsumer<TransferInfoBloc, TransferInfoState>(
+                      listener: (context, state) {
+                    if (state is SendTransferInfoSuccess) {
+                      Get.snackbar(
+                        '360 Software Informa',
+                        state.msg,
+                        backgroundColor: white,
+                        colorText: primaryColorApp,
+                        icon: const Icon(Icons.check, color: Colors.green),
+                      );
+                  
+                      //acutalizamos la informacion del producto volviendo a llamar su info
+                      context.read<InfoRapidaBloc>().add((GetInfoRapida(
+                          widget.infoRapidaResult?.codigoBarras ?? "",
+                          false,
+                          false)));
+                  
+                      Navigator.pushReplacementNamed(
+                        context,
+                        'product-info',
+                      );
+                    } else if (state is SendTransferInfoFailureTransfer) {
+                      Get.defaultDialog(
+                        title: '360 Software Informa',
+                        titleStyle:
+                            TextStyle(color: Colors.red, fontSize: 18),
+                        middleText: state.error,
+                        middleTextStyle:
+                            TextStyle(color: black, fontSize: 14),
+                        backgroundColor: Colors.white,
+                        radius: 10,
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Get.back();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColorApp,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Text('Aceptar',
-                                  style: TextStyle(color: white)),
                             ),
-                          ],
-                        );
-                      }
-                    }, builder: (context, status) {
-                      return Column(
-                        children: [
-                          const WarningWidgetCubit(),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                // bottom: 5,
-                                top:
-                                    status != ConnectionStatus.online ? 0 : 35),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: white),
-                                  onPressed: () {
-                                    context
-                                        .read<TransferInfoBloc>()
-                                        .clearFields();
-
-                                    Navigator.pushReplacementNamed(
-                                      context,
-                                      'product-info',
-                                    );
-                                  },
-                                ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(left: size.width * 0.2),
-                                  child: Text('TRANSFERENCIA',
-                                      style: TextStyle(
-                                          color: white, fontSize: 18)),
-                                ),
-                                const Spacer(),
-                              ],
-                            ),
-
-                            //
+                            child: Text('Aceptar',
+                                style: TextStyle(color: white)),
                           ),
                         ],
                       );
-                    }),
-                  ),
+                    }
+                  }, builder: (context, status) {
+                    return Column(
+                      children: [
+                        const WarningWidgetCubit(),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              // bottom: 5,
+                              top:
+                                  status != ConnectionStatus.online ? 0 : 35),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back,
+                                    color: white),
+                                onPressed: () {
+                                  context
+                                      .read<TransferInfoBloc>()
+                                      .clearFields();
+                  
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    'product-info',
+                                  );
+                                },
+                              ),
+                              Padding(
+                                padding:
+                                    EdgeInsets.only(left: size.width * 0.2),
+                                child: Text('TRANSFERENCIA',
+                                    style: TextStyle(
+                                        color: white, fontSize: 18)),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
+                  
+                          //
+                        ),
+                      ],
+                    );
+                  }),
                 ),
                 Expanded(
                   child: Container(

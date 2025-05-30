@@ -282,56 +282,59 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
     );
   }
 }
-
 class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({super.key, required this.size});
   final Size size;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(
-        color: primaryColorApp,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
-      ),
-      width: double.infinity,
-      child: BlocProvider(
-        create: (_) => ConnectionStatusCubit(),
-        child: BlocBuilder<InventarioBloc, InventarioState>(
-          builder: (context, state) {
-            return Column(
-              children: [
-                const WarningWidgetCubit(),
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: state != ConnectionStatus.online ? 0 : 35),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: white),
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, 'inventario');
-                        },
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: size.width * 0.22),
-                        child: const Text('PRODUCTOS',
-                            style: TextStyle(color: white, fontSize: 18)),
-                      ),
-                      const Spacer(),
-                    ],
+    return BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+      builder: (context, connectionStatus) {
+        return Container(
+          padding: const EdgeInsets.only(top: 20),
+          decoration: BoxDecoration(
+            color: primaryColorApp,
+            borderRadius: const BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+          width: double.infinity,
+          child: BlocBuilder<InventarioBloc, InventarioState>(
+            builder: (context, state) {
+              return Column(
+                children: [
+                  const WarningWidgetCubit(), // usa el cubit global
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: connectionStatus != ConnectionStatus.online ? 0 : 35,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: white),
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, 'inventario');
+                          },
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: size.width * 0.22),
+                          child: const Text(
+                            'PRODUCTOS',
+                            style: TextStyle(color: white, fontSize: 18),
+                          ),
+                        ),
+                        const Spacer(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+                ],
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }

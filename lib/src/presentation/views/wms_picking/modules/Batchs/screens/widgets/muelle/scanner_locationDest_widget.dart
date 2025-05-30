@@ -2,33 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
 
-class LocationScannerWidget extends StatelessWidget {
-  final bool isLocationOk;
+class LocationDestScannerWidget extends StatelessWidget {
+  final bool isLocationDestOk;
+  final bool locationDestIsOk;
   final bool locationIsOk;
   final bool productIsOk;
   final bool quantityIsOk;
-  final bool locationDestIsOk;
-  final String currentLocationId;
-  final Function(String) onValidateLocation;
-  final Function(String keyLabel)? onKeyScanned;
+  final Size size;
+  final String? muelleHint;
+  final Function(String) onValidateMuelle;
+  final Function(String)? onKeyScanned;
   final FocusNode focusNode;
   final TextEditingController controller;
-  final Widget locationDropdown;
+  final Widget dropdownWidget;
 
-  const LocationScannerWidget({
+  const LocationDestScannerWidget({
     super.key,
-    required this.isLocationOk,
+    required this.isLocationDestOk,
+    required this.locationDestIsOk,
     required this.locationIsOk,
     required this.productIsOk,
     required this.quantityIsOk,
-    required this.locationDestIsOk,
-    required this.currentLocationId,
-    required this.onValidateLocation,
+    required this.size,
+    required this.muelleHint,
+    required this.onValidateMuelle,
     this.onKeyScanned,
     required this.focusNode,
     required this.controller,
-    required this.locationDropdown,
+    required this.dropdownWidget,
   });
 
   @override
@@ -41,28 +44,28 @@ class LocationScannerWidget extends StatelessWidget {
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: locationIsOk ? Colors.green : Colors.yellow,
+              color: locationDestIsOk ? Colors.green : Colors.yellow,
               shape: BoxShape.circle,
             ),
           ),
         ),
         Card(
-          color: isLocationOk
-              ? locationIsOk
+          color: isLocationDestOk
+              ? locationDestIsOk
                   ? Colors.green[100]
                   : Colors.grey[300]
               : Colors.red[200],
           elevation: 5,
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.85,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            child:  !context.read<UserBloc>().fabricante.contains("Zebra")
+            width: size.width * 0.85,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: !context.read<UserBloc>().fabricante.contains("Zebra")
                 ? Focus(
                     focusNode: focusNode,
                     onKey: (node, event) {
                       if (event is RawKeyDownEvent) {
                         if (event.logicalKey == LogicalKeyboardKey.enter) {
-                          onValidateLocation(controller.text);
+                          onValidateMuelle(controller.text);
                           return KeyEventResult.handled;
                         } else {
                           if (onKeyScanned != null) {
@@ -73,31 +76,43 @@ class LocationScannerWidget extends StatelessWidget {
                       }
                       return KeyEventResult.ignored;
                     },
-                    child: locationDropdown,
+                    child: Column(
+                      children: [
+                        dropdownWidget,
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            muelleHint ?? 'Muelle', 
+                            style:
+                                 TextStyle(fontSize: 14, color: black),
+                          ),
+                        ),
+                      ],
+                    ),
                   )
                 : Column(
                     children: [
-                      locationDropdown,
+                      dropdownWidget,
+                      const SizedBox(height: 5),
                       Container(
                         height: 15,
                         margin: const EdgeInsets.only(bottom: 5),
                         child: TextFormField(
-                          autofocus: true,
                           showCursor: false,
-                          controller: controller,
-                          enabled: !locationIsOk &&
-                              !productIsOk &&
+                          enabled: locationIsOk &&
+                              productIsOk &&
                               !quantityIsOk &&
                               !locationDestIsOk,
+                          controller: controller,
                           focusNode: focusNode,
                           onChanged: (value) {
-                            onValidateLocation(value);
+                            onValidateMuelle(value);
                           },
                           decoration: InputDecoration(
-                            hintText: currentLocationId,
+                            hintText: muelleHint,
                             disabledBorder: InputBorder.none,
                             hintStyle: const TextStyle(
-                                fontSize: 14, color: Colors.black),
+                                fontSize: 14, color: black),
                             border: InputBorder.none,
                           ),
                         ),

@@ -441,103 +441,104 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
               height: size.height * 1,
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.only(top: 20),
-                    decoration: BoxDecoration(
-                      color: primaryColorApp,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                    ),
-                    width: double.infinity,
-                    child: BlocProvider(
-                      create: (context) => ConnectionStatusCubit(),
-                      child:
-                          BlocConsumer<TransferenciaBloc, TransferenciaState>(
-                              listener: (context, state) {
-                        print('STATE ❤️‍🔥 $state');
+                  BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                    builder: (context, status) {
+                      return Container(
+                        padding: const EdgeInsets.only(top: 20),
+                        decoration: BoxDecoration(
+                          color: primaryColorApp,
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                          ),
+                        ),
+                        width: double.infinity,
+                        child:
+                            BlocConsumer<TransferenciaBloc, TransferenciaState>(
+                                listener: (context, state) {
+                          print('STATE ❤️‍🔥 $state');
 
-                        //*estado cando la ubicacion de origen es cambiada
-                        if (state is ChangeLocationIsOkState) {
-                          //cambiamos el foco
-                          Future.delayed(const Duration(seconds: 1), () {
-                            FocusScope.of(context).requestFocus(focusNode2);
-                          });
-                          _handleDependencies();
-                        }
-
-                        //*estado cuando el producto es leido ok
-                        if (state is ChangeProductIsOkState) {
-                          //cambiamos el foco a cantidad
-                          Future.delayed(const Duration(seconds: 1), () {
-                            FocusScope.of(context).requestFocus(focusNode3);
-                          });
-                          _handleDependencies();
-                        }
-
-                        //*estado cuando la cantidad fue cambiada
-                        if (state is ChangeQuantitySeparateStateSuccess) {
-                          if (state.quantity ==
-                              (bloc.currentProduct.cantidadFaltante)) {
+                          //*estado cando la ubicacion de origen es cambiada
+                          if (state is ChangeLocationIsOkState) {
+                            //cambiamos el foco
                             Future.delayed(const Duration(seconds: 1), () {
-                              FocusScope.of(context).requestFocus(focusNode5);
+                              FocusScope.of(context).requestFocus(focusNode2);
                             });
                             _handleDependencies();
-                            //validacion automatica donde la cantidad a mover sea igual a la cantidad pedida
-                            _validatebuttonquantity();
                           }
-                        }
 
-                        //*estado cuando la ubicacion de destino es validada
-                        if (state is ChangeLocationDestIsOkState) {
-                          _validateQuantityFinish();
-                        }
-                      }, builder: (context, status) {
-                        return Column(
-                          children: [
-                            const WarningWidgetCubit(),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  // bottom: 5,
-                                  top: status != ConnectionStatus.online
-                                      ? 0
-                                      : 35),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back,
-                                        color: white),
-                                    onPressed: () {
-                                      termiateProcess();
+                          //*estado cuando el producto es leido ok
+                          if (state is ChangeProductIsOkState) {
+                            //cambiamos el foco a cantidad
+                            Future.delayed(const Duration(seconds: 1), () {
+                              FocusScope.of(context).requestFocus(focusNode3);
+                            });
+                            _handleDependencies();
+                          }
 
-                                      bloc.add(CleanFieldsEvent());
-                                      Navigator.pushReplacementNamed(
-                                          context, 'transferencia-detail',
-                                          arguments: [
-                                            bloc.currentTransferencia,
-                                            1
-                                          ]);
-                                    },
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(left: size.width * 0.2),
-                                    child: Text(
-                                        bloc.currentTransferencia.name ?? '',
-                                        style: TextStyle(
-                                            color: white, fontSize: 18)),
-                                  ),
-                                  const Spacer(),
-                                ],
+                          //*estado cuando la cantidad fue cambiada
+                          if (state is ChangeQuantitySeparateStateSuccess) {
+                            if (state.quantity ==
+                                (bloc.currentProduct.cantidadFaltante)) {
+                              Future.delayed(const Duration(seconds: 1), () {
+                                FocusScope.of(context).requestFocus(focusNode5);
+                              });
+                              _handleDependencies();
+                              //validacion automatica donde la cantidad a mover sea igual a la cantidad pedida
+                              _validatebuttonquantity();
+                            }
+                          }
+
+                          //*estado cuando la ubicacion de destino es validada
+                          if (state is ChangeLocationDestIsOkState) {
+                            _validateQuantityFinish();
+                          }
+                        }, builder: (context, status) {
+                          return Column(
+                            children: [
+                              const WarningWidgetCubit(),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    // bottom: 5,
+                                    top: status != ConnectionStatus.online
+                                        ? 0
+                                        : 35),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.arrow_back,
+                                          color: white),
+                                      onPressed: () {
+                                        termiateProcess();
+
+                                        bloc.add(CleanFieldsEvent());
+                                        Navigator.pushReplacementNamed(
+                                            context, 'transferencia-detail',
+                                            arguments: [
+                                              bloc.currentTransferencia,
+                                              1
+                                            ]);
+                                      },
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          left: size.width * 0.2),
+                                      child: Text(
+                                          bloc.currentTransferencia.name ?? '',
+                                          style: TextStyle(
+                                              color: white, fontSize: 18)),
+                                    ),
+                                    const Spacer(),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        );
-                      }),
-                    ),
+                            ],
+                          );
+                        }),
+                      );
+                    },
                   ),
                   Expanded(
                     child: Container(

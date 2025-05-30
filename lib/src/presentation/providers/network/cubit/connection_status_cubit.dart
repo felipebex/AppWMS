@@ -1,19 +1,19 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:wms_app/main.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 
 class ConnectionStatusCubit extends Cubit<ConnectionStatus> {
-  late StreamSubscription _connectionSubscription;
+  final CheckInternetConnection internetChecker;
+  late final StreamSubscription _subscription;
 
-  ConnectionStatusCubit() : super(ConnectionStatus.online) {
-    _connectionSubscription = internetChecker.internetStatus().listen(emit);
+  ConnectionStatusCubit({required this.internetChecker}) : super(ConnectionStatus.online) {
+    _subscription = internetChecker.internetStatus().listen(emit);
   }
 
   @override
-  Future<void> close() {
-    _connectionSubscription.cancel();
-    return super.close();
+  Future<void> close() async {
+    await _subscription.cancel();
+    super.close();
   }
 }

@@ -772,143 +772,140 @@ class AppBar extends StatelessWidget {
         ),
       ),
       width: double.infinity,
-      child: BlocProvider(
-        create: (context) => ConnectionStatusCubit(),
-        child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-            builder: (context, status) {
-          return Column(
-            children: [
-              const WarningWidgetCubit(),
-              Padding(
-                padding: EdgeInsets.only(
-                    bottom: 10,
-                    top: status != ConnectionStatus.online ? 0 : 35),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.arrow_back, color: white),
-                      onPressed: () {
+      child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+          builder: (context, status) {
+        return Column(
+          children: [
+            const WarningWidgetCubit(),
+            Padding(
+              padding: EdgeInsets.only(
+                  bottom: 10,
+                  top: status != ConnectionStatus.online ? 0 : 35),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: white),
+                    onPressed: () {
+                      context
+                          .read<RecepcionBloc>()
+                          .searchControllerOrderC
+                          .clear();
+      
+                      context
+                          .read<RecepcionBloc>()
+                          .add(SearchOrdenCompraEvent(
+                            '',
+                          ));
+      
+                      context
+                          .read<RecepcionBloc>()
+                          .add(ShowKeyboardEvent(false));
+      
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/home',
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: size.width * 0.23),
+                    child: GestureDetector(
+                      onTap: () async {
                         context
                             .read<RecepcionBloc>()
                             .searchControllerOrderC
                             .clear();
-
+      
                         context
                             .read<RecepcionBloc>()
                             .add(SearchOrdenCompraEvent(
                               '',
                             ));
-
+      
                         context
                             .read<RecepcionBloc>()
                             .add(ShowKeyboardEvent(false));
-
-                        Navigator.pushReplacementNamed(
-                          context,
-                          '/home',
-                        );
+      
+                        await DataBaseSqlite().deleRecepcion('reception');
+                        context
+                            .read<RecepcionBloc>()
+                            .add(FetchOrdenesCompra(false));
+                      },
+                      child: Row(
+                        children: [
+                          const Text("RECEPCION",
+                              style: TextStyle(color: white, fontSize: 18)),
+      
+                          ///icono de refresh
+                          const SizedBox(width: 5),
+                          Icon(
+                            Icons.refresh,
+                            color: white,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Visibility(
+                    visible:
+                        context.read<RecepcionBloc>().tiposRecepcion.length >
+                            1,
+                    child: PopupMenuButton<String>(
+                      color: white,
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                      onSelected: (value) {
+                        context.read<RecepcionBloc>().add(
+                              FilterReceptionByTypeEvent(value),
+                            );
+                      },
+                      itemBuilder: (BuildContext context) {
+                        // Lista fija de tipos de transferencia que ya tienes
+                        final tipos = [
+                          ...context.read<RecepcionBloc>().tiposRecepcion,
+                          'todas'
+                        ];
+      
+                        return tipos.map((tipo) {
+                          final isTodas = tipo.toLowerCase() == 'todas';
+      
+                          return PopupMenuItem<String>(
+                            value: tipo,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  isTodas
+                                      ? Icons.select_all
+                                      : Icons.file_upload_outlined,
+                                  color:
+                                      isTodas ? Colors.grey : primaryColorApp,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  isTodas ? 'Todas' : tipo,
+                                  style: const TextStyle(
+                                      color: black, fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList();
                       },
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(left: size.width * 0.23),
-                      child: GestureDetector(
-                        onTap: () async {
-                          context
-                              .read<RecepcionBloc>()
-                              .searchControllerOrderC
-                              .clear();
-
-                          context
-                              .read<RecepcionBloc>()
-                              .add(SearchOrdenCompraEvent(
-                                '',
-                              ));
-
-                          context
-                              .read<RecepcionBloc>()
-                              .add(ShowKeyboardEvent(false));
-
-                          await DataBaseSqlite().deleRecepcion('reception');
-                          context
-                              .read<RecepcionBloc>()
-                              .add(FetchOrdenesCompra(false));
-                        },
-                        child: Row(
-                          children: [
-                            const Text("RECEPCION",
-                                style: TextStyle(color: white, fontSize: 18)),
-
-                            ///icono de refresh
-                            const SizedBox(width: 5),
-                            Icon(
-                              Icons.refresh,
-                              color: white,
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
-                    Visibility(
-                      visible:
-                          context.read<RecepcionBloc>().tiposRecepcion.length >
-                              1,
-                      child: PopupMenuButton<String>(
-                        color: white,
-                        icon: const Icon(
-                          Icons.more_vert,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        onSelected: (value) {
-                          context.read<RecepcionBloc>().add(
-                                FilterReceptionByTypeEvent(value),
-                              );
-                        },
-                        itemBuilder: (BuildContext context) {
-                          // Lista fija de tipos de transferencia que ya tienes
-                          final tipos = [
-                            ...context.read<RecepcionBloc>().tiposRecepcion,
-                            'todas'
-                          ];
-
-                          return tipos.map((tipo) {
-                            final isTodas = tipo.toLowerCase() == 'todas';
-
-                            return PopupMenuItem<String>(
-                              value: tipo,
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    isTodas
-                                        ? Icons.select_all
-                                        : Icons.file_upload_outlined,
-                                    color:
-                                        isTodas ? Colors.grey : primaryColorApp,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    isTodas ? 'Todas' : tipo,
-                                    style: const TextStyle(
-                                        color: black, fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }).toList();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          );
-        }),
-      ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }

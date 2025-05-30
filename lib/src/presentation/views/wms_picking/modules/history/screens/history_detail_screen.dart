@@ -28,58 +28,55 @@ class HistoryDetailScreen extends StatelessWidget {
                     bottomRight: Radius.circular(20),
                   ),
                 ),
-                child: BlocProvider(
-                  create: (context) => ConnectionStatusCubit(),
-                  child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-                      builder: (context, status) {
-                    return Column(
-                      children: [
-                        const WarningWidgetCubit(),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 10,
-                              right: 10,
-                              top: status != ConnectionStatus.online ? 20 : 20,
-                              bottom: 10),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back,
-                                        color: white),
-                                    onPressed: () {
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const HistoryListScreen()),
-                                          (route) => false);
-                                    },
+                child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                    builder: (context, status) {
+                  return Column(
+                    children: [
+                      const WarningWidgetCubit(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                            top: status != ConnectionStatus.online ? 20 : 20,
+                            bottom: 10),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back,
+                                      color: white),
+                                  onPressed: () {
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const HistoryListScreen()),
+                                        (route) => false);
+                                  },
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: size.width * 0.25),
+                                  child: const Text(
+                                    'DETALLES',
+                                    style: TextStyle(
+                                        color: white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        left: size.width * 0.25),
-                                    child: const Text(
-                                      'DETALLES',
-                                      style: TextStyle(
-                                          color: white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                                const Spacer(),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    );
-                  }),
-                ),
+                      ),
+                    ],
+                  );
+                }),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),

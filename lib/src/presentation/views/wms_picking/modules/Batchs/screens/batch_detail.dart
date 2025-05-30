@@ -113,73 +113,70 @@ class BatchDetailScreen extends StatelessWidget {
                         ),
                       ),
                       width: double.infinity,
-                      child: BlocProvider(
-                        create: (context) => ConnectionStatusCubit(),
-                        child: BlocBuilder<ConnectionStatusCubit,
-                            ConnectionStatus>(builder: (context, status) {
-                          return Column(
-                            children: [
-                              const WarningWidgetCubit(),
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: 5,
-                                    top: status != ConnectionStatus.online
-                                        ? 20
-                                        : 30),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.arrow_back,
-                                          color: white),
-                                      onPressed: () {
-                                        if (context
-                                                .read<BatchBloc>()
-                                                .batchWithProducts
-                                                .batch
-                                                ?.isSeparate ==
-                                            1) {
-                                          context
-                                              .read<WMSPickingBloc>()
-                                              .add(FilterBatchesBStatusEvent(
-                                                '',
-                                              ));
-                                          Navigator.pushReplacementNamed(
-                                              context, 'wms-picking',
-                                              arguments: 1);
-                                        } else {
-                                          context.read<BatchBloc>().add(
-                                              ClearSearchProudctsBatchEvent());
-                                          context.read<BatchBloc>().add(
-                                              FetchBatchWithProductsEvent(
-                                                  context
-                                                          .read<BatchBloc>()
-                                                          .batchWithProducts
-                                                          .batch
-                                                          ?.id ??
-                                                      0));
-                                          Navigator.pushReplacementNamed(
-                                              context, 'batch');
-                                        }
-                                      },
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: size.width * 0.25),
-                                      child: Text(
-                                          "${context.read<BatchBloc>().batchWithProducts.batch?.name}",
-                                          style: const TextStyle(
-                                              color: white, fontSize: 12)),
-                                    ),
-                                    const Spacer(),
-                                  ],
-                                ),
+                      child: BlocBuilder<ConnectionStatusCubit,
+                          ConnectionStatus>(builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: 5,
+                                  top: status != ConnectionStatus.online
+                                      ? 20
+                                      : 30),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: white),
+                                    onPressed: () {
+                                      if (context
+                                              .read<BatchBloc>()
+                                              .batchWithProducts
+                                              .batch
+                                              ?.isSeparate ==
+                                          1) {
+                                        context
+                                            .read<WMSPickingBloc>()
+                                            .add(FilterBatchesBStatusEvent(
+                                              '',
+                                            ));
+                                        Navigator.pushReplacementNamed(
+                                            context, 'wms-picking',
+                                            arguments: 1);
+                                      } else {
+                                        context.read<BatchBloc>().add(
+                                            ClearSearchProudctsBatchEvent());
+                                        context.read<BatchBloc>().add(
+                                            FetchBatchWithProductsEvent(
+                                                context
+                                                        .read<BatchBloc>()
+                                                        .batchWithProducts
+                                                        .batch
+                                                        ?.id ??
+                                                    0));
+                                        Navigator.pushReplacementNamed(
+                                            context, 'batch');
+                                      }
+                                    },
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: size.width * 0.25),
+                                    child: Text(
+                                        "${context.read<BatchBloc>().batchWithProducts.batch?.name}",
+                                        style: const TextStyle(
+                                            color: white, fontSize: 12)),
+                                  ),
+                                  const Spacer(),
+                                ],
                               ),
-                            ],
-                          );
-                        }),
-                      ),
+                            ),
+                          ],
+                        );
+                      }),
                     ),
 
                     const SizedBox(height: 5),

@@ -29,62 +29,59 @@ class HistoryListScreen extends StatelessWidget {
                     bottomRight: Radius.circular(20),
                   ),
                 ),
-                child: BlocProvider(
-                  create: (context) => ConnectionStatusCubit(),
-                  child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-                      builder: (context, status) {
-                    return Column(
-                      children: [
-                        const WarningWidgetCubit(),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 10,
-                              right: 10,
-                              top: status != ConnectionStatus.online ? 20 : 20,
-                              bottom: 10),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back,
-                                        color: white),
-                                    onPressed: () {
-
-                                      context.read<WMSPickingBloc>().filtersHistoryBatchs = [];
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const WMSPickingPage(
-                                                    indexSelected: 0,
-                                                  )),
-                                          (route) => false);
-                                    },
+                child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                    builder: (context, status) {
+                  return Column(
+                    children: [
+                      const WarningWidgetCubit(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                            top: status != ConnectionStatus.online ? 20 : 20,
+                            bottom: 10),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back,
+                                      color: white),
+                                  onPressed: () {
+                
+                                    context.read<WMSPickingBloc>().filtersHistoryBatchs = [];
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const WMSPickingPage(
+                                                  indexSelected: 0,
+                                                )),
+                                        (route) => false);
+                                  },
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: size.width * 0.15),
+                                  child: const Text(
+                                    'HISTORIAL BATCHS',
+                                    style: TextStyle(
+                                        color: white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
                                   ),
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                        left: size.width * 0.15),
-                                    child: const Text(
-                                      'HISTORIAL BATCHS',
-                                      style: TextStyle(
-                                          color: white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                ],
-                              ),
-                            ],
-                          ),
+                                ),
+                                const Spacer(),
+                              ],
+                            ),
+                          ],
                         ),
-                      ],
-                    );
-                  }),
-                ),
+                      ),
+                    ],
+                  );
+                }),
               ),
 
               SizedBox(

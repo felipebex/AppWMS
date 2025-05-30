@@ -82,102 +82,77 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                       bottomRight: Radius.circular(20),
                     ),
                   ),
-                  child: BlocProvider(
-                    create: (context) => ConnectionStatusCubit(),
-                    child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-                        builder: (context, status) {
-                      return Column(
-                        children: [
-                          const WarningWidgetCubit(),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left: 10,
-                                right: 10,
-                                top: status != ConnectionStatus.online ? 0 : 35,
-                                bottom: 0),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.arrow_back,
-                                          color: white),
-                                      onPressed: () {
+                  child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                      builder: (context, status) {
+                    return Column(
+                      children: [
+                        const WarningWidgetCubit(),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: 10,
+                              right: 10,
+                              top: status != ConnectionStatus.online ? 0 : 35,
+                              bottom: 0),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: white),
+                                    onPressed: () {
+                                      context
+                                          .read<WmsPackingBloc>()
+                                          .add(ShowKeyboardEvent(false));
+                                      Navigator.pushReplacementNamed(
+                                        context,
+                                        '/home',
+                                      );
+                                    },
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: size.width * 0.22),
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        await DataBaseSqlite().delePacking('packing-batch');
                                         context
                                             .read<WmsPackingBloc>()
-                                            .add(ShowKeyboardEvent(false));
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          '/home',
-                                        );
+                                            .add(LoadAllPackingEvent(
+                                              true,
+                                            ));
                                       },
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          left: size.width * 0.22),
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          await DataBaseSqlite().delePacking('packing-batch');
-                                          context
-                                              .read<WmsPackingBloc>()
-                                              .add(LoadAllPackingEvent(
-                                                true,
-                                              ));
-                                        },
-                                        child: Row(
-                                          children: [
-                                            const Text(
-                                              'PACKING',
-                                              style: TextStyle(
-                                                  color: white,
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            const SizedBox(width: 5),
-                                            Icon(
-                                              Icons.refresh,
-                                              color: white,
-                                              size: 20,
-                                            ),
-                                          ],
-                                        ),
+                                      child: Row(
+                                        children: [
+                                          const Text(
+                                            'PACKING',
+                                            style: TextStyle(
+                                                color: white,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Icon(
+                                            Icons.refresh,
+                                            color: white,
+                                            size: 20,
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const Spacer(),
-                                  ],
-                                ),
-                                // ProgressIndicatorWidget(
-                                //   progress: context
-                                //           .read<WmsPackingBloc>()
-                                //           .listOfBatchs
-                                //           .isNotEmpty
-                                //       ? context
-                                //               .read<WmsPackingBloc>()
-                                //               .listOfBatchsDoneDB
-                                //               .length /
-                                //           context
-                                //               .read<WmsPackingBloc>()
-                                //               .listOfBatchs
-                                //               .length
-                                //       : 0.0,
-                                //   completed: context
-                                //       .read<WmsPackingBloc>()
-                                //       .listOfBatchsDoneDB
-                                //       .length,
-                                //   total: context
-                                //       .read<WmsPackingBloc>()
-                                //       .listOfBatchs
-                                //       .length,
-                                // ),
-                              ],
-                            ),
+                                  ),
+                                  const Spacer(),
+                                ],
+                              ),
+                              
+                            ],
                           ),
-                        ],
-                      );
-                    }),
-                  ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
 
                 //*barra de buscar

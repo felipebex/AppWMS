@@ -89,82 +89,78 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                         bottomRight: Radius.circular(20),
                       ),
                     ),
-                    child: BlocProvider(
-                      create: (context) => ConnectionStatusCubit(),
-                      child:
-                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-                              builder: (context, status) {
-                        return Column(
+                    child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                        builder: (context, status) {
+                                            return Column(
+                    children: [
+                      const WarningWidgetCubit(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 10,
+                            right: 10,
+                            top: status != ConnectionStatus.online
+                                ? 20
+                                : 20,
+                            bottom: 0),
+                        child: Column(
                           children: [
-                            const WarningWidgetCubit(),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 10,
-                                  right: 10,
-                                  top: status != ConnectionStatus.online
-                                      ? 20
-                                      : 20,
-                                  bottom: 0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.arrow_back,
-                                            color: white),
-                                        onPressed: () {
-                                          bloc.searchPickController.clear();
-                                          Navigator.pushReplacementNamed(
-                                              context, '/home');
-                                        },
-                                      ),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          await DataBaseSqlite().delePick(
-                                            'pick-componentes'
-                                          );
-                                          bloc.add(FetchPickingComponentesEvent(
-                                              true));
-                                        },
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              left: size.width * 0.05),
-                                          child: Row(
-                                            children: [
-                                              const Text(
-                                                'PICKING COMPONENTES',
-                                                style: TextStyle(
-                                                    color: white,
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-
-                                              const SizedBox(
-                                                width: 5,
-                                              ),
-                                              //icono de refres
-                                              Icon(
-                                                Icons.refresh,
-                                                color: white,
-                                                size: 20,
-                                              ),
-                                            ],
-                                          ),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back,
+                                      color: white),
+                                  onPressed: () {
+                                    bloc.searchPickController.clear();
+                                    Navigator.pushReplacementNamed(
+                                        context, '/home');
+                                  },
+                                ),
+                                GestureDetector(
+                                  onTap: () async {
+                                    await DataBaseSqlite().delePick(
+                                      'pick-componentes'
+                                    );
+                                    bloc.add(FetchPickingComponentesEvent(
+                                        true));
+                                  },
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        left: size.width * 0.05),
+                                    child: Row(
+                                      children: [
+                                        const Text(
+                                          'PICKING COMPONENTES',
+                                          style: TextStyle(
+                                              color: white,
+                                              fontSize: 18,
+                                              fontWeight:
+                                                  FontWeight.bold),
                                         ),
-                                      ),
-                                      const Spacer(),
-                                    ],
+                    
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                        //icono de refres
+                                        Icon(
+                                          Icons.refresh,
+                                          color: white,
+                                          size: 20,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
+                                ),
+                                const Spacer(),
+                              ],
                             ),
                           ],
-                        );
-                      }),
-                    ),
+                        ),
+                      ),
+                    ],
+                                            );
+                                          }),
                   ),
 
                   SizedBox(

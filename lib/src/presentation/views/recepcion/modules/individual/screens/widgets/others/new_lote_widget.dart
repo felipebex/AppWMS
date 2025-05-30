@@ -68,89 +68,92 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
             height: size.height * 1,
             child: Column(
               children: [
-                Container(
-                  padding: const EdgeInsets.only(top: 20),
-                  decoration: BoxDecoration(
-                    color: primaryColorApp,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                  ),
-                  width: double.infinity,
-                  child: BlocProvider(
-                    create: (context) => ConnectionStatusCubit(),
-                    child: BlocConsumer<RecepcionBloc, RecepcionState>(
-                        listener: (context, state) {
-                      print('STATE ❤️‍🔥 $state');
+               BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+      builder: (context, status) {
+                    return Container(
+                      padding: const EdgeInsets.only(top: 20),
+                      decoration: BoxDecoration(
+                        color: primaryColorApp,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
+                        ),
+                      ),
+                      width: double.infinity,
+                      child: BlocConsumer<RecepcionBloc, RecepcionState>(
+                          listener: (context, state) {
+                        print('STATE ❤️‍🔥 $state');
 
-                      if (state is CreateLoteProductSuccess) {
-                        Navigator.pop(context);
-                        Navigator.pushReplacementNamed(
-                            context, 'scan-product-order', arguments: [
-                          widget.ordenCompra,
-                          widget.currentProduct
-                        ]);
-                      }
+                        if (state is CreateLoteProductSuccess) {
+                          Navigator.pop(context);
+                          Navigator.pushReplacementNamed(
+                              context, 'scan-product-order', arguments: [
+                            widget.ordenCompra,
+                            widget.currentProduct
+                          ]);
+                        }
 
-                      if (state is CreateLoteProductLoading) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return const DialogLoading(
-                              message: "Creando lote espere un momento...",
-                            );
-                          },
-                        );
-                      }
+                        if (state is CreateLoteProductLoading) {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const DialogLoading(
+                                message: "Creando lote espere un momento...",
+                              );
+                            },
+                          );
+                        }
 
-                      if (state is CreateLoteProductFailure) {
-                        Get.snackbar(
-                          'Error',
-                          'Ha ocurrido un error al crear el lote',
-                          backgroundColor: white,
-                          colorText: primaryColorApp,
-                          icon: Icon(Icons.check, color: Colors.red),
-                        );
-                      }
-                    }, builder: (context, status) {
-                      return Column(
-                        children: [
-                          const WarningWidgetCubit(),
-                          Padding(
-                            padding: EdgeInsets.only(
-                                top:
-                                    status != ConnectionStatus.online ? 0 : 35),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: white),
-                                  onPressed: () {
-                                    Navigator.pushReplacementNamed(
-                                        context, 'scan-product-order',
-                                        arguments: [
-                                          widget.ordenCompra,
-                                          widget.currentProduct
-                                        ]);
-                                  },
-                                ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(left: size.width * 0.2),
-                                  child: Text('CREAR LOTE',
-                                      style: TextStyle(
-                                          color: white, fontSize: 18)),
-                                ),
-                                const Spacer(),
-                              ],
+                        if (state is CreateLoteProductFailure) {
+                          Get.snackbar(
+                            'Error',
+                            'Ha ocurrido un error al crear el lote',
+                            backgroundColor: white,
+                            colorText: primaryColorApp,
+                            icon: Icon(Icons.check, color: Colors.red),
+                          );
+                        }
+                      }, builder: (context, status) {
+                        return Column(
+                          children: [
+                            const WarningWidgetCubit(),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  top: status != ConnectionStatus.online
+                                      ? 0
+                                      : 35),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back,
+                                        color: white),
+                                    onPressed: () {
+                                      Navigator.pushReplacementNamed(
+                                          context, 'scan-product-order',
+                                          arguments: [
+                                            widget.ordenCompra,
+                                            widget.currentProduct
+                                          ]);
+                                    },
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.only(left: size.width * 0.2),
+                                    child: Text('CREAR LOTE',
+                                        style: TextStyle(
+                                            color: white, fontSize: 18)),
+                                  ),
+                                  const Spacer(),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      );
-                    }),
-                  ),
+                          ],
+                        );
+                      }),
+                    );
+                  },
                 ),
 
                 if (!bloc.isKeyboardVisible)
@@ -498,13 +501,10 @@ class _NewLoteScreenState extends State<NewLoteScreen> {
                                 return;
                               }
 
-
-
-                                bloc.add(CreateLoteProduct(
-                                  bloc.newLoteController.text,
-                                  bloc.dateLoteController.text,
-                                ));
-
+                              bloc.add(CreateLoteProduct(
+                                bloc.newLoteController.text,
+                                bloc.dateLoteController.text,
+                              ));
                             },
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColorApp,

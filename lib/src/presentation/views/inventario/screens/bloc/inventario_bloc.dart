@@ -203,6 +203,7 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         loteIsOk = true;
         dateLoteController.clear();
         newLoteController.clear();
+        add(SelectecLoteEvent(currentProductLote!));
         emit(CreateLoteProductSuccess());
       } else {
         emit(CreateLoteProductFailure('Error al crear el lote'));
