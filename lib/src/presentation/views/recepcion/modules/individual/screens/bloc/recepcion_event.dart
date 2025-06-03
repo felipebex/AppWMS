@@ -215,9 +215,19 @@ class FilterUbicacionesAlmacenEvent extends RecepcionEvent {
 }
 
 class SendTemperatureEvent extends RecepcionEvent {
-  final int idRecepcion;
-  final dynamic temperature;
-  SendTemperatureEvent(this.idRecepcion, this.temperature);
+ final File file;
+ final int moveLineId;
+  SendTemperatureEvent({
+    required this.file,
+    required this.moveLineId,
+  });
+}
+class GetTemperatureEvent extends RecepcionEvent {
+  final File file;
+
+  GetTemperatureEvent({
+    required this.file,
+  });
 }
 
 

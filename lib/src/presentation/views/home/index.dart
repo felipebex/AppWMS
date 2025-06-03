@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously, unnecessary_null_comparison
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
@@ -81,11 +82,30 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           print(" ❤️‍🔥 STATE: $state");
 
           if (state is HomeLoadErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Error al cargar la información del usuario"),
-                duration: Duration(seconds: 3),
-              ),
+            Get.snackbar(
+              'Error',
+              'Error al cargar los datos del usuario',
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.red),
+            );
+          }
+
+          if (state is AppVersionUpdateState) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return UpdateAppDialog();
+                });
+          }
+
+          if (state is AppVersionLoadedState) {
+            Get.snackbar(
+              '360 Software Informa',
+              "La aplicación está actualizada",
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.green),
             );
           }
         },
@@ -108,58 +128,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               context.read<UserBloc>().add(GetConfigurations(context));
               context.read<UserBloc>().add(GetUbicacionesEvent());
               context.read<UserBloc>().add(LoadInfoDeviceEventUser());
+              context.read<HomeBloc>().add(AppVersionEvent());
 
-              //* ejecutamos los productos del almacen
-
-              final products = await DataBaseSqlite().getProducts();
-
-              final productsNoSendOdoo =
-                  products.where((element) => element.isSendOdoo == 0).toList();
-
-              if (productsNoSendOdoo.isEmpty) {
-                if (!mounted) return;
-                final String rol = await PrefUtils.getUserRol();
-
-                //*picking
-                if (rol == 'picking') {
-                  if (!mounted) return;
-                  await DataBaseSqlite().delePicking();
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
-                } else if (rol == 'packing') {
-                  if (!mounted) return;
-                  await DataBaseSqlite().delePacking('packing-batch');
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        false,
-                      ));
-                } else if (rol == "reception") {
-                  if (!mounted) return;
-                  await DataBaseSqlite().deleRecepcion('reception');
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(false));
-                } else if (rol == "transfer") {
-                  if (!mounted) return;
-                  await DataBaseSqlite().deleTrasnferencia('transfer');
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias(false));
-                } else if (rol == "inventory") {
-                  if (!mounted) return;
-                  await DataBaseSqlite().deleInventario();
-                  context.read<InventarioBloc>().add(GetProductsEvent());
-                } else if (rol == "" || rol == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("El usuario no tiene cargado los permisos"),
-                      duration: Duration(seconds: 4),
-                    ),
-                  );
-                }
-              } else {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return const DialogProductsNotSends();
-                    });
-              }
+            
 
               //esperamos 2 segundos para cerrar el dialogo
               await Future.delayed(const Duration(seconds: 2), () {
@@ -478,7 +449,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
                                             if (rol == 'packing' ||
                                                 rol == 'admin') {
-
                                               context.read<WmsPackingBloc>().add(
                                                   LoadAllNovedadesPackingEvent());
 
@@ -499,12 +469,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     context, 'wms-packing');
                                               });
 
-
-
-                                                // Navigator.pushReplacementNamed(
-                                                //     context, 'list-packing');
-
-                                              
+                                              // Navigator.pushReplacementNamed(
+                                              //     context, 'list-packing');
                                             } else {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
@@ -886,30 +852,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                     ),
                                   ],
                                 )),
-                            // Padding(
-                            //   padding: EdgeInsets.symmetric(
-                            //       horizontal: 20, vertical: 5),
-                            //   child: Center(
-                            //     child: Column(
-                            //       children: [
-                            //         Text("Onpoint",
-                            //             style: TextStyle(
-                            //               color: grey,
-                            //               fontSize: 12,
-                            //             )),
-                            //         Text("© 2025 - 360 Software",
-                            //             style: TextStyle(
-                            //               color: grey,
-                            //               fontSize: 12,
-                            //             )),
-                            //       ],
-                            //     ),
-                            //   ),
-                            // ),
+                            
                           ],
                         ),
                       ),
                     ),
+                 
+              
+                 
                   ],
                 ),
               ),

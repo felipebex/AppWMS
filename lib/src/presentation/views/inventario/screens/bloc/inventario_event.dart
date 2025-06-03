@@ -73,6 +73,8 @@ class ChangeIsOkQuantity extends InventarioEvent {
 }
 
 class GetProductsEvent extends InventarioEvent {
+  final bool isDialogLoading;
+  GetProductsEvent({this.isDialogLoading = false});
 }
 
 class GetProductsForDB extends InventarioEvent {}

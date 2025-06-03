@@ -13,7 +13,9 @@ import 'package:wms_app/src/presentation/views/recepcion/models/repcion_requets_
 import 'package:wms_app/src/presentation/views/recepcion/models/response_deleted_product_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_new_lote_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_sen_temperature_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_send_recepcion_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_validate_model.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -568,85 +570,85 @@ class RecepcionRepository {
     }
     return ResponseNewLote();
   }
+
   Future<ResponSendRecepcion> sendProductRecepcion(
-  RecepcionRequest recepcionRequest,
-  bool isLoadingDialog,
-) async {
-  // Verificar si el dispositivo tiene acceso a Internet
-  var connectivityResult = await Connectivity().checkConnectivity();
+    RecepcionRequest recepcionRequest,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
 
-  if (connectivityResult == ConnectivityResult.none) {
-    print("❌ Error: No hay conexión a Internet.");
-    return ResponSendRecepcion(
-      result: ResponSendRecepcionResult(
-        code: 0,
-        msg: "No hay conexión a Internet.",
-        result: [],
-      ),
-    );
-  }
-
-  try {
-    var response = await ApiRequestService().postPacking(
-      endpoint: 'send_recepcion',
-      body: {
-        "params": {
-          "id_recepcion": recepcionRequest.idRecepcion,
-          "list_items":
-              recepcionRequest.listItems.map((item) => item.toMap()).toList(),
-        },
-      },
-      isLoadinDialog: isLoadingDialog,
-    );
-
-    if (response.statusCode < 400) {
-      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      var resultData = jsonResponse['result'];
-
-      return ResponSendRecepcion(
-        jsonrpc: jsonResponse['jsonrpc'],
-        id: jsonResponse['id'],
-        result: resultData != null
-            ? ResponSendRecepcionResult(
-                code: resultData['code'],
-                msg: resultData['msg'],
-                result: resultData['result'] != null
-                    ? List<ResultElement>.from(
-                        resultData['result'].map((x) => ResultElement.fromMap(x)))
-                    : [],
-              )
-            : null,
-      );
-    } else {
+    if (connectivityResult == ConnectivityResult.none) {
+      print("❌ Error: No hay conexión a Internet.");
       return ResponSendRecepcion(
         result: ResponSendRecepcionResult(
-          code: response.statusCode,
-          msg: "Error al enviar la recepción. Código: ${response.statusCode}",
+          code: 0,
+          msg: "No hay conexión a Internet.",
           result: [],
         ),
       );
     }
-  } on SocketException catch (e) {
-    print('❌ Error de red: $e');
-    return ResponSendRecepcion(
-      result: ResponSendRecepcionResult(
-        code: 0,
-        msg: "Error de red: No se pudo conectar al servidor.",
-        result: [],
-      ),
-    );
-  } catch (e, s) {
-    print('❌ Error inesperado: $e\n$s');
-    return ResponSendRecepcion(
-      result: ResponSendRecepcionResult(
-        code: 0,
-        msg: "Ocurrió un error inesperado. Error detallado: $e \n$s",
-        result: [],
-      ),
-    );
-  }
-}
 
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint: 'send_recepcion',
+        body: {
+          "params": {
+            "id_recepcion": recepcionRequest.idRecepcion,
+            "list_items":
+                recepcionRequest.listItems.map((item) => item.toMap()).toList(),
+          },
+        },
+        isLoadinDialog: isLoadingDialog,
+      );
+
+      if (response.statusCode < 400) {
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        var resultData = jsonResponse['result'];
+
+        return ResponSendRecepcion(
+          jsonrpc: jsonResponse['jsonrpc'],
+          id: jsonResponse['id'],
+          result: resultData != null
+              ? ResponSendRecepcionResult(
+                  code: resultData['code'],
+                  msg: resultData['msg'],
+                  result: resultData['result'] != null
+                      ? List<ResultElement>.from(resultData['result']
+                          .map((x) => ResultElement.fromMap(x)))
+                      : [],
+                )
+              : null,
+        );
+      } else {
+        return ResponSendRecepcion(
+          result: ResponSendRecepcionResult(
+            code: response.statusCode,
+            msg: "Error al enviar la recepción. Código: ${response.statusCode}",
+            result: [],
+          ),
+        );
+      }
+    } on SocketException catch (e) {
+      print('❌ Error de red: $e');
+      return ResponSendRecepcion(
+        result: ResponSendRecepcionResult(
+          code: 0,
+          msg: "Error de red: No se pudo conectar al servidor.",
+          result: [],
+        ),
+      );
+    } catch (e, s) {
+      print('❌ Error inesperado: $e\n$s');
+      return ResponSendRecepcion(
+        result: ResponSendRecepcionResult(
+          code: 0,
+          msg: "Ocurrió un error inesperado. Error detallado: $e \n$s",
+          result: [],
+        ),
+      );
+    }
+  }
 
   //metodo para eliminar una linea ya enviada
   Future<DeletedProduct> deleteProductInWms(
@@ -935,9 +937,10 @@ class RecepcionRepository {
 
   //metodo para enviar la temperatura de un lote
 
-  Future<bool> sendTemperature(
-    int idRecepcion,
+  Future<TemperatureSend> sendTemperature(
     dynamic temperature,
+    int idMoveLine,
+    File imageFile,
     bool isLoadingDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -945,72 +948,77 @@ class RecepcionRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return true; // Si no hay conexión, terminamos la ejecución
+      return TemperatureSend(); // Si no hay conexión, terminamos la ejecución
     }
 
     try {
-      var response = await ApiRequestService().postPacking(
-        endpoint:
-            'send_temperatura', // Cambiado para que sea el endpoint correspondiente
-        body: {
-          "params": {
-            "id": idRecepcion,
-            "temperatura": temperature,
-          }
-        },
-        isLoadinDialog: false,
-      );
+      final response = await ApiRequestService().postMultipart(
+          endpoint: 'send_image_linea_recepcion',
+          imageFile: imageFile,
+          idMoveLine: idMoveLine,
+          temperature: temperature,
+          isLoadinDialog: isLoadingDialog);
+
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
+
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
 
-        if (jsonResponse.containsKey('result')) {
-          if (jsonResponse['result']['code'] == 200) {
-            return true;
-          } else {
-            return false;
-          }
-        } else if (jsonResponse.containsKey('error')) {
-          if (jsonResponse['error']['code'] == 100) {
-            //mostramos una alerta de get
-            Get.defaultDialog(
-              title: 'Alerta',
-              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
-              middleTextStyle: TextStyle(color: black, fontSize: 14),
-              backgroundColor: Colors.white,
-              radius: 10,
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Aceptar', style: TextStyle(color: white)),
-                ),
-              ],
-            );
-
-            return false;
-          }
+        if (jsonResponse['code'] == 400) {
+          return TemperatureSend(
+            msg: jsonResponse['msg'],
+            code: jsonResponse['code'],
+          );
+        } else if (jsonResponse['code'] == 200) {
+          return TemperatureSend(
+            code: jsonResponse['code'],
+            result: jsonResponse['result'],
+            lineId: jsonResponse['line_id'],
+          );
+        } else {
+          return TemperatureSend(); // Retornamos un objeto vacío en caso de error
         }
       } else {
         // Manejo de error si la respuesta no es exitosa
-        // ...
+        print('Error al enviar la temperatura: ${response.statusCode}');
+        return TemperatureSend(); // Retornamos un objeto vacío en caso de error
       }
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return false; // Retornamos un objeto vacío en caso de error de red
+      return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
     } catch (e, s) {
       // Manejo de otros errores
       print('Error en sendTemperature: $e, $s');
-      return false; // Retornamos un objeto vacío en caso de error de red
+      return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
     }
-    return false; // Retornamos un objeto vacío en caso de error de red
+  }
+
+  Future<TemperatureIa> getTemperatureWithImage(File imageFile) async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return TemperatureIa();
+    }
+
+    try {
+      final response = await ApiRequestService().postMultipartImage(
+        endpoint: 'extract-temp-humidity',
+        imageFile: imageFile,
+        isLoadinDialog: true,
+      );
+
+      if (response.statusCode == 200) {
+        return TemperatureIa.fromMap(jsonDecode(response.body));
+      } else {
+        return TemperatureIa.fromMap(jsonDecode(response.body));
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+    } catch (e, s) {
+      print('Error en getTemperatureWithImage: $e\n$s');
+    }
+
+    return TemperatureIa(); // Retorna vacío en caso de fallo
   }
 }

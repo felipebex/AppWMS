@@ -1,11 +1,8 @@
 // ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, prefer_is_empty
 
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -123,9 +120,6 @@ class Tab3ScreenRecep extends StatelessWidget {
                                 return element.isDoneItem == 1;
                               }).elementAt(index);
 
-                              // final product =
-                              //     recepcionBloc.listProductsEntrada[index];
-
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 8,
@@ -176,7 +170,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                           ),
                                                         ),
                                                         content: Column(
-                                                          mainAxisSize: 
+                                                          mainAxisSize:
                                                               MainAxisSize.min,
                                                           children: [
                                                             const Text(
@@ -288,6 +282,28 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                       fontSize: 12,
                                                       color: black)),
                                             ],
+                                          ),
+                                          Visibility(
+                                            visible:
+                                                product.manejaTemperatura ==
+                                                        1 ||
+                                                    product.manejaTemperatura ==
+                                                        true,
+                                            child: Row(
+                                              children: [
+                                                Text(
+                                                  "Temperatura: ",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
+                                                Text("${product.temperatura}",
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: black)),
+                                              ],
+                                            ),
                                           ),
                                           Visibility(
                                             visible: product.productTracking ==

@@ -49,6 +49,12 @@ class ProductRecepcionTable {
   static const String columnCantidadFaltante  = 'cantidad_faltante'; 
 
 
+  //temperature
+  static const String columnManejoTemperature = 'maneja_temperatura';
+  static const String columnTemperature = 'temperatura';
+  static const String columnImage = 'image';
+
+
 //Meotdo para crar la tabla
   static String createTable() {
     return '''
@@ -93,6 +99,9 @@ class ProductRecepcionTable {
       $columnIsDoneItem INTEGER,  
       $columnDateTransaction TEXT,
       $columnCantidadFaltante INTEGER,
+      $columnManejoTemperature INTEGER,
+      $columnTemperature INTEGER,
+      $columnImage TEXT,
       FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion ($columnId)
 
     )

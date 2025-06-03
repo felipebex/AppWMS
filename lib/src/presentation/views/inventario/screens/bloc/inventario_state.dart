@@ -69,7 +69,7 @@ class ChangeLocationIsOkState extends InventarioState {
   ChangeLocationIsOkState(this.isOk);
 }
 
-class GetProductsLoading extends InventarioState {}
+class GetProductsLoadingInventory extends InventarioState {}
 
 class GetProductsSuccess extends InventarioState {
   final List<Product> products;
@@ -88,9 +88,9 @@ class GetProductsSuccessByLocation extends InventarioState {
   GetProductsSuccessByLocation(this.products);
 }
 
-class GetProductsFailure extends InventarioState {
+class GetProductsFailureInventory extends InventarioState {
   final String error;
-  GetProductsFailure(this.error);
+  GetProductsFailureInventory(this.error);
 }
 
 class GetProductsFailureByLocation extends InventarioState {

@@ -287,6 +287,10 @@ class LineasRecepcionBatch {
   dynamic isSeparate;
   dynamic isProductSplit;
 
+  dynamic manejaTemperatura;
+  dynamic temperatura;
+  String? image;
+
     final dynamic dateStart;
   final dynamic dateEnd;
 
@@ -333,6 +337,9 @@ class LineasRecepcionBatch {
     this.quantityDone,
     this.dateStart,
     this.dateEnd,
+    this.manejaTemperatura,
+    this.temperatura,
+    this.image,
   });
 
   factory LineasRecepcionBatch.fromMap(Map<String, dynamic> json) =>
@@ -385,6 +392,9 @@ class LineasRecepcionBatch {
         quantityDone: json["quantity_done"],
         dateStart: json["date_start"],
         dateEnd: json["date_end"],
+        manejaTemperatura: json["maneja_temperatura"],
+        temperatura: json["temperatura"],
+        image: json["image"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -434,6 +444,9 @@ class LineasRecepcionBatch {
         "quantity_done": quantityDone,
         "date_start": dateStart,
         "date_end": dateEnd,
+        "maneja_temperatura": manejaTemperatura,
+        "temperatura": temperatura,
+        "image": image,
       };
 }
 

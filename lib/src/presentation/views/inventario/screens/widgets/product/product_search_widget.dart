@@ -1,5 +1,3 @@
-// ignore_for_file: unrelated_type_equality_checks
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -37,9 +35,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
               children: [
                 _AppBarInfo(size: size),
                 _buildSearchBar(context, bloc, size),
-                Expanded(
-                  child: _buildProductList(context, bloc),
-                ),
+                Expanded(child: _buildProductList(context, bloc)),
                 const SizedBox(height: 20),
                 _buildSelectButton(bloc, size),
                 const SizedBox(height: 10),
@@ -50,8 +46,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                     controller: bloc.searchControllerProducts,
                     onchanged: () {
                       bloc.add(SearchProductEvent(
-                        bloc.searchControllerProducts.text,
-                      ));
+                          bloc.searchControllerProducts.text));
                     },
                   )
               ],
@@ -102,76 +97,77 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
       ),
     );
   }
+Widget _buildProductList(BuildContext context, InventarioBloc bloc) {
+  final productos = bloc.productosFilters;
+  final ubicacionId = bloc.currentUbication?.id;
 
-  Widget _buildProductList(BuildContext context, InventarioBloc bloc) {
-    final sugeridos = bloc.productosSugeridos;
-    final restantes = bloc.productosRestantes
-        .where((restante) =>
-            !sugeridos.any((s) => s.locationId == restante.locationId))
-        .toList();
+  final enUbicacionActual = productos
+      .where((p) => p.locationId == ubicacionId)
+      .toList();
 
-    final totalItems = sugeridos.length +
-        restantes.length +
-        (sugeridos.isNotEmpty ? 1 : 0) +
-        (restantes.isNotEmpty ? 1 : 0);
+  final enUbicacionCero = productos
+      .where((p) => p.locationId == 0)
+      .toList();
 
-    if (totalItems == 0) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('No se encontraron productos',
-                style: TextStyle(fontSize: 14, color: grey)),
-            Text('Prueba con otro término de búsqueda',
-                style: TextStyle(fontSize: 12, color: grey)),
-          ],
-        ),
-      );
-    }
+  final restantes = productos
+      .where((p) => p.locationId != ubicacionId && p.locationId != 0)
+      .toList();
 
-    return ListView.builder(
-      itemCount: totalItems,
-      itemBuilder: (context, index) {
-        if (sugeridos.isNotEmpty && index == 0) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Text(
-              'Productos en la ubicación ${bloc.currentUbication?.name ?? ''}',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: primaryColorApp),
-            ),
-          );
-        }
+  final List<Widget> items = [];
 
-        if (index > 0 && index <= sugeridos.length) {
-          final product = sugeridos[index - 1];
-          return _buildProductCard(
-              context, bloc, product, product.productId, product.lotId);
-        }
+  // 🟢 Primero: productos en ubicación actual
+  for (final product in enUbicacionActual) {
+    items.add(_buildProductCard(
+      context,
+      bloc,
+      product,
+      product.productId,
+      product.lotId,
+    ));
+  }
 
-        if (restantes.isNotEmpty && index == sugeridos.length + 1) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: Text(
-              'Otros productos',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: grey),
-            ),
-          );
-        }
+  // 🔵 Luego: productos en locationId == 0
+  for (final product in enUbicacionCero) {
+    items.add(_buildProductCard(
+      context,
+      bloc,
+      product,
+      product.productId,
+      product.lotId,
+    ));
+  }
 
-        final adjustedIndex =
-            index - sugeridos.length - (restantes.isNotEmpty ? 2 : 1);
-        if (adjustedIndex < 0 || adjustedIndex >= restantes.length) {
-          return const SizedBox.shrink();
-        }
+  // ⚪ Por último: productos restantes
+  for (final product in restantes) {
+    items.add(_buildProductCard(
+      context,
+      bloc,
+      product,
+      product.productId,
+      product.lotId,
+    ));
+  }
 
-        final product = restantes[adjustedIndex];
-        return _buildProductCard(
-            context, bloc, product, product.productId, product.lotId);
-      },
+  if (items.isEmpty) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('No se encontraron productos',
+              style: TextStyle(fontSize: 14, color: grey)),
+          Text('Prueba con otro término de búsqueda',
+              style: TextStyle(fontSize: 12, color: grey)),
+        ],
+      ),
     );
   }
+
+  return ListView.builder(
+    itemCount: items.length,
+    itemBuilder: (context, index) => items[index],
+  );
+}
+
 
   Widget _buildProductCard(BuildContext context, InventarioBloc bloc,
       dynamic product, dynamic productId, dynamic lotId) {
@@ -187,7 +183,11 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
         },
         child: Card(
           elevation: 3,
-          color: isSelected ? Colors.green[100] : white,
+          color: isSelected
+              ? Colors.green[100]
+              : product.locationId == bloc.currentUbication?.id
+                  ? Colors.grey[300]
+                  : white,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -199,8 +199,8 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
                 _buildInfoRow("Code:", product.code,
                     emptyText: 'Sin código de producto'),
                 _buildInfoRow("UND:", product.uom, emptyText: 'Sin unidad'),
-                _buildInfoRow("Ubicacion:", product.locationName,
-                    emptyText: 'Sin ubicacion'),
+                _buildInfoRow("Ubicación:", product.locationName,
+                    emptyText: 'Sin ubicación'),
                 _buildInfoRow("Lote:", product.lotName, emptyText: 'Sin lote'),
               ],
             ),
@@ -241,11 +241,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
           final selectedProductId = int.parse(parts[0]);
           final selectedLotId = int.parse(parts[1]);
 
-          final allProducts = [
-            ...bloc.productosSugeridos,
-            ...bloc.productosRestantes
-          ];
-          final selectedProduct = allProducts.firstWhere(
+          final selectedProduct = bloc.productosFilters.firstWhere(
             (p) => p.productId == selectedProductId && p.lotId == selectedLotId,
           );
 
@@ -282,6 +278,7 @@ class _SearchProductScreenState extends State<SearchProductScreen> {
     );
   }
 }
+
 class _AppBarInfo extends StatelessWidget {
   const _AppBarInfo({super.key, required this.size});
   final Size size;
@@ -304,7 +301,7 @@ class _AppBarInfo extends StatelessWidget {
             builder: (context, state) {
               return Column(
                 children: [
-                  const WarningWidgetCubit(), // usa el cubit global
+                  const WarningWidgetCubit(),
                   Padding(
                     padding: EdgeInsets.only(
                       top: connectionStatus != ConnectionStatus.online ? 0 : 35,
@@ -315,7 +312,8 @@ class _AppBarInfo extends StatelessWidget {
                         IconButton(
                           icon: const Icon(Icons.arrow_back, color: white),
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, 'inventario');
+                            Navigator.pushReplacementNamed(
+                                context, 'inventario');
                           },
                         ),
                         Padding(

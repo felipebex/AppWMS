@@ -45,12 +45,6 @@ class LoginPage extends StatelessWidget {
                 // llamamos la configuracion de la empresa y el usuario logueado
                 context.read<UserBloc>().add(
                     GetConfigurations(context)); //configuracion del usuario
-                context
-                    .read<WMSPickingBloc>()
-                    .add(LoadAllNovedades(context)); //novedades
-                context
-                    .read<UserBloc>()
-                    .add(GetUbicacionesEvent()); //ubicaciones
               }
 
               if (state is LoginFailure) {
@@ -62,21 +56,32 @@ class LoginPage extends StatelessWidget {
           BlocListener<UserBloc, UserState>(
             listener: (context, state) async {
               if (state is ConfigurationLoaded) {
-                context.read<InventarioBloc>().add(GetProductsEvent());
-                final rol = await PrefUtils.getUserRol();
-                if (rol == 'picking') {
-                  context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
-                } else if (rol == 'packing') {
-                  context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                        false,
-                      ));
-                } else if (rol == "reception") {
-                  context.read<RecepcionBloc>().add(FetchOrdenesCompra(false));
-                } else if (rol == "transfer") {
-                  context
-                      .read<TransferenciaBloc>()
-                      .add(FetchAllTransferencias(false));
-                }
+                context
+                    .read<WMSPickingBloc>()
+                    .add(LoadAllNovedades(context)); //novedades
+                context
+                    .read<UserBloc>()
+                    .add(GetUbicacionesEvent()); //ubicaciones
+                context
+                    .read<InventarioBloc>()
+                    .add(GetProductsEvent(isDialogLoading: true));
+                // context
+                //     .read<WMSPickingBloc>()
+                //     .add(LoadAllNovedades(context)); //novedades
+                // final rol = await PrefUtils.getUserRol();
+                // if (rol == 'picking') {
+                //   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
+                // } else if (rol == 'packing') {
+                //   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
+                //         false,
+                //       ));
+                // } else if (rol == "reception") {
+                //   context.read<RecepcionBloc>().add(FetchOrdenesCompra(false));
+                // } else if (rol == "transfer") {
+                //   context
+                //       .read<TransferenciaBloc>()
+                //       .add(FetchAllTransferencias(false));
+                // }
 
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();
@@ -84,7 +89,7 @@ class LoginPage extends StatelessWidget {
                 Navigator.pushReplacementNamed(context, '/home');
               }
 
-              if(state is ConfigurationError){
+              if (state is ConfigurationError) {
                 Get.back();
                 showModalDialog(context, state.message);
               }
@@ -219,10 +224,6 @@ class _LoginFormState extends State<_LoginForm> {
                 child: Column(
                   children: [
                     TextFormField(
-                      // readOnly:
-                      //     context.read<UserBloc>().fabricante.contains("Zebra")
-                      //         ? true
-                      //         : false,
                       focusNode: _focusNodeEmail,
                       controller: context.read<LoginBloc>().email,
                       onTap:
@@ -253,7 +254,6 @@ class _LoginFormState extends State<_LoginForm> {
                       validator: (value) => Validator.email(value, context),
                     ),
                     TextFormField(
-                      
                       controller: context.read<LoginBloc>().password,
                       autocorrect: false,
                       obscureText: context.watch<LoginBloc>().isVisible,

@@ -97,7 +97,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    const SizedBox(height: 80),
+                    const SizedBox(height: 40),
                     Image.asset(
                       'assets/icons/barcode.png',
                       width: 150,

@@ -56,46 +56,46 @@ class Tab1ScreenRecep extends StatelessWidget {
                 icon: Icon(Icons.error, color: Colors.red));
           }
 
-          if (state is CurrentOrdenesCompraState) {
-            if (ordenCompra?.manejaTemperatura == 1 &&
-                ordenCompra?.temperatura == 0.0) {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return DialogTemperature(
-                    controller:
-                        context.read<RecepcionBloc>().controllerTemperature,
-                    onConfirm: () {
-                      //cerramos el dialog
-                      Navigator.pop(context);
-                      context.read<RecepcionBloc>().add(SendTemperatureEvent(
-                          ordenCompra?.id ?? 0,
-                          double.parse(context
-                              .read<RecepcionBloc>()
-                              .controllerTemperature
-                              .text)));
-                    },
-                    onCancel: () {
-                      //cerramos el dialog
-                      Navigator.pop(context);
+          // if (state is CurrentOrdenesCompraState) {
+          // if (ordenCompra?.manejaTemperatura == 1 &&
+          //     ordenCompra?.temperatura == 0.0) {
+          //   showDialog(
+          //     context: context,
+          //     builder: (context) {
+          //       return DialogTemperature(
+          //         controller:
+          //             context.read<RecepcionBloc>().controllerTemperature,
+          //         onConfirm: () {
+          //           //cerramos el dialog
+          //           Navigator.pop(context);
+          //           context.read<RecepcionBloc>().add(SendTemperatureEvent(
+          //               ordenCompra?.id ?? 0,
+          //               double.parse(context
+          //                   .read<RecepcionBloc>()
+          //                   .controllerTemperature
+          //                   .text)));
+          //         },
+          //         onCancel: () {
+          //           //cerramos el dialog
+          //           Navigator.pop(context);
 
-                      if (ordenCompra?.type == 'dev') {
-                        Navigator.pushReplacementNamed(
-                          context,
-                          'list-devoluciones',
-                        );
-                      } else {
-                        Navigator.pushReplacementNamed(
-                          context,
-                          'list-ordenes-compra',
-                        );
-                      }
-                    },
-                  );
-                },
-              );
-            }
-          }
+          // if (ordenCompra?.type == 'dev') {
+          //   Navigator.pushReplacementNamed(
+          //     context,
+          //     'list-devoluciones',
+          //   );
+          // } else {
+          //   Navigator.pushReplacementNamed(
+          //     context,
+          //     'list-ordenes-compra',
+          //   );
+          // }
+          //         },
+          //       );
+          //     },
+          //   );
+          // }
+          // }
 
           print("State: $state");
           if (state is CreateBackOrderOrNotLoading) {

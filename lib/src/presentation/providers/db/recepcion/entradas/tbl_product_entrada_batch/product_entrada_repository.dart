@@ -92,7 +92,7 @@ class ProductsEntradaBatchRepository {
             ProductRecepcionBatchTable.columnLoteDate:
                 (product.lotName != "" ? product.fechaVencimiento : ""),
             ProductRecepcionBatchTable.columnIsProductSplit: 0,
-            ProductRecepcionBatchTable.columnObservation: 
+            ProductRecepcionBatchTable.columnObservation:
                 product.observation ?? '',
             ProductRecepcionBatchTable.columnDateStart: "",
             ProductRecepcionBatchTable.columnDateEnd: "",
@@ -103,6 +103,12 @@ class ProductsEntradaBatchRepository {
                 product.dateTransaction ?? '',
             ProductRecepcionBatchTable.columnCantidadFaltante:
                 product.cantidadFaltante ?? 0,
+            //temperatura
+            ProductRecepcionBatchTable.columnManejoTemperature:
+                product.manejaTemperatura ?? 0,
+            ProductRecepcionBatchTable.columnTemperature:
+                product.temperatura ?? 0.0,
+            ProductRecepcionBatchTable.columnImage: product.image ?? '',
           };
 
           // Si la clave ya existe, se hace UPDATE; si no, se hace INSERT.
@@ -193,6 +199,12 @@ class ProductsEntradaBatchRepository {
         ProductRecepcionBatchTable.columnCantidadFaltante: cantidad,
         ProductRecepcionBatchTable.columnQuantityDone:
             producto.quantityDone ?? 0,
+        //temperatura
+        ProductRecepcionBatchTable.columnManejoTemperature:
+            producto.manejaTemperatura ?? 0,
+        ProductRecepcionBatchTable.columnTemperature:
+            producto.temperatura ?? 0.0,
+        ProductRecepcionBatchTable.columnImage: producto.image ?? '',
       };
 
       await db.insert(

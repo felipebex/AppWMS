@@ -36,8 +36,6 @@ class _InventarioScreenState extends State<InventarioScreen>
   @override
   void initState() {
     super.initState();
-
-    // Añadimos el observer para escuchar el ciclo de vida de la app.
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -47,7 +45,7 @@ class _InventarioScreenState extends State<InventarioScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    if (state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed && mounted) {
       if (mounted) {
         // Aquí se ejecutan las acciones solo si la pantalla aún está montada
         showDialog(
@@ -59,7 +57,7 @@ class _InventarioScreenState extends State<InventarioScreen>
           },
         );
         Future.delayed(const Duration(seconds: 1), () {
-          Navigator.pop(context);
+          if (mounted) Navigator.pop(context);
         });
       }
     }
@@ -92,43 +90,42 @@ class _InventarioScreenState extends State<InventarioScreen>
   void _handleDependencies() {
     final bloc = context.read<InventarioBloc>();
     final hasLote = bloc.currentProduct?.tracking == "lot";
-    if (!bloc.locationIsOk && !bloc.productIsOk && !bloc.quantityIsOk) {
-      _focus(focusNode1, "location");
-      return;
-    }
-    if (bloc.locationIsOk && !bloc.productIsOk && !bloc.quantityIsOk) {
-      _focus(focusNode2, "product");
-      return;
-    }
-    if (hasLote) {
-      if (bloc.locationIsOk &&
+
+    final focusMap = {
+      "location": () =>
+          !bloc.locationIsOk && !bloc.productIsOk && !bloc.quantityIsOk,
+      "product": () =>
+          bloc.locationIsOk && !bloc.productIsOk && !bloc.quantityIsOk,
+      "lote": () =>
+          hasLote &&
+          bloc.locationIsOk &&
           bloc.productIsOk &&
           !bloc.loteIsOk &&
           !bloc.quantityIsOk &&
-          !bloc.viewQuantity) {
-        _focus(focusNode5, "lote");
-        return;
-      }
+          !bloc.viewQuantity,
+      "quantity": () =>
+          bloc.locationIsOk &&
+          bloc.productIsOk &&
+          (hasLote ? bloc.loteIsOk : true) &&
+          bloc.quantityIsOk &&
+          !bloc.viewQuantity,
+    };
 
-      if (bloc.locationIsOk &&
-          bloc.productIsOk &&
-          bloc.loteIsOk &&
-          bloc.quantityIsOk &&
-          !bloc.viewQuantity) {
-        _focus(focusNode3, "quantity");
-        return;
-      }
-    } else {
-      if (bloc.locationIsOk &&
-          bloc.productIsOk &&
-          bloc.quantityIsOk &&
-          !bloc.viewQuantity) {
-        _focus(focusNode3, "quantity");
+    final focusNodeByKey = {
+      "location": focusNode1,
+      "product": focusNode2,
+      "lote": focusNode5,
+      "quantity": focusNode3,
+    };
+
+    for (final entry in focusMap.entries) {
+      if (entry.value()) {
+        _focus(focusNodeByKey[entry.key]!, entry.key);
         return;
       }
     }
 
-    setState(() {}); // Solo si realmente se necesita aquí
+    setState(() {}); // Si necesitas un rebuild explícito
   }
 
   void validateLocation(String value) {
@@ -197,7 +194,9 @@ class _InventarioScreenState extends State<InventarioScreen>
     bloc.controllerProduct.clear();
 
     Product? matchedProducts = bloc.productos.firstWhere(
-        (productoUbi) => productoUbi.barcode?.toLowerCase() == scan.trim(),
+        (productoUbi) =>
+            productoUbi.barcode?.toLowerCase() == scan.trim() ||
+            productoUbi.code?.toLowerCase() == scan.trim(),
         orElse: () =>
             Product() // Si no se encuentra ningún match, devuelve null
         );
@@ -206,9 +205,7 @@ class _InventarioScreenState extends State<InventarioScreen>
       print('producto encontrado: ${matchedProducts.name}');
       bloc.add(ValidateFieldsEvent(field: "product", isOk: true));
       bloc.add(ChangeProductIsOkEvent(matchedProducts));
-      if (bloc.currentProduct?.tracking != "lot") {
-        bloc.add(ChangeIsOkQuantity(true));
-      }
+
       bloc.add(ClearScannedValueEvent('product'));
     } else {
       print('producto encontrado: ${matchedProducts.name}');
@@ -336,17 +333,6 @@ class _InventarioScreenState extends State<InventarioScreen>
   }
 
   @override
-  void dispose() {
-    focusNode1.dispose();
-    focusNode2.dispose();
-    focusNode3.dispose();
-    focusNode4.dispose();
-    focusNode5.dispose();
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
 // Mostrar el diálogo solo una vez cuando la vista se crea
 
@@ -354,6 +340,55 @@ class _InventarioScreenState extends State<InventarioScreen>
     return BlocConsumer<InventarioBloc, InventarioState>(
       listener: (context, state) {
         print("state ❤️‍🔥:: $state");
+
+        //estado para mostrar cuando este cargando la descarga de los productos
+        if (state is GetProductsLoadingInventory) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return const DialogLoading(
+                message: "Cargando productos...",
+              );
+            },
+          );
+        }
+
+        if (state is GetProductsSuccessBD) {
+          Navigator.pop(context);
+          Get.snackbar(
+            '360 Software Informa',
+            "Se han cargado los productos ${state.products.length} correctamente",
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+        }
+
+        if (state is GetProductsFailureInventory) {
+          Navigator.pop(context);
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        }
 
         //*estado cando la ubicacion de origen es cambiada
         if (state is ChangeLocationIsOkState) {
@@ -479,8 +514,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                         Padding(
                           padding: EdgeInsets.only(
                               bottom: 0,
-                              top:
-                                  status != ConnectionStatus.online ? 0 : 35),
+                              top: status != ConnectionStatus.online ? 0 : 35),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -494,12 +528,22 @@ class _InventarioScreenState extends State<InventarioScreen>
                                   );
                                 },
                               ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(left: size.width * 0.2),
-                                child: const Text("INVENTARIO RÁPIDO",
-                                    style: TextStyle(
-                                        color: white, fontSize: 14)),
+                              GestureDetector(
+                                onTap: () {
+                                  bloc.add(GetProductsEvent());
+                                },
+                                child: Padding(
+                                  padding:
+                                      EdgeInsets.only(left: size.width * 0.15),
+                                  child: const Text("INVENTARIO RÁPIDO",
+                                      style: TextStyle(
+                                          color: white, fontSize: 14)),
+                                ),
+                              ),
+                              Icon(
+                                Icons.refresh,
+                                size: 20,
+                                color: white,
                               ),
                               const Spacer(),
                               IconButton(
@@ -582,38 +626,6 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                           backgroundColor:
                                                               Colors.white,
                                                           radius: 10,
-                                                          actions: [
-                                                            ElevatedButton(
-                                                              onPressed: () {
-                                                                context
-                                                                    .read<
-                                                                        InventarioBloc>()
-                                                                    .add(
-                                                                        GetLocationsEvent());
-                                                                //esperamos 1 segundo para que se vea el dialogo
-
-                                                                Get.back();
-                                                              },
-                                                              style:
-                                                                  ElevatedButton
-                                                                      .styleFrom(
-                                                                backgroundColor:
-                                                                    primaryColorApp,
-                                                                shape:
-                                                                    RoundedRectangleBorder(
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              10),
-                                                                ),
-                                                              ),
-                                                              child: Text(
-                                                                  'Cargar ubicaciones',
-                                                                  style: TextStyle(
-                                                                      color:
-                                                                          white)),
-                                                            ),
-                                                          ],
                                                         );
                                                       } else {
                                                         Navigator
@@ -752,36 +764,6 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                             backgroundColor:
                                                                 Colors.white,
                                                             radius: 10,
-                                                            actions: [
-                                                              ElevatedButton(
-                                                                onPressed: () {
-                                                                  context
-                                                                      .read<
-                                                                          InventarioBloc>()
-                                                                      .add(
-                                                                          GetLocationsEvent());
-                                                                  //esperamos 1 segundo para que se vea el dialogo
-
-                                                                  Get.back();
-                                                                },
-                                                                style: ElevatedButton
-                                                                    .styleFrom(
-                                                                  backgroundColor:
-                                                                      primaryColorApp,
-                                                                  shape:
-                                                                      RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10),
-                                                                  ),
-                                                                ),
-                                                                child: Text(
-                                                                    'Cargar ubicaciones',
-                                                                    style: TextStyle(
-                                                                        color:
-                                                                            white)),
-                                                              ),
-                                                            ],
                                                           );
                                                         } else {
                                                           Navigator

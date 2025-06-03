@@ -295,6 +295,9 @@ class LineasTransferencia {
 
   final dynamic isPrincipalItem;
   final dynamic cantidadFaltante;
+  final dynamic? manejaTemperatura;
+  final dynamic temperatura;
+  final dynamic image;  
 
   LineasTransferencia({
     this.id,
@@ -339,6 +342,9 @@ class LineasTransferencia {
     this.isPrincipalItem,
     this.cantidadFaltante,
     this.type,
+    this.manejaTemperatura,
+    this.temperatura,
+    this.image,
   });
 
   factory LineasTransferencia.fromMap(Map<String, dynamic> json) =>
@@ -391,6 +397,9 @@ class LineasTransferencia {
         isPrincipalItem: json["is_principal_item"],
         cantidadFaltante: json["cantidad_faltante"],
         type: json["type"],
+        manejaTemperatura: json["maneja_temperatura"],
+        temperatura: json["temperatura"],
+        image: json["image"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -440,5 +449,8 @@ class LineasTransferencia {
         "is_principal_item": isPrincipalItem,
         "cantidad_faltante": cantidadFaltante,
         "type": type,
+        "maneja_temperatura": manejaTemperatura,
+        "temperatura": temperatura,
+        "image": image,
       };
 }

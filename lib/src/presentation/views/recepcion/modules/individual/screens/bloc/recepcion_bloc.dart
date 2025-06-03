@@ -1,5 +1,7 @@
 // ignore_for_file: unused_field, unnecessary_null_comparison, unnecessary_type_check, use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -10,6 +12,7 @@ import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_reposito
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/repcion_requets_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/utils/formats.dart';
@@ -63,6 +66,8 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   String selectLote = '';
 
   LotesProduct lotesProductCurrent = LotesProduct();
+
+  TemperatureIa resultTemperature = TemperatureIa();
 
   //*repositorio
   final RecepcionRepository _recepcionRepository = RecepcionRepository();
@@ -199,6 +204,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     //enviar temperatura
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
+    on<GetTemperatureEvent>(_onGetTemperatureEvent);
 
     //evento para eliminar un producto ya enviado
     on<DelectedProductWmsEvent>(_onDelectedProductWmsEvent);
@@ -349,27 +355,85 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     }
   }
 
-  void _onSendTemperatureEvent(
-      SendTemperatureEvent event, Emitter<RecepcionState> emit) async {
+  void _onGetTemperatureEvent(
+    GetTemperatureEvent event,
+    Emitter<RecepcionState> emit,
+  ) async {
     try {
-      emit(SendTemperatureLoading());
-      final response = await _recepcionRepository.sendTemperature(
-          event.idRecepcion, event.temperature, false);
-      if (response) {
-        await db.entradasRepository.setFieldTableEntrada(
-            event.idRecepcion, 'temperatura', event.temperature);
-        //traemos la informacion de la entrada actualizada
-        resultEntrada =
-            await db.entradasRepository.getEntradaById(event.idRecepcion) ??
-                ResultEntrada();
-        controllerTemperature.clear();
-        emit(SendTemperatureSuccess('Temperatura enviada correctamente'));
+      emit(GetTemperatureLoading());
+      // 1. Llamar al método que analiza la imagen y devuelve la temperatura
+      final result =
+          await _recepcionRepository.getTemperatureWithImage(event.file);
+
+      resultTemperature = TemperatureIa();
+      if (result.temperature != null) {
+        resultTemperature = result;
+        emit(GetTemperatureSuccess(resultTemperature));
       } else {
-        emit(SendTemperatureFailure('Error al enviar la temperatura'));
+        emit(GetTemperatureFailure(
+            result.detail ?? 'Error al obtener la temperatura'));
+        return;
       }
     } catch (e, s) {
-      emit(SendTemperatureFailure('Error al enviar la temperatura'));
       print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(GetTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  void _onSendTemperatureEvent(
+    SendTemperatureEvent event,
+    Emitter<RecepcionState> emit,
+  ) async {
+    try {
+      emit(SendTemperatureLoading());
+
+      //validamso que tengamos imagen y temperatura
+
+      if (event.file.path == null || event.file.path.isEmpty) {
+        emit(SendTemperatureFailure('No se ha seleccionado una imagen'));
+        return;
+      }
+
+      print('currentProduct: ${currentProduct.toMap()}');
+
+      //enviamos la temperatura con la imagen
+      final response = await _recepcionRepository.sendTemperature(
+        resultTemperature.temperature ?? 0.0,
+        event.moveLineId,
+        event.file,
+        true,
+      );
+
+      //esperamos la repuesta y emitimos el estadp
+      if (response.code == 200) {
+        //actualizamos la temepratura por producto en la bd y la imagen
+        await db.productEntradaRepository.setFieldTableProductEntradaImg(
+          currentProduct.idRecepcion ?? 0,
+          int.parse(currentProduct.productId),
+          'temperatura',
+          resultTemperature.temperature ?? 0.0,
+          event.moveLineId,
+        );
+
+        //limpiamos el dato de temperatura
+        resultTemperature = TemperatureIa();
+
+        emit(SendTemperatureSuccess(
+            response.result ?? 'Temperatura enviada correctamente'));
+        add(GetPorductsToEntrada(
+          currentProduct.idRecepcion ?? 0,
+        ));
+
+      } else {
+        emit(SendTemperatureFailure(
+            response.msg ?? 'Error al enviar la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(SendTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
     }
   }
 
@@ -781,6 +845,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             "is_done_item",
             1,
             currentProduct.idMove ?? 0);
+
         if (event.isSplit) {
           //calculamos la cantidad pendiente del producto
           var pendingQuantity =
@@ -798,11 +863,20 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
             responseSend.result?.result?.first.id ?? 0,
             currentProduct.idMove);
 
-        add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
-        lotesProductCurrent = LotesProduct();
-        dateInicio = '';
-        dateFin = '';
-        emit(SendProductToOrderSuccess());
+        //si el producto cuaenta con temperatura pedimos temperatura
+        if (currentProduct.manejaTemperatura == 1 ||
+            currentProduct.manejaTemperatura == true) {
+          emit(GetTemperatureProduct(
+            moveLineId: responseSend.result?.result?.first.id ?? 0,
+          ));
+          return;
+        } else {
+          add(GetPorductsToEntrada(currentProduct.idRecepcion ?? 0));
+          lotesProductCurrent = LotesProduct();
+          dateInicio = '';
+          dateFin = '';
+          emit(SendProductToOrderSuccess());
+        }
       } else {
         // actualizamos estos datos si el producto no fue enviado correctamente
 

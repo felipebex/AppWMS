@@ -218,6 +218,11 @@ class SendProductToOrderLoading extends RecepcionState {}
 
 class SendProductToOrderSuccess extends RecepcionState {}
 
+class GetTemperatureProduct extends RecepcionState {
+  final int moveLineId;
+  GetTemperatureProduct({required this.moveLineId});
+}
+
 class SendProductToOrderFailure extends RecepcionState {
   final String error;
   SendProductToOrderFailure(this.error);
@@ -349,9 +354,19 @@ class SendTemperatureSuccess extends RecepcionState {
 }
 
 class SendTemperatureLoading extends RecepcionState {}
+class GetTemperatureLoading extends RecepcionState {}
 class SendTemperatureFailure extends RecepcionState {
   final String error;
   SendTemperatureFailure(this.error);
+}
+class GetTemperatureFailure extends RecepcionState {
+  final String error;
+  GetTemperatureFailure(this.error);
+}
+
+class GetTemperatureSuccess extends RecepcionState {
+  final TemperatureIa temperature;
+  GetTemperatureSuccess(this.temperature);
 }
 
 

@@ -54,12 +54,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         if (version == currentVersion) {
           // Si las versiones son iguales, la app está actualizada
+          print('La app está actualizada: $version');
           emit(AppVersionLoadedState(appVersion));
         } else if (version.compareTo(currentVersion) > 0) {
           // Si la versión local es mayor (es decir, está más actualizada)
-
+          print('La app está más actualizada: $version');
           emit(AppVersionLoadedState(appVersion)); // Ya está actualizada
         } else if (version.compareTo(currentVersion) < 0) {
+          print('Hay una actualización disponible: $version');
           // Si la versión local es menor, hay una actualización disponible
           emit(AppVersionUpdateState(appVersion));
         }
@@ -68,7 +70,5 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             AppVersionLoadErrorState('Error al obtener la versión de la app '));
       }
     });
-
-   
   }
 }

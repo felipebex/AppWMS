@@ -26,7 +26,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repo
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/picking_pick_bloc.dart';
-import 'package:wms_app/src/services/notification_service.dart';
 import 'package:wms_app/src/services/preferences.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:flutter/material.dart';
@@ -58,14 +57,15 @@ void main() async {
         },
       );
 
-  await LocalNotificationsService.reqyestPermissionsLocalNotifications();
-  await LocalNotificationsService().initializeNotifications();
+  // await LocalNotificationsService.reqyestPermissionsLocalNotifications();
+  // await LocalNotificationsService().initializeNotifications();
   await Preferences.init();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   var cron = Cron();
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
     try {
+      print('Cron...searchProductsNoSendOdoo');
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         final isLogin = await PrefUtils.getIsLoggedIn();
@@ -78,6 +78,7 @@ void main() async {
 
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
     try {
+      print('Cron...searchProductsPickNoSendOdoo');
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         final isLogin = await PrefUtils.getIsLoggedIn();

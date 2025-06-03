@@ -63,7 +63,7 @@ class UserScreen extends StatelessWidget {
                   ),
                   BlocListener<InventarioBloc, InventarioState>(
                     listener: (context, state) {
-                      if (state is GetProductsLoading) {
+                      if (state is GetProductsLoadingInventory) {
                         showDialog(
                             context: context,
                             builder: (context) {
@@ -83,7 +83,7 @@ class UserScreen extends StatelessWidget {
                         );
                       }
 
-                      if (state is GetProductsFailure) {
+                      if (state is GetProductsFailureInventory) {
                         Navigator.pop(context);
                         Get.snackbar(
                           '360 Software Informa',
@@ -183,7 +183,7 @@ class UserScreen extends StatelessWidget {
                                     onPressed: () {
                                       context
                                           .read<HomeBloc>()
-                                          .add(AppVersionEvent(context));
+                                          .add(AppVersionEvent());
                                     },
                                     style: ElevatedButton.styleFrom(
                                         minimumSize:

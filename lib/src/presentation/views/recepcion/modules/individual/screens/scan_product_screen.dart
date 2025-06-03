@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +15,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_p
 
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/dropdowbutton_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_temperature_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/product/product_card_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -342,6 +345,77 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                       child: BlocConsumer<RecepcionBloc, RecepcionState>(
                           listener: (context, state) {
                         print('STATE ❤️‍🔥 $state');
+
+                        if (state is GetTemperatureProduct) {
+                          //cerramos el dialogo de envio de producto
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                          showDialog(
+                            barrierDismissible: true,
+                            context: context,
+                            builder: (context) => DialogCapturaTemperatura(
+                              moveLineId: state.moveLineId,
+                            ),
+                          );
+                        }
+
+                        if (state is SendTemperatureSuccess) {
+                          //cerramos el dialogo de envio de temperatura
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                          Navigator.pushReplacementNamed(context, 'recepcion',
+                              arguments: [widget.ordenCompra, 1]);
+                        }
+
+                        if (state is SendProductToOrderSuccess) {
+                          //cerramos el dialogo
+                          if (Navigator.canPop(context)) {
+                            Navigator.pop(context);
+                          }
+                          Navigator.pushReplacementNamed(context, 'recepcion',
+                              arguments: [widget.ordenCompra, 1]);
+                        }
+
+                        if (state is SendProductToOrderFailure) {
+                          Navigator.pop(context);
+
+                          Get.defaultDialog(
+                            title: '360 Software Informa',
+                            titleStyle:
+                                TextStyle(color: Colors.red, fontSize: 18),
+                            middleText: state.error,
+                            middleTextStyle:
+                                TextStyle(color: black, fontSize: 14),
+                            backgroundColor: Colors.white,
+                            radius: 10,
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: primaryColorApp,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: Text('Aceptar',
+                                    style: TextStyle(color: white)),
+                              ),
+                            ],
+                          );
+                        }
+
+                        if (state is SendProductToOrderLoading) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const DialogLoading(
+                              message: "Enviando producto...",
+                            ),
+                          );
+                        }
 
                         //*estado cuando el producto es leido ok
                         if (state is ChangeProductOrderIsOkState) {
@@ -1821,9 +1895,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         currentProduct.idMove ?? 0));
                     _cantidadController.clear();
                     _finishSeprateProductOrder(context, cantidad);
-
-                    Navigator.pushReplacementNamed(context, 'recepcion',
-                        arguments: [widget.ordenCompra, 1]);
                   },
                   onSplit: () {
                     batchBloc.add(ChangeQuantitySeparate(
@@ -1832,8 +1903,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         currentProduct.idRecepcion ?? 0,
                         currentProduct.idMove ?? 0));
                     _cantidadController.clear();
-                    Navigator.pushReplacementNamed(context, 'recepcion',
-                        arguments: [widget.ordenCompra, 1]);
 
                     _finishSeprateProductOrderSplit(context, cantidad);
                   });
@@ -1880,9 +1949,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
     context.read<RecepcionBloc>().add(FinalizarRecepcionProducto());
     context.read<RecepcionBloc>().add(SendProductToOrder(false, cantidad));
     termiateProcess();
-
-    Navigator.pushReplacementNamed(context, 'recepcion',
-        arguments: [widget.ordenCompra, 1]);
   }
 
   void _finishSeprateProductOrderSplit(

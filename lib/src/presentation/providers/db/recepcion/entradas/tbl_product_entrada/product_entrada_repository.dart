@@ -96,6 +96,10 @@ class ProductsEntradaRepository {
             ProductRecepcionTable.columnCantidadFaltante:
                 product.cantidadFaltante ?? 0,
             ProductRecepcionTable.columnType: type,
+            ProductRecepcionTable.columnManejoTemperature:
+                product.manejaTemperatura ?? 0,
+            ProductRecepcionTable.columnTemperature: product.temperatura ?? 0,
+            ProductRecepcionTable.columnImage: product.image ?? '',
           };
 
           // Si la clave ya existe, se hace UPDATE; si no, se hace INSERT.
@@ -182,6 +186,10 @@ class ProductsEntradaRepository {
         ProductRecepcionTable.columnDateTransaction: "",
         ProductRecepcionTable.columnCantidadFaltante: cantidad,
         ProductRecepcionTable.columnType: type,
+        ProductRecepcionTable.columnManejoTemperature:
+            producto.manejaTemperatura ?? 0,
+        ProductRecepcionTable.columnTemperature: 0.0,
+        ProductRecepcionTable.columnImage: '',
       };
 
       await db.insert(
@@ -249,106 +257,107 @@ class ProductsEntradaRepository {
   }
 
   /// Método optimizado para actualizar cantidades y eliminar productos en lote
-Future<void> updateCantidadAndDeleteProductsEntrada({
-  required int idRecepcion,
-  required List<ProductDeleted>? products,
-}) async {
-  if (products == null || products.isEmpty) return;
+  Future<void> updateCantidadAndDeleteProductsEntrada({
+    required int idRecepcion,
+    required List<ProductDeleted>? products,
+  }) async {
+    if (products == null || products.isEmpty) return;
 
-  final db = await DataBaseSqlite().getDatabaseInstance();
+    final db = await DataBaseSqlite().getDatabaseInstance();
 
-  await db.transaction((txn) async {
-    for (final product in products) {
-      final int? idMoveDestino = product.idMove;
-      final int? idMoveEliminar = product.idMoveDeleted;
-      final int? idProducto = product.idProducto;
-      final String? nombre = product.producto;
+    await db.transaction((txn) async {
+      for (final product in products) {
+        final int? idMoveDestino = product.idMove;
+        final int? idMoveEliminar = product.idMoveDeleted;
+        final int? idProducto = product.idProducto;
+        final String? nombre = product.producto;
 
-      if (idMoveDestino == null || idMoveEliminar == null || idProducto == null) continue;
+        if (idMoveDestino == null ||
+            idMoveEliminar == null ||
+            idProducto == null) continue;
 
-      final double cantidadNueva = double.tryParse(product.cantidad.toString()) ?? 0;
+        final double cantidadNueva =
+            double.tryParse(product.cantidad.toString()) ?? 0;
 
-      // Paso 1: Buscar el producto equivalente
-      final destino = await txn.query(
-        ProductRecepcionTable.tableName,
-        columns: [ProductRecepcionTable.columnCantidadFaltante],
-        where: '${ProductRecepcionTable.columnIdRecepcion} = ? AND '
-            '${ProductRecepcionTable.columnProductId} = ? AND '
-            '${ProductRecepcionTable.columnIdMove} = ?',
-        whereArgs: [idRecepcion, idProducto, idMoveDestino],
-        limit: 1,
-      );
-
-      if (destino.isNotEmpty) {
-        // ✔️ CASO 1: Sí existe el equivalente
-        final actualRaw = destino.first[ProductRecepcionTable.columnCantidadFaltante];
-        final double cantidadAnterior = actualRaw is double
-            ? actualRaw
-            : double.tryParse(actualRaw.toString()) ?? 0;
-
-        final double cantidadActualizada = cantidadAnterior + cantidadNueva;
-
-        await txn.update(
+        // Paso 1: Buscar el producto equivalente
+        final destino = await txn.query(
           ProductRecepcionTable.tableName,
-          {ProductRecepcionTable.columnCantidadFaltante: cantidadActualizada},
+          columns: [ProductRecepcionTable.columnCantidadFaltante],
           where: '${ProductRecepcionTable.columnIdRecepcion} = ? AND '
               '${ProductRecepcionTable.columnProductId} = ? AND '
               '${ProductRecepcionTable.columnIdMove} = ?',
           whereArgs: [idRecepcion, idProducto, idMoveDestino],
+          limit: 1,
         );
 
-        await txn.delete(
-          ProductRecepcionTable.tableName,
-          where: '${ProductRecepcionTable.columnIdRecepcion} = ? AND '
-              '${ProductRecepcionTable.columnProductId} = ? AND '
-              '${ProductRecepcionTable.columnIdMove} = ?',
-          whereArgs: [idRecepcion, idProducto, idMoveEliminar],
-        );
+        if (destino.isNotEmpty) {
+          // ✔️ CASO 1: Sí existe el equivalente
+          final actualRaw =
+              destino.first[ProductRecepcionTable.columnCantidadFaltante];
+          final double cantidadAnterior = actualRaw is double
+              ? actualRaw
+              : double.tryParse(actualRaw.toString()) ?? 0;
 
-        print("🔁 Producto ACTUALIZADO:");
-        print("📦 $nombre");
-        print("🆔 Producto: $idProducto");
-        print("🔢 idMove destino: $idMoveDestino");
-        print("📉 Cantidad anterior: $cantidadAnterior");
-        print("📈 Cantidad nueva: $cantidadActualizada");
-        print("🗑️ Eliminado producto con idMove: $idMoveEliminar");
+          final double cantidadActualizada = cantidadAnterior + cantidadNueva;
 
-      } else {
-        // ❌ CASO 2: No se encuentra el equivalente
-        await txn.update(
-          ProductRecepcionTable.tableName,
-          {
-            ProductRecepcionTable.columnCantidadFaltante: cantidadNueva,
-            ProductRecepcionTable.columnIdMove: idMoveDestino,
-            ProductRecepcionTable.columnIsSeparate: 0,
-            ProductRecepcionTable.columnIsSelected: 0,
-            ProductRecepcionTable.columnIsDoneItem: 0,
-            ProductRecepcionTable.columnDateStart: "",
-            ProductRecepcionTable.columnDateEnd: "",
-            ProductRecepcionTable.columnTime: "",
-            ProductRecepcionTable.columnQuantityDone: 0.0,
-            ProductRecepcionTable.columnProductIsOk: null,
-            ProductRecepcionTable.columnIsQuantityIsOk: null,
-            ProductRecepcionTable.columnQuantitySeparate: null,
-          },
-          where: '${ProductRecepcionTable.columnIdRecepcion} = ? AND '
-              '${ProductRecepcionTable.columnProductId} = ? AND '
-              '${ProductRecepcionTable.columnIdMove} = ?',
-          whereArgs: [idRecepcion, idProducto, idMoveEliminar],
-        );
+          await txn.update(
+            ProductRecepcionTable.tableName,
+            {ProductRecepcionTable.columnCantidadFaltante: cantidadActualizada},
+            where: '${ProductRecepcionTable.columnIdRecepcion} = ? AND '
+                '${ProductRecepcionTable.columnProductId} = ? AND '
+                '${ProductRecepcionTable.columnIdMove} = ?',
+            whereArgs: [idRecepcion, idProducto, idMoveDestino],
+          );
 
-        print("🔁 Producto REASIGNADO y RESET:");
-        print("📦 $nombre");
-        print("🆔 Producto: $idProducto");
-        print("🔁 idMove actualizado de $idMoveEliminar → $idMoveDestino");
-        print("🆕 Cantidad faltante actualizada a: $cantidadNueva");
-        print("🔧 Otros campos reiniciados correctamente");
+          await txn.delete(
+            ProductRecepcionTable.tableName,
+            where: '${ProductRecepcionTable.columnIdRecepcion} = ? AND '
+                '${ProductRecepcionTable.columnProductId} = ? AND '
+                '${ProductRecepcionTable.columnIdMove} = ?',
+            whereArgs: [idRecepcion, idProducto, idMoveEliminar],
+          );
+
+          print("🔁 Producto ACTUALIZADO:");
+          print("📦 $nombre");
+          print("🆔 Producto: $idProducto");
+          print("🔢 idMove destino: $idMoveDestino");
+          print("📉 Cantidad anterior: $cantidadAnterior");
+          print("📈 Cantidad nueva: $cantidadActualizada");
+          print("🗑️ Eliminado producto con idMove: $idMoveEliminar");
+        } else {
+          // ❌ CASO 2: No se encuentra el equivalente
+          await txn.update(
+            ProductRecepcionTable.tableName,
+            {
+              ProductRecepcionTable.columnCantidadFaltante: cantidadNueva,
+              ProductRecepcionTable.columnIdMove: idMoveDestino,
+              ProductRecepcionTable.columnIsSeparate: 0,
+              ProductRecepcionTable.columnIsSelected: 0,
+              ProductRecepcionTable.columnIsDoneItem: 0,
+              ProductRecepcionTable.columnDateStart: "",
+              ProductRecepcionTable.columnDateEnd: "",
+              ProductRecepcionTable.columnTime: "",
+              ProductRecepcionTable.columnQuantityDone: 0.0,
+              ProductRecepcionTable.columnProductIsOk: null,
+              ProductRecepcionTable.columnIsQuantityIsOk: null,
+              ProductRecepcionTable.columnQuantitySeparate: null,
+            },
+            where: '${ProductRecepcionTable.columnIdRecepcion} = ? AND '
+                '${ProductRecepcionTable.columnProductId} = ? AND '
+                '${ProductRecepcionTable.columnIdMove} = ?',
+            whereArgs: [idRecepcion, idProducto, idMoveEliminar],
+          );
+
+          print("🔁 Producto REASIGNADO y RESET:");
+          print("📦 $nombre");
+          print("🆔 Producto: $idProducto");
+          print("🔁 idMove actualizado de $idMoveEliminar → $idMoveDestino");
+          print("🆕 Cantidad faltante actualizada a: $cantidadNueva");
+          print("🔧 Otros campos reiniciados correctamente");
+        }
       }
-    }
-  });
-}
-
-
+    });
+  }
 
 //*Método para obtener todos los productos de una entrada por idRecepcion
   Future<List<LineasTransferencia>> getProductsByRecepcionId(
@@ -384,6 +393,23 @@ Future<void> updateCantidadAndDeleteProductsEntrada({
         'AND ${ProductRecepcionTable.columnIdMove} = ?'
         'AND ${ProductRecepcionTable.columnIdRecepcion} = ?'
         'AND ${ProductRecepcionTable.columnIsDoneItem} = 0',
+        [setValue, productId, idMove, idEntrada]);
+
+    print(
+        "update TableProductEntrada (idProduct ----($productId)) -------($field): $resUpdate");
+
+    return resUpdate;
+  }
+
+  Future<int?> setFieldTableProductEntradaImg(int idEntrada, int productId,
+      String field, dynamic setValue, int idMove) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+
+    final resUpdate = await db.rawUpdate(
+        'UPDATE ${ProductRecepcionTable.tableName} SET $field = ?'
+        'WHERE ${ProductRecepcionTable.columnProductId} = ?'
+        'AND ${ProductRecepcionTable.columnIdMove} = ?'
+        'AND ${ProductRecepcionTable.columnIdRecepcion} = ?',
         [setValue, productId, idMove, idEntrada]);
 
     print(

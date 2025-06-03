@@ -47,6 +47,12 @@ class ProductRecepcionBatchTable {
   static const String columnDateTransaction  = 'date_transaction'; 
   static const String columnCantidadFaltante  = 'cantidad_faltante'; 
 
+  //temperature
+  static const String columnManejoTemperature = 'maneja_temperatura';
+  static const String columnTemperature = 'temperatura';
+  static const String columnImage = 'image';
+
+
 
 //Meotdo para crar la tabla
   static String createTable() {
@@ -90,6 +96,9 @@ class ProductRecepcionBatchTable {
       $columnIsDoneItem INTEGER,  
       $columnDateTransaction TEXT,
       $columnCantidadFaltante INTEGER,
+      $columnManejoTemperature INTEGER,
+      $columnTemperature INTEGER,
+      $columnImage TEXT,
       FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion_batch ($columnId)
 
     )
