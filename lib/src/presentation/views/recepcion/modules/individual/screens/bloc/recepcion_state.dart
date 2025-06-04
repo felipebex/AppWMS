@@ -396,3 +396,17 @@ class DelectedProductWmsFailure extends RecepcionState {
   final String error;
   DelectedProductWmsFailure(this.error);
 }
+
+
+class SendImageNovedadLoading   extends RecepcionState {}
+
+
+class  SendImageNovedadSuccess extends RecepcionState {
+  final ImageSendNovedad response;
+  SendImageNovedadSuccess(this.response);
+}
+
+class SendImageNovedadFailure extends RecepcionState {
+  final String error;
+  SendImageNovedadFailure(this.error);
+}

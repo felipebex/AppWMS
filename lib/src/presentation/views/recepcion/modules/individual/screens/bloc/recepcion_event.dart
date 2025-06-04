@@ -236,3 +236,16 @@ class DelectedProductWmsEvent extends RecepcionEvent {
   final List<int> listIdMove;
   DelectedProductWmsEvent(this.idRecepcion, this.listIdMove);
 }
+
+
+class SendImageNovedad extends RecepcionEvent {
+  final File file;
+  final int idRecepcion;
+  final int moveLineId;
+
+  SendImageNovedad({
+    required this.file,
+    required this.idRecepcion,
+    required this.moveLineId,
+  });
+}

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -270,6 +271,12 @@ class Tab3ScreenRecep extends StatelessWidget {
                                           ),
                                           Row(
                                             children: [
+                                              Icon(
+                                                Icons.code,
+                                                color: primaryColorApp,
+                                                size: 16,
+                                              ),
+                                              const SizedBox(width: 5),
                                               Text(
                                                 "Codigo: ",
                                                 style: TextStyle(
@@ -291,6 +298,12 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                         true,
                                             child: Row(
                                               children: [
+                                                Icon(
+                                                  Icons.thermostat_outlined,
+                                                  color: primaryColorApp,
+                                                  size: 16,
+                                                ),
+                                                const SizedBox(width: 5),
                                                 Text(
                                                   "Temperatura: ",
                                                   style: TextStyle(
@@ -302,6 +315,21 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     style: const TextStyle(
                                                         fontSize: 12,
                                                         color: black)),
+                                                const Spacer(),
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    showImageDialog(
+                                                      context,
+                                                      product.image ??
+                                                          '', // URL o path de la imagen
+                                                    );
+                                                  },
+                                                  child: Icon(
+                                                    Icons.image,
+                                                    color: primaryColorApp,
+                                                    size: 23,
+                                                  ),
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -310,6 +338,12 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                 'lot',
                                             child: Row(
                                               children: [
+                                                Icon(
+                                                  Icons.confirmation_num,
+                                                  color: primaryColorApp,
+                                                  size: 16,
+                                                ),
+                                                const SizedBox(width: 5),
                                                 Text(
                                                   "Lote: ",
                                                   style: TextStyle(
@@ -328,22 +362,42 @@ class Tab3ScreenRecep extends StatelessWidget {
                                               ],
                                             ),
                                           ),
-                                          Text(
-                                            "Ubicación de origen: ",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp,
-                                            ),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.location_on,
+                                                color: primaryColorApp,
+                                                size: 15,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                "Ubicación de origen: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                           Text("${product.locationName}",
                                               style: const TextStyle(
                                                   fontSize: 12, color: black)),
-                                          Text(
-                                            "Ubicación destino: ",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp,
-                                            ),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.arrow_forward,
+                                                color: primaryColorApp,
+                                                size: 15,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                "Ubicación destino: ",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                           Text("${product.locationDestName}",
                                               style: const TextStyle(
@@ -359,6 +413,12 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     false,
                                                 child: Row(
                                                   children: [
+                                                    Icon(
+                                                      Icons.add,
+                                                      color: primaryColorApp,
+                                                      size: 15,
+                                                    ),
+                                                    const SizedBox(width: 5),
                                                     Text(
                                                       "Demanda: ",
                                                       style: TextStyle(
@@ -396,6 +456,12 @@ class Tab3ScreenRecep extends StatelessWidget {
                                           ),
                                           Row(
                                             children: [
+                                              Icon(
+                                                Icons.access_time,
+                                                color: primaryColorApp,
+                                                size: 15,
+                                              ),
+                                              const SizedBox(width: 5),
                                               Text(
                                                 "Tiempo: ",
                                                 style: TextStyle(
@@ -456,6 +522,27 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
+                                                const Spacer(),
+
+                                                Visibility(
+                                                  visible: product.imageNovedad !=
+                                                      ""  ,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      showImageDialog(
+                                                        context,
+                                                        product.imageNovedad ??
+                                                            ''// URL o path de la imagen
+                                                      );
+                                                    },
+                                                    child: Icon(
+                                                      Icons.image,
+                                                      color: primaryColorApp,
+                                                      size: 23,
+                                                    ),
+                                                  ),
+                                                ),
+
                                               ],
                                             ),
                                           ),

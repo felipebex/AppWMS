@@ -12,7 +12,6 @@ import 'package:wms_app/src/presentation/views/inventario/models/response_produc
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/location/location_search_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/screens/widgets/product/product_search_widget.dart';
-import 'package:wms_app/src/presentation/views/ocr/widget/ocr_wodget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_batch_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/index_list.dart';
@@ -135,8 +134,7 @@ class AppRoutes {
     return {
 
 
-      //todo ocr
-      ocr: (_) =>  OcrScreen(),
+      
       // todo Global
       enterprice: (_) => const SelectEnterpricePage(),
       auth: (_) => const LoginPage(),

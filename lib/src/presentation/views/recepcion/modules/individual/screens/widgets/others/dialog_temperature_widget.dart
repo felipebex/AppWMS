@@ -68,9 +68,9 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
             sigmaY: 5,
           ),
           child: AlertDialog(
-            title:  Center(
+            title:  const Center(
               child: Text(
-                "Captura la temperatura ${widget.moveLineId}",
+                "Captura la temperatura",
                 style: TextStyle(fontSize: 16, color: black),
               ),
             ),
@@ -193,12 +193,12 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
                 ),
                 RichText(
                   text: TextSpan(
-                    text: 'Confianza: ',
+                    text: 'Origen: ',
                     style: TextStyle(color: primaryColorApp, fontSize: 12),
                     children: [
                       TextSpan(
                         text: bloc.resultTemperature.confidence ??
-                            'Sin confianza',
+                            'Sin origen',
                         style: const TextStyle(fontSize: 12, color: black),
                       ),
                     ],

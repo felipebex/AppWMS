@@ -1888,6 +1888,10 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                   currentProduct: currentProduct,
                   cantidad: cantidad,
                   onAccepted: () async {
+
+                    
+
+
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
                         int.parse(currentProduct.productId),
@@ -1895,6 +1899,9 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         currentProduct.idMove ?? 0));
                     _cantidadController.clear();
                     _finishSeprateProductOrder(context, cantidad);
+
+
+
                   },
                   onSplit: () {
                     batchBloc.add(ChangeQuantitySeparate(

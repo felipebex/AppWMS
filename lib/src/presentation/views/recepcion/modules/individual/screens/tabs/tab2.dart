@@ -88,7 +88,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
         product.idMove ?? 0,
       ));
 
-
       context.read<RecepcionBloc>().add(FetchPorductOrder(
             product,
           ));
@@ -124,7 +123,6 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
       },
       child: BlocConsumer<RecepcionBloc, RecepcionState>(
         listener: (context, state) {
-
           if (state is SendProductToOrderFailure) {
             Get.defaultDialog(
               title: '360 Software Informa',
@@ -311,15 +309,28 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenRecep> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              "Producto:",
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: primaryColorApp,
+                                          Row(
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  "Producto:",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp,
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                              //icono de temperatura
+                                              const Spacer(),
+                                              if (product.manejaTemperatura ==
+                                                  1)
+                                                Icon(
+                                                  Icons.thermostat_outlined,
+                                                  color: primaryColorApp,
+                                                  size: 16,
+                                                ),
+                                            ],
                                           ),
                                           Align(
                                             alignment: Alignment.centerLeft,

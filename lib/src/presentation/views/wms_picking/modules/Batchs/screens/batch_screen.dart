@@ -664,11 +664,14 @@ class _BatchDetailScreenState extends State<BatchScreen>
                               horizontal: 5,
                             ),
                             child: Row(children: [
+
                               CantLineasMuelle(
                                   productsOk:
                                       batchBloc.filteredProducts.where((e) {
                                 return e.isMuelle == null && e.isSeparate == 1;
                               }).toList()),
+
+                              
                               const Spacer(),
                               Padding(
                                 padding:

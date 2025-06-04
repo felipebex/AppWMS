@@ -11,6 +11,7 @@ import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/recepcion/data/recepcion_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/repcion_requets_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
@@ -209,11 +210,50 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     //evento para eliminar un producto ya enviado
     on<DelectedProductWmsEvent>(_onDelectedProductWmsEvent);
 
+    on<SendImageNovedad>(_onSendImageNovedad);
+
     //todo devoluciones
     on<FetchDevoluciones>(_onFetchDevoluciones);
     on<FetchDevolucionesOfDB>(_onFetchDevolucionesOfDB);
     on<SearchDevolucionEvent>(_onSearchDevolucionEvent);
   }
+
+
+
+//metodo para enviar una imagen de novedad
+  void _onSendImageNovedad(
+      SendImageNovedad event, Emitter<RecepcionState> emit) async {
+    try {
+      emit(SendImageNovedadLoading());
+
+      final response = await _recepcionRepository.sendImageNoved(
+        event.moveLineId,
+        event.file,
+        true,
+      );
+
+      if (response.code == 200) {
+        //actualizamos la imagen de novedad en la bd
+        await db.productEntradaRepository.setFieldTableProductEntradaImg(
+          currentProduct.idRecepcion ?? 0,
+          int.parse(currentProduct.productId),
+          'image_novedad',
+          response.imageUrl ?? "",
+          response.stockMoveLineId??0,
+        );
+        emit(SendImageNovedadSuccess(response));
+         add(GetPorductsToEntrada(event.idRecepcion));
+
+      } else {
+        emit(SendImageNovedadFailure(response.msg ?? 'Error al enviar la imagen'));
+      }
+    } catch (e, s) {
+      print('Error en el _onSendImageNovedad: $e, $s');
+      emit(SendImageNovedadFailure('Ocurrió un error al enviar la imagen'));
+    }
+  }
+
+
 
   //*metodo para eliminar un producto ya enviado
   void _onDelectedProductWmsEvent(
@@ -415,6 +455,14 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           resultTemperature.temperature ?? 0.0,
           event.moveLineId,
         );
+        //agregamos la imagen de temperatura del producto a la bd
+        await db.productEntradaRepository.setFieldTableProductEntradaImg(
+          currentProduct.idRecepcion ?? 0,
+          int.parse(currentProduct.productId),
+          'image',
+          response.imageUrl ?? "",
+          event.moveLineId,
+        );
 
         //limpiamos el dato de temperatura
         resultTemperature = TemperatureIa();
@@ -424,7 +472,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         add(GetPorductsToEntrada(
           currentProduct.idRecepcion ?? 0,
         ));
-
       } else {
         emit(SendTemperatureFailure(
             response.msg ?? 'Error al enviar la temperatura'));
@@ -834,8 +881,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
         ),
         false,
       );
-
-      print("loteeeeeee: ${lotesProductCurrent.toMap()}");
 
       if (responseSend.result?.code == 200) {
         // marcamos tiempo final de sepfaracion

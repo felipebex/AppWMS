@@ -34,7 +34,7 @@ class ProductRecepcionTable {
   static const String columnLoteId = 'lote_id';
   static const String columnLotName = 'lot_name';
   static const String columnLoteDate = 'lote_date';
-  
+
   static const String columnProductIsOk = 'product_is_ok';
   static const String columnIsQuantityIsOk = 'is_quantity_is_ok';
   static const String columnLocationDestIsOk = 'locationdest_is_ok';
@@ -45,15 +45,14 @@ class ProductRecepcionTable {
   static const String columnType = 'type';
 
   static const String columnIsDoneItem = 'is_done_item';
-  static const String columnDateTransaction  = 'date_transaction'; 
-  static const String columnCantidadFaltante  = 'cantidad_faltante'; 
-
+  static const String columnDateTransaction = 'date_transaction';
+  static const String columnCantidadFaltante = 'cantidad_faltante';
 
   //temperature
   static const String columnManejoTemperature = 'maneja_temperatura';
   static const String columnTemperature = 'temperatura';
   static const String columnImage = 'image';
-
+  static const String columnImageNovedad = 'image_novedad';
 
 //Meotdo para crar la tabla
   static String createTable() {
@@ -102,6 +101,8 @@ class ProductRecepcionTable {
       $columnManejoTemperature INTEGER,
       $columnTemperature INTEGER,
       $columnImage TEXT,
+      $columnImageNovedad TEXT,
+      
       FOREIGN KEY ($columnIdRecepcion) REFERENCES tbl_entradas_recepcion ($columnId)
 
     )

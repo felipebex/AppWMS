@@ -100,6 +100,8 @@ class ProductsEntradaRepository {
                 product.manejaTemperatura ?? 0,
             ProductRecepcionTable.columnTemperature: product.temperatura ?? 0,
             ProductRecepcionTable.columnImage: product.image ?? '',
+            ProductRecepcionTable.columnImageNovedad: product.imageNovedad ?? '',
+
           };
 
           // Si la clave ya existe, se hace UPDATE; si no, se hace INSERT.
@@ -190,6 +192,8 @@ class ProductsEntradaRepository {
             producto.manejaTemperatura ?? 0,
         ProductRecepcionTable.columnTemperature: 0.0,
         ProductRecepcionTable.columnImage: '',
+        ProductRecepcionTable.columnImageNovedad: '',
+
       };
 
       await db.insert(

@@ -167,33 +167,33 @@ class Tab1ScreenRecepBatch extends StatelessWidget {
                                   )),
                             ],
                           ),
-                          Visibility(
-                            visible: context
-                                    .read<RecepcionBatchBloc>()
-                                    .configurations
-                                    .result
-                                    ?.result
-                                    ?.hideExpectedQty ==
-                                false,
-                            child: Row(
-                              children: [
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      'Total de unidades: ',
-                                      style: TextStyle(
-                                          fontSize: 14, color: primaryColorApp),
-                                    )),
-                                Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      ordeCompraBd.numeroItems.toString(),
-                                      style:
-                                          TextStyle(fontSize: 14, color: black),
-                                    )),
-                              ],
-                            ),
-                          ),
+                          // Visibility(
+                          //   visible: context
+                          //           .read<RecepcionBatchBloc>()
+                          //           .configurations
+                          //           .result
+                          //           ?.result
+                          //           ?.hideExpectedQty ==
+                          //       false,
+                          //   child: Row(
+                          //     children: [
+                          //       Align(
+                          //           alignment: Alignment.centerLeft,
+                          //           child: Text(
+                          //             'Total de unidades: ',
+                          //             style: TextStyle(
+                          //                 fontSize: 14, color: primaryColorApp),
+                          //           )),
+                          //       Align(
+                          //           alignment: Alignment.centerLeft,
+                          //           child: Text(
+                          //             ordeCompraBd.numeroItems.toString(),
+                          //             style:
+                          //                 TextStyle(fontSize: 14, color: black),
+                          //           )),
+                          //     ],
+                          //   ),
+                          // ),
                           Row(
                             children: [
                               Align(

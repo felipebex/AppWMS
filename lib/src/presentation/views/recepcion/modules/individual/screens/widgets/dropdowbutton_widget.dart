@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_photo_novedad_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogOrderAdvetenciaCantidadScreen extends StatefulWidget {
@@ -37,7 +39,6 @@ class _DialogAdvetenciaCantidadScreenState
 
   @override
   Widget build(BuildContext context) {
-    print(context.read<RecepcionBloc>().novedades.length);
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -157,8 +158,7 @@ class _DialogAdvetenciaCantidadScreenState
               child: ElevatedButton(
                   onPressed: () async {
                     Navigator.pop(context); // Cierra el diálogo
-                    widget.onSplit(); // 
-
+                    widget.onSplit(); //
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: grey,
@@ -188,24 +188,60 @@ class _DialogAdvetenciaCantidadScreenState
               ),
               child:
                   Text('Cancelar', style: TextStyle(color: primaryColorApp))),
-
-
-                  
           ElevatedButton(
-              onPressed: () async {
-                // Validamos que tenga una novedad seleccionada
-                if (selectedNovedad != null) {
-                  DataBaseSqlite db = DataBaseSqlite();
-                  await db.productEntradaRepository.updateNovedadOrder(
-                      widget.currentProduct.idRecepcion ?? 0,
-                      int.parse(widget.currentProduct.productId),
-                      widget.currentProduct.idMove ?? 0,
-                      selectedNovedad ?? '');
-                  Navigator.pop(context); // Cierra el diálogo
-                  widget.onAccepted(); // Llama al callback
-                }
-                 print(context.read<RecepcionBloc>().lotesProductCurrent.toMap());
-              },
+              onPressed: selectedNovedad != null
+                  ? () async {
+                      showDialog(
+                        context: context,
+                        builder: (_) {
+                          return DialogCapturaNovedad(
+                            onResult: (File? file) async {
+                              if (file != null) {
+                                context.read<RecepcionBloc>().add(
+                                    SendImageNovedad(
+                                        file: file,
+                                        idRecepcion: widget
+                                            .currentProduct.idRecepcion ?? 0,
+                                        moveLineId:
+                                            widget.currentProduct.idMove ?? 0));
+                                final db = DataBaseSqlite();
+                                await db.productEntradaRepository
+                                    .updateNovedadOrder(
+                                  widget.currentProduct.idRecepcion ?? 0,
+                                  int.parse(widget.currentProduct.productId),
+                                  widget.currentProduct.idMove ?? 0,
+                                  selectedNovedad!,
+                                );
+                                // Cierra el diálogo y ejecuta el callback después de actualizar
+                                if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                }
+                                widget.onAccepted();
+
+                                // Procesar imagen aquí
+                              } else {
+                                if (selectedNovedad != null) {
+                                  final db = DataBaseSqlite();
+                                  await db.productEntradaRepository
+                                      .updateNovedadOrder(
+                                    widget.currentProduct.idRecepcion ?? 0,
+                                    int.parse(widget.currentProduct.productId),
+                                    widget.currentProduct.idMove ?? 0,
+                                    selectedNovedad!,
+                                  );
+                                  // Cierra el diálogo y ejecuta el callback después de actualizar
+                                  if (Navigator.canPop(context)) {
+                                    Navigator.pop(context);
+                                  }
+                                  widget.onAccepted();
+                                }
+                              }
+                            },
+                          );
+                        },
+                      );
+                    }
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColorApp,
                 minimumSize: Size(size.width * 0.3, 30),

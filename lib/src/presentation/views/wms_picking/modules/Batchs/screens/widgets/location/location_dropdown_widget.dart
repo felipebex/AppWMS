@@ -22,44 +22,14 @@ class LocationDropdownWidget extends StatefulWidget {
   });
 
   @override
-  State<LocationDropdownWidget> createState() => _LocationDropdownWidgetState();
+  State<LocationDropdownWidget> createState() =>
+      _LocationDropdownWidgetState();
 }
 
 class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
-  late List<DropdownMenuItem<String>> _dropdownItems;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final screenWidth = MediaQuery.of(context).size.width;
-    _dropdownItems = widget.positionsOrigen.map((location) {
-      final isSelected = widget.currentLocationId == location;
-      return DropdownMenuItem<String>(
-        value: location,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: isSelected ? Colors.green[100] : Colors.white,
-          ),
-          width: screenWidth * 0.9,
-          height: 45,
-          padding: const EdgeInsets.symmetric(horizontal: 5),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              location,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: black, fontSize: 14),
-            ),
-          ),
-        ),
-      );
-    }).toList();
-  }
-
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final batchBloc = widget.batchBloc;
 
     return Column(
@@ -80,10 +50,33 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
             width: 20,
           ),
           value: widget.selectedLocation,
-          items: _dropdownItems,
+          items: widget.positionsOrigen.map((location) {
+            final isSelected = location == widget.currentLocationId;
+            return DropdownMenuItem<String>(
+              value: location,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: isSelected ? Colors.green[100] : Colors.white,
+                ),
+                width: screenWidth * 0.9,
+                height: 45,
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    location,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: black, fontSize: 14),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
           selectedItemBuilder: (context) {
             return widget.positionsOrigen.map((location) {
-              final isSelected = widget.currentLocationId == location;
+              final isSelected = location == widget.currentLocationId;
               return Container(
                 alignment: Alignment.centerLeft,
                 padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -101,9 +94,7 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
               );
             }).toList();
           },
-          onChanged: batchBloc
-                      .configurations.result?.result?.locationPickingManual ==
-                  false
+          onChanged: batchBloc.configurations.result?.result?.locationPickingManual == false
               ? null
               : batchBloc.locationIsOk
                   ? null
@@ -111,8 +102,7 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
                       final expected =
                           widget.currentProduct.locationId.toString();
                       if (newValue == expected) {
-                        batchBloc.add(
-                            ValidateFieldsEvent(field: "location", isOk: true));
+                        batchBloc.add(ValidateFieldsEvent(field: "location", isOk: true));
                         batchBloc.add(ChangeLocationIsOkEvent(
                           widget.currentProduct.idProduct ?? 0,
                           batchBloc.batchWithProducts.batch?.id ?? 0,
@@ -120,8 +110,7 @@ class _LocationDropdownWidgetState extends State<LocationDropdownWidget> {
                         ));
                         batchBloc.oldLocation = expected;
                       } else {
-                        batchBloc.add(ValidateFieldsEvent(
-                            field: "location", isOk: false));
+                        batchBloc.add(ValidateFieldsEvent(field: "location", isOk: false));
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           duration: const Duration(milliseconds: 1000),
                           content: const Text('Ubicación errónea'),
