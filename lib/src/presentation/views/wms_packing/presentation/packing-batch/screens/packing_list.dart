@@ -358,76 +358,76 @@ class _PakingListScreenState extends State<PakingListScreen>
                                             ),
                                           ),
                                         ),
-                                        Visibility(
-                                          visible: widget.batchModel
-                                                      ?.manejaTemperatura ==
-                                                  1 &&
-                                              widget.batchModel?.temperatura ==
-                                                  0.0,
-                                          child: ElevatedButton(
-                                              onPressed: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return DialogTemperature(
-                                                      controller: context
-                                                          .read<
-                                                              WmsPackingBloc>()
-                                                          .controllerTemperature,
-                                                      onConfirm: () {
-                                                        //cerramos el dialog
-                                                        Navigator.pop(context);
-                                                        context
-                                                            .read<
-                                                                WmsPackingBloc>()
-                                                            .add(SendTemperatureEvent(
-                                                                widget.batchModel
-                                                                        ?.id ??
-                                                                    0,
-                                                                double.parse(context
-                                                                    .read<
-                                                                        WmsPackingBloc>()
-                                                                    .controllerTemperature
-                                                                    .text)));
-                                                      },
-                                                      onCancel: () {
-                                                        //cerramos el dialog
-                                                        Navigator.pop(context);
-                                                      },
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    primaryColorApp,
-                                                minimumSize:
-                                                    Size(size.width * 0.7, 40),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  //*icono de temperatura
-                                                  const Icon(
-                                                    Icons.thermostat,
-                                                    color: white,
-                                                    size: 20,
-                                                  ),
-                                                  const SizedBox(width: 10),
+                                        // Visibility(
+                                        //   visible: widget.batchModel
+                                        //               ?.manejaTemperatura ==
+                                        //           1 &&
+                                        //       widget.batchModel?.temperatura ==
+                                        //           0.0,
+                                        //   child: ElevatedButton(
+                                        //       onPressed: () {
+                                        //         showDialog(
+                                        //           context: context,
+                                        //           builder: (context) {
+                                        //             return DialogTemperature(
+                                        //               controller: context
+                                        //                   .read<
+                                        //                       WmsPackingBloc>()
+                                        //                   .controllerTemperature,
+                                        //               onConfirm: () {
+                                        //                 //cerramos el dialog
+                                        //                 Navigator.pop(context);
+                                        //                 context
+                                        //                     .read<
+                                        //                         WmsPackingBloc>()
+                                        //                     .add(SendTemperatureEvent(
+                                        //                         widget.batchModel
+                                        //                                 ?.id ??
+                                        //                             0,
+                                        //                         double.parse(context
+                                        //                             .read<
+                                        //                                 WmsPackingBloc>()
+                                        //                             .controllerTemperature
+                                        //                             .text)));
+                                        //               },
+                                        //               onCancel: () {
+                                        //                 //cerramos el dialog
+                                        //                 Navigator.pop(context);
+                                        //               },
+                                        //             );
+                                        //           },
+                                        //         );
+                                        //       },
+                                        //       style: ElevatedButton.styleFrom(
+                                        //         backgroundColor:
+                                        //             primaryColorApp,
+                                        //         minimumSize:
+                                        //             Size(size.width * 0.7, 40),
+                                        //         shape: RoundedRectangleBorder(
+                                        //           borderRadius:
+                                        //               BorderRadius.circular(10),
+                                        //         ),
+                                        //       ),
+                                        //       child: Row(
+                                        //         mainAxisAlignment:
+                                        //             MainAxisAlignment.center,
+                                        //         children: [
+                                        //           //*icono de temperatura
+                                        //           const Icon(
+                                        //             Icons.thermostat,
+                                        //             color: white,
+                                        //             size: 20,
+                                        //           ),
+                                        //           const SizedBox(width: 10),
 
-                                                  Text('Ingresar Temperatura',
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        color: white,
-                                                      )),
-                                                ],
-                                              )),
-                                        ),
+                                        //           Text('Ingresar Temperatura',
+                                        //               style: TextStyle(
+                                        //                 fontSize: 14,
+                                        //                 color: white,
+                                        //               )),
+                                        //         ],
+                                        //       )),
+                                        // ),
                                       ],
                                     ),
                                   ),

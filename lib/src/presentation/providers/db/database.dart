@@ -290,6 +290,18 @@ class DataBaseSqlite {
             "barcode": product.barcode == false ? "" : product.barcode,
             "weight": product.weigth,
             "origin": product.origin,
+            "is_separate": product.isSeparate.toString(),
+            //si el producto esta separado en la hora de insertarlo quiere decir que ya esta en el wms (odoo)
+            "is_send_odoo": product.isSeparate == 0
+                ? null
+                : product.isSeparate,
+           "time_separate": _parseDurationToSeconds(product.timeSeparate),
+
+            "observation": product.observation == false
+                ? ""
+                : product.observation,
+            "quantity_separate" : product.quantitySeparate,
+          
           };
 
           if (existingSet.contains(key)) {
@@ -320,6 +332,27 @@ class DataBaseSqlite {
       print('Error insertBatchProducts: $e => $s');
     }
   }
+
+
+  double? _parseDurationToSeconds(dynamic time) {
+  try {
+    if (time is String && time.contains(':')) {
+      final parts = time.split(':').map(int.parse).toList();
+      if (parts.length == 3) {
+        final duration = Duration(
+          hours: parts[0],
+          minutes: parts[1],
+          seconds: parts[2],
+        );
+        return duration.inSeconds.toDouble();
+      }
+    }
+  } catch (e) {
+    print('Error parsing time_separate: $e');
+  }
+  return null; // Si no es válido, devuelve null
+}
+
 
   //metodo para traer un producto de un batch de la tabla tblbatch_products
   Future<ProductsBatch?> getProductBatch(

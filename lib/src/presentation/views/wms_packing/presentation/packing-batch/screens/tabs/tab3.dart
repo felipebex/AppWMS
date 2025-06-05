@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -106,14 +107,17 @@ class Tab3Screen extends StatelessWidget {
                           ),
                         )
                       : ListView.builder(
-                          itemCount:
-                              context.read<WmsPackingBloc>().productsDone.length,
+                          itemCount: context
+                              .read<WmsPackingBloc>()
+                              .productsDone
+                              .length,
                           itemBuilder: (context, index) {
                             final product = context
                                 .read<WmsPackingBloc>()
                                 .productsDone[index];
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
                               child: GestureDetector(
                                 onTap: () {
                                   print("Producto: ${product.toJson()}");
@@ -149,14 +153,16 @@ class Tab3Screen extends StatelessWidget {
                                                           overflow: TextOverflow
                                                               .ellipsis,
                                                           " ${product.productId}",
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              color: black))),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black))),
                                                 ),
                                               ],
                                             ),
                                           ),
-                
+
                                           Card(
                                             elevation: 3,
                                             color: product.quantity ==
@@ -164,23 +170,27 @@ class Tab3Screen extends StatelessWidget {
                                                 ? white
                                                 : Colors.amber[100],
                                             child: Padding(
-                                              padding: const EdgeInsets.all(8.0),
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
                                               child: Column(
                                                 children: [
                                                   Row(
                                                     children: [
-                                                  
                                                       Text(
                                                         "Unidades: ",
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          color: primaryColorApp,
+                                                          color:
+                                                              primaryColorApp,
                                                         ),
                                                       ),
-                                                      Text("${product.unidades}",
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              color: black)),
+                                                      Text(
+                                                          "${product.unidades}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black)),
                                                     ],
                                                   ),
                                                   Row(
@@ -189,17 +199,53 @@ class Tab3Screen extends StatelessWidget {
                                                         "Cantidad a empacar: ",
                                                         style: TextStyle(
                                                           fontSize: 12,
-                                                          color: primaryColorApp,
+                                                          color:
+                                                              primaryColorApp,
                                                         ),
                                                       ),
                                                       Text(
                                                           "${product.quantitySeparate}",
-                                                          style: const TextStyle(
-                                                              fontSize: 12,
-                                                              color: black)),
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 12,
+                                                                  color:
+                                                                      black)),
                                                     ],
                                                   ),
-                                                  if (product.observation != null && product.isProductSplit == null)
+                                                  // if (product.observation !=
+                                                  //         null &&
+                                                  //     product.isProductSplit ==
+                                                  //         null)
+                                                  //   Row(
+                                                  //     children: [
+                                                  //       Text(
+                                                  //         "Novedad: ",
+                                                  //         style: TextStyle(
+                                                  //           fontSize: 12,
+                                                  //           color:
+                                                  //               primaryColorApp,
+                                                  //         ),
+                                                  //       ),
+                                                  //       SizedBox(
+                                                  //         width:
+                                                  //             size.width * 0.55,
+                                                  //         child: Text(
+                                                  //             "${product.observation}",
+                                                  //             maxLines: 2,
+                                                  //             overflow:
+                                                  //                 TextOverflow
+                                                  //                     .ellipsis,
+                                                  //             style:
+                                                  //                 const TextStyle(
+                                                  //                     fontSize:
+                                                  //                         12,
+                                                  //                     color:
+                                                  //                         black)),
+                                                  //       ),
+                                                  //     ],
+                                                  //   ),
+                                                  if (product.observation !=
+                                                      null)
                                                     Row(
                                                       children: [
                                                         Text(
@@ -226,38 +272,32 @@ class Tab3Screen extends StatelessWidget {
                                                                       color:
                                                                           black)),
                                                         ),
-                                                      ],
-                                                    ),
-                                                  if (product.observation != null && product.isProductSplit == 1)
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          "Novedad: ",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp,
+                                                        const Spacer(),
+                                                        Visibility(
+                                                          visible: product
+                                                                  .imageNovedad !=
+                                                              "",
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              showImageDialog(
+                                                                context,
+                                                                product.imageNovedad ??
+                                                                    '', // URL o path de la imagen
+                                                              );
+                                                            },
+                                                            child: Icon(
+                                                              Icons.image,
+                                                              color:
+                                                                  primaryColorApp,
+                                                              size: 23,
+                                                            ),
                                                           ),
                                                         ),
-                                                        SizedBox(
-                                                          width:
-                                                              size.width * 0.55,
-                                                          child: Text(
-                                                              "${product.observation}",
-                                                              maxLines: 2,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          black)),
-                                                        ),
                                                       ],
                                                     ),
-                                                  if (product.isProductSplit == 1)
+                                                  if (product.isProductSplit ==
+                                                      1)
                                                     Row(
                                                       children: [
                                                         Text(
@@ -281,8 +321,8 @@ class Tab3Screen extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                
-                                          if (product.tracking != false)
+
+                                          if (product.tracking == 'lot')
                                             Row(
                                               children: [
                                                 Text(
@@ -299,7 +339,7 @@ class Tab3Screen extends StatelessWidget {
                                                         color: black)),
                                               ],
                                             ),
-                
+
                                           Row(
                                             children: [
                                               Text(

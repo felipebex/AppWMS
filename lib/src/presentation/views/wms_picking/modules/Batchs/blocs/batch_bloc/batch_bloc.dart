@@ -784,36 +784,45 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
 //* metodo para cargar las variables de la vista dependiendo del estado de los productos y del batch
-  void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
-    try {
-      emit(LoadDataInfoLoading());
-      if (filteredProducts.length == 1) {
-        currentProduct = filteredProducts[0];
-      } else {
-        currentProduct =
-            filteredProducts[batchWithProducts.batch?.indexList ?? 0];
-      }
-      if (currentProduct.locationId == oldLocation) {
-        locationIsOk = true;
-      } else {
-        locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
-      }
-      productIsOk = currentProduct.productIsOk == false
-          ? false
-          : currentProduct.productIsOk == 1
-              ? true
-              : false;
-      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
-      quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
-      index = (batchWithProducts.batch?.indexList ?? 0);
-      quantitySelected = currentProduct.quantitySeparate ?? 0;
-      _isProcessing = false;
-      emit(LoadDataInfoSuccess());
-    } catch (e, s) {
-      emit(LoadDataInfoError("Error al cargar las variables de estado"));
-      print("❌ Error en  LoadDataInfoEvent $e ->$s");
+void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
+  try {
+    emit(LoadDataInfoLoading());
+
+    // 🔍 Filtrar productos con isSeparate == 0
+    final separatedProducts =
+        filteredProducts.where((p) => p.isSeparate == 0).toList();
+
+    // 🧠 Selección del producto actual
+    if (separatedProducts.length == 1) {
+      currentProduct = separatedProducts[0];
+    } else {
+      currentProduct =
+          separatedProducts[batchWithProducts.batch?.indexList ?? 0];
     }
+
+    // ✅ Cargar estados de validación
+    if (currentProduct.locationId == oldLocation) {
+      locationIsOk = true;
+    } else {
+      locationIsOk = currentProduct.isLocationIsOk == 1;
+    }
+
+    productIsOk = currentProduct.productIsOk == 1;
+    locationDestIsOk = currentProduct.locationDestIsOk == 1;
+    quantityIsOk = currentProduct.isQuantityIsOk == 1;
+    index = batchWithProducts.batch?.indexList ?? 0;
+    quantitySelected = currentProduct.quantitySeparate ?? 0;
+    _isProcessing = false;
+
+    print('currentProduct: ${currentProduct.toMap()}');
+
+    emit(LoadDataInfoSuccess());
+  } catch (e, s) {
+    emit(LoadDataInfoError("Error al cargar las variables de estado"));
+    print("❌ Error en LoadDataInfoEvent $e -> $s");
   }
+}
+
 
 //*metodo para enviar al wms
   void sendProuctOdoo() async {

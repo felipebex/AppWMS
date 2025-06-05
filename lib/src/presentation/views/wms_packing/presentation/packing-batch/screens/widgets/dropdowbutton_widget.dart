@@ -1,11 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_photo_novedad_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -37,9 +39,7 @@ class _DialogAdvetenciaCantidadScreenState
 
   @override
   Widget build(BuildContext context) {
-    print(context
-                      .read<WmsPackingBloc>()
-                      .novedades.length);
+    print(context.read<WmsPackingBloc>().novedades.length);
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -47,7 +47,8 @@ class _DialogAdvetenciaCantidadScreenState
         actionsAlignment: MainAxisAlignment.center,
         backgroundColor: Colors.white,
         title: const Center(
-            child: Text('360 Software Informa', style: TextStyle(color: yellow, fontSize: 14))),
+            child: Text('360 Software Informa',
+                style: TextStyle(color: yellow, fontSize: 14))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -180,22 +181,60 @@ class _DialogAdvetenciaCantidadScreenState
               ),
               child:
                   Text('Cancelar', style: TextStyle(color: primaryColorApp))),
-          
           ElevatedButton(
-              onPressed: () async {
-                // Validamos que tenga una novedad seleccionada
-                if (selectedNovedad != null) {
-                  DataBaseSqlite db = DataBaseSqlite();
+              onPressed: selectedNovedad != null
+                  ? () async {
+                      showDialog(
+                        context: context,
+                        builder: (_) {
+                          return DialogCapturaNovedad(
+                            onResult: (File? file) async {
+                              if (file != null) {
+                                context.read<WmsPackingBloc>().add(
+                                      SendImageNovedad(
+                                        cantidad: widget.cantidad,
+                                        file: file,
+                                        moveLineId:
+                                            widget.currentProduct.idMove ?? 0,
+                                        pedidoId:
+                                            widget.currentProduct.pedidoId ?? 0,
+                                        productId:
+                                            widget.currentProduct.idProduct ??
+                                                0,
+                                      ),
+                                    );
+                                final db = DataBaseSqlite();
+                                await db.productosPedidosRepository
+                                    .updateNovedadPacking(
+                                        widget.currentProduct.pedidoId ?? 0,
+                                        widget.currentProduct.idProduct ?? 0,
+                                        selectedNovedad ?? '');
+                                // Cierra el diálogo y ejecuta el callback después de actualizar
+                                if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                }
+                              } else {
+                                if (selectedNovedad != null) {
+                                  final db = DataBaseSqlite();
 
-                  await db.productosPedidosRepository.updateNovedadPacking(
-                      widget.currentProduct.pedidoId ?? 0,
-                      widget.currentProduct.idProduct ?? 0,
-                      selectedNovedad ?? '');
-
-                  Navigator.pop(context); // Cierra el diálogo
-                  widget.onAccepted(); // Llama al callback
-                }
-              },
+                                  await db.productosPedidosRepository
+                                      .updateNovedadPacking(
+                                          widget.currentProduct.pedidoId ?? 0,
+                                          widget.currentProduct.idProduct ?? 0,
+                                          selectedNovedad ?? '');
+                                  // Cierra el diálogo y ejecuta el callback después de actualizar
+                                  if (Navigator.canPop(context)) {
+                                    Navigator.pop(context);
+                                  }
+                                  widget.onAccepted();
+                                }
+                              }
+                            },
+                          );
+                        },
+                      );
+                    }
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColorApp,
                 minimumSize: Size(size.width * 0.3, 30),

@@ -7,6 +7,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_sen_temperature_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/response_sedn_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/sen_packing_request.dart';
@@ -374,9 +376,78 @@ class WmsPackingRepository {
     return false;
   }
 
-  Future<bool> sendTemperature(
-    int idRecepcion,
+
+
+
+
+  Future<ImageSendNovedad> sendImageNoved(
+    int idMove,
+    File imageFile,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return ImageSendNovedad(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      final response = await ApiRequestService().postMultipartDynamic(
+          endpoint: 'send_imagen_observation/batch',
+          imageFile: imageFile,
+          fields: {
+            'move_line_id': idMove,
+          },
+          isLoadingDialog: true
+      );
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
+
+        if (jsonResponse['code'] == 400) {
+          return ImageSendNovedad(
+            msg: jsonResponse['msg'],
+            code: jsonResponse['code'],
+          );
+        } else if (jsonResponse['code'] == 200) {
+          return ImageSendNovedad(
+            code: jsonResponse['code'],
+            result: jsonResponse['result'],
+            imageUrl: jsonResponse['image_url'],
+            stockMoveLineId: jsonResponse['stock_move_line_id'],
+            stockMoveId: jsonResponse['stock_move_id'],
+            filename: jsonResponse['filename'],
+              
+          );
+        } else {
+          return ImageSendNovedad(); // Retornamos un objeto vacío en caso de error
+        }
+      } else {
+        // Manejo de error si la respuesta no es exitosa
+        print('Error al enviar la temperatura: ${response.statusCode}');
+        return ImageSendNovedad(); // Retornamos un objeto vacío en caso de error
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return ImageSendNovedad(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en sendImageNoved: $e, $s');
+      return ImageSendNovedad(); // Retornamos un objeto vacío en caso de error de red
+    }
+  }
+
+
+
+
+  Future<TemperatureSend> sendTemperature(
     dynamic temperature,
+    int idMoveLine,
+    File imageFile,
     bool isLoadingDialog,
   ) async {
     // Verificar si el dispositivo tiene acceso a Internet
@@ -384,72 +455,53 @@ class WmsPackingRepository {
 
     if (connectivityResult == ConnectivityResult.none) {
       print("Error: No hay conexión a Internet.");
-      return true; // Si no hay conexión, terminamos la ejecución
+      return TemperatureSend(); // Si no hay conexión, terminamos la ejecución
     }
 
     try {
-      var response = await ApiRequestService().postPacking(
-        endpoint:
-            'send_temperatura/batch', // Cambiado para que sea el endpoint correspondiente
-        body: {
-          "params": {
-            "id_batch": idRecepcion,
-            "temperatura": temperature,
-          }
-        },
-        isLoadinDialog: false,
-      );
+      final response = await ApiRequestService().postMultipart(
+          endpoint: 'send_image_linea_recepcion',
+          imageFile: imageFile,
+          idMoveLine: idMoveLine,
+          temperature: temperature,
+          isLoadinDialog: isLoadingDialog);
+
       if (response.statusCode < 400) {
         // Decodifica la respuesta JSON a un mapa
+
         Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
 
-        if (jsonResponse.containsKey('result')) {
-          if (jsonResponse['result']['code'] == 200) {
-            return true;
-          } else {
-            return false;
-          }
-        } else if (jsonResponse.containsKey('error')) {
-          if (jsonResponse['error']['code'] == 100) {
-            //mostramos una alerta de get
-            Get.defaultDialog(
-              title: 'Alerta',
-              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
-              middleTextStyle: TextStyle(color: black, fontSize: 14),
-              backgroundColor: Colors.white,
-              radius: 10,
-              actions: [
-                ElevatedButton(
-                  onPressed: () {
-                    Get.back();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColorApp,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text('Aceptar', style: TextStyle(color: white)),
-                ),
-              ],
-            );
-
-            return false;
-          }
+        if (jsonResponse['code'] == 400) {
+          return TemperatureSend(
+            msg: jsonResponse['msg'],
+            code: jsonResponse['code'],
+          );
+        } else if (jsonResponse['code'] == 200) {
+          return TemperatureSend(
+            code: jsonResponse['code'],
+            result: jsonResponse['result'],
+            lineId: jsonResponse['line_id'],
+            imageUrl: jsonResponse['image_url'],
+              
+          );
+        } else {
+          return TemperatureSend(); // Retornamos un objeto vacío en caso de error
         }
       } else {
         // Manejo de error si la respuesta no es exitosa
-        // ...
+        print('Error al enviar la temperatura: ${response.statusCode}');
+        return TemperatureSend(); // Retornamos un objeto vacío en caso de error
       }
     } on SocketException catch (e) {
       print('Error de red: $e');
-      return false; // Retornamos un objeto vacío en caso de error de red
+      return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
     } catch (e, s) {
       // Manejo de otros errores
       print('Error en sendTemperature: $e, $s');
-      return false; // Retornamos un objeto vacío en caso de error de red
+      return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
     }
-    return false; // Retornamos un objeto vacío en caso de error de red
   }
+
+
 }

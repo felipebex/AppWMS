@@ -100,6 +100,7 @@ class ProductScannerWidget extends StatelessWidget {
                                 fontSize: 12,
                                 color: black)),
                         const SizedBox(height: 10),
+                       
                         Row(
                           children: [
                             Image.asset(

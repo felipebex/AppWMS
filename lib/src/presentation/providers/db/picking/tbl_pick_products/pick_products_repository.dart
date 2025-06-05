@@ -49,6 +49,8 @@ class PickProductsRepository {
             PickProductsTable.columnWeight: product.weigth,
             PickProductsTable.columnOrigin: product.origin,
             PickProductsTable.columnTypePick: typePick,
+            PickProductsTable.columnIsSeparate: product.isSeparate ?? 0,
+
 
 
           };

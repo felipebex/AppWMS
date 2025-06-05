@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison, unused_element, sort_child_properties_last, no_leading_underscores_for_local_identifiers
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -664,14 +665,14 @@ class _BatchDetailScreenState extends State<BatchScreen>
                               horizontal: 5,
                             ),
                             child: Row(children: [
-
                               CantLineasMuelle(
                                   productsOk:
                                       batchBloc.filteredProducts.where((e) {
-                                return e.isMuelle == null && e.isSeparate == 1;
+                                return e.isSeparate == 1 &&
+                                    e.idLocationDest ==
+                                        batchBloc
+                                            .batchWithProducts.batch?.idMuelle;
                               }).toList()),
-
-                              
                               const Spacer(),
                               Padding(
                                 padding:
@@ -679,8 +680,12 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                 child: ElevatedButton(
                                     onPressed: batchBloc.filteredProducts
                                             .where((e) {
-                                              return e.isMuelle == null &&
-                                                  e.isSeparate == 1;
+                                              return e.isSeparate == 1 &&
+                                                  e.idLocationDest ==
+                                                      batchBloc
+                                                          .batchWithProducts
+                                                          .batch
+                                                          ?.idMuelle;
                                             })
                                             .toList()
                                             .isEmpty
@@ -935,7 +940,12 @@ class _BatchDetailScreenState extends State<BatchScreen>
       // Función para gestionar la transición al siguiente producto
       Future<void> _moveToNextProduct() async {
         // Si estamos en la última posición
-        if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
+        final separated =
+            batchBloc.filteredProducts.where((e) => e.isSeparate == 0).toList();
+
+        if (batchBloc.index + 1 == separated.length) {
+          // Último elemento alcanzado
+
           // Cambiar el producto actual
           context.read<BatchBloc>().add(ChangeCurrentProduct(
                 currentProduct: currentProduct,

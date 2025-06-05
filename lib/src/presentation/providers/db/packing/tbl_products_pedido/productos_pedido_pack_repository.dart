@@ -44,6 +44,11 @@ class ProductosPedidosRepository {
         ProductosPedidosTable.columnIsSelected: 0,
         ProductosPedidosTable.columnIsProductSplit: 1,
         ProductosPedidosTable.columnType: type,
+        ProductosPedidosTable.columnManejoTemperature:
+            producto.manejaTemperatura ?? 0,
+        ProductosPedidosTable.columnTemperature: producto.temperatura ?? 0.0,
+        ProductosPedidosTable.columnImage: producto.image ?? '',
+        ProductosPedidosTable.columnImageNovedad: producto.imageNovedad ?? '',
       };
 
       await db.insert(
@@ -116,6 +121,13 @@ class ProductosPedidosRepository {
                     ? ""
                     : producto.unidades.toString(),
                 ProductosPedidosTable.columnType: type,
+                ProductosPedidosTable.columnManejoTemperature:
+                    producto.manejaTemperatura ?? 0,
+                ProductosPedidosTable.columnTemperature:
+                    producto.temperatura ?? 0.0,
+                ProductosPedidosTable.columnImage: producto.image ?? '',
+                ProductosPedidosTable.columnImageNovedad:
+                    producto.imageNovedad ?? '',
               },
               where:
                   '${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnBatchId} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
@@ -165,6 +177,13 @@ class ProductosPedidosRepository {
                     ? ""
                     : producto.unidades.toString(),
                 ProductosPedidosTable.columnType: type,
+                ProductosPedidosTable.columnManejoTemperature:
+                    producto.manejaTemperatura ?? 0,
+                ProductosPedidosTable.columnTemperature:
+                    producto.temperatura ?? 0.0,
+                ProductosPedidosTable.columnImage: producto.image ?? '',
+                ProductosPedidosTable.columnImageNovedad:
+                    producto.imageNovedad ?? '',
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -228,6 +247,13 @@ class ProductosPedidosRepository {
                     ? ""
                     : producto.tracking.toString(),
                 ProductosPedidosTable.columnType: type,
+                ProductosPedidosTable.columnImage: producto.image ?? '',
+                ProductosPedidosTable.columnImageNovedad:
+                    producto.imageNovedad ?? '',
+                ProductosPedidosTable.columnManejoTemperature:
+                    producto.manejaTemperatura ?? 0,
+                ProductosPedidosTable.columnTemperature:
+                    producto.temperatura ?? 0.0,
               },
               where:
                   '${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnBatchId} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
@@ -271,6 +297,13 @@ class ProductosPedidosRepository {
                     ? ""
                     : producto.tracking.toString(),
                 ProductosPedidosTable.columnType: type,
+                ProductosPedidosTable.columnImage: producto.image ?? '',
+                ProductosPedidosTable.columnImageNovedad:
+                    producto.imageNovedad ?? '',
+                ProductosPedidosTable.columnManejoTemperature:
+                    producto.manejaTemperatura ?? 0,
+                ProductosPedidosTable.columnTemperature:
+                    producto.temperatura ?? 0.0,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -319,7 +352,7 @@ class ProductosPedidosRepository {
       'UPDATE ${ProductosPedidosTable.tableName} SET $field = ? WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} IS NULL',
       [setValue, productId, pedidoId, idMove],
     );
-    print("update separated tblproductos_pedidos: $resUpdate");
+    print("☢️3 update separated tblproductos_pedidos: ($field): $resUpdate");
     return resUpdate;
   }
 
@@ -332,7 +365,7 @@ class ProductosPedidosRepository {
       [setValue, productId, pedidoId, idMove],
     );
     print(
-        "update tblproductos_pedidos (certificate and no package): $resUpdate");
+        "☢️2 update tblproductos_pedidos (certificate and no package): ($field): $resUpdate");
     return resUpdate;
   }
 
@@ -345,11 +378,11 @@ class ProductosPedidosRepository {
       [productId, pedidoId, idMove],
     );
     print(
-        "update tblproductos_pedidos (certificate and no package) String: $resUpdate");
+        "☢️2String update tblproductos_pedidos (certificate and no package) String: ($field): $resUpdate");
     return resUpdate;
   }
 
-  // Actualizar la tabla de productos de un pedido (separados, con certificado)
+  // Actualizar la tabla de productos de un pedido (separados, sin certificado)
   Future<int?> setFieldTableProductosPedidos3String(int pedidoId, int productId,
       String field, dynamic setValue, int idMove) async {
     Database db = await DataBaseSqlite().getDatabaseInstance();
@@ -357,7 +390,8 @@ class ProductosPedidosRepository {
       "UPDATE ${ProductosPedidosTable.tableName} SET $field = '$setValue' WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} = 0 AND ${ProductosPedidosTable.columnIsPackage} = 1",
       [productId, pedidoId, idMove],
     );
-    print("update separated tblproductos_pedidos ($field): $resUpdate");
+    print(
+        "☢️3String update separated tblproductos_pedidos ($field): $resUpdate");
     return resUpdate;
   }
 
@@ -372,7 +406,7 @@ class ProductosPedidosRepository {
         [setValue, productId, pedidoId, idMove]);
 
     print(
-        "update tblproductos_pedidos (idProduct ----($productId)) -------($field): $resUpdate");
+        "☢️ update tblproductos_pedidos (idProduct ----($productId)) -------($field): $resUpdate");
 
     return resUpdate;
   }
@@ -422,7 +456,6 @@ class ProductosPedidosRepository {
     return resUpdate;
   }
 
-  
   Future<int> updateProductosBatch({
     required List<ProductoPedido> productos,
     required Map<String, dynamic> fieldsToUpdate,

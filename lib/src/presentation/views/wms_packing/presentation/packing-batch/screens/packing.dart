@@ -16,6 +16,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/product/product_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
@@ -92,12 +93,6 @@ class _PackingScreenState extends State<PackingScreen> {
       focusNode2.unfocus();
       focusNode4.unfocus();
     }
-
-    print('❤️‍🔥 locationIsOk: ${batchBloc.locationIsOk}');
-    print('❤️‍🔥 productIsOk: ${batchBloc.productIsOk}');
-    print('❤️‍🔥 quantityIsOk: ${batchBloc.quantityIsOk}');
-    print('❤️‍🔥 locationDestIsOk: ${batchBloc.locationDestIsOk}');
-    print('❤️‍🔥 viewQuantity: ${batchBloc.viewQuantity}');
   }
 
   @override
@@ -257,26 +252,24 @@ class _PackingScreenState extends State<PackingScreen> {
                               if (state.quantity ==
                                   packinghBloc.currentProduct.quantity) {
                                 _finichPackingProduct(context);
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  'packing-detail',
-                                  arguments: [
-                                    widget.packingModel,
-                                    widget.batchModel,
-                                    1
-                                  ],
-                                );
                               }
                             }
 
+                            if (state is SetPickingPackingLoadingState) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const DialogLoading(
+                                  message: "Separando producto...",
+                                ),
+                              );
+                            }
+                            
+
                             if (state is SetPickingPackingOkState) {
-                              //Mensaje de confirmacion
-                              // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              //   duration: const Duration(milliseconds: 1000),
-                              //   content: const Text(
-                              //       'Producto certificado, revisa en preparados'),
-                              //   backgroundColor: Colors.green[200],
-                              // ));
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+
                               Navigator.pushReplacementNamed(
                                 context,
                                 'packing-detail',
@@ -286,6 +279,17 @@ class _PackingScreenState extends State<PackingScreen> {
                                   1
                                 ],
                               );
+                            }
+
+                            if (state is SendImageNovedadSuccess) {
+                             
+                              packinghBloc.add(ChangeQuantitySeparate(
+                                  state.cantidad,
+                                  packinghBloc.currentProduct.idProduct ?? 0,
+                                  packinghBloc.currentProduct.pedidoId ?? 0,
+                                  packinghBloc.currentProduct.idMove ?? 0));
+                              cantidadController.clear();
+                              _finichPackingProduct(context);
                             }
 
                             if (state is ChangeLocationPackingIsOkState) {
@@ -649,7 +653,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                                             : false),
                                                     if (packinghBloc
                                                             .currentProduct
-                                                            .loteId !=
+                                                            .loteId ==
                                                         null)
                                                       Row(
                                                         children: [
@@ -1181,18 +1185,8 @@ class _PackingScreenState extends State<PackingScreen> {
       batchBloc.currentProduct.pedidoId ?? 0,
     ));
 
-    //cerramos el dialogo de carga
     batchBloc.add(
         LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
-    Navigator.pushReplacementNamed(
-      context,
-      'packing-detail',
-      arguments: [
-        widget.packingModel,
-        widget.batchModel,
-        1,
-      ],
-    );
   }
 
   void _validatebuttonquantity() {

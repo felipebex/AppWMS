@@ -47,6 +47,12 @@ class ProductoPedido {
       locationDestIsOk; // Variable para si la ubicación destino está leída
   final dynamic isQuantityIsOk; // V
   final String? type;
+
+  final dynamic manejaTemperatura;
+  final dynamic temperatura;
+  final dynamic image;  
+  final dynamic imageNovedad;  
+
   
 
   ProductoPedido({
@@ -88,6 +94,11 @@ class ProductoPedido {
     this.barcodeLocation,
     this.expireDate,
     this.type,
+
+    this.manejaTemperatura,
+    this.temperatura,
+    this.image,
+    this.imageNovedad,
   });
 
   factory ProductoPedido.fromJson(String str) =>
@@ -139,6 +150,11 @@ class ProductoPedido {
                 json['other_barcode'].map((x) => Barcodes.fromMap(x))),
         barcodeLocation: json["barcode_location"],
         type: json["type"],
+        manejaTemperatura: json["maneja_temperatura"],
+        temperatura: json["temperatura"],
+        image: json["image"],
+        imageNovedad: json["image_novedad"],
+
       );
 
   Map<String, dynamic> toMap() => {
@@ -183,5 +199,9 @@ class ProductoPedido {
             : List<dynamic>.from(otherBarcode!.map((x) => x.toMap())),
         "barcode_location": barcodeLocation,
         "type": type,
+        "maneja_temperatura": manejaTemperatura,
+        "temperatura": temperatura,
+        "image": image,
+        "image_novedad": imageNovedad,
       };
 }

@@ -1,10 +1,14 @@
 // ignore_for_file: unnecessary_type_check, unnecessary_null_comparison, avoid_print, collection_methods_unrelated_type, use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/models/novedades_response_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
@@ -31,6 +35,8 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   //*lista de batchs para packing
   List<BatchPackingModel> listOfBatchs = [];
   List<BatchPackingModel> listOfBatchsDB = [];
+
+  TemperatureIa resultTemperature = TemperatureIa();
 
   //*listad de pedido de un batch
   List<PedidoPacking> listOfPedidos = [];
@@ -184,32 +190,105 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ShowDetailvent>(_onShowDetailEvent);
 
     //enviar temperatura
+    on<SendImageNovedad>(_onSendImageNovedad);
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
   }
 
-  void _onSendTemperatureEvent(
-      SendTemperatureEvent event, Emitter<WmsPackingState> emit) async {
+//metodo para enviar una imagen de novedad
+  void _onSendImageNovedad(
+      SendImageNovedad event, Emitter<WmsPackingState> emit) async {
     try {
-      emit(SendTemperatureLoading());
-      final response = await wmsPackingRepository.sendTemperature(
-          event.idRecepcion, event.temperature, false);
-      if (response) {
-        await db.batchPackingRepository.setFieldTableBatchPacking(
-            event.idRecepcion, 'temperatura', event.temperature);
+      print('------ Enviando imagen de novedad ---');
+      print(
+          'pedidoId: ${event.pedidoId} moveLineId: ${event.moveLineId} productId: ${event.productId}');
+      emit(SendImageNovedadLoading());
+      final response = await wmsPackingRepository.sendImageNoved(
+        event.moveLineId,
+        event.file,
+      );
+      if (response.code == 200) {
+        //actualizamos la imagen de novedad en la bd
+        await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "image_novedad",
+          response.imageUrl ?? "",
+          event.moveLineId,
+        );
 
-        await db.batchPackingRepository
-            .setFieldTableBatchPacking(event.idRecepcion, 'is_separate', 1);
-
-        //traemos la informacion de la entrada actualizada
-        controllerTemperature.clear();
-        emit(SendTemperatureSuccess('Temperatura enviada correctamente'));
+        emit(SendImageNovedadSuccess(response, event.cantidad));
+        //  add(GetPorductsToEntrada(event.idRecepcion));
       } else {
-        emit(SendTemperatureFailure('Error al enviar la temperatura'));
+        emit(SendImageNovedadFailure(
+            response.msg ?? 'Error al enviar la imagen'));
       }
     } catch (e, s) {
-      emit(SendTemperatureFailure('Error al enviar la temperatura'));
-      print('Error en el _onSendTemperatureEvent: $e, $s');
+      print('Error en el _onSendImageNovedad: $e, $s');
+      emit(SendImageNovedadFailure('Ocurrió un error al enviar la imagen'));
     }
+  }
+
+  void _onSendTemperatureEvent(
+    SendTemperatureEvent event,
+    Emitter<WmsPackingState> emit,
+  ) async {
+    // try {
+    //   emit(SendTemperatureLoading());
+
+    //   //validamso que tengamos imagen y temperatura
+
+    //   if (event.file.path == null || event.file.path.isEmpty) {
+    //     emit(SendTemperatureFailure('No se ha seleccionado una imagen'));
+    //     return;
+    //   }
+
+    //   print('currentProduct: ${currentProduct.toMap()}');
+
+    //   //enviamos la temperatura con la imagen
+    //   final response = await wmsPackingRepository.sendTemperature(
+    //     resultTemperature.temperature ?? 0.0,
+    //     event.moveLineId,
+    //     event.file,
+    //     true,
+    //   );
+
+    //   //esperamos la repuesta y emitimos el estadp
+    //   if (response.code == 200) {
+    //     //actualizamos la temepratura por producto en la bd y la imagen
+    //     await db.productEntradaRepository.setFieldTableProductEntradaImg(
+    //       currentProduct.idRecepcion ?? 0,
+    //       int.parse(currentProduct.productId),
+    //       'temperatura',
+    //       resultTemperature.temperature ?? 0.0,
+    //       event.moveLineId,
+    //     );
+    //     //agregamos la imagen de temperatura del producto a la bd
+    //     await db.productEntradaRepository.setFieldTableProductEntradaImg(
+    //       currentProduct.idRecepcion ?? 0,
+    //       int.parse(currentProduct.productId),
+    //       'image',
+    //       response.imageUrl ?? "",
+    //       event.moveLineId,
+    //     );
+
+    //     //limpiamos el dato de temperatura
+    //     resultTemperature = TemperatureIa();
+
+    //     emit(SendTemperatureSuccess(
+    //         response.result ?? 'Temperatura enviada correctamente'));
+    //     add(GetPorductsToEntrada(
+    //       currentProduct.idRecepcion ?? 0,
+    //     ));
+    //   } else {
+    //     emit(SendTemperatureFailure(
+    //         response.msg ?? 'Error al enviar la temperatura'));
+    //     return;
+    //   }
+    // } catch (e, s) {
+    //   print('Error en el _onSendTemperatureEvent: $e, $s');
+    //   emit(SendTemperatureFailure(
+    //       'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    // }
   }
 
   //*evento para empezar el tiempo de separacion
@@ -500,7 +579,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onSetPickingsSplitEvent(
       SetPickingSplitEvent event, Emitter<WmsPackingState> emit) async {
     try {
-      emit(SplitProductLoading());
+      emit(SetPickingPackingLoadingState());
       //actualizamos el estado del producto como separado
       await db.productosPedidosRepository.setFieldTableProductosPedidos3(
           event.pedidoId, event.productId, "is_separate", 1, event.idMove);
@@ -526,7 +605,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       viewQuantity = false;
       //actualizamos la lista de productos
       add(LoadAllProductsFromPedidoEvent(event.pedidoId));
-      emit(SplitProductSuccess());
+      emit(SetPickingPackingOkState());
     } catch (e, s) {
       print('Error en el  _onSetPickingsSplitEvent: $e, $s');
       emit(SplitProductError(e.toString()));

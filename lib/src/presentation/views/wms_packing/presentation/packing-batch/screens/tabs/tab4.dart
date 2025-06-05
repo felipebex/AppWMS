@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
@@ -181,9 +182,7 @@ class Tab4Screen extends StatelessWidget {
                                                     ],
                                                   ),
                                                   if (product.observation !=
-                                                          "" ||
-                                                      product.observation ==
-                                                          null)
+                                                      null)
                                                     Row(
                                                       children: [
                                                         Text(
@@ -198,10 +197,7 @@ class Tab4Screen extends StatelessWidget {
                                                           width:
                                                               size.width * 0.55,
                                                           child: Text(
-                                                              product.observation ==
-                                                                      null
-                                                                  ? "Sin novedad"
-                                                                  : "${product.observation}",
+                                                              "${product.observation}",
                                                               maxLines: 2,
                                                               overflow:
                                                                   TextOverflow
@@ -212,6 +208,28 @@ class Tab4Screen extends StatelessWidget {
                                                                           12,
                                                                       color:
                                                                           black)),
+                                                        ),
+                                                        const Spacer(),
+                                                        Visibility(
+                                                          visible: product
+                                                                  .imageNovedad !=
+                                                              "",
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              showImageDialog(
+                                                                context,
+                                                                product.imageNovedad ??
+                                                                    '', // URL o path de la imagen
+                                                              );
+                                                            },
+                                                            child: Icon(
+                                                              Icons.image,
+                                                              color:
+                                                                  primaryColorApp,
+                                                              size: 23,
+                                                            ),
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
@@ -240,7 +258,7 @@ class Tab4Screen extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          if (product.tracking =='lot')
+                                          if (product.tracking == 'lot')
                                             Row(
                                               children: [
                                                 Text(

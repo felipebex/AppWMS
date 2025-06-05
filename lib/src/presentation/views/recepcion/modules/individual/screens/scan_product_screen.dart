@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
 
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -1888,8 +1887,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                   currentProduct: currentProduct,
                   cantidad: cantidad,
                   onAccepted: () async {
-
-                    
 
 
                     batchBloc.add(ChangeQuantitySeparate(

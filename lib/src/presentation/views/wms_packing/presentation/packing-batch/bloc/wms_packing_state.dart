@@ -182,3 +182,19 @@ class SendTemperatureFailure extends WmsPackingState {
   final String error;
   SendTemperatureFailure(this.error);
 }
+
+
+
+class SendImageNovedadLoading   extends WmsPackingState {}
+
+
+class  SendImageNovedadSuccess extends WmsPackingState {
+  final dynamic cantidad;
+  final ImageSendNovedad response;
+  SendImageNovedadSuccess(this.response, this.cantidad);
+}
+
+class SendImageNovedadFailure extends WmsPackingState {
+  final String error;
+  SendImageNovedadFailure(this.error);
+}

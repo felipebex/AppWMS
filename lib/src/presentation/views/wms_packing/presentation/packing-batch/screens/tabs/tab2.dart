@@ -413,22 +413,43 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                       alignment:
                                                           Alignment.centerLeft,
                                                       child: Text(
-                                                        "Producto:",
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              primaryColorApp,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
                                                         "${product.productId}",
                                                         style: const TextStyle(
                                                             fontSize: 12,
                                                             color: black),
+                                                      ),
+                                                    ),
+                                                    Visibility(
+                                                      visible: product
+                                                              .manejaTemperatura ==
+                                                          1,
+                                                      child: Row(
+                                                        children: [
+                                                          Text(
+                                                            "Temperatura: ",
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color:
+                                                                  primaryColorApp,
+                                                            ),
+                                                          ),
+                                                          Text(
+                                                              "${product.temperatura}",
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          black)),
+                                                          const Spacer(),
+                                                          Icon(
+                                                            Icons
+                                                                .thermostat_outlined,
+                                                            color:
+                                                                primaryColorApp,
+                                                            size: 16,
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                     Text(
@@ -438,17 +459,12 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                            "${product.locationId}",
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black)),
-                                                      ],
+                                                    Text(
+                                                      "${product.locationId}",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: black,
+                                                      ),
                                                     ),
                                                     Row(
                                                       children: [
@@ -512,8 +528,8 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                                         black)),
                                                       ],
                                                     ),
-                                                    if (product.tracking !=
-                                                        false)
+                                                    if (product.tracking ==
+                                                        'lot')
                                                       Column(
                                                         children: [
                                                           Align(

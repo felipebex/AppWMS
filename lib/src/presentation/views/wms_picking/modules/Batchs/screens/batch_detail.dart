@@ -113,8 +113,9 @@ class BatchDetailScreen extends StatelessWidget {
                         ),
                       ),
                       width: double.infinity,
-                      child: BlocBuilder<ConnectionStatusCubit,
-                          ConnectionStatus>(builder: (context, status) {
+                      child:
+                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                              builder: (context, status) {
                         return Column(
                           children: [
                             const WarningWidgetCubit(),
@@ -150,13 +151,12 @@ class BatchDetailScreen extends StatelessWidget {
                                         context.read<BatchBloc>().add(
                                             ClearSearchProudctsBatchEvent());
                                         context.read<BatchBloc>().add(
-                                            FetchBatchWithProductsEvent(
-                                                context
-                                                        .read<BatchBloc>()
-                                                        .batchWithProducts
-                                                        .batch
-                                                        ?.id ??
-                                                    0));
+                                            FetchBatchWithProductsEvent(context
+                                                    .read<BatchBloc>()
+                                                    .batchWithProducts
+                                                    .batch
+                                                    ?.id ??
+                                                0));
                                         Navigator.pushReplacementNamed(
                                             context, 'batch');
                                       }
@@ -398,9 +398,6 @@ class BatchDetailScreen extends StatelessWidget {
                                       print(
                                           "product detail info: ${productsBatch.toMap()}");
                                       print("----------------");
-                                      print(
-                                          "batch detail info: ${context.read<BatchBloc>().batchWithProducts.batch?.toMap()}");
-                                      print("----------------");
                                     },
                                     child: Card(
                                         elevation: 4,
@@ -488,24 +485,71 @@ class BatchDetailScreen extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Image.asset(
-                                                    "assets/icons/barcode.png",
-                                                    color: primaryColorApp,
-                                                    width: 20,
-                                                  ),
-                                                  const SizedBox(width: 5),
-                                                  Text(productsBatch.barcode,
-                                                      style: const TextStyle(
-                                                        fontSize: 12,
-                                                        color: black,
-                                                      )),
-                                                ],
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 8),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/icons/barcode.png",
+                                                      color: primaryColorApp,
+                                                      width: 20,
+                                                    ),
+                                                    const SizedBox(width: 5),
+                                                    Text(productsBatch.barcode,
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black,
+                                                        )),
+                                                  ],
+                                                ),
                                               ),
-                                              const SizedBox(height: 5),
+                                              // Padding(
+                                              //   padding:
+                                              //       const EdgeInsets.symmetric(
+                                              //           horizontal: 8),
+                                              //   child: Row(
+                                              //     mainAxisAlignment:
+                                              //         MainAxisAlignment.start,
+                                              //     children: [
+                                              //       Icon(
+                                              //         Icons.code,
+                                              //         color: primaryColorApp,
+                                              //         size: 15,
+                                              //       ),
+                                              //       const SizedBox(width: 5),
+                                              //       Text(
+                                              //         (productsBatch.codeProduct ==
+                                              //                     null ||
+                                              //                 productsBatch
+                                              //                     .codeProduct!
+                                              //                     .isEmpty ||
+                                              //                 productsBatch
+                                              //                         .codeProduct ==
+                                              //                     "false")
+                                              //             ? "Sin codigo"
+                                              //             : productsBatch
+                                              //                 .codeProduct!,
+                                              //         style: TextStyle(
+                                              //             fontSize: 12,
+                                              //             color: (productsBatch
+                                              //                             .codeProduct ==
+                                              //                         null ||
+                                              //                     productsBatch
+                                              //                         .codeProduct!
+                                              //                         .isEmpty ||
+                                              //                     productsBatch
+                                              //                             .codeProduct ==
+                                              //                         "false")
+                                              //                 ? Colors.red
+                                              //                 : black),
+                                              //       ),
+                                              //     ],
+                                              //   ),
+                                              // ),
                                               Visibility(
                                                 visible: context
                                                         .read<BatchBloc>()

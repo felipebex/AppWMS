@@ -225,9 +225,26 @@ class EndTimePack extends WmsPackingEvent {
 
 
 class SendTemperatureEvent extends WmsPackingEvent {
-  final int idRecepcion;
-  final dynamic temperature;
-  SendTemperatureEvent(
-    this.idRecepcion,
-    this.temperature);
+ final File file;
+ final int moveLineId;
+  SendTemperatureEvent({
+    required this.file,
+    required this.moveLineId,
+  });
+}
+
+class SendImageNovedad extends WmsPackingEvent {
+  final dynamic cantidad;
+  final File file;
+  final int moveLineId;
+  final int pedidoId;
+  final int productId;
+
+  SendImageNovedad({
+    required this.cantidad,
+    required this.file,
+    required this.moveLineId,
+    required this.pedidoId,
+    required this.productId,
+  });
 }
