@@ -7,12 +7,14 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/location/location_card_packing_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_temperature_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/product/product_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
@@ -263,11 +265,35 @@ class _PackingScreenState extends State<PackingScreen> {
                                 ),
                               );
                             }
-                            
 
                             if (state is SetPickingPackingOkState) {
                               if (Navigator.canPop(context)) {
                                 Navigator.pop(context);
+                              }
+
+                              //validamos si el producto maneja temperatura
+                              if (packinghBloc
+                                          .currentProduct.manejaTemperatura ==
+                                      1 ||
+                                  packinghBloc
+                                          .currentProduct.manejaTemperatura ==
+                                      true) {
+                                showDialog(
+                                  barrierDismissible:
+                                      false, // Evita que se cierre tocando fuera del diálogo
+                                  context: context,
+                                  builder: (context) => WillPopScope(
+                                    onWillPop: () async =>
+                                        false, // Evita que se cierre con la flecha de atrás
+                                    child: DialogCapturaTemperatura(
+                                      moveLineId:
+                                          packinghBloc.currentProduct.idMove ??
+                                              0,
+                                    ),
+                                  ),
+                                );
+
+                                return;
                               }
 
                               Navigator.pushReplacementNamed(
@@ -281,8 +307,56 @@ class _PackingScreenState extends State<PackingScreen> {
                               );
                             }
 
+                            if (state is SendTemperatureSuccess) {
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                              Navigator.pushReplacementNamed(
+                                context,
+                                'packing-detail',
+                                arguments: [
+                                  widget.packingModel,
+                                  widget.batchModel,
+                                  1
+                                ],
+                              );
+                            }
+
+
+
+
+
+                            if (state is SendTemperatureFailure) {
+                              Navigator.pop(context);
+
+                              Get.defaultDialog(
+                                title: '360 Software Informa',
+                                titleStyle:
+                                    TextStyle(color: Colors.red, fontSize: 18),
+                                middleText: state.error,
+                                middleTextStyle:
+                                    TextStyle(color: black, fontSize: 14),
+                                backgroundColor: Colors.white,
+                                radius: 10,
+                                actions: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Get.back();
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: primaryColorApp,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: Text('Aceptar',
+                                        style: TextStyle(color: white)),
+                                  ),
+                                ],
+                              );
+                            }
+
                             if (state is SendImageNovedadSuccess) {
-                             
                               packinghBloc.add(ChangeQuantitySeparate(
                                   state.cantidad,
                                   packinghBloc.currentProduct.idProduct ?? 0,

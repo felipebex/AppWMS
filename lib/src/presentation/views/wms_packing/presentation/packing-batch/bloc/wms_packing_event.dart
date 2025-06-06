@@ -248,3 +248,12 @@ class SendImageNovedad extends WmsPackingEvent {
     required this.productId,
   });
 }
+
+
+class GetTemperatureEvent extends WmsPackingEvent {
+  final File file;
+
+  GetTemperatureEvent({
+    required this.file,
+  });
+}

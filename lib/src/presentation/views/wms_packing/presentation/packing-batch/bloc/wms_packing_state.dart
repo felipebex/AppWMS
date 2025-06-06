@@ -198,3 +198,17 @@ class SendImageNovedadFailure extends WmsPackingState {
   final String error;
   SendImageNovedadFailure(this.error);
 }
+
+
+class GetTemperatureLoading extends WmsPackingState {}
+
+class GetTemperatureSuccess extends WmsPackingState {
+  final TemperatureIa temperature;
+  GetTemperatureSuccess(this.temperature);
+}
+
+
+class GetTemperatureFailure extends WmsPackingState {
+  final String error;
+  GetTemperatureFailure(this.error);
+}

@@ -879,6 +879,56 @@ class Tab1Screen extends StatelessWidget {
                                                       ),
                                                       Visibility(
                                                         visible: product
+                                                                .manejaTemperatura ==
+                                                            1,
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons.thermostat,
+                                                              color:
+                                                                  primaryColorApp,
+                                                              size: 15,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 5,
+                                                            ),
+                                                            RichText(
+                                                              text: TextSpan(
+                                                                style:
+                                                                    const TextStyle(
+                                                                  fontSize:
+                                                                      14, // Tamaño del texto
+                                                                  color: Colors
+                                                                      .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                                ),
+                                                                children: <TextSpan>[
+                                                                  const TextSpan(
+                                                                      text:
+                                                                          "Temperatura: ",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          color:
+                                                                              black)), // Parte del texto en color negro (o el color que prefieras)
+                                                                  TextSpan(
+                                                                    text: product.temperatura ==
+                                                                            null
+                                                                        ? "Sin temperatura"
+                                                                        : "${product.temperatura}", // La cantidad en color rojo
+                                                                    style: TextStyle(
+                                                                        color:
+                                                                            primaryColorApp,
+                                                                        fontSize:
+                                                                            12), // Estilo solo para la cantidad
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Visibility(
+                                                        visible: product
                                                                 .isCertificate ==
                                                             1,
                                                         child: Row(

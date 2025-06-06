@@ -190,8 +190,35 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<ShowDetailvent>(_onShowDetailEvent);
 
     //enviar temperatura
+    on<GetTemperatureEvent>(_onGetTemperatureEvent);
     on<SendImageNovedad>(_onSendImageNovedad);
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
+  }
+
+  void _onGetTemperatureEvent(
+    GetTemperatureEvent event,
+    Emitter<WmsPackingState> emit,
+  ) async {
+    try {
+      emit(GetTemperatureLoading());
+      // 1. Llamar al método que analiza la imagen y devuelve la temperatura
+      final result =
+          await wmsPackingRepository.getTemperatureWithImage(event.file);
+
+      resultTemperature = TemperatureIa();
+      if (result.temperature != null) {
+        resultTemperature = result;
+        emit(GetTemperatureSuccess(resultTemperature));
+      } else {
+        emit(GetTemperatureFailure(
+            result.detail ?? 'Error al obtener la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onGetTemperatureEvent: $e, $s');
+      emit(GetTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
   }
 
 //metodo para enviar una imagen de novedad
@@ -232,63 +259,64 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     SendTemperatureEvent event,
     Emitter<WmsPackingState> emit,
   ) async {
-    // try {
-    //   emit(SendTemperatureLoading());
+    try {
+      emit(SendTemperatureLoading());
 
-    //   //validamso que tengamos imagen y temperatura
+      //validamso que tengamos imagen y temperatura
 
-    //   if (event.file.path == null || event.file.path.isEmpty) {
-    //     emit(SendTemperatureFailure('No se ha seleccionado una imagen'));
-    //     return;
-    //   }
+      if (event.file.path == null || event.file.path.isEmpty) {
+        emit(SendTemperatureFailure('No se ha seleccionado una imagen'));
+        return;
+      }
 
-    //   print('currentProduct: ${currentProduct.toMap()}');
+      print('currentProduct: ${currentProduct.toMap()}');
 
-    //   //enviamos la temperatura con la imagen
-    //   final response = await wmsPackingRepository.sendTemperature(
-    //     resultTemperature.temperature ?? 0.0,
-    //     event.moveLineId,
-    //     event.file,
-    //     true,
-    //   );
+      //enviamos la temperatura con la imagen
+      final response = await wmsPackingRepository.sendTemperature(
+        resultTemperature.temperature ?? 0.0,
+        event.moveLineId,
+        event.file,
+        true,
+      );
 
-    //   //esperamos la repuesta y emitimos el estadp
-    //   if (response.code == 200) {
-    //     //actualizamos la temepratura por producto en la bd y la imagen
-    //     await db.productEntradaRepository.setFieldTableProductEntradaImg(
-    //       currentProduct.idRecepcion ?? 0,
-    //       int.parse(currentProduct.productId),
-    //       'temperatura',
-    //       resultTemperature.temperature ?? 0.0,
-    //       event.moveLineId,
-    //     );
-    //     //agregamos la imagen de temperatura del producto a la bd
-    //     await db.productEntradaRepository.setFieldTableProductEntradaImg(
-    //       currentProduct.idRecepcion ?? 0,
-    //       int.parse(currentProduct.productId),
-    //       'image',
-    //       response.imageUrl ?? "",
-    //       event.moveLineId,
-    //     );
+      //esperamos la repuesta y emitimos el estadp
+      if (response.code == 200) {
+        //actualizamos la temepratura por producto en la bd y la imagen
 
-    //     //limpiamos el dato de temperatura
-    //     resultTemperature = TemperatureIa();
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'temperatura',
+          resultTemperature.temperature ?? 0.0,
+          event.moveLineId,
+        );
 
-    //     emit(SendTemperatureSuccess(
-    //         response.result ?? 'Temperatura enviada correctamente'));
-    //     add(GetPorductsToEntrada(
-    //       currentProduct.idRecepcion ?? 0,
-    //     ));
-    //   } else {
-    //     emit(SendTemperatureFailure(
-    //         response.msg ?? 'Error al enviar la temperatura'));
-    //     return;
-    //   }
-    // } catch (e, s) {
-    //   print('Error en el _onSendTemperatureEvent: $e, $s');
-    //   emit(SendTemperatureFailure(
-    //       'Ocurrió un error al procesar la imagen y obtener la temperatura'));
-    // }
+        //agregamos la imagen de temperatura del producto a la bd
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'image',
+          response.imageUrl ?? "",
+          event.moveLineId,
+        );
+
+        //limpiamos el dato de temperatura
+        resultTemperature = TemperatureIa();
+
+        add(LoadAllProductsFromPedidoEvent(currentProduct.pedidoId ?? 0));
+
+        emit(SendTemperatureSuccess(
+            response.result ?? 'Temperatura enviada correctamente'));
+      } else {
+        emit(SendTemperatureFailure(
+            response.msg ?? 'Error al enviar la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(SendTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
   }
 
   //*evento para empezar el tiempo de separacion

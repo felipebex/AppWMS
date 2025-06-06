@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, unrelated_type_equality_checks
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -351,10 +350,15 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                             Navigator.pop(context);
                           }
                           showDialog(
-                            barrierDismissible: true,
+                            barrierDismissible:
+                                false, // Evita que se cierre tocando fuera del diálogo
                             context: context,
-                            builder: (context) => DialogCapturaTemperatura(
-                              moveLineId: state.moveLineId,
+                            builder: (context) => WillPopScope(
+                              onWillPop: () async =>
+                                  false, // Evita que se cierre con la flecha de atrás
+                              child: DialogCapturaTemperatura(
+                                moveLineId: state.moveLineId,
+                              ),
                             ),
                           );
                         }
@@ -1887,8 +1891,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                   currentProduct: currentProduct,
                   cantidad: cantidad,
                   onAccepted: () async {
-
-
                     batchBloc.add(ChangeQuantitySeparate(
                         cantidad,
                         int.parse(currentProduct.productId),
@@ -1896,9 +1898,6 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         currentProduct.idMove ?? 0));
                     _cantidadController.clear();
                     _finishSeprateProductOrder(context, cantidad);
-
-
-
                   },
                   onSplit: () {
                     batchBloc.add(ChangeQuantitySeparate(

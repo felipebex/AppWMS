@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_sen_temperature_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/response_sedn_packing.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/sen_packing_request.dart';
@@ -378,6 +379,33 @@ class WmsPackingRepository {
 
 
 
+  Future<TemperatureIa> getTemperatureWithImage(File imageFile) async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return TemperatureIa();
+    }
+
+    try {
+      final response = await ApiRequestService().postMultipartImage(
+        endpoint: 'extract-temp-humidity',
+        imageFile: imageFile,
+        isLoadinDialog: true,
+      );
+
+      if (response.statusCode == 200) {
+        return TemperatureIa.fromMap(jsonDecode(response.body));
+      } else {
+        return TemperatureIa.fromMap(jsonDecode(response.body));
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+    } catch (e, s) {
+      print('Error en getTemperatureWithImage: $e\n$s');
+    }
+
+    return TemperatureIa(); // Retorna vacío en caso de fallo
+  }
 
 
   Future<ImageSendNovedad> sendImageNoved(
@@ -460,7 +488,7 @@ class WmsPackingRepository {
 
     try {
       final response = await ApiRequestService().postMultipart(
-          endpoint: 'send_image_linea_recepcion',
+          endpoint: 'send_image_linea_recepcion/batch',
           imageFile: imageFile,
           idMoveLine: idMoveLine,
           temperature: temperature,

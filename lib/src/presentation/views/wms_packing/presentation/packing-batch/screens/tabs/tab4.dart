@@ -140,6 +140,54 @@ class Tab4Screen extends StatelessWidget {
                                                                       black)),
                                                     ],
                                                   ),
+                                                  Visibility(
+                                                    visible: product
+                                                            .manejaTemperatura ==
+                                                        1,
+                                                    child: Row(
+                                                      children: [
+                                                       
+                                                        Text(
+                                                          "Temperatura: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                            "${product.temperatura}",
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                        const Spacer(),
+                                                        Visibility(
+                                                          visible:
+                                                              product.image !=
+                                                                  "",
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              showImageDialog(
+                                                                context,
+                                                                product.image ??
+                                                                    '', // URL o path de la imagen
+                                                              );
+                                                            },
+                                                            child: Icon(
+                                                              Icons.image,
+                                                              color:
+                                                                  primaryColorApp,
+                                                              size: 23,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
                                                   Row(
                                                     children: [
                                                       Text(

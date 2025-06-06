@@ -244,6 +244,86 @@ class Tab3Screen extends StatelessWidget {
                                                   //       ),
                                                   //     ],
                                                   //   ),
+
+                                                  Visibility(
+                                                    visible: product
+                                                                .manejaTemperatura ==
+                                                            1 ||
+                                                        product.manejaTemperatura ==
+                                                            true,
+                                                    child: Row(
+                                                      children: [
+                                                       
+                                                        Text(
+                                                          "Temperatura: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width:
+                                                              size.width * 0.15,
+                                                          child: Text(
+                                                              "${product.temperatura}",
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          black)),
+                                                        ),
+                                                        const Spacer(),
+                                                        Visibility(
+                                                          visible:
+                                                              product.image !=
+                                                                  "",
+                                                          child:
+                                                              GestureDetector(
+                                                            onTap: () {
+                                                              showImageDialog(
+                                                                context,
+                                                                product.image ??
+                                                                    '', // URL o path de la imagen
+                                                              );
+                                                            },
+                                                            child: Icon(
+                                                              Icons.image,
+                                                              color:
+                                                                  primaryColorApp,
+                                                              size: 23,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  if (product.isProductSplit ==
+                                                      1)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Novedad: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
+                                                        ),
+                                                        const Text(
+                                                          "Producto en diferentes paquetes",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: black,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   if (product.observation !=
                                                       null)
                                                     Row(
@@ -292,27 +372,6 @@ class Tab3Screen extends StatelessWidget {
                                                                   primaryColorApp,
                                                               size: 23,
                                                             ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  if (product.isProductSplit ==
-                                                      1)
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          "Novedad: ",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp,
-                                                          ),
-                                                        ),
-                                                        const Text(
-                                                          "Producto en diferentes paquetes",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: black,
                                                           ),
                                                         ),
                                                       ],
