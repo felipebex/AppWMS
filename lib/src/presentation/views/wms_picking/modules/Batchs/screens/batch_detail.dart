@@ -825,15 +825,9 @@ class BatchDetailScreen extends StatelessWidget {
                                                                         ? green
                                                                         : red)),
                                                       ),
-                                                      if ((productsBatch
-                                                                      .isSendOdoo ==
-                                                                  0 ||
-                                                              productsBatch
-                                                                      .isSendOdoo ==
-                                                                  null) &&
-                                                          productsBatch
-                                                                  .quantitySeparate !=
-                                                              null)
+                                                      if (productsBatch
+                                                              .isSendOdoo ==
+                                                          0)
                                                         ElevatedButton(
                                                             onPressed:
                                                                 () async {

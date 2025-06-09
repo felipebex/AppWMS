@@ -8,7 +8,8 @@ import 'pick_products_table.dart';
 
 class PickProductsRepository {
   final String _table = PickProductsTable.tableName;
-  Future<void> insertPickProducts(List<ProductsBatch> pickProducts, String typePick) async {
+  Future<void> insertPickProducts(
+      List<ProductsBatch> pickProducts, String typePick) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -50,9 +51,13 @@ class PickProductsRepository {
             PickProductsTable.columnOrigin: product.origin,
             PickProductsTable.columnTypePick: typePick,
             PickProductsTable.columnIsSeparate: product.isSeparate ?? 0,
-
-
-
+            PickProductsTable.columnObservation: product.observation ?? '',
+            PickProductsTable.columnQuantitySeparate:
+                product.quantitySeparate ?? 0,
+            PickProductsTable.columnIsSendOdoo:
+                product.isSeparate == 0 ? null : product.isSeparate ?? 1,
+            PickProductsTable.columnTimeSeparateStart:
+                _parseDurationToSeconds(product.timeSeparate),
           };
 
           if (existingSet.contains(key)) {
@@ -83,12 +88,31 @@ class PickProductsRepository {
     }
   }
 
+  double? _parseDurationToSeconds(dynamic time) {
+    try {
+      if (time is String && time.contains(':')) {
+        final parts = time.split(':').map(int.parse).toList();
+        if (parts.length == 3) {
+          final duration = Duration(
+            hours: parts[0],
+            minutes: parts[1],
+            seconds: parts[2],
+          );
+          return duration.inSeconds.toDouble();
+        }
+      }
+    } catch (e) {
+      print('Error parsing time_separate: $e');
+    }
+    return null; // Si no es válido, devuelve null
+  }
+
   Future<PickWithProducts?> getPickWithProducts(int pickId) async {
     try {
       final db = await DataBaseSqlite().getDatabaseInstance();
 
       final List<Map<String, dynamic>> pickMaps = await db.query(
-       PickingPickTable.tableName,
+        PickingPickTable.tableName,
         where: 'id = ?',
         whereArgs: [pickId],
       );

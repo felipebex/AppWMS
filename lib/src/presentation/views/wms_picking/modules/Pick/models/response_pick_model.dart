@@ -110,7 +110,7 @@ class ResultPick {
 
   List<ProductsBatch>? lineasTransferencia;
 
-  // List<dynamic>? lineasTransferenciaEnviadas;
+  List<ProductsBatch>? lineasTransferenciaEnviadas;
 
   ResultPick({
     this.id,
@@ -141,7 +141,7 @@ class ResultPick {
     this.backorderName,
     this.showCheckAvailability,
     this.lineasTransferencia,
-    // this.lineasTransferenciaEnviadas,
+    this.lineasTransferenciaEnviadas,
     this.isSeparate,
     this.isSelected,
     this.zonaEntrega,
@@ -190,7 +190,12 @@ class ResultPick {
             ? []
             : List<ProductsBatch>.from(json["lineas_transferencia"]!
                 .map((x) => ProductsBatch.fromMap(x))),
-        // lineasTransferenciaEnviadas: json["lineas_transferencia_enviadas"] == null ? [] : List<dynamic>.from(json["lineas_transferencia_enviadas"]!.map((x) => x)),
+        lineasTransferenciaEnviadas:
+            json["lineas_transferencia_enviadas"] == null
+                ? []
+                : List<ProductsBatch>.from(
+                    json["lineas_transferencia_enviadas"]!
+                        .map((x) => ProductsBatch.fromMap(x))),
         isSeparate: json["is_separate"],
         isSelected: json["is_selected"],
         zonaEntrega: json["zona_entrega"],
@@ -237,7 +242,10 @@ class ResultPick {
         "lineas_transferencia": lineasTransferencia == null
             ? []
             : List<dynamic>.from(lineasTransferencia!.map((x) => x.toMap())),
-        // "lineas_transferencia_enviadas": lineasTransferenciaEnviadas == null ? [] : List<dynamic>.from(lineasTransferenciaEnviadas!.map((x) => x)),
+        "lineas_transferencia_enviadas": lineasTransferenciaEnviadas == null
+            ? []
+            : List<dynamic>.from(
+                lineasTransferenciaEnviadas!.map((x) => x.toMap())),
         "is_separate": isSeparate,
         "is_selected": isSelected,
         "zona_entrega": zonaEntrega,

@@ -89,8 +89,9 @@ class PickDetailScreen extends StatelessWidget {
                         ),
                       ),
                       width: double.infinity,
-                      child: BlocBuilder<ConnectionStatusCubit,
-                          ConnectionStatus>(builder: (context, status) {
+                      child:
+                          BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                              builder: (context, status) {
                         return Column(
                           children: [
                             const WarningWidgetCubit(),
@@ -108,11 +109,9 @@ class PickDetailScreen extends StatelessWidget {
                                     icon: const Icon(Icons.arrow_back,
                                         color: white),
                                     onPressed: () {
-                                      bloc.add(
-                                          ClearSearchProudctsPickEvent());
+                                      bloc.add(ClearSearchProudctsPickEvent());
                                       bloc.add(FetchPickWithProductsEvent(
-                                          bloc.pickWithProducts.pick?.id ??
-                                              0));
+                                          bloc.pickWithProducts.pick?.id ?? 0));
                                       Navigator.pushReplacementNamed(
                                           context, 'scan-product-pick');
                                     },
@@ -331,9 +330,6 @@ class PickDetailScreen extends StatelessWidget {
                                       print("----------------");
                                       print(
                                           "product detail info: ${productsBatch.toMap()}");
-                                      print("----------------");
-                                      print(
-                                          "batch detail info: ${bloc.pickWithProducts.pick?.toMap()}");
                                       print("----------------");
                                     },
                                     child: Card(
@@ -715,15 +711,9 @@ class PickDetailScreen extends StatelessWidget {
                                                                         ? green
                                                                         : red)),
                                                       ),
-                                                      if ((productsBatch
-                                                                      .isSendOdoo ==
-                                                                  0 ||
-                                                              productsBatch
-                                                                      .isSendOdoo ==
-                                                                  null) &&
-                                                          productsBatch
-                                                                  .quantitySeparate !=
-                                                              null)
+                                                      if (productsBatch
+                                                              .isSendOdoo ==
+                                                          0)
                                                         ElevatedButton(
                                                             onPressed:
                                                                 () async {

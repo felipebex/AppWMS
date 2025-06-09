@@ -147,6 +147,8 @@ class PackagesRepository {
 
   // Método para actualizar la cantidad de productos de un paquete
   Future<int> updatePackageCantidad(int packageId, int cantidadRestar) async {
+
+    print("packageId: $packageId, cantidadRestar: $cantidadRestar");
     Database db = await DataBaseSqlite().getDatabaseInstance();
 
     // Primero, obtenemos el paquete con el ID dado
@@ -162,7 +164,7 @@ class PackagesRepository {
     }
 
     // Obtenemos la cantidad de productos actual del paquete
-    int cantidadActual = maps.first[PackagesTable.columnCantidadProductos];
+    dynamic cantidadActual = maps.first[PackagesTable.columnCantidadProductos];
 
     // Verificamos si la cantidad a restar no excede la cantidad disponible
     if (cantidadActual < cantidadRestar) {
@@ -174,7 +176,7 @@ class PackagesRepository {
     int nuevaCantidad = cantidadActual - cantidadRestar;
 
     // Actualizamos el paquete con la nueva cantidad
-    int result = await db.update(
+    dynamic result = await db.update(
       PackagesTable.tableName,
       {PackagesTable.columnCantidadProductos: nuevaCantidad},
       where: '${PackagesTable.columnId} = ?',

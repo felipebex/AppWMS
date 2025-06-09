@@ -23,7 +23,7 @@ class ListItemUnpack {
   final int productId;
   final dynamic lote;
   final int locationId;
-  final int cantidadSeparada;
+  final dynamic cantidadSeparada;
   final String observacion;
   final int idOperario;
 

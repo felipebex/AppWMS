@@ -1410,7 +1410,12 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       LoadDataInfoEvent event, Emitter<PickingPickState> emit) {
     try {
       emit(LoadDataInfoLoading());
-      if (filteredProducts.length == 1) {
+
+      // 🔍 Filtrar productos con isSeparate == 0
+      final separatedProducts =
+          filteredProducts.where((p) => p.isSeparate == 0).toList();
+          
+      if (separatedProducts.length == 1) {
         currentProduct = filteredProducts[0];
       } else {
         currentProduct =
@@ -1662,14 +1667,21 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         final productsIterable =
             _extractAllProducts(result).toList(growable: false);
 
+        final sentProductsIterable =
+            _getAllSentProducts(result).toList(growable: false);
+
         final allBarcodes = _extractAllBarcodes(result).toList(growable: false);
 
         print('productsToInsert: ${productsIterable.length}');
+        print('sentProductsIterable: ${sentProductsIterable.length}');
         print('allBarcodes: ${allBarcodes.length}');
 
         // Enviar la lista agrupada a insertBatchProducts
         await db.pickProductsRepository
             .insertPickProducts(productsIterable, 'pick');
+
+        await db.pickProductsRepository
+            .insertPickProducts(sentProductsIterable, 'pick');
 
         if (allBarcodes.isNotEmpty) {
           // Enviar la lista agrupada a insertBarcodesPackageProduct
@@ -1706,6 +1718,14 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     for (final batch in batches) {
       if (batch.lineasTransferencia != null) {
         yield* batch.lineasTransferencia!;
+      }
+    }
+  }
+
+  Iterable<ProductsBatch> _getAllSentProducts(List<ResultPick> batches) sync* {
+    for (final batch in batches) {
+      if (batch.lineasTransferenciaEnviadas != null) {
+        yield* batch.lineasTransferenciaEnviadas!;
       }
     }
   }

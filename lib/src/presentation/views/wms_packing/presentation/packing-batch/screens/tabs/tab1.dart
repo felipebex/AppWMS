@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
@@ -188,7 +189,7 @@ class Tab1Screen extends StatelessWidget {
                                             ),
                                             Text(
                                               packingModel?.cantidadProductos
-                                                      .toString() ??
+                                                      .toStringAsFixed(2) ??
                                                   "",
                                               style: TextStyle(
                                                   fontSize: 12,
@@ -682,6 +683,63 @@ class Tab1Screen extends StatelessWidget {
                                                           null)
                                                         GestureDetector(
                                                           onTap: () {
+                                                            //validar si el producto  actual se encuentra  la lista de por hacer
+
+                                                            bool isInProgress = context
+                                                                .read<
+                                                                    WmsPackingBloc>()
+                                                                .listOfProductosProgress
+                                                                .any((p) =>
+                                                                    p.productId ==
+                                                                    product
+                                                                        .productId);
+                                                            if (isInProgress) {
+                                                              Get.defaultDialog(
+                                                                title:
+                                                                    '360 Software Informa',
+                                                                titleStyle: TextStyle(
+                                                                    color: Colors
+                                                                        .red,
+                                                                    fontSize:
+                                                                        18),
+                                                                middleText:
+                                                                    "Este producto se encuentra en estado por hacer, por favor seleccione otro para desempacar",
+                                                                middleTextStyle:
+                                                                    TextStyle(
+                                                                        color:
+                                                                            black,
+                                                                        fontSize:
+                                                                            14),
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                radius: 10,
+                                                                actions: [
+                                                                  ElevatedButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Get.back();
+                                                                    },
+                                                                    style: ElevatedButton
+                                                                        .styleFrom(
+                                                                      backgroundColor:
+                                                                          primaryColorApp,
+                                                                      shape:
+                                                                          RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(10),
+                                                                      ),
+                                                                    ),
+                                                                    child: Text(
+                                                                        'Aceptar',
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                white)),
+                                                                  ),
+                                                                ],
+                                                              );
+                                                              return;
+                                                            }
                                                             //mensaje de confirmacion de desempacar el producto
                                                             showDialog(
                                                                 context:
@@ -733,8 +791,10 @@ class Tab1Screen extends StatelessWidget {
                                                                           color:
                                                                               black)), // Parte del texto en color negro (o el color que prefieras)
                                                                   TextSpan(
-                                                                    text:
-                                                                        "${product.quantitySeparate}", // La cantidad en color rojo
+                                                                    text: product
+                                                                        .quantitySeparate
+                                                                        .toStringAsFixed(
+                                                                            2), // La cantidad en color rojo
                                                                     style: TextStyle(
                                                                         color:
                                                                             primaryColorApp,
@@ -863,8 +923,10 @@ class Tab1Screen extends StatelessWidget {
                                                                               black)), // Parte del texto en color negro (o el color que prefieras)
 
                                                                   TextSpan(
-                                                                    text:
-                                                                        "${product.quantity}", // La cantidad en color rojo
+                                                                    text: product
+                                                                        .quantity
+                                                                        .toStringAsFixed(
+                                                                            2), // La cantidad en color rojo
                                                                     style: TextStyle(
                                                                         color:
                                                                             primaryColorApp,

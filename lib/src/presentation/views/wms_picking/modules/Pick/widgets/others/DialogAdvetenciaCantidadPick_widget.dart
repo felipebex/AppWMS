@@ -43,7 +43,8 @@ class _DialogAdvetenciaCantidadScreenState
         actionsAlignment: MainAxisAlignment.center,
         backgroundColor: Colors.white,
         title: const Center(
-            child: Text('360 Software Informa', style: TextStyle(color: yellow, fontSize: 14))),
+            child: Text('360 Software Informa',
+                style: TextStyle(color: yellow, fontSize: 14))),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -122,10 +123,8 @@ class _DialogAdvetenciaCantidadScreenState
                   style: const TextStyle(
                       color: black,
                       fontSize: 14), // Cambia primaryColorApp a tu color
-                  items: context
-                      .read<BatchBloc>()
-                      .novedades
-                      .map((Novedad item) {
+                  items:
+                      context.read<BatchBloc>().novedades.map((Novedad item) {
                     return DropdownMenuItem<String>(
                       value: item.name,
                       child: Text(item.name ?? ''),
@@ -157,21 +156,23 @@ class _DialogAdvetenciaCantidadScreenState
               child:
                   Text('Cancelar', style: TextStyle(color: primaryColorApp))),
           ElevatedButton(
-              onPressed: () async {
-                // Validamos que tenga una novedad seleccionada
-                if (selectedNovedad != null) {
-                  DataBaseSqlite db = DataBaseSqlite();
+              onPressed: selectedNovedad != null
+                  ? () async {
+                      // Validamos que tenga una novedad seleccionada
+                      if (selectedNovedad != null) {
+                        DataBaseSqlite db = DataBaseSqlite();
 
-                  await db.pickProductsRepository.updateNovedad(
-                      widget.batchId,
-                      widget.currentProduct.idProduct ?? 0,
-                      selectedNovedad ?? '',
-                      widget.currentProduct.idMove ?? 0);
+                        await db.pickProductsRepository.updateNovedad(
+                            widget.batchId,
+                            widget.currentProduct.idProduct ?? 0,
+                            selectedNovedad ?? '',
+                            widget.currentProduct.idMove ?? 0);
 
-                  Navigator.pop(context); // Cierra el diálogo
-                  widget.onAccepted(); // Llama al callback
-                }
-              },
+                        Navigator.pop(context); // Cierra el diálogo
+                        widget.onAccepted(); // Llama al callback
+                      }
+                    }
+                  : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColorApp,
                 shape: RoundedRectangleBorder(

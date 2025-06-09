@@ -497,18 +497,21 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                           ),
                                                         ),
                                                         Text(
-                                                            product.isProductSplit ==
-                                                                        1 &&
-                                                                    product.isSeparate ==
-                                                                        1
-                                                                ? "${product.pendingQuantity}"
-                                                                : "${product.quantity}",
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black)),
+                                                          (product.isProductSplit == 1 &&
+                                                                      product.isSeparate ==
+                                                                          1
+                                                                  ? product
+                                                                      .pendingQuantity
+                                                                  : product
+                                                                      .quantity)
+                                                              .toStringAsFixed(
+                                                                  2),
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 12,
+                                                            color: black,
+                                                          ),
+                                                        ),
                                                         const Spacer(),
                                                         Text(
                                                           "Unidad de medida: ",

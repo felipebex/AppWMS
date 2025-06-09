@@ -322,10 +322,6 @@ class _PackingScreenState extends State<PackingScreen> {
                               );
                             }
 
-
-
-
-
                             if (state is SendTemperatureFailure) {
                               Navigator.pop(context);
 
@@ -995,7 +991,7 @@ class _PackingScreenState extends State<PackingScreen> {
                                             horizontal: 10),
                                         child: Text(
                                           packinghBloc.currentProduct.quantity
-                                                  ?.toString() ??
+                                                  .toStringAsFixed(2) ??
                                               "",
                                           style: TextStyle(
                                             color: primaryColorApp,

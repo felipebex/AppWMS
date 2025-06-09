@@ -380,8 +380,8 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
             backgroundColor: white,
             body: Column(
               children: [
-               BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
-      builder: (context, status) {
+                BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
+                  builder: (context, status) {
                     return Container(
                       width: size.width,
                       color: primaryColorApp,
@@ -1521,8 +1521,10 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                 CantLineasMuelle(
                                     productsOk:
                                         batchBloc.filteredProducts.where((e) {
-                                  return e.isMuelle == null &&
-                                      e.isSeparate == 1;
+                                  return e.isSeparate == 1 &&
+                                      e.idLocationDest ==
+                                          batchBloc
+                                              .pickWithProducts.pick?.muelleId;
                                 }).toList()),
                                 const Spacer(),
                                 Padding(
@@ -1531,8 +1533,12 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                   child: ElevatedButton(
                                       onPressed: batchBloc.filteredProducts
                                               .where((e) {
-                                                return e.isMuelle == null &&
-                                                    e.isSeparate == 1;
+                                                return e.isSeparate == 1 &&
+                                                    e.idLocationDest ==
+                                                        batchBloc
+                                                            .pickWithProducts
+                                                            .pick
+                                                            ?.muelleId;
                                               })
                                               .toList()
                                               .isEmpty
@@ -1986,8 +1992,11 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
 
       // Función para gestionar la transición al siguiente producto
       Future<void> _moveToNextProduct() async {
+        final separated =
+            batchBloc.filteredProducts.where((e) => e.isSeparate == 0).toList();
+
         // Si estamos en la última posición
-        if (batchBloc.index + 1 == batchBloc.filteredProducts.length) {
+        if (batchBloc.index + 1 == separated.length) {
           // Cambiar el producto actual
           batchBloc.add(ChangeCurrentProduct(
             currentProduct: currentProduct,
