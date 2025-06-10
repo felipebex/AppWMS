@@ -376,7 +376,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
             productId: event.product.idProduct ?? 0,
             lote: event.product.lotId ?? '',
             cantidad: event.product.quantitySeparate ?? 0,
-            novedad: event.product.observation ?? 'Sin novedad',
+            novedad: event.product.observation == ""
+                ? 'Sin novedad'
+                : event.product.observation ?? '',
             timeLine: event.product.timeSeparate == null
                 ? 30.0
                 : event.product.timeSeparate.toDouble(),
@@ -611,26 +613,35 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
         final userid = await PrefUtils.getUserId();
 
+        DateTime fechaTransaccion = DateTime.now();
+        String fechaFormateada = formatoFecha(fechaTransaccion);
+
         // Creamos los Item a enviar
         itemsToSend.add(Item(
-          idMove: product.idMove ?? 0,
-          productId: product.idProduct ?? 0,
-          lote: product.lotId ?? '',
-          cantidad: (product.quantitySeparate ?? 0) > (product.quantity)
-              ? product.quantity
-              : product.quantitySeparate ?? 0,
-          novedad: product.observation ?? 'Sin novedad',
-          timeLine: product.timeSeparate ?? 0,
-          muelle: event.muelle.id ?? 0,
-          idOperario: userid,
-          fechaTransaccion: product.fechaTransaccion ?? '',
-        ));
+            idMove: product.idMove ?? 0,
+            productId: product.idProduct ?? 0,
+            lote: product.lotId ?? '',
+            cantidad: (product.quantitySeparate ?? 0) > (product.quantity)
+                ? product.quantity
+                : product.quantitySeparate ?? 0,
+            novedad: product.observation == ""
+                ? 'Sin novedad'
+                : product.observation ?? '',
+            timeLine:product.timeSeparate == null
+                ? 30.0
+                : product.timeSeparate.toDouble(),
+            muelle: event.muelle.id ?? 0,
+            idOperario: userid,
+            fechaTransaccion: product.fechaTransaccion == "" ||
+                    product.fechaTransaccion == null
+                ? fechaFormateada
+                : product.fechaTransaccion ?? ""));
       }
 
       // Enviamos la lista completa de items
       final response = await repository.sendPicking(
         idBatch: event.productsSeparate[0].batchId ?? 0,
-        timeTotal: 0,
+        timeTotal: 0.0,
         cantItemsSeparados: batchWithProducts.batch?.productSeparateQty ?? 0,
         listItem: itemsToSend, // Enviamos todos los productos
       );
@@ -784,45 +795,43 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
   }
 
 //* metodo para cargar las variables de la vista dependiendo del estado de los productos y del batch
-void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
-  try {
-    emit(LoadDataInfoLoading());
+  void _onLoadDataInfoEvent(
+      LoadDataInfoEvent event, Emitter<BatchState> emit) async {
+    try {
+      emit(LoadDataInfoLoading());
 
-    // 🔍 Filtrar productos con isSeparate == 0
-    final separatedProducts =
-        filteredProducts.where((p) => p.isSeparate == 0).toList();
+      // 🔍 Filtrar productos con isSeparate == 0
 
-    // 🧠 Selección del producto actual
-    if (separatedProducts.length == 1) {
-      currentProduct = separatedProducts[0];
-    } else {
-      currentProduct =
-          separatedProducts[batchWithProducts.batch?.indexList ?? 0];
+      final separatedProducts =
+          filteredProducts.where((p) => p.isSeparate == 0).toList();
+
+      // 🧠 Selección del producto actual
+      //todo revisar este caso de que sea = 1
+      if (separatedProducts.length != 0) {
+        currentProduct = separatedProducts.first;
+        // ✅ Cargar estados de validación
+        if (currentProduct.locationId == oldLocation) {
+          locationIsOk = true;
+        } else {
+          locationIsOk = currentProduct.isLocationIsOk == 1;
+        }
+
+        productIsOk = currentProduct.productIsOk == 1;
+        locationDestIsOk = currentProduct.locationDestIsOk == 1;
+        quantityIsOk = currentProduct.isQuantityIsOk == 1;
+        index = batchWithProducts.batch?.indexList ?? 0;
+        quantitySelected = currentProduct.quantitySeparate ?? 0;
+        _isProcessing = false;
+      }
+
+      print('currentProduct: ${currentProduct.toMap()}');
+
+      emit(LoadDataInfoSuccess());
+    } catch (e, s) {
+      emit(LoadDataInfoError("Error al cargar las variables de estado"));
+      print("❌ Error en LoadDataInfoEvent $e -> $s");
     }
-
-    // ✅ Cargar estados de validación
-    if (currentProduct.locationId == oldLocation) {
-      locationIsOk = true;
-    } else {
-      locationIsOk = currentProduct.isLocationIsOk == 1;
-    }
-
-    productIsOk = currentProduct.productIsOk == 1;
-    locationDestIsOk = currentProduct.locationDestIsOk == 1;
-    quantityIsOk = currentProduct.isQuantityIsOk == 1;
-    index = batchWithProducts.batch?.indexList ?? 0;
-    quantitySelected = currentProduct.quantitySeparate ?? 0;
-    _isProcessing = false;
-
-    print('currentProduct: ${currentProduct.toMap()}');
-
-    emit(LoadDataInfoSuccess());
-  } catch (e, s) {
-    emit(LoadDataInfoError("Error al cargar las variables de estado"));
-    print("❌ Error en LoadDataInfoEvent $e -> $s");
   }
-}
-
 
 //*metodo para enviar al wms
   void sendProuctOdoo() async {
@@ -861,8 +870,12 @@ void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
                 cantidad: (product?.quantitySeparate ?? 0) > (product?.quantity)
                     ? product?.quantity
                     : product?.quantitySeparate ?? 0,
-                novedad: product?.observation ?? 'Sin novedad',
-                timeLine: product?.timeSeparate ?? 0.0,
+                novedad: product?.observation == ""
+                    ? 'Sin novedad'
+                    : product?.observation ?? '',
+                  timeLine:product?.timeSeparate == null
+                ? 30.0
+                : product?.timeSeparate.toDouble(),
                 muelle: product?.muelleId ?? 0,
                 idOperario: userid,
                 fechaTransaccion: product?.fechaTransaccion ?? ''),
@@ -943,8 +956,9 @@ void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
               novedad: (cantidad == product?.quantity)
                   ? 'Sin novedad'
                   : product?.observation ?? 'Sin novedad',
-              timeLine:
-                  product?.timeSeparate == null ? 30.0 : product?.timeSeparate,
+              timeLine: product?.timeSeparate == null
+                ? 30.0
+                : product?.timeSeparate.toDouble(),
               muelle: product?.muelleId ?? 0,
               idOperario: userid,
               fechaTransaccion: product?.fechaTransaccion ?? fechaFormateada),
@@ -1109,40 +1123,46 @@ void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
 
       sendProuctOdoo();
 
-      // Validamos si es el último producto
-      if (filteredProducts.length == index + 1) {
-        // Actualizamos el index de la lista de productos
-        await db.batchPickingRepository.setFieldTableBatch(
-            batchWithProducts.batch?.id ?? 0, 'index_list', index);
+      // // Validamos si es el último producto
+      // if (filteredProducts.length == index + 1) {
+      //   // Actualizamos el index de la lista de productos
+      //   await db.batchPickingRepository.setFieldTableBatch(
+      //       batchWithProducts.batch?.id ?? 0, 'index_list', index);
 
-        if (currentProduct.locationId == oldLocation) {
-          locationIsOk = true;
-        } else {
-          locationIsOk = false;
-        }
-        // Emitimos el estado de productos completados
-        emit(CurrentProductChangedState(
-            currentProduct: currentProduct, index: index));
-        return;
-      } else {
-        // Validamos la última ubicación
+      //   if (currentProduct.locationId == oldLocation) {
+      //     locationIsOk = true;
+      //   } else {
+      //     locationIsOk = false;
+      //   }
+      //   // Emitimos el estado de productos completados
+      //   emit(CurrentProductChangedState(
+      //       currentProduct: currentProduct, index: index));
+      //   return;
+      // } else {
+      // Validamos la última ubicación
+      // productIsOk = false;
+      // quantityIsOk = false;
+
+      // Solo incrementamos el índice si no ha sido incrementado previamente
+      // index = (batchWithProducts.batch?.indexList ?? 0) + 1;
+
+      // if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
+      //   print('El index ES DIFERENTE A INDEXLIST 🍓');
+      //   index = (batchWithProducts.batch?.indexList ?? 0) + 1;
+      // }
+
+      // Actualizamos el index de la lista de productos
+      // await db.batchPickingRepository.setFieldTableBatch(
+      //     batchWithProducts.batch?.id ?? 0, 'index_list', index);
+
+      if (filteredProducts.where((product) => product.isSeparate == 0).length !=
+          0) {
         productIsOk = false;
         quantityIsOk = false;
-
-        // Solo incrementamos el índice si no ha sido incrementado previamente
-        index = (batchWithProducts.batch?.indexList ?? 0) + 1;
-
-        if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
-          print('El index ES DIFERENTE A INDEXLIST 🍓');
-          index = (batchWithProducts.batch?.indexList ?? 0) + 1;
-        }
-
-        // Actualizamos el index de la lista de productos
-        await db.batchPickingRepository.setFieldTableBatch(
-            batchWithProducts.batch?.id ?? 0, 'index_list', index);
-
-        currentProduct = filteredProducts[index];
-
+        currentProduct = filteredProducts
+            .where((product) => product.isSeparate == 0)
+            .toList()
+            .first;
         if (currentProduct.locationId == oldLocation) {
           print('La ubicación es igual');
           locationIsOk = true;
@@ -1157,16 +1177,16 @@ void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
           currentProduct.idMove ?? 0,
           DateTime.now().toString(),
         );
-
-        emit(CurrentProductChangedState(
-            currentProduct: currentProduct, index: index));
-
-        add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
-
-        //mostramos todas las variables
-
-        return;
       }
+      emit(CurrentProductChangedState(
+          currentProduct: currentProduct, index: index));
+
+      add(FetchBatchWithProductsEvent(batchWithProducts.batch?.id ?? 0));
+
+      //mostramos todas las variables
+
+      return;
+      // }
     } catch (e, s) {
       emit(CurrentProductChangedStateError('Error al cambiar de producto'));
       print("❌ Error en el ChangeCurrentProduct $e ->$s");
@@ -1344,7 +1364,7 @@ void _onLoadDataInfoEvent(LoadDataInfoEvent event, Emitter<BatchState> emit) {
 //*metodo para ordenar los productos por ubicacion
   Future<List<ProductsBatch>> sortProductsByLocationId() async {
     try {
-      final products = filteredProducts;
+      final products = filteredProducts.toList();
       final batch = batchWithProducts.batch;
 
       //traemos el batch actualizado

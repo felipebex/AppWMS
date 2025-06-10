@@ -37,6 +37,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing_list.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/index.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick_screen.dart';
@@ -78,6 +79,7 @@ class AppRoutes {
 
   //todo packing por pedido
   static const String listPacking = 'list-packing';
+  static const String detailPackingPedido = 'detail-packing-pedido';
 
   //todo inventario
   static const String inventario = 'inventario';
@@ -194,6 +196,15 @@ class AppRoutes {
 
       //todo packign por pedido
       listPacking: (_) => ListPackingScreen(),
+
+      detailPackingPedido: (context){
+         final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+         final initialTabIndex = arguments[0] as int;
+        return PackingPedidoDetailScreen(
+          initialTabIndex: initialTabIndex,
+        );
+      },
 
       //todo auth
       home: (_) => const HomePage(),

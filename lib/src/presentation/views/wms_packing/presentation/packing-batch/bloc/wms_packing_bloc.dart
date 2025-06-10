@@ -353,7 +353,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     }
   }
 
-  //*evento para ver la cantidad
+  //*evento para ver el detalle
   void _onShowDetailEvent(ShowDetailvent event, Emitter<WmsPackingState> emit) {
     try {
       viewDetail = !viewDetail;

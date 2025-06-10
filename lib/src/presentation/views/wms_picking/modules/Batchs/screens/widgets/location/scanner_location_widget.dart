@@ -42,7 +42,7 @@ class LocationScannerWidget extends StatelessWidget {
             width: 10,
             height: 10,
             decoration: BoxDecoration(
-              color: locationIsOk ? Colors.green : Colors.yellow,
+              color: locationIsOk ? Colors.green : Colors.amber,
               shape: BoxShape.circle,
             ),
           ),

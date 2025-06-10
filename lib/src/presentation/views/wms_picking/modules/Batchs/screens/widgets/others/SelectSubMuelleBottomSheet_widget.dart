@@ -74,7 +74,6 @@ class _SelectSubMuelleBottomSheetState
                                   color: isSelected ? Colors.white : black,
                                 ),
                               ),
-                             
                             ],
                           ),
                         ),
@@ -84,6 +83,7 @@ class _SelectSubMuelleBottomSheetState
                 ),
               ),
               const SizedBox(height: 5),
+
               /// 🔵 Selección exclusiva: ocupado o libre
               Center(
                 child: Text('Estado del submuelle',
@@ -165,10 +165,13 @@ class _SelectSubMuelleBottomSheetState
                                       'Estado del submuelle: ${isOccupied == true ? "Ocupado" : "Libre"}');
 
                                   batchBloc.add(AssignSubmuelleEvent(
-                                    batchBloc.filteredProducts.where((e) {
-                                      return e.isMuelle == null &&
-                                          e.isSeparate == 1;
-                                    }).toList(),
+                                    batchBloc.filteredProducts
+                                      .where((e) {
+                                        return e.isSeparate == 1 &&
+                                            e.idLocationDest ==
+                                                batchBloc.batchWithProducts
+                                                    .batch?.idMuelle;
+                                      }).toList(),
                                     batchBloc.subMuelleSelected,
                                     isOccupied == null ? false : isOccupied!,
                                   ));

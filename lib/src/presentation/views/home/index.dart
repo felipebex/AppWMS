@@ -16,6 +16,7 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/dialog_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
@@ -129,8 +130,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               context.read<UserBloc>().add(GetUbicacionesEvent());
               context.read<UserBloc>().add(LoadInfoDeviceEventUser());
               context.read<HomeBloc>().add(AppVersionEvent());
-
-            
 
               //esperamos 2 segundos para cerrar el dialogo
               await Future.delayed(const Duration(seconds: 2), () {
@@ -453,24 +452,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                   LoadAllNovedadesPackingEvent());
 
                                               showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return const DialogLoading(
-                                                        message:
-                                                            'Cargando packing...');
-                                                  });
-
-                                              // Esperar 3 segundos antes de continuar
-                                              Future.delayed(
-                                                  const Duration(
-                                                      milliseconds: 500), () {
-                                                Navigator.pop(context);
-                                                Navigator.pushReplacementNamed(
-                                                    context, 'wms-packing');
-                                              });
-
-                                              // Navigator.pushReplacementNamed(
-                                              //     context, 'list-packing');
+                                                context: context,
+                                                builder: (context) {
+                                                  return DialogPacking(
+                                                    contextHome: context,
+                                                  );
+                                                },
+                                              );
                                             } else {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
@@ -852,14 +840,10 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                     ),
                                   ],
                                 )),
-                            
                           ],
                         ),
                       ),
                     ),
-                 
-              
-                 
                   ],
                 ),
               ),

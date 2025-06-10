@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, deprecated_member_use, avoid_print, unrelated_type_equality_checks, unnecessary_null_comparison, unused_element, sort_child_properties_last, no_leading_underscores_for_local_identifiers
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -608,9 +607,13 @@ class _BatchDetailScreenState extends State<BatchScreen>
 
                         //Todo: MUELLE
 
-                        if (batchBloc.batchWithProducts.batch?.indexList ==
-                                (batchBloc.filteredProducts.length) - 1 ||
-                            batchBloc.filteredProducts.length == 1)
+                        if (batchBloc.filteredProducts
+                                    .where((e) => e.isSeparate == 0)
+                                    .length ==
+                                1 ||
+                            batchBloc.filteredProducts
+                                .where((e) => e.isSeparate == 0)
+                                .isEmpty)
                           LocationDestScannerWidget(
                             isLocationDestOk: batchBloc.isLocationDestOk,
                             locationDestIsOk: batchBloc.locationDestIsOk,
@@ -618,12 +621,10 @@ class _BatchDetailScreenState extends State<BatchScreen>
                             productIsOk: batchBloc.productIsOk,
                             quantityIsOk: batchBloc.quantityIsOk,
                             size: size,
-                            muelleHint: batchBloc.configurations.result?.result
-                                        ?.muelleOption ==
-                                    "multiple"
-                                ? batchBloc.currentProduct.locationDestId
-                                    .toString()
-                                : batchBloc.batchWithProducts.batch?.muelle ??
+                            muelleHint: 
+                            
+                           
+                                batchBloc.batchWithProducts.batch?.muelle ??
                                     "",
                             onValidateMuelle: (value) {
                               validateMuelle(
@@ -668,10 +669,10 @@ class _BatchDetailScreenState extends State<BatchScreen>
                               CantLineasMuelle(
                                   productsOk:
                                       batchBloc.filteredProducts.where((e) {
-                                return e.isSeparate == 1 &&
-                                    e.idLocationDest ==
+                                return (e.isSeparate == 1) &&
+                                    (e.locationDestId ==
                                         batchBloc
-                                            .batchWithProducts.batch?.idMuelle;
+                                            .batchWithProducts.batch?.muelle);
                               }).toList()),
                               const Spacer(),
                               Padding(
@@ -680,12 +681,12 @@ class _BatchDetailScreenState extends State<BatchScreen>
                                 child: ElevatedButton(
                                     onPressed: batchBloc.filteredProducts
                                             .where((e) {
-                                              return e.isSeparate == 1 &&
-                                                  e.idLocationDest ==
+                                              return (e.isSeparate == 1) &&
+                                                  (e.locationDestId ==
                                                       batchBloc
                                                           .batchWithProducts
                                                           .batch
-                                                          ?.idMuelle;
+                                                          ?.muelle);
                                             })
                                             .toList()
                                             .isEmpty

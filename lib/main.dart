@@ -21,6 +21,7 @@ import 'package:wms_app/src/presentation/views/transferencias/models/requets_tra
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/data/wms_picking_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/item_picking_request.dart';
@@ -43,7 +44,8 @@ final ApiRequestService apiRequestService = ApiRequestService();
 
 // ✅ Instancias únicas
 final internetChecker = CheckInternetConnection();
-final connectionStatusCubit = ConnectionStatusCubit(internetChecker: internetChecker);
+final connectionStatusCubit =
+    ConnectionStatusCubit(internetChecker: internetChecker);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +67,6 @@ void main() async {
   var cron = Cron();
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
     try {
-      print('Cron...searchProductsNoSendOdoo');
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         final isLogin = await PrefUtils.getIsLoggedIn();
@@ -78,7 +79,6 @@ void main() async {
 
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
     try {
-      print('Cron...searchProductsPickNoSendOdoo');
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         final isLogin = await PrefUtils.getIsLoggedIn();
@@ -116,6 +116,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => InventarioBloc()),
         BlocProvider(create: (_) => PickingPickBloc()),
         BlocProvider(create: (_) => RecepcionBatchBloc()),
+        BlocProvider(create: (_) => PackingPedidoBloc()),
       ],
       child: GetMaterialApp(
         navigatorKey: navigatorKey,
@@ -148,7 +149,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 
 ///metodo el cual se encarga de verificar que productos estan con estado no enviado para enviarlos a odoo
 void searchProductsNoSendOdoo(BuildContext context) async {
@@ -183,7 +183,10 @@ void searchProductsNoSendOdoo(BuildContext context) async {
                 ? product.quantity ?? 0
                 : product.quantitySeparate ?? 0,
             novedad: product.observation ?? 'Sin novedad',
-            timeLine: double.parse(totalTime),
+            timeLine: 
+            totalTime == null?
+            0.0 :
+            double.parse(totalTime),
             muelle: product.idLocationDest ?? 0,
             idOperario: userId,
             fechaTransaccion: product.fechaTransaccion ?? fechaFormateada,

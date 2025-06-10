@@ -126,7 +126,10 @@ class PopupMenuButtonWidget extends StatelessWidget {
               ),
               if (batchBloc.locationIsOk == true &&
                   batchBloc.index + 1 <
-                      batchBloc.batchWithProducts.products!.length &&
+                      batchBloc.batchWithProducts.products!.where(
+                          (element) => element.isSeparate != 1,
+                        ).
+                      length &&
                   currentProduct.isPending != 1)
                 PopupMenuItem<String>(
                   value: '2',

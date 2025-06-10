@@ -1383,9 +1383,16 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
 
                         //Todo: MUELLE
 
+                      
                         if (batchBloc.pickWithProducts.pick?.indexList ==
-                                (batchBloc.filteredProducts.length) - 1 ||
-                            batchBloc.filteredProducts.length == 1)
+                                (batchBloc.filteredProducts
+                                        .where((e) => e.isSeparate == 0)
+                                        .length) -
+                                    1 ||
+                            batchBloc.filteredProducts
+                                    .where((e) => e.isSeparate == 0)
+                                    .length ==
+                                1)
                           Row(
                             children: [
                               Padding(

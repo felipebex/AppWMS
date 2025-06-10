@@ -405,7 +405,10 @@ class BatchDetailScreen extends StatelessWidget {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(10),
-                                            color: productsBatch.quantity ==
+                                            color: 
+                                            
+                                            
+                                            productsBatch.quantity ==
                                                     productsBatch
                                                         .quantitySeparate
                                                 ? Colors.green[100]
@@ -417,6 +420,9 @@ class BatchDetailScreen extends StatelessWidget {
                                                             1
                                                         ? Colors.green[100]
                                                         : Colors.white,
+
+
+                                        
                                           ),
                                           padding: const EdgeInsets.all(8.0),
                                           child: Column(

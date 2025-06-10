@@ -41,6 +41,9 @@ class CantLineasMuelle extends StatelessWidget {
                                 style:
                                     const TextStyle(fontSize: 12, color: black),
                               ),
+                              onTap: (){
+                                print('product: ${ productsOk[index].toMap()}');
+                              },
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

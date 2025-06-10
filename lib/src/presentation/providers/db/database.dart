@@ -10,6 +10,8 @@ import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubi
 import 'package:wms_app/src/presentation/providers/db/others/tbl_ubicaciones/ubicaciones_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_warehouses/tbl_warehouse_table.dart';
 import 'package:wms_app/src/presentation/providers/db/others/tbl_warehouses/warehouse_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/packing/packing_pedido/tbl_packing_pedido/packing_pedido_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/packing/packing_pedido/tbl_packing_pedido/packing_pedido_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_packing_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_batchs_packing/batch_table.dart';
 import 'package:wms_app/src/presentation/providers/db/packing/tbl_package_pack/package_repository.dart';
@@ -125,6 +127,11 @@ class DataBaseSqlite {
     await db.execute(EntradaBatchTable.createTable());
     //tabal de productos de recepcion por batch
     await db.execute(ProductRecepcionBatchTable.createTable());
+    //tabla de pedidos por packing
+    await db.execute(PedidoPackTable.createTable());
+
+
+
     //* tabla de productos de un batch picking
     await db.execute('''
       CREATE TABLE tblbatch_products (
@@ -236,6 +243,12 @@ class DataBaseSqlite {
   //metodo pra obtener una instancia del repositorio de productos de recepcion por batch
   ProductsEntradaBatchRepository get productsEntradaBatchRepository =>
       ProductsEntradaBatchRepository();
+
+//metodo para onteer una instancia del repositorio de packig por pedido
+PedidoPackRepository get pedidoPackRepository =>
+      PedidoPackRepository(_instance);
+
+
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
