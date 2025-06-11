@@ -157,7 +157,6 @@ class DataBaseSqlite {
         is_separate INTEGER,
         is_pending INTEGER,
         order_product INTEGER,
-
         time_separate DECIMAL(10,2),
         time_separate_start VARCHAR(255),
         time_separate_end VARCHAR(255),
@@ -314,6 +313,9 @@ PedidoPackRepository get pedidoPackRepository =>
                 ? ""
                 : product.observation,
             "quantity_separate" : product.quantitySeparate,
+            'fecha_transaccion': product.fechaTransaccion == false
+                ? ""
+                : product.fechaTransaccion,
           
           };
 

@@ -1384,15 +1384,13 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                         //Todo: MUELLE
 
                       
-                        if (batchBloc.pickWithProducts.pick?.indexList ==
-                                (batchBloc.filteredProducts
-                                        .where((e) => e.isSeparate == 0)
-                                        .length) -
-                                    1 ||
-                            batchBloc.filteredProducts
+                     if (batchBloc.filteredProducts
                                     .where((e) => e.isSeparate == 0)
                                     .length ==
-                                1)
+                                1 ||
+                            batchBloc.filteredProducts
+                                .where((e) => e.isSeparate == 0)
+                                .isEmpty)
                           Row(
                             children: [
                               Padding(
@@ -1525,14 +1523,14 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                 horizontal: 5,
                               ),
                               child: Row(children: [
-                                CantLineasMuelle(
-                                    productsOk:
-                                        batchBloc.filteredProducts.where((e) {
-                                  return e.isSeparate == 1 &&
-                                      e.idLocationDest ==
-                                          batchBloc
-                                              .pickWithProducts.pick?.muelleId;
-                                }).toList()),
+                               CantLineasMuelle(
+                                  productsOk:
+                                      batchBloc.filteredProducts.where((e) {
+                                return (e.isSeparate == 1) &&
+                                    (e.locationDestId ==
+                                        batchBloc
+                                            .pickWithProducts.pick?.muelle);
+                              }).toList()),
                                 const Spacer(),
                                 Padding(
                                   padding:
@@ -1540,13 +1538,13 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                   child: ElevatedButton(
                                       onPressed: batchBloc.filteredProducts
                                               .where((e) {
-                                                return e.isSeparate == 1 &&
-                                                    e.idLocationDest ==
-                                                        batchBloc
-                                                            .pickWithProducts
-                                                            .pick
-                                                            ?.muelleId;
-                                              })
+                                                return (e.isSeparate == 1) &&
+                                                  (e.locationDestId ==
+                                                      batchBloc
+                                                          .pickWithProducts
+                                                          .pick
+                                                          ?.muelle);
+                                            })
                                               .toList()
                                               .isEmpty
                                           ? null

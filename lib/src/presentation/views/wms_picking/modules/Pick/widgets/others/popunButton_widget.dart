@@ -125,9 +125,12 @@ class PopupMenuButtonPickWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              if (batchBloc.locationIsOk == true &&
+             if (batchBloc.locationIsOk == true &&
                   batchBloc.index + 1 <
-                      batchBloc.pickWithProducts.products!.length &&
+                      batchBloc.pickWithProducts.products!.where(
+                          (element) => element.isSeparate != 1,
+                        ).
+                      length &&
                   currentProduct.isPending != 1)
                 PopupMenuItem<String>(
                   value: '2',

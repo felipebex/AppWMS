@@ -10,6 +10,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab4.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab1.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab2.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class PackingPedidoDetailScreen extends StatefulWidget {
@@ -172,17 +173,8 @@ class _PackingDetailScreenState extends State<PackingPedidoDetailScreen>
                   child: TabBarView(
                     controller: _tabController, // Asignar el TabController
                     children: [
-                      // Tab1Screen(
-                      //   size: size,
-                      //   packingModel: widget.packingModel ?? PedidoPacking(),
-                      //   batchModel: widget.batchModel ?? BatchPackingModel(),
-                      // ),
-                      // Tab2Screen(
-                      //   packingModel: widget.packingModel ?? PedidoPacking(),
-                      //   batchModel: widget.batchModel ?? BatchPackingModel(),
-                      // ),
                       const Tab1PedidoScreen(),
-                      const Tab4Screen(),
+                      const Tab2PedidoScreen(),
                       const Tab3Screen(),
                       const Tab4Screen(),
                     ],

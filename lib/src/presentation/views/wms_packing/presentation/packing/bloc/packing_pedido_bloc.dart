@@ -4,7 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/response_packing_pedido_model.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'packing_pedido_event.dart';
@@ -18,6 +21,12 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
   bool quantityIsOk = false;
   bool isKeyboardVisible = false;
 
+  String scannedValue1 = '';
+  String scannedValue2 = '';
+  String scannedValue3 = '';
+  String scannedValue4 = '';
+  String scannedValue5 = '';
+
   //*controller para la busqueda
   TextEditingController searchController = TextEditingController();
   TextEditingController searchControllerPedido = TextEditingController();
@@ -29,7 +38,23 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
   List<PedidoPackingResult> listOfPedidosBD = [];
   List<PedidoPackingResult> listOfPedidosFilters = [];
 
+  //*lista de productos de un pedido
+  List<ProductoPedido> listOfProductos = []; //lista de productos de un pedido
+  List<ProductoPedido> listOfProductosProgress =
+      []; //lista de productos sin certificar
+  List<ProductoPedido> productsDone = []; //lista de productos ya certificados
+  List<ProductoPedido> productsDonePacking =
+      []; //lista de productos ya certificados
+  List<ProductoPedido> listOfProductsForPacking =
+      []; //lista de productos sin certificar seleccionados para empacar
+
   bool viewDetail = true;
+
+  //*lista de todas las pocisiones de los productos del batchs
+  List<String> positions = [];
+
+  //*lista de paquetes
+  List<Paquete> packages = [];
 
   PedidoPackingResult currentPedidoPack = PedidoPackingResult();
 
@@ -66,7 +91,8 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
   }
 
   //*evento para ver el detalle
-  void _onShowDetailEvent(ShowDetailvent event, Emitter<PackingPedidoState> emit) {
+  void _onShowDetailEvent(
+      ShowDetailvent event, Emitter<PackingPedidoState> emit) {
     try {
       viewDetail = !viewDetail;
       emit(ShowDetailPackState(viewDetail));
@@ -84,8 +110,56 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       final response =
           await db.pedidoPackRepository.getPedidoPackById(event.idPedido);
 
+      //obtenemos todos los productos de un pedido
+      final responseProducts = await db.productosPedidosRepository
+          .getProductosPedido(event.idPedido);
+
       if (response != null) {
         currentPedidoPack = response;
+
+        if (responseProducts != null && responseProducts is List) {
+          print(
+              'responseProducts lista de productos: ${responseProducts.length}');
+          listOfProductos.clear();
+          listOfProductos.addAll(responseProducts);
+          productsDonePacking.clear();
+
+          //filtramos y creamos la lista de productos listo a empacar
+          productsDone = listOfProductos
+              .where((product) =>
+                  (product.isSeparate == true || product.isSeparate == 1) &&
+                  (product.isCertificate == true ||
+                      product.isCertificate == 1) &&
+                  (product.isPackage == false || product.isPackage == 0))
+              .toList();
+
+          print('productsDone: ${productsDone.length}');
+
+          productsDonePacking = listOfProductos
+              .where((product) =>
+                  product.isSeparate == 1 && product.isPackage == 1)
+              .toList();
+
+          print('productsDonePacking: ${productsDonePacking.length}');
+
+          //filtramos y creamos la lista de productos listo a separar para empaque
+          listOfProductosProgress = listOfProductos.where((product) {
+            return product.isSeparate == null || product.isSeparate == 0;
+          }).toList();
+
+          print(listOfProductosProgress);
+
+          //traemos todos los paquetes de la base de datos del pedido en cuesiton
+          final packagesDB =
+              await db.packagesRepository.getPackagesPedido(event.idPedido);
+          packages.clear();
+          packages.addAll(packagesDB);
+          print('packagesDB: ${packagesDB.length}');
+
+          //obtenemos las posiciones de los productos
+          getPosicions();
+        }
+
         emit(LoadPedidoAndProductsLoaded(
           currentPedidoPack,
         ));
@@ -96,6 +170,20 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       print('Error en el _onLoadPedidoAndProductsEvent: $e, $s');
       emit(LoadPedidoAndProductsError(e.toString()));
     }
+  }
+
+  void getPosicions() {
+    positions.clear(); // Limpia la lista antes de agregar nuevas posiciones
+    for (var product in listOfProductos) {
+      if (product.locationId != null) {
+        // Verifica si la posición ya existe en la lista
+        if (!positions.contains(product.locationId!)) {
+          positions
+              .add(product.locationId!); // Solo agrega si no está en la lista
+        }
+      }
+    }
+    print('positions: ${positions.length}');
   }
 
   //* metodo para cargar la configuracion del usuario
@@ -294,59 +382,58 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
               .pedidoPackRepository
               .insertPedidosPack(listOfPedidos);
 
-          // //convertir el mapa en una lista de productos unicos del pedido para packing
-          // List<ProductoPedido> productsToInsert = pedidosToInsert
-          //     .expand((pedido) => pedido.listaProductos!)
-          //     .toList();
+          //convertir el mapa en una lista de productos unicos del pedido para packing
+          //convertir el mapa en una lista de productos unicos del pedido para packing
+          List<ProductoPedido> productsToInsert =
+              listOfPedidos.expand((pedido) => pedido.listaProductos!).toList();
+          //Convertir el mapa en una lista los barcodes unicos de cada producto
+          List<Barcodes> barcodesToInsert = productsToInsert
+              .expand((product) => product.productPacking!)
+              .toList();
 
-          // //Convertir el mapa en una lista los barcodes unicos de cada producto
-          // List<Barcodes> barcodesToInsert = productsToInsert
-          //     .expand((product) => product.productPacking!)
-          //     .toList();
+          //convertir el mapap en una lsita de los otros barcodes de cada producto
+          List<Barcodes> otherBarcodesToInsert = productsToInsert
+              .expand((product) => product.otherBarcode!)
+              .toList();
 
-          // //convertir el mapap en una lsita de los otros barcodes de cada producto
-          // List<Barcodes> otherBarcodesToInsert = productsToInsert
-          //     .expand((product) => product.otherBarcode!)
-          //     .toList();
+          //convertir el mapap en una lista de productos unicos de paquetes que se encuentra en un pedido dentro de listado de paquetes y listado de productos
+          List<ProductoPedido> productsPackagesToInsert = listOfPedidos
+              .expand((pedido) => pedido.listaPaquetes!)
+              .expand((paquete) => paquete.listaProductosInPacking!)
+              .toList();
 
-          // //convertir el mapap en una lista de productos unicos de paquetes que se encuentra en un pedido dentro de listado de paquetes y listado de productos
-          // List<ProductoPedido> productsPackagesToInsert = pedidosToInsert
-          //     .expand((pedido) => pedido.listaPaquetes!)
-          //     .expand((paquete) => paquete.listaProductosInPacking!)
-          //     .toList();
+          //covertir el mapa en una lista de los paquetes de un pedido
+          List<Paquete> packagesToInsert = listOfPedidos
+              .expand((pedido) => pedido.listaPaquetes!)
+              .toList();
 
-          // //covertir el mapa en una lista de los paquetes de un pedido
-          // List<Paquete> packagesToInsert = pedidosToInsert
-          //     .expand((pedido) => pedido.listaPaquetes!)
-          //     .toList();
-
-          // // Enviar la lista agrupada de productos de un batch para packing
-          // await DataBaseSqlite()
-          //     .pedidosPackingRepository
-          //     .insertPedidosBatchPacking(pedidosToInsert, 'packing-batch');
-          // // Enviar la lista agrupada de productos de un pedido para packing
-          // await DataBaseSqlite()
-          //     .productosPedidosRepository
-          //     .insertProductosPedidos(productsToInsert, 'packing-batch');
-          // // Enviar la lista agrupada de barcodes de un producto para packing
-          // await DataBaseSqlite()
-          //     .barcodesPackagesRepository
-          //     .insertOrUpdateBarcodes(barcodesToInsert, 'packing-batch');
-          // // Enviar la lista agrupada de otros barcodes de un producto para packing
-          // await DataBaseSqlite()
-          //     .barcodesPackagesRepository
-          //     .insertOrUpdateBarcodes(otherBarcodesToInsert, 'packing-batch');
-          // //guardamos los productos de los paquetes que ya fueron empaquetados
-          // await DataBaseSqlite()
-          //     .productosPedidosRepository
-          //     .insertProductosOnPackage(
-          //         productsPackagesToInsert, 'packing-batch');
-          // //enviamos la lista agrupada de los paquetes de un pedido para packing
-          // await DataBaseSqlite()
-          //     .packagesRepository
-          //     .insertPackages(packagesToInsert, 'packing-batch');
+          // Enviar la lista agrupada de productos de un pedido para packing
+          await DataBaseSqlite()
+              .productosPedidosRepository
+              .insertProductosPedidos(productsToInsert, 'packing-pack');
+          // Enviar la lista agrupada de barcodes de un producto para packing
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(barcodesToInsert, 'packing-pack');
+          // Enviar la lista agrupada de otros barcodes de un producto para packing
+          await DataBaseSqlite()
+              .barcodesPackagesRepository
+              .insertOrUpdateBarcodes(otherBarcodesToInsert, 'packing-pack');
+          //guardamos los productos de los paquetes que ya fueron empaquetados
+          await DataBaseSqlite()
+              .productosPedidosRepository
+              .insertProductosOnPackage(
+                  productsPackagesToInsert, 'packing-pack');
+          //enviamos la lista agrupada de los paquetes de un pedido para packing
+          await DataBaseSqlite()
+              .packagesRepository
+              .insertPackages(packagesToInsert, 'packing-pack');
 
           //creamos las cajas que ya estan creadas
+          print('productsToInsert pack : ${productsToInsert.length}');
+          print('barcode product pack : ${barcodesToInsert.length}');
+          print('otherBarcodes    pack : ${otherBarcodesToInsert.length}');
+          print('paquetes: pack: ${otherBarcodesToInsert.length}');
 
           // //* Carga los batches desde la base de datos
           add(LoadPackingPedidoFromDBEvent());

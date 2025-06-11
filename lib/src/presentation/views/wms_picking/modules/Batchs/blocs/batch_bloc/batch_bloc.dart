@@ -618,24 +618,25 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
 
         // Creamos los Item a enviar
         itemsToSend.add(Item(
-            idMove: product.idMove ?? 0,
-            productId: product.idProduct ?? 0,
-            lote: product.lotId ?? '',
-            cantidad: (product.quantitySeparate ?? 0) > (product.quantity)
-                ? product.quantity
-                : product.quantitySeparate ?? 0,
-            novedad: product.observation == ""
-                ? 'Sin novedad'
-                : product.observation ?? '',
-            timeLine:product.timeSeparate == null
-                ? 30.0
-                : product.timeSeparate.toDouble(),
-            muelle: event.muelle.id ?? 0,
-            idOperario: userid,
-            fechaTransaccion: product.fechaTransaccion == "" ||
-                    product.fechaTransaccion == null
-                ? fechaFormateada
-                : product.fechaTransaccion ?? ""));
+          idMove: product.idMove ?? 0,
+          productId: product.idProduct ?? 0,
+          lote: product.lotId ?? '',
+          cantidad: (product.quantitySeparate ?? 0) > (product.quantity)
+              ? product.quantity
+              : product.quantitySeparate ?? 0,
+          novedad: product.observation == ""
+              ? 'Sin novedad'
+              : product.observation ?? '',
+          timeLine: product.timeSeparate == null
+              ? 30.0
+              : product.timeSeparate.toDouble(),
+          muelle: event.muelle.id ?? 0,
+          idOperario: userid,
+          fechaTransaccion:
+              product.fechaTransaccion == "" || product.fechaTransaccion == null
+                  ? fechaFormateada
+                  : product.fechaTransaccion ?? "",
+        ));
       }
 
       // Enviamos la lista completa de items
@@ -873,9 +874,9 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
                 novedad: product?.observation == ""
                     ? 'Sin novedad'
                     : product?.observation ?? '',
-                  timeLine:product?.timeSeparate == null
-                ? 30.0
-                : product?.timeSeparate.toDouble(),
+                timeLine: product?.timeSeparate == null
+                    ? 30.0
+                    : product?.timeSeparate.toDouble(),
                 muelle: product?.muelleId ?? 0,
                 idOperario: userid,
                 fechaTransaccion: product?.fechaTransaccion ?? ''),
@@ -957,8 +958,8 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
                   ? 'Sin novedad'
                   : product?.observation ?? 'Sin novedad',
               timeLine: product?.timeSeparate == null
-                ? 30.0
-                : product?.timeSeparate.toDouble(),
+                  ? 30.0
+                  : product?.timeSeparate.toDouble(),
               muelle: product?.muelleId ?? 0,
               idOperario: userid,
               fechaTransaccion: product?.fechaTransaccion ?? fechaFormateada),
@@ -1122,38 +1123,6 @@ class BatchBloc extends Bloc<BatchEvent, BatchState> {
           secondsDifferenceProduct);
 
       sendProuctOdoo();
-
-      // // Validamos si es el último producto
-      // if (filteredProducts.length == index + 1) {
-      //   // Actualizamos el index de la lista de productos
-      //   await db.batchPickingRepository.setFieldTableBatch(
-      //       batchWithProducts.batch?.id ?? 0, 'index_list', index);
-
-      //   if (currentProduct.locationId == oldLocation) {
-      //     locationIsOk = true;
-      //   } else {
-      //     locationIsOk = false;
-      //   }
-      //   // Emitimos el estado de productos completados
-      //   emit(CurrentProductChangedState(
-      //       currentProduct: currentProduct, index: index));
-      //   return;
-      // } else {
-      // Validamos la última ubicación
-      // productIsOk = false;
-      // quantityIsOk = false;
-
-      // Solo incrementamos el índice si no ha sido incrementado previamente
-      // index = (batchWithProducts.batch?.indexList ?? 0) + 1;
-
-      // if (index != (batchWithProducts.batch?.indexList ?? 1) + 1) {
-      //   print('El index ES DIFERENTE A INDEXLIST 🍓');
-      //   index = (batchWithProducts.batch?.indexList ?? 0) + 1;
-      // }
-
-      // Actualizamos el index de la lista de productos
-      // await db.batchPickingRepository.setFieldTableBatch(
-      //     batchWithProducts.batch?.id ?? 0, 'index_list', index);
 
       if (filteredProducts.where((product) => product.isSeparate == 0).length !=
           0) {

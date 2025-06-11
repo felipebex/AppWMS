@@ -288,7 +288,7 @@ class PickProductsRepository {
     final db = await DataBaseSqlite().getDatabaseInstance();
     final resUpdate = await db!.rawUpdate(
         "UPDATE $_table SET time_separate_start = '$date' WHERE batch_id = $batchId AND id_product = $productId AND id_move = $moveId");
-    print("startStopwatch: $resUpdate");
+    print("tiemppo de inicio :$date  --> $resUpdate");
     return resUpdate;
   }
 

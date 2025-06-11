@@ -77,7 +77,7 @@ class ProductosPedidosRepository {
             whereArgs: [
               producto.idProduct,
               producto.batchId,
-              producto.pedidoId,
+              producto.pedidoId ,
               producto.idMove
             ],
           );
@@ -317,15 +317,42 @@ class ProductosPedidosRepository {
 
   // Obtener productos de un pedido
   Future<List<ProductoPedido>> getProductosPedido(int pedidoId) async {
+    print('idPedido: $pedidoId');
     Database db = await DataBaseSqlite().getDatabaseInstance();
     final List<Map<String, dynamic>> maps = await db.query(
       ProductosPedidosTable.tableName,
       where: '${ProductosPedidosTable.columnPedidoId} = ?',
       whereArgs: [pedidoId],
     );
-
     return maps.map((map) => ProductoPedido.fromMap(map)).toList();
   }
+
+
+Future<List<ProductoPedido>> getAllProductosPedidos() async {
+    try {
+      final Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Realiza una consulta a la tabla sin ninguna cláusula WHERE
+      final List<Map<String, dynamic>> maps = await db.query(
+        ProductosPedidosTable.tableName,
+        // Opcional: puedes añadir un 'orderBy' si quieres una ordenación por defecto
+        // Por ejemplo, por ID o nombre de producto
+        // orderBy: '${ProductosPedidosTable.columnProductId} ASC',
+      );
+
+      // Mapea cada Map de la base de datos a un objeto ProductoPedido.
+      // La robustez del mapeo recae en la implementación de ProductoPedido.fromMap.
+      return maps.map((map) => ProductoPedido.fromMap(map)).toList();
+    } catch (e, s) {
+      print("Error al obtener todos los productos de tbl_products_pedido: $e\n$s");
+      // Retorna una lista vacía en caso de error para que la aplicación pueda continuar.
+      return [];
+    }
+  }
+
+
+
+
 
   // Actualizar el campo de la tabla productos_pedidos (unpacking)
   Future<int?> setFieldTableProductosPedidosUnPacking(

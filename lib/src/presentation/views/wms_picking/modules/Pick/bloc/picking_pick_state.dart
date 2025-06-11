@@ -94,9 +94,8 @@ class CurrentProductChangedStateLoading extends PickingPickState {}
 //*estado para cambiar de producto
 final class CurrentProductChangedState extends PickingPickState {
   final ProductsBatch currentProduct;
-  final int index;
   CurrentProductChangedState(
-      {required this.currentProduct, required this.index});
+      {required this.currentProduct, });
 }
 
 class CurrentProductChangedStateError extends PickingPickState {

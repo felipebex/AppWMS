@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_is_empty
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -90,6 +92,8 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
   //*indice del producto actual
   int index = 0;
+
+  //*indice del producto actual
   bool _isProcessing = false; // Bandera para controlar el estado del proceso
   bool isProcessing = false; // Bandera para controlar el estado del proceso
   bool isKeyboardVisible = false;
@@ -311,7 +315,6 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         add(ValidateFieldsEvent(field: "locationDest", isOk: true));
         add(ChangeLocationDestIsOkEvent(true, currentProduct.idProduct ?? 0,
             pickWithProducts.pick?.id ?? 0, currentProduct.idMove ?? 0));
-        index = 0;
         isSearch = true;
 
         add(PickingOkEvent(
@@ -568,15 +571,20 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           ListItem(
             idMove: product?.idMove ?? 0,
             idProducto: product?.idProduct ?? 0,
-            idLote: product?.loteId ?? 0,
+            // idLote: product?.loteId ?? 0,
+            idLote: 0,
             idUbicacionDestino: product?.muelleId ?? 0,
             cantidadEnviada: cantidad,
             idOperario: userid,
-            timeLine: product?.timeSeparate ?? 30.0,
+            timeLine: product?.timeSeparate == null
+                ? 30.0
+                : product?.timeSeparate.toDouble(),
             fechaTransaccion: product?.fechaTransaccion ?? fechaFormateada,
             observacion: (cantidad == product?.quantity)
                 ? 'Sin novedad'
-                : product?.observation ?? 'Sin novedad',
+                : product?.observation == ""
+                    ? 'Sin novedad'
+                    : product?.observation ?? '',
             dividida: false,
           ),
         ],
@@ -634,6 +642,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         print("❌ Error al parsear la fecha: $e");
       }
 
+      DateTime fechaTransaccion = DateTime.now();
+      String fechaFormateada = formatoFecha(fechaTransaccion);
+
       final response = await repository.sendProductTransferPick(
         TransferRequest(
           idTransferencia: currentProduct.batchId ?? 0,
@@ -648,8 +659,13 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
               timeLine: event.product.timeSeparate == null
                   ? 30.0
                   : event.product.timeSeparate.toDouble(),
-              fechaTransaccion: event.product.fechaTransaccion ?? '',
-              observacion: event.product.observation ?? 'Sin novedad',
+              fechaTransaccion: event.product.fechaTransaccion == "" ||
+                      event.product.fechaTransaccion == null
+                  ? fechaFormateada
+                  : event.product.fechaTransaccion ?? "",
+              observacion: event.product.observation == ""
+                  ? 'Sin novedad'
+                  : event.product.observation ?? "",
               dividida: false,
             ),
           ],
@@ -694,6 +710,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           0,
           event.product.idMove ?? 0,
         );
+
+        DateTime fechaTransaccion = DateTime.now();
+        String fechaFormateada = formatoFecha(fechaTransaccion);
+
         emit(SendProductPickOdooError(
           response.result?.msg ?? 'Error al enviar el producto',
           TransferRequest(
@@ -709,7 +729,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
                 timeLine: event.product.timeSeparate == null
                     ? 30.0
                     : event.product.timeSeparate.toDouble(),
-                fechaTransaccion: event.product.fechaTransaccion ?? '',
+                fechaTransaccion: event.product.fechaTransaccion == "" ||
+                        event.product.fechaTransaccion == null
+                    ? fechaFormateada
+                    : event.product.fechaTransaccion ?? "",
                 observacion: event.product.observation ?? 'Sin novedad',
                 dividida: false,
               ),
@@ -718,6 +741,8 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
         ));
       }
     } catch (e, s) {
+      DateTime fechaTransaccion = DateTime.now();
+      String fechaFormateada = formatoFecha(fechaTransaccion);
       emit(SendProductPickOdooError(
         s.toString(),
         TransferRequest(
@@ -733,7 +758,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
               timeLine: event.product.timeSeparate == null
                   ? 30.0
                   : event.product.timeSeparate.toDouble(),
-              fechaTransaccion: event.product.fechaTransaccion ?? '',
+              fechaTransaccion: event.product.fechaTransaccion == "" ||
+                      event.product.fechaTransaccion == null
+                  ? fechaFormateada
+                  : event.product.fechaTransaccion ?? "",
               observacion: event.product.observation ?? 'Sin novedad',
               dividida: false,
             ),
@@ -889,6 +917,10 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       for (var product in event.productsSeparate) {
         // Traemos el tiempo de inicio de separación del producto desde la base de datos
         final userid = await PrefUtils.getUserId();
+
+        DateTime fechaTransaccion = DateTime.now();
+        String fechaFormateada = formatoFecha(fechaTransaccion);
+
         // Creamos los Item a enviar
         itemsToSend.add(ListItem(
           idMove: product.idMove ?? 0,
@@ -899,9 +931,16 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
               ? product.quantity
               : product.quantitySeparate ?? 0,
           idOperario: userid,
-          timeLine: product.timeSeparate ?? 0.0,
-          fechaTransaccion: product.fechaTransaccion ?? '',
-          observacion: product.observation ?? 'Sin novedad',
+          timeLine: product.timeSeparate == null
+              ? 30.0
+              : product.timeSeparate.toDouble(),
+          fechaTransaccion:
+              product.fechaTransaccion == "" || product.fechaTransaccion == null
+                  ? fechaFormateada
+                  : product.fechaTransaccion ?? "",
+          observacion: product.observation == ""
+              ? 'Sin novedad'
+              : product.observation ?? "",
           dividida: false,
         ));
       }
@@ -1129,39 +1168,15 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
       sendProuctOdoo();
 
-      // Validamos si es el último producto
-      if (filteredProducts.length == index + 1) {
-        // Actualizamos el index de la lista de productos
-        await db.pickRepository.setFieldTablePick(
-            pickWithProducts.pick?.id ?? 0, 'index_list', index);
-
-        if (currentProduct.locationId == oldLocation) {
-          locationIsOk = true;
-        } else {
-          locationIsOk = false;
-        }
-        // Emitimos el estado de productos completados
-        emit(CurrentProductChangedState(
-            currentProduct: currentProduct, index: index));
-        return;
-      } else {
-        // Validamos la última ubicación
+      if (filteredProducts.where((product) => product.isSeparate == 0).length !=
+          0) {
         productIsOk = false;
         quantityIsOk = false;
 
-        // Solo incrementamos el índice si no ha sido incrementado previamente
-        index = (pickWithProducts.pick?.indexList ?? 0) + 1;
-
-        if (index != (pickWithProducts.pick?.indexList ?? 1) + 1) {
-          print('El index ES DIFERENTE A INDEXLIST 🍓');
-          index = (pickWithProducts.pick?.indexList ?? 0) + 1;
-        }
-
-        // Actualizamos el index de la lista de productos
-        await db.pickRepository.setFieldTablePick(
-            pickWithProducts.pick?.id ?? 0, 'index_list', index);
-
-        currentProduct = filteredProducts[index];
+        currentProduct = filteredProducts
+            .where((product) => product.isSeparate == 0)
+            .toList()
+            .first;
 
         if (currentProduct.locationId == oldLocation) {
           print('La ubicación es igual');
@@ -1177,16 +1192,17 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
           currentProduct.idMove ?? 0,
           DateTime.now().toString(),
         );
-
-        emit(CurrentProductChangedState(
-            currentProduct: currentProduct, index: index));
-
-        add(FetchPickWithProductsEvent(pickWithProducts.pick?.id ?? 0));
-
-        //mostramos todas las variables
-
-        return;
       }
+
+      emit(CurrentProductChangedState(
+        currentProduct: currentProduct,
+      ));
+
+      add(FetchPickWithProductsEvent(pickWithProducts.pick?.id ?? 0));
+
+      //mostramos todas las variables
+
+      return;
     } catch (e, s) {
       emit(CurrentProductChangedStateError('Error al cambiar de producto'));
       print("❌ Error en el ChangeCurrentProduct $e ->$s");
@@ -1221,6 +1237,9 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
       //enviamos el producto a odoo
 
+      DateTime fechaTransaccion = DateTime.now();
+      String fechaFormateada = formatoFecha(fechaTransaccion);
+
       final response = await repository.sendProductTransferPick(
         TransferRequest(
           idTransferencia: currentProduct.batchId ?? 0,
@@ -1230,14 +1249,25 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
               idProducto: product?.idProduct ?? 0,
               idLote: product?.loteId ?? 0,
               idUbicacionDestino: product?.muelleId ?? 0,
-              cantidadEnviada:
-                  (product?.quantitySeparate ?? 0) > (product?.quantity)
-                      ? product?.quantity
-                      : product?.quantitySeparate ?? 0,
+              
+              cantidadEnviada: (product?.quantitySeparate ?? 0.0) >
+                      (product?.quantity ??
+                          0.0) // Asegura que ambos lados sean numéricos
+                  ? (product?.quantity ??
+                      0.0) // Si es verdadero, usa quantity, pero también con ?? 0.0
+                  : (product?.quantitySeparate ??
+                      0.0), // Si es falso, usa quantitySeparate
               idOperario: userid,
-              timeLine: product?.timeSeparate ?? 0.0,
-              fechaTransaccion: product?.fechaTransaccion ?? '',
-              observacion: product?.observation ?? 'Sin novedad',
+              timeLine: product?.timeSeparate == null
+                  ? 30.0
+                  : product?.timeSeparate.toDouble(),
+              fechaTransaccion: product?.fechaTransaccion == "" ||
+                      product?.fechaTransaccion == null
+                  ? fechaFormateada
+                  : product?.fechaTransaccion ?? "",
+              observacion: product?.observation == ""
+                  ? 'Sin novedad'
+                  : product?.observation ?? "",
               dividida: false,
             ),
           ],
@@ -1338,7 +1368,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
     try {
       if (event.productIsOk) {
         //empezamos el tiempo de separacion del batch y del producto
-        await db.startStopwatch(
+        await db.pickProductsRepository.startStopwatch(
           event.batchId,
           event.productId,
           event.idMove,
@@ -1414,28 +1444,26 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       // 🔍 Filtrar productos con isSeparate == 0
       final separatedProducts =
           filteredProducts.where((p) => p.isSeparate == 0).toList();
-          
-      if (separatedProducts.length == 1) {
-        currentProduct = filteredProducts[0];
-      } else {
-        currentProduct =
-            filteredProducts[pickWithProducts.pick?.indexList ?? 0];
+
+      if (separatedProducts.length != 0) {
+        currentProduct = separatedProducts.first;
+        if (currentProduct.locationId == oldLocation) {
+          locationIsOk = true;
+        } else {
+          locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+        }
+        productIsOk = currentProduct.productIsOk == false
+            ? false
+            : currentProduct.productIsOk == 1
+                ? true
+                : false;
+        locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
+        quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+        index = pickWithProducts.pick?.indexList ?? 0;
+        quantitySelected = currentProduct.quantitySeparate ?? 0;
+        _isProcessing = false;
       }
-      if (currentProduct.locationId == oldLocation) {
-        locationIsOk = true;
-      } else {
-        locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
-      }
-      productIsOk = currentProduct.productIsOk == false
-          ? false
-          : currentProduct.productIsOk == 1
-              ? true
-              : false;
-      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
-      quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
-      index = (pickWithProducts.pick?.indexList ?? 0);
-      quantitySelected = currentProduct.quantitySeparate ?? 0;
-      _isProcessing = false;
+
       emit(LoadDataInfoSuccess());
     } catch (e, s) {
       emit(LoadDataInfoError("Error al cargar las variables de estado"));
