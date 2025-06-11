@@ -6,6 +6,16 @@ sealed class PackingPedidoState {}
 final class PackingPedidoInitial extends PackingPedidoState {}
 
 
+final class FetchProductLoadingState extends PackingPedidoState {}
+
+class FetchProductLoadedState extends PackingPedidoState {}
+
+class FetchProductErrorState extends PackingPedidoState {
+  final String error;
+  FetchProductErrorState(this.error);
+}
+
+
 
 class ShowKeyboardState extends PackingPedidoState {
   final bool showKeyboard;
@@ -91,4 +101,92 @@ class LoadPedidoAndProductsError extends PackingPedidoState {
 class ShowDetailPackState extends PackingPedidoState {
   final bool showViewDetail;
   ShowDetailPackState(this.showViewDetail);
+}
+
+
+class ValidateFieldsPackingState extends PackingPedidoState {
+  final bool isOk;
+  ValidateFieldsPackingState(this.isOk);
+}
+
+
+//* CAMBIAR VALORES DE VARIABLES
+
+class ChangeLocationPackingIsOkState extends PackingPedidoState {
+  final bool isOk;
+  ChangeLocationPackingIsOkState(this.isOk);
+}
+
+
+
+class ChangeIsOkState extends PackingPedidoState {
+  final bool isOk;
+  ChangeIsOkState(this.isOk);
+}
+
+
+class ChangeProductPackingIsOkState extends PackingPedidoState {
+  final bool isOk;
+  ChangeProductPackingIsOkState(this.isOk);
+}
+
+
+class UpdateScannedValuePackState extends PackingPedidoState {
+  final String scannedValue;
+  final String scan;
+  UpdateScannedValuePackState(this.scannedValue, this.scan);
+}
+
+
+class ClearScannedValuePackState extends PackingPedidoState {}
+
+
+class ChangeQuantitySeparateState extends PackingPedidoState {
+  final dynamic quantity;
+  ChangeQuantitySeparateState(this.quantity);
+}
+
+
+class SendImageNovedadLoading   extends PackingPedidoState {}
+
+
+class  SendImageNovedadSuccess extends PackingPedidoState {
+  final dynamic cantidad;
+  final ImageSendNovedad response;
+  SendImageNovedadSuccess(this.response, this.cantidad);
+}
+
+class SendImageNovedadFailure extends PackingPedidoState {
+  final String error;
+  SendImageNovedadFailure(this.error);
+}
+
+
+class SendTemperatureSuccess extends PackingPedidoState {
+  final String message;
+  SendTemperatureSuccess(this.message);
+}
+
+class SendTemperatureLoading extends PackingPedidoState {}
+class SendTemperatureFailure extends PackingPedidoState {
+  final String error;
+  SendTemperatureFailure(this.error);
+}
+
+
+
+
+
+
+class GetTemperatureLoading extends PackingPedidoState {}
+
+class GetTemperatureSuccess extends PackingPedidoState {
+  final TemperatureIa temperature;
+  GetTemperatureSuccess(this.temperature);
+}
+
+
+class GetTemperatureFailure extends PackingPedidoState {
+  final String error;
+  GetTemperatureFailure(this.error);
 }

@@ -1,7 +1,13 @@
+// ignore_for_file: collection_methods_unrelated_type
+
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_image_send_novedad_model.dart';
+import 'package:wms_app/src/presentation/views/recepcion/models/response_temp_ia_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/data/wms_packing_repository.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
@@ -20,12 +26,26 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
   bool locationDestIsOk = false;
   bool quantityIsOk = false;
   bool isKeyboardVisible = false;
+  bool viewQuantity = false;
+
+  //*isSticker
+  bool isSticker = false;
+  // //*validaciones de campos del estado de la vista
+  bool isLocationOk = true;
+  bool isProductOk = true;
+  bool isLocationDestOk = true;
+  bool isQuantityOk = true;
 
   String scannedValue1 = '';
   String scannedValue2 = '';
   String scannedValue3 = '';
   String scannedValue4 = '';
   String scannedValue5 = '';
+  //* ultima ubicacion
+  String oldLocation = '';
+  double quantitySelected = 0;
+
+  TemperatureIa resultTemperature = TemperatureIa();
 
   //*controller para la busqueda
   TextEditingController searchController = TextEditingController();
@@ -55,8 +75,14 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
 
   //*lista de paquetes
   List<Paquete> packages = [];
+  //*lista de barcodes
+  List<Barcodes> listOfBarcodes = [];
+  List<ProductoPedido> listOfProductsName = [];
 
   PedidoPackingResult currentPedidoPack = PedidoPackingResult();
+
+  //*producto actual
+  ProductoPedido currentProduct = ProductoPedido();
 
   //configuracion del usuario //permisos
   Configurations configurations = Configurations();
@@ -88,6 +114,412 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
     //cargar pedido y productos
     on<LoadPedidoAndProductsEvent>(_onLoadPedidoAndProductsEvent);
     on<ShowDetailvent>(_onShowDetailEvent);
+
+    //*evento para validar los campos de la vista
+    on<ValidateFieldsPackingEvent>(_onValidateFieldsPacking);
+
+    //*cambiar el estado de las variables
+    on<ChangeLocationIsOkEvent>(_onChangeLocationIsOkEvent);
+    on<ChangeLocationDestIsOkEvent>(_onChangeLocationDestIsOkEvent);
+    on<ChangeProductIsOkEvent>(_onChangeProductIsOkEvent);
+
+    //*evento para actualizar el valor del scan
+    on<UpdateScannedValuePackEvent>(_onUpdateScannedValueEvent);
+    on<ClearScannedValuePackEvent>(_onClearScannedValueEvent);
+
+    //*evento para cambiar la cantidad seleccionada
+    on<ChangeQuantitySeparate>(_onChangeQuantitySelectedEvent);
+
+    //*cantidad
+    on<ChangeIsOkQuantity>(_onChangeQuantityIsOkEvent);
+    on<AddQuantitySeparate>(_onAddQuantitySeparateEvent);
+
+    //*cargamos el producto a certificar
+    on<FetchProductEvent>(_onFetchProductEvent);
+
+    //enviar temperatura
+    on<GetTemperatureEvent>(_onGetTemperatureEvent);
+    on<SendImageNovedad>(_onSendImageNovedad);
+    on<SendTemperatureEvent>(_onSendTemperatureEvent);
+  }
+
+  //metodo para enviar la temperatura del producto
+
+  void _onSendTemperatureEvent(
+    SendTemperatureEvent event,
+    Emitter<PackingPedidoState> emit,
+  ) async {
+    try {
+      emit(SendTemperatureLoading());
+
+      //validamso que tengamos imagen y temperatura
+
+      if (event.file.path == null || event.file.path.isEmpty) {
+        emit(SendTemperatureFailure('No se ha seleccionado una imagen'));
+        return;
+      }
+
+      print('currentProduct: ${currentProduct.toMap()}');
+
+      //enviamos la temperatura con la imagen
+      final response = await wmsPackingRepository.sendTemperature(
+        resultTemperature.temperature ?? 0.0,
+        event.moveLineId,
+        event.file,
+        true,
+      );
+
+      //esperamos la repuesta y emitimos el estadp
+      if (response.code == 200) {
+        //actualizamos la temepratura por producto en la bd y la imagen
+
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'temperatura',
+          resultTemperature.temperature ?? 0.0,
+          event.moveLineId,
+        );
+
+        //agregamos la imagen de temperatura del producto a la bd
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'image',
+          response.imageUrl ?? "",
+          event.moveLineId,
+        );
+
+        //limpiamos el dato de temperatura
+        resultTemperature = TemperatureIa();
+
+        add(LoadPedidoAndProductsEvent(currentProduct.pedidoId ?? 0));
+
+        emit(SendTemperatureSuccess(
+            response.result ?? 'Temperatura enviada correctamente'));
+      } else {
+        emit(SendTemperatureFailure(
+            response.msg ?? 'Error al enviar la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(SendTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  //metodo para obtener la temperaturs desde la ia
+
+  void _onGetTemperatureEvent(
+    GetTemperatureEvent event,
+    Emitter<PackingPedidoState> emit,
+  ) async {
+    try {
+      emit(GetTemperatureLoading());
+      // 1. Llamar al método que analiza la imagen y devuelve la temperatura
+      final result =
+          await wmsPackingRepository.getTemperatureWithImage(event.file);
+
+      resultTemperature = TemperatureIa();
+      if (result.temperature != null) {
+        resultTemperature = result;
+        emit(GetTemperatureSuccess(resultTemperature));
+      } else {
+        emit(GetTemperatureFailure(
+            result.detail ?? 'Error al obtener la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onGetTemperatureEvent: $e, $s');
+      emit(GetTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  //metodo para enviar una imagen de novedad
+  void _onSendImageNovedad(
+      SendImageNovedad event, Emitter<PackingPedidoState> emit) async {
+    try {
+      print('------ Enviando imagen de novedad ---');
+      print(
+          'pedidoId: ${event.pedidoId} moveLineId: ${event.moveLineId} productId: ${event.productId}');
+      emit(SendImageNovedadLoading());
+      final response = await wmsPackingRepository.sendImageNoved(
+        event.moveLineId,
+        event.file,
+      );
+      if (response.code == 200) {
+        //actualizamos la imagen de novedad en la bd
+        await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "image_novedad",
+          response.imageUrl ?? "",
+          event.moveLineId,
+        );
+
+        emit(SendImageNovedadSuccess(response, event.cantidad));
+        //  add(GetPorductsToEntrada(event.idRecepcion));
+      } else {
+        emit(SendImageNovedadFailure(
+            response.msg ?? 'Error al enviar la imagen'));
+      }
+    } catch (e, s) {
+      print('Error en el _onSendImageNovedad: $e, $s');
+      emit(SendImageNovedadFailure('Ocurrió un error al enviar la imagen'));
+    }
+  }
+
+  void _onFetchProductEvent(
+      FetchProductEvent event, Emitter<PackingPedidoState> emit) async {
+    try {
+      isLocationOk = true;
+      isProductOk = true;
+      isLocationDestOk = true;
+      isQuantityOk = true;
+
+      emit(FetchProductLoadingState());
+      listOfBarcodes.clear();
+      currentProduct = ProductoPedido();
+      currentProduct = event.pedido;
+      listOfBarcodes = await db.barcodesPackagesRepository.getBarcodesProduct(
+          currentProduct.batchId ?? 0,
+          currentProduct.idProduct,
+          currentProduct.idMove ?? 0,
+          'packing-pack');
+      locationIsOk = currentProduct.isLocationIsOk == 1 ? true : false;
+      productIsOk = currentProduct.productIsOk == 1 ? true : false;
+      locationDestIsOk = currentProduct.locationDestIsOk == 1 ? true : false;
+      quantityIsOk = currentProduct.isQuantityIsOk == 1 ? true : false;
+      quantitySelected = currentProduct.isProductSplit == 1
+          ? 0
+          : currentProduct.quantitySeparate ?? 0;
+      products();
+
+      emit(FetchProductLoadedState());
+    } catch (e, s) {
+      print('Error en el  _onFetchProductEvent: $e, $s');
+      emit(FetchProductErrorState(e.toString()));
+    }
+  }
+
+  void products() {
+    // Limpiamos la lista 'listOfProductsName' para asegurarnos que no haya duplicados de iteraciones anteriores
+    listOfProductsName.clear();
+
+    // Recorremos los productos del batch
+    for (var i = 0; i < listOfProductosProgress.length; i++) {
+      var product = listOfProductosProgress[i];
+
+      // Aseguramos que productId no sea nulo antes de intentar agregarlo
+      if (product != null && product != null) {
+        // Validamos si el productId ya existe en la lista 'positions'
+        if (!listOfProductsName.contains(product.idMove)) {
+          listOfProductsName.add(
+              product); // Agregamos el productId a la lista 'listOfProductsName'
+        }
+      }
+    }
+  }
+
+  void _onAddQuantitySeparateEvent(
+      AddQuantitySeparate event, Emitter<PackingPedidoState> emit) async {
+    quantitySelected = quantitySelected + event.quantity;
+    await db.productosPedidosRepository.incremenQtytProductSeparatePacking(
+        event.pedidoId, event.productId, event.idMove, event.quantity);
+    emit(ChangeQuantitySeparateState(quantitySelected));
+  }
+
+  void _onChangeQuantityIsOkEvent(
+      ChangeIsOkQuantity event, Emitter<PackingPedidoState> emit) async {
+    if (event.isOk) {
+      //actualizamos la cantidad del producto a true
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "is_quantity_is_ok",
+          1,
+          event.idMove);
+    }
+    quantityIsOk = event.isOk;
+    emit(ChangeIsOkState(
+      quantityIsOk,
+    ));
+  }
+
+  //*metodo para cambiar la cantidad seleccionada
+  void _onChangeQuantitySelectedEvent(
+      ChangeQuantitySeparate event, Emitter<PackingPedidoState> emit) async {
+    print('event.quantity: ${event.quantity}');
+    if (event.quantity > 0) {
+      quantitySelected = event.quantity;
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "quantity_separate",
+          event.quantity,
+          event.idMove);
+    }
+    emit(ChangeQuantitySeparateState(quantitySelected));
+  }
+
+//*evento para limpiar el valor del scan
+  void _onClearScannedValueEvent(
+      ClearScannedValuePackEvent event, Emitter<PackingPedidoState> emit) {
+    try {
+      switch (event.scan) {
+        case 'location':
+          scannedValue1 = '';
+          emit(ClearScannedValuePackState());
+          break;
+        case 'product':
+          scannedValue2 = '';
+          emit(ClearScannedValuePackState());
+          break;
+        case 'quantity':
+          scannedValue3 = '';
+          emit(ClearScannedValuePackState());
+          break;
+        case 'muelle':
+          scannedValue4 = '';
+          emit(ClearScannedValuePackState());
+          break;
+
+        case 'toDo':
+          scannedValue5 = '';
+          emit(ClearScannedValuePackState());
+          break;
+
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+      emit(ClearScannedValuePackState());
+    } catch (e, s) {
+      print("❌ Error en _onClearScannedValueEvent: $e, $s");
+    }
+  }
+
+  //*evento para actualizar el valor del scan
+  void _onUpdateScannedValueEvent(
+      UpdateScannedValuePackEvent event, Emitter<PackingPedidoState> emit) {
+    try {
+      switch (event.scan) {
+        case 'location':
+          // Acumulador de valores escaneados
+          scannedValue1 += event.scannedValue.trim();
+          print('scannedValue1: $scannedValue1');
+          emit(UpdateScannedValuePackState(scannedValue1, event.scan));
+          break;
+        case 'product':
+          scannedValue2 += event.scannedValue.trim();
+          print('scannedValue2: $scannedValue2');
+          emit(UpdateScannedValuePackState(scannedValue2, event.scan));
+          break;
+        case 'quantity':
+          scannedValue3 += event.scannedValue.trim();
+          print('scannedValue3: $scannedValue3');
+          emit(UpdateScannedValuePackState(scannedValue3, event.scan));
+          break;
+        case 'muelle':
+          print('scannedValue4: $scannedValue4');
+          scannedValue4 += event.scannedValue.trim();
+          emit(UpdateScannedValuePackState(scannedValue4, event.scan));
+          break;
+
+        case 'toDo':
+          print('scannedValue5: $scannedValue5');
+          scannedValue5 += event.scannedValue.trim();
+          emit(UpdateScannedValuePackState(scannedValue5, event.scan));
+          break;
+
+        default:
+          print('Scan type not recognized: ${event.scan}');
+      }
+    } catch (e, s) {
+      print("❌ Error en _onUpdateScannedValueEvent: $e, $s");
+    }
+  }
+
+  void _onChangeProductIsOkEvent(
+      ChangeProductIsOkEvent event, Emitter<PackingPedidoState> emit) async {
+    if (event.productIsOk) {
+      //actualizamos el producto a true
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId, event.productId, "product_is_ok", 1, event.idMove);
+      //actualizamos la cantidad separada
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "quantity_separate",
+          event.quantity,
+          event.idMove);
+    }
+    productIsOk = event.productIsOk;
+    emit(ChangeProductPackingIsOkState(
+      productIsOk,
+    ));
+  }
+
+  void _onChangeLocationDestIsOkEvent(
+      ChangeLocationDestIsOkEvent event, Emitter<PackingPedidoState> emit) {
+    locationDestIsOk = event.locationDestIsOk;
+    emit(ChangeIsOkState(
+      locationDestIsOk,
+    ));
+  }
+
+  void _onChangeLocationIsOkEvent(
+      ChangeLocationIsOkEvent event, Emitter<PackingPedidoState> emit) async {
+    if (isLocationOk) {
+      //*actualizamos la seleccion del batch, pedido y producto
+      //actualizamos el estado de seleccion de un batch
+      await db.batchPackingRepository.setFieldTableBatchPacking(
+          currentProduct.batchId ?? 0, "is_selected", 1);
+      //actualizamos el estado del pedido como seleccionado
+      await db.pedidosPackingRepository.setFieldTablePedidosPacking(
+          currentProduct.batchId ?? 0, event.pedidoId, "is_selected", 1);
+      // actualizamo el valor de que he seleccionado el producto
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "is_selected",
+          1,
+          currentProduct.idMove ?? 0);
+      //*actualizamos la ubicacion del producto a true
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "is_location_is_ok",
+          1,
+          currentProduct.idMove ?? 0);
+
+      locationIsOk = true;
+      emit(ChangeLocationPackingIsOkState(
+        locationIsOk,
+      ));
+    }
+  }
+
+  void _onValidateFieldsPacking(
+      ValidateFieldsPackingEvent event, Emitter<PackingPedidoState> emit) {
+    switch (event.field) {
+      case 'location':
+        isLocationOk = event.isOk;
+        break;
+      case 'product':
+        isProductOk = event.isOk;
+        break;
+      case 'locationDest':
+        isLocationDestOk = event.isOk;
+        break;
+      case 'quantity':
+        isQuantityOk = event.isOk;
+        break;
+    }
+    print(
+        'Location: $isLocationOk, Product: $isProductOk, LocationDest: $isLocationDestOk, Quantity: $isQuantityOk');
+    emit(ValidateFieldsPackingState(event.isOk));
   }
 
   //*evento para ver el detalle
@@ -403,9 +835,8 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
               .toList();
 
           //covertir el mapa en una lista de los paquetes de un pedido
-          List<Paquete> packagesToInsert = listOfPedidos
-              .expand((pedido) => pedido.listaPaquetes!)
-              .toList();
+          List<Paquete> packagesToInsert =
+              listOfPedidos.expand((pedido) => pedido.listaPaquetes!).toList();
 
           // Enviar la lista agrupada de productos de un pedido para packing
           await DataBaseSqlite()

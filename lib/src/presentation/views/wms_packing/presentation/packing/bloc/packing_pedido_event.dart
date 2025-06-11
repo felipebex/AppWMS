@@ -48,3 +48,125 @@ class ShowDetailvent extends PackingPedidoEvent {
   final bool show;
   ShowDetailvent(this.show);
 }
+
+
+class ValidateFieldsPackingEvent extends PackingPedidoEvent {
+  final String field;
+  final bool isOk;
+  ValidateFieldsPackingEvent({required this.field, required this.isOk});
+}
+
+
+class ChangeLocationIsOkEvent extends PackingPedidoEvent {
+  final int productId;
+  final int pedidoId;
+  final int idMove;
+  ChangeLocationIsOkEvent(this.productId, this.pedidoId, this.idMove);
+}
+
+
+class ChangeLocationDestIsOkEvent extends PackingPedidoEvent {
+  final bool locationDestIsOk;
+  ChangeLocationDestIsOkEvent(this.locationDestIsOk);
+}
+
+
+class ClearScannedValuePackEvent extends PackingPedidoEvent {
+final String scan;
+  ClearScannedValuePackEvent(this.scan);
+}
+
+class UpdateScannedValuePackEvent extends PackingPedidoEvent {
+    final String scannedValue;
+  final String scan;
+  UpdateScannedValuePackEvent(this.scannedValue, this.scan);
+}
+
+
+
+
+
+
+class ChangeProductIsOkEvent extends PackingPedidoEvent {
+  final bool productIsOk;
+  final int productId;
+  final int pedidoId;
+  final dynamic quantity;
+  final int idMove;
+  ChangeProductIsOkEvent(this.productIsOk, this.productId, this.pedidoId,
+      this.quantity, this.idMove);
+}
+
+
+
+class ChangeQuantitySeparate extends PackingPedidoEvent {
+  final dynamic quantity;
+  final int productId;
+  final int pedidoId;
+  final int idMove;
+  ChangeQuantitySeparate(
+      this.quantity, this.productId, this.pedidoId, this.idMove);
+}
+
+
+
+class ChangeIsOkQuantity extends PackingPedidoEvent {
+  final bool isOk;
+  final int productId;
+  final int pedidoId;
+  final int idMove;
+  ChangeIsOkQuantity(this.isOk, this.productId, this.pedidoId, this.idMove);
+}
+
+class AddQuantitySeparate extends PackingPedidoEvent {
+  final int productId;
+  final int idMove;
+  final dynamic quantity;
+  final int pedidoId;
+  AddQuantitySeparate(
+      this.quantity, this.idMove, this.productId, this.pedidoId);
+}
+
+
+class FetchProductEvent extends PackingPedidoEvent {
+  final ProductoPedido pedido;
+  FetchProductEvent(
+    this.pedido,
+  );
+}
+
+
+
+class SendTemperatureEvent extends PackingPedidoEvent {
+ final File file;
+ final int moveLineId;
+  SendTemperatureEvent({
+    required this.file,
+    required this.moveLineId,
+  });
+}
+
+class SendImageNovedad extends PackingPedidoEvent {
+  final dynamic cantidad;
+  final File file;
+  final int moveLineId;
+  final int pedidoId;
+  final int productId;
+
+  SendImageNovedad({
+    required this.cantidad,
+    required this.file,
+    required this.moveLineId,
+    required this.pedidoId,
+    required this.productId,
+  });
+}
+
+
+class GetTemperatureEvent extends PackingPedidoEvent {
+  final File file;
+
+  GetTemperatureEvent({
+    required this.file,
+  });
+}

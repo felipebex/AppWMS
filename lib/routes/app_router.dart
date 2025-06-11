@@ -38,6 +38,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/packing_list.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/index.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/packing_detail.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/sacn_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_detail.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/batch_screen.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/screens/index_list_pick_screen.dart';
@@ -48,8 +49,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/history/scree
 import 'package:wms_app/src/presentation/views/wms_picking/modules/picking_componentes/index_list_picking_componentes_screen.dart';
 
 class AppRoutes {
-
-
   //todo ocr
   static const String ocr = 'ocr';
   //todo  Mapa estático de rutas
@@ -80,6 +79,7 @@ class AppRoutes {
   //todo packing por pedido
   static const String listPacking = 'list-packing';
   static const String detailPackingPedido = 'detail-packing-pedido';
+  static const String scanPack = 'scan-pack';
 
   //todo inventario
   static const String inventario = 'inventario';
@@ -134,9 +134,6 @@ class AppRoutes {
 
   static Map<String, Widget Function(BuildContext)> get routes {
     return {
-
-
-      
       // todo Global
       enterprice: (_) => const SelectEnterpricePage(),
       auth: (_) => const LoginPage(),
@@ -197,14 +194,15 @@ class AppRoutes {
       //todo packign por pedido
       listPacking: (_) => ListPackingScreen(),
 
-      detailPackingPedido: (context){
-         final arguments =
+      detailPackingPedido: (context) {
+        final arguments =
             ModalRoute.of(context)!.settings.arguments as List<dynamic>;
-         final initialTabIndex = arguments[0] as int;
+        final initialTabIndex = arguments[0] as int;
         return PackingPedidoDetailScreen(
           initialTabIndex: initialTabIndex,
         );
       },
+      scanPack :(_) => ScanPackScreen(),
 
       //todo auth
       home: (_) => const HomePage(),

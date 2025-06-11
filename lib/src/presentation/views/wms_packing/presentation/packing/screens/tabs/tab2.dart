@@ -116,98 +116,90 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
         return Scaffold(
           backgroundColor: Colors.white,
 
-          floatingActionButton: FloatingActionButton(
-            onPressed: () async {
-              final response = await DataBaseSqlite()
-                  .productosPedidosRepository
-                  .getAllProductosPedidos(
-                     );
-              print('productos: ${response.length}');
-            },
-          ),
+         
 
-          // floatingActionButton: context
-          //             .read<WmsPackingBloc>()
-          //             .configurations
-          //             .result
-          //             ?.result
-          //             ?.scanProduct ==
-          //         true
-          //     ? Stack(
-          //         children: [
-          //           // El FloatingActionButton
-          //           Positioned(
-          //             bottom:
-          //                 0.0, // Ajusta según sea necesario para colocar en la parte inferior
-          //             right:
-          //                 0.0, // Ajusta según sea necesario para colocar en la parte derecha
-          //             child: FloatingActionButton(
-          //               onPressed: context
-          //                       .read<WmsPackingBloc>()
-          //                       .listOfProductosProgress
-          //                       .isEmpty
-          //                   ? null
-          //                   : () {
-          //                       //cerramos el teclado
-          //                       context
-          //                           .read<WmsPackingBloc>()
-          //                           .add(ChangeStickerEvent(false));
+          floatingActionButton: context
+                      .read<PackingPedidoBloc>()
+                      .configurations
+                      .result
+                      ?.result
+                      ?.scanProduct ==
+                  true
+              ? Stack(
+                  children: [
+                    // El FloatingActionButton
+                    Positioned(
+                      bottom:
+                          0.0, // Ajusta según sea necesario para colocar en la parte inferior
+                      right:
+                          0.0, // Ajusta según sea necesario para colocar en la parte derecha
+                      child: FloatingActionButton(
+                        onPressed: context
+                                .read<PackingPedidoBloc>()
+                                .listOfProductosProgress
+                                .isEmpty
+                            ? null
+                            : () {
+                                //cerramos el teclado
+                                // context
+                                //     .read<PackingPedidoBloc>()
+                                //     .add(ChangeStickerEvent(false));
 
-          //                       FocusScope.of(context).unfocus();
-          //                       showDialog(
-          //                           context: context,
-          //                           builder: (context) {
-          //                             return DialogConfirmatedPacking(
-          //                               productos: context
-          //                                   .read<WmsPackingBloc>()
-          //                                   .listOfProductsForPacking,
-          //                               isCertificate: false,
-          //                             );
-          //                           });
-          //                     },
-          //               backgroundColor: primaryColorApp,
-          //               child: Image.asset(
-          //                 'assets/icons/packing.png',
-          //                 width: 30,
-          //                 height: 30,
-          //                 color: Colors.white,
-          //               ),
-          //             ),
-          //           ),
-          //           // El número de productos seleccionados
-          //           Positioned(
-          //             bottom: 40.0, // Posición hacia arriba
-          //             right: 0.0, // Posición hacia la derecha
-          //             child: context
-          //                     .read<WmsPackingBloc>()
-          //                     .listOfProductsForPacking
-          //                     .isNotEmpty
-          //                 ? Container(
-          //                     padding: const EdgeInsets.symmetric(
-          //                         horizontal: 6, vertical: 2),
-          //                     decoration: BoxDecoration(
-          //                       color: Colors.red,
-          //                       borderRadius: BorderRadius.circular(12),
-          //                     ),
-          //                     child: Text(
-          //                       context
-          //                           .read<WmsPackingBloc>()
-          //                           .listOfProductsForPacking
-          //                           .length
-          //                           .toString(),
-          //                       style: const TextStyle(
-          //                         color: Colors.white,
-          //                         fontWeight: FontWeight.bold,
-          //                         fontSize: 12,
-          //                       ),
-          //                     ),
-          //                   )
-          //                 : const SizedBox
-          //                     .shrink(), // No mostrar el número si no hay productos seleccionados
-          //           ),
-          //         ],
-          //       )
-          //     : null,
+                                FocusScope.of(context).unfocus();
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return DialogConfirmatedPacking(
+                                        productos: context
+                                            .read<PackingPedidoBloc>()
+                                            .listOfProductsForPacking,
+                                        isCertificate: false,
+                                      );
+                                    });
+                              },
+                        backgroundColor: primaryColorApp,
+                        child: Image.asset(
+                          'assets/icons/packing.png',
+                          width: 30,
+                          height: 30,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    // El número de productos seleccionados
+                    Positioned(
+                      bottom: 40.0, // Posición hacia arriba
+                      right: 0.0, // Posición hacia la derecha
+                      child: context
+                              .read<PackingPedidoBloc>()
+                              .listOfProductsForPacking
+                              .isNotEmpty
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                context
+                                    .read<PackingPedidoBloc>()
+                                    .listOfProductsForPacking
+                                    .length
+                                    .toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            )
+                          : const SizedBox
+                              .shrink(), // No mostrar el número si no hay productos seleccionados
+                    ),
+                  ],
+                )
+              : null,
           body: BlocBuilder<PackingPedidoBloc, PackingPedidoState>(
             builder: (context, state) {
               return Container(
@@ -257,9 +249,9 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
                                         context);
                                     return KeyEventResult.handled;
                                   } else {
-                                    // context.read<PackingPedidoBloc>().add(
-                                    //     UpdateScannedValuePackEvent(
-                                    //         event.data.keyLabel, 'toDo'));
+                                    context.read<PackingPedidoBloc>().add(
+                                        UpdateScannedValuePackEvent(
+                                            event.data.keyLabel, 'toDo'));
                                     return KeyEventResult.handled;
                                   }
                                 }
@@ -342,14 +334,14 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
                                                   // if (selected == true) {
                                                   //   // Seleccionar producto
                                                   //   context
-                                                  //       .read<WmsPackingBloc>()
+                                                  //       .read<PackingPedidoBloc>()
                                                   //       .add(
                                                   //           SelectProductPackingEvent(
                                                   //               product));
                                                   // } else {
                                                   //   // Deseleccionar producto
                                                   //   context
-                                                  //       .read<WmsPackingBloc>()
+                                                  //       .read<PackingPedidoBloc>()
                                                   //       .add(
                                                   //           UnSelectProductPackingEvent(
                                                   //               product));
@@ -360,61 +352,57 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
                                             Expanded(
                                               child: GestureDetector(
                                                 onTap: () {
-                                                  // print(
-                                                  //     "Producto seleccionado: ${product.toMap()}");
-                                                  // // validamos si este articulo se encuentra en la lista de productos preparados
-                                                  // if (context
-                                                  //     .read<PackingPedidoBloc>()
-                                                  //     .productsDone
-                                                  //     .any((doneProduct) =>
-                                                  //         doneProduct.idMove ==
-                                                  //         product.idMove)) {
-                                                  //   // Mostramos el error
-                                                  //   ScaffoldMessenger.of(
-                                                  //           context)
-                                                  //       .showSnackBar(SnackBar(
-                                                  //     content: const Text(
-                                                  //         "Este producto se encuentra en estado preparado, por favor seleccione otro"),
-                                                  //     backgroundColor:
-                                                  //         Colors.red[200],
-                                                  //   ));
-                                                  //   return;
-                                                  // }
+                                                  print(
+                                                      "Producto seleccionado: ${product.toMap()}");
+                                                  // validamos si este articulo se encuentra en la lista de productos preparados
+                                                  if (context
+                                                      .read<PackingPedidoBloc>()
+                                                      .productsDone
+                                                      .any((doneProduct) =>
+                                                          doneProduct.idMove ==
+                                                          product.idMove)) {
+                                                    // Mostramos el error
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(SnackBar(
+                                                      content: const Text(
+                                                          "Este producto se encuentra en estado preparado, por favor seleccione otro"),
+                                                      backgroundColor:
+                                                          Colors.red[200],
+                                                    ));
+                                                    return;
+                                                  }
 
-                                                  // context
-                                                  //     .read<WmsPackingBloc>()
-                                                  //     .add(FetchProductEvent(
-                                                  //         product));
+                                                  context
+                                                      .read<PackingPedidoBloc>()
+                                                      .add(FetchProductEvent(
+                                                          product));
 
-                                                  // showDialog(
-                                                  //   context: context,
-                                                  //   builder: (context) {
-                                                  //     return const DialogLoading(
-                                                  //       message:
-                                                  //           'Cargando información del producto...',
-                                                  //     );
-                                                  //   },
-                                                  // );
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return const DialogLoading(
+                                                        message:
+                                                            'Cargando información del producto...',
+                                                      );
+                                                    },
+                                                  );
 
-                                                  // Future.delayed(
-                                                  //     const Duration(
-                                                  //         seconds: 1), () {
-                                                  //   // Cerrar el diálogo de carga
-                                                  //   Navigator.of(context,
-                                                  //           rootNavigator: true)
-                                                  //       .pop();
+                                                  Future.delayed(
+                                                      const Duration(
+                                                          seconds: 1), () {
+                                                    // Cerrar el diálogo de carga
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
 
-                                                  //   // Ahora navegar a la vista "batch"
-                                                  //   Navigator
-                                                  //       .pushReplacementNamed(
-                                                  //     context,
-                                                  //     'Packing',
-                                                  //     arguments: [
-                                                  //       widget.packingModel,
-                                                  //       widget.batchModel,
-                                                  //     ],
-                                                  //   );
-                                                  // });
+                                                    // Ahora navegar a la vista "batch"
+                                                    Navigator
+                                                        .pushReplacementNamed(
+                                                      context,
+                                                      'scan-pack',
+                                                    );
+                                                  });
                                                 },
                                                 child: Column(
                                                   crossAxisAlignment:
