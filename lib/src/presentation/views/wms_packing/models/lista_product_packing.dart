@@ -25,9 +25,9 @@ class ProductoPedido {
   final int? idPackage;
   final String? packageName;
   final int? isPackage;
-  final dynamic? isCertificate;
+  final dynamic isCertificate;
   final int? isSendOdoo;
-  final dynamic? isProductSplit;
+  final dynamic isProductSplit;
   final String? isSendOdooDate;
   final dynamic expireDate;
 
@@ -36,7 +36,7 @@ class ProductoPedido {
   final List<Barcodes>? otherBarcode;
 
   final dynamic barcodeLocation;
-  final dynamic? quantitySeparate;
+  final dynamic quantitySeparate;
   final dynamic isSelected;
   final dynamic isSeparate;
   final dynamic
@@ -52,6 +52,8 @@ class ProductoPedido {
   final dynamic temperatura;
   final dynamic image;  
   final dynamic imageNovedad;  
+
+  final dynamic time;
 
   
 
@@ -99,6 +101,7 @@ class ProductoPedido {
     this.temperatura,
     this.image,
     this.imageNovedad,
+    this.time
   });
 
   factory ProductoPedido.fromJson(String str) =>
@@ -154,6 +157,7 @@ class ProductoPedido {
         temperatura: json["temperatura"],
         image: json["image"],
         imageNovedad: json["image_novedad"],
+        time: json["time"],
 
       );
 
@@ -203,5 +207,6 @@ class ProductoPedido {
         "temperatura": temperatura,
         "image": image,
         "image_novedad": imageNovedad,
+        "time":time
       };
 }

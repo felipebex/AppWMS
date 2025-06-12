@@ -464,6 +464,11 @@ PedidoPackRepository get pedidoPackRepository =>
     if (type == "packing-batch") {
       await db.delete(BatchPackingTable.tableName);
     }
+    if (type == "packing-pack") {
+      await db.delete(PedidoPackTable.tableName);
+    }
+
+    
     await db.delete(PedidosPackingTable.tableName,
         where: '${PedidosPackingTable.columnType} = ?', whereArgs: [type]);
     await db.delete(ProductosPedidosTable.tableName,

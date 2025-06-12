@@ -134,7 +134,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                     child: GestureDetector(
                                       onTap: () async {
                                         await DataBaseSqlite()
-                                            .delePacking('packing');
+                                            .delePacking('packing-pack');
                                         context
                                             .read<PackingPedidoBloc>()
                                             .add(LoadAllPackingPedidoEvent(
@@ -333,7 +333,13 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                     //     ),
                                     //   );
                                     // }
-    
+
+                                    //cargamos las configuraciones
+                                    context
+                                        .read<PackingPedidoBloc>()
+                                        .add(LoadConfigurationsUser(
+                                        ));
+                                    //cargamos la info del pedido seleccionado y los productos, paquetes del pedido
                                     context
                                         .read<PackingPedidoBloc>()
                                         .add(LoadPedidoAndProductsEvent(
@@ -545,6 +551,40 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                                                   null
                                                           ? red
                                                           : black),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.add,
+                                                color: primaryColorApp,
+                                                size: 15,
+                                              ),
+                                              const SizedBox(width: 5),
+                                              const Text(
+                                                "Cantidad de items: ",
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: black),
+                                                maxLines: 2,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  batch.cantidadProductos
+                                                      .toString(),
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: primaryColorApp),
                                                   maxLines: 2,
                                                   overflow:
                                                       TextOverflow.ellipsis,

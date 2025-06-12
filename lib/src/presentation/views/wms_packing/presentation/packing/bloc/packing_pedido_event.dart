@@ -15,29 +15,27 @@ class LoadAllPackingPedidoEvent extends PackingPedidoEvent {
   );
 }
 
-class LoadPackingPedidoFromDBEvent extends PackingPedidoEvent {
-}
+class LoadPackingPedidoFromDBEvent extends PackingPedidoEvent {}
 
-class   SearchPedidoEvent extends PackingPedidoEvent {
+class SearchPedidoEvent extends PackingPedidoEvent {
   final String query;
-  SearchPedidoEvent(this.query, );
+  SearchPedidoEvent(
+    this.query,
+  );
 }
 
 class AssignUserToPedido extends PackingPedidoEvent {
   final int id;
-  AssignUserToPedido( this.id);
+  AssignUserToPedido(this.id);
 }
 
 class StartOrStopTimePedido extends PackingPedidoEvent {
   final int id;
   final String value;
-  StartOrStopTimePedido(this.id , this.value);
+  StartOrStopTimePedido(this.id, this.value);
 }
 
-
-
 class LoadConfigurationsUser extends PackingPedidoEvent {}
-
 
 class LoadPedidoAndProductsEvent extends PackingPedidoEvent {
   final int idPedido;
@@ -49,13 +47,11 @@ class ShowDetailvent extends PackingPedidoEvent {
   ShowDetailvent(this.show);
 }
 
-
 class ValidateFieldsPackingEvent extends PackingPedidoEvent {
   final String field;
   final bool isOk;
   ValidateFieldsPackingEvent({required this.field, required this.isOk});
 }
-
 
 class ChangeLocationIsOkEvent extends PackingPedidoEvent {
   final int productId;
@@ -64,28 +60,21 @@ class ChangeLocationIsOkEvent extends PackingPedidoEvent {
   ChangeLocationIsOkEvent(this.productId, this.pedidoId, this.idMove);
 }
 
-
 class ChangeLocationDestIsOkEvent extends PackingPedidoEvent {
   final bool locationDestIsOk;
   ChangeLocationDestIsOkEvent(this.locationDestIsOk);
 }
 
-
 class ClearScannedValuePackEvent extends PackingPedidoEvent {
-final String scan;
+  final String scan;
   ClearScannedValuePackEvent(this.scan);
 }
 
 class UpdateScannedValuePackEvent extends PackingPedidoEvent {
-    final String scannedValue;
+  final String scannedValue;
   final String scan;
   UpdateScannedValuePackEvent(this.scannedValue, this.scan);
 }
-
-
-
-
-
 
 class ChangeProductIsOkEvent extends PackingPedidoEvent {
   final bool productIsOk;
@@ -97,8 +86,6 @@ class ChangeProductIsOkEvent extends PackingPedidoEvent {
       this.quantity, this.idMove);
 }
 
-
-
 class ChangeQuantitySeparate extends PackingPedidoEvent {
   final dynamic quantity;
   final int productId;
@@ -107,8 +94,6 @@ class ChangeQuantitySeparate extends PackingPedidoEvent {
   ChangeQuantitySeparate(
       this.quantity, this.productId, this.pedidoId, this.idMove);
 }
-
-
 
 class ChangeIsOkQuantity extends PackingPedidoEvent {
   final bool isOk;
@@ -127,7 +112,6 @@ class AddQuantitySeparate extends PackingPedidoEvent {
       this.quantity, this.idMove, this.productId, this.pedidoId);
 }
 
-
 class FetchProductEvent extends PackingPedidoEvent {
   final ProductoPedido pedido;
   FetchProductEvent(
@@ -135,11 +119,9 @@ class FetchProductEvent extends PackingPedidoEvent {
   );
 }
 
-
-
 class SendTemperatureEvent extends PackingPedidoEvent {
- final File file;
- final int moveLineId;
+  final File file;
+  final int moveLineId;
   SendTemperatureEvent({
     required this.file,
     required this.moveLineId,
@@ -162,11 +144,70 @@ class SendImageNovedad extends PackingPedidoEvent {
   });
 }
 
-
 class GetTemperatureEvent extends PackingPedidoEvent {
   final File file;
 
   GetTemperatureEvent({
     required this.file,
   });
+}
+
+class LoadAllNovedadesPackEvent extends PackingPedidoEvent {}
+
+class SetPickingSplitEvent extends PackingPedidoEvent {
+  final ProductoPedido producto;
+  final int idMove;
+  final dynamic quantity;
+  final int productId;
+  final int pedidoId;
+  SetPickingSplitEvent(
+      this.producto, this.idMove, this.quantity, this.productId, this.pedidoId);
+}
+
+class SetPickingsEvent extends PackingPedidoEvent {
+  final int productId;
+  final int pedidoId;
+  final int idMove;
+
+  SetPickingsEvent(this.productId, this.pedidoId, this.idMove);
+}
+
+class ShowQuantityPackEvent extends PackingPedidoEvent {
+  final bool showQuantity;
+  ShowQuantityPackEvent(this.showQuantity);
+}
+
+class ChangeStickerEvent extends PackingPedidoEvent {
+  final bool isSticker;
+  ChangeStickerEvent(this.isSticker);
+}
+
+class SetPackingsEvent extends PackingPedidoEvent {
+  final List<ProductoPedido> productos;
+  final bool isSticker;
+  final bool isCertificate;
+
+  SetPackingsEvent(
+    this.productos,
+    this.isSticker,
+    this.isCertificate,
+  );
+}
+
+class SelectProductPackingEvent extends PackingPedidoEvent {
+  final ProductoPedido producto;
+  SelectProductPackingEvent(this.producto);
+}
+
+class UnSelectProductPackingEvent extends PackingPedidoEvent {
+  final ProductoPedido producto;
+  UnSelectProductPackingEvent(this.producto);
+}
+
+class UnPackingEvent extends PackingPedidoEvent {
+  final UnPackRequest request;
+
+  final int pedidoId;
+  final int productId;
+  UnPackingEvent(this.request, this.pedidoId, this.productId);
 }

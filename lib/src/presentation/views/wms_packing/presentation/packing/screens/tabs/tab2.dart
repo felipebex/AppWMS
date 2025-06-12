@@ -3,10 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_confirmated_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
@@ -39,70 +37,69 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
   }
 
   void validateBarcode(String value, BuildContext context) {
-//     final bloc = context.read<PackingPedidoBloc>();
+    final bloc = context.read<PackingPedidoBloc>();
 
-//     String scan = bloc.scannedValue5.trim().toLowerCase() == ""
-//         ? value.trim().toLowerCase()
-//         : bloc.scannedValue5.trim().toLowerCase();
+    String scan = bloc.scannedValue5.trim().toLowerCase() == ""
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue5.trim().toLowerCase();
 
-//     _controllerToDo.text = "";
+    _controllerToDo.text = "";
 
-//     // Obtener la lista de productos desde el Bloc
-//     final listOfProducts = bloc.listOfProductosProgress;
+    // Obtener la lista de productos desde el Bloc
+    final listOfProducts = bloc.listOfProductosProgress;
 
-//     // Buscar el producto que coincide con el código de barras escaneado
-//     final product = listOfProducts.firstWhere(
-//       (product) => product.barcode.toLowerCase() == scan,
-//       orElse: () =>
-//           ProductoPedido(), // Devuelve null si no se encuentra ningún producto
-//     );
+    // Buscar el producto que coincide con el código de barras escaneado
+    final product = listOfProducts.firstWhere(
+      (product) => product.barcode.toLowerCase() == scan,
+      orElse: () =>
+          ProductoPedido(), // Devuelve null si no se encuentra ningún producto
+    );
 
-//     if (product.idMove != null) {
-//       // Si el producto existe, ejecutar los estados necesarios
-//       bloc.add(
-//           FetchProductEvent(product)); // Pasar el producto encontrado al evento
+    if (product.idMove != null) {
+      // Si el producto existe, ejecutar los estados necesarios
+      bloc.add(
+          FetchProductEvent(product)); // Pasar el producto encontrado al evento
 
-//       showDialog(
-//         context: context,
-//         builder: (context) {
-//           return const DialogLoading(
-//             message: 'Cargando información del producto...',
-//           );
-//         },
-//       );
-// //validamos la ubicacion de origen
-//       bloc.add(ChangeLocationIsOkEvent(
-//           product.idProduct ?? 0, product.pedidoId ?? 0, product.idMove ?? 0));
+      showDialog(
+        context: context,
+        builder: (context) {
+          return const DialogLoading(
+            message: 'Cargando información del producto...',
+          );
+        },
+      );
+//validamos la ubicacion de origen
+      bloc.add(ChangeLocationIsOkEvent(
+          product.idProduct ?? 0, product.pedidoId ?? 0, product.idMove ?? 0));
 
-//       //validamos el producto
-//       bloc.add(ChangeProductIsOkEvent(true, product.idProduct ?? 0,
-//           product.pedidoId ?? 0, 0, product.idMove ?? 0));
-//       //validamos la cantidad pa usarla
-//       bloc.add(ChangeIsOkQuantity(true, product.idProduct ?? 0,
-//           product.pedidoId ?? 0, product.idMove ?? 0));
+      //validamos el producto
+      bloc.add(ChangeProductIsOkEvent(true, product.idProduct ?? 0,
+          product.pedidoId ?? 0, 0, product.idMove ?? 0));
+      //validamos la cantidad pa usarla
+      bloc.add(ChangeIsOkQuantity(true, product.idProduct ?? 0,
+          product.pedidoId ?? 0, product.idMove ?? 0));
 
-//       Future.delayed(const Duration(seconds: 1), () {
-//         // Cerrar el diálogo de carga
-//         Navigator.of(context, rootNavigator: true).pop();
-//         // Ahora navegar a la vista "batch"
-//         Navigator.pushReplacementNamed(
-//           context,
-//           'Packing',
-//           arguments: [widget.packingModel, widget.batchModel],
-//         );
-//       });
+      Future.delayed(const Duration(seconds: 1), () {
+        // Cerrar el diálogo de carga
+        Navigator.of(context, rootNavigator: true).pop();
+        // Ahora navegar a la vista "batch"
+        Navigator.pushReplacementNamed(
+          context,
+          'scan-pack',
+        );
+      });
 
-//       // Limpiar el valor escaneado
-//       bloc.add(ClearScannedValuePackEvent('toDo'));
-//     } else {
-//       // Mostrar alerta de error si el producto no se encuentra
-//       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-//         content: const Text("Código erroneo"),
-//         backgroundColor: Colors.red[200],
-//         duration: const Duration(milliseconds: 500),
-//       ));
-//       bloc.add(ClearScannedValuePackEvent('toDo'));
-//     }
+      // Limpiar el valor escaneado
+      bloc.add(ClearScannedValuePackEvent('toDo'));
+    } else {
+      // Mostrar alerta de error si el producto no se encuentra
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text("Código erroneo"),
+        backgroundColor: Colors.red[200],
+        duration: const Duration(milliseconds: 500),
+      ));
+      bloc.add(ClearScannedValuePackEvent('toDo'));
+    }
   }
 
   @override
@@ -115,9 +112,6 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-
-         
-
           floatingActionButton: context
                       .read<PackingPedidoBloc>()
                       .configurations
@@ -140,22 +134,37 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
                                 .isEmpty
                             ? null
                             : () {
-                                //cerramos el teclado
-                                // context
-                                //     .read<PackingPedidoBloc>()
-                                //     .add(ChangeStickerEvent(false));
+                                context
+                                    .read<PackingPedidoBloc>()
+                                    .add(ChangeStickerEvent(false));
 
                                 FocusScope.of(context).unfocus();
+
                                 showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return DialogConfirmatedPacking(
-                                        productos: context
-                                            .read<PackingPedidoBloc>()
-                                            .listOfProductsForPacking,
-                                        isCertificate: false,
-                                      );
-                                    });
+                                  context: context,
+                                  builder: (_) {
+                                    final bloc =
+                                        context.read<PackingPedidoBloc>();
+                                    return DialogConfirmatedPacking(
+                                      productos: context
+                                          .read<PackingPedidoBloc>()
+                                          .listOfProductsForPacking,
+                                      isCertificate: false,
+                                      isSticker: bloc.isSticker,
+                                      onToggleSticker: (value) {
+                                        bloc.add(ChangeStickerEvent(value));
+                                      },
+                                      onConfirm: () {
+                                        bloc.add(SetPackingsEvent(
+                                            context
+                                                .read<PackingPedidoBloc>()
+                                                .listOfProductsForPacking,
+                                            bloc.isSticker,
+                                            false));
+                                      },
+                                    );
+                                  },
+                                );
                               },
                         backgroundColor: primaryColorApp,
                         child: Image.asset(
@@ -331,21 +340,23 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
                                                     .listOfProductsForPacking
                                                     .contains(product),
                                                 onChanged: (bool? selected) {
-                                                  // if (selected == true) {
-                                                  //   // Seleccionar producto
-                                                  //   context
-                                                  //       .read<PackingPedidoBloc>()
-                                                  //       .add(
-                                                  //           SelectProductPackingEvent(
-                                                  //               product));
-                                                  // } else {
-                                                  //   // Deseleccionar producto
-                                                  //   context
-                                                  //       .read<PackingPedidoBloc>()
-                                                  //       .add(
-                                                  //           UnSelectProductPackingEvent(
-                                                  //               product));
-                                                  // }
+                                                  if (selected == true) {
+                                                    // Seleccionar producto
+                                                    context
+                                                        .read<
+                                                            PackingPedidoBloc>()
+                                                        .add(
+                                                            SelectProductPackingEvent(
+                                                                product));
+                                                  } else {
+                                                    // Deseleccionar producto
+                                                    context
+                                                        .read<
+                                                            PackingPedidoBloc>()
+                                                        .add(
+                                                            UnSelectProductPackingEvent(
+                                                                product));
+                                                  }
                                                 },
                                               ),
                                             ),

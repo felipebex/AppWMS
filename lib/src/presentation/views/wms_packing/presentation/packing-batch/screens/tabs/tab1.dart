@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/packing_response_model.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/models/un_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_unPacking.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/models/mode_print_model.dart';
@@ -740,19 +741,49 @@ class Tab1Screen extends StatelessWidget {
                                                               );
                                                               return;
                                                             }
-                                                            //mensaje de confirmacion de desempacar el producto
+                                                          
                                                             showDialog(
-                                                                context:
-                                                                    context,
-                                                                builder:
-                                                                    (context) {
-                                                                  return DialogUnPacking(
-                                                                    product:
-                                                                        product,
-                                                                    package:
-                                                                        package,
-                                                                  );
-                                                                });
+                                                              context: context,
+                                                              builder: (_) =>
+                                                                  DialogUnPacking(
+                                                                product:
+                                                                    product,
+                                                                package:
+                                                                    package,
+                                                                onConfirm:
+                                                                    () async {
+                                                                  final idOperario =
+                                                                      await PrefUtils
+                                                                          .getUserId();
+
+                                                                  context
+                                                                      .read<
+                                                                          WmsPackingBloc>()
+                                                                      .add(
+                                                                          UnPackingEvent(
+                                                                        UnPackingRequest(
+                                                                          idBatch:
+                                                                              package.batchId ?? 0,
+                                                                          idPaquete:
+                                                                              package.id ?? 0,
+                                                                          listItem: [
+                                                                            ListItemUnpack(
+                                                                              idMove: product.idMove ?? 0,
+                                                                              productId: product.idProduct ?? 0,
+                                                                              lote: product.loteId,
+                                                                              locationId: product.idLocation ?? 0,
+                                                                              cantidadSeparada: product.isCertificate == 0 ? product.quantity ?? 0 : product.quantitySeparate ?? 0,
+                                                                              observacion: "Desempacado",
+                                                                              idOperario: idOperario,
+                                                                            )
+                                                                          ],
+                                                                        ),
+                                                                        product.pedidoId ??
+                                                                            0,
+                                                                      ));
+                                                                },
+                                                              ),
+                                                            );
                                                           },
                                                           child: const Icon(
                                                             Icons.delete,

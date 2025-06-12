@@ -143,16 +143,32 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                     .add(ChangeStickerEvent(false));
 
                                 FocusScope.of(context).unfocus();
+                               
+
                                 showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return DialogConfirmatedPacking(
-                                        productos: context
-                                            .read<WmsPackingBloc>()
-                                            .listOfProductsForPacking,
-                                        isCertificate: false,
-                                      );
-                                    });
+                                  context: context,
+                                  builder: (_) {
+                                    final bloc = context.read<WmsPackingBloc>();
+                                    return DialogConfirmatedPacking(
+                                      productos: context
+                                          .read<WmsPackingBloc>()
+                                          .listOfProductsForPacking,
+                                      isCertificate: false,
+                                      isSticker: bloc.isSticker,
+                                      onToggleSticker: (value) {
+                                        bloc.add(ChangeStickerEvent(value));
+                                      },
+                                      onConfirm: () {
+                                        bloc.add(SetPackingsEvent(
+                                            context
+                                                .read<WmsPackingBloc>()
+                                                .listOfProductsForPacking,
+                                            bloc.isSticker,
+                                            false));
+                                      },
+                                    );
+                                  },
+                                );
                               },
                         backgroundColor: primaryColorApp,
                         child: Image.asset(

@@ -3,106 +3,104 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_view_img_temp_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_confirmated_packing_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class Tab3Screen extends StatelessWidget {
-  const Tab3Screen({super.key});
+class Tab3PedidoScreen extends StatelessWidget {
+  const Tab3PedidoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return BlocBuilder<WmsPackingBloc, WmsPackingState>(
+    return BlocBuilder<PackingPedidoBloc, PackingPedidoState>(
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.white,
-          floatingActionButton: context
-                  .read<WmsPackingBloc>()
-                  .productsDone
-                  .isEmpty
-              ? null
-              : Stack(
-                  children: [
-                    Positioned(
-                      bottom:
-                          0.0, // Ajusta según sea necesario para colocar en la parte inferior
-                      right:
-                          0.0, // Ajusta según sea necesario para colocar en la parte derecha
-                      child: FloatingActionButton(
-                        onPressed: context
-                                .read<WmsPackingBloc>()
-                                .productsDone
-                                .isEmpty
-                            ? null
-                            : () {
-                               
-                                showDialog(
-                                  context: context,
-                                  builder: (_) {
-                                    final bloc = context.read<WmsPackingBloc>();
-                                    return DialogConfirmatedPacking(
-                                      productos: context
-                                          .read<WmsPackingBloc>()
-                                          .productsDone,
-                                      isCertificate: true,
-                                      isSticker: bloc.isSticker,
-                                      onToggleSticker: (value) {
-                                        bloc.add(ChangeStickerEvent(value));
-                                      },
-                                      onConfirm: () {
-                                        bloc.add(SetPackingsEvent(
-                                            context
-                                                .read<WmsPackingBloc>()
-                                                .productsDone,
-                                            bloc.isSticker,
-                                            true));
+          floatingActionButton:
+              context.read<PackingPedidoBloc>().productsDone.isEmpty
+                  ? null
+                  : Stack(
+                      children: [
+                        Positioned(
+                          bottom:
+                              0.0, // Ajusta según sea necesario para colocar en la parte inferior
+                          right:
+                              0.0, // Ajusta según sea necesario para colocar en la parte derecha
+                          child: FloatingActionButton(
+                            onPressed: context
+                                    .read<PackingPedidoBloc>()
+                                    .productsDone
+                                    .isEmpty
+                                ? null
+                                : () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) {
+                                        final bloc =
+                                            context.read<PackingPedidoBloc>();
+                                        return DialogConfirmatedPacking(
+                                          productos: context
+                                              .read<PackingPedidoBloc>()
+                                              .productsDone,
+                                          isCertificate: true,
+                                          isSticker: bloc.isSticker,
+                                          onToggleSticker: (value) {
+                                            bloc.add(ChangeStickerEvent(value));
+                                          },
+                                          onConfirm: () {
+                                            bloc.add(SetPackingsEvent(
+                                                context
+                                                    .read<PackingPedidoBloc>()
+                                                    .productsDone,
+                                                bloc.isSticker,
+                                                true));
+                                          },
+                                        );
                                       },
                                     );
                                   },
-                                );
-                              },
-                        backgroundColor: primaryColorApp,
-                        child: Image.asset(
-                          'assets/icons/packing.png',
-                          width: 30,
-                          height: 30,
-                          color: Colors.white,
+                            backgroundColor: primaryColorApp,
+                            child: Image.asset(
+                              'assets/icons/packing.png',
+                              width: 30,
+                              height: 30,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),
+                        Positioned(
+                          bottom: 40.0, // Posición hacia arriba
+                          right: 0.0, // Posición hacia la derecha
+                          child: context
+                                  .read<PackingPedidoBloc>()
+                                  .productsDone
+                                  .isNotEmpty
+                              ? Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    context
+                                        .read<PackingPedidoBloc>()
+                                        .productsDone
+                                        .length
+                                        .toString(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox
+                                  .shrink(), // No mostrar el número si no hay productos seleccionados
+                        ),
+                      ],
                     ),
-                    Positioned(
-                      bottom: 40.0, // Posición hacia arriba
-                      right: 0.0, // Posición hacia la derecha
-                      child: context
-                              .read<WmsPackingBloc>()
-                              .productsDone
-                              .isNotEmpty
-                          ? Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                context
-                                    .read<WmsPackingBloc>()
-                                    .productsDone
-                                    .length
-                                    .toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            )
-                          : const SizedBox
-                              .shrink(), // No mostrar el número si no hay productos seleccionados
-                    ),
-                  ],
-                ),
           body: Column(
             children: [
               Expanded(
@@ -111,7 +109,10 @@ class Tab3Screen extends StatelessWidget {
                   margin: const EdgeInsets.only(top: 5, bottom: 10),
                   // width: double.infinity,
                   // height: size.height * 0.7,
-                  child: (context.read<WmsPackingBloc>().productsDone.isEmpty)
+                  child: (context
+                          .read<PackingPedidoBloc>()
+                          .productsDone
+                          .isEmpty)
                       ? const Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -125,12 +126,12 @@ class Tab3Screen extends StatelessWidget {
                         )
                       : ListView.builder(
                           itemCount: context
-                              .read<WmsPackingBloc>()
+                              .read<PackingPedidoBloc>()
                               .productsDone
                               .length,
                           itemBuilder: (context, index) {
                             final product = context
-                                .read<WmsPackingBloc>()
+                                .read<PackingPedidoBloc>()
                                 .productsDone[index];
                             return Padding(
                               padding:
@@ -229,39 +230,38 @@ class Tab3Screen extends StatelessWidget {
                                                                       black)),
                                                     ],
                                                   ),
-                                                  // if (product.observation !=
-                                                  //         null &&
-                                                  //     product.isProductSplit ==
-                                                  //         null)
-                                                  //   Row(
-                                                  //     children: [
-                                                  //       Text(
-                                                  //         "Novedad: ",
-                                                  //         style: TextStyle(
-                                                  //           fontSize: 12,
-                                                  //           color:
-                                                  //               primaryColorApp,
-                                                  //         ),
-                                                  //       ),
-                                                  //       SizedBox(
-                                                  //         width:
-                                                  //             size.width * 0.55,
-                                                  //         child: Text(
-                                                  //             "${product.observation}",
-                                                  //             maxLines: 2,
-                                                  //             overflow:
-                                                  //                 TextOverflow
-                                                  //                     .ellipsis,
-                                                  //             style:
-                                                  //                 const TextStyle(
-                                                  //                     fontSize:
-                                                  //                         12,
-                                                  //                     color:
-                                                  //                         black)),
-                                                  //       ),
-                                                  //     ],
-                                                  //   ),
-
+                                                  if (product.observation !=
+                                                          null &&
+                                                      product.isProductSplit ==
+                                                          null)
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Novedad: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          width:
+                                                              size.width * 0.55,
+                                                          child: Text(
+                                                              "${product.observation}",
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          12,
+                                                                      color:
+                                                                          black)),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   Visibility(
                                                     visible: product
                                                                 .manejaTemperatura ==

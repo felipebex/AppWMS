@@ -173,7 +173,7 @@ class PackagesRepository {
     }
 
     // Calculamos la nueva cantidad
-    int nuevaCantidad = cantidadActual - cantidadRestar;
+    dynamic nuevaCantidad = cantidadActual - cantidadRestar;
 
     // Actualizamos el paquete con la nueva cantidad
     dynamic result = await db.update(

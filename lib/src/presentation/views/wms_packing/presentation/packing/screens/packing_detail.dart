@@ -1,16 +1,15 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab3.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/tabs/tab4.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab1.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab2.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab3.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/tabs/tab4.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class PackingPedidoDetailScreen extends StatefulWidget {
@@ -51,39 +50,39 @@ class _PackingDetailScreenState extends State<PackingPedidoDetailScreen>
     final Size size = MediaQuery.sizeOf(context);
     return BlocConsumer<PackingPedidoBloc, PackingPedidoState>(
       listener: (context, state) {
-        // if (state is WmsPackingErrorState) {
-        //   Get.defaultDialog(
-        //     title: '360 Software Informa',
-        //     titleStyle: TextStyle(color: Colors.red, fontSize: 18),
-        //     middleText: state.message,
-        //     middleTextStyle: TextStyle(color: black, fontSize: 14),
-        //     backgroundColor: Colors.white,
-        //     radius: 10,
-        //     actions: [
-        //       ElevatedButton(
-        //         onPressed: () {
-        //           Get.back();
-        //         },
-        //         style: ElevatedButton.styleFrom(
-        //           backgroundColor: primaryColorApp,
-        //           shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(10),
-        //           ),
-        //         ),
-        //         child: Text('Aceptar', style: TextStyle(color: white)),
-        //       ),
-        //     ],
-        //   );
-        // }
-        // if (state is WmsPackingSuccessState) {
-        //   Get.snackbar(
-        //     '360 Software Informa',
-        //     state.message,
-        //     backgroundColor: white,
-        //     colorText: primaryColorApp,
-        //     icon: Icon(Icons.error, color: Colors.green),
-        //   );
-        // }
+        if (state is WmsPackingErrorState) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        }
+        if (state is WmsPackingSuccessState) {
+          Get.snackbar(
+            '360 Software Informa',
+            state.msg,
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: Icon(Icons.error, color: Colors.green),
+          );
+        }
       },
       builder: (context, state) {
         return WillPopScope(
@@ -175,8 +174,8 @@ class _PackingDetailScreenState extends State<PackingPedidoDetailScreen>
                     children: [
                       const Tab1PedidoScreen(),
                       const Tab2PedidoScreen(),
-                      const Tab3Screen(),
-                      const Tab4Screen(),
+                      const Tab3PedidoScreen(),
+                      const Tab4PedidoScreen(),
                     ],
                   ),
                 ),

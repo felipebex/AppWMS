@@ -2,10 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
-import 'package:wms_app/src/presentation/views/home/widgets/Dialog_ProductsNotSends.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_devoluciones_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
@@ -16,6 +14,7 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/dialog_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/bloc/wms_picking_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/blocs/batch_bloc/batch_bloc.dart';
@@ -451,6 +450,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               context.read<WmsPackingBloc>().add(
                                                   LoadAllNovedadesPackingEvent());
 
+                                              context
+                                                  .read<PackingPedidoBloc>()
+                                                  .add(
+                                                      LoadAllNovedadesPackEvent());
+
                                               showDialog(
                                                 context: context,
                                                 builder: (context) {
@@ -475,14 +479,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                               WmsPackingState>(
                                             builder: (context, state) {
                                               return ImteModule(
-                                                count: context
-                                                    .read<WmsPackingBloc>()
-                                                    .listOfBatchs
-                                                    .where((element) {
-                                                  return element.isPacking ==
-                                                          0 ||
-                                                      element.isPacking == null;
-                                                }).length,
                                                 urlImg: "packing.png",
                                                 title: 'Packing',
                                               );

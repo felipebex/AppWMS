@@ -10,12 +10,14 @@ import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_
 
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/location/location_card_packing_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_packing_advetencia_cantidad_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_temperature_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/product/product_pack_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 
@@ -253,70 +255,62 @@ class _PackingScreenState extends State<ScanPackScreen> {
                               }
                             }
 
-                            // if (state is SetPickingPackingLoadingState) {
-                            //   showDialog(
-                            //     context: context,
-                            //     builder: (context) => const DialogLoading(
-                            //       message: "Separando producto...",
-                            //     ),
-                            //   );
-                            // }
+                            if (state is SetPickingPackingLoadingState) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => const DialogLoading(
+                                  message: "Separando producto...",
+                                ),
+                              );
+                            }
 
-                            // if (state is SetPickingPackingOkState) {
-                            //   if (Navigator.canPop(context)) {
-                            //     Navigator.pop(context);
-                            //   }
+                            if (state is SetPickingPackingOkState) {
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
 
-                            //   //validamos si el producto maneja temperatura
-                            //   if (packinghBloc
-                            //               .currentProduct.manejaTemperatura ==
-                            //           1 ||
-                            //       packinghBloc
-                            //               .currentProduct.manejaTemperatura ==
-                            //           true) {
-                            //     showDialog(
-                            //       barrierDismissible:
-                            //           false, // Evita que se cierre tocando fuera del diálogo
-                            //       context: context,
-                            //       builder: (context) => WillPopScope(
-                            //         onWillPop: () async =>
-                            //             false, // Evita que se cierre con la flecha de atrás
-                            //         child: DialogCapturaTemperatura(
-                            //           moveLineId:
-                            //               packinghBloc.currentProduct.idMove ??
-                            //                   0,
-                            //         ),
-                            //       ),
-                            //     );
+                              //validamos si el producto maneja temperatura
+                              if (packinghBloc
+                                          .currentProduct.manejaTemperatura ==
+                                      1 ||
+                                  packinghBloc
+                                          .currentProduct.manejaTemperatura ==
+                                      true) {
+                                showDialog(
+                                  barrierDismissible:
+                                      false, // Evita que se cierre tocando fuera del diálogo
+                                  context: context,
+                                  builder: (context) => WillPopScope(
+                                    onWillPop: () async =>
+                                        false, // Evita que se cierre con la flecha de atrás
+                                    child: DialogCapturaTemperaturaPack(
+                                      moveLineId:
+                                          packinghBloc.currentProduct.idMove ??
+                                              0,
+                                    ),
+                                  ),
+                                );
 
-                            //     return;
-                            //   }
+                                return;
+                              }
 
-                            //   Navigator.pushReplacementNamed(
-                            //     context,
-                            //     'packing-detail',
-                            //     arguments: [
-                            //       widget.packingModel,
-                            //       widget.batchModel,
-                            //       1
-                            //     ],
-                            //   );
-                            // }
+                              Navigator.pushReplacementNamed(
+                                context,
+                                'detail-packing-pedido',
+                                arguments: [1],
+                              );
+                            }
 
-                            // if (state is SendTemperatureSuccess) {
-                            //   if (Navigator.canPop(context)) {
-                            //     Navigator.pop(context);
-                            //   }
-                            //   Navigator.pushReplacementNamed(
-                            //     context,
-                            //     'packing-detail',
-                            //     arguments: [
-                            //       widget.packingModel,
-                            //       widget.batchModel,
-                            //       1
-                            //     ],
-                            //   );
-                            // }
+                            if (state is SendTemperatureSuccess) {
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                              Navigator.pushReplacementNamed(
+                                context,
+                                'detail-packing-pedido',
+                                arguments: [1],
+                              );
+                            }
 
                             if (state is SendTemperatureFailure) {
                               Navigator.pop(context);
@@ -1086,18 +1080,18 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                             .quantitySelected >=
                                                         0
                                                 ? () {
-                                                    // packinghBloc.add(
-                                                    //     ShowQuantityPackEvent(
-                                                    //         !packinghBloc
-                                                    //             .viewQuantity));
-                                                    // Future.delayed(
-                                                    //     const Duration(
-                                                    //         milliseconds: 100),
-                                                    //     () {
-                                                    //   FocusScope.of(context)
-                                                    //       .requestFocus(
-                                                    //           focusNode4);
-                                                    // });
+                                                    packinghBloc.add(
+                                                        ShowQuantityPackEvent(
+                                                            !packinghBloc
+                                                                .viewQuantity));
+                                                    Future.delayed(
+                                                        const Duration(
+                                                            milliseconds: 100),
+                                                        () {
+                                                      FocusScope.of(context)
+                                                          .requestFocus(
+                                                              focusNode4);
+                                                    });
                                                   }
                                                 : null,
                                         icon: Icon(Icons.edit_note_rounded,
@@ -1155,16 +1149,16 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                   labelText: 'Cantidad',
                                   suffixIconButton: IconButton(
                                     onPressed: () {
-                                      // packinghBloc.add(ShowQuantityPackEvent(
-                                      //     !packinghBloc.viewQuantity));
-                                      // cantidadController.clear();
-                                      // //cambiamos el foco pa leer por pda la cantidad
-                                      // Future.delayed(
-                                      //     const Duration(milliseconds: 100),
-                                      //     () {
-                                      //   FocusScope.of(context)
-                                      //       .requestFocus(focusNode3);
-                                      // });
+                                      packinghBloc.add(ShowQuantityPackEvent(
+                                          !packinghBloc.viewQuantity));
+                                      cantidadController.clear();
+                                      //cambiamos el foco pa leer por pda la cantidad
+                                      Future.delayed(
+                                          const Duration(milliseconds: 100),
+                                          () {
+                                        FocusScope.of(context)
+                                            .requestFocus(focusNode3);
+                                      });
                                     },
                                     icon: const Icon(Icons.clear),
                                   ),
@@ -1228,10 +1222,10 @@ class _PackingScreenState extends State<ScanPackScreen> {
     //marcamos el producto como terminado
 
     final batchBloc = context.read<PackingPedidoBloc>();
-    // batchBloc.add(SetPickingsEvent(
-    //     batchBloc.currentProduct.idProduct ?? 0,
-    //     batchBloc.currentProduct.pedidoId ?? 0,
-    //     batchBloc.currentProduct.idMove ?? 0));
+    batchBloc.add(SetPickingsEvent(
+        batchBloc.currentProduct.idProduct ?? 0,
+        batchBloc.currentProduct.pedidoId ?? 0,
+        batchBloc.currentProduct.idMove ?? 0));
   }
 
   void _finichPackingProductSplit(BuildContext context, double cantidad) async {
@@ -1239,16 +1233,16 @@ class _PackingScreenState extends State<ScanPackScreen> {
     print('Entramos a _finichPackingProductSplit -----');
     final batchBloc = context.read<PackingPedidoBloc>();
 
-    // batchBloc.add(SetPickingSplitEvent(
-    //   batchBloc.currentProduct,
-    //   batchBloc.currentProduct.idMove ?? 0,
-    //   cantidad,
-    //   batchBloc.currentProduct.idProduct ?? 0,
-    //   batchBloc.currentProduct.pedidoId ?? 0,
-    // ));
+    batchBloc.add(SetPickingSplitEvent(
+      batchBloc.currentProduct,
+      batchBloc.currentProduct.idMove ?? 0,
+      cantidad,
+      batchBloc.currentProduct.idProduct ?? 0,
+      batchBloc.currentProduct.pedidoId ?? 0,
+    ));
 
-    // batchBloc.add(
-    //     LoadAllProductsFromPedidoEvent(batchBloc.currentProduct.pedidoId ?? 0));
+    batchBloc.add(
+        LoadPedidoAndProductsEvent(batchBloc.currentProduct.pedidoId ?? 0));
   }
 
   void _validatebuttonquantity() {
@@ -1299,7 +1293,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
         showDialog(
             context: context,
             builder: (context) {
-              return DialogPackingAdvetenciaCantidadScreen(
+              return DialogPackAdvetenciaCantidadScreen(
                   currentProduct: currentProduct,
                   cantidad: cantidad,
                   onAccepted: () async {

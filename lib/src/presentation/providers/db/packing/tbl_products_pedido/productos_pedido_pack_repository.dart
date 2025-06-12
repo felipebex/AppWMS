@@ -62,7 +62,6 @@ class ProductosPedidosRepository {
     }
   }
 
-  // Insertar productos en productos_pedidos
   Future<void> insertProductosPedidos(
       List<ProductoPedido> productosList, String type) async {
     try {
@@ -77,58 +76,80 @@ class ProductosPedidosRepository {
             whereArgs: [
               producto.idProduct,
               producto.batchId,
-              producto.pedidoId ,
+              producto.pedidoId,
               producto.idMove
             ],
           );
 
+          // Función para limpiar valores booleanos
+          dynamic cleanValue(dynamic value,
+              {String defaultString = '', num defaultNum = 0}) {
+            if (value is bool) return value ? defaultString : defaultString;
+            return value ?? defaultString;
+          }
+
+          double cleanDouble(dynamic value) {
+            if (value is bool || value == null) return 0.0;
+            return double.tryParse(value.toString()) ?? 0.0;
+          }
+
+          Map<String, dynamic> dataMap = {
+            ProductosPedidosTable.columnProductId:
+                producto.productId is List && producto.productId.length > 1
+                    ? producto.productId[1]
+                    : '',
+            ProductosPedidosTable.columnBatchId: producto.batchId,
+            ProductosPedidosTable.columnPedidoId: producto.pedidoId,
+            ProductosPedidosTable.columnIdMove: producto.idMove,
+            ProductosPedidosTable.columnIdProduct: producto.idProduct,
+            ProductosPedidosTable.columnBarcodeLocation:
+                cleanValue(producto.barcodeLocation),
+            ProductosPedidosTable.columnLoteId: producto.loteId,
+            ProductosPedidosTable.columnLotId:
+                producto.lotId is List && producto.lotId.isNotEmpty
+                    ? producto.lotId[1]
+                    : '',
+            ProductosPedidosTable.columnLocationId:
+                producto.locationId is List && producto.locationId.length > 1
+                    ? producto.locationId[1]
+                    : null,
+            ProductosPedidosTable.columnIdLocation:
+                producto.locationId is List && producto.locationId.length > 1
+                    ? producto.locationId[0]
+                    : null,
+            ProductosPedidosTable.columnLocationDestId:
+                producto.locationDestId is List &&
+                        producto.locationDestId.length > 1
+                    ? producto.locationDestId[1]
+                    : null,
+            ProductosPedidosTable.columnIdLocationDest:
+                producto.locationDestId is List &&
+                        producto.locationDestId.length > 1
+                    ? producto.locationDestId[0]
+                    : null,
+            ProductosPedidosTable.columnQuantity: producto.quantity,
+            ProductosPedidosTable.columnExpireDate: producto.expireDate,
+            ProductosPedidosTable.columnTracking:
+                cleanValue(producto.tracking).toString(),
+            ProductosPedidosTable.columnBarcode:
+                cleanValue(producto.barcode).toString(),
+            ProductosPedidosTable.columnWeight: cleanDouble(producto.weight),
+            ProductosPedidosTable.columnUnidades:
+                cleanValue(producto.unidades).toString(),
+            ProductosPedidosTable.columnType: type,
+            ProductosPedidosTable.columnManejoTemperature:
+                producto.manejaTemperatura ?? 0,
+            ProductosPedidosTable.columnTemperature:
+                cleanDouble(producto.temperatura),
+            ProductosPedidosTable.columnImage: producto.image ?? '',
+            ProductosPedidosTable.columnImageNovedad:
+                producto.imageNovedad ?? '',
+          };
+
           if (existingProducto.isNotEmpty) {
             await txn.update(
               ProductosPedidosTable.tableName,
-              {
-                ProductosPedidosTable.columnProductId:
-                    producto.productId[1] ?? '',
-                ProductosPedidosTable.columnBatchId: producto.batchId,
-                ProductosPedidosTable.columnPedidoId: producto.pedidoId,
-                ProductosPedidosTable.columnIdMove: producto.idMove,
-                ProductosPedidosTable.columnIdProduct: producto.idProduct,
-                ProductosPedidosTable.columnBarcodeLocation:
-                    producto.barcodeLocation == false
-                        ? ""
-                        : producto.barcodeLocation,
-                ProductosPedidosTable.columnLoteId: producto.loteId,
-                ProductosPedidosTable.columnLotId:
-                    (producto.lotId != null && producto.lotId!.isNotEmpty)
-                        ? producto.lotId![1]
-                        : "",
-                ProductosPedidosTable.columnLocationId: producto.locationId?[1],
-                ProductosPedidosTable.columnIdLocation: producto.locationId?[0],
-                ProductosPedidosTable.columnLocationDestId:
-                    producto.locationDestId?[1],
-                ProductosPedidosTable.columnIdLocationDest:
-                    producto.idLocationDest?[0],
-                ProductosPedidosTable.columnQuantity: producto.quantity,
-                ProductosPedidosTable.columnExpireDate: producto.expireDate,
-                ProductosPedidosTable.columnTracking: producto.tracking == false
-                    ? ""
-                    : producto.tracking.toString(),
-                ProductosPedidosTable.columnBarcode: producto.barcode == false
-                    ? ""
-                    : (producto.barcode == "" ? "" : producto.barcode),
-                ProductosPedidosTable.columnWeight:
-                    producto.weight == false ? 0 : producto.weight.toDouble(),
-                ProductosPedidosTable.columnUnidades: producto.unidades == false
-                    ? ""
-                    : producto.unidades.toString(),
-                ProductosPedidosTable.columnType: type,
-                ProductosPedidosTable.columnManejoTemperature:
-                    producto.manejaTemperatura ?? 0,
-                ProductosPedidosTable.columnTemperature:
-                    producto.temperatura ?? 0.0,
-                ProductosPedidosTable.columnImage: producto.image ?? '',
-                ProductosPedidosTable.columnImageNovedad:
-                    producto.imageNovedad ?? '',
-              },
+              dataMap,
               where:
                   '${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnBatchId} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
               whereArgs: [
@@ -141,50 +162,7 @@ class ProductosPedidosRepository {
           } else {
             await txn.insert(
               ProductosPedidosTable.tableName,
-              {
-                ProductosPedidosTable.columnProductId:
-                    producto.productId[1] ?? '',
-                ProductosPedidosTable.columnBatchId: producto.batchId,
-                ProductosPedidosTable.columnPedidoId: producto.pedidoId,
-                ProductosPedidosTable.columnIdMove: producto.idMove,
-                ProductosPedidosTable.columnIdProduct: producto.idProduct,
-                ProductosPedidosTable.columnBarcodeLocation:
-                    producto.barcodeLocation == false
-                        ? ""
-                        : producto.barcodeLocation,
-                ProductosPedidosTable.columnLoteId: producto.loteId,
-                ProductosPedidosTable.columnLotId:
-                    (producto.lotId != null && producto.lotId!.isNotEmpty)
-                        ? producto.lotId![1]
-                        : "",
-                ProductosPedidosTable.columnLocationId: producto.locationId?[1],
-                ProductosPedidosTable.columnIdLocation: producto.locationId?[0],
-                ProductosPedidosTable.columnLocationDestId:
-                    producto.locationDestId?[1],
-                ProductosPedidosTable.columnIdLocationDest:
-                    producto.idLocationDest?[0],
-                ProductosPedidosTable.columnQuantity: producto.quantity,
-                ProductosPedidosTable.columnExpireDate: producto.expireDate,
-                ProductosPedidosTable.columnTracking: producto.tracking == false
-                    ? ""
-                    : producto.tracking.toString(),
-                ProductosPedidosTable.columnBarcode: producto.barcode == false
-                    ? ""
-                    : (producto.barcode == "" ? "" : producto.barcode),
-                ProductosPedidosTable.columnWeight:
-                    producto.weight == false ? 0 : producto.weight.toDouble(),
-                ProductosPedidosTable.columnUnidades: producto.unidades == false
-                    ? ""
-                    : producto.unidades.toString(),
-                ProductosPedidosTable.columnType: type,
-                ProductosPedidosTable.columnManejoTemperature:
-                    producto.manejaTemperatura ?? 0,
-                ProductosPedidosTable.columnTemperature:
-                    producto.temperatura ?? 0.0,
-                ProductosPedidosTable.columnImage: producto.image ?? '',
-                ProductosPedidosTable.columnImageNovedad:
-                    producto.imageNovedad ?? '',
-              },
+              dataMap,
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
           }
@@ -254,6 +232,26 @@ class ProductosPedidosRepository {
                     producto.manejaTemperatura ?? 0,
                 ProductosPedidosTable.columnTemperature:
                     producto.temperatura ?? 0.0,
+                ProductosPedidosTable.columnLocationId:
+                    producto.locationId is List &&
+                            producto.locationId.length > 1
+                        ? producto.locationId[1]
+                        : null,
+                ProductosPedidosTable.columnIdLocation:
+                    producto.locationId is List &&
+                            producto.locationId.length > 1
+                        ? producto.locationId[0]
+                        : null,
+                ProductosPedidosTable.columnLocationDestId:
+                    producto.locationDestId is List &&
+                            producto.locationDestId.length > 1
+                        ? producto.locationDestId[1]
+                        : null,
+                ProductosPedidosTable.columnIdLocationDest:
+                    producto.locationDestId is List &&
+                            producto.locationDestId.length > 1
+                        ? producto.locationDestId[0]
+                        : null,
               },
               where:
                   '${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnBatchId} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
@@ -304,6 +302,26 @@ class ProductosPedidosRepository {
                     producto.manejaTemperatura ?? 0,
                 ProductosPedidosTable.columnTemperature:
                     producto.temperatura ?? 0.0,
+                ProductosPedidosTable.columnLocationId:
+                    producto.locationId is List &&
+                            producto.locationId.length > 1
+                        ? producto.locationId[1]
+                        : null,
+                ProductosPedidosTable.columnIdLocation:
+                    producto.locationId is List &&
+                            producto.locationId.length > 1
+                        ? producto.locationId[0]
+                        : null,
+                ProductosPedidosTable.columnLocationDestId:
+                    producto.locationDestId is List &&
+                            producto.locationDestId.length > 1
+                        ? producto.locationDestId[1]
+                        : null,
+                ProductosPedidosTable.columnIdLocationDest:
+                    producto.locationDestId is List &&
+                            producto.locationDestId.length > 1
+                        ? producto.locationDestId[0]
+                        : null,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -327,8 +345,7 @@ class ProductosPedidosRepository {
     return maps.map((map) => ProductoPedido.fromMap(map)).toList();
   }
 
-
-Future<List<ProductoPedido>> getAllProductosPedidos() async {
+  Future<List<ProductoPedido>> getAllProductosPedidos() async {
     try {
       final Database db = await DataBaseSqlite().getDatabaseInstance();
 
@@ -344,15 +361,12 @@ Future<List<ProductoPedido>> getAllProductosPedidos() async {
       // La robustez del mapeo recae en la implementación de ProductoPedido.fromMap.
       return maps.map((map) => ProductoPedido.fromMap(map)).toList();
     } catch (e, s) {
-      print("Error al obtener todos los productos de tbl_products_pedido: $e\n$s");
+      print(
+          "Error al obtener todos los productos de tbl_products_pedido: $e\n$s");
       // Retorna una lista vacía en caso de error para que la aplicación pueda continuar.
       return [];
     }
   }
-
-
-
-
 
   // Actualizar el campo de la tabla productos_pedidos (unpacking)
   Future<int?> setFieldTableProductosPedidosUnPacking(

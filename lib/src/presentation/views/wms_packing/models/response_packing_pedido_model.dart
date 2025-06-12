@@ -102,14 +102,10 @@ class PedidoPackingResult {
   final String? zonaEntregaTms;
   final String? zonaEntrega;
   final int? numeroPaquetes;
-
-  // is_terminate
   final dynamic isTerminate;
-  // is_selected
   final dynamic isSelected;
 
   final List<ProductoPedido>? listaProductos;
-  final List<dynamic>? listaProductosEnviadas;
   final List<Paquete>? listaPaquetes;
 
   PedidoPackingResult({
@@ -150,7 +146,6 @@ class PedidoPackingResult {
     this.zonaEntrega,
     this.numeroPaquetes,
     this.listaProductos,
-    this.listaProductosEnviadas,
     this.listaPaquetes,
     this.isTerminate,
     this.isSelected,
@@ -207,10 +202,6 @@ class PedidoPackingResult {
             ? []
             : List<ProductoPedido>.from(
                 json["lista_productos"]!.map((x) => ProductoPedido.fromMap(x))),
-        listaProductosEnviadas: json["lista_productos_enviadas"] == null
-            ? []
-            : List<ProductoPedido>.from(json["lista_productos_enviadas"]!
-                .map((x) => ProductoPedido.fromMap(x))),
         listaPaquetes: json["lista_paquetes"] == null
             ? []
             : List<Paquete>.from(
@@ -259,9 +250,6 @@ class PedidoPackingResult {
         "lista_productos": listaProductos == null
             ? []
             : List<dynamic>.from(listaProductos!.map((x) => x.toMap())),
-        "lista_productos_enviadas": listaProductosEnviadas == null
-            ? []
-            : List<dynamic>.from(listaProductosEnviadas!.map((x) => x.toMap())),
         "lista_paquetes": listaPaquetes == null
             ? []
             : List<dynamic>.from(listaPaquetes!.map((x) => x.toMap())),

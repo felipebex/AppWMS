@@ -1,22 +1,36 @@
-// ignore_for_file: file_names
-
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_packing.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class DialogConfirmatedPacking extends StatelessWidget {
+class DialogConfirmatedPacking extends StatefulWidget {
   const DialogConfirmatedPacking({
     super.key,
     required this.productos,
     required this.isCertificate,
+    required this.isSticker,
+    required this.onToggleSticker,
+    required this.onConfirm,
   });
 
   final List<ProductoPedido> productos;
   final bool isCertificate;
+  final bool isSticker;
+  final void Function(bool newValue) onToggleSticker;
+  final VoidCallback onConfirm;
+
+  @override
+  State<DialogConfirmatedPacking> createState() => _DialogConfirmatedPackingState();
+}
+
+class _DialogConfirmatedPackingState extends State<DialogConfirmatedPacking> {
+  late bool localSticker; // Estado interno del checkbox
+
+  @override
+  void initState() {
+    super.initState();
+    localSticker = widget.isSticker; // inicializamos con el valor que nos pasan
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,78 +40,72 @@ class DialogConfirmatedPacking extends StatelessWidget {
         backgroundColor: Colors.white,
         actionsAlignment: MainAxisAlignment.center,
         title: Center(
-            child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 100,
-              width: 150,
-              child: Image.asset(
-                 "assets/images/icono.jpeg",
-                fit: BoxFit.cover,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 100,
+                width: 150,
+                child: Image.asset(
+                  "assets/images/icono.jpeg",
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Text(
-                'Esta seguro de empacar los productos seleccionados?',
-                style: TextStyle(color: primaryColorApp, fontSize: 16),
-                textAlign: TextAlign.center,
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  '¿Está seguro de empacar los productos seleccionados?',
+                  style: TextStyle(color: primaryColorApp, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Text(
-                'Total de productos: ${productos.length}',
-                style: const TextStyle(color: black, fontSize: 14),
-                textAlign: TextAlign.center,
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Total de productos: ${widget.productos.length}',
+                  style: const TextStyle(color: black, fontSize: 14),
+                  textAlign: TextAlign.center,
+                ),
               ),
-            ),
-          ],
-        )),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            //  (isCertificate)?
-            BlocBuilder<WmsPackingBloc, WmsPackingState>(
-              builder: (context, state) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    //icono de sticker
-                    const Text(
-                      'Incluir sticker de certificación',
-                      style: TextStyle(color: black, fontSize: 14),
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Checkbox(
-                          value: context.read<WmsPackingBloc>().isSticker,
-                          onChanged: (value) {
-                            context
-                                .read<WmsPackingBloc>()
-                                .add(ChangeStickerEvent(
-                                  !context.read<WmsPackingBloc>().isSticker,
-                                ));
-                          },
-                        ),
-                        Icon(Icons.print, color: primaryColorApp),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            )
-            // : const Text("Esta rsealizando una separación sin certificado, tampoco se incluira el sticker de certificación", style: TextStyle(color: black, fontSize: 14), textAlign: TextAlign.center,),
-          ],
+            ],
+          ),
         ),
+        content: widget.isCertificate
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Incluir sticker de certificación',
+                    style: TextStyle(color: black, fontSize: 14),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: localSticker,
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              localSticker = value;
+                            });
+                            widget.onToggleSticker(value);
+                          }
+                        },
+                      ),
+                      Icon(Icons.print, color: primaryColorApp),
+                    ],
+                  ),
+                ],
+              )
+            : const Text(
+                "Está realizando una separación sin certificado, tampoco se incluirá el sticker de certificación.",
+                style: TextStyle(color: black, fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
         actions: [
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: grey,
               shape: RoundedRectangleBorder(
@@ -111,12 +119,7 @@ class DialogConfirmatedPacking extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<WmsPackingBloc>().add(SetPackingsEvent(
-                    productos,
-                    context.read<WmsPackingBloc>().isSticker,
-                    isCertificate,
-                  
-                  ));
+              widget.onConfirm();
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
