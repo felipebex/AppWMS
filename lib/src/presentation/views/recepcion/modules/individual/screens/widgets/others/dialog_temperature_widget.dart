@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
+import 'package:wms_app/src/utils/comprimir_image.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogCapturaTemperatura extends StatefulWidget {
@@ -24,9 +25,17 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
   Future<void> _tomarFoto() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
+      final originalFile = File(pickedFile.path);
+      final compressedFile = await comprimirImagen(originalFile);
+
+      if (compressedFile != null) {
+        setState(() {
+          _imageFile = compressedFile; // o lo que uses en tu widget
+        });
+        print('Tamaño final: ${await compressedFile.length()} bytes');
+      } else {
+        print('No se pudo comprimir la imagen');
+      }
     }
   }
 
@@ -37,28 +46,10 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
     return BlocConsumer<RecepcionBloc, RecepcionState>(
       listener: (context, state) {
         if (state is GetTemperatureFailure) {
-          Get.defaultDialog(
-            title: '360 Software Informa',
-            titleStyle: const TextStyle(color: Colors.red, fontSize: 18),
-            middleText: state.error,
-            middleTextStyle: const TextStyle(color: black, fontSize: 14),
-            backgroundColor: Colors.white,
-            radius: 10,
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text('Aceptar', style: TextStyle(color: white)),
-              ),
-            ],
-          );
+          Get.snackbar("360 Software Informa", state.error,
+              backgroundColor: white,
+              colorText: primaryColorApp,
+              icon: Icon(Icons.error, color: Colors.red));
         }
       },
       builder: (context, state) {
@@ -68,13 +59,14 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
             sigmaY: 5,
           ),
           child: AlertDialog(
-            title:  const Center(
+            title: const Center(
               child: Text(
                 "Captura la temperatura",
                 style: TextStyle(fontSize: 16, color: black),
               ),
             ),
-            content: SizedBox(
+            content: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               width: double.maxFinite,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -101,39 +93,75 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 10),
                   ] else ...[
                     ClipRRect(
                       borderRadius: BorderRadius.circular(7),
                       child: Image.file(
                         _imageFile!,
                         fit: BoxFit.fill,
-                        height: 300,
-                        width: 250,
+                        height: 180,
+                        width: 230,
                       ),
                     ),
+                    //mostrar el tamaño de la imagen y el formato
                     const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: _tomarFoto,
-                          icon: Icon(Icons.refresh, color: primaryColorApp),
-                        ),
-                        const Spacer(),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            context.read<RecepcionBloc>().add(
-                                  GetTemperatureEvent(file: _imageFile!),
-                                );
-                          },
-                          icon: const Icon(Icons.image_search_sharp),
-                          label: const Text("Analizar"),
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(7),
-                            ),
+                    //tamaño en 5mb
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Tamaño: ${(_imageFile!.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB',
+                            style: const TextStyle(fontSize: 10, color: black),
                           ),
-                        ),
-                      ],
+                          const Spacer(),
+                          Text(
+                            'Formato: ${_imageFile!.path.split('.').last.toUpperCase()}',
+                            style: const TextStyle(fontSize: 10, color: black),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 5),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                      ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: _tomarFoto,
+                            icon: Icon(Icons.refresh, color: primaryColorApp),
+                          ),
+                          const Spacer(),
+                          ElevatedButton(
+                            onPressed: _imageFile != null
+                                ? () {
+                                    context.read<RecepcionBloc>().add(
+                                          GetTemperatureEvent(
+                                              file: _imageFile!),
+                                        );
+                                  }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              // en lugar de minimumSize
+                              minimumSize: const Size(100, 30),
+                              backgroundColor: primaryColorApp,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(7),
+                              ),
+                            ),
+                            child: const Text("Analizar",
+                                style: TextStyle(fontSize: 12, color: white)),
+                          ),
+                        ],
+                      ),
                     ),
                     _buildTemperatureResult(bloc),
                   ],
@@ -197,8 +225,7 @@ class _DialogCapturaTemperaturaState extends State<DialogCapturaTemperatura> {
                     style: TextStyle(color: primaryColorApp, fontSize: 12),
                     children: [
                       TextSpan(
-                        text: bloc.resultTemperature.confidence ??
-                            'Sin origen',
+                        text: bloc.resultTemperature.confidence ?? 'Sin origen',
                         style: const TextStyle(fontSize: 12, color: black),
                       ),
                     ],

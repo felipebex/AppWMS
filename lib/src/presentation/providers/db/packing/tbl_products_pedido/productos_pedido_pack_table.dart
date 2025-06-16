@@ -39,11 +39,15 @@ class ProductosPedidosTable {
   static const String columnPackageName = 'package_name';
   static const String columnType = 'type'; // si es de type batch o pedido
 
-    //temperature
+  //temperature
   static const String columnManejoTemperature = 'maneja_temperatura';
   static const String columnTemperature = 'temperatura';
   static const String columnImage = 'image';
   static const String columnImageNovedad = 'image_novedad';
+
+  static const String columnTimeSeparate = 'time_separate';
+  static const String columnTimeSeparateStart = 'time_separate_start';
+  static const String columnTimeSeparateEnd = 'time_separate_end';
 
   // Método para crear la tabla
   static String createTable() {
@@ -93,6 +97,9 @@ class ProductosPedidosTable {
         $columnTemperature INTEGER,
         $columnImage TEXT,
         $columnImageNovedad TEXT,
+        $columnTimeSeparate REAL,
+        $columnTimeSeparateStart VARCHAR(255),
+        $columnTimeSeparateEnd VARCHAR(255),
 
         FOREIGN KEY ($columnIdPackage) REFERENCES tblpackages ($columnId),
         FOREIGN KEY ($columnPedidoId) REFERENCES tblpedidos_packing (id)

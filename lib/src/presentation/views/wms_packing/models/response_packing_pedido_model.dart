@@ -69,7 +69,7 @@ class PedidoPackingResult {
   final int? batchId;
   final int? id;
   final String? name;
-  final DateTime? fechaCreacion;
+  final dynamic? fechaCreacion;
   final int? locationId;
   final String? locationName;
   final String? locationBarcode;

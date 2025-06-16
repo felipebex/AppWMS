@@ -324,7 +324,6 @@ class _PackingScreenState extends State<PackingScreen> {
 
                             if (state is SendTemperatureFailure) {
                               Navigator.pop(context);
-
                               Get.defaultDialog(
                                 title: '360 Software Informa',
                                 titleStyle:

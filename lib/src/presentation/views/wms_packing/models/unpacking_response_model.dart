@@ -61,6 +61,7 @@ class UnPackingElement {
     final int? cantidadProductosEnElPaquete;
     final List<ListItemUnPacking>? listItem;
 
+
     UnPackingElement({
         this.idPaquete,
         this.namePaquete,
@@ -89,6 +90,17 @@ class UnPackingElement {
         "list_item": listItem == null ? [] : List<dynamic>.from(listItem!.map((x) => x.toMap())),
     };
 }
+
+
+
+
+
+
+
+
+
+
+
 
 class ListItemUnPacking {
     final int? idMove;

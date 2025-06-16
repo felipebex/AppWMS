@@ -4,9 +4,10 @@ part of 'wms_packing_bloc.dart';
 sealed class WmsPackingEvent {}
 
 class LoadAllPackingEvent extends WmsPackingEvent {
-  
   final bool isLoadinDialog;
-  LoadAllPackingEvent(this.isLoadinDialog, );
+  LoadAllPackingEvent(
+    this.isLoadinDialog,
+  );
 }
 
 class LoadBatchPackingFromDBEvent extends WmsPackingEvent {
@@ -40,6 +41,7 @@ class SearchBatchPackingEvent extends WmsPackingEvent {
 
   SearchBatchPackingEvent(this.query, this.indexMenu);
 }
+
 class SearchPedidoPackingEvent extends WmsPackingEvent {
   final String query;
   final int idBatch;
@@ -105,15 +107,16 @@ class AddQuantitySeparate extends WmsPackingEvent {
       this.quantity, this.idMove, this.productId, this.pedidoId);
 }
 
-
 class SetPackingsEvent extends WmsPackingEvent {
   final List<ProductoPedido> productos;
   final bool isSticker;
   final bool isCertificate;
- 
 
   SetPackingsEvent(
-      this.productos, this.isSticker, this.isCertificate, );
+    this.productos,
+    this.isSticker,
+    this.isCertificate,
+  );
 }
 
 class ChangeStickerEvent extends WmsPackingEvent {
@@ -153,7 +156,6 @@ class UnSelectProductPackingEvent extends WmsPackingEvent {
 
 class LoadAllNovedadesPackingEvent extends WmsPackingEvent {}
 
-
 class LoadConfigurationsUserPack extends WmsPackingEvent {
   LoadConfigurationsUserPack();
 }
@@ -164,9 +166,9 @@ class SetPickingSplitEvent extends WmsPackingEvent {
   final dynamic quantity;
   final int productId;
   final int pedidoId;
-  SetPickingSplitEvent(this.producto,this.idMove, this.quantity, this.productId, this.pedidoId);
+  SetPickingSplitEvent(
+      this.producto, this.idMove, this.quantity, this.productId, this.pedidoId);
 }
-
 
 class SetPickingsEvent extends WmsPackingEvent {
   final int productId;
@@ -176,57 +178,51 @@ class SetPickingsEvent extends WmsPackingEvent {
   SetPickingsEvent(this.productId, this.pedidoId, this.idMove);
 }
 
-
 class UnPackingEvent extends WmsPackingEvent {
   final UnPackingRequest request;
-
   final int pedidoId;
-  UnPackingEvent(this.request, this.pedidoId);
+  final dynamic consecutivoPackage;
+
+  UnPackingEvent(this.request, this.pedidoId, this.consecutivoPackage);
 }
 
-
-
 class ClearScannedValuePackEvent extends WmsPackingEvent {
-final String scan;
+  final String scan;
   ClearScannedValuePackEvent(this.scan);
 }
 
 class UpdateScannedValuePackEvent extends WmsPackingEvent {
-    final String scannedValue;
+  final String scannedValue;
   final String scan;
   UpdateScannedValuePackEvent(this.scannedValue, this.scan);
 }
-
 
 class ShowQuantityPackEvent extends WmsPackingEvent {
   final bool showQuantity;
   ShowQuantityPackEvent(this.showQuantity);
 }
+
 class ShowDetailvent extends WmsPackingEvent {
   final bool show;
   ShowDetailvent(this.show);
 }
 
-
-
 //*empezar el tiempo de separacion
 class StartTimePack extends WmsPackingEvent {
-
   final int batchId;
   final DateTime time;
-  StartTimePack( this.batchId, this.time);
+  StartTimePack(this.batchId, this.time);
 }
+
 class EndTimePack extends WmsPackingEvent {
-
   final int batchId;
   final DateTime time;
-  EndTimePack( this.batchId, this.time);
+  EndTimePack(this.batchId, this.time);
 }
-
 
 class SendTemperatureEvent extends WmsPackingEvent {
- final File file;
- final int moveLineId;
+  final File file;
+  final int moveLineId;
   SendTemperatureEvent({
     required this.file,
     required this.moveLineId,
@@ -248,7 +244,6 @@ class SendImageNovedad extends WmsPackingEvent {
     required this.productId,
   });
 }
-
 
 class GetTemperatureEvent extends WmsPackingEvent {
   final File file;

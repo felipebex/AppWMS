@@ -152,33 +152,13 @@ class Tab3PedidoScreen extends StatelessWidget {
                                         children: [
                                           Align(
                                             alignment: Alignment.centerLeft,
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  "Producto:",
-                                                  style: TextStyle(
+                                            child: Text(
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                "${product.productId}",
+                                                style: const TextStyle(
                                                     fontSize: 12,
-                                                    color: primaryColorApp,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: size.width * 0.65,
-                                                  child: Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          " ${product.productId}",
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 12,
-                                                                  color:
-                                                                      black))),
-                                                ),
-                                              ],
-                                            ),
+                                                    color: black)),
                                           ),
 
                                           Card(
@@ -230,38 +210,6 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                                       black)),
                                                     ],
                                                   ),
-                                                  if (product.observation !=
-                                                          null &&
-                                                      product.isProductSplit ==
-                                                          null)
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          "Novedad: ",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width:
-                                                              size.width * 0.55,
-                                                          child: Text(
-                                                              "${product.observation}",
-                                                              maxLines: 2,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          black)),
-                                                        ),
-                                                      ],
-                                                    ),
                                                   Visibility(
                                                     visible: product
                                                                 .manejaTemperatura ==
@@ -319,79 +267,58 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                       ],
                                                     ),
                                                   ),
-                                                  if (product.isProductSplit ==
-                                                      1)
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          "Novedad: ",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        "Novedad: ",
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width:
+                                                            size.width * 0.55,
+                                                        child: Text(
+                                                            product.observation ==
+                                                                    null
+                                                                ? "Sin novedad"
+                                                                : "${product.observation}", //
+                                                            maxLines: 2,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        12,
+                                                                    color:
+                                                                        black)),
+                                                      ),
+                                                      const Spacer(),
+                                                      Visibility(
+                                                        visible: product
+                                                                .imageNovedad !=
+                                                            "",
+                                                        child: GestureDetector(
+                                                          onTap: () {
+                                                            showImageDialog(
+                                                              context,
+                                                              product.imageNovedad ??
+                                                                  '', // URL o path de la imagen
+                                                            );
+                                                          },
+                                                          child: Icon(
+                                                            Icons.image,
                                                             color:
                                                                 primaryColorApp,
+                                                            size: 23,
                                                           ),
                                                         ),
-                                                        const Text(
-                                                          "Producto en diferentes paquetes",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: black,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  if (product.observation !=
-                                                      null)
-                                                    Row(
-                                                      children: [
-                                                        Text(
-                                                          "Novedad: ",
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                primaryColorApp,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width:
-                                                              size.width * 0.55,
-                                                          child: Text(
-                                                              "${product.observation}",
-                                                              maxLines: 2,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          black)),
-                                                        ),
-                                                        const Spacer(),
-                                                        Visibility(
-                                                          visible: product
-                                                                  .imageNovedad !=
-                                                              "",
-                                                          child:
-                                                              GestureDetector(
-                                                            onTap: () {
-                                                              showImageDialog(
-                                                                context,
-                                                                product.imageNovedad ??
-                                                                    '', // URL o path de la imagen
-                                                              );
-                                                            },
-                                                            child: Icon(
-                                                              Icons.image,
-                                                              color:
-                                                                  primaryColorApp,
-                                                              size: 23,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -428,6 +355,39 @@ class Tab3PedidoScreen extends StatelessWidget {
                                                   style: const TextStyle(
                                                       fontSize: 12,
                                                       color: black)),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    const TextSpan(
+                                                      text: "Tiempo total: ",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            black, // color del texto antes de tiempoTotal
+                                                      ),
+                                                    ),
+                                                    TextSpan(
+                                                      text: context
+                                                          .read<
+                                                              PackingPedidoBloc>()
+                                                          .formatSecondsToHHMMSS(
+                                                              (product.timeSeparate ??
+                                                                          0)
+                                                                      .toDouble() ??
+                                                                  0.0),
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            primaryColorApp, // color rojo para tiempoTotal
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
                                             ],
                                           ),
                                           // if (product.expirationDate != false)

@@ -382,33 +382,10 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                         }
 
                         if (state is SendProductToOrderFailure) {
-                          Navigator.pop(context);
-
-                          Get.defaultDialog(
-                            title: '360 Software Informa',
-                            titleStyle:
-                                TextStyle(color: Colors.red, fontSize: 18),
-                            middleText: state.error,
-                            middleTextStyle:
-                                TextStyle(color: black, fontSize: 14),
-                            backgroundColor: Colors.white,
-                            radius: 10,
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Get.back();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text('Aceptar',
-                                    style: TextStyle(color: white)),
-                              ),
-                            ],
-                          );
+                          Get.snackbar("360 Software Informa", state.error,
+                              backgroundColor: white,
+                              colorText: primaryColorApp,
+                              icon: Icon(Icons.error, color: Colors.red));
                         }
 
                         if (state is SendProductToOrderLoading) {

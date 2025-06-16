@@ -113,12 +113,16 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
         return Scaffold(
           backgroundColor: Colors.white,
           floatingActionButton: context
+                          .read<PackingPedidoBloc>()
+                          .configurations
+                          .result
+                          ?.result
+                          ?.scanProduct ==
+                      true &&
+                  context
                       .read<PackingPedidoBloc>()
-                      .configurations
-                      .result
-                      ?.result
-                      ?.scanProduct ==
-                  true
+                      .listOfProductosProgress
+                      .isNotEmpty
               ? Stack(
                   children: [
                     // El FloatingActionButton

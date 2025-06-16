@@ -290,6 +290,7 @@ class Paquete {
   final bool? isSticker;
   final bool? isCertificate;
   final String? type;
+  final dynamic? consecutivo;
 
   Paquete({
     this.id,
@@ -301,6 +302,7 @@ class Paquete {
     this.isSticker,
     this.isCertificate,
     this.type,
+    this.consecutivo,
   });
 
   factory Paquete.fromJson(String str) => Paquete.fromMap(json.decode(str));
@@ -320,6 +322,7 @@ class Paquete {
         isSticker: json["is_sticker"],
         isCertificate: json["is_certificate"],
         type: json["type"],
+        consecutivo: json["consecutivo"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -335,5 +338,6 @@ class Paquete {
         "is_sticker": isSticker,
         "is_certificate": isCertificate,
         "type": type,
+        "consecutivo": consecutivo,
       };
 }

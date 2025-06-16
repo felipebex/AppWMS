@@ -9,7 +9,6 @@ import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/recepcion_response_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/widgets/dialog_temperatura_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class Tab1ScreenRecep extends StatelessWidget {

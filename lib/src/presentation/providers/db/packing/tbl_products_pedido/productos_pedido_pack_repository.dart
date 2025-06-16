@@ -49,6 +49,9 @@ class ProductosPedidosRepository {
         ProductosPedidosTable.columnTemperature: producto.temperatura ?? 0.0,
         ProductosPedidosTable.columnImage: producto.image ?? '',
         ProductosPedidosTable.columnImageNovedad: producto.imageNovedad ?? '',
+        ProductosPedidosTable.columnTimeSeparate: 0,
+        ProductosPedidosTable.columnTimeSeparateStart: null,
+        ProductosPedidosTable.columnTimeSeparateEnd: null,
       };
 
       await db.insert(
@@ -144,6 +147,8 @@ class ProductosPedidosRepository {
             ProductosPedidosTable.columnImage: producto.image ?? '',
             ProductosPedidosTable.columnImageNovedad:
                 producto.imageNovedad ?? '',
+            ProductosPedidosTable.columnTimeSeparate:
+                producto.timeSeparate ?? 0,
           };
 
           if (existingProducto.isNotEmpty) {
@@ -252,6 +257,8 @@ class ProductosPedidosRepository {
                             producto.locationDestId.length > 1
                         ? producto.locationDestId[0]
                         : null,
+                ProductosPedidosTable.columnTimeSeparate:
+                    producto.timeSeparate ?? 0,
               },
               where:
                   '${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnBatchId} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
@@ -322,6 +329,8 @@ class ProductosPedidosRepository {
                             producto.locationDestId.length > 1
                         ? producto.locationDestId[0]
                         : null,
+                ProductosPedidosTable.columnTimeSeparate:
+                    producto.timeSeparate ?? 0,
               },
               conflictAlgorithm: ConflictAlgorithm.replace,
             );
@@ -343,6 +352,25 @@ class ProductosPedidosRepository {
       whereArgs: [pedidoId],
     );
     return maps.map((map) => ProductoPedido.fromMap(map)).toList();
+  }
+
+  Future<ProductoPedido> getProductoPedidoById(int pedidoId, int idMove) async {
+    print('idPedido: $pedidoId   idMove: $idMove');
+    final db = await DataBaseSqlite().getDatabaseInstance();
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      ProductosPedidosTable.tableName,
+      where:
+          '${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ?',
+      whereArgs: [pedidoId, idMove],
+    );
+
+    if (maps.isNotEmpty) {
+      return ProductoPedido.fromMap(maps.first);
+    } else {
+      throw Exception(
+          'ProductoPedido no encontrado con pedidoId: $pedidoId y idMove: $idMove');
+    }
   }
 
   Future<List<ProductoPedido>> getAllProductosPedidos() async {
@@ -395,6 +423,24 @@ class ProductosPedidosRepository {
     );
     print("☢️3 update separated tblproductos_pedidos: ($field): $resUpdate");
     return resUpdate;
+  }
+
+  Future<String> getFieldTableProductsPedidos(
+      int pedidoId, int productId, String field, int idMove) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      final res = await db.rawQuery('''
+      SELECT $field FROM  ${ProductosPedidosTable.tableName}  WHERE ${ProductosPedidosTable.columnIdProduct} = ? AND ${ProductosPedidosTable.columnPedidoId} = ? AND ${ProductosPedidosTable.columnIdMove} = ? AND ${ProductosPedidosTable.columnIsCertificate} IS NULL
+    ''');
+      if (res.isNotEmpty) {
+        String responsefield = res[0]['$field'].toString();
+        return responsefield;
+      }
+      return "";
+    } catch (e, s) {
+      print("error getFieldTableProductsPick: $e => $s");
+    }
+    return "";
   }
 
   // Actualizar la tabla de productos de un pedido (con certificado y sin paquete)

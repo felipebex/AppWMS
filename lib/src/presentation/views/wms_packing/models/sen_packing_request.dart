@@ -37,6 +37,7 @@ class ListItem {
   final String unidadMedida;
   final int idOperario;
   final String fechaTransaccion;
+  final dynamic timeLine;
 
   ListItem({
     required this.idMove,
@@ -48,6 +49,7 @@ class ListItem {
     required this.unidadMedida,
     required this.idOperario,
     required this.fechaTransaccion,
+    required this.timeLine,
   });
 
   Map<String, dynamic> toMap() {
@@ -61,6 +63,7 @@ class ListItem {
       "unidad_medida": unidadMedida,
       "id_operario": idOperario,
       "fecha_transaccion": fechaTransaccion,
+      "time_line": timeLine,
     };
   }
 }

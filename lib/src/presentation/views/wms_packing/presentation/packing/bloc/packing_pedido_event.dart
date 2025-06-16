@@ -209,5 +209,33 @@ class UnPackingEvent extends PackingPedidoEvent {
 
   final int pedidoId;
   final int productId;
-  UnPackingEvent(this.request, this.pedidoId, this.productId);
+  final dynamic consecutivoPackage;
+  UnPackingEvent(this.request, this.pedidoId, this.productId, this.consecutivoPackage);
+}
+
+class StartOrStopTimePack extends PackingPedidoEvent {
+  final int idPedido;
+  final String value;
+
+  StartOrStopTimePack(
+    this.idPedido,
+    this.value,
+  );
+}
+
+
+
+class CreateBackPackOrNot extends PackingPedidoEvent {
+  final int idPick;
+  final bool isBackOrder;
+  CreateBackPackOrNot(this.idPick, this.isBackOrder);
+}
+
+
+
+class ValidateConfirmEvent extends PackingPedidoEvent {
+  final int idPedido;
+  final bool isBackOrder;
+  final bool isLoadinDialog;
+  ValidateConfirmEvent(this.idPedido, this.isBackOrder, this.isLoadinDialog);
 }

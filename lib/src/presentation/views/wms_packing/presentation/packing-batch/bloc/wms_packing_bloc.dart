@@ -585,6 +585,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
             await db.packagesRepository.getPackageById(event.request.idPaquete);
         if (response != null) {
           if (response.cantidadProductos == 0) {
+
+             await updateConsecutivePackages(
+              consecutivoReferencia: response.consecutivo ?? '',
+              packages: packages,
+            );
+
             //si la cantidad de productos es 0 eliminamos el paquete
             await db.packagesRepository
                 .deletePackageById(event.request.idPaquete);
@@ -602,6 +608,51 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       emit(UnPackignError(e.toString()));
     }
   }
+
+
+
+
+
+  Future<void> updateConsecutivePackages({
+  required String consecutivoReferencia,
+  required List<Paquete> packages,
+}) async {
+  final refNum = _extraerNumeroConsecutivo(consecutivoReferencia);
+  if (refNum == null) return;
+
+  for (final paquete in packages) {
+    final paqueteNum = _extraerNumeroConsecutivo(paquete.consecutivo?.toString());
+
+    if (paqueteNum != null && paqueteNum > refNum) {
+      final nuevoConsecutivo = 'Caja${paqueteNum - 1}';
+      final paqueteActualizado = Paquete(
+        id: paquete.id,
+        name: paquete.name,
+        batchId: paquete.batchId,
+        pedidoId: paquete.pedidoId,
+        cantidadProductos: paquete.cantidadProductos,
+        listaProductosInPacking: paquete.listaProductosInPacking,
+        isSticker: paquete.isSticker,
+        isCertificate: paquete.isCertificate,
+        type: paquete.type,
+        consecutivo: nuevoConsecutivo,
+      );
+
+      await db.packagesRepository.updatePackageById(paqueteActualizado);
+    }
+  }
+}
+
+
+  int? _extraerNumeroConsecutivo(String? consecutivo) {
+  if (consecutivo == null) return null;
+  final match = RegExp(r'(\d+)$').firstMatch(consecutivo);
+  return match != null ? int.parse(match.group(1)!) : null;
+}
+
+
+
+
 
   //*metdo para dividir el producto
   void _onSetPickingsSplitEvent(
@@ -847,6 +898,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
           unidadMedida: producto.unidades ?? '',
           idOperario: idOperario,
           fechaTransaccion: fechaFormateada,
+          timeLine: producto.timeSeparate ?? 1,
         );
       }).toList();
 
@@ -952,6 +1004,37 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
       SetPickingsEvent event, Emitter<WmsPackingState> emit) async {
     try {
       emit(SetPickingPackingLoadingState());
+
+      final DateTime dateTimeNow = DateTime.now();
+
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "time_separate_end",
+          dateTimeNow.toString(),
+          event.idMove);
+
+      final productUpdate = await db.productosPedidosRepository
+          .getProductoPedidoById(event.pedidoId, event.idMove);
+
+      print('productUpdate :${productUpdate.toMap()}');
+
+      // Calcular la diferencia del producto ya separado
+      Duration differenceProduct = dateTimeNow
+          .difference(DateTime.parse(productUpdate.timeSeparatStart));
+
+      // Obtener la diferencia en segundos
+      double secondsDifferenceProduct =
+          differenceProduct.inMilliseconds / 1000.0;
+
+      print('secondsDifferenceProduct: $secondsDifferenceProduct');
+      //actualizamos el dato de tiempoSeparado
+      await db.productosPedidosRepository.setFieldTableProductosPedidos3(
+          event.pedidoId,
+          event.productId,
+          "time_separate",
+          secondsDifferenceProduct,
+          event.idMove);
 
       //actualizamos el estado del producto como separado
       await db.productosPedidosRepository.setFieldTableProductosPedidos3(
@@ -1361,6 +1444,12 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   void _onChangeProductIsOkEvent(
       ChangeProductIsOkEvent event, Emitter<WmsPackingState> emit) async {
     if (event.productIsOk) {
+      await db.productosPedidosRepository.setFieldTableProductosPedidos(
+          event.pedidoId,
+          event.productId,
+          "time_separate_start",
+          DateTime.now().toString(),
+          event.idMove);
       //actualizamos el producto a true
       await db.productosPedidosRepository.setFieldTableProductosPedidos(
           event.pedidoId, event.productId, "product_is_ok", 1, event.idMove);
@@ -1376,5 +1465,27 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     emit(ChangeProductPackingIsOkState(
       productIsOk,
     ));
+  }
+
+  String formatSecondsToHHMMSS(double secondsDecimal) {
+    try {
+      // Redondear a los segundos más cercanos
+      int totalSeconds = secondsDecimal.round();
+
+      // Calcular horas, minutos y segundos
+      int hours = totalSeconds ~/ 3600;
+      int minutes = (totalSeconds % 3600) ~/ 60;
+      int seconds = totalSeconds % 60;
+
+      // Formatear en 00:00:00
+      String formattedTime = '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
+
+      return formattedTime;
+    } catch (e, s) {
+      print("❌ Error en el formatSecondsToHHMMSS $e ->$s");
+      return "";
+    }
   }
 }

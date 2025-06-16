@@ -23,7 +23,7 @@ class ProductoPedido {
   final String? observation;
   final int? isPacking;
   final int? idPackage;
-  final String? packageName;
+  final dynamic? packageName;
   final int? isPackage;
   final dynamic isCertificate;
   final int? isSendOdoo;
@@ -50,59 +50,59 @@ class ProductoPedido {
 
   final dynamic manejaTemperatura;
   final dynamic temperatura;
-  final dynamic image;  
-  final dynamic imageNovedad;  
+  final dynamic image;
+  final dynamic imageNovedad;
 
-  final dynamic time;
+  final dynamic timeSeparate;
+  final dynamic timeSeparatStart;
+  final dynamic timeSeparateEnd;
 
-  
-
-  ProductoPedido({
-    this.productId,
-    this.batchId,
-    this.pedidoId,
-    this.idProduct,
-    this.loteId,
-    this.idMove,
-    this.lotId,
-    this.locationId,
-    this.idLocation,
-    this.locationDestId,
-    this.idLocationDest,
-    this.quantity,
-    this.pendingQuantity,
-    this.tracking,
-    this.barcode,
-    this.weight,
-    this.unidades,
-    this.quantitySeparate,
-    this.isSelected,
-    this.isSeparate,
-    this.isPacking,
-    this.isLocationIsOk,
-    this.productIsOk,
-    this.locationDestIsOk,
-    this.isQuantityIsOk,
-    this.observation,
-    this.idPackage,
-    this.packageName,
-    this.isPackage,
-    this.isCertificate,
-    this.isSendOdoo,
-    this.isProductSplit,
-    this.isSendOdooDate,
-    this.productPacking,
-    this.otherBarcode,
-    this.barcodeLocation,
-    this.expireDate,
-    this.type,
-
-    this.manejaTemperatura,
-    this.temperatura,
-    this.image,
-    this.imageNovedad,
-    this.time
-  });
+  ProductoPedido(
+      {this.productId,
+      this.batchId,
+      this.pedidoId,
+      this.idProduct,
+      this.loteId,
+      this.idMove,
+      this.lotId,
+      this.locationId,
+      this.idLocation,
+      this.locationDestId,
+      this.idLocationDest,
+      this.quantity,
+      this.pendingQuantity,
+      this.tracking,
+      this.barcode,
+      this.weight,
+      this.unidades,
+      this.quantitySeparate,
+      this.isSelected,
+      this.isSeparate,
+      this.isPacking,
+      this.isLocationIsOk,
+      this.productIsOk,
+      this.locationDestIsOk,
+      this.isQuantityIsOk,
+      this.observation,
+      this.idPackage,
+      this.packageName,
+      this.isPackage,
+      this.isCertificate,
+      this.isSendOdoo,
+      this.isProductSplit,
+      this.isSendOdooDate,
+      this.productPacking,
+      this.otherBarcode,
+      this.barcodeLocation,
+      this.expireDate,
+      this.type,
+      this.manejaTemperatura,
+      this.temperatura,
+      this.image,
+      this.imageNovedad,
+      this.timeSeparate,
+      this.timeSeparatStart,
+      this.timeSeparateEnd});
 
   factory ProductoPedido.fromJson(String str) =>
       ProductoPedido.fromMap(json.decode(str));
@@ -110,56 +110,56 @@ class ProductoPedido {
   String toJson() => json.encode(toMap());
 
   factory ProductoPedido.fromMap(Map<String, dynamic> json) => ProductoPedido(
-        productId: json["product_id"],
-        batchId: json["batch_id"],
-        pedidoId: json["pedido_id"],
-        idProduct: json["id_product"],
-        loteId: json["lote_id"],
-        idMove: json["id_move"],
-        lotId: json["lot_id"],
-        locationId: json["location_id"],
-        idLocation: json["id_location"],
-        locationDestId: json["location_dest_id"],
-        idLocationDest: json["id_location_dest"],
-        quantity: json["quantity"],
-        pendingQuantity: json["pending_quantity"],
-        tracking: json["tracking"],
-        barcode: json["barcode"],
-        weight: json["weight"],
-        unidades: json["unidades"],
-        quantitySeparate: json["quantity_separate"],
-        isSelected: json["is_selected"],
-        isSeparate: json["is_separate"],
-        isLocationIsOk: json["is_location_is_ok"] ?? false,
-        productIsOk: json["product_is_ok"] ?? false,
-        locationDestIsOk: json["location_dest_is_ok"] ?? false,
-        isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
-        observation: json["observation"],
-        expireDate: json["expire_date"],
-        idPackage: json["id_package"],
-        packageName: json["package_name"],
-        isPackage: json["is_package"],
-        isCertificate: json["is_certificate"],
-        isSendOdoo: json["is_send_odoo"],
-        isProductSplit: json["is_product_split"],
-        isSendOdooDate: json["is_send_odoo_date"],
-        productPacking: json['product_packing'] == null
-            ? []
-            : List<Barcodes>.from(
-                json['product_packing'].map((x) => Barcodes.fromMap(x))),
-        otherBarcode: json['other_barcode'] == null
-            ? []
-            : List<Barcodes>.from(
-                json['other_barcode'].map((x) => Barcodes.fromMap(x))),
-        barcodeLocation: json["barcode_location"],
-        type: json["type"],
-        manejaTemperatura: json["maneja_temperatura"],
-        temperatura: json["temperatura"],
-        image: json["image"],
-        imageNovedad: json["image_novedad"],
-        time: json["time"],
-
-      );
+      productId: json["product_id"],
+      batchId: json["batch_id"],
+      pedidoId: json["pedido_id"],
+      idProduct: json["id_product"],
+      loteId: json["lote_id"],
+      idMove: json["id_move"],
+      lotId: json["lot_id"],
+      locationId: json["location_id"],
+      idLocation: json["id_location"],
+      locationDestId: json["location_dest_id"],
+      idLocationDest: json["id_location_dest"],
+      quantity: json["quantity"],
+      pendingQuantity: json["pending_quantity"],
+      tracking: json["tracking"],
+      barcode: json["barcode"],
+      weight: json["weight"],
+      unidades: json["unidades"],
+      quantitySeparate: json["quantity_separate"],
+      isSelected: json["is_selected"],
+      isSeparate: json["is_separate"],
+      isLocationIsOk: json["is_location_is_ok"] ?? false,
+      productIsOk: json["product_is_ok"] ?? false,
+      locationDestIsOk: json["location_dest_is_ok"] ?? false,
+      isQuantityIsOk: json["is_quantity_is_ok"] ?? false,
+      observation: json["observation"],
+      expireDate: json["expire_date"],
+      idPackage: json["id_package"],
+      packageName: json["package_name"],
+      isPackage: json["is_package"],
+      isCertificate: json["is_certificate"],
+      isSendOdoo: json["is_send_odoo"],
+      isProductSplit: json["is_product_split"],
+      isSendOdooDate: json["is_send_odoo_date"],
+      productPacking: json['product_packing'] == null
+          ? []
+          : List<Barcodes>.from(
+              json['product_packing'].map((x) => Barcodes.fromMap(x))),
+      otherBarcode: json['other_barcode'] == null
+          ? []
+          : List<Barcodes>.from(
+              json['other_barcode'].map((x) => Barcodes.fromMap(x))),
+      barcodeLocation: json["barcode_location"],
+      type: json["type"],
+      manejaTemperatura: json["maneja_temperatura"],
+      temperatura: json["temperatura"],
+      image: json["image"],
+      imageNovedad: json["image_novedad"],
+      timeSeparate: json["time_separate"],
+      timeSeparatStart: json['time_separate_start'],
+      timeSeparateEnd: json["time_separate_end"]);
 
   Map<String, dynamic> toMap() => {
         "product_id": productId,
@@ -174,7 +174,7 @@ class ProductoPedido {
         "location_dest_id": locationDestId,
         "id_location_dest": idLocationDest,
         "quantity": quantity,
-        "pending_quantity" : pendingQuantity,
+        "pending_quantity": pendingQuantity,
         "tracking": tracking,
         "barcode": barcode,
         "weight": weight,
@@ -207,6 +207,8 @@ class ProductoPedido {
         "temperatura": temperatura,
         "image": image,
         "image_novedad": imageNovedad,
-        "time":time
+        "time_separate": timeSeparate,
+        "time_separate_start": timeSeparatStart,
+        "time_separate_end": timeSeparateEnd,
       };
 }

@@ -75,6 +75,7 @@ class ResultElementPack {
   final bool? isCertificate;
   final dynamic? peso;
   final List<ListItem>? listItem;
+  final dynamic consecutivo;
 
   ResultElementPack({
     this.idPaquete,
@@ -85,6 +86,7 @@ class ResultElementPack {
     this.isCertificate,
     this.peso,
     this.listItem,
+    this.consecutivo,
   });
 
   factory ResultElementPack.fromJson(String str) =>
@@ -104,6 +106,7 @@ class ResultElementPack {
             ? []
             : List<ListItem>.from(
                 json["list_item"]!.map((x) => ListItem.fromMap(x))),
+        consecutivo: json["consecutivo"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -117,6 +120,7 @@ class ResultElementPack {
         "list_item": listItem == null
             ? []
             : List<dynamic>.from(listItem!.map((x) => x.toMap())),
+        "consecutivo": consecutivo,
       };
 }
 

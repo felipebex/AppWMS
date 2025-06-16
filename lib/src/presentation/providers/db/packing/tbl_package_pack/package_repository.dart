@@ -30,6 +30,8 @@ class PackagesRepository {
               PackagesTable.columnCantidadProductos: package.cantidadProductos,
               PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
               PackagesTable.columnType: type,
+              PackagesTable.columnConsecutivo: package.consecutivo,
+              
             },
             where: '${PackagesTable.columnId} = ?',
             whereArgs: [package.id],
@@ -47,6 +49,7 @@ class PackagesRepository {
               PackagesTable.columnCantidadProductos: package.cantidadProductos,
               PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
               PackagesTable.columnType: type,
+              PackagesTable.columnConsecutivo: package.consecutivo,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
           );
@@ -87,6 +90,7 @@ class PackagesRepository {
               PackagesTable.columnCantidadProductos: package.cantidadProductos,
               PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
               PackagesTable.columnType: type,
+              PackagesTable.columnConsecutivo: package.consecutivo,
             },
             where: '${PackagesTable.columnId} = ?',
             whereArgs: [package.id],
@@ -104,6 +108,7 @@ class PackagesRepository {
               PackagesTable.columnCantidadProductos: package.cantidadProductos,
               PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
               PackagesTable.columnType: type,
+              PackagesTable.columnConsecutivo: package.consecutivo,
             },
             conflictAlgorithm: ConflictAlgorithm.replace,
 
@@ -140,6 +145,7 @@ class PackagesRepository {
         cantidadProductos: map[PackagesTable.columnCantidadProductos],
         isSticker: map[PackagesTable.columnIsSticker] == 1,
         type: map[PackagesTable.columnType],
+        consecutivo: map[PackagesTable.columnConsecutivo],
       );
     }).toList();
     return productos;
@@ -204,6 +210,7 @@ class PackagesRepository {
         cantidadProductos: maps[0][PackagesTable.columnCantidadProductos],
         isSticker: maps[0][PackagesTable.columnIsSticker] == 1,
         type: maps[0][PackagesTable.columnType],
+        consecutivo: maps[0][PackagesTable.columnConsecutivo],
       );
     }
     return null;
@@ -216,6 +223,26 @@ class PackagesRepository {
       PackagesTable.tableName,
       where: '${PackagesTable.columnId} = ?',
       whereArgs: [packageId],
+    );
+  }
+
+
+  //metodo para actualizar un paquete por id
+  Future<void> updatePackageById(Paquete package) async {
+    Database db = await DataBaseSqlite().getDatabaseInstance();
+    await db.update(
+      PackagesTable.tableName,
+      {
+        PackagesTable.columnName: package.name,
+        PackagesTable.columnBatchId: package.batchId,
+        PackagesTable.columnPedidoId: package.pedidoId,
+        PackagesTable.columnCantidadProductos: package.cantidadProductos,
+        PackagesTable.columnIsSticker: package.isSticker == true ? 1 : 0,
+        PackagesTable.columnType: package.type,
+        PackagesTable.columnConsecutivo: package.consecutivo,
+      },
+      where: '${PackagesTable.columnId} = ?',
+      whereArgs: [package.id],
     );
   }
 }

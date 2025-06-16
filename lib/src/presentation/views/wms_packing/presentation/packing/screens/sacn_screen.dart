@@ -394,15 +394,14 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                         icon: const Icon(Icons.arrow_back,
                                             color: Colors.white, size: 30),
                                       ),
-                                      const Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Center(
-                                          child: Text(
-                                            "Certificación de Packing",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 18),
-                                          ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            left: size.width * 0.2),
+                                        child: Text(
+                                          "CERTIFICACION",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18),
                                         ),
                                       ),
                                     ],
@@ -605,7 +604,6 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                   batchBloc: packinghBloc,
                                                   currentProduct: packinghBloc
                                                       .currentProduct,
-                                                  isPDA: false,
                                                 ),
                                                 TextFormField(
                                                   showCursor: false,
@@ -637,55 +635,75 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                   ),
                                                 ),
                                                 // Lote/Numero de serie
-                                                Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Row(
-                                                    children: [
-                                                      Image.asset(
-                                                        "assets/icons/barcode.png",
-                                                        color: primaryColorApp,
-                                                        width: 20,
+                                                const SizedBox(height: 10),
+                                                Row(
+                                                  children: [
+                                                    Image.asset(
+                                                      "assets/icons/barcode.png",
+                                                      color: primaryColorApp,
+                                                      width: 20,
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Text(
+                                                      (packinghBloc.currentProduct
+                                                                      .barcode ==
+                                                                  null ||
+                                                              packinghBloc
+                                                                  .currentProduct
+                                                                  .barcode!
+                                                                  .isEmpty ||
+                                                              packinghBloc
+                                                                      .currentProduct
+                                                                      .barcode ==
+                                                                  "false")
+                                                          ? "Sin codigo de barras"
+                                                          : packinghBloc
+                                                              .currentProduct
+                                                              .barcode!,
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: (packinghBloc
+                                                                          .currentProduct
+                                                                          .barcode ==
+                                                                      null ||
+                                                                  packinghBloc
+                                                                      .currentProduct
+                                                                      .barcode!
+                                                                      .isEmpty ||
+                                                                  packinghBloc
+                                                                          .currentProduct
+                                                                          .barcode ==
+                                                                      "false")
+                                                              ? Colors.red
+                                                              : black),
+                                                    ),
+                                                    const Spacer(),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return DialogBarcodes(
+                                                                  listOfBarcodes:
+                                                                      packinghBloc
+                                                                          .listOfBarcodes);
+                                                            });
+                                                      },
+                                                      child: Visibility(
+                                                        visible: packinghBloc
+                                                            .listOfBarcodes
+                                                            .isNotEmpty,
+                                                        child: Image.asset(
+                                                            "assets/icons/package_barcode.png",
+                                                            color:
+                                                                primaryColorApp,
+                                                            width: 20),
                                                       ),
-                                                      const SizedBox(width: 10),
-                                                      Text(
-                                                        packinghBloc
-                                                                        .currentProduct
-                                                                        .barcode ==
-                                                                    false ||
-                                                                packinghBloc
-                                                                        .currentProduct
-                                                                        .barcode ==
-                                                                    null ||
-                                                                packinghBloc
-                                                                        .currentProduct
-                                                                        .barcode ==
-                                                                    ""
-                                                            ? "Sin codigo de barras"
-                                                            : packinghBloc
-                                                                .currentProduct
-                                                                .barcode,
-                                                        textAlign:
-                                                            TextAlign.start,
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            color: packinghBloc.currentProduct
-                                                                            .barcode ==
-                                                                        false ||
-                                                                    packinghBloc
-                                                                            .currentProduct
-                                                                            .barcode ==
-                                                                        null ||
-                                                                    packinghBloc
-                                                                            .currentProduct
-                                                                            .barcode ==
-                                                                        ""
-                                                                ? red
-                                                                : black),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
+                                              
+                                              
                                                 Column(
                                                   children: [
                                                     ExpiryDateWidget(
@@ -708,7 +726,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                             : false),
                                                     if (packinghBloc
                                                             .currentProduct
-                                                            .loteId ==
+                                                            .loteId !=
                                                         null)
                                                       Row(
                                                         children: [
@@ -716,53 +734,31 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                             alignment: Alignment
                                                                 .centerLeft,
                                                             child: Text(
-                                                              'Lote/serie',
+                                                              'Lote/serie: ',
                                                               style: TextStyle(
                                                                   fontSize: 14,
                                                                   color:
                                                                       primaryColorApp),
                                                             ),
                                                           ),
-                                                          const SizedBox(
-                                                              width: 5),
                                                           Align(
                                                             alignment: Alignment
                                                                 .centerLeft,
                                                             child: Text(
-                                                              packinghBloc
-                                                                      .currentProduct
-                                                                      .lotId ??
-                                                                  '',
+                                                              packinghBloc.currentProduct
+                                                                          .lotId ==
+                                                                      ""
+                                                                  ? 'N/A'
+                                                                  : packinghBloc
+                                                                          .currentProduct
+                                                                          .lotId ??
+                                                                      '',
                                                               style:
                                                                   const TextStyle(
                                                                       fontSize:
-                                                                          13,
+                                                                          14,
                                                                       color:
                                                                           black),
-                                                            ),
-                                                          ),
-                                                          const Spacer(),
-                                                          GestureDetector(
-                                                            onTap: () {
-                                                              showDialog(
-                                                                  context:
-                                                                      context,
-                                                                  builder:
-                                                                      (context) {
-                                                                    return DialogBarcodes(
-                                                                        listOfBarcodes:
-                                                                            packinghBloc.listOfBarcodes);
-                                                                  });
-                                                            },
-                                                            child: Visibility(
-                                                              visible: packinghBloc
-                                                                  .listOfBarcodes
-                                                                  .isNotEmpty,
-                                                              child: Image.asset(
-                                                                  "assets/icons/package_barcode.png",
-                                                                  color:
-                                                                      primaryColorApp,
-                                                                  width: 20),
                                                             ),
                                                           ),
                                                         ],
@@ -814,7 +810,6 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                       currentProduct:
                                                           packinghBloc
                                                               .currentProduct,
-                                                      isPDA: false,
                                                     ),
 
                                                     const SizedBox(height: 10),
@@ -866,18 +861,89 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                     ),
 
                                                     const SizedBox(height: 10),
+                                                    Row(
+                                                      children: [
+                                                        Image.asset(
+                                                          "assets/icons/barcode.png",
+                                                          color:
+                                                              primaryColorApp,
+                                                          width: 20,
+                                                        ),
+                                                        const SizedBox(
+                                                            width: 10),
+                                                        Text(
+                                                          (packinghBloc.currentProduct
+                                                                          .barcode ==
+                                                                      null ||
+                                                                  packinghBloc
+                                                                      .currentProduct
+                                                                      .barcode!
+                                                                      .isEmpty ||
+                                                                  packinghBloc
+                                                                          .currentProduct
+                                                                          .barcode ==
+                                                                      "false")
+                                                              ? "Sin codigo de barras"
+                                                              : packinghBloc
+                                                                  .currentProduct
+                                                                  .barcode!,
+                                                          style: TextStyle(
+                                                              fontSize: 12,
+                                                              color: (packinghBloc
+                                                                              .currentProduct
+                                                                              .barcode ==
+                                                                          null ||
+                                                                      packinghBloc
+                                                                          .currentProduct
+                                                                          .barcode!
+                                                                          .isEmpty ||
+                                                                      packinghBloc
+                                                                              .currentProduct
+                                                                              .barcode ==
+                                                                          "false")
+                                                                  ? Colors.red
+                                                                  : black),
+                                                        ),
+                                                        const Spacer(),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (context) {
+                                                                  return DialogBarcodes(
+                                                                      listOfBarcodes:
+                                                                          packinghBloc
+                                                                              .listOfBarcodes);
+                                                                });
+                                                          },
+                                                          child: Visibility(
+                                                            visible: packinghBloc
+                                                                .listOfBarcodes
+                                                                .isNotEmpty,
+                                                            child: Image.asset(
+                                                                "assets/icons/package_barcode.png",
+                                                                color:
+                                                                    primaryColorApp,
+                                                                width: 20),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                     //informacion del lote:
+
                                                     if (packinghBloc
                                                             .currentProduct
                                                             .loteId !=
                                                         null)
-                                                      Column(
+                                                      Row(
                                                         children: [
                                                           Align(
                                                             alignment: Alignment
                                                                 .centerLeft,
                                                             child: Text(
-                                                              'Lote/Numero de serie ',
+                                                              'Lote/serie: ',
                                                               style: TextStyle(
                                                                   fontSize: 14,
                                                                   color:
@@ -888,10 +954,14 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                             alignment: Alignment
                                                                 .centerLeft,
                                                             child: Text(
-                                                              packinghBloc
-                                                                      .currentProduct
-                                                                      .lotId ??
-                                                                  '',
+                                                              packinghBloc.currentProduct
+                                                                          .lotId ==
+                                                                      ""
+                                                                  ? 'N/A'
+                                                                  : packinghBloc
+                                                                          .currentProduct
+                                                                          .lotId ??
+                                                                      '',
                                                               style:
                                                                   const TextStyle(
                                                                       fontSize:

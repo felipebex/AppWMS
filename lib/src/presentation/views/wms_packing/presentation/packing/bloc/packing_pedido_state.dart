@@ -231,3 +231,42 @@ class UnPackignError extends PackingPedidoState {
 }
 
 class UnPackingLoading extends PackingPedidoState {}
+
+class StartOrStopTimePackSuccess extends PackingPedidoState {
+  final String isStarted;
+  StartOrStopTimePackSuccess(this.isStarted);
+}
+
+class StartOrStopTimePackFailure extends PackingPedidoState {
+  final String error;
+  StartOrStopTimePackFailure(this.error);
+}
+
+class CreateBackOrderOrNotLoading extends PackingPedidoState {}
+
+class CreateBackOrderOrNotSuccess extends PackingPedidoState {
+  final bool isBackorder;
+  final String msg;
+  CreateBackOrderOrNotSuccess(this.isBackorder, this.msg);
+}
+
+class CreateBackOrderOrNotFailure extends PackingPedidoState {
+  final String error;
+  final bool isBackorder;
+  CreateBackOrderOrNotFailure(this.error, this.isBackorder);
+}
+
+
+class ValidateConfirmLoading extends PackingPedidoState {}
+
+class ValidateConfirmSuccess extends PackingPedidoState {
+  final bool isBackorder;
+  final String msg;
+
+  ValidateConfirmSuccess(this.isBackorder, this.msg);
+}
+
+class ValidateConfirmFailure extends PackingPedidoState {
+  final String error;
+  ValidateConfirmFailure(this.error);
+}

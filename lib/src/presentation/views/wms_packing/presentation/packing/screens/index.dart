@@ -13,9 +13,9 @@ import 'package:wms_app/src/presentation/views/recepcion/modules/individual/scre
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/widgets/dialog_info_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/models/response_packing_pedido_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_start_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_start_picking_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -45,7 +45,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
           icon: Icon(Icons.error, color: Colors.red),
         );
       }
-    
+
       if (state is AssignUserToPedidoLoading) {
         // mostramos un dialogo de carga y despues
         showDialog(
@@ -57,7 +57,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
           ),
         );
       }
-    
+
       if (state is AssignUserToPedidoLoaded) {
         // cerramos el dialogo de carga
         Navigator.pop(context);
@@ -66,8 +66,9 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
         context.read<PackingPedidoBloc>().add(LoadPedidoAndProductsEvent(
               state.id,
             ));
-    
-        // Navigator.pushReplacementNamed(context, 'scan-product-pick');
+
+        Navigator.pushReplacementNamed(context, 'detail-packing-pedido',
+            arguments: [0]);
       }
     }, builder: (context, state) {
       return Scaffold(
@@ -85,9 +86,9 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
             margin: const EdgeInsets.only(bottom: 10),
             width: size.width * 1,
             child:
-    
+
                 ///*listado de bacths
-    
+
                 Column(
               children: [
                 Container(
@@ -129,8 +130,8 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                     },
                                   ),
                                   Padding(
-                                    padding: EdgeInsets.only(
-                                        left: size.width * 0.1),
+                                    padding:
+                                        EdgeInsets.only(left: size.width * 0.1),
                                     child: GestureDetector(
                                       onTap: () async {
                                         await DataBaseSqlite()
@@ -170,9 +171,9 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                     );
                   }),
                 ),
-    
+
                 //*barra de buscar
-    
+
                 Container(
                     margin: const EdgeInsets.only(top: 10),
                     height: 60,
@@ -211,7 +212,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                             .read<PackingPedidoBloc>()
                                             .searchController
                                             .clear();
-    
+
                                         context
                                             .read<PackingPedidoBloc>()
                                             .add(SearchPedidoEvent(
@@ -220,11 +221,11 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                         context
                                             .read<PackingPedidoBloc>()
                                             .add(ShowKeyboardEvent(false));
-    
+
                                         FocusScope.of(context).unfocus();
                                       },
-                                      icon: const Icon(Icons.close,
-                                          color: grey)),
+                                      icon:
+                                          const Icon(Icons.close, color: grey)),
                                   disabledBorder: const OutlineInputBorder(),
                                   hintText: "Buscar pedido de packing",
                                   hintStyle: const TextStyle(
@@ -254,7 +255,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                         ],
                       ),
                     )),
-    
+
                 //*listado de batchs
                 Expanded(
                   child: context
@@ -272,86 +273,75 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                               .where((batch) => batch.isTerminate == 0)
                               .length,
                           itemBuilder: (contextBuilder, index) {
-                            final List<PedidoPackingResult>
-                                inProgressBatches = context
+                            final List<PedidoPackingResult> inProgressBatches =
+                                context
                                     .read<PackingPedidoBloc>()
                                     .listOfPedidosFilters
                                     .where((batch) => batch.isTerminate == 0)
                                     .toList(); // Convertir a lista
-    
+
                             // Asegurarse de que hay batches en progreso
                             if (inProgressBatches.isEmpty) {
                               return const Center(
                                   child: Text('No hay batches en progreso.'));
                             }
-    
+
                             // Comprobar que el índice no está fuera de rango
                             if (index >= inProgressBatches.length) {
                               return const SizedBox(); // O manejar de otra forma
                             }
-    
+
                             final batch = inProgressBatches[
                                 index]; // Acceder al batch filtrado
-    
+
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 5),
                               child: GestureDetector(
                                 onTap: () async {
                                   try {
-                                    // if (batch.responsableId == null ||
-                                    //     batch.responsableId == 0) {
-                                    //   showDialog(
-                                    //     context: context,
-                                    //     barrierDismissible:
-                                    //         false, // No permitir que el usuario cierre el diálogo manualmente
-                                    //     builder: (context) =>
-                                    //         DialogAsignUserToOrderWidget(
-                                    //       title:
-                                    //           'Esta seguro de tomar este pedido de packing, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
-                                    //       onAccepted: () async {
-                                    //         // asignamos el tiempo de inicio
-    
-                                    //         //asignamos el responsable a esa orden de entrada
-                                    //         //cerramos el dialogo
-                                    //         Navigator.pop(context);
-                                    //         context
-                                    //             .read<PackingPedidoBloc>()
-                                    //             .add(
-                                    //                 ShowKeyboardEvent(false));
-                                    //         context
-                                    //             .read<PackingPedidoBloc>()
-                                    //             .searchController
-                                    //             .clear();
-                                    //         context
-                                    //             .read<PackingPedidoBloc>()
-                                    //             .add(
-                                    //               AssignUserToPedido(
-                                    //                   batch.id ?? 0),
-                                    //             );
-                                    //       },
-                                    //     ),
-                                    //   );
-                                    // }
+//cargamos las configuraciones
+                                    context
+                                        .read<PackingPedidoBloc>()
+                                        .add(LoadConfigurationsUser());
 
-                                    //cargamos las configuraciones
-                                    context
-                                        .read<PackingPedidoBloc>()
-                                        .add(LoadConfigurationsUser(
-                                        ));
-                                    //cargamos la info del pedido seleccionado y los productos, paquetes del pedido
-                                    context
-                                        .read<PackingPedidoBloc>()
-                                        .add(LoadPedidoAndProductsEvent(
-                                          batch.id ?? 0,
-                                        ));
-    
-                                    Navigator.pushReplacementNamed(
-                                        context, 'detail-packing-pedido',
-                                        arguments: [0]);
+                                    if (batch.responsableId == null ||
+                                        batch.responsableId == 0) {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible:
+                                            false, // No permitir que el usuario cierre el diálogo manualmente
+                                        builder: (context) =>
+                                            DialogAsignUserToOrderWidget(
+                                          title:
+                                              'Esta seguro de tomar este pedido de packing, una vez aceptado no podrá ser cancelada desde la app, una vez asignada se registrará el tiempo de inicio de la operación.',
+                                          onAccepted: () async {
+                                            // asignamos el tiempo de inicio
+
+                                            //asignamos el responsable a esa orden de entrada
+                                            //cerramos el dialogo
+                                            Navigator.pop(context);
+                                            context
+                                                .read<PackingPedidoBloc>()
+                                                .add(ShowKeyboardEvent(false));
+                                            context
+                                                .read<PackingPedidoBloc>()
+                                                .searchController
+                                                .clear();
+                                            context
+                                                .read<PackingPedidoBloc>()
+                                                .add(
+                                                  AssignUserToPedido(
+                                                      batch.id ?? 0),
+                                                );
+                                          },
+                                        ),
+                                      );
+                                    } else {
+                                      validateTime(batch, context);
+                                    }
                                   } catch (e) {
                                     // Manejo de errores, por si ocurre algún problema
-    
                                     ScaffoldMessenger.of(contextBuilder)
                                         .showSnackBar(
                                       const SnackBar(
@@ -387,8 +377,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                           alignment: Alignment.centerLeft,
                                           child: Text(batch.zonaEntrega ?? '',
                                               style: const TextStyle(
-                                                  fontSize: 12,
-                                                  color: black)),
+                                                  fontSize: 12, color: black)),
                                         ),
                                         Row(
                                           children: [
@@ -397,19 +386,16 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                               child: Text("Operación: ",
                                                   style: TextStyle(
                                                       fontSize: 12,
-                                                      color:
-                                                          primaryColorApp)),
+                                                      color: primaryColorApp)),
                                             ),
                                             Align(
                                               alignment: Alignment.centerLeft,
                                               child: Text(
                                                 batch.pickingType.toString(),
                                                 style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: black),
+                                                    fontSize: 12, color: black),
                                                 maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                             ),
                                           ],
@@ -421,8 +407,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                               Text('Prioridad: ',
                                                   style: TextStyle(
                                                       fontSize: 12,
-                                                      color:
-                                                          primaryColorApp)),
+                                                      color: primaryColorApp)),
                                               Text(
                                                 batch.priority == '0'
                                                     ? 'Normal'
@@ -456,14 +441,12 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                               Text(
                                                 batch.fechaCreacion != null
                                                     ? DateFormat('dd/MM/yyyy')
-                                                        .format(DateTime
-                                                            .parse(batch
-                                                                .fechaCreacion
+                                                        .format(DateTime.parse(
+                                                            batch.fechaCreacion
                                                                 .toString()))
                                                     : "Sin fecha",
                                                 style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: black),
+                                                    fontSize: 12, color: black),
                                               ),
                                             ],
                                           ),
@@ -473,11 +456,9 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                           child: Row(
                                             children: [
                                               Align(
-                                                alignment:
-                                                    Alignment.centerLeft,
+                                                alignment: Alignment.centerLeft,
                                                 child: Icon(
-                                                    Icons
-                                                        .shopping_cart_rounded,
+                                                    Icons.shopping_cart_rounded,
                                                     color: primaryColorApp,
                                                     size: 15),
                                               ),
@@ -506,11 +487,9 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                               const Text(
                                                 "Doc. Origen: ",
                                                 style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: black),
+                                                    fontSize: 12, color: black),
                                                 maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                               Expanded(
                                                 child: Text(
@@ -572,11 +551,9 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                               const Text(
                                                 "Cantidad de items: ",
                                                 style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: black),
+                                                    fontSize: 12, color: black),
                                                 maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                               Expanded(
                                                 child: Text(
@@ -606,11 +583,9 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                               const Text(
                                                 "Cantidad de paquetes: ",
                                                 style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: black),
+                                                    fontSize: 12, color: black),
                                                 maxLines: 2,
-                                                overflow:
-                                                    TextOverflow.ellipsis,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
                                               Expanded(
                                                 child: Text(
@@ -643,8 +618,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                                           batch.responsable ==
                                                               null
                                                       ? "Sin responsable"
-                                                      : batch.responsable ??
-                                                          '',
+                                                      : batch.responsable ?? '',
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       color: batch.responsable ==
@@ -670,13 +644,12 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                                                       title:
                                                                           'Tiempo de inicio',
                                                                       body:
-                                                                          'Este batch fue iniciado a las ${batch.startTimeTransfer}',
+                                                                          'Este pedido fue iniciado a las ${batch.startTimeTransfer}',
                                                                     ));
                                                       },
                                                       child: Icon(
                                                         Icons.timer_sharp,
-                                                        color:
-                                                            primaryColorApp,
+                                                        color: primaryColorApp,
                                                         size: 15,
                                                       ),
                                                     )
@@ -698,11 +671,9 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                             children: [
                               SizedBox(height: 10),
                               Text('No se encontraron resultados',
-                                  style:
-                                      TextStyle(fontSize: 14, color: grey)),
+                                  style: TextStyle(fontSize: 14, color: grey)),
                               Text('Intenta con otra búsqueda',
-                                  style:
-                                      TextStyle(fontSize: 12, color: grey)),
+                                  style: TextStyle(fontSize: 12, color: grey)),
                             ],
                           ),
                         ),
@@ -713,25 +684,55 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
     });
   }
 
-  // void goBatchInfo(BuildContext context, PackingPedidoBloc batchBloc,
-  //     BatchPackingModel batch) async {
-  //   // mostramos un dialogo de carga y despues
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible:
-  //         false, // No permitir que el usuario cierre el diálogo manualmente
-  //     builder: (_) => const DialogLoading(
-  //       message: 'Cargando interfaz...',
-  //     ),
-  //   );
+  void validateTime(PedidoPackingResult pedido, BuildContext context) {
+    if (pedido.startTimeTransfer == "" || pedido.startTimeTransfer == null) {
+      showDialog(
+        context: context,
+        barrierDismissible:
+            false, // No permitir que el usuario cierre el diálogo manualmente
+        builder: (context) => DialogStartTimeWidget(
+          onAccepted: () async {
+            context.read<PackingPedidoBloc>().searchControllerPedido.clear();
 
-  //   await Future.delayed(const Duration(seconds: 1));
-  //   Navigator.pop(context);
+            context.read<PackingPedidoBloc>().add(SearchPedidoEvent(
+                  '',
+                ));
 
-  //   Navigator.pushReplacementNamed(
-  //     context,
-  //     'packing-list',
-  //     arguments: [batch],
-  //   );
-  // }
+            context.read<PackingPedidoBloc>().add(ShowKeyboardEvent(false));
+
+            context.read<PackingPedidoBloc>().add(StartOrStopTimePack(
+                  pedido.id ?? 0,
+                  "start_time_transfer",
+                ));
+
+            context.read<PackingPedidoBloc>().add(
+                  LoadPedidoAndProductsEvent(
+                    pedido.id ?? 0,
+                  ),
+                );
+
+            Navigator.pop(context);
+            Navigator.pushReplacementNamed(context, 'detail-packing-pedido',
+                arguments: [0]);
+          },
+          title: 'Iniciar Recepcion',
+        ),
+      );
+    } else {
+      context.read<PackingPedidoBloc>().searchControllerPedido.clear();
+
+      context.read<PackingPedidoBloc>().add(SearchPedidoEvent(
+            '',
+          ));
+
+      context.read<PackingPedidoBloc>().add(ShowKeyboardEvent(false));
+      context.read<PackingPedidoBloc>().add(
+            LoadPedidoAndProductsEvent(
+              pedido.id ?? 0,
+            ),
+          );
+      Navigator.pushReplacementNamed(context, 'detail-packing-pedido',
+          arguments: [0]);
+    }
+  }
 }

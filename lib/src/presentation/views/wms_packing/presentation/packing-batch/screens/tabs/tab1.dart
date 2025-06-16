@@ -477,514 +477,420 @@ class Tab1Screen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text("Listado de empaques",
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: primaryColorApp,
-                          fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.only(
-                          left: 10, right: 2, bottom: 10, top: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
+                  if (!context.read<WmsPackingBloc>().viewDetail) ...[
+                    Text("Listado de empaques",
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: primaryColorApp,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(
+                            left: 10, right: 2, bottom: 10, top: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
                         ),
-                      ),
-                      child: (context.read<WmsPackingBloc>().packages.isEmpty)
-                          ? const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('No hay empaques',
-                                      style:
-                                          TextStyle(fontSize: 14, color: grey)),
-                                  Text('Realiza el proceso de empaque',
-                                      style:
-                                          TextStyle(fontSize: 12, color: grey)),
-                                ],
-                              ),
-                            )
-                          : ListView.builder(
-                              padding: const EdgeInsets.only(bottom: 55),
-                              itemCount: context
-                                  .read<WmsPackingBloc>()
-                                  .packages
-                                  .length,
-                              itemBuilder: (BuildContext context, int index) {
-                                final package = context
+                        child: (context.read<WmsPackingBloc>().packages.isEmpty)
+                            ? const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('No hay empaques',
+                                        style: TextStyle(
+                                            fontSize: 14, color: grey)),
+                                    Text('Realiza el proceso de empaque',
+                                        style: TextStyle(
+                                            fontSize: 12, color: grey)),
+                                  ],
+                                ),
+                              )
+                            : ListView.builder(
+                                padding: const EdgeInsets.only(bottom: 55),
+                                itemCount: context
                                     .read<WmsPackingBloc>()
-                                    .packages[index];
+                                    .packages
+                                    .length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final package = context
+                                      .read<WmsPackingBloc>()
+                                      .packages[index];
 
-                                // Filtrar los productos de acuerdo al id_package del paquete actual
-                                final filteredProducts = context
-                                    .read<WmsPackingBloc>()
-                                    .listOfProductos
-                                    .where((product) =>
-                                        product.idPackage == package.id)
-                                    .toList();
+                                  // Filtrar los productos de acuerdo al id_package del paquete actual
+                                  final filteredProducts = context
+                                      .read<WmsPackingBloc>()
+                                      .listOfProductos
+                                      .where((product) =>
+                                          product.idPackage == package.id)
+                                      .toList();
 
-                                return Card(
-                                  color: Colors.white,
-                                  child: ExpansionTile(
-                                    childrenPadding: const EdgeInsets.all(5),
-                                    // onExpansionChanged: (bool expanded) {
-                                    //   if (expanded) {
-                                    //     context
-                                    //         .read<WmsPackingBloc>()
-                                    //         .add(ShowDetailvent(true));
-                                    //   } else {
-                                    //     context
-                                    //         .read<WmsPackingBloc>()
-                                    //         .add(ShowDetailvent(false));
-                                    //   }
-                                    // },
-                                    title: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "${package.name}",
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: primaryColorApp),
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              "Cantidad de productos: ${package.cantidadProductos}",
-                                              style: const TextStyle(
-                                                  fontSize: 12, color: black),
-                                            ),
-                                            const Spacer(),
-                                            GestureDetector(
-                                              onTap: () async {
-                                                var url = await PrefUtils
-                                                    .getEnterprise();
-
-                                                url =
-                                                    '$url/package/info/${package.name}';
-
-                                                _showQRDialog(context, url);
-                                              },
-                                              child: Icon(
-                                                Icons.qr_code,
-                                                color: primaryColorApp,
-                                                size: 20,
+                                  return Card(
+                                    color: Colors.white,
+                                    child: ExpansionTile(
+                                      childrenPadding: const EdgeInsets.all(5),
+                                      title: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${package.name}",
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: primaryColorApp),
+                                          ),
+                                          Text(
+                                            "${package.consecutivo}",
+                                            style: TextStyle(
+                                                fontSize: 10, color: black),
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                "Cantidad de productos: ${package.cantidadProductos}",
+                                                style: const TextStyle(
+                                                    fontSize: 12, color: black),
                                               ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            if (package.isSticker == true)
+                                              const Spacer(),
                                               GestureDetector(
                                                 onTap: () async {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return PrintDialog(
-                                                          model: PrintModel(
-                                                        batchName:
-                                                            batchModel?.name ??
-                                                                '',
-                                                        batchId:
-                                                            batchModel?.id ?? 0,
-                                                        pickingTypeId: batchModel
-                                                                ?.pickingTypeId ??
-                                                            '',
-                                                        cantidadPedidos: batchModel
-                                                                ?.cantidadPedidos ??
-                                                            0,
-                                                        //ddatos pedido
-                                                        namePedido: packingModel
-                                                                ?.name ??
-                                                            '',
-                                                        referencia: packingModel
-                                                                ?.referencia ??
-                                                            '',
-                                                        contacto: packingModel
-                                                                ?.contacto ??
-                                                            '0',
-                                                        contactoName: packingModel
-                                                                ?.contactoName ??
-                                                            '',
-                                                        tipoOperacion: packingModel
-                                                                ?.tipoOperacion ??
-                                                            '',
-                                                        cantidadProductos:
-                                                            packingModel
-                                                                    ?.cantidadProductos ??
-                                                                0,
-                                                        numeroPaquetes: context
-                                                            .read<
-                                                                WmsPackingBloc>()
-                                                            .packages
-                                                            .length,
-                                                        //datos paquete
-                                                        idPaquete: 0,
-                                                        namePaquete:
-                                                            package.name,
-                                                        cantProductoPack: package
-                                                            .cantidadProductos,
-                                                        zonaEntregaTms: batchModel
-                                                                ?.zonaEntregaTms ??
-                                                            '',
-                                                      ));
-                                                    },
-                                                  );
+                                                  var url = await PrefUtils
+                                                      .getEnterprise();
+
+                                                  url =
+                                                      '$url/package/info/${package.name}';
+
+                                                  _showQRDialog(context, url);
                                                 },
                                                 child: Icon(
-                                                  Icons.print,
+                                                  Icons.qr_code,
                                                   color: primaryColorApp,
                                                   size: 20,
                                                 ),
-                                              )
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    children: [
-                                      // Aquí generamos la lista de productos filtrados
-                                      SizedBox(
-                                        height: 200,
-                                        child: ListView.builder(
-                                          itemCount: filteredProducts
-                                              .length, // La cantidad de productos filtrados
-                                          itemBuilder: (context, index) {
-                                            final product =
-                                                filteredProducts[index];
-                                            return GestureDetector(
-                                              onTap: () {
-                                                print(
-                                                    "info paquete: ${package.toMap()}");
-                                                print("--------------------");
-                                                print(
-                                                    "Producto seleccionado: ${product.toMap()}");
-                                              },
-                                              child: Card(
-                                                color: white,
-                                                elevation: 2,
-                                                child: ListTile(
-                                                  title: Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: Text(
-                                                            product.productId ??
-                                                                "",
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    color:
-                                                                        black)),
-                                                      ),
-                                                      if (product.barcode !=
-                                                          null)
-                                                        GestureDetector(
-                                                          onTap: () {
-                                                            //validar si el producto  actual se encuentra  la lista de por hacer
-
-                                                            bool isInProgress = context
-                                                                .read<
-                                                                    WmsPackingBloc>()
-                                                                .listOfProductosProgress
-                                                                .any((p) =>
-                                                                    p.productId ==
-                                                                    product
-                                                                        .productId);
-                                                            if (isInProgress) {
-                                                              Get.defaultDialog(
-                                                                title:
-                                                                    '360 Software Informa',
-                                                                titleStyle: TextStyle(
-                                                                    color: Colors
-                                                                        .red,
-                                                                    fontSize:
-                                                                        18),
-                                                                middleText:
-                                                                    "Este producto se encuentra en estado por hacer, por favor seleccione otro para desempacar",
-                                                                middleTextStyle:
-                                                                    TextStyle(
-                                                                        color:
-                                                                            black,
-                                                                        fontSize:
-                                                                            14),
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                radius: 10,
-                                                                actions: [
-                                                                  ElevatedButton(
-                                                                    onPressed:
-                                                                        () {
-                                                                      Get.back();
-                                                                    },
-                                                                    style: ElevatedButton
-                                                                        .styleFrom(
-                                                                      backgroundColor:
-                                                                          primaryColorApp,
-                                                                      shape:
-                                                                          RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(10),
-                                                                      ),
-                                                                    ),
-                                                                    child: Text(
-                                                                        'Aceptar',
-                                                                        style: TextStyle(
-                                                                            color:
-                                                                                white)),
-                                                                  ),
-                                                                ],
-                                                              );
-                                                              return;
-                                                            }
-                                                          
-                                                            showDialog(
-                                                              context: context,
-                                                              builder: (_) =>
-                                                                  DialogUnPacking(
-                                                                product:
-                                                                    product,
-                                                                package:
-                                                                    package,
-                                                                onConfirm:
-                                                                    () async {
-                                                                  final idOperario =
-                                                                      await PrefUtils
-                                                                          .getUserId();
-
-                                                                  context
-                                                                      .read<
-                                                                          WmsPackingBloc>()
-                                                                      .add(
-                                                                          UnPackingEvent(
-                                                                        UnPackingRequest(
-                                                                          idBatch:
-                                                                              package.batchId ?? 0,
-                                                                          idPaquete:
-                                                                              package.id ?? 0,
-                                                                          listItem: [
-                                                                            ListItemUnpack(
-                                                                              idMove: product.idMove ?? 0,
-                                                                              productId: product.idProduct ?? 0,
-                                                                              lote: product.loteId,
-                                                                              locationId: product.idLocation ?? 0,
-                                                                              cantidadSeparada: product.isCertificate == 0 ? product.quantity ?? 0 : product.quantitySeparate ?? 0,
-                                                                              observacion: "Desempacado",
-                                                                              idOperario: idOperario,
-                                                                            )
-                                                                          ],
-                                                                        ),
-                                                                        product.pedidoId ??
-                                                                            0,
-                                                                      ));
-                                                                },
-                                                              ),
-                                                            );
-                                                          },
-                                                          child: const Icon(
-                                                            Icons.delete,
-                                                            color: Colors.red,
-                                                            size: 20,
-                                                          ),
-                                                        ),
-                                                    ],
-                                                  ), // Muestra el nombre del producto
-                                                  subtitle: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          if (product
-                                                                  .isCertificate !=
-                                                              0)
-                                                            RichText(
-                                                              text: TextSpan(
-                                                                style:
-                                                                    const TextStyle(
-                                                                  fontSize:
-                                                                      14, // Tamaño del texto
-                                                                  color: Colors
-                                                                      .black, // Color del texto por defecto (puedes cambiarlo aquí)
-                                                                ),
-                                                                children: <TextSpan>[
-                                                                  const TextSpan(
-                                                                      text:
-                                                                          "Cantidad empacada: ",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              black)), // Parte del texto en color negro (o el color que prefieras)
-                                                                  TextSpan(
-                                                                    text: product
-                                                                        .quantitySeparate
-                                                                        .toStringAsFixed(
-                                                                            2), // La cantidad en color rojo
-                                                                    style: TextStyle(
-                                                                        color:
-                                                                            primaryColorApp,
-                                                                        fontSize:
-                                                                            12), // Estilo solo para la cantidad
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          if (product
-                                                                  .isCertificate ==
-                                                              0)
-                                                            RichText(
-                                                              text:
-                                                                  const TextSpan(
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize:
-                                                                      14, // Tamaño del texto
-                                                                  color: Colors
-                                                                      .black, // Color del texto por defecto (puedes cambiarlo aquí)
-                                                                ),
-                                                                children: <TextSpan>[
-                                                                  TextSpan(
-                                                                      text:
-                                                                          "Cantidad: ",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              black)), // Parte del texto en color negro (o el color que prefieras)
-
-                                                                  TextSpan(
-                                                                    text:
-                                                                        "No certificado", // La cantidad en color rojo
-                                                                    style: TextStyle(
-                                                                        color: Colors
-                                                                            .red,
-                                                                        fontSize:
-                                                                            12), // Estilo solo para la cantidad
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          const SizedBox(
-                                                            width: 5,
-                                                          ),
-                                                          //icono de check
-
-                                                          Visibility(
-                                                            visible: product
-                                                                    .isCertificate ==
-                                                                0,
-                                                            child: const Icon(
-                                                                Icons.warning,
-                                                                color: Colors
-                                                                    .amber,
-                                                                size: 15),
-                                                          ),
-                                                          //icono de check
-                                                          Visibility(
-                                                            visible: product
-                                                                    .isCertificate ==
-                                                                1,
-                                                            child: const Icon(
-                                                                Icons.check,
-                                                                color: green,
-                                                                size: 15),
-                                                          ),
-                                                          const Spacer(),
-                                                          RichText(
-                                                            text: TextSpan(
+                                              ),
+                                              const SizedBox(width: 10),
+                                              // if (package.isSticker == true)
+                                              //   GestureDetector(
+                                              //     onTap: () async {
+                                              //       showDialog(
+                                              //         context: context,
+                                              //         builder: (BuildContext
+                                              //             context) {
+                                              //           return PrintDialog(
+                                              //               model: PrintModel(
+                                              //             batchName: batchModel
+                                              //                     ?.name ??
+                                              //                 '',
+                                              //             batchId:
+                                              //                 batchModel?.id ??
+                                              //                     0,
+                                              //             pickingTypeId: batchModel
+                                              //                     ?.pickingTypeId ??
+                                              //                 '',
+                                              //             cantidadPedidos:
+                                              //                 batchModel
+                                              //                         ?.cantidadPedidos ??
+                                              //                     0,
+                                              //             //ddatos pedido
+                                              //             namePedido:
+                                              //                 packingModel
+                                              //                         ?.name ??
+                                              //                     '',
+                                              //             referencia: packingModel
+                                              //                     ?.referencia ??
+                                              //                 '',
+                                              //             contacto: packingModel
+                                              //                     ?.contacto ??
+                                              //                 '0',
+                                              //             contactoName: packingModel
+                                              //                     ?.contactoName ??
+                                              //                 '',
+                                              //             tipoOperacion:
+                                              //                 packingModel
+                                              //                         ?.tipoOperacion ??
+                                              //                     '',
+                                              //             cantidadProductos:
+                                              //                 packingModel
+                                              //                         ?.cantidadProductos ??
+                                              //                     0,
+                                              //             numeroPaquetes: context
+                                              //                 .read<
+                                              //                     WmsPackingBloc>()
+                                              //                 .packages
+                                              //                 .length,
+                                              //             //datos paquete
+                                              //             idPaquete: 0,
+                                              //             namePaquete:
+                                              //                 package.name,
+                                              //             cantProductoPack: package
+                                              //                 .cantidadProductos,
+                                              //             zonaEntregaTms: batchModel
+                                              //                     ?.zonaEntregaTms ??
+                                              //                 '',
+                                              //           ));
+                                              //         },
+                                              //       );
+                                              //     },
+                                              //     child: Icon(
+                                              //       Icons.print,
+                                              //       color: primaryColorApp,
+                                              //       size: 20,
+                                              //     ),
+                                              //   )
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      children: [
+                                        // Aquí generamos la lista de productos filtrados
+                                        SizedBox(
+                                          height: 200,
+                                          child: ListView.builder(
+                                            itemCount: filteredProducts
+                                                .length, // La cantidad de productos filtrados
+                                            itemBuilder: (context, index) {
+                                              final product =
+                                                  filteredProducts[index];
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  print(
+                                                      "info paquete: ${package.toMap()}");
+                                                  print("--------------------");
+                                                  print(
+                                                      "Producto seleccionado: ${product.toMap()}");
+                                                },
+                                                child: Card(
+                                                  color: white,
+                                                  elevation: 2,
+                                                  child: ListTile(
+                                                    title: Row(
+                                                      children: [
+                                                        Expanded(
+                                                          child: Text(
+                                                              product.productId ??
+                                                                  "",
                                                               style:
                                                                   const TextStyle(
-                                                                fontSize:
-                                                                    14, // Tamaño del texto
-                                                                color: Colors
-                                                                    .black, // Color del texto por defecto (puedes cambiarlo aquí)
-                                                              ),
-                                                              children: <TextSpan>[
-                                                                const TextSpan(
-                                                                    text:
-                                                                        "Unidades: ",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12,
-                                                                        color:
-                                                                            black)), // Parte del texto en color negro (o el color que prefieras)
-                                                                TextSpan(
-                                                                  text:
-                                                                      "${product.unidades}", // La cantidad en color rojo
-                                                                  style: TextStyle(
-                                                                      color:
-                                                                          primaryColorApp,
                                                                       fontSize:
-                                                                          12), // Estilo solo para la cantidad
+                                                                          12,
+                                                                      color:
+                                                                          black)),
+                                                        ),
+                                                        if (product.barcode !=
+                                                            null)
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              //validar si el producto  actual se encuentra  la lista de por hacer
+
+                                                              bool isInProgress = context
+                                                                  .read<
+                                                                      WmsPackingBloc>()
+                                                                  .listOfProductosProgress
+                                                                  .any((p) =>
+                                                                      p.productId ==
+                                                                      product
+                                                                          .productId);
+                                                              if (isInProgress) {
+                                                                Get.defaultDialog(
+                                                                  title:
+                                                                      '360 Software Informa',
+                                                                  titleStyle: TextStyle(
+                                                                      color: Colors
+                                                                          .red,
+                                                                      fontSize:
+                                                                          18),
+                                                                  middleText:
+                                                                      "Este producto se encuentra en estado por hacer, por favor seleccione otro para desempacar",
+                                                                  middleTextStyle:
+                                                                      TextStyle(
+                                                                          color:
+                                                                              black,
+                                                                          fontSize:
+                                                                              14),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  radius: 10,
+                                                                  actions: [
+                                                                    ElevatedButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Get.back();
+                                                                      },
+                                                                      style: ElevatedButton
+                                                                          .styleFrom(
+                                                                        backgroundColor:
+                                                                            primaryColorApp,
+                                                                        shape:
+                                                                            RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(10),
+                                                                        ),
+                                                                      ),
+                                                                      child: Text(
+                                                                          'Aceptar',
+                                                                          style:
+                                                                              TextStyle(color: white)),
+                                                                    ),
+                                                                  ],
+                                                                );
+                                                                return;
+                                                              }
+
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder: (_) =>
+                                                                    DialogUnPacking(
+                                                                  product:
+                                                                      product,
+                                                                  package:
+                                                                      package,
+                                                                  onConfirm:
+                                                                      () async {
+                                                                    final idOperario =
+                                                                        await PrefUtils
+                                                                            .getUserId();
+
+                                                                    context
+                                                                        .read<
+                                                                            WmsPackingBloc>()
+                                                                        .add(UnPackingEvent(
+                                                                            UnPackingRequest(
+                                                                              idBatch: package.batchId ?? 0,
+                                                                              idPaquete: package.id ?? 0,
+                                                                              listItem: [
+                                                                                ListItemUnpack(
+                                                                                  idMove: product.idMove ?? 0,
+                                                                                  productId: product.idProduct ?? 0,
+                                                                                  lote: product.loteId,
+                                                                                  locationId: product.idLocation ?? 0,
+                                                                                  cantidadSeparada: product.isCertificate == 0 ? product.quantity ?? 0 : product.quantitySeparate ?? 0,
+                                                                                  observacion: "Desempacado",
+                                                                                  idOperario: idOperario,
+                                                                                )
+                                                                              ],
+                                                                            ),
+                                                                            product.pedidoId ?? 0,
+                                                                            package.consecutivo ?? 0));
+                                                                  },
                                                                 ),
-                                                              ],
+                                                              );
+                                                            },
+                                                            child: const Icon(
+                                                              Icons.delete,
+                                                              color: Colors.red,
+                                                              size: 20,
                                                             ),
                                                           ),
-                                                        ],
-                                                      ),
-                                                      Visibility(
-                                                        visible: product
-                                                                .isCertificate ==
-                                                            0,
-                                                        child: Row(
+                                                      ],
+                                                    ), // Muestra el nombre del producto
+                                                    subtitle: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
                                                           children: [
-                                                            RichText(
-                                                              text: TextSpan(
-                                                                style:
-                                                                    const TextStyle(
-                                                                  fontSize:
-                                                                      14, // Tamaño del texto
-                                                                  color: Colors
-                                                                      .black, // Color del texto por defecto (puedes cambiarlo aquí)
-                                                                ),
-                                                                children: <TextSpan>[
-                                                                  const TextSpan(
-                                                                      text:
-                                                                          "Cantidad empacada: ",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              black)), // Parte del texto en color negro (o el color que prefieras)
-
-                                                                  TextSpan(
-                                                                    text: product
-                                                                        .quantity
-                                                                        .toStringAsFixed(
-                                                                            2), // La cantidad en color rojo
-                                                                    style: TextStyle(
-                                                                        color:
-                                                                            primaryColorApp,
-                                                                        fontSize:
-                                                                            12), // Estilo solo para la cantidad
+                                                            if (product
+                                                                    .isCertificate !=
+                                                                0)
+                                                              RichText(
+                                                                text: TextSpan(
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        14, // Tamaño del texto
+                                                                    color: Colors
+                                                                        .black, // Color del texto por defecto (puedes cambiarlo aquí)
                                                                   ),
-                                                                ],
+                                                                  children: <TextSpan>[
+                                                                    const TextSpan(
+                                                                        text:
+                                                                            "Cantidad empacada: ",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                12,
+                                                                            color:
+                                                                                black)), // Parte del texto en color negro (o el color que prefieras)
+                                                                    TextSpan(
+                                                                      text: product
+                                                                          .quantitySeparate
+                                                                          .toStringAsFixed(
+                                                                              2), // La cantidad en color rojo
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              primaryColorApp,
+                                                                          fontSize:
+                                                                              12), // Estilo solo para la cantidad
+                                                                    ),
+                                                                  ],
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                      Visibility(
-                                                        visible: product
-                                                                .manejaTemperatura ==
-                                                            1,
-                                                        child: Row(
-                                                          children: [
-                                                            Icon(
-                                                              Icons.thermostat,
-                                                              color:
-                                                                  primaryColorApp,
-                                                              size: 15,
-                                                            ),
+                                                            if (product
+                                                                    .isCertificate ==
+                                                                0)
+                                                              RichText(
+                                                                text:
+                                                                    const TextSpan(
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        14, // Tamaño del texto
+                                                                    color: Colors
+                                                                        .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                                  ),
+                                                                  children: <TextSpan>[
+                                                                    TextSpan(
+                                                                        text:
+                                                                            "Cantidad: ",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                12,
+                                                                            color:
+                                                                                black)), // Parte del texto en color negro (o el color que prefieras)
+
+                                                                    TextSpan(
+                                                                      text:
+                                                                          "No certificado", // La cantidad en color rojo
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .red,
+                                                                          fontSize:
+                                                                              12), // Estilo solo para la cantidad
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
                                                             const SizedBox(
                                                               width: 5,
                                                             ),
+                                                            //icono de check
+
+                                                            Visibility(
+                                                              visible: product
+                                                                      .isCertificate ==
+                                                                  0,
+                                                              child: const Icon(
+                                                                  Icons.warning,
+                                                                  color: Colors
+                                                                      .amber,
+                                                                  size: 15),
+                                                            ),
+                                                            //icono de check
+                                                            Visibility(
+                                                              visible: product
+                                                                      .isCertificate ==
+                                                                  1,
+                                                              child: const Icon(
+                                                                  Icons.check,
+                                                                  color: green,
+                                                                  size: 15),
+                                                            ),
+                                                            const Spacer(),
                                                             RichText(
                                                               text: TextSpan(
                                                                 style:
@@ -997,17 +903,15 @@ class Tab1Screen extends StatelessWidget {
                                                                 children: <TextSpan>[
                                                                   const TextSpan(
                                                                       text:
-                                                                          "Temperatura: ",
+                                                                          "Unidades: ",
                                                                       style: TextStyle(
                                                                           fontSize:
                                                                               12,
                                                                           color:
                                                                               black)), // Parte del texto en color negro (o el color que prefieras)
                                                                   TextSpan(
-                                                                    text: product.temperatura ==
-                                                                            null
-                                                                        ? "Sin temperatura"
-                                                                        : "${product.temperatura}", // La cantidad en color rojo
+                                                                    text:
+                                                                        "${product.unidades}", // La cantidad en color rojo
                                                                     style: TextStyle(
                                                                         color:
                                                                             primaryColorApp,
@@ -1019,78 +923,171 @@ class Tab1Screen extends StatelessWidget {
                                                             ),
                                                           ],
                                                         ),
-                                                      ),
-                                                      Visibility(
-                                                        visible: product
-                                                                .isCertificate ==
-                                                            1,
-                                                        child: Row(
-                                                          children: [
-                                                            RichText(
-                                                              text: TextSpan(
-                                                                style:
-                                                                    const TextStyle(
-                                                                  fontSize:
-                                                                      14, // Tamaño del texto
-                                                                  color: Colors
-                                                                      .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                        Visibility(
+                                                          visible: product
+                                                                  .isCertificate ==
+                                                              0,
+                                                          child: Row(
+                                                            children: [
+                                                              RichText(
+                                                                text: TextSpan(
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        14, // Tamaño del texto
+                                                                    color: Colors
+                                                                        .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                                  ),
+                                                                  children: <TextSpan>[
+                                                                    const TextSpan(
+                                                                        text:
+                                                                            "Cantidad empacada: ",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                12,
+                                                                            color:
+                                                                                black)), // Parte del texto en color negro (o el color que prefieras)
+
+                                                                    TextSpan(
+                                                                      text: product
+                                                                          .quantity
+                                                                          .toStringAsFixed(
+                                                                              2), // La cantidad en color rojo
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              primaryColorApp,
+                                                                          fontSize:
+                                                                              12), // Estilo solo para la cantidad
+                                                                    ),
+                                                                  ],
                                                                 ),
-                                                                children: <TextSpan>[
-                                                                  const TextSpan(
-                                                                      text:
-                                                                          "Novedad: ",
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              12,
-                                                                          color:
-                                                                              black)), // Parte del texto en color negro (o el color que prefieras)
-                                                                  if (product
-                                                                          .isProductSplit ==
-                                                                      1)
-                                                                    TextSpan(
-                                                                      text:
-                                                                          "Producto en diferentes paquetes", // La cantidad en color rojo
-                                                                      style: TextStyle(
-                                                                          color:
-                                                                              primaryColorApp,
-                                                                          fontSize:
-                                                                              12), // Estilo solo para la cantidad
-                                                                    ),
-                                                                  if (product
-                                                                          .isProductSplit ==
-                                                                      null)
-                                                                    TextSpan(
-                                                                      text: product.observation ==
-                                                                              null
-                                                                          ? "Sin novedad"
-                                                                          : "${product.observation}", // La cantidad en color rojo
-                                                                      style: TextStyle(
-                                                                          color:
-                                                                              primaryColorApp,
-                                                                          fontSize:
-                                                                              12), // Estilo solo para la cantidad
-                                                                    ),
-                                                                ],
                                                               ),
-                                                            ),
-                                                          ],
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
-                                                  ), // Muestra la cantidad
+                                                        Visibility(
+                                                          visible: product
+                                                                  .manejaTemperatura ==
+                                                              1,
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(
+                                                                Icons
+                                                                    .thermostat,
+                                                                color:
+                                                                    primaryColorApp,
+                                                                size: 15,
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 5,
+                                                              ),
+                                                              RichText(
+                                                                text: TextSpan(
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        14, // Tamaño del texto
+                                                                    color: Colors
+                                                                        .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                                  ),
+                                                                  children: <TextSpan>[
+                                                                    const TextSpan(
+                                                                        text:
+                                                                            "Temperatura: ",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                12,
+                                                                            color:
+                                                                                black)), // Parte del texto en color negro (o el color que prefieras)
+                                                                    TextSpan(
+                                                                      text: product.temperatura ==
+                                                                              null
+                                                                          ? "Sin temperatura"
+                                                                          : "${product.temperatura}", // La cantidad en color rojo
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              primaryColorApp,
+                                                                          fontSize:
+                                                                              12), // Estilo solo para la cantidad
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        Visibility(
+                                                          visible: product
+                                                                  .isCertificate ==
+                                                              1,
+                                                          child: Row(
+                                                            children: [
+                                                              RichText(
+                                                                text: TextSpan(
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    fontSize:
+                                                                        14, // Tamaño del texto
+                                                                    color: Colors
+                                                                        .black, // Color del texto por defecto (puedes cambiarlo aquí)
+                                                                  ),
+                                                                  children: <TextSpan>[
+                                                                    const TextSpan(
+                                                                        text:
+                                                                            "Novedad: ",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                                12,
+                                                                            color:
+                                                                                black)), // Parte del texto en color negro (o el color que prefieras)
+                                                                    if (product
+                                                                            .isProductSplit ==
+                                                                        1)
+                                                                      TextSpan(
+                                                                        text:
+                                                                            "Producto en diferentes paquetes", // La cantidad en color rojo
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                primaryColorApp,
+                                                                            fontSize:
+                                                                                12), // Estilo solo para la cantidad
+                                                                      ),
+                                                                    if (product
+                                                                            .isProductSplit ==
+                                                                        null)
+                                                                      TextSpan(
+                                                                        text: product.observation ==
+                                                                                null
+                                                                            ? "Sin novedad"
+                                                                            : "${product.observation}", // La cantidad en color rojo
+                                                                        style: TextStyle(
+                                                                            color:
+                                                                                primaryColorApp,
+                                                                            fontSize:
+                                                                                12), // Estilo solo para la cantidad
+                                                                      ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ), // Muestra la cantidad
+                                                  ),
                                                 ),
-                                              ),
-                                            );
-                                          },
+                                              );
+                                            },
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                  )
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    )
+                  ],
                 ],
               ),
             ),

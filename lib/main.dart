@@ -3,7 +3,6 @@
 import 'dart:io';
 import 'package:cron/cron.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:wms_app/routes/app_router.dart';
 import 'package:wms_app/src/api/api_request_service.dart';
 import 'package:wms_app/src/api/http_response_handler.dart';

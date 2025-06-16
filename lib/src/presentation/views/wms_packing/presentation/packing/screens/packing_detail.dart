@@ -74,15 +74,7 @@ class _PackingDetailScreenState extends State<PackingPedidoDetailScreen>
             ],
           );
         }
-        if (state is WmsPackingSuccessState) {
-          Get.snackbar(
-            '360 Software Informa',
-            state.msg,
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: Icon(Icons.error, color: Colors.green),
-          );
-        }
+       
       },
       builder: (context, state) {
         return WillPopScope(

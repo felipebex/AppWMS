@@ -77,7 +77,7 @@ class DialogPicking extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text('POR PICK',
+                child: Text('POR PEDIDO',
                     style: TextStyle(
                       color: white,
                       fontSize: 14,

@@ -10,8 +10,6 @@ class ProductDropdownPackWidget extends StatelessWidget {
   final PackingPedidoBloc batchBloc;
   final ProductoPedido currentProduct;
 
-  final bool isPDA;
-
   const ProductDropdownPackWidget({
     super.key,
     required this.selectedProduct,
@@ -19,7 +17,6 @@ class ProductDropdownPackWidget extends StatelessWidget {
     required this.currentProductId,
     required this.batchBloc,
     required this.currentProduct,
-    required this.isPDA,
   });
 
   @override
@@ -80,20 +77,20 @@ class ProductDropdownPackWidget extends StatelessWidget {
                           if (newValue == currentProduct.productId.toString()) {
                             batchBloc.add(ValidateFieldsPackingEvent(
                                 field: "product", isOk: true));
-      
+
                             batchBloc.add(ChangeQuantitySeparate(
                                 0,
                                 currentProduct.idProduct ?? 0,
                                 currentProduct.pedidoId ?? 0,
                                 currentProduct.idMove ?? 0));
-      
+
                             batchBloc.add(ChangeProductIsOkEvent(
                                 true,
                                 currentProduct.idProduct ?? 0,
                                 currentProduct.pedidoId ?? 0,
                                 0,
                                 currentProduct.idMove ?? 0));
-      
+
                             batchBloc.add(ChangeIsOkQuantity(
                                 true,
                                 currentProduct.idProduct ?? 0,
@@ -102,7 +99,7 @@ class ProductDropdownPackWidget extends StatelessWidget {
                           } else {
                             batchBloc.add(ValidateFieldsPackingEvent(
                                 field: "product", isOk: false));
-      
+
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               duration: const Duration(milliseconds: 1000),
                               content: const Text('Producto erroneo'),
@@ -112,49 +109,8 @@ class ProductDropdownPackWidget extends StatelessWidget {
                         }
                       : null,
             ),
-      
+
             // Información del producto
-      
-            if (isPDA)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Visibility(
-                  visible: currentProductId.isEmpty,
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: Text(
-                      "Sin código de barras",
-                      textAlign: TextAlign.start,
-                      style: TextStyle(fontSize: 14, color: Colors.red),
-                    ),
-                  ),
-                ),
-              ),
-      
-            // Lote/Numero de serie
-            if (isPDA)
-              if (currentProductId.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Lote/Numero de serie',
-                          style: TextStyle(fontSize: 14, color: primaryColorApp),
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          currentProduct.lotId ?? '',
-                          style: const TextStyle(fontSize: 14, color: black),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
           ],
         ),
       ),
