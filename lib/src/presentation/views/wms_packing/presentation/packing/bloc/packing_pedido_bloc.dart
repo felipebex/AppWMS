@@ -446,8 +446,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
 
             await db.packagesRepository
                 .deletePackageById(event.request.idPaquete);
-                //vamos actualizar los consecutivos
-
+            //vamos actualizar los consecutivos
           }
         }
 
@@ -463,44 +462,42 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
     }
   }
 
-
-
   Future<void> updateConsecutivePackages({
-  required String consecutivoReferencia,
-  required List<Paquete> packages,
-}) async {
-  final refNum = _extraerNumeroConsecutivo(consecutivoReferencia);
-  if (refNum == null) return;
+    required String consecutivoReferencia,
+    required List<Paquete> packages,
+  }) async {
+    final refNum = _extraerNumeroConsecutivo(consecutivoReferencia);
+    if (refNum == null) return;
 
-  for (final paquete in packages) {
-    final paqueteNum = _extraerNumeroConsecutivo(paquete.consecutivo?.toString());
+    for (final paquete in packages) {
+      final paqueteNum =
+          _extraerNumeroConsecutivo(paquete.consecutivo?.toString());
 
-    if (paqueteNum != null && paqueteNum > refNum) {
-      final nuevoConsecutivo = 'Caja${paqueteNum - 1}';
-      final paqueteActualizado = Paquete(
-        id: paquete.id,
-        name: paquete.name,
-        batchId: paquete.batchId,
-        pedidoId: paquete.pedidoId,
-        cantidadProductos: paquete.cantidadProductos,
-        listaProductosInPacking: paquete.listaProductosInPacking,
-        isSticker: paquete.isSticker,
-        isCertificate: paquete.isCertificate,
-        type: paquete.type,
-        consecutivo: nuevoConsecutivo,
-      );
+      if (paqueteNum != null && paqueteNum > refNum) {
+        final nuevoConsecutivo = 'Caja${paqueteNum - 1}';
+        final paqueteActualizado = Paquete(
+          id: paquete.id,
+          name: paquete.name,
+          batchId: paquete.batchId,
+          pedidoId: paquete.pedidoId,
+          cantidadProductos: paquete.cantidadProductos,
+          listaProductosInPacking: paquete.listaProductosInPacking,
+          isSticker: paquete.isSticker,
+          isCertificate: paquete.isCertificate,
+          type: paquete.type,
+          consecutivo: nuevoConsecutivo,
+        );
 
-      await db.packagesRepository.updatePackageById(paqueteActualizado);
+        await db.packagesRepository.updatePackageById(paqueteActualizado);
+      }
     }
   }
-}
-
 
   int? _extraerNumeroConsecutivo(String? consecutivo) {
-  if (consecutivo == null) return null;
-  final match = RegExp(r'(\d+)$').firstMatch(consecutivo);
-  return match != null ? int.parse(match.group(1)!) : null;
-}
+    if (consecutivo == null) return null;
+    final match = RegExp(r'(\d+)$').firstMatch(consecutivo);
+    return match != null ? int.parse(match.group(1)!) : null;
+  }
 
   //*metodo para seleccionar un producto sin certificar
   void _onSelectProductPackingEvent(
@@ -560,7 +557,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
               ? producto.quantitySeparate ?? 0
               : producto.quantity ?? 0,
           observacion: producto.observation ?? 'Sin novedad',
-          timeLine: producto.timeSeparate ?? 1,
+          timeLine: producto.timeSeparate == 0.0 ? 2 : producto.timeSeparate,
           idOperario: idOperario,
           fechaTransaccion: fechaFormateada,
         );
@@ -599,7 +596,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       await db.packagesRepository.insertPackage(paquete, 'packing-pack');
 
       await db.pedidoPackRepository.updatePedidoPackField(
-        event.productos[0].pedidoId ?? 0,
+        currentPedidoPack.id ?? 0,
         "is_selected",
         1,
       );
@@ -637,7 +634,6 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
             "is_separate": 1,
             "id_package": idPaquete,
             "is_package": 1,
-            "package_consecutivo": paquete.consecutivo,
           }
         : {
             "package_name": nombrePaquete,
@@ -645,7 +641,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
             "id_package": idPaquete,
             "is_package": 1,
             "is_certificate": 0,
-            "package_consecutivo": paquete.consecutivo,
+            "time_separate": 2
           };
 
     await db.productosPedidosRepository.updateProductosBatch(

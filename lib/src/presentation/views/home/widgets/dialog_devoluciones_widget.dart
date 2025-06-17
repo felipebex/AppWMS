@@ -104,6 +104,7 @@ class DialogDevoluciones extends StatelessWidget {
             ElevatedButton(
                 onPressed: () {
                   context.read<DevolucionesBloc>().add(GetProductsList());
+                  context.read<DevolucionesBloc>().add(LoadLocationsEvent());
                   //cerramos el dialogo
                   Navigator.pop(context);
                   Navigator.pushReplacementNamed(

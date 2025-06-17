@@ -40,6 +40,11 @@ class GetProductFailure extends DevolucionesState {
   GetProductFailure(this.error);
 }
 
+class GetProductExists extends DevolucionesState {
+  final Product product;
+  GetProductExists(this.product);
+}
+
 class AddProductSuccess extends DevolucionesState {
   final ProductDevolucion product;
   AddProductSuccess(this.product);
@@ -50,8 +55,7 @@ class AddProductFailure extends DevolucionesState {
   AddProductFailure(this.error);
 }
 
-class RemoveProductSuccess extends DevolucionesState {
-}
+class RemoveProductSuccess extends DevolucionesState {}
 
 class RemoveProductFailure extends DevolucionesState {
   final String error;
@@ -65,11 +69,87 @@ class ShowQuantityState extends DevolucionesState {
   ShowQuantityState(this.showQuantity);
 }
 
-
 class LoadCurrentProductState extends DevolucionesState {
   final Product product;
   LoadCurrentProductState(this.product);
 }
 
-class UpdateProductInfoState extends DevolucionesState {
+class UpdateProductInfoState extends DevolucionesState {}
+
+class LoadTercerosFailure extends DevolucionesState {
+  final String error;
+  LoadTercerosFailure(this.error);
+}
+
+class LoadTercerosSuccess extends DevolucionesState {
+  final List<Terceros> terceros;
+  LoadTercerosSuccess(this.terceros);
+}
+
+class ShowKeyboardState extends DevolucionesState {
+  final bool showKeyboard;
+  ShowKeyboardState({required this.showKeyboard});
+}
+
+class SelectTerceroState extends DevolucionesState {
+  final Terceros tercero;
+  SelectTerceroState(this.tercero);
+}
+
+class SearchLoading extends DevolucionesState {}
+
+class SearchFailure extends DevolucionesState {
+  final String error;
+  SearchFailure(this.error);
+}
+
+class SearchTerceroSuccess extends DevolucionesState {
+  final List<Terceros> terceros;
+  SearchTerceroSuccess(this.terceros);
+}
+
+class FilterTercerosLoading extends DevolucionesState {}
+
+class FilterTercerosSuccess extends DevolucionesState {
+  final List<Terceros> tercerosFilters;
+  FilterTercerosSuccess(this.tercerosFilters);
+}
+
+class FilterTercerosFailure extends DevolucionesState {
+  final String error;
+  FilterTercerosFailure(this.error);
+}
+
+class LoadingLocationsState extends DevolucionesState {}
+
+class LoadLocationsSuccessState extends DevolucionesState {
+  final List<ResultUbicaciones> locations;
+  LoadLocationsSuccessState(this.locations);
+}
+
+class LoadLocationsFailureState extends DevolucionesState {
+  final String error;
+  LoadLocationsFailureState(this.error);
+}
+
+class SearchLocationSuccess extends DevolucionesState {
+  final List<ResultUbicaciones> locations;
+  SearchLocationSuccess(this.locations);
+}
+
+class FilterLocationsLoading extends DevolucionesState {}
+
+class FilterLocationsSuccess extends DevolucionesState {
+  final List<ResultUbicaciones> locationsFilters;
+  FilterLocationsSuccess(this.locationsFilters);
+}
+
+class FilterLocationsFailure extends DevolucionesState {
+  final String error;
+  FilterLocationsFailure(this.error);
+}
+
+class SelectLocationState extends DevolucionesState {
+  final ResultUbicaciones location;
+  SelectLocationState(this.location);
 }

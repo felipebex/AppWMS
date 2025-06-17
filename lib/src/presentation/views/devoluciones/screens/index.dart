@@ -84,6 +84,14 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
     return BlocConsumer<DevolucionesBloc, DevolucionesState>(
       listener: (context, state) {
         print('Estado actual ❤️‍🔥: $state');
+
+        if (state is LoadTercerosSuccess) {
+          Navigator.pushReplacementNamed(
+            context,
+            'terceros',
+          );
+        }
+
         if (state is GetProductLoading) {
           showDialog(
             context: context, // Usa el context del listener
@@ -124,7 +132,52 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
               );
             },
           );
-        } else if (state is RemoveProductSuccess) {}
+        } else if (state is GetProductExists) {
+          //mostramos un dialogo diciendo que el producto ya existe
+          Navigator.pop(context); // Cierra el diálogo de carga
+
+          //verficamos si le producto tiene lote
+          if (state.product.tracking == 'lot') {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: Center(
+                      child: Text('Producto ya existe',
+                          style: TextStyle(
+                            color: primaryColorApp,
+                            fontSize: 18,
+                          )),
+                    ),
+                    content: Text(
+                        'El producto ${state.product.name} ya está en la lista de devoluciones.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Cierra el diálogo
+                        },
+                        child: const Text('Aceptar'),
+                      ),
+                    ],
+                  );
+                });
+          } else {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return DialogEditProduct(
+                  functionValidate: (value) {
+                    validateQuantity(value);
+                  },
+                  focusNode: focusNodeQuantity,
+                  focusNodeQuantityManual: focusNodeQuantityManual,
+                  controller: _controllerQuantity,
+                  isEdit: false,
+                );
+              },
+            );
+          }
+        }
       },
       builder: (context, state) {
         final devolucionesBloc = context.read<DevolucionesBloc>();
@@ -225,56 +278,110 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
                     Padding(
                       padding: const EdgeInsets.only(
                           left: 8.0, right: 8.0, top: 2, bottom: 5),
-                      child: Row(
-                        children: [
-                          Text('Ubicación destino: ',
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, 'ubicaciones-devoluciones');
+                        },
+                        child: Row(
+                          children: [
+                            Text('Ubicación destino: ',
+                                style: TextStyle(
+                                    fontSize: 12, color: primaryColorApp)),
+                            Text(
+                              devolucionesBloc.currentLocation.name ??
+                                  'No asignada',
                               style: TextStyle(
-                                  fontSize: 12, color: primaryColorApp)),
-                          Text(
-                            'No asignada',
-                            style: const TextStyle(fontSize: 12, color: red),
-                          ),
-                          const Spacer(),
-                          Icon(
-                            Icons.location_on,
-                            color: primaryColorApp,
-                            size: 20,
-                          ),
-                        ],
+                                  fontSize: 12,
+                                  color:
+                                      devolucionesBloc.currentLocation.name ==
+                                              null
+                                          ? red
+                                          : black),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.location_on,
+                              color: primaryColorApp,
+                              size: 20,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, top: 2, bottom: 5),
-                      child: Row(
-                        children: [
-                          Text('Proveedor: ',
-                              style: TextStyle(
-                                  fontSize: 12, color: primaryColorApp)),
-                          Text(
-                            'No asignado',
-                            style: const TextStyle(fontSize: 12, color: red),
-                          ),
-                          const Spacer(),
-                          Icon(
-                            Icons.person,
-                            color: primaryColorApp,
-                            size: 20,
-                          ),
-                        ],
+                        left: 8.0,
+                        right: 8.0,
+                        top: 2,
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          if (devolucionesBloc.terceros.isNotEmpty) {
+                            Navigator.pushReplacementNamed(context, 'terceros');
+                          } else {
+                            devolucionesBloc.add(LoadTercerosEvent());
+                          }
+                        },
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Text('Proveedor: ',
+                                    style: TextStyle(
+                                        fontSize: 12, color: primaryColorApp)),
+                                Text(
+                                  devolucionesBloc.currentTercero.name ??
+                                      'No asignado',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: devolucionesBloc
+                                                  .currentTercero.name ==
+                                              null
+                                          ? red
+                                          : black),
+                                ),
+                                const Spacer(),
+                                Icon(
+                                  Icons.person,
+                                  color: primaryColorApp,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text('Documento: ',
+                                    style: TextStyle(
+                                        fontSize: 12, color: primaryColorApp)),
+                                Text(
+                                  devolucionesBloc.currentTercero.document ??
+                                      'No asignado',
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: devolucionesBloc
+                                                  .currentTercero.document ==
+                                              null
+                                          ? red
+                                          : black),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, top: 2, bottom: 5),
+                          left: 8.0, right: 8.0, bottom: 5),
                       child: Row(
                         children: [
                           Text('Productos: ',
                               style: TextStyle(
                                   fontSize: 12, color: primaryColorApp)),
                           Text(
-                            '0.0',
-                            style: const TextStyle(fontSize: 12, color: red),
+                            '${productosDevolucion.length}',
+                            style: const TextStyle(fontSize: 12, color: black),
                           ),
                         ],
                       ),
@@ -329,7 +436,6 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
                           otherBarcodes: product.otherBarcodes,
                           productPacking: product.productPacking,
                           category: product.category,
-                          
                         )));
                     showDialog(
                       context: context,
@@ -352,7 +458,41 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
           ),
           const SizedBox(height: 5), // Espacio inferior
           ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                //verficiamos que tengmos ubicacion y tercero
+                if (devolucionesBloc.currentLocation.name == null) {
+                  Get.snackbar(
+                    '360 Software Informa',
+                    'Debe seleccionar una ubicación destino',
+                    backgroundColor: white,
+                    colorText: primaryColorApp,
+                    icon: const Icon(Icons.error, color: Colors.red),
+                  );
+                  return;
+                }
+                if (devolucionesBloc.currentTercero.name == null) {
+                  Get.snackbar(
+                    '360 Software Informa',
+                    'Debe seleccionar un proveedor',
+                    backgroundColor: white,
+                    colorText: primaryColorApp,
+                    icon: const Icon(Icons.error, color: Colors.red),
+                  );
+                  return;
+                }
+
+                //verificamos que tengamos productos
+                if (devolucionesBloc.productosDevolucion.isEmpty) {
+                  Get.snackbar(
+                    '360 Software Informa',
+                    'Debe agregar al menos un producto a la devolución',
+                    backgroundColor: white,
+                    colorText: primaryColorApp,
+                    icon: const Icon(Icons.error, color: Colors.red),
+                  );
+                  return;
+                }
+              },
               style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColorApp,
                   minimumSize: (Size(size.width * 0.9, 30)),

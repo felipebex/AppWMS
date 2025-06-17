@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/index.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/screens/locations_dest_screen.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/screens/terceros_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/list_locations_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/list_products_screen.dart';
@@ -125,6 +127,8 @@ class AppRoutes {
 
   //todo devoluciones
   static const String devolucionesCreate = 'devoluciones-create';
+  static const String terceros = 'terceros';
+  static const String ubicacionesDevoluciones = 'ubicaciones-devoluciones';
   //todo info rapida
   static const String infoRapida = 'info-rapida';
   static const String productInfo = 'product-info';
@@ -393,7 +397,9 @@ class AppRoutes {
       },
 
       //todo devoluciones
-      devolucionesCreate: (_) => DevolucionesScreen()
+      devolucionesCreate: (_) => DevolucionesScreen(),
+      terceros: (_) => const Terceroscreen(),
+      ubicacionesDevoluciones: (_) => LocationDestDevolucionesScreen(),
     };
   }
 }

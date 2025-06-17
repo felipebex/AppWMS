@@ -10,7 +10,6 @@ class UpdateScannedValueEvent extends DevolucionesEvent {
 }
 
 class ClearScannedValueEvent extends DevolucionesEvent {
-
   final String scan;
   ClearScannedValueEvent(this.scan);
 }
@@ -25,7 +24,6 @@ class GetProductsList extends DevolucionesEvent {
   GetProductsList();
 }
 
-
 class Addproduct extends DevolucionesEvent {
   final ProductDevolucion product;
   Addproduct(this.product);
@@ -38,7 +36,7 @@ class RemoveProduct extends DevolucionesEvent {
 
 class SetQuantityEvent extends DevolucionesEvent {
   final dynamic quantity;
-  SetQuantityEvent( this.quantity);
+  SetQuantityEvent(this.quantity);
 }
 
 class SetLoteEvent extends DevolucionesEvent {
@@ -47,17 +45,57 @@ class SetLoteEvent extends DevolucionesEvent {
   SetLoteEvent(this.product, this.loteName);
 }
 
-
 class ShowQuantityEvent extends DevolucionesEvent {
   final bool showQuantity;
   ShowQuantityEvent(this.showQuantity);
 }
-
 
 class LoadCurrentProductEvent extends DevolucionesEvent {
   final Product product;
   LoadCurrentProductEvent(this.product);
 }
 
-class UpdateProductInfoEvent extends DevolucionesEvent {
+class UpdateProductInfoEvent extends DevolucionesEvent {}
+
+class LoadTercerosEvent extends DevolucionesEvent {}
+
+class ShowKeyboardEvent extends DevolucionesEvent {
+  final bool showKeyboard;
+  ShowKeyboardEvent(this.showKeyboard);
+}
+
+class SelectTerceroEvent extends DevolucionesEvent {
+  final Terceros tercero;
+  SelectTerceroEvent(this.tercero);
+}
+
+class SelectLocationEvent extends DevolucionesEvent {
+  final ResultUbicaciones location;
+  SelectLocationEvent(this.location);
+}
+
+class SearchTerceroEvent extends DevolucionesEvent {
+  final String query;
+  SearchTerceroEvent(this.query);
+}
+
+// class FilterTercerosEvent extends DevolucionesEvent {
+//   final String almacen;
+//   FilterTercerosEvent(this.almacen);
+// }
+
+class FilterUbicacionesEvent extends DevolucionesEvent {
+  final String almacen;
+  FilterUbicacionesEvent(this.almacen);
+}
+
+
+class LoadLocationsEvent extends DevolucionesEvent {}
+
+class SearchLocationEvent extends DevolucionesEvent {
+  final String query;
+
+  SearchLocationEvent(
+    this.query,
+  );
 }
