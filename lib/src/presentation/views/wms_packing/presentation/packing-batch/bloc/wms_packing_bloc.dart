@@ -928,6 +928,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         cantidadProductos: event.productos.length,
         listaProductosInPacking: event.productos,
         isSticker: event.isSticker,
+        consecutivo: responsePacking.result?.result?[0].consecutivo ?? '',
       );
 
       packages.add(paquete);

@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks, unnecessary_null_comparison, prefer_conditional_assignment
 
+import 'package:wms_app/src/presentation/providers/db/devoluciones/tbl_product/product_devolucion_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/devoluciones/tbl_product/product_devolucion_table.dart';
 import 'package:wms_app/src/presentation/providers/db/inventario/tbl_barcode/barcodes_inventario_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/inventario/tbl_barcode/barcodes_inventario_table.dart';
 import 'package:wms_app/src/presentation/providers/db/inventario/tbl_product/product_inventario_repository.dart';
@@ -129,6 +131,8 @@ class DataBaseSqlite {
     await db.execute(ProductRecepcionBatchTable.createTable());
     //tabla de pedidos por packing
     await db.execute(PedidoPackTable.createTable());
+    //tabla de prductos de una devolucion
+    await db.execute(ProductDevolucionTable.createTable());
 
 
 
@@ -246,6 +250,9 @@ class DataBaseSqlite {
 //metodo para onteer una instancia del repositorio de packig por pedido
 PedidoPackRepository get pedidoPackRepository =>
       PedidoPackRepository(_instance);
+
+ProductDevolucionRepository  get devolucionRepository =>
+      ProductDevolucionRepository(_instance);
 
 
 

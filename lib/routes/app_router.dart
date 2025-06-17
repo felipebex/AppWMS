@@ -1,6 +1,7 @@
 // app_routes.dart
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/screens/index.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/list_locations_screen.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/screens/list_products_screen.dart';
@@ -122,6 +123,8 @@ class AppRoutes {
   //todo new lote
   static const String newLote = 'new-lote';
 
+  //todo devoluciones
+  static const String devolucionesCreate = 'devoluciones-create';
   //todo info rapida
   static const String infoRapida = 'info-rapida';
   static const String productInfo = 'product-info';
@@ -202,7 +205,7 @@ class AppRoutes {
           initialTabIndex: initialTabIndex,
         );
       },
-      scanPack :(_) => ScanPackScreen(),
+      scanPack: (_) => ScanPackScreen(),
 
       //todo auth
       home: (_) => const HomePage(),
@@ -388,6 +391,9 @@ class AppRoutes {
           initialTabIndex: initialTabIndexArg ?? 0,
         );
       },
+
+      //todo devoluciones
+      devolucionesCreate: (_) => DevolucionesScreen()
     };
   }
 }

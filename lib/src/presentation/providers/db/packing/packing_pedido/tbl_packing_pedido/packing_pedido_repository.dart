@@ -16,10 +16,8 @@ class PedidoPackRepository {
 
   Future<void> insertPedidosPack(List<PedidoPackingResult> pedidosList) async {
     if (pedidosList.isEmpty) {
-  
       return;
     }
-
     try {
       final Database db = await _databaseProvider.getDatabaseInstance();
 
@@ -34,7 +32,7 @@ class PedidoPackRepository {
             .toSet();
 
         if (pedidoIdsToProcess.isEmpty) {
-          // Si todos los pedidos en la lista no tienen ID, significa que todos serán INSERTs.
+           // Si todos los pedidos en la lista no tienen ID, significa que todos serán INSERTs.
           // En este caso, podemos usar el `conflictAlgorithm: ConflictAlgorithm.abort` si no quieres autoincrement.
           // O `ConflictAlgorithm.ignore` si ya existe y no quieres actualizar.
           for (final pedido in pedidosList) {

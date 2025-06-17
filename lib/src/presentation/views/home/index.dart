@@ -136,20 +136,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               });
             },
             child: Scaffold(
-              // floatingActionButton: FloatingActionButton(
-              //   backgroundColor: primaryColorApp,
-              //   onPressed: () {
-              //     //navgeamos a la vista de ocr
-              //     Navigator.pushNamed(context, 'ocr');
-              //   },
-              //   child: const Icon(Icons.settings),
-              // ),
               backgroundColor: white,
               body: Container(
                 color: white,
                 width: size.width,
                 height: size.height,
-                // color: primaryColorApp, // Color de fondo blanco
                 child: Stack(
                   children: [
                     Positioned(
@@ -160,7 +151,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                         clipper: HalfCircleClipper(),
                         child: Container(
                           height: size.height * 0.3, // Altura del medio círculo
-                          // color: Colors.grey[350], // Color azul
                           color: primaryColorApp, // Color azul
                         ),
                       ),

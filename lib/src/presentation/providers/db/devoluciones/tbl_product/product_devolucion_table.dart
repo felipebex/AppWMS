@@ -1,6 +1,7 @@
-class ProductInventarioTable {
-  static const String tableName = 'tblproductos_inventario';
+class ProductDevolucionTable {
+  static const String tableName = 'tblproductos_devolucion';
 
+  // Columnas de la tabla
   // Columnas de la tabla
   static const String columnId = 'id';
   static const String columnProductId = 'product_id';
@@ -11,26 +12,18 @@ class ProductInventarioTable {
   static const String columnLotName = 'lot_name';
   static const String columnExpirationDate = 'expiration_time';
   static const String columnProductCode = 'code';
-  //weight
   static const String columnWeight = 'weight';
-  // weight_uom_name
   static const String columnWeightUomName = 'weight_uom_name';
-  //volume
   static const String columnVolume = 'volume';
-  //volume_uom_name
   static const String columnVolumeUomName = 'volume_uom_name';
-  //uom
   static const String columnUom = 'uom';
-  // int? locationId;
   static const String columnLocationId = 'location_id';
-  // String? locationName;
   static const String columnLocationName = 'location_name';
-  // dynamic quantity;
   static const String columnQuantity = 'quantity';
 
   static String createTable() {
     return '''
-      CREATE TABLE $tableName (
+       CREATE TABLE $tableName (
         $columnId INTEGER PRIMARY KEY,
         $columnProductCode TEXT,
         $columnProductId INTEGER,
@@ -49,7 +42,6 @@ class ProductInventarioTable {
         $columnQuantity REAL,
         $columnVolumeUomName TEXT
         )
-
         ''';
   }
 }

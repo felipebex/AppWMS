@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/screens/bloc/devoluciones_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -96,6 +97,28 @@ class DialogDevoluciones extends StatelessWidget {
                   ),
                 ),
                 child: Text('INDIVIDUAL',
+                    style: TextStyle(
+                      color: white,
+                      fontSize: 14,
+                    ))),
+            ElevatedButton(
+                onPressed: () {
+                  context.read<DevolucionesBloc>().add(GetProductsList());
+                  //cerramos el dialogo
+                  Navigator.pop(context);
+                  Navigator.pushReplacementNamed(
+                    context,
+                    'devoluciones-create',
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(200, 40),
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('CREAR NUEVA',
                     style: TextStyle(
                       color: white,
                       fontSize: 14,

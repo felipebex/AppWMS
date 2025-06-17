@@ -66,6 +66,7 @@ class ResultElement {
     final bool? isSticker;
     final bool? isCertificate;
     final dynamic? peso;
+    final dynamic consecutivo;
     final List<ListItem>? listItem;
 
     ResultElement({
@@ -76,6 +77,7 @@ class ResultElement {
         this.isSticker,
         this.isCertificate,
         this.peso,
+        this.consecutivo,
         this.listItem,
     });
 
@@ -91,6 +93,7 @@ class ResultElement {
         isSticker: json["is_sticker"],
         isCertificate: json["is_certificate"],
         peso: json["peso"],
+        consecutivo: json["consecutivo"],
         listItem: json["list_item"] == null ? [] : List<ListItem>.from(json["list_item"]!.map((x) => ListItem.fromMap(x))),
     );
 
@@ -102,6 +105,7 @@ class ResultElement {
         "is_sticker": isSticker,
         "is_certificate": isCertificate,
         "peso": peso,
+        "consecutivo": consecutivo,
         "list_item": listItem == null ? [] : List<dynamic>.from(listItem!.map((x) => x.toMap())),
     };
 }
