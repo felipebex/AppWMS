@@ -6,6 +6,8 @@ import 'package:wms_app/src/presentation/views/info%20rapida/data/info_rapida_re
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/update_product_request.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
+import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'info_rapida_event.dart';
 part 'info_rapida_state.dart';
@@ -38,6 +40,9 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   bool isNumericKeyboardType = false;
   TextEditingController? controllerActivo;
 
+  //*configuracion del usuario //permisos
+  Configurations configurations = Configurations();
+
   InfoRapidaBloc() : super(InfoRapidaInitial()) {
     on<InfoRapidaEvent>((event, emit) {});
 
@@ -66,6 +71,62 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
 
     //evento para actualizar del producto
     on<UpdateProductEvent>(_onUpdateProductEvent);
+
+    //*obtener las configuraciones y permisos del usuario desde la bd
+    on<LoadConfigurationsUserInfo>(_onLoadConfigurationsUserEvent);
+
+    //evento para editar una ubicacion
+    on<EditLocationEvent>(_onEditLocationEvent);
+  }
+
+  //*metodo para editar una ubicacion
+  void _onEditLocationEvent(
+      EditLocationEvent event, Emitter<InfoRapidaState> emit) async {
+    try {
+      emit(EditLocationLoading());
+      final response = await _infoRapidaRepository.updateLocation(
+          event.locationId, event.name, event.barcode, true);
+
+      if (response.result?.code == 200) {
+        await db.ubicacionesRepository
+            .updateUbicacion(event.locationId, event.name, event.barcode);
+        infoRapidaResult = response.result ?? InfoRapidaResult();
+        emit(EditLocationSuccess());
+        add(
+          IsEditEvent(false),
+        );
+      } else {
+        add(
+          IsEditEvent(true),
+        );
+        emit(UpdateProductFailure(
+          '${response.result?.msg}',
+        ));
+      }
+    } catch (e, s) {
+      print('Error en el EditLocationEvent: $e, $s');
+      emit(EditLocationFailure(e.toString()));
+    }
+  }
+
+  //*metodo para cargar la configuracion del usuario
+  void _onLoadConfigurationsUserEvent(
+      LoadConfigurationsUserInfo event, Emitter<InfoRapidaState> emit) async {
+    try {
+      int userId = await PrefUtils.getUserId();
+      final response =
+          await db.configurationsRepository.getConfiguration(userId);
+
+      if (response != null) {
+        configurations = response;
+        emit(ConfigurationLoaded(response));
+      } else {
+        emit(ConfigurationError('Error al cargar configuraciones'));
+      }
+    } catch (e, s) {
+      emit(ConfigurationError(e.toString()));
+      print('Error en LoadConfigurationsUserPack.dart: $e =>$s');
+    }
   }
 
   void _onUpdateProductEvent(

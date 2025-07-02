@@ -37,7 +37,6 @@ class SearchLocationSuccess extends InfoRapidaState {
   SearchLocationSuccess(this.locations);
 }
 
-
 class ShowKeyboardState extends InfoRapidaState {
   final bool showKeyboard;
   ShowKeyboardState({required this.showKeyboard});
@@ -47,9 +46,6 @@ class IsEditState extends InfoRapidaState {
   final bool isEdit;
   IsEditState(this.isEdit);
 }
-
-
-
 
 class LoadLocationsLoading extends InfoRapidaState {}
 
@@ -63,13 +59,10 @@ class LoadLocationsFailure extends InfoRapidaState {
   LoadLocationsFailure(this.error);
 }
 
-
 class SearchProductSuccess extends InfoRapidaState {
   final List<Product> products;
   SearchProductSuccess(this.products);
 }
-
-
 
 class GetProductsLoading extends InfoRapidaState {}
 
@@ -78,13 +71,10 @@ class GetProductsSuccess extends InfoRapidaState {
   GetProductsSuccess(this.products);
 }
 
-
 class GetProductsFailure extends InfoRapidaState {
   final String error;
   GetProductsFailure(this.error);
 }
-
-
 
 class FilterUbicacionesLoading extends InfoRapidaState {}
 
@@ -98,12 +88,35 @@ class FilterUbicacionesSuccess extends InfoRapidaState {
   FilterUbicacionesSuccess(this.locations);
 }
 
-class UpdateProducrtLoading   extends InfoRapidaState {}
+class UpdateProducrtLoading extends InfoRapidaState {}
 
 class UpdateProductFailure extends InfoRapidaState {
   final String error;
   UpdateProductFailure(this.error);
 }
 
-class UpdateProductSuccess extends InfoRapidaState {
+class UpdateProductSuccess extends InfoRapidaState {}
+
+class ConfigurationLoaded extends InfoRapidaState {
+  final Configurations configurations;
+
+  ConfigurationLoaded(this.configurations);
+}
+
+class ConfigurationError extends InfoRapidaState {
+  final String error;
+
+  ConfigurationError(this.error);
+}
+
+
+class EditLocationLoading extends InfoRapidaState {}
+
+class EditLocationSuccess extends InfoRapidaState {
+}
+
+class EditLocationFailure extends InfoRapidaState {
+  final String error;
+
+  EditLocationFailure(this.error);
 }

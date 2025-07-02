@@ -96,8 +96,10 @@ class DataConfig {
   bool? hideValidateTransfer;
   bool? hideValidateReception;
 
-  //scan_destination_location_reception
+  bool? updateItemInventory;
+
   bool? scanDestinationLocationReception;
+  bool? updateLocationInventory;
 
   DataConfig({
     this.name,
@@ -133,6 +135,8 @@ class DataConfig {
     this.scanDestinationLocationReception,
     this.hideValidateTransfer,
     this.hideValidateReception,
+    this.updateItemInventory,
+    this.updateLocationInventory,
   });
 
   factory DataConfig.fromMap(Map<String, dynamic> json) => DataConfig(
@@ -175,6 +179,8 @@ class DataConfig {
             json["scan_destination_location_reception"],
         hideValidateTransfer: json["hide_validate_transfer"],
         hideValidateReception: json["hide_validate_reception"],
+        updateItemInventory: json["update_item_inventory"],
+        updateLocationInventory: json["update_location_inventory"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -214,6 +220,8 @@ class DataConfig {
             scanDestinationLocationReception,
         "hide_validate_transfer": hideValidateTransfer,
         "hide_validate_reception": hideValidateReception,
+        "update_item_inventory": updateItemInventory,
+        "update_location_inventory": updateLocationInventory,
       };
 }
 

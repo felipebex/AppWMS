@@ -51,6 +51,11 @@ class ConfigurationsTable {
   static const String columnHideValidateTransfer = 'hide_validate_transfer';
   static const String columnHideValidateReception = 'hide_validate_reception';
 
+  // update_item_inventory
+  static const String columnUpdateItemInventory = 'update_item_inventory';
+  // update_location_inventory
+  static const String columnUpdateLocationInventory = 'update_location_inventory';
+
   
 
   // Método para crear la tabla
@@ -88,6 +93,8 @@ class ConfigurationsTable {
         $columnScanDestinationLocationReception INTEGER,
         $columnHideValidateTransfer INTEGER,
         $columnHideValidateReception INTEGER,
+        $columnUpdateItemInventory INTEGER,
+        $columnUpdateLocationInventory INTEGER,
         $columnCountQuantityInventory INTEGER
       )
     ''';

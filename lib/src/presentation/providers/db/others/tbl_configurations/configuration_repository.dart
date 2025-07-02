@@ -79,10 +79,16 @@ class ConfigurationsRepository {
         ConfigurationsTable.columnHideValidateReception:
             _boolToInt(configuration.result?.result?.hideValidateReception),
 
-
         // count_quantity_inventory
         ConfigurationsTable.columnCountQuantityInventory:
             _boolToInt(configuration.result?.result?.countQuantityInventory),
+
+        // update_item_inventory
+        ConfigurationsTable.columnUpdateItemInventory:
+            _boolToInt(configuration.result?.result?.updateItemInventory),
+        // update_location_inventory
+        ConfigurationsTable.columnUpdateLocationInventory:
+            _boolToInt(configuration.result?.result?.updateLocationInventory),
       };
 
       // Realizar la inserción o actualización usando INSERT OR REPLACE
@@ -124,68 +130,59 @@ class ConfigurationsRepository {
           result: ConfigurationsResult(
             code: 200,
             result: DataConfig(
-              name: map[ConfigurationsTable.columnName],
-              lastName: map[ConfigurationsTable.columnLastName],
-              email: map[ConfigurationsTable.columnEmail],
-              rol: map[ConfigurationsTable.columnRol],
-              id: map[ConfigurationsTable.columnId],
-              locationPickingManual: _intToBool(
-                  map[ConfigurationsTable.columnLocationPickingManual]),
-              manualProductSelection: _intToBool(
-                  map[ConfigurationsTable.columnManualProductSelection]),
-              manualQuantity:
-                  _intToBool(map[ConfigurationsTable.columnManualQuantity]),
-              manualSpringSelection: _intToBool(
-                  map[ConfigurationsTable.columnManualSpringSelection]),
-              showDetallesPicking: _intToBool(
-                  map[ConfigurationsTable.columnShowDetallesPicking]),
-              showNextLocationsInDetails: _intToBool(
-                  map[ConfigurationsTable.columnShowNextLocationsInDetails]),
-              muelleOption: map[ConfigurationsTable.columnMuelleOption],
-              manualProductSelectionPack: _intToBool(
-                  map[ConfigurationsTable.columnManualProductSelectionPack]),
-              manualQuantityPack:
-                  _intToBool(map[ConfigurationsTable.columnManualQuantityPack]),
-              manualSpringSelectionPack: _intToBool(
-                  map[ConfigurationsTable.columnManualSpringSelectionPack]),
-              showDetallesPack:
-                  _intToBool(map[ConfigurationsTable.columnShowDetallesPack]),
-              showNextLocationsInDetailsPack: _intToBool(map[
-                  ConfigurationsTable.columnShowNextLocationsInDetailsPack]),
-              locationPackManual:
-                  _intToBool(map[ConfigurationsTable.columnLocationPackManual]),
-              scanProduct:
-                  _intToBool(map[ConfigurationsTable.columnScanProduct]),
-              allowMoveExcess:
-                  _intToBool(map[ConfigurationsTable.columnAllowMoveExcess]),
-              hideExpectedQty:
-                  _intToBool(map[ConfigurationsTable.columnHideExpectedQty]),
-              manualProductReading: _intToBool(
-                  map[ConfigurationsTable.columnManualProductReading]),
-              manualSourceLocation: _intToBool(
-                  map[ConfigurationsTable.columnManualSourceLocation]),
-              showOwnerField:
-                  _intToBool(map[ConfigurationsTable.columnShowOwnerField]),
-              manualProductSelectionTransfer: _intToBool(map[
-                  ConfigurationsTable.columnManualProductSelectionTransfer]),
-              manualSourceLocationTransfer: _intToBool(
-                  map[ConfigurationsTable.columnManualSourceLocationTransfer]),
-              manualDestLocationTransfer: _intToBool(
-                  map[ConfigurationsTable.columnManualDestLocationTransfer]),
-              manualQuantityTransfer: _intToBool(
-                  map[ConfigurationsTable.columnManualQuantityTransfer]),
-              scanDestinationLocationReception: _intToBool(map[
-                  ConfigurationsTable.columnScanDestinationLocationReception]),
-              countQuantityInventory: _intToBool(
-                  map[ConfigurationsTable.columnCountQuantityInventory]),
-
-              hideValidateTransfer: _intToBool(
-                  map[ConfigurationsTable.columnHideValidateTransfer]),
-
-              hideValidateReception: _intToBool(
-                  map[ConfigurationsTable.columnHideValidateReception]
-              ),
-            ),
+                name: map[ConfigurationsTable.columnName],
+                lastName: map[ConfigurationsTable.columnLastName],
+                email: map[ConfigurationsTable.columnEmail],
+                rol: map[ConfigurationsTable.columnRol],
+                id: map[ConfigurationsTable.columnId],
+                locationPickingManual: _intToBool(
+                    map[ConfigurationsTable.columnLocationPickingManual]),
+                manualProductSelection: _intToBool(
+                    map[ConfigurationsTable.columnManualProductSelection]),
+                manualQuantity:
+                    _intToBool(map[ConfigurationsTable.columnManualQuantity]),
+                manualSpringSelection: _intToBool(
+                    map[ConfigurationsTable.columnManualSpringSelection]),
+                showDetallesPicking: _intToBool(
+                    map[ConfigurationsTable.columnShowDetallesPicking]),
+                showNextLocationsInDetails: _intToBool(
+                    map[ConfigurationsTable.columnShowNextLocationsInDetails]),
+                muelleOption: map[ConfigurationsTable.columnMuelleOption],
+                manualProductSelectionPack: _intToBool(
+                    map[ConfigurationsTable.columnManualProductSelectionPack]),
+                manualQuantityPack: _intToBool(
+                    map[ConfigurationsTable.columnManualQuantityPack]),
+                manualSpringSelectionPack: _intToBool(
+                    map[ConfigurationsTable.columnManualSpringSelectionPack]),
+                showDetallesPack:
+                    _intToBool(map[ConfigurationsTable.columnShowDetallesPack]),
+                showNextLocationsInDetailsPack: _intToBool(map[
+                    ConfigurationsTable.columnShowNextLocationsInDetailsPack]),
+                locationPackManual: _intToBool(
+                    map[ConfigurationsTable.columnLocationPackManual]),
+                scanProduct:
+                    _intToBool(map[ConfigurationsTable.columnScanProduct]),
+                allowMoveExcess:
+                    _intToBool(map[ConfigurationsTable.columnAllowMoveExcess]),
+                hideExpectedQty:
+                    _intToBool(map[ConfigurationsTable.columnHideExpectedQty]),
+                manualProductReading: _intToBool(
+                    map[ConfigurationsTable.columnManualProductReading]),
+                manualSourceLocation: _intToBool(
+                    map[ConfigurationsTable.columnManualSourceLocation]),
+                showOwnerField:
+                    _intToBool(map[ConfigurationsTable.columnShowOwnerField]),
+                manualProductSelectionTransfer: _intToBool(
+                    map[ConfigurationsTable.columnManualProductSelectionTransfer]),
+                manualSourceLocationTransfer: _intToBool(map[ConfigurationsTable.columnManualSourceLocationTransfer]),
+                manualDestLocationTransfer: _intToBool(map[ConfigurationsTable.columnManualDestLocationTransfer]),
+                manualQuantityTransfer: _intToBool(map[ConfigurationsTable.columnManualQuantityTransfer]),
+                scanDestinationLocationReception: _intToBool(map[ConfigurationsTable.columnScanDestinationLocationReception]),
+                countQuantityInventory: _intToBool(map[ConfigurationsTable.columnCountQuantityInventory]),
+                hideValidateTransfer: _intToBool(map[ConfigurationsTable.columnHideValidateTransfer]),
+                hideValidateReception: _intToBool(map[ConfigurationsTable.columnHideValidateReception]),
+                updateItemInventory: _intToBool(map[ConfigurationsTable.columnUpdateItemInventory]),
+                updateLocationInventory: _intToBool(map[ConfigurationsTable.columnUpdateLocationInventory])),
           ),
         );
 
@@ -193,8 +190,8 @@ class ConfigurationsRepository {
       } else {
         return null;
       }
-    } catch (e) {
-      print("Error al obtener la configuración: $e");
+    } catch (e,s) {
+      print("Error al obtener la configuración: $e =>$s ");
       return null;
     }
   }

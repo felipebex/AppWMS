@@ -106,4 +106,28 @@ class UbicacionesRepository {
       return [];
     }
   }
+
+//metodo para actualizar el nombre y el barcode de una ubicacion
+  Future<void> updateUbicacion(
+    int id,
+    String name,
+    String barcode,
+  ) async {
+    try {
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+
+      // Realizamos la actualización de la ubicación
+      await db.update(
+        UbicacionesTable.tableName,
+        {
+          UbicacionesTable.columnName: name,
+          UbicacionesTable.columnBarcode: barcode,
+        },
+        where: '${UbicacionesTable.columnId} = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      print("Error al actualizar la ubicación: $e");
+    }
+  }
 }

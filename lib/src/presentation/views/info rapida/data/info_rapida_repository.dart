@@ -288,4 +288,78 @@ class InfoRapidaRepository {
       return InfoRapida(); // Retornamos un objeto vacío en caso de error de red
     }
   }
+
+  Future<InfoRapida> updateLocation(
+    int id,
+    String name,
+    String barcode,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return InfoRapida(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      var response = await ApiRequestService().postPacking(
+        endpoint:
+            'update_location', // Cambiado para que sea el endpoint correspondiente
+        body: {
+          "params": {
+            "location_id": id,
+            "name": name,
+            "barcode": barcode,
+          },
+        },
+        isLoadinDialog: true,
+      );
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Accede a la clave "data" y luego a "result"
+
+        // Asegúrate de que 'result' exista y sea una lista
+        if (jsonResponse.containsKey('result')) {
+          return InfoRapida.fromMap(jsonResponse);
+        } else if (jsonResponse.containsKey('error')) {
+          if (jsonResponse['error']['code'] == 100) {
+            Get.defaultDialog(
+              title: 'Alerta',
+              titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+              middleText: 'Sesion expirada, por favor inicie sesión nuevamente',
+              middleTextStyle: TextStyle(color: black, fontSize: 14),
+              backgroundColor: Colors.white,
+              radius: 10,
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Get.back();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text('Aceptar', style: TextStyle(color: white)),
+                ),
+              ],
+            );
+            return InfoRapida();
+          }
+        }
+      } else {}
+      return InfoRapida();
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return InfoRapida(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en updateProduct: $e, $s');
+      return InfoRapida(); // Retornamos un objeto vacío en caso de error de red
+    }
+  }
 }

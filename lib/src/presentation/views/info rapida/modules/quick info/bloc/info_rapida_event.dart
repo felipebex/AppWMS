@@ -65,3 +65,18 @@ class UpdateProductEvent extends InfoRapidaEvent {
   final UpdateProductRequest request;
   UpdateProductEvent(this.request);
 }
+
+class LoadConfigurationsUserInfo extends InfoRapidaEvent {}
+
+
+class EditLocationEvent extends InfoRapidaEvent {
+  final int locationId;
+  final String name;
+  final String barcode;
+
+  EditLocationEvent(
+    this.locationId,
+    this.name,
+    this.barcode,
+  );
+}

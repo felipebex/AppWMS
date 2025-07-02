@@ -798,6 +798,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                             context
                                                 .read<InfoRapidaBloc>()
                                                 .add(GetProductsList());
+                                            context.read<InfoRapidaBloc>().add(
+                                                LoadConfigurationsUserInfo());
 
                                             showDialog(
                                                 context: context,

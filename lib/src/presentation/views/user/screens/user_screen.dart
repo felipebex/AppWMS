@@ -1405,6 +1405,94 @@ class UserScreen extends StatelessWidget {
                                           ),
                                         ),
                                       ),
+
+                                      //todo permisos de info rapida
+                                      Card(
+                                        elevation: 3,
+                                        color: white,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            children: [
+                                              Center(
+                                                child: Text(
+                                                    "Permisos Informacion Rapida:",
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color:
+                                                            primaryColorApp)),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Row(
+                                                children: [
+                                                  const Text(
+                                                      "Editar producto: ",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: black)),
+                                                  const Spacer(),
+                                                  Checkbox(
+                                                      value: config
+                                                              .result
+                                                              ?.result
+                                                              ?.updateItemInventory ??
+                                                          false,
+                                                      onChanged: null),
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return const DialogInfo(
+                                                                title:
+                                                                    "Editar producto",
+                                                                body:
+                                                                    "Permite editar la informacion del producto en el modulo de informacion rapida",
+                                                              );
+                                                            });
+                                                      },
+                                                      icon: Icon(Icons.help,
+                                                          color:
+                                                              primaryColorApp))
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Text(
+                                                      "Editar ubicacion: ",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: black)),
+                                                  const Spacer(),
+                                                  Checkbox(
+                                                      value: config
+                                                              .result
+                                                              ?.result
+                                                              ?.updateItemInventory ??
+                                                          false,
+                                                      onChanged: null),
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return const DialogInfo(
+                                                                title:
+                                                                    "Editar Ubicacion",
+                                                                body:
+                                                                    "Permite editar la informacion de la ubicacion en el modulo de informacion rapida",
+                                                              );
+                                                            });
+                                                      },
+                                                      icon: Icon(Icons.help,
+                                                          color:
+                                                              primaryColorApp))
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),

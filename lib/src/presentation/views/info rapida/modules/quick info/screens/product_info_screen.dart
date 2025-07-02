@@ -91,18 +91,12 @@ class ProductInfoScreen extends StatelessWidget {
                     child: bloc.isNumericKeyboardType
                         ? CustomKeyboardNumber(
                             controller: bloc.controllerActivo!,
-                            onchanged: () {
-                              bloc.add(SearchProductEvent(
-                                  bloc.searchControllerProducts.text));
-                            },
+                            onchanged: () {},
                           )
                         : CustomKeyboard(
                             isLogin: false,
                             controller: bloc.controllerActivo!,
-                            onchanged: () {
-                              bloc.add(SearchProductEvent(
-                                  bloc.searchControllerProducts.text));
-                            },
+                            onchanged: () {},
                           ))
                 : null,
             body: LayoutBuilder(
@@ -597,19 +591,29 @@ class AppBar extends StatelessWidget {
                   ),
                   const Spacer(),
                   //icono de editar
-                  GestureDetector(
-                    onTap: () {
-                      context.read<InfoRapidaBloc>().add(
-                          IsEditEvent(!context.read<InfoRapidaBloc>().isEdit));
-                      context.read<InfoRapidaBloc>().add(ShowKeyboardInfoEvent(
-                          false, TextEditingController()));
-                    },
-                    child: Icon(
-                      context.read<InfoRapidaBloc>().isEdit
-                          ? Icons.close
-                          : Icons.edit,
-                      color: white,
-                      size: 20,
+                  Visibility(
+                    visible: context
+                            .read<InfoRapidaBloc>()
+                            .configurations
+                            .result
+                            ?.result
+                            ?.updateItemInventory ==
+                        true,
+                    child: GestureDetector(
+                      onTap: () {
+                        context.read<InfoRapidaBloc>().add(IsEditEvent(
+                            !context.read<InfoRapidaBloc>().isEdit));
+                        context.read<InfoRapidaBloc>().add(
+                            ShowKeyboardInfoEvent(
+                                false, TextEditingController()));
+                      },
+                      child: Icon(
+                        context.read<InfoRapidaBloc>().isEdit
+                            ? Icons.close
+                            : Icons.edit,
+                        color: white,
+                        size: 20,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 15),
