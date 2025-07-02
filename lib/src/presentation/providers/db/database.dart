@@ -134,8 +134,6 @@ class DataBaseSqlite {
     //tabla de prductos de una devolucion
     await db.execute(ProductDevolucionTable.createTable());
 
-
-
     //* tabla de productos de un batch picking
     await db.execute('''
       CREATE TABLE tblbatch_products (
@@ -248,13 +246,12 @@ class DataBaseSqlite {
       ProductsEntradaBatchRepository();
 
 //metodo para onteer una instancia del repositorio de packig por pedido
-PedidoPackRepository get pedidoPackRepository =>
+  PedidoPackRepository get pedidoPackRepository =>
       PedidoPackRepository(_instance);
 
-ProductDevolucionRepository  get devolucionRepository =>
+  ProductDevolucionRepository get devolucionRepository =>
       ProductDevolucionRepository(_instance);
-
-
+    
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {
@@ -311,19 +308,15 @@ ProductDevolucionRepository  get devolucionRepository =>
             "origin": product.origin,
             "is_separate": product.isSeparate.toString(),
             //si el producto esta separado en la hora de insertarlo quiere decir que ya esta en el wms (odoo)
-            "is_send_odoo": product.isSeparate == 0
-                ? null
-                : product.isSeparate,
-           "time_separate": _parseDurationToSeconds(product.timeSeparate),
+            "is_send_odoo": product.isSeparate == 0 ? null : product.isSeparate,
+            "time_separate": _parseDurationToSeconds(product.timeSeparate),
 
-            "observation": product.observation == false
-                ? ""
-                : product.observation,
-            "quantity_separate" : product.quantitySeparate,
+            "observation":
+                product.observation == false ? "" : product.observation,
+            "quantity_separate": product.quantitySeparate,
             'fecha_transaccion': product.fechaTransaccion == false
                 ? ""
                 : product.fechaTransaccion,
-          
           };
 
           if (existingSet.contains(key)) {
@@ -355,26 +348,24 @@ ProductDevolucionRepository  get devolucionRepository =>
     }
   }
 
-
   double? _parseDurationToSeconds(dynamic time) {
-  try {
-    if (time is String && time.contains(':')) {
-      final parts = time.split(':').map(int.parse).toList();
-      if (parts.length == 3) {
-        final duration = Duration(
-          hours: parts[0],
-          minutes: parts[1],
-          seconds: parts[2],
-        );
-        return duration.inSeconds.toDouble();
+    try {
+      if (time is String && time.contains(':')) {
+        final parts = time.split(':').map(int.parse).toList();
+        if (parts.length == 3) {
+          final duration = Duration(
+            hours: parts[0],
+            minutes: parts[1],
+            seconds: parts[2],
+          );
+          return duration.inSeconds.toDouble();
+        }
       }
+    } catch (e) {
+      print('Error parsing time_separate: $e');
     }
-  } catch (e) {
-    print('Error parsing time_separate: $e');
+    return null; // Si no es válido, devuelve null
   }
-  return null; // Si no es válido, devuelve null
-}
-
 
   //metodo para traer un producto de un batch de la tabla tblbatch_products
   Future<ProductsBatch?> getProductBatch(
@@ -475,7 +466,6 @@ ProductDevolucionRepository  get devolucionRepository =>
       await db.delete(PedidoPackTable.tableName);
     }
 
-    
     await db.delete(PedidosPackingTable.tableName,
         where: '${PedidosPackingTable.columnType} = ?', whereArgs: [type]);
     await db.delete(ProductosPedidosTable.tableName,

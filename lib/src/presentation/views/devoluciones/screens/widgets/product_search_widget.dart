@@ -2,70 +2,31 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
-import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/screens/bloc/devoluciones_bloc.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 
-class ListProductsScreen extends StatefulWidget {
-  const ListProductsScreen({Key? key}) : super(key: key);
+class SearchProductDevScreen extends StatefulWidget {
+  const SearchProductDevScreen({Key? key}) : super(key: key);
 
   @override
-  State<ListProductsScreen> createState() => _ListProductsScreenState();
+  State<SearchProductDevScreen> createState() => _SearchProductDevScreenState();
 }
 
-class _ListProductsScreenState extends State<ListProductsScreen> {
+class _SearchProductDevScreenState extends State<SearchProductDevScreen> {
   int? selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final bloc = context.read<InfoRapidaBloc>();
+    final bloc = context.read<DevolucionesBloc>();
 
-    return BlocConsumer<InfoRapidaBloc, InfoRapidaState>(
-      listener: (context, state) {
-        if (state is InfoRapidaError) {
-          Navigator.pop(context);
-          Get.snackbar(
-            '360 Software Informa',
-            'No se encontró producto, lote, paquete ni ubicación con ese código de barras',
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: const Icon(Icons.error, color: Colors.red),
-          );
-        } else if (state is InfoRapidaLoading) {
-          showDialog(
-            context: context,
-            builder: (_) =>
-                const DialogLoading(message: "Buscando informacion..."),
-          );
-        } else if (state is InfoRapidaLoaded) {
-          Navigator.pop(context);
-          Get.snackbar(
-            '360 Software Informa',
-            'Información encontrada',
-            backgroundColor: white,
-            colorText: primaryColorApp,
-            icon: const Icon(Icons.check_circle, color: Colors.green),
-          );
-
-          final route = state.infoRapidaResult.type == 'product'
-              ? 'product-info'
-              : 'location-info';
-
-          Navigator.pushReplacementNamed(
-            context,
-            route,
-            arguments:
-                route == 'location-info' ? [state.infoRapidaResult] : null,
-          );
-        }
-      },
+    return BlocConsumer<DevolucionesBloc, DevolucionesState>(
+      listener: (context, state) {},
       builder: (context, state) {
         return WillPopScope(
           onWillPop: () async => false,
@@ -98,13 +59,15 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
                       onPressed: () {
                         final selectedProduct =
                             bloc.productosFilters[selectedIndex!];
-                        bloc.add(ShowKeyboardInfoEvent(false,TextEditingController()));
+                        bloc.add(ShowKeyboardEvent(false));
                         FocusScope.of(context).unfocus();
-                        bloc.add(GetInfoRapida(
-                          selectedProduct.productId.toString(),
+                         bloc.add(ChangeStateIsDialogVisibleEvent(false));
+                        bloc.add(GetProductEvent(
+                          selectedProduct.barcode ?? '',
                           true,
-                          true,
+                          selectedProduct.productId ?? 0,
                         ));
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColorApp,
@@ -122,8 +85,10 @@ class _ListProductsScreenState extends State<ListProductsScreen> {
                   CustomKeyboard(
                     isLogin: false,
                     controller: bloc.searchControllerProducts,
-                    onchanged: () => bloc.add(
-                        SearchProductEvent(bloc.searchControllerProducts.text)),
+                    onchanged: () {
+                      bloc.add(SearchProductEvent(
+                          bloc.searchControllerProducts.text));
+                    },
                   ),
               ],
             ),
@@ -148,7 +113,7 @@ class ProductListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<InfoRapidaBloc>();
+    final bloc = context.read<DevolucionesBloc>();
     final product = bloc.productosFilters[index];
 
     return Padding(
@@ -221,33 +186,29 @@ class _AppBarInfo extends StatelessWidget {
         builder: (context, status) => Column(
           children: [
             const WarningWidgetCubit(),
-            Padding(
-              padding: EdgeInsets.only(
-                  top: status != ConnectionStatus.online ? 0 : 25),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back, color: white),
-                    onPressed: () {
-                      context
-                          .read<InfoRapidaBloc>()
-                          .searchControllerProducts
-                          .clear();
-                      context
-                          .read<InfoRapidaBloc>()
-                          .add(ShowKeyboardInfoEvent(false,TextEditingController()));
-                      Navigator.pushReplacementNamed(context, 'info-rapida');
-                    },
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(left: size.width * 0.22),
-                    child: const Text('PRODUCTOS',
-                        style: TextStyle(color: white, fontSize: 18)),
-                  ),
-                  const Spacer(),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: white),
+                  onPressed: () {
+                    context
+                        .read<DevolucionesBloc>()
+                        .searchControllerProducts
+                        .clear();
+                    context
+                        .read<DevolucionesBloc>()
+                        .add(ShowKeyboardEvent(false));
+                    Navigator.pop(context);
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: size.width * 0.22),
+                  child: const Text('PRODUCTOS',
+                      style: TextStyle(color: white, fontSize: 18)),
+                ),
+                const Spacer(),
+              ],
             ),
           ],
         ),
@@ -263,7 +224,7 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<InfoRapidaBloc>();
+    final bloc = context.read<DevolucionesBloc>();
     final isZebra = context.read<UserBloc>().fabricante.contains("Zebra");
 
     return Padding(
@@ -283,7 +244,7 @@ class _SearchBar extends StatelessWidget {
               onPressed: () {
                 bloc.searchControllerProducts.clear();
                 bloc.add(SearchProductEvent(''));
-                bloc.add(ShowKeyboardInfoEvent(false,TextEditingController()));
+                bloc.add(ShowKeyboardEvent(false));
                 FocusScope.of(context).unfocus();
               },
             ),
@@ -292,7 +253,7 @@ class _SearchBar extends StatelessWidget {
             border: InputBorder.none,
           ),
           onChanged: (value) => bloc.add(SearchProductEvent(value)),
-          onTap: isZebra ? () => bloc.add(ShowKeyboardInfoEvent(true,TextEditingController())) : null,
+          onTap: isZebra ? () => bloc.add(ShowKeyboardEvent(true)) : null,
         ),
       ),
     );

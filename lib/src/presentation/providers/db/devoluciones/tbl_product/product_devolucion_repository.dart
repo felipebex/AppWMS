@@ -153,13 +153,13 @@ class ProductDevolucionRepository {
   }
 
   //metodo para eliminar un producto
-  Future<void> deleteProductoDevolucion(int productId) async {
+  Future<void> deleteProductoDevolucion(int productId, int lotId) async {
     try {
       Database db = await _databaseProvider.getDatabaseInstance();
       await db.delete(
         ProductDevolucionTable.tableName,
-        where: '${ProductDevolucionTable.columnProductId} = ?',
-        whereArgs: [productId],
+        where: '${ProductDevolucionTable.columnProductId} = ? AND ${ProductDevolucionTable.columnLotId} = ?',
+        whereArgs: [productId, lotId],
       );
     } catch (e, s) {
       print(
@@ -260,8 +260,8 @@ class ProductDevolucionRepository {
       await db.update(
         ProductDevolucionTable.tableName,
         productoMap,
-        where: '${ProductDevolucionTable.columnProductId} = ?',
-        whereArgs: [producto.productId],
+        where: '${ProductDevolucionTable.columnProductId} = ? AND ${ProductDevolucionTable.columnLotId} = ?',
+        whereArgs: [producto.productId, producto.lotId],
       );
 
       print("✅ Producto actualizado: ${producto.code}");

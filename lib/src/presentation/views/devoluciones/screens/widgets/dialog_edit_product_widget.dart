@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/product_devolucion_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/bloc/devoluciones_bloc.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/screens/lote_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/buildBarcodeInputField_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -223,145 +224,26 @@ class DialogEditProduct extends StatelessWidget {
                                 }
                               },
                             ),
-                            if (!isEdit)
-                              ElevatedButton(
-                                onPressed: () {
-                                  print(
-                                      'Cantidad seleccionada: ${bloc.quantitySelected}');
-
-                                  if (bloc.currentProduct.tracking == 'lot') {
-                                    if (bloc.lotesProductCurrent.id == null) {
-                                      Get.snackbar(
-                                        '360 Software Informa',
-                                        'El producto no tiene lote asignado',
-                                        backgroundColor: white,
-                                        colorText: primaryColorApp,
-                                        icon: const Icon(Icons.error,
-                                            color: Colors.red),
-                                      );
-                                      return;
-                                    } else {
-                                      bloc.add(Addproduct(
-                                        ProductDevolucion(
-                                          productId:
-                                              bloc.currentProduct.productId,
-                                          name: bloc.currentProduct.name,
-                                          code: bloc.currentProduct.code,
-                                          barcode: bloc.currentProduct.barcode,
-                                          quantity: bloc.quantitySelected,
-                                          lotId: bloc.lotesProductCurrent.id,
-                                          lotName:
-                                              bloc.lotesProductCurrent.name,
-                                          uom: bloc.currentProduct.uom,
-                                          tracking:
-                                              bloc.currentProduct.tracking,
-                                          category:
-                                              bloc.currentProduct.category,
-                                          expirationTime: bloc
-                                              .currentProduct.expirationTime,
-                                          useExpirationDate: bloc
-                                              .currentProduct.useExpirationDate,
-                                          expirationDate: bloc
-                                              .currentProduct.expirationDate,
-                                          weight: bloc.currentProduct.weight,
-                                          weightUomName:
-                                              bloc.currentProduct.weightUomName,
-                                          volume: bloc.currentProduct.volume,
-                                          volumeUomName:
-                                              bloc.currentProduct.volumeUomName,
-                                          locationId:
-                                              bloc.currentProduct.locationId,
-                                          locationName:
-                                              bloc.currentProduct.locationName,
-                                        ),
-                                      ));
-                                      Navigator.pop(context);
-                                      return;
-                                    }
-                                  } else {
-                                    bloc.add(Addproduct(
-                                      ProductDevolucion(
-                                        productId:
-                                            bloc.currentProduct.productId,
-                                        name: bloc.currentProduct.name,
-                                        code: bloc.currentProduct.code,
-                                        barcode: bloc.currentProduct.barcode,
-                                        quantity: bloc.quantitySelected,
-                                        lotId: 0,
-                                        lotName: "",
-                                        uom: bloc.currentProduct.uom,
-                                        tracking: bloc.currentProduct.tracking,
-                                        category: bloc.currentProduct.category,
-                                        expirationTime:
-                                            bloc.currentProduct.expirationTime,
-                                        useExpirationDate: bloc
-                                            .currentProduct.useExpirationDate,
-                                        expirationDate:
-                                            bloc.currentProduct.expirationDate,
-                                        weight: bloc.currentProduct.weight,
-                                        weightUomName:
-                                            bloc.currentProduct.weightUomName,
-                                        volume: bloc.currentProduct.volume,
-                                        volumeUomName:
-                                            bloc.currentProduct.volumeUomName,
-                                        locationId:
-                                            bloc.currentProduct.locationId,
-                                        locationName:
-                                            bloc.currentProduct.locationName,
-                                      ),
-                                    ));
-                                    Navigator.pop(context);
-                                    return;
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  minimumSize: Size(size.width * 0.93, 30),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                ),
-                                child: const Text('APLICAR CANTIDAD',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 14)),
+                            ElevatedButton(
+                              onPressed: () {
+                                print(
+                                    'Cantidad seleccionada: ${bloc.quantitySelected}');
+                                bloc.add(ShowQuantityEvent(false));
+                                controllerManualQuantity.clear();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColorApp,
+                                minimumSize: Size(size.width * 0.93, 30),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
                               ),
-                            if (isEdit)
-                              ElevatedButton(
-                                onPressed: () {
-                                  print(
-                                      'Cantidad seleccionada: ${bloc.quantitySelected}');
-
-                                  if (bloc.currentProduct.tracking == 'lot') {
-                                    if (bloc.lotesProductCurrent.id == null) {
-                                      Get.snackbar(
-                                        '360 Software Informa',
-                                        'El producto no tiene lote asignado',
-                                        backgroundColor: white,
-                                        colorText: primaryColorApp,
-                                        icon: const Icon(Icons.error,
-                                            color: Colors.red),
-                                      );
-                                      return;
-                                    } else {
-                                      bloc.add(UpdateProductInfoEvent());
-                                      Navigator.pop(context);
-                                      return;
-                                    }
-                                  } else {
-                                    bloc.add(UpdateProductInfoEvent());
-                                    Navigator.pop(context);
-                                    return;
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: primaryColorApp,
-                                  minimumSize: Size(size.width * 0.93, 30),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                ),
-                                child: const Text('EDITAR CANTIDAD',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 14)),
-                              ),
+                              child: Text(
+                                  !isEdit
+                                      ? 'APLICAR CANTIDAD'
+                                      : 'EDITAR CANTIDAD',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14)),
+                            ),
                           ]
                         ],
                       ),
@@ -373,28 +255,40 @@ class DialogEditProduct extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5),
-                        child: Row(
-                          children: [
-                            Text(
-                              'Lote: ',
-                              style: TextStyle(
-                                  fontSize: 12, color: primaryColorApp),
-                            ),
-                            Text(
-                              'Sin lote',
-                              style: const TextStyle(fontSize: 12, color: red),
-                            ),
-                            const Spacer(),
-                            GestureDetector(
-                              onTap: () {},
-                              child: Icon(
+                        child: GestureDetector(
+                          onTap: () {
+                            bloc.isDialogVisible = true;
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return NewLoteScreenDevolucion();
+                              },
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                'Lote: ',
+                                style: TextStyle(
+                                    fontSize: 12, color: primaryColorApp),
+                              ),
+                              Text(
+                                bloc.lotesProductCurrent.name ?? "No asignado",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: bloc.lotesProductCurrent.name == null
+                                        ? red
+                                        : black),
+                              ),
+                              const Spacer(),
+                              Icon(
                                 Icons.arrow_forward_ios_sharp,
                                 color: primaryColorApp,
                                 size: 20,
                                 semanticLabel: 'Añadir cantidad',
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -406,6 +300,7 @@ class DialogEditProduct extends StatelessWidget {
                 if (!bloc.viewQuantity) ...[
                   ElevatedButton(
                     onPressed: () {
+                      bloc.add(ChangeStateIsDialogVisibleEvent(false));
                       bloc.add(ClearScannedValueEvent('product'));
                       Navigator.pop(context);
                     },
@@ -421,6 +316,17 @@ class DialogEditProduct extends StatelessWidget {
                   if (!isEdit)
                     ElevatedButton(
                       onPressed: () {
+                        if (bloc.quantitySelected <= 0) {
+                          Get.snackbar(
+                            '360 Software Informa',
+                            'La cantidad debe ser mayor a 0',
+                            backgroundColor: white,
+                            colorText: primaryColorApp,
+                            icon: const Icon(Icons.error, color: Colors.red),
+                          );
+                          return;
+                        }
+
                         if (bloc.currentProduct.tracking == 'lot') {
                           if (bloc.lotesProductCurrent.id == null) {
                             Get.snackbar(
@@ -432,6 +338,7 @@ class DialogEditProduct extends StatelessWidget {
                             );
                             return;
                           } else {
+                            bloc.add(ChangeStateIsDialogVisibleEvent(false));
                             bloc.add(Addproduct(
                               ProductDevolucion(
                                 productId: bloc.currentProduct.productId,
@@ -464,6 +371,7 @@ class DialogEditProduct extends StatelessWidget {
                             return;
                           }
                         } else {
+                          bloc.add(ChangeStateIsDialogVisibleEvent(false));
                           bloc.add(Addproduct(
                             ProductDevolucion(
                               productId: bloc.currentProduct.productId,
@@ -533,7 +441,7 @@ class DialogEditProduct extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text('Editar',
+                      child: const Text('Guardar',
                           style: TextStyle(color: Colors.white)),
                     ),
                 ],

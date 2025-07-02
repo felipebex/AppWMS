@@ -68,6 +68,12 @@ class PickingPickRepository {
             PickingPickTable.columnOrderBy: pickItem.orderBy,
             PickingPickTable.columnOrderPicking: pickItem.orderPicking,
             PickingPickTable.columnTypePick: typePick,
+            // Datos de picking de componentes
+            PickingPickTable.productoFinalNombre:
+                pickItem.productoFinalNombre ?? '',
+            // Producto final referencia
+            PickingPickTable.productoFinalReferencia:
+                pickItem.productoFinalReferencia ?? '',
           };
 
           // Elimina si existe (por ID), y luego inserta
@@ -137,6 +143,9 @@ class PickingPickRepository {
           PickingPickTable.columnIsSendOddoDate,
           PickingPickTable.columnOrderBy,
           PickingPickTable.columnOrderPicking,
+          // Datos de picking de componentes
+          PickingPickTable.productoFinalNombre,
+          PickingPickTable.productoFinalReferencia,
           // type_pick
           PickingPickTable.columnTypePick
         ],

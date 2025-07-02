@@ -33,24 +33,16 @@ class ProductDevolucionCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name ?? "",
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: black,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
                   Row(
                     children: [
                       Text(
-                        'Barcode: ',
-                        style: TextStyle(fontSize: 12, color: primaryColorApp),
-                      ),
-                      Text(
-                        '${product.barcode}',
-                        style: const TextStyle(fontSize: 12, color: black),
+                        product.name ?? "",
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: black,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const Spacer(),
                       GestureDetector(
@@ -69,11 +61,11 @@ class ProductDevolucionCard extends StatelessWidget {
                     children: [
                       Text(
                         'Código: ',
-                        style: TextStyle(fontSize: 12, color: primaryColorApp),
+                        style: TextStyle(fontSize: 11, color: primaryColorApp),
                       ),
                       Text(
                         '${product.code}',
-                        style: const TextStyle(fontSize: 12, color: black),
+                        style: const TextStyle(fontSize: 11, color: black),
                       ),
                     ],
                   ),
@@ -81,13 +73,22 @@ class ProductDevolucionCard extends StatelessWidget {
                     children: [
                       Text(
                         'Cantidad: ',
-                        style: TextStyle(fontSize: 12, color: primaryColorApp),
+                        style: TextStyle(fontSize: 11, color: primaryColorApp),
                       ),
                       Text(
                         '${product.quantity}',
-                        style: const TextStyle(fontSize: 12, color: black),
+                        style: const TextStyle(fontSize: 11, color: black),
                       ),
-                       const Spacer(),
+                      const Spacer(),
+                      Text(
+                        'unidad: ',
+                        style: TextStyle(fontSize: 11, color: primaryColorApp),
+                      ),
+                      Text(
+                        '${product.uom}',
+                        style: const TextStyle(fontSize: 11, color: black),
+                      ),
+                      const Spacer(),
                       GestureDetector(
                         onTap: onEdit, // Llama al callback para eliminar
                         child: Icon(
@@ -98,6 +99,40 @@ class ProductDevolucionCard extends StatelessWidget {
                         ),
                       ) // Usa
                     ],
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      print('Producto seleccionado: ${product.toMap()}');
+                    },
+                    child: Row(
+                      children: [
+                        Text(
+                          'Barcode: ',
+                          style:
+                              TextStyle(fontSize: 11, color: primaryColorApp),
+                        ),
+                        Text(
+                          '${product.barcode}',
+                          style: const TextStyle(fontSize: 11, color: black),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: product.tracking == 'lot',
+                    child: Row(
+                      children: [
+                        Text(
+                          'Lote: ',
+                          style:
+                              TextStyle(fontSize: 11, color: primaryColorApp),
+                        ),
+                        Text(
+                          '${product.lotName}',
+                          style: const TextStyle(fontSize: 11, color: black),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -400,6 +400,7 @@ class AppRoutes {
       devolucionesCreate: (_) => DevolucionesScreen(),
       terceros: (_) => const Terceroscreen(),
       ubicacionesDevoluciones: (_) => LocationDestDevolucionesScreen(),
+      
     };
   }
 }

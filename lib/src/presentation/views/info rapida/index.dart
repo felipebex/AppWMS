@@ -81,6 +81,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
         }
       },
       builder: (context, state) {
+        final size = MediaQuery.sizeOf(context);
         return Scaffold(
           backgroundColor: white,
           floatingActionButton: FloatingActionButton(
@@ -97,7 +98,7 @@ class _InfoRapidaScreenState extends State<InfoRapidaScreen> {
               Expanded(
                 child: Column(
                   children: [
-                    const SizedBox(height: 40),
+                     SizedBox(height: size.height * 0.13),
                     Image.asset(
                       'assets/icons/barcode.png',
                       width: 150,
@@ -175,8 +176,7 @@ class CustomAppBar extends StatelessWidget {
               const WarningWidgetCubit(),
               Padding(
                 padding: EdgeInsets.only(
-                  bottom: 10,
-                  top: status != ConnectionStatus.online ? 0 : 35,
+                  top: status != ConnectionStatus.online ? 0 : 25,
                 ),
                 child: Row(
                   children: [

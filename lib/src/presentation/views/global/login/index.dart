@@ -65,23 +65,7 @@ class LoginPage extends StatelessWidget {
                 context
                     .read<InventarioBloc>()
                     .add(GetProductsEvent(isDialogLoading: true));
-                // context
-                //     .read<WMSPickingBloc>()
-                //     .add(LoadAllNovedades(context)); //novedades
-                // final rol = await PrefUtils.getUserRol();
-                // if (rol == 'picking') {
-                //   context.read<WMSPickingBloc>().add(LoadAllBatchsEvent(false));
-                // } else if (rol == 'packing') {
-                //   context.read<WmsPackingBloc>().add(LoadAllPackingEvent(
-                //         false,
-                //       ));
-                // } else if (rol == "reception") {
-                //   context.read<RecepcionBloc>().add(FetchOrdenesCompra(false));
-                // } else if (rol == "transfer") {
-                //   context
-                //       .read<TransferenciaBloc>()
-                //       .add(FetchAllTransferencias(false));
-                // }
+               
 
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();

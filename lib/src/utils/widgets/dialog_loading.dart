@@ -42,7 +42,7 @@ class DialogLoadingNetwork extends StatelessWidget {
             ),
             const Text('Espera un momento...',
                 style: TextStyle(color: grey, fontSize: 14)),
-            Text(titel, style: TextStyle(color: grey, fontSize: 9)),
+            // Text(titel, style: TextStyle(color: grey, fontSize: 9)),
           ],
         )),
         content: Column(

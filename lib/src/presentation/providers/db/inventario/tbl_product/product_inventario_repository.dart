@@ -3,6 +3,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/db/inventario/tbl_product/product_inventario_table.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/models/update_product_request.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'dart:core'; // Asegúrate de importar esto para usar Stopwatch.
 
@@ -149,4 +150,29 @@ class ProductInventarioRepository {
       return null;
     }
   }
+
+  //metodo para actualizar un producto por su id
+  Future<void> updateProduct(UpdateProductRequest product) async {
+    try {
+      print('product to update: ${product.toMap()}');
+      Database db = await DataBaseSqlite().getDatabaseInstance();
+      await db.update(
+        ProductInventarioTable.tableName,
+        {
+          ProductInventarioTable.columnProductName: product.name,
+          ProductInventarioTable.columnBarcode: product.barcode,
+          ProductInventarioTable.columnProductCode: product.defaultCode,
+          ProductInventarioTable.columnWeight: product.weight,
+          ProductInventarioTable.columnVolume: product.volume,
+        },            
+        where: '${ProductInventarioTable.columnProductId} = ?',
+        whereArgs: [product.productId],
+      );
+      print("Producto actualizado correctamente: ${product.productId}");
+    } catch (e, s) {
+      print("Error al actualizar producto: $e ==> $s");   
+    }
+  }
+
+
 }

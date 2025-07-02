@@ -43,6 +43,11 @@ class ShowKeyboardState extends InfoRapidaState {
   ShowKeyboardState({required this.showKeyboard});
 }
 
+class IsEditState extends InfoRapidaState {
+  final bool isEdit;
+  IsEditState(this.isEdit);
+}
+
 
 
 
@@ -91,4 +96,14 @@ class FilterUbicacionesFailure extends InfoRapidaState {
 class FilterUbicacionesSuccess extends InfoRapidaState {
   final List<ResultUbicaciones> locations;
   FilterUbicacionesSuccess(this.locations);
+}
+
+class UpdateProducrtLoading   extends InfoRapidaState {}
+
+class UpdateProductFailure extends InfoRapidaState {
+  final String error;
+  UpdateProductFailure(this.error);
+}
+
+class UpdateProductSuccess extends InfoRapidaState {
 }

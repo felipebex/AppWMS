@@ -44,7 +44,7 @@ class BuildBarcodeInputField extends StatelessWidget {
                 onKey: (node, event) {
                   if (event is RawKeyDownEvent) {
                     if (event.logicalKey == LogicalKeyboardKey.enter) {
-                      functionValidate(controller.text.trim());
+                      functionValidate(devolucionesBloc.scannedValue1);
                       return KeyEventResult.handled;
                     } else {
                       if (functionUpdate != null) {

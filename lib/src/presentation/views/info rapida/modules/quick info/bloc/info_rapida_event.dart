@@ -7,7 +7,7 @@ class GetInfoRapida extends InfoRapidaEvent {
   final String barcode;
   final bool isManual;
   final bool isProduct;
-  GetInfoRapida(this.barcode, this.isManual, this.isProduct );
+  GetInfoRapida(this.barcode, this.isManual, this.isProduct);
 }
 
 class UpdateScannedValueEvent extends InfoRapidaEvent {
@@ -27,11 +27,18 @@ class SearchLocationEvent extends InfoRapidaEvent {
   );
 }
 
-class ShowKeyboardEvent extends InfoRapidaEvent {
+class ShowKeyboardInfoEvent extends InfoRapidaEvent {
   final bool showKeyboard;
-  ShowKeyboardEvent(this.showKeyboard);
+  final bool isNumeric;
+  final TextEditingController controllerActivo;
+  ShowKeyboardInfoEvent(this.showKeyboard, this.controllerActivo,
+      {this.isNumeric = false});
 }
 
+class IsEditEvent extends InfoRapidaEvent {
+  final bool isEdit;
+  IsEditEvent(this.isEdit);
+}
 
 class GetListLocationsEvent extends InfoRapidaEvent {
   GetListLocationsEvent();
@@ -49,8 +56,12 @@ class GetProductsList extends InfoRapidaEvent {
   GetProductsList();
 }
 
-
 class FilterUbicacionesAlmacenEvent extends InfoRapidaEvent {
   final String almacen;
   FilterUbicacionesAlmacenEvent(this.almacen);
+}
+
+class UpdateProductEvent extends InfoRapidaEvent {
+  final UpdateProductRequest request;
+  UpdateProductEvent(this.request);
 }

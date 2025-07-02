@@ -44,6 +44,13 @@ class PickingPickTable {
 
   static const String columnTypePick = 'type_pick';
 
+
+  //datos de picking de componentes
+  static const String productoFinalNombre = 'producto_final_nombre';
+  //producto final referencia
+  static const String productoFinalReferencia = 'producto_final_referencia'; 
+
+
   // Método para crear la tabla
   static String createTable() {
     return '''
@@ -86,6 +93,8 @@ class PickingPickTable {
         $columnIsSendOddoDate VARCHAR(255),
         $columnOrderBy TEXT,
         $columnTypePick TEXT,
+        $productoFinalNombre TEXT,
+        $productoFinalReferencia TEXT,
         $columnOrderPicking TEXT
 
       )

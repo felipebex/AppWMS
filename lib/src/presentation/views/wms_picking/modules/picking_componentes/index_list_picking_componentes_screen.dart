@@ -91,76 +91,73 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                     ),
                     child: BlocBuilder<ConnectionStatusCubit, ConnectionStatus>(
                         builder: (context, status) {
-                                            return Column(
-                    children: [
-                      const WarningWidgetCubit(),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 10,
-                            right: 10,
-                            top: status != ConnectionStatus.online
-                                ? 20
-                                : 20,
-                            bottom: 0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                      return Column(
+                        children: [
+                          const WarningWidgetCubit(),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left: 10,
+                                right: 10,
+                                top:
+                                    status != ConnectionStatus.online ? 20 : 20,
+                                bottom: 0),
+                            child: Column(
                               children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back,
-                                      color: white),
-                                  onPressed: () {
-                                    bloc.searchPickController.clear();
-                                    Navigator.pushReplacementNamed(
-                                        context, '/home');
-                                  },
-                                ),
-                                GestureDetector(
-                                  onTap: () async {
-                                    await DataBaseSqlite().delePick(
-                                      'pick-componentes'
-                                    );
-                                    bloc.add(FetchPickingComponentesEvent(
-                                        true));
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        left: size.width * 0.05),
-                                    child: Row(
-                                      children: [
-                                        const Text(
-                                          'PICKING COMPONENTES',
-                                          style: TextStyle(
-                                              color: white,
-                                              fontSize: 18,
-                                              fontWeight:
-                                                  FontWeight.bold),
-                                        ),
-                    
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        //icono de refres
-                                        Icon(
-                                          Icons.refresh,
-                                          color: white,
-                                          size: 20,
-                                        ),
-                                      ],
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.arrow_back,
+                                          color: white),
+                                      onPressed: () {
+                                        bloc.searchPickController.clear();
+                                        Navigator.pushReplacementNamed(
+                                            context, '/home');
+                                      },
                                     ),
-                                  ),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await DataBaseSqlite()
+                                            .delePick('pick-componentes');
+                                        bloc.add(
+                                            FetchPickingComponentesEvent(true));
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            left: size.width * 0.05),
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              'PICKING COMPONENTES',
+                                              style: TextStyle(
+                                                  color: white,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            //icono de refres
+                                            Icon(
+                                              Icons.refresh,
+                                              color: white,
+                                              size: 20,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                  ],
                                 ),
-                                const Spacer(),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                                            );
-                                          }),
+                          ),
+                        ],
+                      );
+                    }),
                   ),
 
                   SizedBox(
@@ -380,13 +377,6 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                                         mainAxisAlignment:
                                             MainAxisAlignment.start,
                                         children: [
-                                          Align(
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(batch.zonaEntrega ?? '',
-                                                style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: black)),
-                                          ),
                                           Row(
                                             children: [
                                               const Align(
@@ -423,6 +413,95 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                                           ),
                                           Align(
                                             alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Text('Prioridad: ',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            primaryColorApp)),
+                                                Text(
+                                                  batch.priority == '0'
+                                                      ? 'Normal'
+                                                      : 'Alta'
+                                                          "",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: batch.priority == '0'
+                                                        ? black
+                                                        : red,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text('Producto: ',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            primaryColorApp)),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.centerLeft,
+                                                child: Text(
+                                                  batch.productoFinalNombre ==
+                                                          ''
+                                                      ? 'Sin nombre'
+                                                      : batch.productoFinalNombre ??
+                                                          '',
+                                                  maxLines: 2,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        batch.productoFinalNombre ==
+                                                                ''
+                                                            ? red
+                                                            : black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Row(
+                                              children: [
+                                                Text('Referencia: ',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color:
+                                                            primaryColorApp)),
+                                                Text(
+                                                  batch.productoFinalReferencia ==
+                                                          ''
+                                                      ? 'Sin referencia'
+                                                      : batch.productoFinalReferencia ??
+                                                          '',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color:
+                                                        batch.productoFinalReferencia ==
+                                                                ''
+                                                            ? red
+                                                            : black,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Divider(
+                                            color: black,
+                                            thickness: 1,
+                                            height: 5,
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerLeft,
                                             child: Text(
                                               batch.pickingType.toString(),
                                               style: TextStyle(
@@ -450,7 +529,8 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                                                                   .fechaCreacion!))
                                                       : "Sin fecha",
                                                   style: const TextStyle(
-                                                      fontSize: 12),
+                                                      fontSize: 12,
+                                                      color: black),
                                                 ),
                                               ],
                                             ),

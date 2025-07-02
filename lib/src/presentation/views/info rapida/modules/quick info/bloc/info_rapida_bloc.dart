@@ -4,6 +4,7 @@ import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart'
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/data/info_rapida_repository.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/models/info_rapida_model.dart';
+import 'package:wms_app/src/presentation/views/info%20rapida/models/update_product_request.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 
 part 'info_rapida_event.dart';
@@ -33,6 +34,9 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   DataBaseSqlite db = DataBaseSqlite();
 
   bool isKeyboardVisible = false;
+  bool isEdit = false;
+  bool isNumericKeyboardType = false;
+  TextEditingController? controllerActivo;
 
   InfoRapidaBloc() : super(InfoRapidaInitial()) {
     on<InfoRapidaEvent>((event, emit) {});
@@ -47,17 +51,51 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
     on<SearchLocationEvent>(_onSearchLocationEvent);
 
     //*activar el teclado
-    on<ShowKeyboardEvent>(_onShowKeyboardEvent);
+    on<ShowKeyboardInfoEvent>(_onShowKeyboardEvent);
+    // *activar el edit
+    on<IsEditEvent>(_onIsEditEvent);
 
     //*metodo para cargar las ubicaciones
     on<GetListLocationsEvent>(_onLoadLocations);
-
     //*metodo para bucar un producto
     on<SearchProductEvent>(_onSearchProductEvent);
 
     on<GetProductsList>(_onGetProductsBD);
 
     on<FilterUbicacionesAlmacenEvent>(_onFilterUbicacionesEvent);
+
+    //evento para actualizar del producto
+    on<UpdateProductEvent>(_onUpdateProductEvent);
+  }
+
+  void _onUpdateProductEvent(
+      UpdateProductEvent event, Emitter<InfoRapidaState> emit) async {
+    try {
+      emit(UpdateProducrtLoading());
+      final response = await _infoRapidaRepository.updateProduct(
+        event.request,
+        true,
+      );
+
+      if (response.result?.code == 200) {
+        await db.productoInventarioRepository.updateProduct(event.request);
+        infoRapidaResult = response.result ?? InfoRapidaResult();
+        emit(UpdateProductSuccess());
+        add(
+          IsEditEvent(false),
+        );
+      } else {
+        add(
+          IsEditEvent(true),
+        );
+        emit(UpdateProductFailure(
+          '${response.result?.msg}',
+        ));
+      }
+    } catch (e, s) {
+      print('Error en el UpdateProductEvent: $e, $s');
+      emit(UpdateProductFailure(e.toString()));
+    }
   }
 
   void _onFilterUbicacionesEvent(
@@ -87,7 +125,8 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
       GetProductsList event, Emitter<InfoRapidaState> emit) async {
     try {
       emit(GetProductsLoading());
-      final response = await db.productoInventarioRepository.getAllUniqueProducts();
+      final response =
+          await db.productoInventarioRepository.getAllUniqueProducts();
       productos.clear();
       productosFilters.clear();
       print('productos: ${response.length}');
@@ -151,9 +190,17 @@ class InfoRapidaBloc extends Bloc<InfoRapidaEvent, InfoRapidaState> {
   }
 
   void _onShowKeyboardEvent(
-      ShowKeyboardEvent event, Emitter<InfoRapidaState> emit) {
+      ShowKeyboardInfoEvent event, Emitter<InfoRapidaState> emit) {
     isKeyboardVisible = event.showKeyboard;
+    isNumericKeyboardType = event.isNumeric;
+    controllerActivo = event.controllerActivo;
     emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
+  }
+
+  void _onIsEditEvent(IsEditEvent event, Emitter<InfoRapidaState> emit) {
+    isEdit = event.isEdit;
+    print('isEdit: $isEdit');
+    emit(IsEditState(isEdit));
   }
 
   void _onSearchLocationEvent(

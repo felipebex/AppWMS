@@ -108,6 +108,9 @@ class ResultPick {
   final dynamic orderBy;
   final dynamic orderPicking;
 
+  String? productoFinalNombre;
+  String? productoFinalReferencia;
+
   List<ProductsBatch>? lineasTransferencia;
 
   List<ProductsBatch>? lineasTransferenciaEnviadas;
@@ -155,6 +158,8 @@ class ResultPick {
     this.orderBy,
     this.orderPicking,
     this.typePick,
+    this.productoFinalNombre,
+    this.productoFinalReferencia,
 
   });
 
@@ -209,6 +214,8 @@ class ResultPick {
         orderBy: json["order_by"],
         orderPicking: json["order_picking"],
         typePick: json["type_pick"],
+        productoFinalNombre: json["producto_final_nombre"],
+        productoFinalReferencia: json["producto_final_referencia"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -259,5 +266,7 @@ class ResultPick {
         "order_by": orderBy,
         "order_picking": orderPicking,
         "type_pick": typePick,
+        "producto_final_nombre": productoFinalNombre,
+        "producto_final_referencia": productoFinalReferencia,
       };
 }

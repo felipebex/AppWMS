@@ -17,7 +17,8 @@ class ClearScannedValueEvent extends DevolucionesEvent {
 class GetProductEvent extends DevolucionesEvent {
   final String barcode;
   final bool isManual;
-  GetProductEvent(this.barcode, this.isManual);
+  final int idProduct;
+  GetProductEvent(this.barcode, this.isManual, [this.idProduct = 0]);
 }
 
 class GetProductsList extends DevolucionesEvent {
@@ -89,7 +90,6 @@ class FilterUbicacionesEvent extends DevolucionesEvent {
   FilterUbicacionesEvent(this.almacen);
 }
 
-
 class LoadLocationsEvent extends DevolucionesEvent {}
 
 class SearchLocationEvent extends DevolucionesEvent {
@@ -98,4 +98,57 @@ class SearchLocationEvent extends DevolucionesEvent {
   SearchLocationEvent(
     this.query,
   );
+}
+
+class SelectecLoteEvent extends DevolucionesEvent {
+  final LotesProduct lote;
+  SelectecLoteEvent(this.lote);
+}
+
+class SearchLotevent extends DevolucionesEvent {
+  final String query;
+
+  SearchLotevent(
+    this.query,
+  );
+}
+
+class CreateLoteProduct extends DevolucionesEvent {
+  final String nameLote;
+  final String fechaCaducidad;
+  CreateLoteProduct(this.nameLote, this.fechaCaducidad);
+}
+
+class GetLotesProduct extends DevolucionesEvent {
+
+
+}
+
+
+class ClearValueEvent extends DevolucionesEvent {
+}
+
+
+class SearchProductEvent extends DevolucionesEvent {
+  final String query;
+
+  SearchProductEvent(
+    this.query,
+  );
+}
+
+class SendDevolucionEvent extends DevolucionesEvent {
+ 
+}
+
+class ValidateFieldsEvent extends DevolucionesEvent {
+    final String field;
+  final bool isOk;
+  ValidateFieldsEvent(this.field, this.isOk);
+  
+}
+
+class ChangeStateIsDialogVisibleEvent extends DevolucionesEvent {
+  final bool isVisible;
+  ChangeStateIsDialogVisibleEvent(this.isVisible);
 }

@@ -517,7 +517,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                             child: Text(
                                                 transferenciaDetail.proveedor ==
                                                         ""
-                                                    ? 'Sin provedor'
+                                                    ? 'Sin proveedor'
                                                     : transferenciaDetail
                                                             .proveedor ??
                                                         '',

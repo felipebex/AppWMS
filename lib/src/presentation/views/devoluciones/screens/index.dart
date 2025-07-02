@@ -1,9 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/product_devolucion_model.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/models/response_terceros_model.dart';
 // Asegúrate de que las rutas de tus imports sean correctas
 import 'package:wms_app/src/presentation/views/devoluciones/screens/bloc/devoluciones_bloc.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/buildBarcodeInputField_widget.dart';
@@ -11,6 +15,7 @@ import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/cust
 import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/dialog_delete_product_widget.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/dialog_edit_product_widget.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/product_card_widget.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/screens/widgets/product_search_widget.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -22,40 +27,198 @@ class DevolucionesScreen extends StatefulWidget {
   State<DevolucionesScreen> createState() => _DevolucionesScreenState();
 }
 
-class _DevolucionesScreenState extends State<DevolucionesScreen> {
+class _DevolucionesScreenState extends State<DevolucionesScreen>
+    with WidgetsBindingObserver {
   final TextEditingController _controllerSearch = TextEditingController();
+  final TextEditingController _controllerLocation = TextEditingController();
+  final TextEditingController _controllerContacto = TextEditingController();
   final TextEditingController _controllerQuantity = TextEditingController();
-  final FocusNode focusNode1 = FocusNode();
-  final FocusNode focusNodeQuantity = FocusNode();
-  final FocusNode focusNodeQuantityManual = FocusNode();
+  final FocusNode focusNode1 = FocusNode(); //foco de producto
+  final FocusNode focusNode2 = FocusNode(); //foco de ubicacion
+  final FocusNode focusNode3 = FocusNode(); //foco de contacto
+  final FocusNode focusNode4 = FocusNode();
+  final FocusNode focusNode5 = FocusNode();
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed && mounted) {
+      showDialog(
+        context: context,
+        builder: (context) =>
+            const DialogLoading(message: "Espere un momento..."),
+      );
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) Navigator.pop(context);
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    // Opcional: Enfocar el nodo al iniciar si la UI lo permite
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      focusNode1.requestFocus();
-    });
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _handleFocusAccordingToState();
+  }
+
+  void _setOnlyFocus(FocusNode nodeToFocus) {
+    for (final node in [
+      focusNode1,
+      focusNode2,
+      focusNode3,
+    ]) {
+      if (node == nodeToFocus) {
+        FocusScope.of(context).requestFocus(node);
+      } else {
+        node.unfocus();
+      }
+    }
+  }
+
+  void _handleFocusAccordingToState() {
+    print('_handleFocusAccordingToState');
+    final bloc = context.read<DevolucionesBloc>();
+
+    final focusMap = {
+      "location": () =>
+          !bloc.locationIsOk && !bloc.productIsOk && !bloc.contactoIsOk,
+      "contacto": () =>
+          bloc.locationIsOk && !bloc.productIsOk && !bloc.contactoIsOk,
+      "product": () =>
+          bloc.locationIsOk &&
+          bloc.contactoIsOk &&
+          bloc.productIsOk &&
+          !bloc.isDialogVisible,
+      "quantity": () =>
+          bloc.locationIsOk &&
+          bloc.contactoIsOk &&
+          bloc.productIsOk &&
+          bloc.isDialogVisible,
+    };
+
+    final focusNodeByKey = {
+      "location": focusNode2,
+      "product": focusNode1,
+      "contacto": focusNode3,
+      "quantity": focusNode4,
+    };
+
+    for (final entry in focusMap.entries) {
+      if (entry.value()) {
+        debugPrint("🚼 ${entry.key}");
+        // print('locationIsOk: ${bloc.locationIsOk}, '
+        //     'productIsOk: ${bloc.productIsOk}, '
+        //     'contactoIsOk: ${bloc.contactoIsOk}, '
+        //     'quantityIsOk: ${bloc.viewQuantity}, '
+        //     'isDialogVisible: ${bloc.isDialogVisible}');
+        _setOnlyFocus(focusNodeByKey[entry.key]!);
+        break;
+      }
+    }
+  }
+
+  String getCurrentStep(DevolucionesBloc bloc) {
+    if (!bloc.locationIsOk && !bloc.productIsOk && !bloc.contactoIsOk) {
+      return 'location';
+    } else if (bloc.locationIsOk && !bloc.productIsOk && !bloc.contactoIsOk) {
+      return 'contacto';
+    } else if (bloc.locationIsOk &&
+        bloc.contactoIsOk &&
+        bloc.productIsOk &&
+        !bloc.isDialogVisible) {
+      return 'product';
+    } else if (bloc.locationIsOk &&
+        bloc.contactoIsOk &&
+        bloc.productIsOk &&
+        bloc.isDialogVisible) {
+      return 'quantity';
+    } else {
+      return 'none';
+    }
   }
 
   @override
   void dispose() {
-    focusNode1.dispose();
-    _controllerSearch.dispose();
+    for (final node in [
+      focusNode1,
+      focusNode2,
+      focusNode3,
+    ]) {
+      node.dispose();
+    }
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
-  void validateBarcode(String value) {
+  void validateProducto(String value) {
     final bloc = context.read<DevolucionesBloc>();
+    if (bloc.isDialogVisible) {
+      bloc.add(
+          ClearScannedValueEvent('product')); // Limpiamos el valor escaneado
+      return; // Evita validar si el diálogo ya está visible
+    }
     final scan = _getScannedOrManual(bloc.scannedValue1, value);
-    _controllerSearch.text = ''; // Limpia el campo de texto
+
+    print('scan product: $scan');
+    _controllerSearch.text = ''; // Limpia el campo de texto del producto
+    //buscamos si hay un producto con ese código de barras
 
     bloc.add(GetProductEvent(
       scan.toUpperCase(),
       false, // Asumiendo que false es para escaneo
     ));
-    focusNode1
-        .requestFocus(); // Vuelve a enfocar para seguir escaneando/tecleando
+    bloc.add(ClearScannedValueEvent('product')); // Limpiamos el valor escaneado
+  }
+
+  void validateLocation(String value) {
+    final bloc = context.read<DevolucionesBloc>();
+    final scan = _getScannedOrManual(bloc.scannedValue3, value);
+
+    print('scan location: $scan');
+    _controllerLocation.text = ''; // Limpia el campo de texto del producto
+    //buscamos si hay un producto con ese código de barras
+
+    ResultUbicaciones? matchedUbicacion = bloc.ubicaciones.firstWhere(
+        (ubicacion) => ubicacion.barcode?.toLowerCase() == scan.trim(),
+        orElse: () =>
+            ResultUbicaciones() // Si no se encuentra ningún match, devuelve null
+        );
+    if (matchedUbicacion.barcode != null) {
+      print('Ubicacion encontrada: ${matchedUbicacion.name}');
+      bloc.add(SelectLocationEvent(matchedUbicacion));
+      bloc.add(ClearScannedValueEvent('location'));
+    } else {
+      print('Ubicacion no encontrada');
+      bloc.add(ClearScannedValueEvent('location'));
+    }
+  }
+
+  void validateContacto(String value) {
+    final bloc = context.read<DevolucionesBloc>();
+    final scan = _getScannedOrManual(bloc.scannedValue4, value);
+
+    print('scan contacto: $scan');
+    _controllerContacto.text = ''; // Limpia el campo de texto del producto
+    //buscamos si hay un producto con ese código de barras
+
+    Terceros? matchedTercero = bloc.terceros.firstWhere(
+        (tercero) => tercero.document?.toLowerCase() == scan.trim(),
+        orElse: () =>
+            Terceros() // Si no se encuentra ningún match, devuelve null
+        );
+    if (matchedTercero.document != null) {
+      print('contacto encontrado: ${matchedTercero.name}');
+      bloc.add(SelectTerceroEvent(matchedTercero));
+      bloc.add(ClearScannedValueEvent('contacto'));
+    } else {
+      print('contacto no encontrada');
+      bloc.add(ClearScannedValueEvent('contacto'));
+    }
   }
 
   void validateQuantity(String value) {
@@ -65,12 +228,10 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
     _controllerQuantity.text = ''; // Limpia el campo de texto
     if (scan == bloc.currentProduct.barcode?.toLowerCase()) {
       bloc.add(SetQuantityEvent(1));
+      bloc.add(ClearScannedValueEvent('quantity'));
     } else {
       bloc.add(ClearScannedValueEvent('quantity'));
     }
-
-    // focusNodeQuantity
-    //     .requestFocus(); // Vuelve a enfocar para seguir escaneando/tecleando
   }
 
   String _getScannedOrManual(String scanned, String manual) {
@@ -85,11 +246,18 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
       listener: (context, state) {
         print('Estado actual ❤️‍🔥: $state');
 
-        if (state is LoadTercerosSuccess) {
-          Navigator.pushReplacementNamed(
-            context,
-            'terceros',
-          );
+        if (state is SelectLocationState) {
+          Future.delayed(const Duration(seconds: 1), () {
+            FocusScope.of(context).requestFocus(focusNode3);
+          });
+          _handleFocusAccordingToState();
+        }
+
+        if (state is SelectTerceroState) {
+          Future.delayed(const Duration(seconds: 1), () {
+            FocusScope.of(context).requestFocus(focusNode1);
+          });
+          _handleFocusAccordingToState();
         }
 
         if (state is GetProductLoading) {
@@ -101,7 +269,8 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
                 (dialogContext) => // Usa un nombre diferente para el contexto del diálogo
                     const DialogLoading(message: "Buscando información..."),
           );
-        } else if (state is GetProductFailure) {
+        }
+        if (state is GetProductFailure) {
           //esperamos 1 y cerramos el diálogo de carga
           Future.delayed(const Duration(seconds: 1), () {
             Navigator.pop(context); // Cierra el diálogo de carga
@@ -114,78 +283,695 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
             colorText: primaryColorApp,
             icon: const Icon(Icons.error, color: Colors.red),
           );
-        } else if (state is GetProductSuccess) {
+        }
+        if (state is GetProductSuccess) {
+          final bloc = context.read<DevolucionesBloc>();
+          if (bloc.isDialogVisible) {
+            return; // Evita duplicar el diálogo
+          }
+
+          bloc.add(ChangeStateIsDialogVisibleEvent(true));
           Navigator.pop(context); // Cierra el diálogo de carga
 
           //mostrar un dialogo para agregar el producto con cantidad y lote si es necesario
           showDialog(
-            context: context,
-            builder: (context) {
-              return DialogEditProduct(
-                functionValidate: (value) {
-                  validateQuantity(value);
-                },
-                focusNode: focusNodeQuantity,
-                focusNodeQuantityManual: focusNodeQuantityManual,
-                controller: _controllerQuantity,
-                isEdit: false,
-              );
-            },
-          );
-        } else if (state is GetProductExists) {
-          //mostramos un dialogo diciendo que el producto ya existe
-          Navigator.pop(context); // Cierra el diálogo de carga
-
-          //verficamos si le producto tiene lote
-          if (state.product.tracking == 'lot') {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Center(
-                      child: Text('Producto ya existe',
-                          style: TextStyle(
-                            color: primaryColorApp,
-                            fontSize: 18,
-                          )),
-                    ),
-                    content: Text(
-                        'El producto ${state.product.name} ya está en la lista de devoluciones.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context); // Cierra el diálogo
-                        },
-                        child: const Text('Aceptar'),
-                      ),
-                    ],
-                  );
-                });
-          } else {
-            showDialog(
               context: context,
               builder: (context) {
                 return DialogEditProduct(
                   functionValidate: (value) {
                     validateQuantity(value);
                   },
-                  focusNode: focusNodeQuantity,
-                  focusNodeQuantityManual: focusNodeQuantityManual,
+                  focusNode: focusNode4,
+                  focusNodeQuantityManual: focusNode5,
                   controller: _controllerQuantity,
                   isEdit: false,
                 );
-              },
-            );
+              }).then((_) {
+            // Se ejecuta al cerrar el diálogo
+            bloc.add(ChangeStateIsDialogVisibleEvent(false));
+          });
+        }
+
+        if (state is SendDevolucionFailure) {
+          Get.defaultDialog(
+            title: '360 Software Informa',
+            titleStyle: TextStyle(color: Colors.red, fontSize: 18),
+            middleText: state.error,
+            middleTextStyle: TextStyle(color: black, fontSize: 14),
+            backgroundColor: Colors.white,
+            radius: 10,
+            actions: [
+              ElevatedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColorApp,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: Text('Aceptar', style: TextStyle(color: white)),
+              ),
+            ],
+          );
+        }
+
+        if (state is SendDevolucionSuccess) {
+          Get.snackbar(
+            '360 Software Informa',
+            '${state.response.result?.msg}',
+            backgroundColor: white,
+            colorText: primaryColorApp,
+            icon: const Icon(Icons.error, color: Colors.green),
+          );
+        }
+
+        if (state is GetProductExists) {
+          //mostramos un dialogo diciendo que el producto ya existe
+
+          final bloc = context.read<DevolucionesBloc>();
+          if (bloc.isDialogVisible) {
+            return; // Evita duplicar el diálogo
+          }
+
+          bloc.add(ChangeStateIsDialogVisibleEvent(true));
+
+          Navigator.pop(context); // Cierra el diálogo de carga
+          //verficamos si le producto tiene lote
+          if (state.product.tracking == 'lot') {
+            showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) {
+                  final size = MediaQuery.sizeOf(context);
+                  return WillPopScope(
+                    onWillPop: () async => false,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: AlertDialog(
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 5),
+                        actionsAlignment: MainAxisAlignment.spaceAround,
+                        title: Center(
+                          child: Text('Productos relacionados',
+                              style: TextStyle(
+                                color: primaryColorApp,
+                                fontSize: 18,
+                              )),
+                        ),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Icono o imagen del producto
+                                    // Puedes usar Image.network(product.imageUrl) si tienes URLs de imagen
+                                    Expanded(
+                                      child:
+
+                                          //LISTA DE PRODUCTOS RELACIONADOS
+                                          ListView.builder(
+                                        itemBuilder: (context, index) => Card(
+                                          elevation: 2,
+                                          color: white,
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Container(
+                                                      width: size.width * 0.35,
+                                                      child: Text(
+                                                        state
+                                                                .productosRelacionados[
+                                                                    index]
+                                                                .name ??
+                                                            "",
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black,
+                                                        ),
+                                                        maxLines: 2,
+                                                      ),
+                                                    ),
+                                                    const Spacer(),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        bloc.add(
+                                                            ChangeStateIsDialogVisibleEvent(
+                                                                true));
+
+                                                        bloc.add(
+                                                            LoadCurrentProductEvent(
+                                                                Product(
+                                                          productId: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .productId,
+                                                          name: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .name,
+                                                          code: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .code,
+                                                          barcode: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .barcode,
+                                                          quantity: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .quantity,
+                                                          lotId: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .lotId,
+                                                          lotName: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .lotName,
+                                                          tracking: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .tracking,
+                                                          useExpirationDate: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .useExpirationDate,
+                                                          expirationTime: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .expirationTime,
+                                                          expirationDate: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .expirationDate,
+                                                          weight: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .weight,
+                                                          weightUomName: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .weightUomName,
+                                                          volume: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .volume,
+                                                          volumeUomName: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .volumeUomName,
+                                                          uom: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .uom,
+                                                          locationId: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .locationId,
+                                                          locationName: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .locationName,
+                                                          otherBarcodes: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .otherBarcodes,
+                                                          productPacking: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .productPacking,
+                                                          category: state
+                                                              .productosRelacionados[
+                                                                  index]
+                                                              .category,
+                                                        )));
+                                                        Navigator.pop(
+                                                            context); // Cierra el diálogo
+                                                        showDialog(
+                                                          context: context,
+                                                          builder: (context) {
+                                                            return DialogEditProduct(
+                                                              functionValidate:
+                                                                  (value) {
+                                                                validateQuantity(
+                                                                    value);
+                                                              },
+                                                              focusNode:
+                                                                  focusNode4,
+                                                              focusNodeQuantityManual:
+                                                                  focusNode5,
+                                                              controller:
+                                                                  _controllerQuantity,
+                                                              isEdit: true,
+                                                            );
+                                                          },
+                                                        ).then((_) {
+                                                          // Se ejecuta al cerrar el diálogo
+                                                          bloc.isDialogVisible =
+                                                              false;
+                                                        });
+                                                      },
+                                                      child: Icon(
+                                                        Icons.edit,
+                                                        color: primaryColorApp,
+                                                        size: 20,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      'Barcode: ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                    ),
+                                                    Text(
+                                                      '${state.productosRelacionados[index].barcode}',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      'Código: ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                    ),
+                                                    Text(
+                                                      '${state.productosRelacionados[index].code}',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      'Cantidad: ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                    ),
+                                                    Text(
+                                                      '${state.productosRelacionados[index].quantity}',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black),
+                                                    ),
+                                                    const Spacer(),
+                                                    Text(
+                                                      'unidad: ',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              primaryColorApp),
+                                                    ),
+                                                    Text(
+                                                      '${state.productosRelacionados[index].uom}',
+                                                      style: const TextStyle(
+                                                          fontSize: 12,
+                                                          color: black),
+                                                    ),
+                                                  ],
+                                                ),
+                                                Visibility(
+                                                  visible: state
+                                                          .productosRelacionados[
+                                                              index]
+                                                          .tracking ==
+                                                      'lot',
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        'Lote: ',
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp),
+                                                      ),
+                                                      Text(
+                                                        '${state.productosRelacionados[index].lotName}',
+                                                        style: const TextStyle(
+                                                            fontSize: 12,
+                                                            color: black),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        itemCount:
+                                            state.productosRelacionados.length,
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              context
+                                  .read<DevolucionesBloc>()
+                                  .add(ChangeStateIsDialogVisibleEvent(false));
+                              Navigator.pop(context); // Cierra el diálogo
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: grey,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text('Cancelar',
+                                style: TextStyle(color: white)),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              context
+                                  .read<DevolucionesBloc>()
+                                  .add(LoadCurrentProductEvent(Product(
+                                    productId: state.product.productId,
+                                    name: state.product.name,
+                                    code: state.product.code,
+                                    barcode: state.product.barcode,
+                                    quantity: null,
+                                    lotId: null,
+                                    lotName: null,
+                                    tracking: state.product.tracking,
+                                    useExpirationDate:
+                                        state.product.useExpirationDate,
+                                    expirationTime:
+                                        state.product.expirationTime,
+                                    expirationDate:
+                                        state.product.expirationDate,
+                                    weight: state.product.weight,
+                                    weightUomName: state.product.weightUomName,
+                                    volume: state.product.volume,
+                                    volumeUomName: state.product.volumeUomName,
+                                    uom: state.product.uom,
+                                    locationId: state.product.locationId,
+                                    locationName: state.product.locationName,
+                                    otherBarcodes: state.product.otherBarcodes,
+                                    productPacking:
+                                        state.product.productPacking,
+                                    category: state.product.category,
+                                  )));
+
+                              Navigator.pop(
+                                  context); // Cierra el diálogo de carga
+                              //mostrar un dialogo para agregar el producto con cantidad y lote si es necesario
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return DialogEditProduct(
+                                    functionValidate: (value) {
+                                      validateQuantity(value);
+                                    },
+                                    focusNode: focusNode4,
+                                    focusNodeQuantityManual: focusNode5,
+                                    controller: _controllerQuantity,
+                                    isEdit: false,
+                                  );
+                                },
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColorApp,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text('Nuevo',
+                                style: TextStyle(color: white)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                });
+          } else {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: AlertDialog(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 5),
+                      actionsAlignment: MainAxisAlignment.spaceAround,
+                      title: Center(
+                        child: Text('Producto ya existe',
+                            style: TextStyle(
+                              color: primaryColorApp,
+                              fontSize: 18,
+                            )),
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Card(
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Icono o imagen del producto
+                                  // Puedes usar Image.network(product.imageUrl) si tienes URLs de imagen
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          state.product.name ?? "",
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: black,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Barcode: ',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp),
+                                            ),
+                                            Text(
+                                              '${state.product.barcode}',
+                                              style: const TextStyle(
+                                                  fontSize: 12, color: black),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Código: ',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp),
+                                            ),
+                                            Text(
+                                              '${state.product.code}',
+                                              style: const TextStyle(
+                                                  fontSize: 12, color: black),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              'Cantidad: ',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp),
+                                            ),
+                                            Text(
+                                              '${state.product.quantity}',
+                                              style: const TextStyle(
+                                                  fontSize: 12, color: black),
+                                            ),
+                                            const Spacer(),
+                                            Text(
+                                              'unidad: ',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: primaryColorApp),
+                                            ),
+                                            Text(
+                                              '${state.product.uom}',
+                                              style: const TextStyle(
+                                                  fontSize: 12, color: black),
+                                            ),
+                                          ],
+                                        ),
+                                        Visibility(
+                                          visible:
+                                              state.product.tracking == 'lot',
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                'Lote: ',
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: primaryColorApp),
+                                              ),
+                                              Text(
+                                                '${state.product.lotName}',
+                                                style: const TextStyle(
+                                                    fontSize: 12, color: black),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context); // Cierra el diálogo
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: grey,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text('Cancelar',
+                              style: TextStyle(color: white)),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            context
+                                .read<DevolucionesBloc>()
+                                .add(ChangeStateIsDialogVisibleEvent(true));
+                            context
+                                .read<DevolucionesBloc>()
+                                .add(LoadCurrentProductEvent(Product(
+                                  productId: state.product.productId,
+                                  name: state.product.name,
+                                  code: state.product.code,
+                                  barcode: state.product.barcode,
+                                  quantity: state.product.quantity,
+                                  lotId: state.product.lotId,
+                                  lotName: state.product.lotName,
+                                  tracking: state.product.tracking,
+                                  useExpirationDate:
+                                      state.product.useExpirationDate,
+                                  expirationTime: state.product.expirationTime,
+                                  expirationDate: state.product.expirationDate,
+                                  weight: state.product.weight,
+                                  weightUomName: state.product.weightUomName,
+                                  volume: state.product.volume,
+                                  volumeUomName: state.product.volumeUomName,
+                                  uom: state.product.uom,
+                                  locationId: state.product.locationId,
+                                  locationName: state.product.locationName,
+                                  otherBarcodes: state.product.otherBarcodes,
+                                  productPacking: state.product.productPacking,
+                                  category: state.product.category,
+                                )));
+                            Navigator.pop(context); // Cierra el diálogo
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return DialogEditProduct(
+                                  functionValidate: (value) {
+                                    validateQuantity(value);
+                                  },
+                                  focusNode: focusNode4,
+                                  focusNodeQuantityManual: focusNode5,
+                                  controller: _controllerQuantity,
+                                  isEdit: true,
+                                );
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColorApp,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text('Editar',
+                              style: TextStyle(color: white)),
+                        ),
+                      ],
+                    ),
+                  );
+                });
           }
         }
       },
       builder: (context, state) {
         final devolucionesBloc = context.read<DevolucionesBloc>();
+        final currentStep = getCurrentStep(devolucionesBloc);
 
         // Determina si la lista de productos está vacía
 
         return Scaffold(
           backgroundColor: white,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.miniEndFloat,
+          floatingActionButton: FloatingActionButton(
+            mini: true,
+            onPressed: () {
+              devolucionesBloc.add(ChangeStateIsDialogVisibleEvent(true));
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return SearchProductDevScreen();
+                    ///cuando lo cerremos pasamos aChangeStateIsDialogVisibleEvent true
+                  }).then((_) {
+                // Se ejecuta al cerrar el diálogo
+                devolucionesBloc.add(ChangeStateIsDialogVisibleEvent(false));
+              });
+            },
+            backgroundColor: primaryColorApp,
+            child: const Icon(Icons.add, color: white, size: 20),
+          ),
           body: Column(
             children: [
               const CustomAppBar(), // Tu barra de aplicación personalizada
@@ -194,28 +980,38 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
                   children: [
                     BuildBarcodeInputField(
                       devolucionesBloc: devolucionesBloc,
-                      focusNode: focusNode1,
+                      focusNode: currentStep == 'location'
+                          ? focusNode2
+                          : currentStep == 'contacto'
+                              ? focusNode3
+                              : focusNode1,
+                      controller: currentStep == 'location'
+                          ? _controllerLocation
+                          : currentStep == 'contacto'
+                              ? _controllerContacto
+                              : _controllerSearch,
                       functionValidate: (value) {
-                        validateBarcode(value);
+                        switch (currentStep) {
+                          case 'location':
+                            return validateLocation(value);
+                          case 'contacto':
+                            return validateContacto(value);
+                          case 'product':
+                            return validateProducto(value);
+                          default:
+                            return;
+                        }
                       },
-                      controller: _controllerSearch,
                       functionUpdate: (keyLabel) {
-                        context
-                            .read<DevolucionesBloc>()
-                            .add(UpdateScannedValueEvent(keyLabel, 'product'));
+                        context.read<DevolucionesBloc>().add(
+                              UpdateScannedValueEvent(keyLabel, currentStep),
+                            );
                       },
                     ),
-                    // El contenido condicional basado en si la lista está vacía o no
-                    if (context
-                        .read<DevolucionesBloc>()
-                        .productosDevolucion
-                        .isEmpty)
-                      // UI para cuando la lista de productos está vacía
-                      _buildEmptyListUI(context, devolucionesBloc)
-                    else
-                      // UI para cuando hay productos en la lista
-                      _buildProductListUI(context, devolucionesBloc,
-                          context.read<DevolucionesBloc>().productosDevolucion),
+
+                    // UI para cuando hay productos en la lista
+                    _buildProductListUI(context, devolucionesBloc,
+                        context.read<DevolucionesBloc>().productosDevolucion),
                   ],
                 ),
               ),
@@ -223,35 +1019,6 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
           ),
         );
       },
-    );
-  }
-
-  // --- Widgets Auxiliares para Construir la UI Condicionalmente ---
-
-  Widget _buildEmptyListUI(
-      BuildContext context, DevolucionesBloc devolucionesBloc) {
-    return Expanded(
-      // Envuelve en Expanded para que ocupe el espacio y no desborde
-      child: Column(
-        mainAxisAlignment:
-            MainAxisAlignment.center, // Centra el contenido verticalmente
-        children: [
-          Image.asset(
-            'assets/icons/barcode.png',
-            width: 150,
-            height: 150,
-            color: black,
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              "Escanea el código de barras o ingresa el producto manualmente para añadirlo a la devolución.",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: black),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -266,131 +1033,192 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
         children: [
           // Mensaje superior para escanear/agregar
 
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              elevation: 3,
-              color: white,
-              child: Padding(
-                padding: const EdgeInsets.all(2),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, top: 2, bottom: 5),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacementNamed(
-                              context, 'ubicaciones-devoluciones');
-                        },
-                        child: Row(
-                          children: [
-                            Text('Ubicación destino: ',
-                                style: TextStyle(
-                                    fontSize: 12, color: primaryColorApp)),
-                            Text(
-                              devolucionesBloc.currentLocation.name ??
-                                  'No asignada',
-                              style: TextStyle(
-                                  fontSize: 12,
-                                  color:
-                                      devolucionesBloc.currentLocation.name ==
-                                              null
-                                          ? red
-                                          : black),
-                            ),
-                            const Spacer(),
-                            Icon(
-                              Icons.location_on,
-                              color: primaryColorApp,
-                              size: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 8.0,
-                        right: 8.0,
-                        top: 2,
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          if (devolucionesBloc.terceros.isNotEmpty) {
-                            Navigator.pushReplacementNamed(context, 'terceros');
-                          } else {
-                            devolucionesBloc.add(LoadTercerosEvent());
-                          }
-                        },
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text('Proveedor: ',
-                                    style: TextStyle(
-                                        fontSize: 12, color: primaryColorApp)),
-                                Text(
-                                  devolucionesBloc.currentTercero.name ??
-                                      'No asignado',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: devolucionesBloc
-                                                  .currentTercero.name ==
-                                              null
-                                          ? red
-                                          : black),
-                                ),
-                                const Spacer(),
-                                Icon(
-                                  Icons.person,
-                                  color: primaryColorApp,
-                                  size: 20,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text('Documento: ',
-                                    style: TextStyle(
-                                        fontSize: 12, color: primaryColorApp)),
-                                Text(
-                                  devolucionesBloc.currentTercero.document ??
-                                      'No asignado',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: devolucionesBloc
-                                                  .currentTercero.document ==
-                                              null
-                                          ? red
-                                          : black),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                          left: 8.0, right: 8.0, bottom: 5),
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 8.0,
+                  right: 8.0,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacementNamed(
+                        context, 'ubicaciones-devoluciones');
+                  },
+                  child: Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
                       child: Row(
                         children: [
-                          Text('Productos: ',
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: devolucionesBloc.locationIsOk
+                                    ? Colors.green
+                                    : Colors.amber,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                          Text('Ubicación destino: ',
                               style: TextStyle(
-                                  fontSize: 12, color: primaryColorApp)),
+                                  fontSize: 11, color: primaryColorApp)),
                           Text(
-                            '${productosDevolucion.length}',
-                            style: const TextStyle(fontSize: 12, color: black),
+                            devolucionesBloc.currentLocation.name ??
+                                'Esperando escaneo',
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: devolucionesBloc.currentLocation.name ==
+                                        null
+                                    ? red
+                                    : black),
+                          ),
+                          const Spacer(),
+                          Icon(
+                            Icons.location_on,
+                            color: primaryColorApp,
+                            size: 20,
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 5), // Espacio entre los campos
-                  ],
+                  ),
                 ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 8.0,
+                  right: 8.0,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    if (devolucionesBloc.terceros.isNotEmpty) {
+                      Navigator.pushReplacementNamed(context, 'terceros');
+                    } else {
+                      devolucionesBloc.add(LoadTercerosEvent());
+                    }
+                  },
+                  child: Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: devolucionesBloc.contactoIsOk
+                                        ? Colors.green
+                                        : Colors.amber,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Text('Contacto: ',
+                                  style: TextStyle(
+                                      fontSize: 11, color: primaryColorApp)),
+                              Text(
+                                devolucionesBloc.currentTercero.name ??
+                                    'Esperando escaneo',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color:
+                                        devolucionesBloc.currentTercero.name ==
+                                                null
+                                            ? red
+                                            : black),
+                              ),
+                              const Spacer(),
+                              Icon(
+                                Icons.person,
+                                color: primaryColorApp,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
+                                child: Container(
+                                  width: 10,
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: devolucionesBloc.contactoIsOk
+                                        ? Colors.green
+                                        : Colors.amber,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                              Text('Documento: ',
+                                  style: TextStyle(
+                                      fontSize: 11, color: primaryColorApp)),
+                              Text(
+                                devolucionesBloc.currentTercero.document ??
+                                    'Esperando escaneo',
+                                style: TextStyle(
+                                    fontSize: 11,
+                                    color: devolucionesBloc
+                                                .currentTercero.document ==
+                                            null
+                                        ? red
+                                        : black),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding:
+                    const EdgeInsets.only(left: 8.0, right: 8.0, bottom: 5),
+                child: Card(
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: devolucionesBloc.productIsOk
+                                  ? Colors.green
+                                  : Colors.amber,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                        Text('Productos: ',
+                            style: TextStyle(
+                                fontSize: 11, color: primaryColorApp)),
+                        Text(
+                          '${productosDevolucion.length}',
+                          style: const TextStyle(fontSize: 11, color: black),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           // La lista de productos existentes
           Expanded(
@@ -412,6 +1240,9 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
                   },
                   onEdit: () {
                     print('Editando producto: ${product.toMap()}');
+                    context
+                        .read<DevolucionesBloc>()
+                        .add(ChangeStateIsDialogVisibleEvent(true));
                     context
                         .read<DevolucionesBloc>()
                         .add(LoadCurrentProductEvent(Product(
@@ -444,8 +1275,8 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
                           functionValidate: (value) {
                             validateQuantity(value);
                           },
-                          focusNode: focusNodeQuantity,
-                          focusNodeQuantityManual: focusNodeQuantityManual,
+                          focusNode: focusNode4,
+                          focusNodeQuantityManual: focusNode5,
                           controller: _controllerQuantity,
                           isEdit: true,
                         );
@@ -457,49 +1288,54 @@ class _DevolucionesScreenState extends State<DevolucionesScreen> {
             ),
           ),
           const SizedBox(height: 5), // Espacio inferior
-          ElevatedButton(
-              onPressed: () {
-                //verficiamos que tengmos ubicacion y tercero
-                if (devolucionesBloc.currentLocation.name == null) {
-                  Get.snackbar(
-                    '360 Software Informa',
-                    'Debe seleccionar una ubicación destino',
-                    backgroundColor: white,
-                    colorText: primaryColorApp,
-                    icon: const Icon(Icons.error, color: Colors.red),
-                  );
-                  return;
-                }
-                if (devolucionesBloc.currentTercero.name == null) {
-                  Get.snackbar(
-                    '360 Software Informa',
-                    'Debe seleccionar un proveedor',
-                    backgroundColor: white,
-                    colorText: primaryColorApp,
-                    icon: const Icon(Icons.error, color: Colors.red),
-                  );
-                  return;
-                }
+          Padding(
+            padding: const EdgeInsets.only(right: 50),
+            child: ElevatedButton(
+                onPressed: () {
+                  //verficiamos que tengmos ubicacion y tercero
+                  if (devolucionesBloc.currentLocation.name == null) {
+                    Get.snackbar(
+                      '360 Software Informa',
+                      'Debe seleccionar una ubicación destino',
+                      backgroundColor: white,
+                      colorText: primaryColorApp,
+                      icon: const Icon(Icons.error, color: Colors.red),
+                    );
+                    return;
+                  }
+                  if (devolucionesBloc.currentTercero.name == null) {
+                    Get.snackbar(
+                      '360 Software Informa',
+                      'Debe seleccionar un proveedor',
+                      backgroundColor: white,
+                      colorText: primaryColorApp,
+                      icon: const Icon(Icons.error, color: Colors.red),
+                    );
+                    return;
+                  }
 
-                //verificamos que tengamos productos
-                if (devolucionesBloc.productosDevolucion.isEmpty) {
-                  Get.snackbar(
-                    '360 Software Informa',
-                    'Debe agregar al menos un producto a la devolución',
-                    backgroundColor: white,
-                    colorText: primaryColorApp,
-                    icon: const Icon(Icons.error, color: Colors.red),
-                  );
-                  return;
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColorApp,
-                  minimumSize: (Size(size.width * 0.9, 30)),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10))),
-              child: Text('CREAR DEVOLUCION', style: TextStyle(color: white))),
-          const SizedBox(height: 5), // Espacio inferior
+                  //verificamos que tengamos productos
+                  if (devolucionesBloc.productosDevolucion.isEmpty) {
+                    Get.snackbar(
+                      '360 Software Informa',
+                      'Debe agregar al menos un producto a la devolución',
+                      backgroundColor: white,
+                      colorText: primaryColorApp,
+                      icon: const Icon(Icons.error, color: Colors.red),
+                    );
+                    return;
+                  }
+                  devolucionesBloc.add(SendDevolucionEvent());
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColorApp,
+                    minimumSize: (Size(size.width * 0.7, 30)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10))),
+                child:
+                    Text('CREAR DEVOLUCION', style: TextStyle(color: white))),
+          ),
+          const SizedBox(height: 10), // Espacio inferior
         ],
       ),
     );

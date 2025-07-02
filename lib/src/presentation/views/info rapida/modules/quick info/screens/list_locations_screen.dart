@@ -137,7 +137,7 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                                             bloc.add(SearchLocationEvent(
                                               '',
                                             ));
-                                            bloc.add(ShowKeyboardEvent(false));
+                                            bloc.add(ShowKeyboardInfoEvent(false,TextEditingController()));
                                             FocusScope.of(context).unfocus();
                                           },
                                           icon: const Icon(
@@ -163,7 +163,7 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                                             .contains("Zebra")
                                         ? null
                                         : () {
-                                            bloc.add(ShowKeyboardEvent(true));
+                                            bloc.add(ShowKeyboardInfoEvent(true,TextEditingController()));
                                           },
                                   ),
                                 ),
@@ -308,7 +308,7 @@ class _ListLocationsScreenState extends State<ListLocationsScreen> {
                             final selectedLocation =
                                 bloc.ubicacionesFilters[selectedIndex!];
 
-                            bloc.add(ShowKeyboardEvent(false));
+                            bloc.add(ShowKeyboardInfoEvent(false,TextEditingController()));
                             FocusScope.of(context).unfocus();
 
                             setState(() {
@@ -367,7 +367,6 @@ class _AppBarInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 20),
       decoration: BoxDecoration(
         color: primaryColorApp,
         borderRadius: const BorderRadius.only(
@@ -385,7 +384,7 @@ class _AppBarInfo extends StatelessWidget {
               const WarningWidgetCubit(), // Este ya usa el mismo cubit global
               Padding(
                 padding: EdgeInsets.only(
-                  top: status != ConnectionStatus.online ? 0 : 35,
+                  top: status != ConnectionStatus.online ? 0 : 25,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -399,7 +398,7 @@ class _AppBarInfo extends StatelessWidget {
                             .clear();
                         context
                             .read<InfoRapidaBloc>()
-                            .add(ShowKeyboardEvent(false));
+                            .add(ShowKeyboardInfoEvent(false,TextEditingController()));
 
                         Navigator.pushReplacementNamed(
                           context,

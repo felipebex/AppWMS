@@ -554,8 +554,11 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
           idUbicacionDestino:
               (producto.idLocation is int) ? producto.idLocationDest : 0,
           cantidadEnviada: event.isCertificate
-              ? producto.quantitySeparate ?? 0
+              ? (producto.quantitySeparate ?? 0) > (producto.quantity)
+                  ? producto.quantity
+                  : producto.quantitySeparate ?? 0
               : producto.quantity ?? 0,
+      
           observacion: producto.observation ?? 'Sin novedad',
           timeLine: producto.timeSeparate == 0.0 ? 2 : producto.timeSeparate,
           idOperario: idOperario,

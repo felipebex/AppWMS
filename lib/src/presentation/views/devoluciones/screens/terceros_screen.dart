@@ -85,9 +85,9 @@ class _TerceroscreenState extends State<Terceroscreen> {
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(
-                                              left: size.width * 0.2),
+                                              left: size.width * 0.25),
                                           child: const Text(
-                                            'PROVEEDORES',
+                                            'CONTACTO',
                                             style: TextStyle(
                                                 color: white, fontSize: 18),
                                           ),

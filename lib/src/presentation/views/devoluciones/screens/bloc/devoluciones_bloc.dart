@@ -1,12 +1,19 @@
+// ignore_for_file: unnecessary_type_check
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/data/devoluciones_repository.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/product_devolucion_model.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/models/request_send_devolucion_model.dart';
+import 'package:wms_app/src/presentation/views/devoluciones/models/response_devolucion_model.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/models/response_terceros_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
+import 'package:wms_app/src/utils/formats.dart';
+import 'package:wms_app/src/utils/interable_extension.dart';
+import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'devoluciones_event.dart';
 part 'devoluciones_state.dart';
@@ -16,10 +23,20 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
   TextEditingController searchControllerLocation = TextEditingController();
   TextEditingController searchControllerProducts = TextEditingController();
   TextEditingController searchControllerTerceros = TextEditingController();
+  TextEditingController searchControllerLote = TextEditingController();
+  TextEditingController newLoteController = TextEditingController();
+  TextEditingController dateLoteController = TextEditingController();
   TextEditingController searchControllerLocationDest = TextEditingController();
-  String scannedValue1 = '';
-  String scannedValue2 = '';
+  String scannedValue1 = ''; //foco
+  String scannedValue2 = ''; //cantidad
+  String scannedValue3 = ''; //location
+  String scannedValue4 = ''; //contacto
+
   String selectedAlmacen = '';
+
+  bool locationIsOk = false;
+  bool contactoIsOk = false;
+  bool productIsOk = false;
 
   //*lista de productos
   List<Product> productos = [];
@@ -39,7 +56,8 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
   dynamic quantitySelected = 0;
 
   bool viewQuantity = false;
-  bool isLoading = false;
+  bool isDialogVisible = false;
+
   List<Terceros> terceros = [];
   List<Terceros> tercerosFilters = [];
 
@@ -48,6 +66,10 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
   //*lista de ubicaciones
   List<ResultUbicaciones> ubicaciones = [];
   List<ResultUbicaciones> ubicacionesFilters = [];
+
+  //lista de lotes de un producto
+  List<LotesProduct> listLotesProduct = [];
+  List<LotesProduct> listLotesProductFilters = [];
 
   DevolucionesRepository devolucionesRepository = DevolucionesRepository();
 
@@ -94,6 +116,230 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
 
     //evento para seleccionar una ubicacion
     on<SelectLocationEvent>(_onSelectLocationEvent);
+
+    on<SelectecLoteEvent>(_onChangeLoteIsOkEvent);
+    //metodo para buscar un lote
+    on<SearchLotevent>(_onSearchLoteEvent);
+
+    //*metodo para crear un lote a un producto
+    on<CreateLoteProduct>(_onCreateLoteProduct);
+
+    //*metodo para obtener todos los lotes de un producto
+    on<GetLotesProduct>(_onGetLotesProduct);
+
+    //evento para limpiar los campos
+    on<ClearValueEvent>(_onClearValueEvent);
+
+    //*metodo para bucar un producto
+    on<SearchProductEvent>(_onSearchProductEvent);
+
+    //evento apra evniar la devolucion
+    on<SendDevolucionEvent>(_onSendDevolucionEvent);
+
+    on<ChangeStateIsDialogVisibleEvent>(_onChangeStateIsDialogVisibleEvent);
+  }
+
+  void _onChangeStateIsDialogVisibleEvent(
+      ChangeStateIsDialogVisibleEvent event, Emitter<DevolucionesState> emit) {
+    isDialogVisible = event.isVisible;
+    emit(ChangeStateIsDialogVisibleState(isDialogVisible));
+  }
+
+  void _onSendDevolucionEvent(
+      SendDevolucionEvent event, Emitter<DevolucionesState> emit) async {
+    try {
+      emit(SendDevolucionLoading());
+
+      final userid = await PrefUtils.getUserId();
+
+      DateTime fechaTransaccion = DateTime.now();
+      String fechaFormateada = formatoFecha(fechaTransaccion);
+
+      final RequestSendDevolucionModel request = RequestSendDevolucionModel(
+        idAlmacen: currentLocation.idWarehouse ?? 0,
+        idProveedor: currentTercero.id ?? 0,
+        idUbicacionDestino: currentLocation.id ?? 0,
+        idResponsable: userid,
+        fechaInicio: fechaFormateada,
+        fechaFin: fechaFormateada,
+        listItems: productosDevolucion.map((product) {
+          return ProductRequest(
+            idProducto: product.productId ?? 0,
+            idLote: product.lotId == 0 || product.lotId == null
+                ? ""
+                : product.lotId,
+            ubicacionDestino: currentLocation.id ?? 0,
+            cantidadEnviada: product.quantity ?? 0,
+            idOperario: userid,
+            timeLine: 1, // Puedes ajustar este valor según tu lógica
+            fechaTransaccion: fechaFormateada,
+            observacion:
+                'Sin novedad', // Puedes agregar una observación si es necesario
+          );
+        }).toList(),
+      );
+
+      //enviamos la devolucion
+      final response = await devolucionesRepository.sendDevolucion(
+        request,
+        true,
+      );
+
+      if (response.result?.code == 200) {
+        //limpiamos los campos
+        add(ClearValueEvent());
+        emit(SendDevolucionSuccess(response));
+      } else {
+        emit(SendDevolucionFailure(response.result?.msg ??
+            'Error desconocido al enviar la devolución'));
+      }
+    } catch (e, s) {
+      print("❌ Error en _onSendDevolucionEvent: $e, $s");
+      emit(SendDevolucionFailure('Error al enviar la devolución'));
+    }
+  }
+
+  void _onSearchProductEvent(
+      SearchProductEvent event, Emitter<DevolucionesState> emit) async {
+    try {
+      emit(SearchLoading());
+      productosFilters = [];
+      productosFilters = productos;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        productosFilters = productos;
+      } else {
+        productosFilters = productos.where((product) {
+          return (product.name?.toLowerCase().contains(query) ?? false) ||
+              (product.code?.toLowerCase().contains(query) ?? false);
+        }).toList();
+      }
+      emit(SearchProductSuccess(productosFilters));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
+  }
+
+  //*metodo para limpiar los campos de busqueda
+  void _onClearValueEvent(
+      ClearValueEvent event, Emitter<DevolucionesState> emit) async {
+    try {
+      searchControllerLocation.clear();
+      searchControllerProducts.clear();
+      searchControllerTerceros.clear();
+      searchControllerLote.clear();
+      newLoteController.clear();
+      dateLoteController.clear();
+      searchControllerLocationDest.clear();
+      scannedValue1 = '';
+      scannedValue2 = '';
+      viewQuantity = false;
+      isKeyboardVisible = false;
+      productIsOk = false;
+      locationIsOk = false;
+      contactoIsOk = false;
+      currentProduct = Product();
+      currentTercero = Terceros();
+      currentLocation = ResultUbicaciones();
+      lotesProductCurrent = LotesProduct();
+      quantitySelected = 0;
+      productosDevolucion.clear();
+      productosFilters = productos;
+      listLotesProductFilters = listLotesProduct;
+      ubicacionesFilters = ubicaciones;
+      tercerosFilters = terceros;
+      isDialogVisible = false;
+
+      //limpiamos la tbla de productos devoluciones
+      await db.devolucionRepository.deleteAllProductosDevoluciones();
+      emit(ClearValueState());
+    } catch (e, s) {
+      print("❌ Error en _onClearScannedValueEvent: $e, $s");
+    }
+  }
+
+  //*metodo para obtener todos los lotes de un producto
+  void _onGetLotesProduct(
+      GetLotesProduct event, Emitter<DevolucionesState> emit) async {
+    try {
+      emit(GetLotesProductLoading());
+      final response = await devolucionesRepository.fetchAllLotesProduct(
+          false, currentProduct.productId ?? 0);
+
+      if (response != null && response is List) {
+        listLotesProduct = response;
+        listLotesProductFilters = response;
+        emit(GetLotesProductSuccess(response));
+      } else {
+        emit(GetLotesProductFailure('Error al obtener los lotes del producto'));
+      }
+    } catch (e, s) {
+      emit(GetLotesProductFailure('Error al obtener los lotes del producto'));
+      print('Error en el _onGetLotesProduct: $e, $s');
+    }
+  }
+
+  //metodo pea crar un lote a un producto
+  void _onCreateLoteProduct(
+      CreateLoteProduct event, Emitter<DevolucionesState> emit) async {
+    try {
+      emit(CreateLoteProductLoading());
+
+      final response = await devolucionesRepository.createLote(
+        true,
+        currentProduct.productId ?? 0,
+        event.nameLote,
+        event.fechaCaducidad,
+      );
+
+      if (response != null) {
+        //agregamos el nuevo lote a la lista de lotes
+        listLotesProductFilters.add(response.result?.result ?? LotesProduct());
+        lotesProductCurrent = response.result?.result ?? LotesProduct();
+        dateLoteController.clear();
+        newLoteController.clear();
+
+        emit(CreateLoteProductSuccess(lotesProductCurrent));
+      } else {
+        emit(CreateLoteProductFailure('Error al crear el lote'));
+      }
+    } catch (e, s) {
+      emit(CreateLoteProductFailure('Error al crear el lote'));
+      print('Error en el _onCreateLoteProduct: $e, $s');
+    }
+  }
+
+  void _onSearchLoteEvent(
+      SearchLotevent event, Emitter<DevolucionesState> emit) async {
+    try {
+      emit(SearchLoading());
+      listLotesProductFilters = [];
+      listLotesProductFilters = listLotesProduct;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        listLotesProductFilters = listLotesProduct;
+      } else {
+        listLotesProductFilters = listLotesProduct.where((lotes) {
+          return lotes.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(SearchLoteSuccess(listLotesProductFilters));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
+  }
+
+  void _onChangeLoteIsOkEvent(
+      SelectecLoteEvent event, Emitter<DevolucionesState> emit) async {
+    //agregamos el lote al producto
+    lotesProductCurrent = event.lote;
+    dateLoteController.clear();
+    newLoteController.clear();
+    searchControllerLote.clear();
+    print('Lote seleccionado: ${lotesProductCurrent.toMap()}');
+    emit(SelectecLoteState(lotesProductCurrent));
   }
 
   //*metodo para seleccionar una ubicacion
@@ -102,6 +348,9 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
     try {
       currentLocation = event.location;
       searchControllerLocationDest.clear();
+      scannedValue3 = '';
+      locationIsOk = true;
+      print('Ubicación seleccionada: ${currentLocation.toMap()}');
       emit(SelectLocationState(currentLocation));
     } catch (e, s) {
       print("❌ Error en _onSelectLocationEvent: $e, $s");
@@ -112,6 +361,7 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
   void _onFilterUbicacionesEvent(
       FilterUbicacionesEvent event, Emitter<DevolucionesState> emit) {
     try {
+      print('Filtrando ubicaciones por almacen: ${event.almacen}');
       emit(FilterLocationsLoading());
       selectedAlmacen = '';
       ubicacionesFilters = [];
@@ -122,7 +372,7 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
       } else {
         selectedAlmacen = event.almacen;
         ubicacionesFilters = ubicaciones.where((location) {
-          return location.name?.toLowerCase().contains(query) ?? false;
+          return location.warehouseName?.toLowerCase().contains(query) ?? false;
         }).toList();
       }
       emit(FilterLocationsSuccess(ubicacionesFilters));
@@ -175,29 +425,6 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
     }
   }
 
-  // //*metodo para filtrar los terceros
-  // void _onFilterTercerosEvent(
-  //     FilterTercerosEvent event, Emitter<DevolucionesState> emit) {
-  //   try {
-  //     emit(FilterTercerosLoading());
-  //     selectedAlmacen = '';
-  //     tercerosFilters = [];
-  //     tercerosFilters = terceros;
-  //     final query = event.almacen.toLowerCase();
-  //     if (query.isEmpty) {
-  //       tercerosFilters = terceros;
-  //     } else {
-  //       selectedAlmacen = event.almacen;
-  //       tercerosFilters = terceros.where((tercero) {
-  //         return tercero.almacen?.toLowerCase().contains(query) ?? false;
-  //       }).toList();
-  //     }
-  //   } catch (e, s) {
-  //     print('Error en el FilterTercerosEvent: $e, $s');
-  //     emit(FilterTercerosFailure(e.toString()));
-  //   }
-  // }
-
   //*metodo para buscar un tercero
   void _onSearchTerceroEvent(
       SearchTerceroEvent event, Emitter<DevolucionesState> emit) {
@@ -211,7 +438,8 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
         tercerosFilters = terceros;
       } else {
         tercerosFilters = terceros.where((tercero) {
-          return tercero.name?.toLowerCase().contains(query) ?? false;
+          return (tercero.name?.toLowerCase().contains(query) ?? false) ||
+              (tercero.document?.toLowerCase().contains(query) ?? false);
         }).toList();
       }
       emit(SearchTerceroSuccess(tercerosFilters));
@@ -226,6 +454,9 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
       SelectTerceroEvent event, Emitter<DevolucionesState> emit) {
     try {
       currentTercero = event.tercero;
+      contactoIsOk = true;
+      productIsOk = true;
+      scannedValue4 = '';
       print('Tercero seleccionado: ${currentTercero.toMap()}');
       emit(SelectTerceroState(currentTercero));
     } catch (e, s) {
@@ -314,6 +545,7 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
           locationName: currentProduct.locationName,
         );
       }
+      add(GetProductsList());
 
       emit(UpdateProductInfoState());
     } catch (e, s) {
@@ -326,6 +558,15 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
     try {
       currentProduct = event.product;
       quantitySelected = event.product.quantity ?? 0;
+      if (event.product.tracking == 'lot') {
+        lotesProductCurrent = LotesProduct(
+          id: event.product.lotId,
+          name: event.product.lotName,
+          productId: event.product.productId,
+          productName: event.product.name,
+        );
+        add(GetLotesProduct());
+      }
       print('Producto actual cargado: ${currentProduct.toMap()}');
       emit(LoadCurrentProductState(currentProduct));
     } catch (e, s) {
@@ -355,31 +596,23 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
 
   void _onAddProductEvent(
       Addproduct event, Emitter<DevolucionesState> emit) async {
-    //verificamos si el producto ya esta en la lista de devoluciones,
-    if (productosDevolucion.any((p) => p.barcode == event.product.barcode)) {
-      isLoading = false;
-      emit(
-          AddProductFailure('El producto ya está en la lista de devoluciones'));
-    } else {
-      isLoading = false;
-      //agregamos el producto a la tbl de productos devoluciones
-      await db.devolucionRepository.insertProductoDevolucion(event.product);
-      productosDevolucion.add(event.product);
-      print('Producto añadido: ${event.product.toMap()}');
-      emit(AddProductSuccess(event.product));
-    }
+    await db.devolucionRepository.insertProductoDevolucion(event.product);
+    productosDevolucion.add(event.product);
+    print('Producto añadido: ${event.product.toMap()}');
+    emit(AddProductSuccess(event.product));
+    // }
   }
 
   void _onRemoveProductEvent(
       RemoveProduct event, Emitter<DevolucionesState> emit) async {
     try {
-      await db.devolucionRepository
-          .deleteProductoDevolucion(event.product.productId ?? 0);
-      productosDevolucion
-          .removeWhere((p) => p.productId == event.product.productId);
+      await db.devolucionRepository.deleteProductoDevolucion(
+          event.product.productId ?? 0, event.product.lotId ?? 0);
+      productosDevolucion.removeWhere((p) =>
+          p.productId == event.product.productId &&
+          p.lotId == event.product.lotId);
       //eliminamos el producto de la base de datos
       print('Producto eliminado: ${event.product.toMap()}');
-      isLoading = false;
       emit(RemoveProductSuccess());
     } catch (e, s) {
       print("❌ Error en _onRemoveProductEvent: $e, $s");
@@ -388,39 +621,79 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
 
   void _onGetProductEvent(
       GetProductEvent event, Emitter<DevolucionesState> emit) {
-    print('isLoading: $isLoading');
-    if (!isLoading) {
-      emit(GetProductLoading());
-      //buscamos en la lista de productos que tenemos si el barcode coincide
-      final product = productos.firstWhere(
-        (p) => p.barcode == event.barcode,
-        orElse: () => Product(),
-      );
-      //mostramos el producto encontrado
-      if (product.barcode.isNotEmpty) {
-        print('Producto encontrado: ${product.toMap()}');
-
-        //validamso si este producto ya esta en la lista de devoluciones
-        if (productosDevolucion.any((p) => p.barcode == product.barcode)) {
-          isLoading = false;
-          emit(GetProductExists(
-            product,
-          ));
-          return;
-        }
-
-        currentProduct = Product();
-        //actualimos el producto actual
-        currentProduct = product;
-        viewQuantity = false;
-        quantitySelected = 0;
-        //enviamos el estado de prodcuto encontrado correctamente
-        isLoading = true;
-        emit(GetProductSuccess(currentProduct));
-      } else {
-        emit(GetProductFailure('Producto no encontrado'));
-      }
+    if (isDialogVisible) {
+      print('Dialogo ya visible, no se puede buscar otro producto');
+      return;
     }
+
+    emit(GetProductLoading());
+
+    lotesProductCurrent = LotesProduct();
+    if (event.isManual) {
+      // Buscar el producto por código de barras
+      final product =
+          productos.firstWhereOrNull((p) => p.productId == event.idProduct);
+
+      if (product == null) {
+        emit(GetProductFailure('Producto no encontrado'));
+        scannedValue1 = '';
+        return;
+      }
+
+      print('Producto encontrado: ${product.toMap()}');
+
+      // Obtener todos los productos en devolución con el mismo productId
+      final productosRelacionados = productosDevolucion
+          .where((p) => p.productId == product.productId)
+          .toList();
+      if (productosRelacionados.isNotEmpty) {
+        emit(GetProductExists(
+          productosRelacionados.first,
+          productosRelacionados,
+        ));
+        return;
+      }
+
+      // Verificar si requiere lotes
+      if (product.tracking == 'lot') {
+        add(GetLotesProduct());
+      }
+      // Actualizar el producto actual
+      currentProduct = product;
+      viewQuantity = false;
+      quantitySelected = 0;
+    } else {
+      // Buscar el producto por código de barras
+      final product =
+          productos.firstWhereOrNull((p) => p.barcode == event.barcode);
+
+      if (product == null) {
+        emit(GetProductFailure('Producto no encontrado'));
+        return;
+      }
+      print('Producto encontrado: ${product.toMap()}');
+      // Obtener todos los productos en devolución con el mismo productId
+      final productosRelacionados = productosDevolucion
+          .where((p) => p.productId == product.productId)
+          .toList();
+
+      if (productosRelacionados.isNotEmpty) {
+        emit(GetProductExists(
+          productosRelacionados.first,
+          productosRelacionados,
+        ));
+        return;
+      }
+      if (product.tracking == 'lot') {
+        add(GetLotesProduct());
+      }
+      // Actualizar el producto actual
+      currentProduct = product;
+      viewQuantity = false;
+      quantitySelected = 0;
+    }
+
+    emit(GetProductSuccess(currentProduct, true));
   }
 
   void _onGetProductsBD(
@@ -435,7 +708,6 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
       if (response.isNotEmpty) {
         productos = response;
         productosFilters = productos;
-
         //mandamos a traer los producto que tenemos listo para la devolucion guardados en la base de datos
         productosDevolucion =
             await db.devolucionRepository.getAllProductosDevoluciones();
@@ -466,6 +738,16 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
         print('scannedValue2: $scannedValue2');
         emit(UpdateScannedValueState(scannedValue2, event.scan));
         break;
+      case 'location':
+        scannedValue3 += event.scannedValue.trim();
+        print('scannedValue3: $scannedValue3');
+        emit(UpdateScannedValueState(scannedValue2, event.scan));
+        break;
+      case 'contacto':
+        scannedValue4 += event.scannedValue.trim();
+        print('scannedValue4: $scannedValue4');
+        emit(UpdateScannedValueState(scannedValue2, event.scan));
+        break;
       default:
         print('Scan type not recognized: ${event.scan}');
     }
@@ -475,14 +757,20 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
       ClearScannedValueEvent event, Emitter<DevolucionesState> emit) {
     try {
       switch (event.scan) {
-        case 'location':
+        case 'product':
           scannedValue1 = '';
-          isLoading = false;
           emit(ClearScannedValueState());
           break;
-        case 'product':
-          isLoading = false;
+        case 'quantity':
           scannedValue2 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'location':
+          scannedValue3 = '';
+          emit(ClearScannedValueState());
+          break;
+        case 'contacto':
+          scannedValue4 = '';
           emit(ClearScannedValueState());
           break;
         default:

@@ -41,10 +41,12 @@ class InfoRapida {
 class InfoRapidaResult {
   int? code;
   String? type;
+  String? msg;
   InfoResult? result;
 
   InfoRapidaResult({
     this.code,
+    this.msg,
     this.type,
     this.result,
   });
@@ -52,6 +54,7 @@ class InfoRapidaResult {
   factory InfoRapidaResult.fromMap(Map<String, dynamic> json) =>
       InfoRapidaResult(
         code: json["code"],
+        msg: json["msg"],
         type: json["type"],
         result:
             json["result"] == null ? null : InfoResult.fromMap(json["result"]),
@@ -59,6 +62,7 @@ class InfoRapidaResult {
 
   Map<String, dynamic> toMap() => {
         "code": code,
+        "msg": msg,
         "type": type,
         "result": result?.toMap(),
       };
@@ -68,12 +72,12 @@ class InfoResult {
   int? id;
   String? nombre;
   dynamic? precio;
-  dynamic? cantidadDisponible;
-  dynamic? previsto;
   String? referencia;
   dynamic? peso;
   dynamic? volumen;
   dynamic? codigoBarras;
+  dynamic? cantidadDisponible;
+  dynamic? previsto;
   // List<Barcodes>? codigosBarrasPaquetes;
   String? categoria;
   List<Ubicacion>? ubicaciones;
