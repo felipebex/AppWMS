@@ -747,8 +747,8 @@ class AppBar extends StatelessWidget {
             const WarningWidgetCubit(),
             Padding(
               padding: EdgeInsets.only(
-                  bottom: 10,
-                  top: status != ConnectionStatus.online ? 0 : 35),
+                  bottom: 0,
+                  top: status != ConnectionStatus.online ? 0 : 25),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

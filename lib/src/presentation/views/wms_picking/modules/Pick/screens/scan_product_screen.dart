@@ -1383,8 +1383,7 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
 
                         //Todo: MUELLE
 
-                      
-                     if (batchBloc.filteredProducts
+                        if (batchBloc.filteredProducts
                                     .where((e) => e.isSeparate == 0)
                                     .length ==
                                 1 ||
@@ -1523,14 +1522,14 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                 horizontal: 5,
                               ),
                               child: Row(children: [
-                               CantLineasMuelle(
-                                  productsOk:
-                                      batchBloc.filteredProducts.where((e) {
-                                return (e.isSeparate == 1) &&
-                                    (e.locationDestId ==
-                                        batchBloc
-                                            .pickWithProducts.pick?.muelle);
-                              }).toList()),
+                                CantLineasMuelle(
+                                    productsOk:
+                                        batchBloc.filteredProducts.where((e) {
+                                  return (e.isSeparate == 1) &&
+                                      (e.locationDestId ==
+                                          batchBloc
+                                              .pickWithProducts.pick?.muelle);
+                                }).toList()),
                                 const Spacer(),
                                 Padding(
                                   padding:
@@ -1539,12 +1538,12 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                       onPressed: batchBloc.filteredProducts
                                               .where((e) {
                                                 return (e.isSeparate == 1) &&
-                                                  (e.locationDestId ==
-                                                      batchBloc
-                                                          .pickWithProducts
-                                                          .pick
-                                                          ?.muelle);
-                                            })
+                                                    (e.locationDestId ==
+                                                        batchBloc
+                                                            .pickWithProducts
+                                                            .pick
+                                                            ?.muelle);
+                                              })
                                               .toList()
                                               .isEmpty
                                           ? null
@@ -2142,6 +2141,9 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
             builder: (context) {
               return DialogBackorderPick(
                 unidadesSeparadas: unidadesSeparadas,
+                createBackorder: batchBloc.pickWithProducts.pick
+                        ?.createBackorder ??
+                    "ask",
               );
             });
       }
@@ -2184,6 +2186,9 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                       builder: (context) {
                         return DialogBackorderPick(
                           unidadesSeparadas: unidadesSeparadas,
+                          createBackorder: batchBloc
+                                  .pickWithProducts.pick?.createBackorder ??
+                              "ask",
                         );
                       });
                 });

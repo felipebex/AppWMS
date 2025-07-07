@@ -62,6 +62,8 @@ class EntradasRepository {
           EntradasRepeccionTable.columnTemperatura: entrada.temperatura ?? 0,
           //propietario
           EntradasRepeccionTable.columnPropietario: entrada.propietario ?? "",
+          //create_backorder
+          EntradasRepeccionTable.columnCreateBackorder: entrada.createBackorder ?? "",
         };
 
         if (existingIds.contains(id)) {

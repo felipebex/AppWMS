@@ -55,6 +55,8 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
 
   dynamic quantitySelected = 0;
 
+  bool isLoading = false;
+
   //*base de datos
   DataBaseSqlite db = DataBaseSqlite();
 
@@ -439,11 +441,10 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
     }
   }
 
-  
-
   void _onGetProducts(
       GetProductsEvent event, Emitter<InventarioState> emit) async {
     try {
+      if (isLoading) return;
       emit(GetProductsLoadingInventory());
       await db.deleInventario();
       final response = await _inventarioRepository.fetAllProducts(
@@ -501,8 +502,10 @@ class InventarioBloc extends Bloc<InventarioEvent, InventarioState> {
         productos = response;
         productosFilters = productos;
 
+        isLoading = false;
         emit(GetProductsSuccessBD(response));
       } else {
+        isLoading = false;
         emit(GetProductsFailureInventory('No se encontraron productos'));
       }
     } catch (e, s) {

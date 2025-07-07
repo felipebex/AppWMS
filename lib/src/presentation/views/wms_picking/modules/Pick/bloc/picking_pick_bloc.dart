@@ -1690,7 +1690,6 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
       if (result.isNotEmpty) {
         await db.pickRepository.insertAllPickingPicks(result, 'pick');
-
         // Convertir el mapa en una lista de productos únicos con cantidades sumadas
         final productsIterable =
             _extractAllProducts(result).toList(growable: false);

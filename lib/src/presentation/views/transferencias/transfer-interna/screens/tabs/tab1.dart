@@ -655,7 +655,11 @@ class Tab1ScreenTrans extends StatelessWidget {
                                                           transferenciaDetail
                                                               .numeroItems)
                                                       ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
-                                                      : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
+                                                      : transferenciaDetail
+                                                                  .createBackorder ==
+                                                              "never"
+                                                          ? '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
+                                                          : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                                                   style: TextStyle(
                                                       color: black,
                                                       fontSize: 14),
@@ -667,8 +671,17 @@ class Tab1ScreenTrans extends StatelessWidget {
                                           actions: [
                                             Visibility(
                                               visible: (totalEnviadas !=
-                                                  transferenciaDetail
-                                                      .numeroItems),
+                                                      transferenciaDetail
+                                                          .numeroItems)
+                                                  ? transferenciaDetail
+                                                                  .createBackorder ==
+                                                              "never" ||
+                                                          transferenciaDetail
+                                                                  .createBackorder ==
+                                                              "always"
+                                                      ? false
+                                                      : true
+                                                  : false,
                                               child: ElevatedButton(
                                                 onPressed: () {
                                                   context
@@ -704,7 +717,15 @@ class Tab1ScreenTrans extends StatelessWidget {
                                                     .read<TransferenciaBloc>()
                                                     .add(CreateBackOrderOrNot(
                                                         transFerencia?.id ?? 0,
-                                                        false));
+                                                        transFerencia
+                                                                    ?.createBackorder ==
+                                                                "never"
+                                                            ? false
+                                                            : transFerencia
+                                                                        ?.createBackorder ==
+                                                                    "always"
+                                                                ? true
+                                                                : false));
                                                 Navigator.pop(context);
                                               },
                                               style: ElevatedButton.styleFrom(

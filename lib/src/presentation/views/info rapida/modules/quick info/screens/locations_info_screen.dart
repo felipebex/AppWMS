@@ -91,15 +91,16 @@ class LocationInfoScreen extends StatelessWidget {
                             onchanged: () {},
                           ))
                 : null,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(45), // ajusta el alto
-              child: AppBar(size: size), // tuwidget AppBar personalizado
-            ),
+            // appBar: PreferredSize(
+            //   preferredSize: Size.fromHeight(45), // ajusta el alto
+            //   child: AppBar(size: size), // tuwidget AppBar personalizado
+            // ),
             body: SizedBox(
               width: size.width * 1,
               height: size.height * 1,
               child: Column(
                 children: [
+                  AppBar(size: size),
                   Padding(
                     padding: const EdgeInsets.only(top: 5, left: 20),
                     child: Align(
@@ -312,7 +313,7 @@ class AppBar extends StatelessWidget {
               padding: EdgeInsets.only(
                   left: size.width * 0.05,
                   right: size.width * 0.05,
-                  bottom: 0,
+                  bottom: 10,
                   top: status != ConnectionStatus.online ? 0 : 30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

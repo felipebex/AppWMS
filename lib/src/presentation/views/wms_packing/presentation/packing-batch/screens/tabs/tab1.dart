@@ -11,8 +11,6 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/packing_respon
 import 'package:wms_app/src/presentation/views/wms_packing/models/un_packing_request.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dialog_unPacking.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/models/mode_print_model.dart';
-import 'package:wms_app/src/presentation/views/wms_packing/presentation/print/screens/print_screen.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
@@ -288,16 +286,12 @@ class Tab1Screen extends StatelessWidget {
                                                 } else if (context
                                                         .read<WmsPackingBloc>()
                                                         .productsDone
-                                                        .isNotEmpty &&
-                                                    context
-                                                        .read<WmsPackingBloc>()
-                                                        .listOfProductosProgress
                                                         .isNotEmpty) {
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(
                                                     SnackBar(
                                                       content: const Text(
-                                                        'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
+                                                        'No se puede confirmar un pedido con productos en estado preparado',
                                                         style: TextStyle(
                                                             color: white),
                                                       ),

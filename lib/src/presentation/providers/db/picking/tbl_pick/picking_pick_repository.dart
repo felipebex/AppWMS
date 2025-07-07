@@ -74,6 +74,8 @@ class PickingPickRepository {
             // Producto final referencia
             PickingPickTable.productoFinalReferencia:
                 pickItem.productoFinalReferencia ?? '',
+            // create_backorder
+            PickingPickTable.createBackorder: pickItem.createBackorder ?? '',
           };
 
           // Elimina si existe (por ID), y luego inserta
@@ -147,7 +149,9 @@ class PickingPickRepository {
           PickingPickTable.productoFinalNombre,
           PickingPickTable.productoFinalReferencia,
           // type_pick
-          PickingPickTable.columnTypePick
+          PickingPickTable.columnTypePick,
+          // create_backorder
+          PickingPickTable.createBackorder,
         ],
         where: '${PickingPickTable.columnTypePick} = ?',
         whereArgs: [typePick],

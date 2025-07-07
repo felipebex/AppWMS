@@ -43,6 +43,8 @@ class EntradasRepeccionTable {
   static const String columnType = 'type';
   //propietario
   static const String columnPropietario = 'propietario';
+  //create_backorder
+  static const String columnCreateBackorder = 'create_backorder';
 
   static String createTable() {
     return '''
@@ -80,7 +82,7 @@ class EntradasRepeccionTable {
       $columnTemperatura REAL,
       $columnType TEXT,
       $columnPropietario TEXT,
-
+      $columnCreateBackorder TEXT,
       $columnBackorderId INTEGER
 
     )

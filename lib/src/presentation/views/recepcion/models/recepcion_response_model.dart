@@ -105,6 +105,7 @@ class ResultEntrada {
   dynamic isFinish;
   String? type;
   String? propietario;
+  String? createBackorder;
 
   List<LineasTransferencia>? lineasRecepcion;
   List<LineasTransferencia>? lineasRecepcionEnviadas;
@@ -150,6 +151,7 @@ class ResultEntrada {
     this.temperatura,
     this.type,
     this.propietario,
+    this.createBackorder ,
   });
 
   factory ResultEntrada.fromMap(Map<String, dynamic> json) => ResultEntrada(
@@ -196,6 +198,7 @@ class ResultEntrada {
         temperatura: json["temperatura"],
         type: json["type"],
         propietario: json["propietario"],
+        createBackorder: json["create_backorder"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -241,6 +244,7 @@ class ResultEntrada {
         "temperatura": temperatura,
         "type": type,
         "propietario": propietario,
+        "create_backorder": createBackorder,
         };
 }
 

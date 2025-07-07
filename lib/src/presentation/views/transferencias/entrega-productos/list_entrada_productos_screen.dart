@@ -158,10 +158,10 @@ class _ListTransferenciasScreenState extends State<ListEntradaProductsScreen> {
                       const WarningWidgetCubit(),
                       Padding(
                         padding: EdgeInsets.only(
-                            bottom: 10,
+                            bottom: 0,
                             top: status != ConnectionStatus.online
                                 ? 0
-                                : 35),
+                                : 25),
                         child: Row(
                           mainAxisAlignment:
                               MainAxisAlignment.spaceBetween,

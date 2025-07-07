@@ -91,7 +91,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                           padding: EdgeInsets.only(
                               left: 10,
                               right: 10,
-                              top: status != ConnectionStatus.online ? 0 : 35,
+                              top: status != ConnectionStatus.online ? 0 : 25,
                               bottom: 0),
                           child: Column(
                             children: [

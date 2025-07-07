@@ -80,10 +80,10 @@ class ProductInfoScreen extends StatelessWidget {
           },
           child: Scaffold(
             backgroundColor: white,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(45), // ajusta el alto
-              child: AppBar(size: size), // tuwidget AppBar personalizado
-            ),
+            // appBar: PreferredSize(
+            //   preferredSize: Size.fromHeight(45), // ajusta el alto
+            //   child: AppBar(size: size), // tuwidget AppBar personalizado
+            // ),
             bottomNavigationBar: bloc.isKeyboardVisible &&
                     context.read<UserBloc>().fabricante.contains("Zebra")
                 ? Padding(
@@ -110,6 +110,7 @@ class ProductInfoScreen extends StatelessWidget {
                       mainAxisSize:
                           MainAxisSize.min, // Ocupa solo el espacio necesario
                       children: [
+                        AppBar(size: size),
                         SizedBox(
                           width: size.width * 1,
                           child: ConstrainedBox(
@@ -561,7 +562,7 @@ class AppBar extends StatelessWidget {
               padding: EdgeInsets.only(
                   left: size.width * 0.05,
                   right: size.width * 0.05,
-                  bottom: 0,
+                  bottom: 10,
                   top: status != ConnectionStatus.online ? 0 : 30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

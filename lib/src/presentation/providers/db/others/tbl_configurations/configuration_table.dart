@@ -55,6 +55,16 @@ class ConfigurationsTable {
   static const String columnUpdateItemInventory = 'update_item_inventory';
   // update_location_inventory
   static const String columnUpdateLocationInventory = 'update_location_inventory';
+  // create_backorder
+  static const String columnCreateBackorder = 'create_backorder';
+
+
+  //hide_validate_packing
+  static const String columnHideValidatePacking = 'hide_validate_packing';
+  static const String columnHideValidatePicking = 'hide_validate_picking';
+
+  //show_photo_temperature
+  static const String columnShowPhotoTemperature = 'show_photo_temperature';
 
   
 
@@ -95,6 +105,10 @@ class ConfigurationsTable {
         $columnHideValidateReception INTEGER,
         $columnUpdateItemInventory INTEGER,
         $columnUpdateLocationInventory INTEGER,
+        $columnCreateBackorder INTEGER,
+        $columnHideValidatePacking INTEGER,
+        $columnHideValidatePicking INTEGER,
+        $columnShowPhotoTemperature INTEGER,
         $columnCountQuantityInventory INTEGER
       )
     ''';

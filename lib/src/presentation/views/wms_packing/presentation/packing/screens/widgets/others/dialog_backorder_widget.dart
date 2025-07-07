@@ -8,16 +8,17 @@ import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogBackorderPack extends StatelessWidget {
-  const DialogBackorderPack({Key? key, required this.totalEnviadas}) : super(key: key);
+  const DialogBackorderPack(
+      {Key? key, required this.totalEnviadas, required this.createBackorder})
+      : super(key: key);
 
-final double totalEnviadas;
+  final double totalEnviadas;
+  final String createBackorder;
 
   @override
   Widget build(BuildContext context) {
-
     final batchBloc = context.read<PackingPedidoBloc>();
- 
-    
+
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -45,17 +46,21 @@ final double totalEnviadas;
               child: Text(
                 (totalEnviadas == "100.0" || totalEnviadas >= 100.0)
                     ? '¿Estás seguro de confirmar el pedido para ser enviado?'
-                    : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
+                    : createBackorder == "never"
+                        ? '¿Estás seguro de confirmar el pedido para ser enviado?'
+                        : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                 style: TextStyle(color: black, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
             ),
+           
           ],
         ),
         actions: [
           Visibility(
-            visible:
-                (totalEnviadas == "100.0" || totalEnviadas >= 100.0)
+            visible: (totalEnviadas == "100.0" || totalEnviadas >= 100.0)
+                ? false
+                : createBackorder == "never" || createBackorder == "always"
                     ? false
                     : true,
             child: ElevatedButton(
@@ -82,7 +87,12 @@ final double totalEnviadas;
             onPressed: () async {
               batchBloc.add(ShowKeyboardEvent(false));
               batchBloc.add(CreateBackPackOrNot(
-                  batchBloc.currentPedidoPack.id ?? 0, false));
+                  batchBloc.currentPedidoPack.id ?? 0,
+                  createBackorder == "never"
+                      ? false
+                      : createBackorder == "always"
+                          ? true
+                          : false));
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(

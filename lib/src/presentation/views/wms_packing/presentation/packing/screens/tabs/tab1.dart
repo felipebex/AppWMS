@@ -633,21 +633,34 @@ class Tab1PedidoScreen extends StatelessWidget {
                                             child: ElevatedButton(
                                                 onPressed: () {
                                                   if (context
-                                                          .read<
-                                                              PackingPedidoBloc>()
-                                                          .productsDone
-                                                          .isNotEmpty &&
-                                                      context
-                                                          .read<
-                                                              PackingPedidoBloc>()
-                                                          .listOfProductosProgress
-                                                          .isNotEmpty) {
+                                                      .read<PackingPedidoBloc>()
+                                                      .productsDone
+                                                      .isNotEmpty) {
                                                     ScaffoldMessenger.of(
                                                             context)
                                                         .showSnackBar(
                                                       SnackBar(
                                                         content: const Text(
                                                           'No se puede confirmar un pedido con productos en proceso o listos para empaquetar',
+                                                          style: TextStyle(
+                                                              color: white),
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.red[200],
+                                                      ),
+                                                    );
+                                                    return;
+                                                  }
+                                                  if (context
+                                                      .read<PackingPedidoBloc>()
+                                                      .packages
+                                                      .isEmpty) {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: const Text(
+                                                          'No se puede confirmar un pedido con productos en estado preparado',
                                                           style: TextStyle(
                                                               color: white),
                                                         ),
@@ -677,6 +690,12 @@ class Tab1PedidoScreen extends StatelessWidget {
                                                         return DialogBackorderPack(
                                                           totalEnviadas:
                                                               progress,
+                                                          createBackorder: context
+                                                                  .read<
+                                                                      PackingPedidoBloc>()
+                                                                  .currentPedidoPack
+                                                                  .createBackorder ??
+                                                              "ask",
                                                         );
                                                       });
                                                 },

@@ -95,11 +95,18 @@ class DataConfig {
 
   bool? hideValidateTransfer;
   bool? hideValidateReception;
+  bool? hideValidatePacking;
+  bool? hideValidatePicking;
 
   bool? updateItemInventory;
 
   bool? scanDestinationLocationReception;
   bool? updateLocationInventory;
+  bool? showPhotoTemperature;
+
+
+
+
 
   DataConfig({
     this.name,
@@ -137,6 +144,9 @@ class DataConfig {
     this.hideValidateReception,
     this.updateItemInventory,
     this.updateLocationInventory,
+    this.hideValidatePacking,
+    this.hideValidatePicking,
+    this.showPhotoTemperature,
   });
 
   factory DataConfig.fromMap(Map<String, dynamic> json) => DataConfig(
@@ -181,6 +191,9 @@ class DataConfig {
         hideValidateReception: json["hide_validate_reception"],
         updateItemInventory: json["update_item_inventory"],
         updateLocationInventory: json["update_location_inventory"],
+        hideValidatePacking: json["hide_validate_packing"],
+        hideValidatePicking: json["hide_validate_picking"],
+        showPhotoTemperature: json["show_photo_temperature"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -222,6 +235,9 @@ class DataConfig {
         "hide_validate_reception": hideValidateReception,
         "update_item_inventory": updateItemInventory,
         "update_location_inventory": updateLocationInventory,
+        "hide_validate_packing": hideValidatePacking,
+        "hide_validate_picking": hideValidatePicking,
+        "show_photo_temperature": showPhotoTemperature,
       };
 }
 

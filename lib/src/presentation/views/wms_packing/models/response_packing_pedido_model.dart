@@ -104,6 +104,7 @@ class PedidoPackingResult {
   final int? numeroPaquetes;
   final dynamic isTerminate;
   final dynamic isSelected;
+  final String? createBackorder;
 
   final List<ProductoPedido>? listaProductos;
   final List<Paquete>? listaPaquetes;
@@ -149,6 +150,7 @@ class PedidoPackingResult {
     this.listaPaquetes,
     this.isTerminate,
     this.isSelected,
+    this.createBackorder,
   });
 
   factory PedidoPackingResult.fromJson(String str) =>
@@ -206,6 +208,7 @@ class PedidoPackingResult {
             ? []
             : List<Paquete>.from(
                 json["lista_paquetes"]!.map((x) => Paquete.fromMap(x))),
+        createBackorder: json["create_backorder"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -253,5 +256,6 @@ class PedidoPackingResult {
         "lista_paquetes": listaPaquetes == null
             ? []
             : List<dynamic>.from(listaPaquetes!.map((x) => x.toMap())),
+        "create_backorder": createBackorder,
       };
 }

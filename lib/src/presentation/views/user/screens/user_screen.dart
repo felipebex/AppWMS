@@ -485,6 +485,7 @@ class UserScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                     
                                       const SizedBox(height: 10),
                                       //todo: permisos de picking
                                       Visibility(

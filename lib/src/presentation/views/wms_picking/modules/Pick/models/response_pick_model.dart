@@ -92,6 +92,8 @@ class ResultPick {
   String? backorderName;
   dynamic showCheckAvailability;
 
+  String? createBackorder;
+
   String? typePick;
 
   //valores para el pick
@@ -160,6 +162,7 @@ class ResultPick {
     this.typePick,
     this.productoFinalNombre,
     this.productoFinalReferencia,
+    this.createBackorder,
 
   });
 
@@ -216,6 +219,7 @@ class ResultPick {
         typePick: json["type_pick"],
         productoFinalNombre: json["producto_final_nombre"],
         productoFinalReferencia: json["producto_final_referencia"],
+        createBackorder: json["create_backorder"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -268,5 +272,6 @@ class ResultPick {
         "type_pick": typePick,
         "producto_final_nombre": productoFinalNombre,
         "producto_final_referencia": productoFinalReferencia,
+        "create_backorder": createBackorder,
       };
 }

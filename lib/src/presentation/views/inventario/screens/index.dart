@@ -344,10 +344,14 @@ class _InventarioScreenState extends State<InventarioScreen>
         //estado para mostrar cuando este cargando la descarga de los productos
         if (state is GetProductsLoadingInventory) {
           showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) {
-              return const DialogLoading(
-                message: "Cargando productos...",
+              return WillPopScope(
+                onWillPop: () async => false, // Deshabilitar el botón de retroceso
+                child: const DialogLoading(
+                  message: "Cargando productos...",
+                ),
               );
             },
           );
@@ -514,7 +518,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                         Padding(
                           padding: EdgeInsets.only(
                               bottom: 0,
-                              top: status != ConnectionStatus.online ? 0 : 35),
+                              top: status != ConnectionStatus.online ? 0 : 25),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

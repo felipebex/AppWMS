@@ -55,8 +55,6 @@ class Tab1ScreenRecep extends StatelessWidget {
                 icon: Icon(Icons.error, color: Colors.red));
           }
 
-        
-
           print("State: $state");
           if (state is CreateBackOrderOrNotLoading) {
             showDialog(
@@ -505,7 +503,12 @@ class Tab1ScreenRecep extends StatelessWidget {
                                               ? (ordenCompra?.type == 'dev')
                                                   ? '¿Estás seguro de confirmar la devolución y dejarla lista para ser enviada?'
                                                   : '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
-                                              : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
+                                              : ordeCompraBd.createBackorder ==
+                                                      "never"
+                                                  ? (ordenCompra?.type == 'dev')
+                                                      ? '¿Estás seguro de confirmar la devolución y dejarla lista para ser enviada?'
+                                                      : '¿Estás seguro de confirmar la transferencia y dejarla lista para ser enviada?'
+                                                  : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                                           style: TextStyle(
                                               color: black, fontSize: 14),
                                           textAlign: TextAlign.center,
@@ -516,7 +519,15 @@ class Tab1ScreenRecep extends StatelessWidget {
                                   actions: [
                                     Visibility(
                                       visible: (totalEnviadas !=
-                                          ordeCompraBd.numeroItems),
+                                              ordeCompraBd.numeroItems)
+                                          ? ordeCompraBd.createBackorder ==
+                                                      "never" ||
+                                                  ordeCompraBd
+                                                          .createBackorder ==
+                                                      "always"
+                                              ? false
+                                              : true
+                                          : false,
                                       child: ElevatedButton(
                                         onPressed: () {
                                           context.read<RecepcionBloc>().add(
@@ -549,7 +560,14 @@ class Tab1ScreenRecep extends StatelessWidget {
                                             CreateBackOrderOrNot(
                                                 ordenCompra?.type ?? '',
                                                 ordeCompraBd.id ?? 0,
-                                                false));
+                                                ordeCompraBd.createBackorder ==
+                                                        "never"
+                                                    ? false
+                                                    : ordeCompraBd
+                                                                .createBackorder ==
+                                                            "always"
+                                                        ? true
+                                                        : false));
                                         Navigator.pop(context);
                                       },
                                       style: ElevatedButton.styleFrom(

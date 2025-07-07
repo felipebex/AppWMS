@@ -102,6 +102,7 @@ class ResultTransFerencias {
   final dynamic backorderName;
   final dynamic backorderId;
   final dynamic showCheckAvailability;
+  final String? createBackorder;
 
 
   ResultTransFerencias({
@@ -136,6 +137,7 @@ class ResultTransFerencias {
     this.showCheckAvailability,
     this.proveedor,
     this.type,
+    this.createBackorder,
   });
 
   factory ResultTransFerencias.fromMap(Map<String, dynamic> json) =>
@@ -179,6 +181,7 @@ class ResultTransFerencias {
         showCheckAvailability: json["show_check_availability"],
         proveedor: json["proveedor"],
         type: json["type"],
+        createBackorder: json["create_backorder"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -217,6 +220,7 @@ class ResultTransFerencias {
         "show_check_availability": showCheckAvailability,
         "proveedor": proveedor,
         "type": type,
+        "create_backorder": createBackorder,
       };
 }
 

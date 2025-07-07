@@ -132,10 +132,10 @@ class _PakingListScreenState extends State<PakingListScreen>
                             const WarningWidgetCubit(),
                             Padding(
                               padding: EdgeInsets.only(
-                                  bottom: 10,
+                                  // bottom: 10,
                                   top: status != ConnectionStatus.online
                                       ? 0
-                                      : 35),
+                                      : 25),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,

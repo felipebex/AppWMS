@@ -8,16 +8,19 @@ import 'package:wms_app/src/presentation/views/wms_picking/modules/Pick/bloc/pic
 import 'package:wms_app/src/utils/constans/colors.dart';
 
 class DialogBackorderPick extends StatelessWidget {
-  const DialogBackorderPick({Key? key, required this.unidadesSeparadas}) : super(key: key);
+  const DialogBackorderPick(
+      {Key? key,
+      required this.unidadesSeparadas,
+      required this.createBackorder})
+      : super(key: key);
 
-
-final double unidadesSeparadas ;
+  final double unidadesSeparadas;
+  final String createBackorder;
 
   @override
   Widget build(BuildContext context) {
-    
     final batchBloc = context.read<PickingPickBloc>();
-  
+
     final size = MediaQuery.sizeOf(context);
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
@@ -40,12 +43,15 @@ final double unidadesSeparadas ;
                 fit: BoxFit.cover,
               ),
             ),
+          
             Align(
               alignment: Alignment.center,
               child: Text(
                 (unidadesSeparadas == "100.0" || unidadesSeparadas >= 100.0)
                     ? '¿Estás seguro de confirmar el pick para ser enviado?'
-                    : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
+                    : createBackorder == "never"
+                        ? '¿Estás seguro de confirmar el pick para ser enviado?'
+                        : "Usted ha procesado cantidades de productos menores que los requeridos en el movimiento orignal.",
                 style: TextStyle(color: black, fontSize: 14),
                 textAlign: TextAlign.center,
               ),
@@ -57,7 +63,9 @@ final double unidadesSeparadas ;
             visible:
                 (unidadesSeparadas == "100.0" || unidadesSeparadas >= 100.0)
                     ? false
-                    : true,
+                    : createBackorder == "never" || createBackorder == "always"
+                        ? false
+                        : true,
             child: ElevatedButton(
               onPressed: () {
                 batchBloc.add(ShowKeyboard(false));
@@ -82,7 +90,12 @@ final double unidadesSeparadas ;
             onPressed: () async {
               batchBloc.add(ShowKeyboard(false));
               batchBloc.add(CreateBackOrderOrNot(
-                  batchBloc.pickWithProducts.pick?.id ?? 0, false));
+                  batchBloc.pickWithProducts.pick?.id ?? 0,
+                  createBackorder == "never"
+                      ? false
+                      : createBackorder == "always"
+                          ? true
+                          : false));
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(

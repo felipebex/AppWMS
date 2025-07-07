@@ -209,15 +209,14 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
       CreateBackPackOrNot event, Emitter<PackingPedidoState> emit) async {
     try {
       emit(CreateBackOrderOrNotLoading());
+      add(StartOrStopTimePack(
+        event.idPick,
+        'end_time_transfer',
+      ));
       final response = await wmsPackingRepository.validateTransfer(
           event.idPick, event.isBackOrder, false);
 
       if (response.result?.code == 200) {
-        add(StartOrStopTimePack(
-          event.idPick,
-          'end_time_transfer',
-        ));
-
         await db.pedidoPackRepository.updatePedidoPackField(
           event.idPick,
           "is_terminate",
@@ -262,7 +261,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
           "end_time_transfer",
           time,
         );
-        return;
+       
       }
 
       await db.pedidoPackRepository.updatePedidoPackField(
@@ -558,7 +557,6 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
                   ? producto.quantity
                   : producto.quantitySeparate ?? 0
               : producto.quantity ?? 0,
-      
           observacion: producto.observation ?? 'Sin novedad',
           timeLine: producto.timeSeparate == 0.0 ? 2 : producto.timeSeparate,
           idOperario: idOperario,

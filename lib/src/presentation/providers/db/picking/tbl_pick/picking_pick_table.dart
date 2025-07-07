@@ -50,6 +50,9 @@ class PickingPickTable {
   //producto final referencia
   static const String productoFinalReferencia = 'producto_final_referencia'; 
 
+  //create_backorder
+  static const String createBackorder = 'create_backorder';
+
 
   // Método para crear la tabla
   static String createTable() {
@@ -95,6 +98,7 @@ class PickingPickTable {
         $columnTypePick TEXT,
         $productoFinalNombre TEXT,
         $productoFinalReferencia TEXT,
+        $createBackorder TEXT,
         $columnOrderPicking TEXT
 
       )

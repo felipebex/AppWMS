@@ -220,6 +220,9 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
             builder: (context) {
               return DialogBackorderPick(
                 unidadesSeparadas: unidadesSeparadas,
+                createBackorder: batchBloc.pickWithProducts.pick
+                        ?.createBackorder ??
+                    "ask",
               );
             });
       }
@@ -260,6 +263,9 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                       builder: (context) {
                         return DialogBackorderPick(
                           unidadesSeparadas: unidadesSeparadas,
+                          createBackorder: batchBloc.pickWithProducts.pick
+                                  ?.createBackorder ??
+                              "ask",
                         );
                       });
                 });
