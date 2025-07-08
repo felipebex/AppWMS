@@ -128,6 +128,14 @@ class SendTemperatureEvent extends PackingPedidoEvent {
   });
 }
 
+class SendTemperatureManualPackEvent extends PackingPedidoEvent {
+ final int moveLineId;
+  SendTemperatureManualPackEvent({
+    required this.moveLineId,
+  });
+}
+
+
 class SendImageNovedad extends PackingPedidoEvent {
   final dynamic cantidad;
   final File file;

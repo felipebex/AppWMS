@@ -433,45 +433,34 @@ class _Tab2ScreenState extends State<Tab2PedidoScreen> {
                                                             color: black),
                                                       ),
                                                     ),
-                                                    Visibility(
-                                                      visible: product
-                                                              .manejaTemperatura ==
-                                                          1,
-                                                      child: Row(
-                                                        children: [
-                                                          Text(
-                                                            "Temperatura: ",
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  primaryColorApp,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                              "${product.temperatura}",
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          black)),
-                                                          const Spacer(),
-                                                          Icon(
-                                                            Icons
-                                                                .thermostat_outlined,
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Ubicación: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
                                                             color:
                                                                 primaryColorApp,
-                                                            size: 16,
                                                           ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      "Ubicación: ",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp,
-                                                      ),
+                                                        ),
+                                                        const Spacer(),
+                                                        Visibility(
+                                                          visible: product
+                                                                  .manejaTemperatura ==
+                                                              1,
+                                                          child: Align(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: Icon(
+                                                              Icons
+                                                                  .thermostat_outlined,
+                                                              color:
+                                                                  primaryColorApp,
+                                                              size: 16,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
                                                     Text(
                                                       "${product.locationId}",

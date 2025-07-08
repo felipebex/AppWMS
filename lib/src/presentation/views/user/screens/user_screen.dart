@@ -485,7 +485,6 @@ class UserScreen extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                     
                                       const SizedBox(height: 10),
                                       //todo: permisos de picking
                                       Visibility(
@@ -507,6 +506,40 @@ class UserScreen extends StatelessWidget {
                                                           fontSize: 14,
                                                           color:
                                                               primaryColorApp)),
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ocultar accion de validar\npicking por pedido : ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.hideValidatePicking ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ocultar accion de validar picking",
+                                                                  body:
+                                                                      "Ocultar  accion de validar picking en la aplicacion",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
                                                 ),
                                                 Row(
                                                   children: [
@@ -740,6 +773,40 @@ class UserScreen extends StatelessWidget {
                                                               primaryColorApp)),
                                                 ),
                                                 const SizedBox(height: 10),
+                                                 Row(
+                                                  children: [
+                                                    const Text(
+                                                        "Ocultar accion de validar\npacking por pedido: ",
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: black)),
+                                                    const Spacer(),
+                                                    Checkbox(
+                                                        value: config
+                                                                .result
+                                                                ?.result
+                                                                ?.hideValidatePacking ??
+                                                            false,
+                                                        onChanged: null),
+                                                    IconButton(
+                                                        onPressed: () {
+                                                          showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (context) {
+                                                                return const DialogInfo(
+                                                                  title:
+                                                                      "Ocultar accion de validar packing",
+                                                                  body:
+                                                                      "Ocultar  accion de validar packing en la aplicacion",
+                                                                );
+                                                              });
+                                                        },
+                                                        icon: Icon(Icons.help,
+                                                            color:
+                                                                primaryColorApp))
+                                                  ],
+                                                ),
                                                 Row(
                                                   children: [
                                                     const Text(

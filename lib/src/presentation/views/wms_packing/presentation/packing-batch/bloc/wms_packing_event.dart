@@ -228,6 +228,12 @@ class SendTemperatureEvent extends WmsPackingEvent {
     required this.moveLineId,
   });
 }
+class SendTemperaturePackingEvent extends WmsPackingEvent {
+  final int moveLineId;
+  SendTemperaturePackingEvent({
+    required this.moveLineId,
+  });
+}
 
 class SendImageNovedad extends WmsPackingEvent {
   final dynamic cantidad;

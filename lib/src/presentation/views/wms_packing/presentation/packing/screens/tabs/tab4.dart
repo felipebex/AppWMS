@@ -126,6 +126,13 @@ class Tab4PedidoScreen extends StatelessWidget {
                                                         1,
                                                     child: Row(
                                                       children: [
+                                                        //icno de temperatura
+                                                        Icon(
+                                                          Icons.thermostat,
+                                                          color:
+                                                              primaryColorApp,
+                                                          size: 15,
+                                                        ),
                                                         Text(
                                                           "Temperatura: ",
                                                           style: TextStyle(

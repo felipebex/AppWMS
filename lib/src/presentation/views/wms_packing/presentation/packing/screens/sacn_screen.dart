@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/lista_product_
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/bloc/packing_pedido_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/location/location_card_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_packing_advetencia_cantidad_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_temperature_manual_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/others/dialog_temperature_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing/screens/widgets/product/product_pack_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -276,22 +277,48 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                   packinghBloc
                                           .currentProduct.manejaTemperatura ==
                                       true) {
-                                showDialog(
-                                  barrierDismissible:
-                                      false, // Evita que se cierre tocando fuera del diálogo
-                                  context: context,
-                                  builder: (context) => WillPopScope(
-                                    onWillPop: () async =>
-                                        false, // Evita que se cierre con la flecha de atrás
-                                    child: DialogCapturaTemperaturaPack(
-                                      moveLineId:
-                                          packinghBloc.currentProduct.idMove ??
-                                              0,
-                                    ),
-                                  ),
-                                );
 
-                                return;
+
+
+
+
+
+
+                                if (packinghBloc.configurations.result?.result
+                                        ?.showPhotoTemperature ==
+                                    true) {
+                                  showDialog(
+                                    barrierDismissible:
+                                        false, // Evita que se cierre tocando fuera del diálogo
+                                    context: context,
+                                    builder: (context) => WillPopScope(
+                                      onWillPop: () async =>
+                                          false, // Evita que se cierre con la flecha de atrás
+                                      child: DialogCapturaTemperaturaPack(
+                                        moveLineId: packinghBloc
+                                                .currentProduct.idMove ??
+                                            0,
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                } else {
+                                  showDialog(
+                                    barrierDismissible:
+                                        false, // Evita que se cierre tocando fuera del diálogo
+                                    context: context,
+                                    builder: (context) => WillPopScope(
+                                      onWillPop: () async =>
+                                          false, // Evita que se cierre con la flecha de atrás
+                                      child: DialogTemperaturaManualPack(
+                                        moveLineId: packinghBloc
+                                                .currentProduct.idMove ??
+                                            0,
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
                               }
 
                               Navigator.pushReplacementNamed(
@@ -702,8 +729,7 @@ class _PackingScreenState extends State<ScanPackScreen> {
                                                     ),
                                                   ],
                                                 ),
-                                              
-                                              
+
                                                 Column(
                                                   children: [
                                                     ExpiryDateWidget(

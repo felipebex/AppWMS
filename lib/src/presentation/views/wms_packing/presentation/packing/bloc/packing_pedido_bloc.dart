@@ -56,6 +56,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
   TextEditingController searchControllerPedido = TextEditingController();
   TextEditingController searchControllerProduct = TextEditingController();
   TextEditingController controllerTemperature = TextEditingController();
+  TextEditingController temperatureController = TextEditingController();
 
   //lista de pedidos
   List<PedidoPackingResult> listOfPedidos = [];
@@ -148,6 +149,7 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
     on<GetTemperatureEvent>(_onGetTemperatureEvent);
     on<SendImageNovedad>(_onSendImageNovedad);
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
+    on<SendTemperatureManualPackEvent>(_onSendTemperatureManualEvent);
 
     //*evento para obtener las novedades
     on<LoadAllNovedadesPackEvent>(_onLoadAllNovedadesEvent);
@@ -261,7 +263,6 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
           "end_time_transfer",
           time,
         );
-       
       }
 
       await db.pedidoPackRepository.updatePedidoPackField(
@@ -873,6 +874,54 @@ class PackingPedidoBloc extends Bloc<PackingPedidoEvent, PackingPedidoState> {
 
         add(LoadPedidoAndProductsEvent(currentProduct.pedidoId ?? 0));
 
+        emit(SendTemperatureSuccess(
+            response.result ?? 'Temperatura enviada correctamente'));
+      } else {
+        emit(SendTemperatureFailure(
+            response.msg ?? 'Error al enviar la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(SendTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  void _onSendTemperatureManualEvent(
+    SendTemperatureManualPackEvent event,
+    Emitter<PackingPedidoState> emit,
+  ) async {
+    try {
+      emit(SendTemperatureLoading());
+
+      print('currentProduct: ${currentProduct.toMap()}');
+
+      //enviamos la temperatura con la imagen
+      final response = await wmsPackingRepository.sendTemperatureManual(
+        temperatureController.text,
+        event.moveLineId,
+        true,
+      );
+
+      //esperamos la repuesta y emitimos el estadp
+
+      //esperamos la repuesta y emitimos el estadp
+      if (response.code == 200) {
+        //actualizamos la temepratura por producto en la bd y la imagen
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'temperatura',
+          temperatureController.text ?? 0.0,
+          event.moveLineId,
+        );
+
+        //limpiamos el dato de temperatura
+        temperatureController.clear();
+        resultTemperature = TemperatureIa();
+
+        add(LoadPedidoAndProductsEvent(currentProduct.pedidoId ?? 0));
         emit(SendTemperatureSuccess(
             response.result ?? 'Temperatura enviada correctamente'));
       } else {

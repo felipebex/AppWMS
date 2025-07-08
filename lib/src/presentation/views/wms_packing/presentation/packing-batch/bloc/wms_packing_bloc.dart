@@ -72,6 +72,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
   TextEditingController searchControllerPedido = TextEditingController();
   TextEditingController searchControllerProduct = TextEditingController();
   TextEditingController controllerTemperature = TextEditingController();
+  TextEditingController temperatureController = TextEditingController();
   //*repositorio
   WmsPackingRepository wmsPackingRepository = WmsPackingRepository();
 
@@ -193,6 +194,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     on<GetTemperatureEvent>(_onGetTemperatureEvent);
     on<SendImageNovedad>(_onSendImageNovedad);
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
+    on<SendTemperaturePackingEvent>(_onSendTemperaturePackingEvent);
   }
 
   void _onGetTemperatureEvent(
@@ -301,6 +303,56 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
         );
 
         //limpiamos el dato de temperatura
+        resultTemperature = TemperatureIa();
+
+        add(LoadAllProductsFromPedidoEvent(currentProduct.pedidoId ?? 0));
+
+        emit(SendTemperatureSuccess(
+            response.result ?? 'Temperatura enviada correctamente'));
+      } else {
+        emit(SendTemperatureFailure(
+            response.msg ?? 'Error al enviar la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(SendTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  void _onSendTemperaturePackingEvent(
+    SendTemperaturePackingEvent event,
+    Emitter<WmsPackingState> emit,
+  ) async {
+    try {
+      emit(SendTemperatureLoading());
+
+      //validamso que tengamos imagen y temperatura
+
+      print('currentProduct: ${currentProduct.toMap()}');
+
+      //enviamos la temperatura con la imagen
+      final response = await wmsPackingRepository.sendTemperatureManual(
+        temperatureController.text ?? 0.0,
+        event.moveLineId,
+        true,
+      );
+
+      //esperamos la repuesta y emitimos el estadp
+      if (response.code == 200) {
+        //actualizamos la temepratura por producto en la bd y la imagen
+
+        await db.productosPedidosRepository.setFieldTableProductosPedidos2(
+          currentProduct.pedidoId ?? 0,
+          currentProduct.idProduct ?? 0,
+          'temperatura',
+          temperatureController.text ?? 0.0,
+          event.moveLineId,
+        );
+
+        //limpiamos el dato de temperatura
+        temperatureController.clear();
         resultTemperature = TemperatureIa();
 
         add(LoadAllProductsFromPedidoEvent(currentProduct.pedidoId ?? 0));
@@ -585,8 +637,7 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
             await db.packagesRepository.getPackageById(event.request.idPaquete);
         if (response != null) {
           if (response.cantidadProductos == 0) {
-
-             await updateConsecutivePackages(
+            await updateConsecutivePackages(
               consecutivoReferencia: response.consecutivo ?? '',
               packages: packages,
             );
@@ -609,50 +660,42 @@ class WmsPackingBloc extends Bloc<WmsPackingEvent, WmsPackingState> {
     }
   }
 
-
-
-
-
   Future<void> updateConsecutivePackages({
-  required String consecutivoReferencia,
-  required List<Paquete> packages,
-}) async {
-  final refNum = _extraerNumeroConsecutivo(consecutivoReferencia);
-  if (refNum == null) return;
+    required String consecutivoReferencia,
+    required List<Paquete> packages,
+  }) async {
+    final refNum = _extraerNumeroConsecutivo(consecutivoReferencia);
+    if (refNum == null) return;
 
-  for (final paquete in packages) {
-    final paqueteNum = _extraerNumeroConsecutivo(paquete.consecutivo?.toString());
+    for (final paquete in packages) {
+      final paqueteNum =
+          _extraerNumeroConsecutivo(paquete.consecutivo?.toString());
 
-    if (paqueteNum != null && paqueteNum > refNum) {
-      final nuevoConsecutivo = 'Caja${paqueteNum - 1}';
-      final paqueteActualizado = Paquete(
-        id: paquete.id,
-        name: paquete.name,
-        batchId: paquete.batchId,
-        pedidoId: paquete.pedidoId,
-        cantidadProductos: paquete.cantidadProductos,
-        listaProductosInPacking: paquete.listaProductosInPacking,
-        isSticker: paquete.isSticker,
-        isCertificate: paquete.isCertificate,
-        type: paquete.type,
-        consecutivo: nuevoConsecutivo,
-      );
+      if (paqueteNum != null && paqueteNum > refNum) {
+        final nuevoConsecutivo = 'Caja${paqueteNum - 1}';
+        final paqueteActualizado = Paquete(
+          id: paquete.id,
+          name: paquete.name,
+          batchId: paquete.batchId,
+          pedidoId: paquete.pedidoId,
+          cantidadProductos: paquete.cantidadProductos,
+          listaProductosInPacking: paquete.listaProductosInPacking,
+          isSticker: paquete.isSticker,
+          isCertificate: paquete.isCertificate,
+          type: paquete.type,
+          consecutivo: nuevoConsecutivo,
+        );
 
-      await db.packagesRepository.updatePackageById(paqueteActualizado);
+        await db.packagesRepository.updatePackageById(paqueteActualizado);
+      }
     }
   }
-}
-
 
   int? _extraerNumeroConsecutivo(String? consecutivo) {
-  if (consecutivo == null) return null;
-  final match = RegExp(r'(\d+)$').firstMatch(consecutivo);
-  return match != null ? int.parse(match.group(1)!) : null;
-}
-
-
-
-
+    if (consecutivo == null) return null;
+    final match = RegExp(r'(\d+)$').firstMatch(consecutivo);
+    return match != null ? int.parse(match.group(1)!) : null;
+  }
 
   //*metdo para dividir el producto
   void _onSetPickingsSplitEvent(

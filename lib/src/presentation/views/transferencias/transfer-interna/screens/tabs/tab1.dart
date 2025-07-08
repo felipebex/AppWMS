@@ -617,7 +617,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                   .result
                                   ?.result
                                   ?.hideValidateTransfer ==
-                              false,
+                              true,
                           child: ElevatedButton(
                               onPressed: () {
                                 showDialog(

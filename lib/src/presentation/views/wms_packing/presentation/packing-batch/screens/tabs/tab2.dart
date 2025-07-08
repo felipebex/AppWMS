@@ -143,7 +143,6 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                     .add(ChangeStickerEvent(false));
 
                                 FocusScope.of(context).unfocus();
-                               
 
                                 showDialog(
                                   context: context,
@@ -435,45 +434,30 @@ class _Tab2ScreenState extends State<Tab2Screen> {
                                                             color: black),
                                                       ),
                                                     ),
-                                                    Visibility(
-                                                      visible: product
-                                                              .manejaTemperatura ==
-                                                          1,
-                                                      child: Row(
-                                                        children: [
-                                                          Text(
-                                                            "Temperatura: ",
-                                                            style: TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  primaryColorApp,
-                                                            ),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          "Ubicación: ",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            color:
+                                                                primaryColorApp,
                                                           ),
-                                                          Text(
-                                                              "${product.temperatura}",
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color:
-                                                                          black)),
-                                                          const Spacer(),
-                                                          Icon(
+                                                        ),
+                                                        const Spacer(),
+                                                        Visibility(
+                                                          visible: product
+                                                                  .manejaTemperatura ==
+                                                              1,
+                                                          child: Icon(
                                                             Icons
                                                                 .thermostat_outlined,
                                                             color:
                                                                 primaryColorApp,
                                                             size: 16,
                                                           ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      "Ubicación: ",
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: primaryColorApp,
-                                                      ),
+                                                        ),
+                                                      ],
                                                     ),
                                                     Text(
                                                       "${product.locationId}",

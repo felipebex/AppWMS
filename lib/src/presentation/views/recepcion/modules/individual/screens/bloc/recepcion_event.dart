@@ -222,6 +222,12 @@ class SendTemperatureEvent extends RecepcionEvent {
     required this.moveLineId,
   });
 }
+class SendTemperatureManualEvent extends RecepcionEvent {
+ final int moveLineId;
+  SendTemperatureManualEvent({
+    required this.moveLineId,
+  });
+}
 class GetTemperatureEvent extends RecepcionEvent {
   final File file;
 

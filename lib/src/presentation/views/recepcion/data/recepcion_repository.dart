@@ -996,6 +996,62 @@ class RecepcionRepository {
       return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
     }
   }
+  Future<TemperatureSend> sendTemperatureManual(
+    dynamic temperature,
+    int idMoveLine,
+    bool isLoadingDialog,
+  ) async {
+    // Verificar si el dispositivo tiene acceso a Internet
+    var connectivityResult = await Connectivity().checkConnectivity();
+
+    if (connectivityResult == ConnectivityResult.none) {
+      print("Error: No hay conexión a Internet.");
+      return TemperatureSend(); // Si no hay conexión, terminamos la ejecución
+    }
+
+    try {
+      final response = await ApiRequestService().postMultipartManual(
+          endpoint: 'send_image_linea_recepcion',
+          idMoveLine: idMoveLine,
+          temperature: temperature,
+          isLoadinDialog: isLoadingDialog);
+
+      if (response.statusCode < 400) {
+        // Decodifica la respuesta JSON a un mapa
+
+        Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+        // Verifica si la respuesta contiene la clave 'result' y convierte la lista correctamente
+
+        if (jsonResponse['code'] == 400) {
+          return TemperatureSend(
+            msg: jsonResponse['msg'],
+            code: jsonResponse['code'],
+          );
+        } else if (jsonResponse['code'] == 200) {
+          return TemperatureSend(
+            code: jsonResponse['code'],
+            result: jsonResponse['result'],
+            lineId: jsonResponse['line_id'],
+            imageUrl: jsonResponse['image_url'],
+              
+          );
+        } else {
+          return TemperatureSend(); // Retornamos un objeto vacío en caso de error
+        }
+      } else {
+        // Manejo de error si la respuesta no es exitosa
+        print('Error al enviar la temperatura: ${response.statusCode}');
+        return TemperatureSend(); // Retornamos un objeto vacío en caso de error
+      }
+    } on SocketException catch (e) {
+      print('Error de red: $e');
+      return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
+    } catch (e, s) {
+      // Manejo de otros errores
+      print('Error en sendTemperature: $e, $s');
+      return TemperatureSend(); // Retornamos un objeto vacío en caso de error de red
+    }
+  }
   Future<ImageSendNovedad> sendImageNoved(
     int idMove,
     File imageFile,

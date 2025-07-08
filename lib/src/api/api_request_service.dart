@@ -360,6 +360,77 @@ Future<http.Response> postMultipart({
     return http.Response('Error en la solicitud: $e', 500);
   }
 }
+Future<http.Response> postMultipartManual({
+  required String endpoint,
+  required int idMoveLine,
+  required dynamic temperature,
+  required bool isLoadinDialog,
+}) async {
+  final urlBase = await PrefUtils.getEnterprise();
+  final fullUrl = Uri.parse('$urlBase/api/$endpoint');
+  final cookie = await PrefUtils.getCookie(); // 👈 Obtener cookie almacenada
+
+  try {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult == ConnectivityResult.none) {
+      Get.snackbar(
+        'Error de red',
+        'No se pudo conectar al servidor',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(seconds: 5),
+        leftBarIndicatorColor: yellow,
+        icon: Icon(Icons.error, color: primaryColorApp),
+      );
+      return http.Response('Error de red', 404);
+    }
+
+    final result = await InternetAddress.lookup('example.com');
+    if (result.isEmpty || result[0].rawAddress.isEmpty) {
+      return http.Response('No se pudo resolver DNS', 404);
+    }
+
+    if (isLoadinDialog) {
+      Get.dialog(
+        DialogLoadingNetwork(titel: endpoint),
+        barrierDismissible: false,
+      );
+    }
+
+
+    final request = http.MultipartRequest('POST', fullUrl);
+
+    // 🔧 Cambia 'image' por 'image_data' como espera el backend
+
+    // 🔧 Campos con nombres exactos que el backend espera
+    request.fields['move_line_id'] = idMoveLine.toString();
+    request.fields['temperatura'] = temperature.toString();
+
+    // 🔐 Agrega la cookie (como en Postman)
+    request.headers.addAll({
+      'Cookie': cookie,
+    });
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (isLoadinDialog) {
+      Get.back();
+    }
+
+    print('--------------------------------------------');
+    print('Petición MULTIPART a $endpoint');
+    print('status code: ${response.statusCode}');
+    print('respuesta: ${response.body}');
+    print('--------------------------------------------');
+
+    return response;
+  } catch (e, s) {
+    if (isLoadinDialog) Get.back();
+    print("Error en postMultipart: $e\n$s");
+    return http.Response('Error en la solicitud: $e', 500);
+  }
+}
  
  
 

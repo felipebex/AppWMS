@@ -13,6 +13,7 @@ import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_p
 
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/dropdowbutton_widget.dart';
+import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_temperature_manual_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/others/dialog_temperature_widget.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/widgets/product/product_card_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
@@ -349,18 +350,37 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                           if (Navigator.canPop(context)) {
                             Navigator.pop(context);
                           }
-                          showDialog(
-                            barrierDismissible:
-                                false, // Evita que se cierre tocando fuera del diálogo
-                            context: context,
-                            builder: (context) => WillPopScope(
-                              onWillPop: () async =>
-                                  false, // Evita que se cierre con la flecha de atrás
-                              child: DialogCapturaTemperatura(
-                                moveLineId: state.moveLineId,
+
+                          //validamos que el permiso de enviar imagenes de temperatura este activo
+                          if (recepcionBloc.configurations.result?.result
+                                  ?.showPhotoTemperature ==
+                              true) {
+                            showDialog(
+                              barrierDismissible:
+                                  false, // Evita que se cierre tocando fuera del diálogo
+                              context: context,
+                              builder: (context) => WillPopScope(
+                                onWillPop: () async =>
+                                    false, // Evita que se cierre con la flecha de atrás
+                                child: DialogCapturaTemperatura(
+                                  moveLineId: state.moveLineId,
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          } else {
+                            showDialog(
+                              barrierDismissible:
+                                  false, // Evita que se cierre tocando fuera del diálogo
+                              context: context,
+                              builder: (context) => WillPopScope(
+                                onWillPop: () async =>
+                                    false, // Evita que se cierre con la flecha de atrás
+                                child: DialogTemperaturaManual(
+                                  moveLineId: state.moveLineId,
+                                ),
+                              ),
+                            );
+                          }
                         }
 
                         if (state is SendTemperatureSuccess) {

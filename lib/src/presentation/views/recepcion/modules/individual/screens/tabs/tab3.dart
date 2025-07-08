@@ -316,18 +316,23 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                         fontSize: 12,
                                                         color: black)),
                                                 const Spacer(),
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    showImageDialog(
-                                                      context,
-                                                      product.image ??
-                                                          '', // URL o path de la imagen
-                                                    );
-                                                  },
-                                                  child: Icon(
-                                                    Icons.image,
-                                                    color: primaryColorApp,
-                                                    size: 23,
+                                                Visibility(
+                                                  visible:
+                                                      product.image != "" &&
+                                                          product.image != null,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      showImageDialog(
+                                                        context,
+                                                        product.image ??
+                                                            '', // URL o path de la imagen
+                                                      );
+                                                    },
+                                                    child: Icon(
+                                                      Icons.image,
+                                                      color: primaryColorApp,
+                                                      size: 23,
+                                                    ),
                                                   ),
                                                 ),
                                               ],
@@ -523,17 +528,17 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                   ),
                                                 ),
                                                 const Spacer(),
-
                                                 Visibility(
-                                                  visible: product.imageNovedad !=
-                                                      ""  ,
+                                                  visible:
+                                                      product.imageNovedad !=
+                                                          "",
                                                   child: GestureDetector(
                                                     onTap: () {
                                                       showImageDialog(
-                                                        context,
-                                                        product.imageNovedad ??
-                                                            ''// URL o path de la imagen
-                                                      );
+                                                          context,
+                                                          product.imageNovedad ??
+                                                              '' // URL o path de la imagen
+                                                          );
                                                     },
                                                     child: Icon(
                                                       Icons.image,
@@ -542,7 +547,6 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                     ),
                                                   ),
                                                 ),
-
                                               ],
                                             ),
                                           ),

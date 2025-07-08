@@ -249,6 +249,12 @@ class Tab3Screen extends StatelessWidget {
                                                             true,
                                                     child: Row(
                                                       children: [
+                                                        Icon(
+                                                          Icons
+                                                              .thermostat_outlined,
+                                                          color: primaryColorApp,
+                                                          size: 16,
+                                                        ),
                                                         Text(
                                                           "Temperatura: ",
                                                           style: TextStyle(

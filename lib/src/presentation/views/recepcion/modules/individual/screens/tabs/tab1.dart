@@ -465,7 +465,7 @@ class Tab1ScreenRecep extends StatelessWidget {
                           .result
                           ?.result
                           ?.hideValidateReception ==
-                      false,
+                      true,
                   child: ElevatedButton(
                       onPressed: () {
                         showDialog(

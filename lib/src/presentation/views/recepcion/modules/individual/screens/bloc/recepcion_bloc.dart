@@ -82,6 +82,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
   TextEditingController loteController = TextEditingController();
   TextEditingController controllerTemperature = TextEditingController();
   TextEditingController searchControllerLocationDest = TextEditingController();
+  TextEditingController temperatureController = TextEditingController();
 
   //*variables para validar
   bool productIsOk = false;
@@ -205,6 +206,7 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
     //enviar temperatura
     on<SendTemperatureEvent>(_onSendTemperatureEvent);
+    on<SendTemperatureManualEvent>(_onSendTemperatureManualEvent);
     on<GetTemperatureEvent>(_onGetTemperatureEvent);
 
     //evento para eliminar un producto ya enviado
@@ -217,8 +219,6 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
     on<FetchDevolucionesOfDB>(_onFetchDevolucionesOfDB);
     on<SearchDevolucionEvent>(_onSearchDevolucionEvent);
   }
-
-
 
 //metodo para enviar una imagen de novedad
   void _onSendImageNovedad(
@@ -239,21 +239,19 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
           int.parse(currentProduct.productId),
           'image_novedad',
           response.imageUrl ?? "",
-          response.stockMoveLineId??0,
+          response.stockMoveLineId ?? 0,
         );
         emit(SendImageNovedadSuccess(response));
-         add(GetPorductsToEntrada(event.idRecepcion));
-
+        add(GetPorductsToEntrada(event.idRecepcion));
       } else {
-        emit(SendImageNovedadFailure(response.msg ?? 'Error al enviar la imagen'));
+        emit(SendImageNovedadFailure(
+            response.msg ?? 'Error al enviar la imagen'));
       }
     } catch (e, s) {
       print('Error en el _onSendImageNovedad: $e, $s');
       emit(SendImageNovedadFailure('Ocurrió un error al enviar la imagen'));
     }
   }
-
-
 
   //*metodo para eliminar un producto ya enviado
   void _onDelectedProductWmsEvent(
@@ -466,6 +464,53 @@ class RecepcionBloc extends Bloc<RecepcionEvent, RecepcionState> {
 
         //limpiamos el dato de temperatura
         resultTemperature = TemperatureIa();
+
+        emit(SendTemperatureSuccess(
+            response.result ?? 'Temperatura enviada correctamente'));
+        add(GetPorductsToEntrada(
+          currentProduct.idRecepcion ?? 0,
+        ));
+      } else {
+        emit(SendTemperatureFailure(
+            response.msg ?? 'Error al enviar la temperatura'));
+        return;
+      }
+    } catch (e, s) {
+      print('Error en el _onSendTemperatureEvent: $e, $s');
+      emit(SendTemperatureFailure(
+          'Ocurrió un error al procesar la imagen y obtener la temperatura'));
+    }
+  }
+
+  void _onSendTemperatureManualEvent(
+    SendTemperatureManualEvent event,
+    Emitter<RecepcionState> emit,
+  ) async {
+    try {
+      emit(SendTemperatureLoading());
+
+      print('currentProduct: ${currentProduct.toMap()}');
+
+      //enviamos la temperatura con la imagen
+      final response = await _recepcionRepository.sendTemperatureManual(
+        temperatureController.text.trim(),
+        event.moveLineId,
+        true,
+      );
+
+      //esperamos la repuesta y emitimos el estadp
+      if (response.code == 200) {
+        //actualizamos la temepratura por producto en la bd y la imagen
+        await db.productEntradaRepository.setFieldTableProductEntradaImg(
+          currentProduct.idRecepcion ?? 0,
+          int.parse(currentProduct.productId),
+          'temperatura',
+          temperatureController.text.trim(),
+          event.moveLineId,
+        );
+        //limpiamos el dato de temperatura
+        temperatureController.clear();
+           resultTemperature = TemperatureIa();
 
         emit(SendTemperatureSuccess(
             response.result ?? 'Temperatura enviada correctamente'));

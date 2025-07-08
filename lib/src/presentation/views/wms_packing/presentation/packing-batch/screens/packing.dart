@@ -14,6 +14,7 @@ import 'package:wms_app/src/presentation/views/wms_packing/models/packing_respon
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/bloc/wms_packing_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/dropdowbutton_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/location/location_card_packing_widget.dart';
+import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_temperature_manual_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/others/dialog_temperature_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_packing/presentation/packing-batch/screens/widgets/product/product_packing_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_model.dart';
@@ -278,22 +279,42 @@ class _PackingScreenState extends State<PackingScreen> {
                                   packinghBloc
                                           .currentProduct.manejaTemperatura ==
                                       true) {
-                                showDialog(
-                                  barrierDismissible:
-                                      false, // Evita que se cierre tocando fuera del diálogo
-                                  context: context,
-                                  builder: (context) => WillPopScope(
-                                    onWillPop: () async =>
-                                        false, // Evita que se cierre con la flecha de atrás
-                                    child: DialogCapturaTemperatura(
-                                      moveLineId:
-                                          packinghBloc.currentProduct.idMove ??
-                                              0,
+                                if (packinghBloc.configurations.result?.result
+                                        ?.showPhotoTemperature ==
+                                    true) {
+                                  showDialog(
+                                    barrierDismissible:
+                                        false, // Evita que se cierre tocando fuera del diálogo
+                                    context: context,
+                                    builder: (context) => WillPopScope(
+                                      onWillPop: () async =>
+                                          false, // Evita que se cierre con la flecha de atrás
+                                      child: DialogCapturaTemperatura(
+                                        moveLineId: packinghBloc
+                                                .currentProduct.idMove ??
+                                            0,
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
 
-                                return;
+                                  return;
+                                } else {
+                                  showDialog(
+                                    barrierDismissible:
+                                        false, // Evita que se cierre tocando fuera del diálogo
+                                    context: context,
+                                    builder: (context) => WillPopScope(
+                                      onWillPop: () async =>
+                                          false, // Evita que se cierre con la flecha de atrás
+                                      child: DialogTemperaturaManualPacking(
+                                        moveLineId: packinghBloc
+                                                .currentProduct.idMove ??
+                                            0,
+                                      ),
+                                    ),
+                                  );
+                                  return;
+                                }
                               }
 
                               Navigator.pushReplacementNamed(
