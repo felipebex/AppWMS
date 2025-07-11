@@ -261,6 +261,7 @@ class UserScreen extends StatelessWidget {
                                                   fontSize: 14, color: black))
                                         ],
                                       ),
+                                     
                                       Row(
                                         children: [
                                           Text("Url: ",

@@ -45,3 +45,19 @@ final class GetUbicacionesError extends UserState {
 
   GetUbicacionesError(this.message);
 }
+
+
+class RegisterDeviceIdSuccess extends UserState {
+  final ResponsePdaRegister response;
+
+  RegisterDeviceIdSuccess(this.response);
+}
+
+class RegisterDeviceIdError extends UserState {
+  final String message;
+
+  RegisterDeviceIdError(this.message);
+}
+
+class RegisterDeviceIdLoading extends UserState {}
+

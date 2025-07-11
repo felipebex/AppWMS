@@ -117,6 +117,10 @@ class DialogPickIncompleted extends StatelessWidget {
                   ),
                   child: Text('Cerrar PICK',
                       style: TextStyle(color: primaryColorApp, fontSize: 12))),
+
+
+
+                      
               ElevatedButton(
                   onPressed: () async {
                     onAccepted(); // Llama al callback

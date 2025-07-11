@@ -47,7 +47,6 @@ class SelectEnterpricePage extends StatelessWidget {
               return false;
             },
             child: Scaffold(
-             
               body: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -73,9 +72,11 @@ class SelectEnterpricePage extends StatelessWidget {
                                 color: Colors.white, fontSize: 22),
                           )),
 
-                          const Center(
-                            child: Text("Version: 1.0.0",
-                                style: TextStyle(
+                           Center(
+                           child: Text("Version: ${context
+                                                  .read<UserBloc>()
+                                                  .versionApp}",
+                                style: TextStyle( 
                                     color: Colors.white, fontSize: 10)),
                           )
                           //FadeIn(duration: const  Duration(microseconds: 3), child: const Text("Bienvenido a BEXMovil Provigas", style: TextStyle(color: Colors.white, fontSize: 18),)),
@@ -104,7 +105,7 @@ class SelectEnterpricePage extends StatelessWidget {
                                     .fabricante
                                     .contains("Zebra"),
                                 child: CustomKeyboard(
-                                  isLogin: true,
+                                    isLogin: true,
                                     controller: context
                                         .read<EntrepriseBloc>()
                                         .entrepriceController,

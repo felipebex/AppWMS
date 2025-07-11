@@ -617,7 +617,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                   .result
                                   ?.result
                                   ?.hideValidateTransfer ==
-                              true,
+                              false,
                           child: ElevatedButton(
                               onPressed: () {
                                 showDialog(
@@ -797,7 +797,7 @@ class Tab1ScreenTrans extends StatelessWidget {
                                 context.read<TransferenciaBloc>().add(
                                     CheckAvailabilityEvent(
                                         transferenciaDetail.id ?? 0,
-                                        transferenciaDetail.type ?? ""));
+                                        transferenciaDetail.type ?? "transfer"));
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: primaryColorAppLigth,

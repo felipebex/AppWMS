@@ -173,6 +173,8 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
 
     //*metodo para crear barckorder o no
     on<CreateBackOrderOrNot>(_onCreateBackOrder);
+    //*metodo para cerrar el pick sin validarlo
+    on<PickOkEvent>(_onPickOkEvent);
 
     //*metodo para validar la confirmacion
     on<ValidateConfirmEvent>(_onValidateConfirmEvent);
@@ -334,6 +336,35 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
       emit(CreateBackOrderOrNotFailure(
         'Error al crear la backorder',
         event.isBackOrder,
+      ));
+      print('Error en el _onCreateBackOrder: $e, $s');
+    }
+  }
+
+  void _onPickOkEvent(PickOkEvent event, Emitter<PickingPickState> emit) async {
+    try {
+      emit(CreateBackOrderOrNotLoading());
+
+      add(StartOrStopTimeTransfer(
+        event.idPick,
+        'end_time_transfer',
+      ));
+
+      add(ValidateFieldsEvent(field: "locationDest", isOk: true));
+      add(ChangeLocationDestIsOkEvent(true, currentProduct.idProduct ?? 0,
+          pickWithProducts.pick?.id ?? 0, currentProduct.idMove ?? 0));
+      isSearch = true;
+
+      add(PickingOkEvent(
+          pickWithProducts.pick?.id ?? 0, currentProduct.idProduct ?? 0));
+      //pedimos los nuevos picks
+      add(FetchPickingPickEvent(false));
+
+      emit(PickOkEventSuccess('Pick cerrado correctamente'));
+    } catch (e, s) {
+      emit(CreateBackOrderOrNotFailure(
+        'Error al crear la backorder',
+        false,
       ));
       print('Error en el _onCreateBackOrder: $e, $s');
     }
@@ -1249,7 +1280,7 @@ class PickingPickBloc extends Bloc<PickingPickEvent, PickingPickState> {
               idProducto: product?.idProduct ?? 0,
               idLote: product?.loteId ?? 0,
               idUbicacionDestino: product?.muelleId ?? 0,
-              
+
               cantidadEnviada: (product?.quantitySeparate ?? 0.0) >
                       (product?.quantity ??
                           0.0) // Asegura que ambos lados sean numéricos

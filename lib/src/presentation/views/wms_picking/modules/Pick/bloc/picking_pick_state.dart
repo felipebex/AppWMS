@@ -301,3 +301,9 @@ class SubMuelleOcupadoError extends PickingPickState {
   final String error;
   SubMuelleOcupadoError(this.error);
 }
+
+class PickOkEventSuccess extends PickingPickState {
+  final String message;
+
+  PickOkEventSuccess( this.message);
+}

@@ -628,8 +628,17 @@ class Tab1PedidoScreen extends StatelessWidget {
                                             ),
                                           ),
                                           Visibility(
-                                            visible:
-                                                pedidoCurrent?.isTerminate != 1,
+                                            visible: pedidoCurrent
+                                                        .isTerminate !=
+                                                    1 &&
+                                                context
+                                                        .read<
+                                                            PackingPedidoBloc>()
+                                                        .configurations
+                                                        .result!
+                                                        .result
+                                                        ?.hideValidatePacking ==
+                                                    false,
                                             child: ElevatedButton(
                                                 onPressed: () {
                                                   if (context

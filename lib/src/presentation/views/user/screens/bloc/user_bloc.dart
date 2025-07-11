@@ -8,6 +8,7 @@ import 'package:wms_app/src/presentation/models/response_ubicaciones_model.dart'
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/user/data/user_repository.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
+import 'package:wms_app/src/presentation/views/user/models/response_pda_register_model.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
 
 part 'user_event.dart';
@@ -58,7 +59,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           print("almacenes: ${almacenes.length}");
 
           emit(ConfigurationLoaded(responsebd ?? configurations));
-          
         } else {
           emit(ConfigurationError(
               response.result?.msg ?? 'Error al cargar configuraciones'));
@@ -68,11 +68,37 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       }
     });
 
-
     //*evento para obtener la informacion del dispositivo
     on<LoadInfoDeviceEventUser>(_onLoadInfoDeviceEventUser);
     add(LoadInfoDeviceEventUser());
     on<GetUbicacionesEvent>(_getUbicacionesEvent);
+    //*Evento para registrar el id del dispositivo
+    on<RegisterDeviceIdEvent>(_onRegisterDeviceIdEvent);
+  }
+
+  void _onRegisterDeviceIdEvent(
+      RegisterDeviceIdEvent event, Emitter<UserState> emit) async {
+    try {
+      emit(RegisterDeviceIdLoading());
+      final response = await userRepository.sendIdPda(
+          idDispositivo, modelo, "$modelo $fabricante");
+      if (response.result?.code == 200) {
+        if (response.result?.data?.isAuthorized == "no") {
+          PrefUtils.setIsLoggedIn(false);
+          PrefUtils.clearPrefs();
+          emit(RegisterDeviceIdError('Dispositivo no autorizado'));
+        } else {
+          PrefUtils.setIsLoggedIn(true);
+          emit(RegisterDeviceIdSuccess(response));
+        }
+      } else {
+        emit(RegisterDeviceIdError(
+            response.result?.msg ?? 'Error al registrar dispositivo'));
+      }
+    } catch (e, s) {
+      print('Error en RegisterDeviceIdEvent.dart: $e =>$s');
+      emit(RegisterDeviceIdError('Error al registrar dispositivo'));
+    }
   }
 
   void _getUbicacionesEvent(
@@ -82,8 +108,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       emit(GetUbicacionesLoading());
       final response = await userRepository.ubicaciones();
       if (response != null) {
-
-
         // filtramos la ubicacion por el almacen
         ubicaciones = response
             .where((ubicacion) =>
@@ -117,7 +141,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       version = androidInfo.version.release;
       fabricante = androidInfo.manufacturer;
 
-
       idDispositivo =
           androidInfo.id; // Este es el ID único para dispositivos Android
       print('idDispositivo: $idDispositivo');
@@ -125,10 +148,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
       versionApp = packageInfo.version; // Versión de la app
 
-
-      almacenes =
-          await db.warehouseRepository.getAllowedWarehouse();
-
+      almacenes = await db.warehouseRepository.getAllowedWarehouse();
 
       emit(LoadInfoDeviceStateUser());
     } catch (e, s) {

@@ -5,7 +5,8 @@ import 'package:wms_app/src/presentation/views/transferencias/models/response_tr
 
 class TransferenciaRepository {
   //metodo para insertar una transferencia
-  Future<void> insertEntrada(List<ResultTransFerencias> transferencias, String type) async {
+  Future<void> insertEntrada(
+      List<ResultTransFerencias> transferencias, String type) async {
     try {
       Database db = await DataBaseSqlite().getDatabaseInstance();
       // Comienza la transacción
@@ -75,11 +76,7 @@ class TransferenciaRepository {
                     transfer.backorderName ?? '',
                 TransferenciaTable.columnProveedor: transfer.proveedor ?? '',
                 TransferenciaTable.columnShowCheckAvailability:
-                    transfer.showCheckAvailability == true
-                        ? 1
-                        : transfer.showCheckAvailability == 0
-                            ? 0
-                            : 1,
+                    transfer.showCheckAvailability == true ? 1 : 0,
                 TransferenciaTable.columnType: type,
                 TransferenciaTable.columnCreateBackorder:
                     transfer.createBackorder ?? '',
@@ -132,9 +129,7 @@ class TransferenciaRepository {
                 TransferenciaTable.columnShowCheckAvailability:
                     transfer.showCheckAvailability == true
                         ? 1
-                        : transfer.showCheckAvailability == 0
-                            ? 0
-                            : 1,
+                        :0,
                 TransferenciaTable.columnType: type,
                 TransferenciaTable.columnCreateBackorder:
                     transfer.createBackorder ?? '',

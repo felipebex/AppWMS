@@ -215,16 +215,20 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
         );
         return;
       } else {
-        showDialog(
-            context: Navigator.of(context, rootNavigator: true).context,
-            builder: (context) {
-              return DialogBackorderPick(
-                unidadesSeparadas: unidadesSeparadas,
-                createBackorder: batchBloc.pickWithProducts.pick
-                        ?.createBackorder ??
-                    "ask",
-              );
-            });
+        if (batchBloc.configurations.result?.result?.hideValidatePicking ==
+            false) {
+          showDialog(
+              context: Navigator.of(context, rootNavigator: true).context,
+              builder: (context) {
+                return DialogBackorderPick(
+                  unidadesSeparadas: unidadesSeparadas,
+                  createBackorder:
+                      batchBloc.pickWithProducts.pick?.createBackorder ?? "ask",
+                );
+              });
+        } else {
+          batchBloc.add(PickOkEvent(batchBloc.pickWithProducts.pick?.id ?? 0));
+        }
       }
     } else {
       showDialog(
@@ -255,20 +259,28 @@ class _MuelleDropdownWidgetState extends State<MuellePickDropdownWidget> {
                 }
               },
               onClose: () {
-                Navigator.pop(context);
-                Future.delayed(Duration.zero, () {
-                  showDialog(
-                      context:
-                          Navigator.of(context, rootNavigator: true).context,
-                      builder: (context) {
-                        return DialogBackorderPick(
-                          unidadesSeparadas: unidadesSeparadas,
-                          createBackorder: batchBloc.pickWithProducts.pick
-                                  ?.createBackorder ??
-                              "ask",
-                        );
-                      });
-                });
+                if (batchBloc
+                        .configurations.result?.result?.hideValidatePicking ==
+                    false) {
+                  Navigator.pop(context);
+
+                  Future.delayed(Duration.zero, () {
+                    showDialog(
+                        context:
+                            Navigator.of(context, rootNavigator: true).context,
+                        builder: (context) {
+                          return DialogBackorderPick(
+                            unidadesSeparadas: unidadesSeparadas,
+                            createBackorder: batchBloc
+                                    .pickWithProducts.pick?.createBackorder ??
+                                "ask",
+                          );
+                        });
+                  });
+                } else {
+                  batchBloc.add(
+                      PickOkEvent(batchBloc.pickWithProducts.pick?.id ?? 0));
+                }
               },
             );
           });

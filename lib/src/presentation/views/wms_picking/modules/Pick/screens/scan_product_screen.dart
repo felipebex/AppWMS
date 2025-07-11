@@ -636,6 +636,22 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                           }
                         }
 
+                        if (state is PickOkEventSuccess) {
+                          Navigator.pop(context);
+                          if (batchBloc.pickWithProducts.pick?.typePick ==
+                              'pick') {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'pick',
+                            );
+                          } else {
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'picking-componentes',
+                            );
+                          }
+                        }
+
                         // * validamos en todo cambio de estado de cantidad separada
                         if (state is ChangeQuantitySeparateStateSuccess) {
                           if (state.quantity == currentProduct.quantity) {
@@ -1140,17 +1156,20 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                                                               fontSize: 12,
                                                               color: grey)),
                                                     ),
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text(
-                                                          currentProduct
-                                                                  .origin ??
-                                                              "",
-                                                          style: TextStyle(
-                                                              fontSize: 12,
-                                                              color:
-                                                                  primaryColorApp)),
+                                                    const SizedBox(width: 5),
+                                                    Expanded(
+                                                      child: Align(
+                                                        alignment: Alignment
+                                                            .centerLeft,
+                                                        child: Text(
+                                                            currentProduct
+                                                                    .origin ??
+                                                                "",
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                color:
+                                                                    primaryColorApp)),
+                                                      ),
                                                     ),
                                                   ],
                                                 ),
@@ -2136,16 +2155,20 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
       } else {
         FocusScope.of(context).unfocus();
 
-        showDialog(
-            context: Navigator.of(context, rootNavigator: true).context,
-            builder: (context) {
-              return DialogBackorderPick(
-                unidadesSeparadas: unidadesSeparadas,
-                createBackorder: batchBloc.pickWithProducts.pick
-                        ?.createBackorder ??
-                    "ask",
-              );
-            });
+        if (batchBloc.configurations.result?.result?.hideValidatePicking ==
+            false) {
+          showDialog(
+              context: Navigator.of(context, rootNavigator: true).context,
+              builder: (context) {
+                return DialogBackorderPick(
+                  unidadesSeparadas: unidadesSeparadas,
+                  createBackorder:
+                      batchBloc.pickWithProducts.pick?.createBackorder ?? "ask",
+                );
+              });
+        } else {
+          batchBloc.add(PickOkEvent(batchBloc.pickWithProducts.pick?.id ?? 0));
+        }
       }
     } else {
       FocusScope.of(context).unfocus();
@@ -2177,21 +2200,28 @@ class _ScanProductPickScreenState extends State<ScanProductPickScreen>
                 }
               },
               onClose: () {
-                Navigator.pop(context);
-                FocusScope.of(context).unfocus();
-                Future.delayed(Duration.zero, () {
-                  showDialog(
-                      context:
-                          Navigator.of(context, rootNavigator: true).context,
-                      builder: (context) {
-                        return DialogBackorderPick(
-                          unidadesSeparadas: unidadesSeparadas,
-                          createBackorder: batchBloc
-                                  .pickWithProducts.pick?.createBackorder ??
-                              "ask",
-                        );
-                      });
-                });
+                if (batchBloc
+                        .configurations.result?.result?.hideValidatePicking ==
+                    false) {
+                  Navigator.pop(context);
+                  FocusScope.of(context).unfocus();
+                  Future.delayed(Duration.zero, () {
+                    showDialog(
+                        context:
+                            Navigator.of(context, rootNavigator: true).context,
+                        builder: (context) {
+                          return DialogBackorderPick(
+                            unidadesSeparadas: unidadesSeparadas,
+                            createBackorder: batchBloc
+                                    .pickWithProducts.pick?.createBackorder ??
+                                "ask",
+                          );
+                        });
+                  });
+                } else {
+                  batchBloc.add(
+                      PickOkEvent(batchBloc.pickWithProducts.pick?.id ?? 0));
+                }
               },
             );
           });

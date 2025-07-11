@@ -32,6 +32,7 @@ class LoginPage extends StatelessWidget {
         listeners: [
           BlocListener<LoginBloc, LoginState>(
             listener: (context, state) {
+              print('STATE LOGIN: $state');
               if (state is LoginLoading) {
                 Get.dialog(
                   DialogLoadingNetwork(
@@ -42,9 +43,7 @@ class LoginPage extends StatelessWidget {
                 );
               }
               if (state is LoginSuccess) {
-                // llamamos la configuracion de la empresa y el usuario logueado
-                context.read<UserBloc>().add(
-                    GetConfigurations(context)); //configuracion del usuario
+                context.read<UserBloc>().add(RegisterDeviceIdEvent());
               }
 
               if (state is LoginFailure) {
@@ -55,6 +54,18 @@ class LoginPage extends StatelessWidget {
           ),
           BlocListener<UserBloc, UserState>(
             listener: (context, state) async {
+              print('STATE USER: $state');
+
+              if (state is RegisterDeviceIdError) {
+                Get.back();
+                showModalDialog(context, state.message);
+              }
+
+              if (state is RegisterDeviceIdSuccess) {
+                context.read<UserBloc>().add(
+                    GetConfigurations(context)); //configuracion del usuario
+              }
+
               if (state is ConfigurationLoaded) {
                 context
                     .read<WMSPickingBloc>()
@@ -65,7 +76,6 @@ class LoginPage extends StatelessWidget {
                 context
                     .read<InventarioBloc>()
                     .add(GetProductsEvent(isDialogLoading: true));
-               
 
                 context.read<LoginBloc>().email.clear();
                 context.read<LoginBloc>().password.clear();
@@ -117,8 +127,9 @@ class LoginPage extends StatelessWidget {
                                   color: Colors.white, fontSize: 22),
                             )),
 
-                            const Center(
-                              child: Text("Version: 1.0.0",
+                            Center(
+                              child: Text(
+                                  "Version: ${context.read<UserBloc>().versionApp}",
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 10)),
                             )
