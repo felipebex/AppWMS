@@ -84,18 +84,28 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
     print('_handleFocusAccordingToState');
     final bloc = context.read<DevolucionesBloc>();
 
+    // Validación adicional para location
+    final locationRequiresFocus =
+        bloc.configurations.result?.result?.returnsLocationDestOption ==
+            "dynamic";
+
     final focusMap = {
       "location": () =>
-          !bloc.locationIsOk && !bloc.productIsOk && !bloc.contactoIsOk,
+          locationRequiresFocus && // Nueva condición
+          !bloc.locationIsOk &&
+          !bloc.productIsOk &&
+          !bloc.contactoIsOk,
       "contacto": () =>
-          bloc.locationIsOk && !bloc.productIsOk && !bloc.contactoIsOk,
+          (!locationRequiresFocus || bloc.locationIsOk) && // Modificado
+          !bloc.productIsOk &&
+          !bloc.contactoIsOk,
       "product": () =>
-          bloc.locationIsOk &&
+          (!locationRequiresFocus || bloc.locationIsOk) && // Modificado
           bloc.contactoIsOk &&
           bloc.productIsOk &&
           !bloc.isDialogVisible,
       "quantity": () =>
-          bloc.locationIsOk &&
+          (!locationRequiresFocus || bloc.locationIsOk) && // Modificado
           bloc.contactoIsOk &&
           bloc.productIsOk &&
           bloc.isDialogVisible,
@@ -111,11 +121,6 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
     for (final entry in focusMap.entries) {
       if (entry.value()) {
         debugPrint("🚼 ${entry.key}");
-        // print('locationIsOk: ${bloc.locationIsOk}, '
-        //     'productIsOk: ${bloc.productIsOk}, '
-        //     'contactoIsOk: ${bloc.contactoIsOk}, '
-        //     'quantityIsOk: ${bloc.viewQuantity}, '
-        //     'isDialogVisible: ${bloc.isDialogVisible}');
         _setOnlyFocus(focusNodeByKey[entry.key]!);
         break;
       }
@@ -123,16 +128,25 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
   }
 
   String getCurrentStep(DevolucionesBloc bloc) {
-    if (!bloc.locationIsOk && !bloc.productIsOk && !bloc.contactoIsOk) {
+    final requiresLocationFocus =
+        bloc.configurations.result?.result?.returnsLocationDestOption ==
+            "dynamic";
+
+    if (requiresLocationFocus &&
+        !bloc.locationIsOk &&
+        !bloc.productIsOk &&
+        !bloc.contactoIsOk) {
       return 'location';
-    } else if (bloc.locationIsOk && !bloc.productIsOk && !bloc.contactoIsOk) {
+    } else if ((!requiresLocationFocus || bloc.locationIsOk) &&
+        !bloc.productIsOk &&
+        !bloc.contactoIsOk) {
       return 'contacto';
-    } else if (bloc.locationIsOk &&
+    } else if ((!requiresLocationFocus || bloc.locationIsOk) &&
         bloc.contactoIsOk &&
         bloc.productIsOk &&
         !bloc.isDialogVisible) {
       return 'product';
-    } else if (bloc.locationIsOk &&
+    } else if ((!requiresLocationFocus || bloc.locationIsOk) &&
         bloc.contactoIsOk &&
         bloc.productIsOk &&
         bloc.isDialogVisible) {
@@ -963,6 +977,7 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
                   context: context,
                   builder: (context) {
                     return SearchProductDevScreen();
+
                     ///cuando lo cerremos pasamos aChangeStateIsDialogVisibleEvent true
                   }).then((_) {
                 // Se ejecuta al cerrar el diálogo
@@ -1041,11 +1056,20 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
                   right: 8.0,
                 ),
                 child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacementNamed(
-                        context, 'ubicaciones-devoluciones');
-                  },
+                  onTap: devolucionesBloc.configurations.result?.result
+                              ?.returnsLocationDestOption ==
+                          "predefined"
+                      ? null
+                      : () {
+                          Navigator.pushReplacementNamed(
+                              context, 'ubicaciones-devoluciones');
+                        },
                   child: Card(
+                    color: devolucionesBloc.configurations.result?.result
+                                ?.returnsLocationDestOption ==
+                            "predefined"
+                        ? Colors.grey[200]
+                        : white,
                     elevation: 2,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -1057,9 +1081,16 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
                               width: 10,
                               height: 10,
                               decoration: BoxDecoration(
-                                color: devolucionesBloc.locationIsOk
-                                    ? Colors.green
-                                    : Colors.amber,
+                                color: devolucionesBloc
+                                            .configurations
+                                            .result
+                                            ?.result
+                                            ?.returnsLocationDestOption ==
+                                        "predefined"
+                                    ? Colors.grey
+                                    : devolucionesBloc.locationIsOk
+                                        ? Colors.green
+                                        : Colors.amber,
                                 shape: BoxShape.circle,
                               ),
                             ),
@@ -1068,14 +1099,25 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
                               style: TextStyle(
                                   fontSize: 11, color: primaryColorApp)),
                           Text(
-                            devolucionesBloc.currentLocation.name ??
-                                'Esperando escaneo',
+                            devolucionesBloc.configurations.result?.result
+                                        ?.returnsLocationDestOption ==
+                                    "predefined"
+                                ? 'Predefinida'
+                                : devolucionesBloc.currentLocation.name ??
+                                    'Esperando escaneo',
                             style: TextStyle(
                                 fontSize: 11,
-                                color: devolucionesBloc.currentLocation.name ==
-                                        null
-                                    ? red
-                                    : black),
+                                color: devolucionesBloc
+                                            .configurations
+                                            .result
+                                            ?.result
+                                            ?.returnsLocationDestOption ==
+                                        "predefined"
+                                    ? grey
+                                    : devolucionesBloc.currentLocation.name ==
+                                            null
+                                        ? red
+                                        : black),
                           ),
                           const Spacer(),
                           Icon(
@@ -1293,7 +1335,10 @@ class _DevolucionesScreenState extends State<DevolucionesScreen>
             child: ElevatedButton(
                 onPressed: () {
                   //verficiamos que tengmos ubicacion y tercero
-                  if (devolucionesBloc.currentLocation.name == null) {
+                  if (devolucionesBloc.currentLocation.name == null &&
+                      devolucionesBloc.configurations.result?.result
+                              ?.returnsLocationDestOption ==
+                          "dynamic") {
                     Get.snackbar(
                       '360 Software Informa',
                       'Debe seleccionar una ubicación destino',

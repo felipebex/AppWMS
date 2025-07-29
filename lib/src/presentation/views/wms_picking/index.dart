@@ -554,7 +554,7 @@ class _PickingPageState extends State<WMSPickingPage> {
                                                             fontSize: 12,
                                                             color: grey)),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   batch.startTimePick != ""
                                                       ? GestureDetector(
                                                           onTap: () {

@@ -659,7 +659,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                           ),
                                                         ),
                                                       ),
-                                                      Spacer(),
+                                                      const Spacer(),
                                                       Image.asset(
                                                         "assets/icons/ubicacion.png",
                                                         color: primaryColorApp,
@@ -798,7 +798,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                             ),
                                                           ),
                                                         ),
-                                                        Spacer(),
+                                                        const Spacer(),
                                                         Image.asset(
                                                           "assets/icons/ubicacion.png",
                                                           color:
@@ -968,7 +968,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                                     primaryColorApp),
                                                           ),
                                                         ),
-                                                        Spacer(),
+                                                        const Spacer(),
                                                         Image.asset(
                                                           "assets/icons/producto.png",
                                                           color:
@@ -1062,7 +1062,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                               ? red
                                                               : black),
                                                     ),
-                                                    Spacer(),
+                                                    const Spacer(),
                                                     GestureDetector(
                                                       onTap: () {
                                                         showDialog(
@@ -1270,7 +1270,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                                       primaryColorApp),
                                                             ),
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Image.asset(
                                                             "assets/icons/producto.png",
                                                             color:
@@ -1340,7 +1340,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                                 ? red
                                                                 : black),
                                                       ),
-                                                      Spacer(),
+                                                      const Spacer(),
                                                       GestureDetector(
                                                         onTap: () {
                                                           showDialog(
@@ -1482,7 +1482,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                   fontSize: 14,
                                                   color: primaryColorApp),
                                             ),
-                                            Spacer(),
+                                            const Spacer(),
                                             Image.asset(
                                               "assets/icons/barcode.png",
                                               color: primaryColorApp,

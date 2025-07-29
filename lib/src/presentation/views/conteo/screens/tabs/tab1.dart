@@ -1,0 +1,329 @@
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
+import 'package:wms_app/src/utils/constans/colors.dart';
+
+class Tab1ScreenConteo extends StatelessWidget {
+  const Tab1ScreenConteo({
+    super.key,
+    required this.ordenConteo,
+  });
+
+  final DatumConteo? ordenConteo;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: BlocConsumer<ConteoBloc, ConteoState>(
+        listener: (context, state) {},
+        builder: (context, state) {
+          final ordeConteoBd = context.read<ConteoBloc>().ordenConteo;
+
+          // final totalEnviadas = context
+          //     .read<RecepcionBatchBloc>()
+          //     .listProductsEntrada
+          //     .map((e) => e.quantityDone ?? 0)
+          //     .fold<double>(0, (a, b) => a + b);
+
+          return Scaffold(
+            backgroundColor: white,
+            body: Column(
+              children: [
+                //*detalles del batch
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  width: double.infinity,
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 5,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(ordeConteoBd.name ?? '',
+                                style: TextStyle(
+                                    color: primaryColorApp,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold)),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Text('Almacen: ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp)),
+                                Text(
+                                  ordeConteoBd.warehouseName ?? "",
+                                  style: const TextStyle(
+                                      fontSize: 14, color: black),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Text('Tipo de conteo: ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp)),
+                                Text(
+                                  ordeConteoBd.countType ?? "",
+                                  style: const TextStyle(
+                                      fontSize: 14, color: black),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Text('Tipo de filtro: ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp)),
+                                Text(
+                                  ordeConteoBd.filterType ?? "",
+                                  style: const TextStyle(
+                                      fontSize: 14, color: black),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_month_sharp,
+                                  color: primaryColorApp,
+                                  size: 15,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  ordeConteoBd.dateCount != null
+                                      ? DateFormat('dd/MM/yyyy hh:mm ').format(
+                                          DateTime.parse(ordeConteoBd.dateCount
+                                                  .toString() ??
+                                              ''))
+                                      : "Sin fecha",
+                                  style: const TextStyle(
+                                      fontSize: 14, color: black),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Total productos : ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    ordeConteoBd.numeroLineas.toString(),
+                                    style:
+                                        TextStyle(fontSize: 14, color: black),
+                                  )),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Total productos contados : ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    ordeConteoBd.numeroItemsContados.toString(),
+                                    style:
+                                        TextStyle(fontSize: 14, color: black),
+                                  )),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Total ubicaciones : ',
+                                    style: TextStyle(
+                                        fontSize: 14, color: primaryColorApp),
+                                  )),
+                              Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    ordeConteoBd.numeroLineas.toString(),
+                                    style:
+                                        TextStyle(fontSize: 14, color: black),
+                                  )),
+                            ],
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.person_rounded,
+                                  color: primaryColorApp,
+                                  size: 15,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  ordeConteoBd.responsableName == false
+                                      ? 'Sin responsable'
+                                      : ordeConteoBd.responsableName == ''
+                                          ? 'Sin responsable'
+                                          : ordeConteoBd.responsableName ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 14, color: black),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.timer,
+                                  color: primaryColorApp,
+                                  size: 15,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  'Tiempo de inicio : ',
+                                  style: TextStyle(
+                                      fontSize: 14, color: primaryColorApp),
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  // ordeCompraBd.startTimeReception == null ||
+                                  //         ordeCompraBd.startTimeReception == ''
+                                  // ?
+                                  'Sin tiempo'
+                                  // : ordeCompraBd.startTimeReception ?? ""
+                                  ,
+                                  style: const TextStyle(
+                                      fontSize: 14, color: black),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            color: black,
+                            thickness: 1,
+                            height: 5,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 5),
+                Text(
+                  'Ubicaciones de conteo',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: primaryColorApp,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 5),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    itemCount:
+                        context.read<ConteoBloc>().ubicacionesConteo.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                          elevation: 4,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                                context
+                                        .read<ConteoBloc>()
+                                        .ubicacionesConteo[index]
+                                        .name ??
+                                    '',
+                                style:
+                                    const TextStyle(fontSize: 12, color: black)),
+                          ));
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Categorias de conteo',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: primaryColorApp,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 5),
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    itemCount:
+                        context.read<ConteoBloc>().categoriasConteo.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Text(
+                              context
+                                      .read<ConteoBloc>()
+                                      .categoriasConteo[index]
+                                      .name ??
+                                  '',
+                              style: const TextStyle(fontSize: 12, color: black)),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // const Spacer(),
+                // ElevatedButton(
+                //     onPressed: () {},
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor: primaryColorApp,
+                //       minimumSize: Size(size.width * 0.9, 40),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(10),
+                //       ),
+                //       elevation: 3,
+                //     ),
+                //     child: Text('Terminar Recepcion',
+                //         style: TextStyle(color: white))),
+                // const SizedBox(height: 10),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}

@@ -340,7 +340,14 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                     recepcionBatch[index]
                                                                 .purchaseOrderName ==
                                                             ""
-                                                        ? 'Sin orden de compra'
+                                                        ? recepcionBatch[index]
+                                                                    .origin ==
+                                                                ""
+                                                            ? 'Sin orden de compra'
+                                                            : recepcionBatch[
+                                                                        index]
+                                                                    .origin ??
+                                                                ''
                                                         : recepcionBatch[index]
                                                                 .purchaseOrderName ??
                                                             '',
@@ -397,7 +404,7 @@ class ListRecepctionBatchScreen extends StatelessWidget {
                                                             ? Colors.red
                                                             : black),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   recepcionBatch[index]
                                                               .startTimeReception !=
                                                           ""
@@ -537,8 +544,7 @@ class AppBar extends StatelessWidget {
             const WarningWidgetCubit(),
             Padding(
               padding: EdgeInsets.only(
-                  bottom: 0,
-                  top: status != ConnectionStatus.online ? 0 : 25),
+                  bottom: 0, top: status != ConnectionStatus.online ? 0 : 25),
               child: Row(
                 children: [
                   IconButton(
@@ -548,17 +554,17 @@ class AppBar extends StatelessWidget {
                           .read<RecepcionBatchBloc>()
                           .searchControllerRecepcionBatch
                           .clear();
-      
-                        context
-                            .read<RecepcionBatchBloc>()
-                            .add(SearchReceptionEvent(
-                              '',
-                            ));
-      
+
+                      context
+                          .read<RecepcionBatchBloc>()
+                          .add(SearchReceptionEvent(
+                            '',
+                          ));
+
                       context
                           .read<RecepcionBatchBloc>()
                           .add(ShowKeyboardEvent(false));
-      
+
                       Navigator.pushReplacementNamed(
                         context,
                         '/home',
@@ -573,17 +579,17 @@ class AppBar extends StatelessWidget {
                             .read<RecepcionBatchBloc>()
                             .searchControllerRecepcionBatch
                             .clear();
-      
+
                         context
                             .read<RecepcionBatchBloc>()
                             .add(SearchReceptionEvent(
                               '',
                             ));
-      
+
                         context
                             .read<RecepcionBatchBloc>()
                             .add(ShowKeyboardEvent(false));
-      
+
                         // await DataBaseSqlite().deleRecepcion();
                         context.read<RecepcionBatchBloc>().add(
                             FetchRecepcionBatchEvent(isLoadinDialog: false));
@@ -592,7 +598,7 @@ class AppBar extends StatelessWidget {
                         children: [
                           const Text("DEVOLUCIONES BATCH",
                               style: TextStyle(color: white, fontSize: 18)),
-      
+
                           ///icono de refresh
                           const SizedBox(width: 5),
                           Icon(

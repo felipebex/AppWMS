@@ -4,16 +4,13 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-
 import '../../../../../../../../utils/constans/colors.dart';
 
 class DialogLoading extends StatelessWidget {
-   const DialogLoading({
-    super.key,  this.message = 'Pasando al siguiente producto...'
+  const DialogLoading(
+      {super.key, this.message = 'Pasando al siguiente producto...'});
 
-  });
-
-   final String message ;
+  final String message;
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
@@ -41,11 +38,20 @@ class DialogLoading extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-             Text(message,
-                style: const TextStyle(color: grey, fontSize: 14)),
+            Text(message, style: const TextStyle(color: grey, fontSize: 14)),
           ],
         )),
-       
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: CircularProgressIndicator(
+                color: primaryColorApp,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

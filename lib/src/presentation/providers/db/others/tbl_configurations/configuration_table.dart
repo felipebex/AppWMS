@@ -66,6 +66,9 @@ class ConfigurationsTable {
   //show_photo_temperature
   static const String columnShowPhotoTemperature = 'show_photo_temperature';
 
+  //returns_location_dest_option
+static const String columnReturnsLocationDestOption = 'returns_location_dest_option';  
+
   
 
   // Método para crear la tabla
@@ -109,6 +112,7 @@ class ConfigurationsTable {
         $columnHideValidatePacking INTEGER,
         $columnHideValidatePicking INTEGER,
         $columnShowPhotoTemperature INTEGER,
+        $columnReturnsLocationDestOption TEXT,
         $columnCountQuantityInventory INTEGER
       )
     ''';

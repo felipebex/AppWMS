@@ -214,3 +214,17 @@ class ChangeStateIsDialogVisibleState extends DevolucionesState {
   final bool isDialogVisible;
   ChangeStateIsDialogVisibleState(this.isDialogVisible);
 }
+
+
+
+class ConfigurationDevLoaded extends DevolucionesState {
+  final Configurations configurations;
+
+  ConfigurationDevLoaded(this.configurations);
+}
+
+class ConfigurationError extends DevolucionesState {
+  final String error;
+
+  ConfigurationError(this.error);
+}

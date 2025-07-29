@@ -9,6 +9,7 @@ import 'package:wms_app/src/api/http_response_handler.dart';
 import 'package:wms_app/src/presentation/blocs/keyboard/keyboard_bloc.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/providers/network/check_internet_connection.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/bloc/devoluciones_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
@@ -118,6 +119,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => RecepcionBatchBloc()),
         BlocProvider(create: (_) => PackingPedidoBloc()),
         BlocProvider(create: (_) => DevolucionesBloc()),
+        BlocProvider(create: (_) => ConteoBloc()),
       ],
       child: GetMaterialApp(
         navigatorKey: navigatorKey,

@@ -632,7 +632,7 @@ class _WmsPackingScreenState extends State<ListPackingScreen> {
                                                       TextOverflow.ellipsis,
                                                 ),
                                               ),
-                                              Spacer(),
+                                              const Spacer(),
                                               batch.startTimeTransfer != ""
                                                   ? GestureDetector(
                                                       onTap: () {

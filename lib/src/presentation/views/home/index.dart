@@ -3,12 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/bloc/home_bloc.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_devoluciones_widget.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/dialog_picking_widget%20copy.dart';
 import 'package:wms_app/src/presentation/views/home/widgets/widget.dart';
 import 'package:wms_app/src/presentation/views/info%20rapida/modules/quick%20info/bloc/info_rapida_bloc.dart';
-import 'package:wms_app/src/presentation/views/inventario/screens/bloc/inventario_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/batchs/bloc/recepcion_batch_bloc.dart';
 import 'package:wms_app/src/presentation/views/recepcion/modules/individual/screens/bloc/recepcion_bloc.dart';
 import 'package:wms_app/src/presentation/views/transferencias/transfer-interna/bloc/transferencia_bloc.dart';
@@ -98,16 +98,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   return UpdateAppDialog();
                 });
           }
-
-          if (state is AppVersionLoadedState) {
-            Get.snackbar(
-              '360 Software Informa',
-              "La aplicación está actualizada",
-              backgroundColor: white,
-              colorText: primaryColorApp,
-              icon: Icon(Icons.error, color: Colors.green),
-            );
-          }
         },
         builder: (context, state) {
           final homeBloc = context.read<HomeBloc>();
@@ -128,16 +118,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               context.read<UserBloc>().add(GetConfigurations(context));
               context.read<UserBloc>().add(GetUbicacionesEvent());
               context.read<UserBloc>().add(LoadInfoDeviceEventUser());
-              context.read<HomeBloc>().add(AppVersionEvent());
 
               //esperamos 2 segundos para cerrar el dialogo
               await Future.delayed(const Duration(seconds: 2), () {
                 Navigator.pop(context);
               });
+              context.read<HomeBloc>().add(AppVersionEvent());
             },
             child: Scaffold(
               backgroundColor: white,
-            
               body: Container(
                 color: white,
                 width: size.width,
@@ -175,7 +164,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                     padding: const EdgeInsets.only(
                                         left: 20, top: 40),
                                     width: size.width,
-                                    height: 160,
+                                    height: 170,
                                     child: Row(
                                       children: [
                                         Column(
@@ -193,8 +182,23 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                 Text('OnPoint',
                                                     style: TextStyle(
                                                         fontSize: 18,
-                                                        color:
-                                                            primaryColorApp)),
+                                                        color: primaryColorApp,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 10),
+                                                  child: Text(
+                                                      context
+                                                          .read<UserBloc>()
+                                                          .versionApp,
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color: black,
+                                                          fontWeight:
+                                                              FontWeight.bold)),
+                                                ),
                                               ],
                                             ),
                                             GestureDetector(
@@ -308,7 +312,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     size: 18),
                                                 const SizedBox(width: 5),
                                                 SizedBox(
-                                                  width: size.width * 0.6,
+                                                  width: size.width * 0.4,
                                                   child: Text(
                                                     homeBloc.userRol,
                                                     style: const TextStyle(
@@ -320,7 +324,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                   ),
-                                                )
+                                                ),
+                                                //icono de verson
                                               ],
                                             ),
                                           ],
@@ -655,49 +660,61 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                                         ),
                                         GestureDetector(
                                           onTap: () async {
-                                            if (homeBloc.userRol ==
-                                                    'inventory' ||
-                                                homeBloc.userRol == 'admin') {
-                                              //obtenemos las ubicaciones
-                                              context
-                                                  .read<InventarioBloc>()
-                                                  .add(GetLocationsEvent());
-                                              //obtenemos los productos
-                                              context
-                                                  .read<InventarioBloc>()
-                                                  .add(GetProductsForDB());
-                                              //cargamos la configuracion
-                                              context.read<InventarioBloc>().add(
-                                                  LoadConfigurationsUserInventory());
+                                            // if (homeBloc.userRol ==
+                                            //         'inventory' ||
+                                            //     homeBloc.userRol == 'admin') {
+                                            //   //obtenemos las ubicaciones
+                                            //   context
+                                            //       .read<InventarioBloc>()
+                                            //       .add(GetLocationsEvent());
+                                            //   //obtenemos los productos
+                                            //   context
+                                            //       .read<InventarioBloc>()
+                                            //       .add(GetProductsForDB());
+                                            //   //cargamos la configuracion
+                                            //   context.read<InventarioBloc>().add(
+                                            //       LoadConfigurationsUserInventory());
 
-                                              showDialog(
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return const DialogLoading(
-                                                        message:
-                                                            'Cargando inventario rapido...');
-                                                  });
+                                            //   showDialog(
+                                            //       context: context,
+                                            //       builder: (context) {
+                                            //         return const DialogLoading(
+                                            //             message:
+                                            //                 'Cargando inventario rapido...');
+                                            //       });
 
-                                              await Future.delayed(const Duration(
-                                                  seconds:
-                                                      1)); // Ajusta el tiempo si es necesario
+                                            //   await Future.delayed(const Duration(
+                                            //       seconds:
+                                            //           1)); // Ajusta el tiempo si es necesario
 
-                                              Navigator.pop(context);
-                                              Navigator.pushReplacementNamed(
-                                                context,
-                                                'inventario',
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                const SnackBar(
-                                                  content: Text(
-                                                      "Su usuario no tiene permisos para acceder a este módulo"),
-                                                  duration:
-                                                      Duration(seconds: 4),
-                                                ),
-                                              );
-                                            }
+                                            //   Navigator.pop(context);
+                                            //   Navigator.pushReplacementNamed(
+                                            //     context,
+                                            //     'inventario',
+                                            //   );
+                                            // } else {
+                                            //   ScaffoldMessenger.of(context)
+                                            //       .showSnackBar(
+                                            //     const SnackBar(
+                                            //       content: Text(
+                                            //           "Su usuario no tiene permisos para acceder a este módulo"),
+                                            //       duration:
+                                            //           Duration(seconds: 4),
+                                            //     ),
+                                            //   );
+                                            // }
+
+                                            // inventario rapido
+                                            // conteo programado
+
+                                            context
+                                                .read<ConteoBloc>()
+                                                .add(GetConteosFromDBEvent());
+
+                                            Navigator.pushReplacementNamed(
+                                              context,
+                                              'conteo',
+                                            );
                                           },
                                           child: ImteModule(
                                             urlImg: "inventario.png",

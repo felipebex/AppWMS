@@ -103,6 +103,9 @@ class DialogDevoluciones extends StatelessWidget {
                     ))),
             ElevatedButton(
                 onPressed: () {
+                  context
+                      .read<DevolucionesBloc>()
+                      .add(LoadConfigurationsUser());
                   context.read<DevolucionesBloc>().add(GetProductsList());
                   context.read<DevolucionesBloc>().add(LoadLocationsEvent());
                   context.read<DevolucionesBloc>().add(LoadTercerosEvent());

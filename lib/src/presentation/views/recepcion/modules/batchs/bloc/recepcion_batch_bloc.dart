@@ -1228,7 +1228,7 @@ class RecepcionBatchBloc
       } else {
         emit(FetchRecepcionBatchFailureFromBD("No hay recepciones por batch"));
       }
-    } catch (e) {
+    } catch (e,s) {
       emit(FetchRecepcionBatchFailureFromBD(e.toString()));
     }
   }

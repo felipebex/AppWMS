@@ -104,6 +104,8 @@ class DataConfig {
   bool? updateLocationInventory;
   bool? showPhotoTemperature;
 
+  String? returnsLocationDestOption;
+
 
 
 
@@ -147,6 +149,7 @@ class DataConfig {
     this.hideValidatePacking,
     this.hideValidatePicking,
     this.showPhotoTemperature,
+    this.returnsLocationDestOption,
   });
 
   factory DataConfig.fromMap(Map<String, dynamic> json) => DataConfig(
@@ -194,6 +197,7 @@ class DataConfig {
         hideValidatePacking: json["hide_validate_packing"],
         hideValidatePicking: json["hide_validate_picking"],
         showPhotoTemperature: json["show_photo_temperature"],
+        returnsLocationDestOption: json["returns_location_dest_option"],
       );
 
   Map<String, dynamic> toMap() => {
@@ -238,6 +242,7 @@ class DataConfig {
         "hide_validate_packing": hideValidatePacking,
         "hide_validate_picking": hideValidatePicking,
         "show_photo_temperature": showPhotoTemperature,
+        "returns_location_dest_option": returnsLocationDestOption,  
       };
 }
 

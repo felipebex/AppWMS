@@ -634,7 +634,7 @@ class IndexListPickScreen extends StatelessWidget {
                                                         TextOverflow.ellipsis,
                                                   ),
                                                 ),
-                                                Spacer(),
+                                                const Spacer(),
                                                 batch.startTimeTransfer != ""
                                                     ? GestureDetector(
                                                         onTap: () {

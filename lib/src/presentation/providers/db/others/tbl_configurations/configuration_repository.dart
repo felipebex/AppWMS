@@ -95,9 +95,14 @@ class ConfigurationsRepository {
         // hide_validate_picking
         ConfigurationsTable.columnHideValidatePicking:
             _boolToInt(configuration.result?.result?.hideValidatePicking),
-            //show_photo_temperature
+        //show_photo_temperature
         ConfigurationsTable.columnShowPhotoTemperature:
             _boolToInt(configuration.result?.result?.showPhotoTemperature),
+
+        // returns_location_dest_option
+        ConfigurationsTable.columnReturnsLocationDestOption:
+            configuration.result?.result?.returnsLocationDestOption ??
+                'dynamic',
       };
 
       // Realizar la inserción o actualización usando INSERT OR REPLACE
@@ -207,6 +212,8 @@ class ConfigurationsRepository {
                   map[ConfigurationsTable.columnHideValidatePicking]),
               showPhotoTemperature: _intToBool(
                   map[ConfigurationsTable.columnShowPhotoTemperature]),
+              returnsLocationDestOption: map[ConfigurationsTable.columnReturnsLocationDestOption] ?? 'dynamic',
+              
             ),
           ),
         );

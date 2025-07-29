@@ -539,6 +539,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                                   color: primaryColorApp,
                                                   size: 15,
                                                 ),
+                                                const SizedBox(width: 5),
                                                 Text(
                                                   transferenciaDetail.origin ==
                                                           ""
@@ -678,7 +679,7 @@ class _ListTransferenciasScreenState extends State<ListTransferenciasScreen> {
                                                           ? Colors.red
                                                           : black),
                                                 ),
-                                                Spacer(),
+                                                const Spacer(),
                                                 transferenciaDetail
                                                             .startTimeTransfer !=
                                                         ""

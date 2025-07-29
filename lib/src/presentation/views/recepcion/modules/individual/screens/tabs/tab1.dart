@@ -457,7 +457,7 @@ class Tab1ScreenRecep extends StatelessWidget {
                     ),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 Visibility(
                   visible: context
                           .read<RecepcionBloc>()

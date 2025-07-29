@@ -151,7 +151,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                   ),
                                                 ),
                                               ),
-                                              Spacer(),
+                                              const Spacer(),
                                               //icono de eliminar
                                               GestureDetector(
                                                 onTap: () {
@@ -439,7 +439,7 @@ class Tab3ScreenRecep extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
-                                              Spacer(),
+                                              const Spacer(),
                                               Row(
                                                 children: [
                                                   Text(

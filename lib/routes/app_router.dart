@@ -1,6 +1,9 @@
 // app_routes.dart
 
 import 'package:flutter/material.dart';
+import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/conteo_screen.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/list_conteo_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/index.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/locations_dest_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/terceros_screen.dart';
@@ -139,8 +142,26 @@ class AppRoutes {
   static const String searchLocationDestTransInfo =
       'search-locations-dest-trans-info';
 
+  //todo: conteo
+  static const String conteo = 'conteo';
+  static const String conteoDetail = 'conteo-detail';
+
   static Map<String, Widget Function(BuildContext)> get routes {
+    
     return {
+
+      //todo conteo
+      conteo: (_) => const ListConteoScreen(),
+      conteoDetail: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final initialTabIndex = arguments[0] as int;
+        final ordenConteo = arguments[1] as DatumConteo;
+        return ConteoScreen(
+          initialTabIndex: initialTabIndex,
+          ordenConteo: ordenConteo,
+        );
+      },
       // todo Global
       enterprice: (_) => const SelectEnterpricePage(),
       auth: (_) => const LoginPage(),

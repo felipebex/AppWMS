@@ -1169,7 +1169,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                       color: primaryColorApp,
                                                     ),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   Image.asset(
                                                     "assets/icons/packing.png",
                                                     color: primaryColorApp,
@@ -1254,7 +1254,7 @@ class _ScanProductTrasnferScreenState extends State<ScanProductTrasnferScreen>
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-                                                    Spacer(),
+                                                   const  Spacer(),
                                                     Image.asset(
                                                       "assets/icons/packing.png",
                                                       color: primaryColorApp,

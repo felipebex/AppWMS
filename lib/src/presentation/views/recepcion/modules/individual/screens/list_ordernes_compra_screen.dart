@@ -430,11 +430,11 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                   const SizedBox(width: 5),
                                                   Text(
                                                     ordenCompra[index]
-                                                                .purchaseOrderName ==
+                                                                .origin ==
                                                             ""
                                                         ? 'Sin orden de compra'
                                                         : ordenCompra[index]
-                                                                .purchaseOrderName ??
+                                                                .origin ??
                                                             '',
                                                     style: const TextStyle(
                                                         fontSize: 12,
@@ -588,7 +588,7 @@ class ListOrdenesCompraScreen extends StatelessWidget {
                                                             ? Colors.red
                                                             : black),
                                                   ),
-                                                  Spacer(),
+                                                  const Spacer(),
                                                   ordenCompra[index]
                                                               .startTimeReception !=
                                                           ""

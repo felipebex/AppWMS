@@ -369,7 +369,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                         Text(batch.name ?? '',
                                             style:
                                                 const TextStyle(fontSize: 14)),
-                                        Spacer(),
+                                        const Spacer(),
                                         Text(batch.zonaEntrega ?? '',
                                             style: const TextStyle(
                                                 fontSize: 12, color: black)),
@@ -388,7 +388,7 @@ class _WmsPackingScreenState extends State<WmsPackingScreen> {
                                                       fontSize: 12,
                                                       color: grey)),
                                             ),
-                                            Spacer(),
+                                            const Spacer(),
                                             batch.startTimePack != ""
                                                 ? GestureDetector(
                                                     onTap: () {

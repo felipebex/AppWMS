@@ -152,3 +152,9 @@ class ChangeStateIsDialogVisibleEvent extends DevolucionesEvent {
   final bool isVisible;
   ChangeStateIsDialogVisibleEvent(this.isVisible);
 }
+
+
+
+class LoadConfigurationsUser extends DevolucionesEvent {
+  LoadConfigurationsUser();
+}

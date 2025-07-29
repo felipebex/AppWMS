@@ -85,7 +85,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       if (response.result?.code == 200) {
         if (response.result?.data?.isAuthorized == "no") {
           PrefUtils.setIsLoggedIn(false);
-          PrefUtils.clearPrefs();
+          PrefUtils.clearUserData();
           emit(RegisterDeviceIdError('Dispositivo no autorizado'));
         } else {
           PrefUtils.setIsLoggedIn(true);

@@ -1,5 +1,13 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, unnecessary_string_interpolations, unnecessary_brace_in_string_interps, unrelated_type_equality_checks, unnecessary_null_comparison, prefer_conditional_assignment
 
+import 'package:wms_app/src/presentation/providers/db/conteo/tbl_categories_orden_conteo/categories_orden_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/conteo/tbl_categories_orden_conteo/categories_orden_table.dart';
+import 'package:wms_app/src/presentation/providers/db/conteo/tbl_ordenes/orden_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/conteo/tbl_ordenes/orden_table.dart';
+import 'package:wms_app/src/presentation/providers/db/conteo/tbl_products_ordenes_conteo/product_orden_conteo_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/conteo/tbl_products_ordenes_conteo/product_orden_conteo_table.dart';
+import 'package:wms_app/src/presentation/providers/db/conteo/tbl_ubicaciones_orden_conteo/ubicaciones_conteo_repository.dart';
+import 'package:wms_app/src/presentation/providers/db/conteo/tbl_ubicaciones_orden_conteo/ubicaciones_conteo_table.dart';
 import 'package:wms_app/src/presentation/providers/db/devoluciones/tbl_product/product_devolucion_repository.dart';
 import 'package:wms_app/src/presentation/providers/db/devoluciones/tbl_product/product_devolucion_table.dart';
 import 'package:wms_app/src/presentation/providers/db/inventario/tbl_barcode/barcodes_inventario_repository.dart';
@@ -133,6 +141,19 @@ class DataBaseSqlite {
     await db.execute(PedidoPackTable.createTable());
     //tabla de prductos de una devolucion
     await db.execute(ProductDevolucionTable.createTable());
+    // tabla de ordenes de conteo
+    await db.execute(OrdenTable.createTable());
+
+
+    //tabla de productos de un conteo
+    await db.execute(ProductosOrdenConteoTable.createTable());
+
+    //* tabla de categorias de un conteo
+    await db.execute(CategoriasConteoTable.createTable());
+
+    //* tabla de ubicaciones de un conteo
+    await db.execute(UbicacionesConteoTable.createTable());
+
 
     //* tabla de productos de un batch picking
     await db.execute('''
@@ -251,7 +272,20 @@ class DataBaseSqlite {
 
   ProductDevolucionRepository get devolucionRepository =>
       ProductDevolucionRepository(_instance);
-    
+
+  OrdenConteoRepository get ordenRepository => OrdenConteoRepository();
+
+
+  ProductoOrdenConteoRepository get productoOrdenConteoRepository =>
+      ProductoOrdenConteoRepository();
+
+  UbicacionesConteoRepository get ubicacionesConteoRepository =>
+      UbicacionesConteoRepository();
+
+  CategoriasConteoRepository get categoriasConteoRepository =>
+      CategoriasConteoRepository();
+
+  
 
   Future<Database> getDatabaseInstance() async {
     if (_database != null) {

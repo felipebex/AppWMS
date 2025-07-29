@@ -620,7 +620,7 @@ class _ListTransferenciasScreenState extends State<ListEntradaProductsScreen> {
                                                           ? Colors.red
                                                           : black),
                                                 ),
-                                                Spacer(),
+                                                const Spacer(),
                                                 transferenciaDetail
                                                             .startTimeTransfer !=
                                                         ""

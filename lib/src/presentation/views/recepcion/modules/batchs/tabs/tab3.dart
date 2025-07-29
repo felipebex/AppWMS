@@ -185,7 +185,7 @@ class Tab3ScreenRecepBatch extends StatelessWidget {
                                                   ],
                                                 ),
                                               ),
-                                              Spacer(),
+                                              const Spacer(),
                                               Row(
                                                 children: [
                                                   Text(

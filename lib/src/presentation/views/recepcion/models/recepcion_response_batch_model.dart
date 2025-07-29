@@ -90,7 +90,7 @@ class ReceptionBatch {
   String? endTimeReception;
   String? priority;
   String? zonaEntrega;
-  List<Origin>? origin;
+  String? origin;
   int? responsableId;
   String? responsable;
   int? proveedorId;
@@ -170,9 +170,7 @@ class ReceptionBatch {
         endTimeReception: json["end_time_reception"],
         priority: json["priority"],
         zonaEntrega: json["zona_entrega"],
-        origin: json["origin"] == null
-            ? []
-            : List<Origin>.from(json["origin"]!.map((x) => Origin.fromMap(x))),
+        origin: json["origin"],
         responsableId: json["responsable_id"],
         responsable: json["responsable"],
         proveedorId: json["proveedor_id"],
@@ -218,9 +216,7 @@ class ReceptionBatch {
         "end_time_reception": endTimeReception,
         "priority": priority,
         "zona_entrega": zonaEntrega,
-        "origin": origin == null
-            ? []
-            : List<dynamic>.from(origin!.map((x) => x.toMap())),
+        "origin": origin,
         "responsable_id": responsableId,
         "responsable": responsable,
         "proveedor_id": proveedorId,
@@ -291,7 +287,7 @@ class LineasRecepcionBatch {
   dynamic temperatura;
   String? image;
 
-    final dynamic dateStart;
+  final dynamic dateStart;
   final dynamic dateEnd;
 
   LineasRecepcionBatch({

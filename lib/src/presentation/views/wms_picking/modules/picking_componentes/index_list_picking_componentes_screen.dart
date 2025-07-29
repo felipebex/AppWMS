@@ -387,7 +387,7 @@ class IndexListPickComponentsScreen extends StatelessWidget {
                                                         fontSize: 12,
                                                         color: grey)),
                                               ),
-                                              Spacer(),
+                                              const Spacer(),
                                               batch.startTimeTransfer != ""
                                                   ? GestureDetector(
                                                       onTap: () {

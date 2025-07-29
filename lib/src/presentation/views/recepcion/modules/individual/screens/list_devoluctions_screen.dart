@@ -556,7 +556,7 @@ class ListDevolutionsScreen extends StatelessWidget {
                                                             ? Colors.red
                                                             : black),
                                                   ),
-                                                  Spacer(),
+                                                 const Spacer(),
                                                   ordenCompra[index]
                                                               .startTimeReception !=
                                                           ""

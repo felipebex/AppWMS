@@ -11,6 +11,7 @@ import 'package:wms_app/src/presentation/views/devoluciones/models/response_devo
 import 'package:wms_app/src/presentation/views/devoluciones/models/response_terceros_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/models/response_products_model.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
+import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
 import 'package:wms_app/src/utils/formats.dart';
 import 'package:wms_app/src/utils/interable_extension.dart';
 import 'package:wms_app/src/utils/prefs/pref_utils.dart';
@@ -37,6 +38,9 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
   bool locationIsOk = false;
   bool contactoIsOk = false;
   bool productIsOk = false;
+
+  //configuracion del usuario //permisos
+  Configurations configurations = Configurations();
 
   //*lista de productos
   List<Product> productos = [];
@@ -137,6 +141,27 @@ class DevolucionesBloc extends Bloc<DevolucionesEvent, DevolucionesState> {
     on<SendDevolucionEvent>(_onSendDevolucionEvent);
 
     on<ChangeStateIsDialogVisibleEvent>(_onChangeStateIsDialogVisibleEvent);
+
+    on<LoadConfigurationsUser>(_onLoadConfigurationsUserEvent);
+  }
+
+  //* evento para cargar la configuracion del usuario
+  void _onLoadConfigurationsUserEvent(
+      LoadConfigurationsUser event, Emitter<DevolucionesState> emit) async {
+    try {
+      int userId = await PrefUtils.getUserId();
+      final response =
+          await db.configurationsRepository.getConfiguration(userId);
+
+      if (response != null) {
+        emit(ConfigurationDevLoaded(response));
+        configurations = response;
+      } else {
+        emit(ConfigurationError('Error al cargar LoadConfigurationsUser'));
+      }
+    } catch (e, s) {
+      print('❌ Error en LoadConfigurationsUser $e =>$s');
+    }
   }
 
   void _onChangeStateIsDialogVisibleEvent(

@@ -286,7 +286,7 @@ class Tab1ScreenRecepBatch extends StatelessWidget {
                     ),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(

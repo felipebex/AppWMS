@@ -370,7 +370,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                               color: primaryColorApp,
                                             ),
                                           ),
-                                          Spacer(),
+                                          const Spacer(),
                                           Image.asset(
                                             "assets/icons/ubicacion.png",
                                             color: primaryColorApp,
@@ -431,7 +431,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                               color: primaryColorApp,
                                             ),
                                           ),
-                                          Spacer(),
+                                         const  Spacer(),
                                           Image.asset(
                                             "assets/icons/producto.png",
                                             color: primaryColorApp,
@@ -610,7 +610,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-                                                Spacer(),
+                                                const Spacer(),
                                                 Image.asset(
                                                   "assets/icons/packing.png",
                                                   color: primaryColorApp,
@@ -685,7 +685,7 @@ class _TransferInfoScreenState extends State<TransferInfoScreen>
                                                     color: primaryColorApp,
                                                   ),
                                                 ),
-                                                Spacer(),
+                                                const Spacer(),
                                                 Image.asset(
                                                   "assets/icons/packing.png",
                                                   color: primaryColorApp,

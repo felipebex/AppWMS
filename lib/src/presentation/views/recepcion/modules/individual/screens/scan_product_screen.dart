@@ -564,7 +564,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                 color: primaryColorApp,
                                               ),
                                             ),
-                                            Spacer(),
+                                            const Spacer(),
                                             Image.asset(
                                               "assets/icons/ubicacion.png",
                                               color: primaryColorApp,
@@ -924,7 +924,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                     fontSize: 14,
                                                     color: primaryColorApp),
                                               ),
-                                              Spacer(),
+                                              const Spacer(),
                                               Image.asset(
                                                 "assets/icons/barcode.png",
                                                 color: primaryColorApp,
@@ -1176,7 +1176,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                         color: primaryColorApp,
                                                       ),
                                                     ),
-                                                    Spacer(),
+                                                   const Spacer(),
                                                     Image.asset(
                                                       "assets/icons/packing.png",
                                                       color: primaryColorApp,
@@ -1280,7 +1280,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                               ),
                                                             ),
                                                           ),
-                                                          Spacer(),
+                                                          const Spacer(),
                                                           Image.asset(
                                                             "assets/icons/ubicacion.png",
                                                             color:
@@ -1410,7 +1410,7 @@ class _ScanProductOrderScreenState extends State<ScanProductOrderScreen>
                                                                 ),
                                                               ),
                                                             ),
-                                                            Spacer(),
+                                                            const Spacer(),
                                                             Image.asset(
                                                               "assets/icons/ubicacion.png",
                                                               color:

@@ -261,7 +261,6 @@ class UserScreen extends StatelessWidget {
                                                   fontSize: 14, color: black))
                                         ],
                                       ),
-                                     
                                       Row(
                                         children: [
                                           Text("Url: ",
@@ -774,7 +773,7 @@ class UserScreen extends StatelessWidget {
                                                               primaryColorApp)),
                                                 ),
                                                 const SizedBox(height: 10),
-                                                 Row(
+                                                Row(
                                                   children: [
                                                     const Text(
                                                         "Ocultar accion de validar\npacking por pedido: ",
@@ -1559,6 +1558,64 @@ class UserScreen extends StatelessWidget {
                                                 ],
                                               ),
                                             ],
+                                          ),
+                                        ),
+                                      ),
+                                      //todo permisos generales
+                                      Card(
+                                        elevation: 3,
+                                        color: white,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            children: [
+                                              Center(
+                                                child: Text(
+                                                    "Permisos Devolucion:",
+                                                    style: TextStyle(
+                                                        fontSize: 14,
+                                                        color:
+                                                            primaryColorApp)),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Row(
+                                                children: [
+                                                  const Text(
+                                                      "Ubicacion destino: ",
+                                                      style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: black)),
+                                                  const SizedBox(width: 10),
+                                                  Text(
+                                                    config.result?.result
+                                                                ?.returnsLocationDestOption ==
+                                                            "predefined"
+                                                        ? "Predefinida"
+                                                        : "Dinamica",
+                                                    style:  TextStyle(
+                                                        fontSize: 14,
+                                                        color: primaryColorApp),
+                                                  ),
+                                                  const Spacer(),
+                                                  IconButton(
+                                                      onPressed: () {
+                                                        showDialog(
+                                                            context: context,
+                                                            builder: (context) {
+                                                              return const DialogInfo(
+                                                                title:
+                                                                    "Ubicacion destino devolucion",
+                                                                body:
+                                                                    "Permite seleccionar la ubicacion destino en el proceso de devolucion si se encuentra en modo dinamica",
+                                                              );
+                                                            });
+                                                      },
+                                                      icon: Icon(Icons.help,
+                                                          color:
+                                                              primaryColorApp))
+                                                ],
+                                              ),
+                                              ],
                                           ),
                                         ),
                                       ),
