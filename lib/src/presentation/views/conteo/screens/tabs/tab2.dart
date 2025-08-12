@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/bloc/conteo_bloc.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/others/products_empty_widget.dart';
 import 'package:wms_app/src/presentation/views/user/screens/bloc/user_bloc.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
 import 'package:wms_app/src/utils/constans/colors.dart';
@@ -121,53 +122,54 @@ class _Tab2ScreenRecepState extends State<Tab2ScreenConteo> {
     }
   }
 
-void validateLocation(String value, BuildContext context) {
-  final bloc = context.read<ConteoBloc>();
+  void validateLocation(String value, BuildContext context) {
+    final bloc = context.read<ConteoBloc>();
 
-  // Determinar cuál es el valor que vamos a validar (del escáner o del input)
-  String scan = bloc.scannedValue6.trim().toLowerCase().isEmpty
-      ? value.trim().toLowerCase()
-      : bloc.scannedValue6.trim().toLowerCase();
+    // Determinar cuál es el valor que vamos a validar (del escáner o del input)
+    String scan = bloc.scannedValue6.trim().toLowerCase().isEmpty
+        ? value.trim().toLowerCase()
+        : bloc.scannedValue6.trim().toLowerCase();
 
-  _controllerToLocation.text = "";
+    _controllerToLocation.text = "";
 
-  // Obtener los productos sin terminar
-  final productosSinTerminar = bloc.lineasContadas
-      .where((element) => element.isDoneItem != 1)
-      .toList();
+    // Obtener los productos sin terminar
+    final productosSinTerminar = bloc.lineasContadas
+        .where((element) => element.isDoneItem != 1)
+        .toList();
 
-  // Agrupar por ubicación
-  final productosPorUbicacion = _groupByLocation(productosSinTerminar);
+    // Agrupar por ubicación
+    final productosPorUbicacion = _groupByLocation(productosSinTerminar);
 
-  // 🔹 Obtener solo los barcodes de ubicaciones con productos sin terminar
-  final ubicacionesValidas = productosPorUbicacion.values
-      .map((listaProductos) => listaProductos.first.locationBarcode ?? "")
-      .map((barcode) => barcode.toLowerCase())
-      .where((barcode) => barcode.isNotEmpty)
-      .toSet();
+    // 🔹 Obtener solo los barcodes de ubicaciones con productos sin terminar
+    final ubicacionesValidas = productosPorUbicacion.values
+        .map((listaProductos) => listaProductos.first.locationBarcode ?? "")
+        .map((barcode) => barcode.toLowerCase())
+        .where((barcode) => barcode.isNotEmpty)
+        .toSet();
 
-  // Validar por barcode en lugar de nombre
-  if (ubicacionesValidas.contains(scan)) {
-    // Encontrar el nombre de ubicación que corresponde a ese barcode
-    final ubicacionEncontrada = productosPorUbicacion.keys.firstWhere(
-      (ubic) {
-        final barcode = productosPorUbicacion[ubic]!.first.locationBarcode ?? "";
-        return barcode.toLowerCase() == scan;
-      },
-      orElse: () => "",
-    );
+    // Validar por barcode en lugar de nombre
+    if (ubicacionesValidas.contains(scan)) {
+      // Encontrar el nombre de ubicación que corresponde a ese barcode
+      final ubicacionEncontrada = productosPorUbicacion.keys.firstWhere(
+        (ubic) {
+          final barcode =
+              productosPorUbicacion[ubic]!.first.locationBarcode ?? "";
+          return barcode.toLowerCase() == scan;
+        },
+        orElse: () => "",
+      );
 
-    if (ubicacionEncontrada.isNotEmpty) {
-      bloc.add(ExpandLocationEvent(ubicacionEncontrada)); // Expande por nombre
+      if (ubicacionEncontrada.isNotEmpty) {
+        bloc.add(
+            ExpandLocationEvent(ubicacionEncontrada)); // Expande por nombre
+      }
+
+      bloc.add(ClearScannedValueEvent('toLocation'));
+    } else {
+      bloc.add(ClearScannedValueEvent('toLocation'));
+      print("Ubicación no válida (barcode): $scan");
     }
-
-    bloc.add(ClearScannedValueEvent('toLocation'));
-  } else {
-    bloc.add(ClearScannedValueEvent('toLocation'));
-    print("Ubicación no válida (barcode): $scan");
   }
-}
-
 
 // Método para agrupar productos por ubicación
   Map<String, List<CountedLine>> _groupByLocation(List<CountedLine> productos) {
@@ -185,16 +187,14 @@ void validateLocation(String value, BuildContext context) {
     return WillPopScope(
       onWillPop: () async => false,
       child: BlocConsumer<ConteoBloc, ConteoState>(
-        listener: (context, state) {
-         
-        },
+        listener: (context, state) {},
         builder: (context, state) {
           final conteoBloc = context.read<ConteoBloc>();
-          final productosSinTerminar = conteoBloc.lineasContadas
+          final productosPorContar = conteoBloc.lineasContadas
               .where((element) => element.isDoneItem != 1)
               .toList();
 
-          final productosPorUbicacion = _groupByLocation(productosSinTerminar);
+          final productosPorUbicacion = _groupByLocation(productosPorContar);
           // ✅ Extraer ubicación expandida del estado (si aplica)
 
           return Scaffold(
@@ -271,8 +271,10 @@ void validateLocation(String value, BuildContext context) {
                             return KeyEventResult.ignored;
                           },
                           child: Container()),
+                 
+                 
                   productosPorUbicacion.isEmpty
-                      ? _buildEmptyState()
+                      ? ProductEmpty()
                       : Expanded(
                           child: ListView.builder(
                             itemCount: productosPorUbicacion.length,
@@ -319,21 +321,6 @@ void validateLocation(String value, BuildContext context) {
     );
   }
 
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('No hay productos',
-              style: TextStyle(fontSize: 14, color: grey)),
-          const Text('Intente buscar otro producto',
-              style: TextStyle(fontSize: 12, color: grey)),
-          if (context.read<UserBloc>().fabricante.contains("Zebra"))
-            const SizedBox(height: 60),
-        ],
-      ),
-    );
-  }
 
   Widget _buildProductItem(CountedLine product, Size size) {
     return Padding(
@@ -347,10 +334,10 @@ void validateLocation(String value, BuildContext context) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildInfoRow("Producto:", product.productName ?? ''),
-                _buildInfoRow("Código:", product.productCode ?? ''),
+                _buildInfoRow("Producto", product.productName ?? ''),
+                _buildInfoRow("Código", product.productCode ?? ''),
                 if (product.productTracking == 'lot')
-                  _buildInfoRow("Lote:", product.lotName ?? ''),
+                  _buildInfoRow("Lote", product.lotName ?? ''),
               ],
             ),
           ),
@@ -366,7 +353,7 @@ void validateLocation(String value, BuildContext context) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label,
+            "$label:",
             style: TextStyle(
               fontSize: 12,
               color: primaryColorApp,
@@ -375,8 +362,8 @@ void validateLocation(String value, BuildContext context) {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              value,
-              style: const TextStyle(fontSize: 12, color: black),
+              value == "" ? "Sin $label" : value,
+              style: TextStyle(fontSize: 12, color: value == "" ? red : black),
             ),
           ),
         ],

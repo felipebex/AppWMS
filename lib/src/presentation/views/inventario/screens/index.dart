@@ -1039,30 +1039,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                   ],
                                                 ),
                                               ),
-                                              // Visibility(
-                                              //   visible: bloc.currentProduct
-                                              //           ?.productTracking ==
-                                              //       "lot",
-                                              //   child: ExpiryDateWidget(
-                                              //       expireDate: bloc.currentProduct
-                                              //                       ?.expirationDate ==
-                                              //                   "" ||
-                                              //               bloc.currentProduct
-                                              //                       ?.expirationDate ==
-                                              //                   null
-                                              //           ? DateTime.now()
-                                              //           : DateTime.parse(bloc
-                                              //               .currentProduct
-                                              //               ?.expirationDate),
-                                              //       size: size,
-                                              //       isDetaild: false,
-                                              //       isNoExpireDate: bloc
-                                              //                   .currentProduct
-                                              //                   ?.expirationDate ==
-                                              //               ""
-                                              //           ? true
-                                              //           : false),
-                                              // ),
+                                             
                                             ],
                                           ),
                                         )
@@ -1318,30 +1295,7 @@ class _InventarioScreenState extends State<InventarioScreen>
                                                     ],
                                                   ),
                                                 ),
-                                                // Visibility(
-                                                //   visible: bloc.currentProduct
-                                                //           ?.productTracking ==
-                                                //       "lot",
-                                                //   child: ExpiryDateWidget(
-                                                //       expireDate: bloc.currentProduct
-                                                //                       ?.expirationDate ==
-                                                //                   "" ||
-                                                //               bloc.currentProduct
-                                                //                       ?.expirationDate ==
-                                                //                   null
-                                                //           ? DateTime.now()
-                                                //           : DateTime.parse(bloc
-                                                //               .currentProduct
-                                                //               ?.expirationDate),
-                                                //       size: size,
-                                                //       isDetaild: false,
-                                                //       isNoExpireDate: bloc
-                                                //                   .currentProduct
-                                                //                   ?.expirationDate ==
-                                                //               ""
-                                                //           ? true
-                                                //           : false),
-                                                // ),
+                                              
                                               ],
                                             ),
                                           ),

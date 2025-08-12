@@ -136,7 +136,7 @@ class ProductoOrdenConteoRepository {
   Future<int> updateCantidadContada({
     required int productId,
     required int orderId,
-    required double cantidad,
+    required dynamic cantidad,
     required int userId,
     required String userName,
     String? observation,

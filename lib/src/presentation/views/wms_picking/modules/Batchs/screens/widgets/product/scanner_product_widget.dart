@@ -100,11 +100,8 @@ class ProductScannerWidget extends StatelessWidget {
                       children: [
                         productDropdown,
                         Text(currentProductId,
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: black)),
+                            style: TextStyle(fontSize: 12, color: black)),
                         const SizedBox(height: 10),
-                       
                         Row(
                           children: [
                             Image.asset(
@@ -129,7 +126,7 @@ class ProductScannerWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                         if (category != "")
+                        if (category != "")
                           Row(
                             children: [
                               Text('Categoria:',
@@ -139,20 +136,20 @@ class ProductScannerWidget extends StatelessWidget {
                               Text(category,
                                   style: const TextStyle(
                                       fontSize: 13, color: black)),
-                            
                             ],
                           ),
-                        if(isViewLote)...[
                         if (lotId != null)
                           Row(
                             children: [
-                              Text('Lote/serie:',
-                                  style: TextStyle(
-                                      fontSize: 13, color: primaryColorApp)),
-                              const SizedBox(width: 5),
-                              Text(lotId!,
-                                  style: const TextStyle(
-                                      fontSize: 13, color: black)),
+                              if (isViewLote) ...[
+                                Text('Lote/serie:',
+                                    style: TextStyle(
+                                        fontSize: 13, color: primaryColorApp)),
+                                const SizedBox(width: 5),
+                                Text(lotId!,
+                                    style: const TextStyle(
+                                        fontSize: 13, color: black)),
+                              ],
                               const Spacer(),
                               GestureDetector(
                                 onTap: onBarcodesDialogTap,
@@ -166,7 +163,6 @@ class ProductScannerWidget extends StatelessWidget {
                               ),
                             ],
                           ),
-                        ],
                         if (origin != null && origin!.isNotEmpty)
                           Row(
                             children: [
@@ -233,17 +229,18 @@ class ProductScannerWidget extends StatelessWidget {
                           ),
                         ],
                       ),
-                      if(isViewLote)...[
                       if (lotId != null)
                         Row(
                           children: [
-                            Text('Lote/serie:',
-                                style: TextStyle(
-                                    fontSize: 13, color: primaryColorApp)),
-                            const SizedBox(width: 5),
-                            Text(lotId!,
-                                style: const TextStyle(
-                                    fontSize: 13, color: black)),
+                            if (isViewLote) ...[
+                              Text('Lote/serie:',
+                                  style: TextStyle(
+                                      fontSize: 13, color: primaryColorApp)),
+                              const SizedBox(width: 5),
+                              Text(lotId!,
+                                  style: const TextStyle(
+                                      fontSize: 13, color: black)),
+                            ],
                             const Spacer(),
                             GestureDetector(
                               onTap: onBarcodesDialogTap,
@@ -257,7 +254,6 @@ class ProductScannerWidget extends StatelessWidget {
                             ),
                           ],
                         ),
-                      ],
                       if (origin != null && origin!.isNotEmpty)
                         Row(
                           children: [

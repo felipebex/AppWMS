@@ -5,6 +5,7 @@ import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_mod
 import 'package:wms_app/src/presentation/views/conteo/screens/conteo_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/list_conteo_screen.dart';
 import 'package:wms_app/src/presentation/views/conteo/screens/scan_product_screen.dart';
+import 'package:wms_app/src/presentation/views/conteo/screens/widgets/lote/new_lote_widget.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/index.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/locations_dest_screen.dart';
 import 'package:wms_app/src/presentation/views/devoluciones/screens/terceros_screen.dart';
@@ -147,6 +148,7 @@ class AppRoutes {
   static const String conteo = 'conteo';
   static const String conteoDetail = 'conteo-detail';
   static const String scanProductConteo = 'scan-product-conteo';
+  static const String newLoteOrden = 'new-lote-orden';
 
   static Map<String, Widget Function(BuildContext)> get routes {
     
@@ -165,6 +167,14 @@ class AppRoutes {
         );
       },
       scanProductConteo : (_) => const ScanProductConteoScreen(),
+      newLoteOrden: (context) {
+        final arguments =
+            ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+        final currentProduct = arguments[0] as CountedLine?;
+        return NewLoteOrdenScreen(
+          currentProduct: currentProduct,
+        );
+      },
 
 
 

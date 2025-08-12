@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/connection_status_cubit.dart';
 import 'package:wms_app/src/presentation/providers/network/cubit/warning_widget_cubit.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
@@ -15,7 +16,6 @@ import 'package:wms_app/src/presentation/views/wms_picking/models/picking_batch_
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/location/scanner_location_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_barcodes_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/dialog_loadingPorduct_widget.dart';
-import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/others/expiredate_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/product/scanner_product_widget.dart';
 import 'package:wms_app/src/presentation/views/wms_picking/modules/Batchs/screens/widgets/quantity/scanner_quantity_widget.dart';
 import 'package:wms_app/src/presentation/widgets/keyboard_numbers_widget.dart';
@@ -189,7 +189,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
       bloc.add(SelectecLoteEvent(matchedLote));
       bloc.add(ClearScannedValueEvent('lote'));
     } else {
-      print('Ubicacion no encontrada');
+      print('lote no encontrado');
       bloc.add(ValidateFieldsEvent(field: "lote", isOk: false));
       bloc.add(ClearScannedValueEvent('lote'));
     }
@@ -340,6 +340,41 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                             // }
                           }
 
+                          if (state is SendProductConteoSuccess) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              duration: const Duration(milliseconds: 1000),
+                              content: Text(state.response.result?.msg ?? ""),
+                              backgroundColor: Colors.green[200],
+                            ));
+                            //limpiamos los valores pa volver a iniciar con otro producto
+                            cantidadController.clear();
+                            context.read<ConteoBloc>().add(ResetValuesEvent());
+
+                            context.read<ConteoBloc>().add(
+                                  LoadConteoAndProductsEvent(
+                                      ordenConteoId: state
+                                              .response.result?.data?.orderId ??
+                                          0),
+                                );
+
+                            Navigator.pushReplacementNamed(
+                              context,
+                              'conteo-detail',
+                              arguments: [
+                                1,
+                                context.read<ConteoBloc>().ordenConteo,
+                              ],
+                            );
+                          }
+
+                          if (state is ChangeLoteIsOkState) {
+                            //cambiamos el foco a cantidad cuando hemos seleccionado un lote
+                            Future.delayed(const Duration(seconds: 1), () {
+                              FocusScope.of(context).requestFocus(focusNode3);
+                            });
+                            _handleFocusAccordingToState();
+                          }
+
                           if (state is ChangeQuantitySeparateStateError) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                               duration: const Duration(milliseconds: 1000),
@@ -367,10 +402,21 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
 
                           //*estado cuando el producto es leido ok
                           if (state is ChangeProductOrderIsOkState) {
-                            //cambiamos el foco a cantidad
-                            Future.delayed(const Duration(seconds: 1), () {
-                              FocusScope.of(context).requestFocus(focusNode3);
-                            });
+                            //validamos si el producto tiene lote, si es asi pasamos el foco al lote
+                            if (context
+                                    .read<ConteoBloc>()
+                                    .currentProduct
+                                    .productTracking ==
+                                "lot") {
+                              Future.delayed(const Duration(seconds: 1), () {
+                                FocusScope.of(context).requestFocus(focusNode5);
+                              });
+                            } else {
+                              Future.delayed(const Duration(seconds: 1), () {
+                                FocusScope.of(context).requestFocus(focusNode3);
+                              });
+                            }
+
                             _handleFocusAccordingToState();
                           }
                         }, builder: (context, status) {
@@ -540,33 +586,7 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                 currentProduct:
                                     context.read<ConteoBloc>().currentProduct,
                               ),
-                              expiryWidget: ExpiryDateWidget(
-                                expireDate: context
-                                                .read<ConteoBloc>()
-                                                .currentProduct
-                                                .fechaVencimiento ==
-                                            "" ||
-                                        context
-                                                .read<ConteoBloc>()
-                                                .currentProduct
-                                                .fechaVencimiento ==
-                                            null
-                                    ? DateTime.now()
-                                    : DateTime.parse(context
-                                            .read<ConteoBloc>()
-                                            .currentProduct
-                                            .fechaVencimiento ??
-                                        ""),
-                                size: size,
-                                isDetaild: false,
-                                isNoExpireDate: context
-                                            .read<ConteoBloc>()
-                                            .currentProduct
-                                            .fechaVencimiento ==
-                                        ""
-                                    ? true
-                                    : false,
-                              ),
+                              expiryWidget: Container(),
                               listOfBarcodes:
                                   context.read<ConteoBloc>().listOfBarcodes,
                               onBarcodesDialogTap: () {
@@ -638,14 +658,27 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                                 ),
                                                 IconButton(
                                                     onPressed: () {
-                                                      // Navigator
-                                                      //     .pushReplacementNamed(
-                                                      //   context,
-                                                      //   'new-lote-orden',
-                                                      //   arguments: [
-                                                      //     context.read<ConteoBloc>().currentProduct
-                                                      //   ],
-                                                      // );
+                                                      //validamos que el producto ya esta escaneado y la ubicacion tambien
+                                                      if (context
+                                                              .read<
+                                                                  ConteoBloc>()
+                                                              .productIsOk &&
+                                                          context
+                                                              .read<
+                                                                  ConteoBloc>()
+                                                              .locationIsOk) {
+                                                        Navigator
+                                                            .pushReplacementNamed(
+                                                          context,
+                                                          'new-lote-orden',
+                                                          arguments: [
+                                                            context
+                                                                .read<
+                                                                    ConteoBloc>()
+                                                                .currentProduct
+                                                          ],
+                                                        );
+                                                      }
                                                     },
                                                     icon: Icon(
                                                       Icons.arrow_forward_ios,
@@ -713,8 +746,8 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                                                 onChanged:
                                                                     (value) {
                                                                   // Llamamos a la validación al cambiar el texto
-                                                                  // validateLote(
-                                                                  //     value);
+                                                                  validateLote(
+                                                                      value);
                                                                 },
                                                                 decoration:
                                                                     InputDecoration(
@@ -755,8 +788,10 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                                                                     .logicalKey ==
                                                                 LogicalKeyboardKey
                                                                     .enter) {
-                                                              // validateLote(bloc
-                                                              //     .scannedValue4);
+                                                              validateLote(context
+                                                                  .read<
+                                                                      ConteoBloc>()
+                                                                  .scannedValue4);
 
                                                               return KeyEventResult
                                                                   .handled;
@@ -913,77 +948,27 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
                       });
                     },
                     onValidateButton: () {
-                      FocusScope.of(context).unfocus();
-                      // _validatebuttonquantity();
+                      // FocusScope.of(context).unfocus();
+                      _validatebuttonquantity();
                     },
                     onValidateScannerInput: (value) {
                       validateQuantity(value);
                     },
                     onManualQuantityChanged: (value) {
-                      if (value.isNotEmpty) {
-                        try {
-                          context.read<ConteoBloc>().quantitySelected =
-                              double.parse(value);
-                        } catch (e) {
-                          print('❌ Error al convertir a número: $e');
-                        }
-                      } else {
-                        context.read<ConteoBloc>().quantitySelected = 0;
-                      }
+                      // if (value.isNotEmpty) {
+                      //   try {
+                      //     context.read<ConteoBloc>().quantitySelected =
+                      //         double.parse(value);
+                      //   } catch (e) {
+                      //     print('❌ Error al convertir a número: $e');
+                      //   }
+                      // } else {
+                      //   context.read<ConteoBloc>().quantitySelected = 0;
+                      // }
+                      print("onManualQuantityChanged $value");
                     },
                     onManualQuantitySubmitted: (value) {
-                      if (value.isNotEmpty) {
-                        // final intValue = int.parse(value);
-                        // if (intValue >
-                        //     ( context
-                        //   .read<ConteoBloc>().currentProduct.quantity ?? 0)) {
-
-                        // context.read<ConteoBloc>().add(ValidateFieldsEvent(
-                        //     field: "quantity", isOk: false));
-                        // cantidadController.clear();
-                        // ScaffoldMessenger.of(context).showSnackBar(
-                        //   SnackBar(
-                        //     duration: const Duration(seconds: 1),
-                        //     content: const Text('Cantidad incorrecta'),
-                        //     backgroundColor: Colors.red[200],
-                        //   ),
-                        // );
-                        //   } else {
-                        //     if (intValue == currentProduct.quantity) {
-                        //       batchBloc.add(ChangeQuantitySeparate(
-                        //           intValue,
-                        //           currentProduct.idProduct ?? 0,
-                        //           currentProduct.idMove ?? 0));
-                        //     } else {
-                        //       showDialog(
-                        //         context: context,
-                        //         builder: (context) {
-                        //           return DialogAdvetenciaCantidadScreen(
-                        //             currentProduct: currentProduct,
-                        //             cantidad:
-                        //                 batchBloc.quantitySelected,
-                        //             batchId: batchBloc.batchWithProducts
-                        //                     .batch?.id ??
-                        //                 0,
-                        //             onAccepted: () {
-                        //               batchBloc.add(
-                        //                   ChangeQuantitySeparate(
-                        //                       intValue,
-                        //                       currentProduct
-                        //                               .idProduct ??
-                        //                           0,
-                        //                       currentProduct.idMove ??
-                        //                           0));
-                        //               _nextProduct(
-                        //                   currentProduct, batchBloc);
-                        //             },
-                        //           );
-                        //         },
-                        //       );
-                        //     }
-                        // }
-                      }
-                      context.read<ConteoBloc>().add(ShowQuantityEvent(false));
+                      print('onManualQuantitySubmitted: $value');
                     },
                     customKeyboard: CustomKeyboardNumber(
                         controller: cantidadController, onchanged: () {}
@@ -996,5 +981,87 @@ class _ScanProductConteoScreenState extends State<ScanProductConteoScreen>
         },
       ),
     );
+  }
+
+  void _validatebuttonquantity() {
+    final bloc = context.read<ConteoBloc>();
+
+    String input = cantidadController.text.trim();
+    //validamos quantity
+
+    // Si está vacío, usar la cantidad seleccionada del bloc
+    if (input.isEmpty) {
+      input = bloc.quantitySelected.toString();
+    }
+
+    // Reemplaza coma por punto para manejar formatos decimales europeos
+    input = input.replaceAll(',', '.');
+
+    // Expresión regular para validar un número válido
+    final isValid = RegExp(r'^\d+([.,]?\d+)?$').hasMatch(input);
+
+    // Validación de formato
+    if (!isValid) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+
+      return;
+    }
+
+    // Intentar convertir a double
+    double? cantidad = double.tryParse(input);
+    if (cantidad == null) {
+      Get.snackbar(
+        'Error',
+        'Cantidad inválida',
+        backgroundColor: white,
+        colorText: primaryColorApp,
+        duration: const Duration(milliseconds: 1000),
+        icon: Icon(Icons.error, color: Colors.amber),
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    // if (bloc.currentUbication?.id == null) {
+    //   Get.snackbar(
+    //     '360 Software Informa',
+    //     "No se ha selecionado la ubicacion",
+    //     backgroundColor: white,
+    //     colorText: primaryColorApp,
+    //     icon: Icon(Icons.error, color: Colors.amber),
+    //   );
+    //   return;
+    // }
+
+    if (bloc.currentProduct?.productTracking == 'lot') {
+      if (bloc.currentProductLote?.id == null) {
+        Get.snackbar(
+          '360 Software Informa',
+          "No se ha selecionado el lote",
+          backgroundColor: white,
+          colorText: primaryColorApp,
+          icon: Icon(Icons.error, color: Colors.amber),
+        );
+        return;
+      } else {
+        double cantidad = double.parse(cantidadController.text.isEmpty
+            ? bloc.quantitySelected.toString()
+            : cantidadController.text);
+        bloc.add(SendProductConteoEvent(cantidad));
+      }
+    } else {
+      double cantidad = double.parse(cantidadController.text.isEmpty
+          ? bloc.quantitySelected.toString()
+          : cantidadController.text);
+      bloc.add(SendProductConteoEvent(cantidad));
+    }
   }
 }

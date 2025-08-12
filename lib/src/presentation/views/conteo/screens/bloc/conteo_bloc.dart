@@ -1,8 +1,13 @@
+import 'dart:math';
+
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wms_app/src/presentation/providers/db/database.dart';
 import 'package:wms_app/src/presentation/views/conteo/data/conteo_repository.dart';
 import 'package:wms_app/src/presentation/views/conteo/models/conteo_response_model.dart';
+import 'package:wms_app/src/presentation/views/conteo/models/request_send_product_model.dart';
+import 'package:wms_app/src/presentation/views/conteo/models/response_send_product_model.dart';
 import 'package:wms_app/src/presentation/views/inventario/data/inventario_repository.dart';
 import 'package:wms_app/src/presentation/views/recepcion/models/response_lotes_product_model.dart';
 import 'package:wms_app/src/presentation/views/user/models/configuration.dart';
@@ -31,6 +36,10 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
   //configuracion del usuario //permisos
   Configurations configurations = Configurations();
+
+  TextEditingController newLoteController = TextEditingController();
+  TextEditingController searchControllerLote = TextEditingController();
+  TextEditingController dateLoteController = TextEditingController();
 
   //*valores de scanvalue
 
@@ -128,6 +137,128 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     //*metodo para obtener todos los lotes de un producto
     on<GetLotesProduct>(_onGetLotesProduct);
     on<SelectecLoteEvent>(_onChangeLoteIsOkEvent);
+
+    //metodo para mostrar el teclado
+    on<ShowKeyboardEvent>(_onShowKeyboardEvent);
+
+    //*metodo para crear un lote a un producto
+    on<CreateLoteProduct>(_onCreateLoteProduct);
+    on<SearchLotevent>(_onSearchLoteEvent);
+
+    //metodo para enviar un producto contado al wms
+    on<SendProductConteoEvent>(_onSendProductConteoEvent);
+  }
+
+  void _onSendProductConteoEvent(
+      SendProductConteoEvent event, Emitter<ConteoState> emit) async {
+    try {
+      emit(SendProductConteoLoading());
+
+      int userId = await PrefUtils.getUserId();
+      //verificamos si el producto actual tiene lote
+      if (currentProduct.productTracking == "lot" &&
+          currentProductLote == null) {
+        emit(SendProductConteoFailure('Debe seleccionar un lote para enviar'));
+        return;
+      }
+
+      DateFormat formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+      String formattedDate = formatter.format(DateTime.now());
+
+      //construimos el producto a enviar
+      final productSend = ConteoItem(
+        lineId: currentProduct.idMove.toString(),
+        orderId: currentProduct.orderId ?? 0,
+        productId: currentProduct.productId ?? 0,
+        quantity: event.cantidad,
+        quantityCounted: event.cantidad,
+        observation: 'Sin novedad',
+        timeLine: 0.67,
+        fechaTransaccion: formattedDate,
+        idOperario: userId,
+        locationId: currentProduct.locationId ?? 0,
+        loteId: currentProduct.lotId.toString(),
+      );
+
+      //enviamos el producto al wms
+      final response = await _repository.sendProductConteo(true, productSend);
+
+      if (response.result?.code == 200) {
+        //actualizamos el estado del producto en la bd
+        await db.productoOrdenConteoRepository.setFieldTableProductOrdenConteo(
+            currentProduct.orderId ?? 0,
+            currentProduct.productId ?? 0,
+            'is_done_item',
+            1,
+            currentProduct.idMove ?? 0);
+        emit(SendProductConteoSuccess(response));
+      } else {
+        emit(SendProductConteoFailure(
+            response.result?.msg ?? 'Error al enviar el producto'));
+      }
+    } catch (e, s) {
+      print('Error al enviar el producto: $e, $s');
+      emit(SendProductConteoFailure('Error al enviar el producto'));
+    }
+  }
+
+  //metodo pea crar un lote a un producto
+  void _onCreateLoteProduct(
+      CreateLoteProduct event, Emitter<ConteoState> emit) async {
+    try {
+      emit(CreateLoteProductLoading());
+      final response = await _inventarioRepository.createLote(
+        false,
+        currentProduct?.productId ?? 0,
+        event.nameLote,
+        event.fechaCaducidad,
+      );
+
+      if (response.result?.code == 200) {
+        //agregamos el nuevo lote a la lista de lotes
+        listLotesProduct.add(response.result?.result ?? LotesProduct());
+        listLotesProductFilters.add(response.result?.result ?? LotesProduct());
+        currentProductLote = response.result?.result;
+        loteIsOk = true;
+        dateLoteController.clear();
+        newLoteController.clear();
+        add(SelectecLoteEvent(currentProductLote!));
+        emit(CreateLoteProductSuccess());
+      } else {
+        emit(CreateLoteProductFailure(response.result?.msg ??
+            'Error al crear el lote concactarse con el administrador'));
+      }
+    } catch (e, s) {
+      emit(CreateLoteProductFailure('Error al crear el lote'));
+      print('Error en el _onCreateLoteProduct: $e, $s');
+    }
+  }
+
+  void _onSearchLoteEvent(
+      SearchLotevent event, Emitter<ConteoState> emit) async {
+    try {
+      emit(SearchLoading());
+      listLotesProductFilters = [];
+      listLotesProductFilters = listLotesProduct;
+      final query = event.query.toLowerCase();
+      if (query.isEmpty) {
+        listLotesProductFilters = listLotesProduct;
+      } else {
+        listLotesProductFilters = listLotesProduct.where((lotes) {
+          return lotes.name?.toLowerCase().contains(query) ?? false;
+        }).toList();
+      }
+      emit(SearchLoteSuccess(listLotesProductFilters));
+    } catch (e, s) {
+      print('Error en el SearchLocationEvent: $e, $s');
+      emit(SearchFailure(e.toString()));
+    }
+  }
+
+  void _onShowKeyboardEvent(
+      ShowKeyboardEvent event, Emitter<ConteoState> emit) {
+    isKeyboardVisible = event.showKeyboard;
+    emit(ShowKeyboardState(showKeyboard: isKeyboardVisible));
   }
 
   void _onChangeLoteIsOkEvent(
@@ -135,7 +266,10 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     try {
       currentProductLote = event.lote;
       loteIsOk = true;
-      // add(ChangeIsOkQuantity(true));
+      add(ChangeIsOkQuantity(currentProduct.orderId ?? 0, true,
+          currentProduct.productId ?? 0, currentProduct.idMove ?? 0));
+      quantityIsOk = true;
+
       emit(ChangeLoteIsOkState(
         loteIsOk,
       ));
@@ -156,22 +290,6 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
       listLotesProduct = response;
       listLotesProductFilters = response;
-
-      if (event.isManual) {
-        // Búsqueda optimizada sin caché - versión eficiente
-        LotesProduct? foundLote;
-        for (final lote in response) {
-          if (lote.id == event.idLote) {
-            foundLote = lote;
-            break; // Rompe el ciclo al encontrar el lote
-          }
-        }
-
-        currentProductLote = foundLote ?? LotesProduct();
-        loteIsOk = true;
-        // add(ChangeIsOkQuantity(true));
-      }
-
       emit(GetLotesProductSuccess(response));
     } catch (e, s) {
       emit(GetLotesProductFailure('Error al obtener los lotes del producto'));
@@ -270,6 +388,16 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
     listOfProductsName = [];
     quantitySelected = 0;
 
+    loteIsOk = false;
+    currentProductLote = null;
+    listLotesProduct.clear();
+    listLotesProductFilters.clear();
+    dateInicio = '';
+    dateFin = '';
+    scannedValue4 = '';
+    viewQuantity = false;
+    listOfBarcodes.clear();
+
     emit(ConteoInitial());
   }
 
@@ -323,18 +451,15 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
         event.quantity,
         event.idMove,
       );
-
-//validamos si el producto tiene lote
-      if (currentProduct.productTracking != "lot") {
-        add(GetLotesProduct(
-          isManual: true,
-          idLote: currentProduct?.lotId ?? 0,
-        ));
-      }
     }
     productIsOk = event.productIsOk;
     if (currentProduct.productTracking != "lot") {
-      quantityIsOk = event.productIsOk;
+      add(ChangeIsOkQuantity(
+        event.idOrder,
+        true,
+        event.productId,
+        event.idMove,
+      ));
     }
     emit(ChangeProductOrderIsOkState(
       productIsOk,
@@ -533,7 +658,6 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
 
       locationIsOk = productBD?.isLocationIsOk == 1 ? true : false;
       productIsOk = productBD?.productIsOk == 1 ? true : false;
-      quantityIsOk = productBD?.isQuantityIsOk == 1 ? true : false;
 
       print('Variable locationIsOk: $locationIsOk');
       print('Variable productIsOk: $productIsOk');
@@ -542,6 +666,20 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
       currentProduct = productBD ?? CountedLine();
       products();
       add(FetchBarcodesProductEvent());
+      //validamos si el producto tiene lote
+      if (currentProduct.productTracking == "lot") {
+        add(GetLotesProduct(
+          isManual: true,
+          idLote: currentProduct?.lotId ?? 0,
+        ));
+      } else {
+        if (productIsOk && locationIsOk && loteIsOk) {
+          quantityIsOk = true;
+        } else {
+          // quantityIsOk = false;
+          quantityIsOk = productBD?.isQuantityIsOk == 1 ? true : false;
+        }
+      }
       emit(LoadCurrentProductSuccess(currentProduct));
     } catch (e, s) {
       emit(LoadCurrentProductError('Error al cargar el producto actual'));
@@ -566,7 +704,7 @@ class ConteoBloc extends Bloc<ConteoEvent, ConteoState> {
           break;
         case 'lote':
           scannedValue4 = '';
-          emit(ClearScannedValueState());
+          isLoteOk = event.isOk;
           break;
       }
       emit(ValidateFieldsStateSuccess(event.isOk));

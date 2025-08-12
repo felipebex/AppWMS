@@ -145,3 +145,43 @@ class ChangeLoteIsOkState extends ConteoState {
   final bool isOk;
   ChangeLoteIsOkState(this.isOk);
 }
+
+class ShowKeyboardState extends ConteoState {
+  final bool showKeyboard;
+  ShowKeyboardState({required this.showKeyboard});
+}
+
+class SearchLoading extends ConteoState {}
+
+class SearchLoteSuccess extends ConteoState {
+  final List<LotesProduct> locations;
+  SearchLoteSuccess(this.locations);
+}
+
+class SearchFailure extends ConteoState {
+  final String error;
+  SearchFailure(this.error);
+}
+
+class CreateLoteProductLoading extends ConteoState {}
+
+class CreateLoteProductSuccess extends ConteoState {}
+
+class CreateLoteProductFailure extends ConteoState {
+  final String error;
+  CreateLoteProductFailure(this.error);
+}
+
+
+class SendProductConteoLoading extends ConteoState {}
+
+class SendProductConteoSuccess extends ConteoState {
+  final ResponseSendProductConteo  response;
+  SendProductConteoSuccess(this.response);
+}
+
+class SendProductConteoFailure extends ConteoState {
+  final String error;
+  SendProductConteoFailure(this.error);
+}
+

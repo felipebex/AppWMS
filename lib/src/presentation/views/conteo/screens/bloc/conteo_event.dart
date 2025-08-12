@@ -70,9 +70,7 @@ class ChangeProductIsOkEvent extends ConteoEvent {
   final int productId;
   final dynamic quantity;
   final int idMove;
-  
 
-  
   ChangeProductIsOkEvent(this.idOrder, this.productIsOk, this.productId,
       this.quantity, this.idMove);
 }
@@ -91,16 +89,12 @@ class ClearExpandedLocationEvent extends ConteoEvent {
   ClearExpandedLocationEvent();
 }
 
-
-
 class ResetValuesEvent extends ConteoEvent {}
-
 
 class ShowQuantityEvent extends ConteoEvent {
   final bool showQuantity;
   ShowQuantityEvent(this.showQuantity);
 }
-
 
 class AddQuantitySeparate extends ConteoEvent {
   final int productId;
@@ -108,13 +102,11 @@ class AddQuantitySeparate extends ConteoEvent {
   final int idMove;
   final dynamic quantity;
   final bool isOk;
-  AddQuantitySeparate(this.productId, this.idOrder, this.idMove, this.quantity, this.isOk);
+  AddQuantitySeparate(
+      this.productId, this.idOrder, this.idMove, this.quantity, this.isOk);
 }
 
-
-
 class FetchBarcodesProductEvent extends ConteoEvent {}
-
 
 class GetLotesProduct extends ConteoEvent {
   final bool isManual;
@@ -125,4 +117,31 @@ class GetLotesProduct extends ConteoEvent {
 class SelectecLoteEvent extends ConteoEvent {
   final LotesProduct lote;
   SelectecLoteEvent(this.lote);
+}
+
+class ShowKeyboardEvent extends ConteoEvent {
+  final bool showKeyboard;
+
+  ShowKeyboardEvent(this.showKeyboard);
+}
+
+class SearchLotevent extends ConteoEvent {
+  final String query;
+
+  SearchLotevent(
+    this.query,
+  );
+}
+
+class CreateLoteProduct extends ConteoEvent {
+  final String nameLote;
+  final String fechaCaducidad;
+  CreateLoteProduct(this.nameLote, this.fechaCaducidad);
+}
+
+
+class SendProductConteoEvent extends ConteoEvent {
+  final dynamic cantidad;
+
+  SendProductConteoEvent(this.cantidad);
 }

@@ -10,7 +10,7 @@ String responseSendProductToMap(ResponseSendProduct data) => json.encode(data.to
 
 class ResponseSendProduct {
     String? jsonrpc;
-    dynamic id;
+    dynamic? id;
     ResultSend? result;
 
     ResponseSendProduct({
